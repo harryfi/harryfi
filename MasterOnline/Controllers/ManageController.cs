@@ -31301,7 +31301,7 @@ namespace MasterOnline.Controllers
 #else
                         var sqlStorage = new SqlServerStorage(EDBConnID);
                         var clientJobServer = new BackgroundJobClient(sqlStorage);
-                        clientJobServer.Enqueue<LazadaControllerJob>(x => x.UpdatePrice_Job(dbPathEra, hJualInDb.BRG,, customer.CUST, "Price", "Update Price", hJualInDb.BRG_MP, hargaJualBaru.ToString(), customer.TOKEN, customer.PERSO));
+                        clientJobServer.Enqueue<LazadaControllerJob>(x => x.UpdatePrice_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", hJualInDb.BRG_MP, hargaJualBaru.ToString(), customer.TOKEN, customer.PERSO));
 #endif
                     }
                 }
@@ -31366,7 +31366,7 @@ namespace MasterOnline.Controllers
                     dataJob.display = displayJob ? "true" : "false";
 
                     var BliApiJob = new BlibliControllerJob();
-                    BliApiJob.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode_mp, customer.CUST, "Price", "Update Price", idenJob, dataJob);
+                    BliApiJob.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "Update Price", dataJob.kode_mp, idenJob, dataJob);
 
 #else
                     BlibliControllerJob.BlibliAPIData idenJob = new BlibliControllerJob.BlibliAPIData
@@ -31396,7 +31396,7 @@ namespace MasterOnline.Controllers
 
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode_mp, customer.CUST, "Price", "Update Price", idenJob, dataJob));
+                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "Update Price", dataJob.kode_mp, idenJob, dataJob));
 #endif
                 }
                 else if (customer.NAMA.Equals(kdElevenia))
