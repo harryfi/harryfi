@@ -5156,6 +5156,7 @@ namespace MasterOnline.Controllers
             public string attributeType { get; set; }
             public string name { get; set; }
             public List<string> options { get; set; }
+            public bool mandatory { get;set; }
         }
 
         public ATTRIBUTE_BLIBLI_AND_OPT GetAttributeToListSync(BlibliAPIData data, CATEGORY_BLIBLI category)
@@ -5226,7 +5227,7 @@ namespace MasterOnline.Controllers
                 {
                     if (result.value.attributes.Count() > 0)
                     {
-                        ATTRIBUTE_BLIBLI returnData = new ATTRIBUTE_BLIBLI();
+                        ATTRIBUTE_BLIBLI_NEW returnData = new ATTRIBUTE_BLIBLI_NEW();
                         int i = 0;
                         string a = "";
                         foreach (var attribs in result.value.attributes)
@@ -5330,7 +5331,7 @@ namespace MasterOnline.Controllers
                 {
                     if (result.value.attributes.Count() > 0)
                     {
-                        ATTRIBUTE_BLIBLI returnData = new ATTRIBUTE_BLIBLI();
+                        ATTRIBUTE_BLIBLI_NEW returnData = new ATTRIBUTE_BLIBLI_NEW();
                         int i = 0;
                         string a = "";
                         foreach (var attribs in result.value.attributes)
@@ -5348,6 +5349,7 @@ namespace MasterOnline.Controllers
                             returnData["ATYPE_" + a] = Convert.ToString(attribs.attributeType);
                             returnData["ANAME_" + a] = Convert.ToString(attribs.name);
                             returnData["AOPTIONS_" + a] = attribs.options.Count > 0 ? "1" : "0";
+                            returnData["AMANDATORY_" + a] = attribs.mandatory ? "1" : "0";
 
                             if (attribs.options.Count() > 0)
                             {

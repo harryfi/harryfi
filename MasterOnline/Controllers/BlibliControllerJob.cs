@@ -5611,7 +5611,7 @@ namespace MasterOnline.Controllers
                 {
                     if (result.value.attributes.Count() > 0)
                     {
-                        ATTRIBUTE_BLIBLI returnData = new ATTRIBUTE_BLIBLI();
+                        ATTRIBUTE_BLIBLI_NEW returnData = new ATTRIBUTE_BLIBLI_NEW();
                         int i = 0;
                         string a = "";
                         foreach (var attribs in result.value.attributes)
