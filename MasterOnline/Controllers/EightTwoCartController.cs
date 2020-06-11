@@ -286,9 +286,9 @@ namespace MasterOnline.Controllers
                                     if (item.active == "1")
                                     {
                                         ret.totalData++;//add 18 Juli 2019, show total record
-                                        var CektempbrginDB = tempbrginDB.Where(t => (t.BRG_MP ?? "").ToUpper().Equals(brgMp.ToUpper())).FirstOrDefault();
+                                        var CektempbrginDB = tempbrginDB.Where(t => (t.BRG_MP.ToUpper() == brgMp.ToUpper())).FirstOrDefault();
                                         //var CekbrgInDB = brgInDB.Where(t => t.BRG_MP.Equals(brgMp)).FirstOrDefault();
-                                        var CekbrgInDB = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(brgMp)).FirstOrDefault();
+                                        var CekbrgInDB = brgInDB.Where(t => (t.BRG_MP.ToUpper() == brgMp.ToUpper())).FirstOrDefault();
                                         if (CektempbrginDB == null && CekbrgInDB == null)
                                         {
                                             string namaBrg = item.name;
@@ -353,8 +353,8 @@ namespace MasterOnline.Controllers
                                                     foreach (var varID in item.combinations)
                                                     {
                                                         var brg_mp_variant = Convert.ToString(item.id_product) + ";" + varID.id_product_attribute.ToString();
-                                                        var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP ?? "").Equals(brg_mp_variant)).FirstOrDefault();
-                                                        var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(brg_mp_variant)).FirstOrDefault();
+                                                        var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP.ToUpper() == brg_mp_variant.ToUpper())).FirstOrDefault();
+                                                        var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP.ToUpper() == brg_mp_variant.ToUpper())).FirstOrDefault();
                                                         if (CektempbrginDB2 == null && CekbrgInDB2 == null)
                                                         {
                                                             var retVar = await E2Cart_GetProductVariant(iden, item, varID, brg_mp_variant, brgMp, iden.no_cust, IdMarket);
@@ -440,8 +440,8 @@ namespace MasterOnline.Controllers
                                             foreach (var varID in item.combinations)
                                             {
                                                 var brg_mp_variant = Convert.ToString(item.id_product) + ";" + varID.id_product_attribute.ToString();
-                                                var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP ?? "").Equals(varID.id_product_attribute.ToString())).FirstOrDefault();
-                                                var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(varID.id_product_attribute.ToString())).FirstOrDefault();
+                                                var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP.ToUpper() == brg_mp_variant.ToUpper())).FirstOrDefault();
+                                                var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP.ToUpper() == brg_mp_variant.ToUpper())).FirstOrDefault();
                                                 if (CektempbrginDB2 == null && CekbrgInDB2 == null)
                                                 {
                                                     var retVar = await E2Cart_GetProductVariant(iden, item, varID, brg_mp_variant, brgMp, iden.no_cust, IdMarket);
