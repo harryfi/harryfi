@@ -3796,7 +3796,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke Tokopedia gagal.")]
-        public async Task<string> UpdatePrice_Job(TokopediaAPIData iden, int product_id, int price)
+        public async Task<string> UpdatePrice_Job(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, int product_id, TokopediaAPIData iden, int price)
         {
             var token = SetupContext(iden);
             iden.token = token;

@@ -5882,7 +5882,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke Shopee gagal.")]
-        public async Task<string> UpdatePrice_Job(ShopeeAPIData iden, string brg_mp, float price)
+        public async Task<string> UpdatePrice_Job(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, string brg_mp, ShopeeAPIData iden, float price)
         {
             SetupContext(iden);
             int MOPartnerID = 841371;
@@ -6057,7 +6057,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk Varian {obj} ke Shopee gagal.")]
-        public async Task<string> UpdateVariationPrice_Job(ShopeeAPIData iden, string brg_mp, float price)
+        public async Task<string> UpdateVariationPrice_Job(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, string brg_mp, ShopeeAPIData iden, float price)
         {
             SetupContext(iden);
             int MOPartnerID = 841371;

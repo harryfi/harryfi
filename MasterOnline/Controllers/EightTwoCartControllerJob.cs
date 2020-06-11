@@ -1237,7 +1237,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke 82Cart gagal.")]
-        public async Task<string> E2Cart_UpdatePrice_82Cart(E2CartAPIData iden, string brg_mo, string brg_mp, int priceInduk, int priceGrosir)
+        public async Task<string> E2Cart_UpdatePrice_82Cart(string dbPathEra, string kdbrg, string log_CUST, string log_ActionCategory, string log_ActionName, E2CartAPIData iden, string brg_mp, int priceInduk, int priceGrosir)
         {
             SetupContext(iden);
             long milis = CurrentTimeMillis();
