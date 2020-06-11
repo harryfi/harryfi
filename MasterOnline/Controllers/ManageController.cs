@@ -6540,6 +6540,110 @@ namespace MasterOnline.Controllers
         }
         #endregion
         //end add by Tri, 6 Mei 2019
+
+        //add by fauzi 20 Mei 2020
+        #region category 82Cart
+        [HttpGet]
+        public ActionResult GetKategori82CartByCode(string code, string accountStore)
+        {
+            string[] codelist = code.Split(';');
+            var listKategori82Cart = MoDbContext.Category82Cart.Where(k => k.ID_PARENT == "0" && k.ACTIVE == "1" && k.ACCOUNT.ToLower() == accountStore.ToLower()).OrderBy(k => k.NAME).ToList();
+
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategori82Cart),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+        [HttpGet]
+        public ActionResult GetKategori82CartByParentCode(string code, string accountStore)
+        {
+            string[] codelist = code.Split(';');
+            var listKategori82Cart = MoDbContext.Category82Cart.Where(k => codelist.Contains(k.ID_PARENT) && k.ACTIVE == "1" && k.ACCOUNT.ToLower() == accountStore.ToLower()).OrderBy(k => k.NAME).ToList();
+
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategori82Cart),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+        [HttpGet]
+        public ActionResult GetKategori82CartByChildCode(string code, string accountStore)
+        {
+            string[] codelist = code.Split(';');
+            List<CATEGORY_82CART> listKategori82Cart = new List<CATEGORY_82CART>();
+            if (!string.IsNullOrEmpty(code))
+            {
+                var category = MoDbContext.Category82Cart.Where(k => codelist.Contains(k.ID_CATEGORY) && k.ACTIVE == "1" && k.ACCOUNT.ToLower() == accountStore.ToLower()).FirstOrDefault();
+                listKategori82Cart.Add(category);
+
+                if (category.ID_PARENT != "")
+                {
+                    bool TopParent = false;
+                    while (!TopParent)
+                    {
+                        category = MoDbContext.Category82Cart.Where(k => k.ID_CATEGORY.Equals(category.ID_PARENT) && k.ACTIVE == "1" && k.ACCOUNT.ToLower() == accountStore.ToLower()).FirstOrDefault();
+                        listKategori82Cart.Add(category);
+                        if (string.IsNullOrEmpty(category.ID_PARENT))
+                        {
+                            TopParent = true;
+                        }
+                    }
+                }
+            }
+
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategori82Cart),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+
+        [HttpGet]
+        public ActionResult GetAttributeGroup82CartByCode(string code, string accountStore)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeGroup82Cart = MoDbContext.Attribute82Cart.Where(k => k.id_attribute == null && k.color_attribute == null && k.attribute_name == null && k.account_name.ToLower() == accountStore.ToLower()).OrderBy(k => k.group_name).ToList();
+
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listAttributeGroup82Cart),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+
+        [HttpGet]
+        public ActionResult GetAttribute82CartByChildCode(string code, string accountStore)
+        {
+            string[] codelist = code.Split(';');
+            //if (!string.IsNullOrEmpty(code))
+            //{
+                var attribute = MoDbContext.Attribute82Cart.Where(k => codelist.Contains(k.id_attribute_group) && k.id_attribute != null && k.color_attribute != null && k.attribute_name != null && k.account_name.ToLower() == accountStore.ToLower()).OrderBy(k => k.attribute_name).ToList();
+                var serializer = new JavaScriptSerializer();
+                serializer.MaxJsonLength = Int32.MaxValue;
+                var result = new ContentResult
+                {
+                    Content = serializer.Serialize(attribute),
+                    ContentType = "application/json"
+                };
+                return result;
+            //}
+        }
+        #endregion
+        //end by fauzi 20 Mei 2020
+
         [HttpGet]
         public ActionResult GetMerkBarang()
         {
@@ -9679,7 +9783,7 @@ namespace MasterOnline.Controllers
                                             EightTwoCartController c82CartAPI = new EightTwoCartController();
 
                                             //c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
-                                            Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
+                                            //Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
 #else
                                             EightTwoCartControllerJob.E2CartAPIData dataJob = new EightTwoCartControllerJob.E2CartAPIData
                                             {
@@ -9697,7 +9801,7 @@ namespace MasterOnline.Controllers
 
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                            clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
+                                            //clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
 #endif
                                         }
                                     }
@@ -9777,7 +9881,7 @@ namespace MasterOnline.Controllers
                                                     EightTwoCartController c82CartAPI = new EightTwoCartController();
 
                                                     //c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
-                                                    Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
+                                                    //Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
 #else
                                                     EightTwoCartControllerJob.E2CartAPIData dataJob = new EightTwoCartControllerJob.E2CartAPIData
                                                     {
@@ -9795,7 +9899,7 @@ namespace MasterOnline.Controllers
 
                                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                    clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
+                                                    //clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
 #endif
                                                 }
                                             }
@@ -35561,6 +35665,15 @@ namespace MasterOnline.Controllers
                                             API_url = arf01.PERSO,
                                             DatabasePathErasoft = dbPathEra
                                         };
+
+                                        // get category for 82Cart
+                                        var resultCategory82Cart = await v82CartAPI.E2Cart_GetCategoryProduct_Sync(data);
+                                        // end get category for 82Cart
+
+                                        // get attribute for 82Cart
+                                        var resultAttribute82Cart = await v82CartAPI.E2Cart_GetAttribute_Sync(data);
+                                        // end get attribute for 82Cart
+
                                         var result82Cart = await v82CartAPI.E2Cart_GetProductsList(data, arf01.RecNum.Value, page, recordCount, totalData);
                                         retBarang.exception = result82Cart.exception;
                                         retBarang.totalData = result82Cart.totalData;
@@ -35576,6 +35689,7 @@ namespace MasterOnline.Controllers
                                         else
                                         {
                                             retBarang.RecordCount = result82Cart.recordCount;
+                                            //var resultCategory82Cart = await v82CartAPI.E2Cart_GetCategoryProduct_2
                                         }
                                         //}
                                         //else
