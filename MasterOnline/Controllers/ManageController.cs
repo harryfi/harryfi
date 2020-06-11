@@ -49256,8 +49256,10 @@ namespace MasterOnline.Controllers
                         else
                         {
                             var htmlString = retApi.Result;
-                            EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + so.no_bukti + ")");
-                            
+                            //EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + so.no_bukti + ")");
+                            var sql = "update SOT01A set status_print = '1' where no_bukti in ('" + so.no_bukti + "')";
+                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
+
                             temp_htmlString.Add(htmlString);
                         }
                     }
