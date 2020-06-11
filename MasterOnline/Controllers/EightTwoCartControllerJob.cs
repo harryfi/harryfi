@@ -487,7 +487,7 @@ namespace MasterOnline.Controllers
                 var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(E2CartOrderResult)) as E2CartOrderResult;
                 if (listOrder.data != null)
                 {
-                    //string[] statusAwaiting = { "1", "3", "10", "11", "13", "14", "16", "17", "18", "19", "20", "21", "23", "25" };
+                    string[] statusAwaiting = { "1", "3", "10", "11", "13", "14", "16", "17", "18", "19", "20", "21", "23", "25" };
                     //string[] ordersn_list = listOrder.data.Select(p => p.id_order).ToArray();
                     //var dariTgl = DateTimeOffset.UtcNow.AddDays(-10).DateTime;
                     //jmlhNewOrder = 0;
