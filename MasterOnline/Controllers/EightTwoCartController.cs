@@ -1422,6 +1422,401 @@ namespace MasterOnline.Controllers
 
         }
 
+        //Get All Product Category for sinkronisasi.
+        public async Task<BindingBase82Cart> E2Cart_GetCategoryProduct_Sync(E2CartAPIData iden)
+        {
+            BindingBase82Cart ret = new BindingBase82Cart();
+            ret.status = 0;
+            ret.exception = 0;
+            ret.message = "";
+            ret.recordCount = 0;
+
+            string urll = string.Format("{0}/api/v1/getCategory?apiKey={1}&apiCredential={2}", iden.API_url, iden.API_key, iden.API_credential);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+            string responseServer = "";
+
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (!string.IsNullOrEmpty(responseServer))
+            {
+                var vresultCategoryAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartProductCategoryResult)) as E2CartProductCategoryResult;
+                if (vresultCategoryAPI.error == "none" && vresultCategoryAPI.data != null)
+                {
+                    if(vresultCategoryAPI.data.Count() > 0)
+                    {
+                        try
+                        {
+                            List<CATEGORY_82CART> listNewRecord = new List<CATEGORY_82CART>();
+
+                            foreach (var category in vresultCategoryAPI.data)
+                            {
+                                var categoryInDB = MoDbContext.Category82Cart.ToList();
+                                var statusInsertHeader = true;
+                                if (categoryInDB.Count() > 0)
+                                {
+                                    var catItemDB = categoryInDB.Where(p => p.NAME == category.name && p.ID_PARENT == category.id_parent && p.ID_CATEGORY == category.id_category && p.ACCOUNT.ToLower() == iden.account_store.ToLower()).SingleOrDefault();
+                                    if (catItemDB != null || string.IsNullOrEmpty(category.name))
+                                    {
+                                        statusInsertHeader = false;
+                                    }
+                                }
+
+                                if (statusInsertHeader)
+                                {
+                                    Models.CATEGORY_82CART newrecord = new CATEGORY_82CART()
+                                    {
+                                        ID_CATEGORY = category.id_category,
+                                        NAME = category.name,
+                                        ID_PARENT = category.id_parent,
+                                        LEVEL_DEPTH = "1",
+                                        POSITION = category.position,
+                                        ACTIVE = category.active,
+                                        ACCOUNT = iden.account_store
+                                    };
+
+                                    if (category.child != null)
+                                    {
+                                        if (category.child.Count() > 0)
+                                        {
+                                            newrecord.LEVEL_DEPTH = "0";
+                                        }
+                                    }
+
+                                    listNewRecord.Add(newrecord);
+                                    MoDbContext.Category82Cart.AddRange(listNewRecord);
+                                    MoDbContext.SaveChanges();
+                                    listNewRecord.Clear();
+                                }
+
+                                if (category.child != null)
+                                if (category.child.Count() > 0)
+                                {
+                                    foreach (var itemChild in category.child)
+                                    {
+                                        var statusInsertChild = true;
+                                        categoryInDB = MoDbContext.Category82Cart.ToList();
+                                        if (categoryInDB.Count() > 0)
+                                        {
+                                            var catItemDBChild = categoryInDB.Where(p => p.NAME == itemChild.name && p.ID_PARENT == itemChild.id_parent && p.ID_CATEGORY == itemChild.id_category && p.ACCOUNT.ToLower() == iden.account_store.ToLower()).SingleOrDefault();
+                                            if (catItemDBChild != null || string.IsNullOrEmpty(itemChild.name))
+                                            {
+                                                statusInsertChild = false;
+                                            }
+                                        }
+                                        if (statusInsertChild)
+                                        {
+                                            Models.CATEGORY_82CART newrecordChild = new CATEGORY_82CART()
+                                            {
+                                                ID_CATEGORY = itemChild.id_category,
+                                                NAME = itemChild.name,
+                                                ID_PARENT = itemChild.id_parent,
+                                                LEVEL_DEPTH = "1",
+                                                POSITION = itemChild.position,
+                                                ACTIVE = itemChild.active,
+                                                ACCOUNT = iden.account_store
+                                            };
+
+                                                if (itemChild.child != null)
+                                                {
+                                                    if (itemChild.child.Count() > 0)
+                                                    {
+                                                        newrecordChild.LEVEL_DEPTH = "0";
+                                                    }
+                                                }
+
+                                                listNewRecord.Add(newrecordChild);
+                                                MoDbContext.Category82Cart.AddRange(listNewRecord);
+                                                MoDbContext.SaveChanges();
+                                                listNewRecord.Clear();
+                                            }
+
+                                        if (itemChild.child != null)
+                                        if (itemChild.child.Count() > 0)
+                                        {
+                                            foreach (var itemChildDetail in itemChild.child)
+                                            {
+                                                var statusInsertDetailChild = true;
+                                                categoryInDB = MoDbContext.Category82Cart.ToList();
+                                                if (categoryInDB.Count() > 0)
+                                                {
+                                                    var catItemDBChildDetail = categoryInDB.Where(p => p.NAME == itemChildDetail.name && p.ID_PARENT == itemChildDetail.id_parent && p.ID_CATEGORY == itemChildDetail.id_category && p.ACCOUNT.ToLower() == iden.account_store.ToLower()).SingleOrDefault();
+                                                    if (catItemDBChildDetail != null || string.IsNullOrEmpty(itemChildDetail.name))
+                                                            {
+                                                        statusInsertDetailChild = false;
+                                                    }
+                                                }
+                                                if (statusInsertDetailChild)
+                                                {
+                                                    Models.CATEGORY_82CART newrecordChildDetail = new CATEGORY_82CART()
+                                                    {
+                                                        ID_CATEGORY = itemChildDetail.id_category,
+                                                        NAME = itemChildDetail.name,
+                                                        ID_PARENT = itemChildDetail.id_parent,
+                                                        LEVEL_DEPTH = "1",
+                                                        POSITION = itemChildDetail.position,
+                                                        ACTIVE = itemChildDetail.active,
+                                                        ACCOUNT = iden.account_store
+                                                    };
+
+                                                            if (itemChildDetail.child != null)
+                                                            {
+                                                                if (itemChildDetail.child.Count() > 0)
+                                                                {
+                                                                    newrecordChildDetail.LEVEL_DEPTH = "0";
+                                                                }
+                                                            }
+
+                                                            listNewRecord.Add(newrecordChildDetail);
+                                                            MoDbContext.Category82Cart.AddRange(listNewRecord);
+                                                            MoDbContext.SaveChanges();
+                                                            listNewRecord.Clear();
+                                                        }
+
+                                                if (itemChildDetail.child != null)
+                                                if (itemChildDetail.child.Count() > 0)
+                                                {
+                                                    foreach (var itemChildDetail1 in itemChildDetail.child)
+                                                    {
+                                                        var statusInsertDetailChild_1 = true;
+                                                        categoryInDB = MoDbContext.Category82Cart.ToList();
+                                                        if (categoryInDB.Count() > 0)
+                                                        {
+                                                            var catItemDBChildDetail_1 = categoryInDB.Where(p => p.NAME == itemChildDetail1.name && p.ID_PARENT == itemChildDetail1.id_parent && p.ID_CATEGORY == itemChildDetail1.id_category && p.ACCOUNT.ToLower() == iden.account_store.ToLower()).SingleOrDefault();
+                                                            if (catItemDBChildDetail_1 != null || string.IsNullOrEmpty(itemChildDetail1.name))
+                                                                        {
+                                                                statusInsertDetailChild_1 = false;
+                                                            }
+                                                        }
+                                                        if (statusInsertDetailChild_1)
+                                                        {
+                                                            Models.CATEGORY_82CART newrecordChildDetail_1 = new CATEGORY_82CART()
+                                                            {
+                                                                ID_CATEGORY = itemChildDetail1.id_category,
+                                                                NAME = itemChildDetail1.name,
+                                                                ID_PARENT = itemChildDetail1.id_parent,
+                                                                LEVEL_DEPTH = "1",
+                                                                POSITION = itemChildDetail1.position,
+                                                                ACTIVE = itemChildDetail1.active,
+                                                                ACCOUNT = iden.account_store
+                                                            };
+
+                                                                        if (itemChildDetail1.child != null)
+                                                                        {
+                                                                            if (itemChildDetail1.child.Count() > 0)
+                                                                            {
+                                                                                newrecordChildDetail_1.LEVEL_DEPTH = "0";
+                                                                            }
+                                                                        }
+
+                                                                        listNewRecord.Add(newrecordChildDetail_1);
+                                                                        MoDbContext.Category82Cart.AddRange(listNewRecord);
+                                                                        MoDbContext.SaveChanges();
+                                                                        listNewRecord.Clear();
+                                                                    }
+
+                                                        if (itemChildDetail1.child != null)
+                                                        if (itemChildDetail1.child.Count() > 0)
+                                                        {
+                                                            foreach (var itemChildDetail2 in itemChildDetail1.child)
+                                                            {
+                                                                var statusInsertDetailChild_2 = true;
+                                                                categoryInDB = MoDbContext.Category82Cart.ToList();
+                                                                if (categoryInDB.Count() > 0)
+                                                                {
+                                                                    var catItemDBChildDetail_2 = categoryInDB.Where(p => p.NAME == itemChildDetail2.name && p.ID_PARENT == itemChildDetail2.id_parent && p.ID_CATEGORY == itemChildDetail2.id_category && p.ACCOUNT.ToLower() == iden.account_store.ToLower()).SingleOrDefault();
+                                                                    if (catItemDBChildDetail_2 != null || string.IsNullOrEmpty(itemChildDetail2.name))
+                                                                                    {
+                                                                        statusInsertDetailChild_2 = false;
+                                                                    }
+                                                                }
+                                                                if (statusInsertDetailChild_2)
+                                                                {
+                                                                    Models.CATEGORY_82CART newrecordChildDetail_2 = new CATEGORY_82CART()
+                                                                    {
+                                                                        ID_CATEGORY = itemChildDetail2.id_category,
+                                                                        NAME = itemChildDetail2.name,
+                                                                        ID_PARENT = itemChildDetail2.id_parent,
+                                                                        LEVEL_DEPTH = "1",
+                                                                        POSITION = itemChildDetail2.position,
+                                                                        ACTIVE = itemChildDetail2.active,
+                                                                        ACCOUNT = iden.account_store
+                                                                    };
+
+                                                                                    if (itemChildDetail2.child != null)
+                                                                                    {
+                                                                                        if (itemChildDetail2.child.Count() > 0)
+                                                                                        {
+                                                                                            newrecordChildDetail_2.LEVEL_DEPTH = "0";
+                                                                                        }
+                                                                                    }
+
+                                                                                    listNewRecord.Add(newrecordChildDetail_2);
+                                                                                    MoDbContext.Category82Cart.AddRange(listNewRecord);
+                                                                                    MoDbContext.SaveChanges();
+                                                                                    listNewRecord.Clear();
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            //if (vresultCategoryAPI.data[0].child[0].child[0].name == "Categories")
+                            //{
+                            //    foreach (var child in vresultCategoryAPI.data[0].child[0].child)
+                            //    {
+                            //        if (child.name != "")
+                            //        {
+                            //            ret.message = child.name;
+                            //        }
+                            //    }
+                            //}
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                }
+                }
+            }
+
+            return ret;
+
+        }
+
+
+        //Get All Attributes.
+        public async Task<String> E2Cart_GetAttribute_Sync(E2CartAPIData iden)
+        {
+            string ret = "";
+            string urll = string.Format("{0}/api/v1/getAttribute?apiKey={1}&apiCredential={2}", iden.API_url, iden.API_key, iden.API_credential);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+            string responseServer = "";
+
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (!string.IsNullOrEmpty(responseServer))
+            {
+                var vresultAttributeAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartAttributeResult)) as E2CartAttributeResult;
+                if (vresultAttributeAPI.error == "none" && vresultAttributeAPI.data != null)
+                    {
+                        if (vresultAttributeAPI.data.Count() > 0)
+                        {
+                            try
+                            {
+                                List<ATTRIBUTE_82CART> listNewRecord = new List<ATTRIBUTE_82CART>();
+
+                                foreach (var attribute in vresultAttributeAPI.data)
+                                {
+                                    var attributeInDB = MoDbContext.Attribute82Cart.ToList();
+                                    var statusInsertHeader = true;
+                                    if (attributeInDB.Count() > 0)
+                                    {
+                                        var catItemDB = attributeInDB.Where(p => p.group_name == attribute.group_name && p.id_attribute_group == attribute.id_attribute_group && p.account_name.ToLower() == iden.account_store.ToLower()).SingleOrDefault();
+                                        if (catItemDB != null || string.IsNullOrEmpty(attribute.group_name))
+                                        {
+                                            statusInsertHeader = false;
+                                        }
+                                    }
+
+                                    if (statusInsertHeader)
+                                    {
+                                        Models.ATTRIBUTE_82CART newrecord = new ATTRIBUTE_82CART()
+                                        {
+                                            id_attribute_group = attribute.id_attribute_group,
+                                            group_name = attribute.group_name,
+                                            account_name = iden.account_store
+                                        };
+
+                                        listNewRecord.Add(newrecord);
+                                        MoDbContext.Attribute82Cart.AddRange(listNewRecord);
+                                        MoDbContext.SaveChanges();
+                                        listNewRecord.Clear();
+                                    }
+
+                                    if (attribute.attribute != null)
+                                        if (attribute.attribute.Count() > 0)
+                                        {
+                                            foreach (var itemChild in attribute.attribute)
+                                            {
+                                                var statusInsertChild = true;
+                                                attributeInDB = MoDbContext.Attribute82Cart.ToList();
+                                                if (attributeInDB.Count() > 0)
+                                                {
+                                                    var catItemDBChild = attributeInDB.Where(p => p.attribute_name == itemChild.attribute_name && p.id_attribute == itemChild.id_attribute && p.account_name.ToLower() == iden.account_store.ToLower()).SingleOrDefault();
+                                                    if (catItemDBChild != null || string.IsNullOrEmpty(itemChild.attribute_name))
+                                                    {
+                                                        statusInsertChild = false;
+                                                    }
+                                                }
+                                                if (statusInsertChild)
+                                                {
+                                                    Models.ATTRIBUTE_82CART newrecordChild = new ATTRIBUTE_82CART()
+                                                    {
+                                                        id_attribute_group = attribute.id_attribute_group,
+                                                        group_name = attribute.group_name,
+                                                        id_attribute = itemChild.id_attribute,
+                                                        attribute_name = itemChild.attribute_name,
+                                                        color_attribute = itemChild.color,
+                                                        account_name = iden.account_store
+                                                    };
+
+                                                    listNewRecord.Add(newrecordChild);
+                                                    MoDbContext.Attribute82Cart.AddRange(listNewRecord);
+                                                    MoDbContext.SaveChanges();
+                                                    listNewRecord.Clear();
+                                                }
+                                            }
+                                        }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                    }
+            }
+
+            return ret;
+        }
+
         //Add Product Category.
         public async Task<BindingBase82Cart> E2Cart_AddCategoryProduct(E2CartAPIData iden, string idparentCategory, string nama_category)
         {
@@ -2610,9 +3005,9 @@ namespace MasterOnline.Controllers
         public class E2CartAttribute
         {
             public string id_attribute_group { get; set; }
-            public string is_color_group { get; set; }
-            public string group_type { get; set; }
-            public string group_position { get; set; }
+            //public string is_color_group { get; set; }
+            //public string group_type { get; set; }
+            //public string group_position { get; set; }
             public string group_name { get; set; }
             public attribute[] attribute { get; set; }
         }
@@ -2745,7 +3140,7 @@ namespace MasterOnline.Controllers
         {
             public string id_attribute { get; set; }
             public string color { get; set; }
-            public string attribute_position { get; set; }
+            //public string attribute_position { get; set; }
             public string attribute_name { get; set; }
         }
 
