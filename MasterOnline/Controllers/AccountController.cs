@@ -1324,21 +1324,6 @@ namespace MasterOnline.Controllers
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EightTwoCartControllerJob>(x => x.E2Cart_GetOrderByStatusCancelled(idenJob, EightTwoCartControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
 
 #else
-
-                        //testing
-                       var v82CartAPI = new EightTwoCartController();
-                        EightTwoCartController.E2CartAPIData data = new EightTwoCartController.E2CartAPIData()
-                        {
-                            no_cust = tblCustomer.CUST,
-                            account_store = tblCustomer.PERSO,
-                            API_key = tblCustomer.API_KEY,
-                            API_credential = tblCustomer.Sort1_Cust,
-                            API_url = tblCustomer.PERSO,
-                            DatabasePathErasoft = dbPathEra
-                        };
-                        var result82Cart = await v82CartAPI.E2Cart_GetCategoryProduct_Sync(data);
-                        //testing
-
                         EightTwoCartControllerJob.E2CartAPIData iden = new EightTwoCartControllerJob.E2CartAPIData();
                         iden.API_key = tblCustomer.API_KEY;
                         iden.API_credential = tblCustomer.Sort1_Cust;
@@ -1349,11 +1334,11 @@ namespace MasterOnline.Controllers
 
                         //await new EightTwoCartController().E2Cart_GetOrderByStatus(iden, EightTwoCartController.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
 
-                        //await new EightTwoCartControllerJob().E2Cart_GetOrderByStatus(iden, EightTwoCartControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
+                        await new EightTwoCartControllerJob().E2Cart_GetOrderByStatus(iden, EightTwoCartControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
 
-                        //await new EightTwoCartControllerJob().E2Cart_GetOrderByStatusCompleted(iden, EightTwoCartControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
+                        await new EightTwoCartControllerJob().E2Cart_GetOrderByStatusCompleted(iden, EightTwoCartControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
 
-                        //await new EightTwoCartControllerJob().E2Cart_GetOrderByStatusCancelled(iden, EightTwoCartControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                        await new EightTwoCartControllerJob().E2Cart_GetOrderByStatusCancelled(iden, EightTwoCartControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 
 #endif
 
