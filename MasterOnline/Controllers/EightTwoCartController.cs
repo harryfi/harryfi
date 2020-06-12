@@ -2478,7 +2478,7 @@ namespace MasterOnline.Controllers
 
                 if(resultOrderState.error == "none" && resultOrderState.data.Length > 0)
                 {
-                    ret.dataObject = resultOrderState.data;
+                    //ret.dataObject = resultOrderState.data;
                 }
 
             }
