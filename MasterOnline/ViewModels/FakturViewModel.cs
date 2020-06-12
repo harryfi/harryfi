@@ -56,6 +56,13 @@ namespace MasterOnline.ViewModels
         //add by nurul 3/6/2020
         public List<tempLabelTokopedia> listLabelTokped { get; set; } = new List<tempLabelTokopedia>();
         //end add by nurul 3/6/2020
+
+        //add by nurul 8/6/2020
+        public string noCust { get; set; }
+        public string noFaktur { get; set; }
+        public List<STF18> listGudang { get; set; }
+        public List<brgForReturPrompt> listBarangRetur { get; set; } = new List<brgForReturPrompt>();
+        //end add by nurul 8/6/2020
     }
 
     public class CetakLabelViewModel
@@ -104,4 +111,23 @@ namespace MasterOnline.ViewModels
         public string Brg { get; set; }
         public string KetDetail { get; set; }
     }
+
+    //add by nurul 8/6/2020
+    public class FakturForReturPrompt
+    {
+        public string no_bukti { get; set; }
+        public DateTime tgl { get; set; }
+        public string namapemesan { get; set; }
+        public string no_ref { get; set; }
+        public double netto { get; set; }
+    }
+    public class brgForReturPrompt
+    {
+        public int recnum { get; set; }
+        public string brg { get; set; }
+        public string nama { get; set; }
+        public double qty { get; set; }
+        public string gudang { get; set; }
+    }
+    //end add by nurul 8/6/2020
 }
