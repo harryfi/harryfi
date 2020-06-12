@@ -487,9 +487,6 @@ namespace MasterOnline.Controllers
                 if (listOrder.data != null)
                 {
                     //string[] statusAwaiting = { "1", "3", "10", "11", "13", "14", "16", "17", "18", "19", "20", "21", "23", "25" };
-                    //check state order
-                    var resultStatusAwaiting = await E2Cart_GetOrdersState(iden);
-                    //end check state order
                     
                     //string[] ordersn_list = listOrder.data.Select(p => p.id_order).ToArray();
                     //var dariTgl = DateTimeOffset.UtcNow.AddDays(-10).DateTime;
@@ -499,6 +496,10 @@ namespace MasterOnline.Controllers
                     #region UNPAID
                     if (stat == StatusOrder.UNPAID)
                     {
+                        //check state order
+                        var resultStatusAwaiting = await E2Cart_GetOrdersState(iden);
+                        //end check state order
+
                         if (resultStatusAwaiting.dataObject != null)
                             if (resultStatusAwaiting.dataObject.Count() > 0)
                         foreach (var itemOrder in resultStatusAwaiting.dataObject)
