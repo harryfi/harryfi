@@ -50123,11 +50123,15 @@ namespace MasterOnline.Controllers
                         updateHeader += "INNER JOIN ( ";
                         updateHeader += "select B.NO_BUKTI,ISNULL(B.MATERAI,0) AS MATERAI, ";
                         updateHeader += "ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.H_SATUAN,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) AS BRUTO, ";
-                        updateHeader += "ISNULL(B.DISCOUNT,0) AS DISCOUNT,ISNULL(B.NILAI_DISC,0) AS NILAI_DISC, ISNULL(B.PPN,0) AS PPN,ISNULL(B.NILAI_PPN,0) AS NILAI_PPN, ";
+                        updateHeader += "ISNULL(B.DISCOUNT,0) AS DISCOUNT,ISNULL(B.NILAI_DISC,0) AS NILAI_DISC, ISNULL(B.PPN,0) AS PPN,";
+                        //updateHeader += "ISNULL(B.NILAI_PPN,0) AS NILAI_PPN, ";
+                        //--nppn
+                        updateHeader += "ISNULL( (ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.H_SATUAN,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) - ISNULL(B.NILAI_DISC,0)) * ISNULL(B.PPN,0) /100 ,0) AS NILAI_PPN,";
+                        //netto
                         updateHeader += "ISNULL(";
-                        //--BRUTO
                         updateHeader += "ISNULL(SUM(ISNULL(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.H_SATUAN,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0),0)),0) ";
-                        updateHeader += "- ISNULL(B.NILAI_DISC,0) + ISNULL(B.MATERAI,0)+ ISNULL(B.NILAI_PPN,0) ";
+                        updateHeader += "- ISNULL(B.NILAI_DISC,0) + ISNULL(B.MATERAI,0) ";
+                        updateHeader += "+ ISNULL( (ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.H_SATUAN,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) - ISNULL(B.NILAI_DISC,0)) * ISNULL(B.PPN,0) /100 ,0) ";
                         updateHeader += ",0) AS NETTO FROM SIT01A B INNER JOIN SIT01B C ON C.NO_BUKTI=B.NO_BUKTI ";
                         updateHeader += "WHERE B.NO_BUKTI='" + noref + "' AND C.NO_URUT in (" + temp_brg + ") ";
                         updateHeader += "GROUP BY B.NO_BUKTI, B.MATERAI,B.DISCOUNT,B.NILAI_DISC,B.PPN,B.NILAI_PPN ";
@@ -50197,21 +50201,21 @@ namespace MasterOnline.Controllers
                         var noOrder = "RB" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
 
                         var invoiceDetailInDb = ErasoftDbContext.PBT01B.Where(b => b.INV == dataVm.Invoice.REF).ToList();
-                        foreach (var item in invoiceDetailInDb)
-                        {
-                            var qtyOnHand = GetQOHSTF08A(item.BRG, item.GD);
+                        //foreach (var item in invoiceDetailInDb)
+                        //{
+                        //    var qtyOnHand = GetQOHSTF08A(item.BRG, item.GD);
 
-                            if (qtyOnHand - item.QTY < 0)
-                            {
-                                var vmError = new InvoiceViewModel()
-                                {
+                        //    if (qtyOnHand - item.QTY < 0)
+                        //    {
+                        //        var vmError = new InvoiceViewModel()
+                        //        {
 
-                                };
-                                vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + item.BRG + " ) di gudang " + item.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
-                                //return Json(vmError, JsonRequestBehavior.AllowGet);
-                                return new JsonResult { Data = new { mo_error = "Tidak bisa retur, Qty untuk barang ( " + item.BRG + " ) di gudang " + item.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                            }
-                        }
+                        //        };
+                        //        vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + item.BRG + " ) di gudang " + item.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                        //        //return Json(vmError, JsonRequestBehavior.AllowGet);
+                        //        return new JsonResult { Data = new { mo_error = "Tidak bisa retur, Qty untuk barang ( " + item.BRG + " ) di gudang " + item.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        //    }
+                        //}
 
                         var returInDb = ErasoftDbContext.PBT01A.SingleOrDefault(f => f.INV == dataVm.Invoice.REF);
                         if (returInDb != null)
@@ -50267,47 +50271,7 @@ namespace MasterOnline.Controllers
                 }
 
                 ErasoftDbContext.SaveChanges();
-
-                // autoload detail item, jika buat retur baru
-                //if (returBaru)
-                //{
-                //    object[] spParams = {
-                //new SqlParameter("@NOBUK",dataVm.Invoice.INV),
-                //new SqlParameter("@NO_REF",dataVm.Invoice.REF)
-                //};
-
-                //    ErasoftDbContext.Database.ExecuteSqlCommand("exec [SP_AUTOLOADRETUR_PEMBELIAN] @NOBUK, @NO_REF", spParams);
-
-                //    //add by calvin 8 nov 2018, update stok marketplace
-                //    List<string> listBrg = new List<string>();
-                //    var detailReturInvoiceInDb = ErasoftDbContext.PBT01B.AsNoTracking().Where(pd => pd.INV == dataVm.Invoice.INV && pd.JENISFORM == "2").ToList();
-                //    foreach (var item in detailReturInvoiceInDb)
-                //    {
-                //        listBrg.Add(item.BRG);
-                //    }
-                //    updateStockMarketPlace(listBrg, "[INS_RB][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
-                //    //end add by calvin 8 nov 2018
-                //}
-                //else
-                //{
-                //    List<string> listBrg = new List<string>();
-                //    listBrg.Add(dataVm.InvoiceDetail.BRG);
-                //    updateStockMarketPlace(listBrg, "[INS_RB][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
-                //}
                 ModelState.Clear();
-
-                //var cek = ErasoftDbContext.PBT01A.AsNoTracking().Single(p => p.INV == dataVm.Invoice.INV && p.JENISFORM == "2");
-                //var cek2 = ErasoftDbContext.PBT01B.AsNoTracking().Where(pd => pd.INV == dataVm.Invoice.INV && pd.JENISFORM == "2").ToList();
-                //var ListInvoiceDetail = ErasoftDbContext.PBT01B.AsNoTracking().Where(pd => pd.INV == dataVm.Invoice.INV && pd.JENISFORM == "2").ToList();
-                //var listBarangInInvoiceDetail = ListInvoiceDetail.Select(p => p.BRG).ToList();
-                //var vm = new InvoiceViewModel()
-                //{
-                //    Invoice = ErasoftDbContext.PBT01A.AsNoTracking().Single(p => p.INV == dataVm.Invoice.INV && p.JENISFORM == "2"),
-                //    ListInvoiceDetail = ListInvoiceDetail,
-                //    ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInInvoiceDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
-                //};
-
-                //return PartialView("BarangReturInvoicePartial", vm);
 
                 return new JsonResult { Data = new { mo_success = true, mo_bukti = noBukti, mo_ref = noRef }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
@@ -50324,9 +50288,10 @@ namespace MasterOnline.Controllers
             {
                 bool returBaru = false;
                 var temp_brg = "";
+                var rec_detail = new List<string>();
                 if (get_selected != null && get_selected != "")
                 {
-                    var rec_detail = get_selected.Split(',');
+                    rec_detail = get_selected.Split(',').ToList();
                     foreach (var rec in rec_detail)
                     {
                         if (temp_brg != "")
@@ -50374,6 +50339,34 @@ namespace MasterOnline.Controllers
                     return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
 
+                var invoiceDetailInDb = ErasoftDbContext.PBT01B.Where(b => b.INV == noref).ToList();
+                if (invoiceDetailInDb.Count() > 0)
+                {
+                    foreach (var item in rec_detail)
+                    {
+                        var getbrg = invoiceDetailInDb.Where(a => a.NO.ToString() == item).FirstOrDefault();
+                        var qtyOnHand = GetQOHSTF08A(getbrg.BRG, gudang);
+
+                        if (qtyOnHand - getbrg.QTY < 0)
+                        {
+                            var vmError = new InvoiceViewModel()
+                            {
+
+                            };
+                            vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + getbrg.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                            //return Json(vmError, JsonRequestBehavior.AllowGet);
+                            string sql1 = "delete from pbt01a where inv='" + bukti + "'";
+                            ErasoftDbContext.Database.ExecuteSqlCommand(sql1);
+                            return new JsonResult { Data = new { mo_error = "Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + getbrg.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        }
+                    }
+                }
+                else
+                {
+                    returBaru = false;
+                    return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
                 if (returBaru)
                 {
                     //change proses save detail
@@ -50409,11 +50402,15 @@ namespace MasterOnline.Controllers
                         updateHeader += "INNER JOIN ( ";
                         updateHeader += "select B.INV, ISNULL(B.BIAYA_LAIN,0) AS BIAYA_LAIN, ";
                         updateHeader += "ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.HBELI,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) AS BRUTO, ";
-                        updateHeader += "ISNULL(B.DISC1,0) AS DISC1,ISNULL(B.NDISC1,0) AS NDISC1,ISNULL(B.PPN,0) AS PPN,ISNULL(B.NPPN,0) AS NPPN, ";
-                        updateHeader += "ISNULL(";
-                        //--BRUTO
+                        updateHeader += "ISNULL(B.DISC1,0) AS DISC1,ISNULL(B.NDISC1,0) AS NDISC1,ISNULL(B.PPN,0) AS PPN,";
+                        //updateHeader += "ISNULL(B.NPPN,0) AS NPPN, ";
+                        //nppn
+                        updateHeader += "ISNULL( (ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.HBELI,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) - ISNULL(B.NDISC1,0)) * ISNULL(B.PPN,0) /100 ,0) AS NPPN,";
+                        //netto
+                        updateHeader += "ISNULL(";                        
                         updateHeader += "ISNULL(SUM(ISNULL(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.HBELI,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0),0)),0) ";
-                        updateHeader += "- ISNULL(B.NDISC1,0) + ISNULL(B.BIAYA_LAIN,0)+ ISNULL(B.NPPN,0) ";
+                        updateHeader += "- ISNULL(B.NDISC1,0) + ISNULL(B.BIAYA_LAIN,0) ";
+                        updateHeader += "+ ISNULL( (ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.HBELI,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) - ISNULL(B.NDISC1,0)) * ISNULL(B.PPN,0) /100 ,0) ";
                         updateHeader += ",0) AS NETTO FROM PBT01A B INNER JOIN PBT01B C ON C.INV=B.INV ";
                         updateHeader += "WHERE B.INV='" + noref + "' AND C.NO in (" + temp_brg + ") ";
                         updateHeader += "GROUP BY B.INV, B.BIAYA_LAIN,B.DISC1,B.NDISC1,B.PPN,B.NPPN  ";
