@@ -452,8 +452,10 @@ namespace MasterOnline.Controllers
             string connID = Guid.NewGuid().ToString();
             SetupContext(iden);
 
-            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+            //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+            //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
 
             string urll = string.Format("{0}/api/v1/getOrder?apiKey={1}&apiCredential={2}&date_add_from={3}&date_add_to={4}", iden.API_url, iden.API_key, iden.API_credential, dateFrom, dateTo);
 
@@ -485,7 +487,7 @@ namespace MasterOnline.Controllers
                 var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(E2CartOrderResult)) as E2CartOrderResult;
                 if (listOrder.data != null)
                 {
-                    //string[] statusAwaiting = { "1", "3", "10", "11", "13", "14", "16", "17", "18", "19", "20", "21", "23", "25" };
+                    string[] statusAwaiting = { "1", "3", "10", "11", "13", "14", "16", "17", "18", "19", "20", "21", "23", "25" };
                     //string[] ordersn_list = listOrder.data.Select(p => p.id_order).ToArray();
                     //var dariTgl = DateTimeOffset.UtcNow.AddDays(-10).DateTime;
                     //jmlhNewOrder = 0;
@@ -670,6 +672,7 @@ namespace MasterOnline.Controllers
                     //                            CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
                     //                            CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
                     //                            CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 1;
+                    //                            CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                     //                            CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
                     //                            EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
@@ -733,7 +736,7 @@ namespace MasterOnline.Controllers
 
 
                                         string fullname = order.firstname.ToString() + " " + order.lastname.ToString();
-                                        string nama = fullname.Length > 30 ? order.firstname.Substring(0, 30) : order.lastname.ToString();
+                                        string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.lastname.ToString();
 
                                         insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                                             ((nama ?? "").Replace("'", "`")),
@@ -878,6 +881,7 @@ namespace MasterOnline.Controllers
                                             CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
                                             CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
                                             CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 1;
+                                            CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                             CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
                                             EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
@@ -943,8 +947,10 @@ namespace MasterOnline.Controllers
 
             SetupContext(iden);
 
-            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+            //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+            //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
 
             string urll = string.Format("{0}/api/v1/getOrder?apiKey={1}&apiCredential={2}&date_add_from={3}&date_add_to={4}", iden.API_url, iden.API_key, iden.API_credential, dateFrom, dateTo);
 
@@ -1042,8 +1048,10 @@ namespace MasterOnline.Controllers
             string connID = Guid.NewGuid().ToString();
             SetupContext(iden);
 
-            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+            //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+            //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
 
             string urll = string.Format("{0}/api/v1/getOrder?apiKey={1}&apiCredential={2}&date_add_from={3}&date_add_to={4}", iden.API_url, iden.API_key, iden.API_credential, dateFrom, dateTo);
 
@@ -1231,7 +1239,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke 82Cart gagal.")]
-        public async Task<string> E2Cart_UpdatePrice_82Cart(E2CartAPIData iden, string brg_mo, string brg_mp, int priceInduk, int priceGrosir)
+        public async Task<string> E2Cart_UpdatePrice_82Cart(string dbPathEra, string kdbrg, string log_CUST, string log_ActionCategory, string log_ActionName, E2CartAPIData iden, string brg_mp, int priceInduk, int priceGrosir)
         {
             SetupContext(iden);
             long milis = CurrentTimeMillis();

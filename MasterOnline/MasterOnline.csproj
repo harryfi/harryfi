@@ -705,6 +705,7 @@
     <Compile Include="Models\Api\ResultDataJurnalAkunting.cs" />
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
     <Compile Include="Models\API_LOG_MARKETPLACE_HANGFIRE.cs" />
+    <Compile Include="Models\ATTRIBUTE_82CART.cs" />
     <Compile Include="Models\ATTRIBUTE_BL.cs" />
     <Compile Include="Models\ATTRIBUTE_JDID_AND_OPT.cs" />
     <Compile Include="Models\ATTRIBUTE_OPT_TOKPED.cs" />

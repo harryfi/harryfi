@@ -6540,6 +6540,110 @@ namespace MasterOnline.Controllers
         }
         #endregion
         //end add by Tri, 6 Mei 2019
+
+        //add by fauzi 20 Mei 2020
+        #region category 82Cart
+        [HttpGet]
+        public ActionResult GetKategori82CartByCode(string code, string accountStore)
+        {
+            string[] codelist = code.Split(';');
+            var listKategori82Cart = MoDbContext.Category82Cart.Where(k => k.ID_PARENT == "0" && k.ACTIVE == "1" && k.ACCOUNT.ToLower() == accountStore.ToLower()).OrderBy(k => k.NAME).ToList();
+
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategori82Cart),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+        [HttpGet]
+        public ActionResult GetKategori82CartByParentCode(string code, string accountStore)
+        {
+            string[] codelist = code.Split(';');
+            var listKategori82Cart = MoDbContext.Category82Cart.Where(k => codelist.Contains(k.ID_PARENT) && k.ACTIVE == "1" && k.ACCOUNT.ToLower() == accountStore.ToLower()).OrderBy(k => k.NAME).ToList();
+
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategori82Cart),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+        [HttpGet]
+        public ActionResult GetKategori82CartByChildCode(string code, string accountStore)
+        {
+            string[] codelist = code.Split(';');
+            List<CATEGORY_82CART> listKategori82Cart = new List<CATEGORY_82CART>();
+            if (!string.IsNullOrEmpty(code))
+            {
+                var category = MoDbContext.Category82Cart.Where(k => codelist.Contains(k.ID_CATEGORY) && k.ACTIVE == "1" && k.ACCOUNT.ToLower() == accountStore.ToLower()).FirstOrDefault();
+                listKategori82Cart.Add(category);
+
+                if (category.ID_PARENT != "")
+                {
+                    bool TopParent = false;
+                    while (!TopParent)
+                    {
+                        category = MoDbContext.Category82Cart.Where(k => k.ID_CATEGORY.Equals(category.ID_PARENT) && k.ACTIVE == "1" && k.ACCOUNT.ToLower() == accountStore.ToLower()).FirstOrDefault();
+                        listKategori82Cart.Add(category);
+                        if (string.IsNullOrEmpty(category.ID_PARENT))
+                        {
+                            TopParent = true;
+                        }
+                    }
+                }
+            }
+
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategori82Cart),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+
+        [HttpGet]
+        public ActionResult GetAttributeGroup82CartByCode(string code, string accountStore)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeGroup82Cart = MoDbContext.Attribute82Cart.Where(k => k.id_attribute == null && k.color_attribute == null && k.attribute_name == null && k.account_name.ToLower() == accountStore.ToLower()).OrderBy(k => k.group_name).ToList();
+
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listAttributeGroup82Cart),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+
+        [HttpGet]
+        public ActionResult GetAttribute82CartByChildCode(string code, string accountStore)
+        {
+            string[] codelist = code.Split(';');
+            //if (!string.IsNullOrEmpty(code))
+            //{
+                var attribute = MoDbContext.Attribute82Cart.Where(k => codelist.Contains(k.id_attribute_group) && k.id_attribute != null && k.color_attribute != null && k.attribute_name != null && k.account_name.ToLower() == accountStore.ToLower()).OrderBy(k => k.attribute_name).ToList();
+                var serializer = new JavaScriptSerializer();
+                serializer.MaxJsonLength = Int32.MaxValue;
+                var result = new ContentResult
+                {
+                    Content = serializer.Serialize(attribute),
+                    ContentType = "application/json"
+                };
+                return result;
+            //}
+        }
+        #endregion
+        //end by fauzi 20 Mei 2020
+
         [HttpGet]
         public ActionResult GetMerkBarang()
         {
@@ -9679,7 +9783,7 @@ namespace MasterOnline.Controllers
                                             EightTwoCartController c82CartAPI = new EightTwoCartController();
 
                                             //c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
-                                            Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
+                                            //Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
 #else
                                             EightTwoCartControllerJob.E2CartAPIData dataJob = new EightTwoCartControllerJob.E2CartAPIData
                                             {
@@ -9697,7 +9801,7 @@ namespace MasterOnline.Controllers
 
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                            clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
+                                            //clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
 #endif
                                         }
                                     }
@@ -9777,7 +9881,7 @@ namespace MasterOnline.Controllers
                                                     EightTwoCartController c82CartAPI = new EightTwoCartController();
 
                                                     //c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
-                                                    Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
+                                                    //Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
 #else
                                                     EightTwoCartControllerJob.E2CartAPIData dataJob = new EightTwoCartControllerJob.E2CartAPIData
                                                     {
@@ -9795,7 +9899,7 @@ namespace MasterOnline.Controllers
 
                                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                    clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
+                                                    //clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
 #endif
                                                 }
                                             }
@@ -18429,6 +18533,8 @@ namespace MasterOnline.Controllers
             var sSql3 = "select BRG,NAMA,NAMA2 from stf02 where [type]='3' and brg in (select brg from stf02h where idmarket='" + idMarket + "')";
             var ListBarang = ErasoftDbContext.Database.SqlQuery<listBarang_NotFound>(sSql3).ToList();
             //end change by nurul 24/3/2020
+            var ListKodeBarangMarket2 = ListBarang.Select(p => p.BRG).ToList();
+            ListBarangMarket = ListBarangMarket.Where(p => ListKodeBarangMarket2.Contains(p.BRG)).ToList();
 
             var vm = new PesananViewModel()
             {
@@ -18462,7 +18568,19 @@ namespace MasterOnline.Controllers
 
                 if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
                 {
+                    //change by Tri 29 mei 2020, tambah validasi tidak bisa pilih barang yg sudah link dengan brg lain dan hapus data di temp agar tidak bisa di sinkro lg
+                    //dataStf02h.BRG_MP = catatan_split[2];
+                    if(!string.IsNullOrEmpty(dataStf02h.BRG_MP))
+                        if (dataStf02h.BRG_MP != catatan_split[2])
+                        {
+                            return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                        }
                     dataStf02h.BRG_MP = catatan_split[2];
+                    dataStf02h.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                    dataStf02h.LINK_STATUS = "Fix Barang Not Found Berhasil";
+                    dataStf02h.LINK_ERROR = "0;;;";
+                    EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM TEMP_BRG_MP WHERE BRG_MP LIKE '%"+ catatan_split[2] + "%' AND IDMARKET = " + dataStf02h.IDMARKET);
+                    //end change by Tri 29 mei 2020, tambah validasi tidak bisa pilih barang yg sudah link dengan brg lain dan hapus data di temp agar tidak bisa di sinkro lg
                 }
                 //}
                 ErasoftDbContext.SaveChanges();
@@ -18540,7 +18658,19 @@ namespace MasterOnline.Controllers
 
                 if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
                 {
+                    //change by Tri 29 mei 2020, tambah validasi tidak bisa pilih barang yg sudah link dengan brg lain dan hapus data di temp agar tidak bisa di sinkro lg
+                    //dataStf02h.BRG_MP = catatan_split[2];
+                    if (!string.IsNullOrEmpty(dataStf02h.BRG_MP))
+                        if (dataStf02h.BRG_MP != catatan_split[2])
+                        {
+                            return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                        }
                     dataStf02h.BRG_MP = catatan_split[2];
+                    dataStf02h.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                    dataStf02h.LINK_STATUS = "Fix Barang Not Found Berhasil";
+                    dataStf02h.LINK_ERROR = "0;;;";
+                    EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM TEMP_BRG_MP WHERE BRG_MP LIKE '%" + catatan_split[2] + "%' AND IDMARKET = " + dataStf02h.IDMARKET);
+                    //end change by Tri 29 mei 2020, tambah validasi tidak bisa pilih barang yg sudah link dengan brg lain dan hapus data di temp agar tidak bisa di sinkro lg
                 }
                 //}
                 ErasoftDbContext.SaveChanges();
@@ -19793,7 +19923,12 @@ namespace MasterOnline.Controllers
                                     DatabasePathErasoft = dbPathEra,
                                     username = usernameLogin
                                 };
+#if (DEBUG || Debug_AWS)
+                                var tokpedController = new TokopediaControllerJob();
+                                Task.Run(() => tokpedController.PostAckOrder(dbPathEra, pesanan.NO_BUKTI, marketPlace.CUST, "Pesanan", "Accept Order", iden, pesanan.NO_BUKTI, pesanan.NO_REFERENSI).Wait());
+#else
                                 clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostAckOrder(dbPathEra, pesanan.NO_BUKTI, marketPlace.CUST, "Pesanan", "Accept Order", iden, pesanan.NO_BUKTI, pesanan.NO_REFERENSI));
+#endif
                                 //end change by calvin 10 april 2019, jadi pakai backgroundjob
                             }
                         }
@@ -23963,34 +24098,36 @@ namespace MasterOnline.Controllers
             //};
             //await new TokopediaControllerJob().CheckPendings(data);
 
-            var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
-            var lisTokpedShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
-            if (lisTokpedShop.Count > 0)
-            {
-                //var tokopediaApi = new TokopediaController();
-                foreach (var tblCustomer in lisTokpedShop)
-                {
-                    if (tblCustomer.Sort1_Cust != "")
-                    {
-                        if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
-                        {
-                            TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
-                            {
-                                merchant_code = tblCustomer.Sort1_Cust, //FSID
-                                API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
-                                API_client_username = tblCustomer.API_CLIENT_U, //Client ID
-                                API_secret_key = tblCustomer.API_KEY, //Shop ID 
-                                idmarket = tblCustomer.RecNum.Value,
-                                DatabasePathErasoft = dbPathEra,
-                                username = "Support"
-                            };
-                            var tokpedController = new TokopediaControllerJob();
-                            //await tokpedController.GetSingleOrder(data, tblCustomer.CUST, tblCustomer.PERSO);
-                            await tokpedController.PostAckOrder(dbPathEra, "SO20000006", tblCustomer.CUST, "Pesanan", "Accept Order", data, "SO20000006", "502007717;INV/20200514/XX/V/543567604");
-                        }
-                    }
-                }
-            }
+            //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+            //var lisTokpedShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString() && m.CUST == "001028").ToList();
+            //if (lisTokpedShop.Count > 0)
+            //{
+            //    //var tokopediaApi = new TokopediaController();
+            //    foreach (var tblCustomer in lisTokpedShop)
+            //    {
+            //        if (tblCustomer.Sort1_Cust != "")
+            //        {
+            //            if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
+            //            {
+            //                TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
+            //                {
+            //                    merchant_code = tblCustomer.Sort1_Cust, //FSID
+            //                    API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
+            //                    API_client_username = tblCustomer.API_CLIENT_U, //Client ID
+            //                    API_secret_key = tblCustomer.API_KEY, //Shop ID 
+            //                    idmarket = tblCustomer.RecNum.Value,
+            //                    DatabasePathErasoft = dbPathEra,
+            //                    username = "Support"
+            //                };
+            //                var tokpedController = new TokopediaControllerJob();
+            //                //await tokpedController.GetSingleOrder(data, tblCustomer.CUST, tblCustomer.PERSO);
+            //                await tokpedController.PostRequestPickup(dbPathEra, "SO20000388", tblCustomer.CUST, "Pesanan", "Ganti Status", data, "SO20000388", "515081892");
+            //                //await tokpedController.PostAckOrder(dbPathEra, "SO20000389", tblCustomer.CUST, "Pesanan", "Accept Order", data, "SO20000389", "515083008;INV/20200604/XX/VI/556642897");
+            //                await tokpedController.GetNoAWB(data, "SO20000389", "515083008;INV/20200604/XX/VI/556642897");
+            //            }
+            //        }
+            //    }
+            //}
 
             //var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16").ToList();
             //if (listBLIShop.Count > 0)
@@ -31264,11 +31401,11 @@ namespace MasterOnline.Controllers
                         //var lzdApi = new LazadaController();
                         //lzdApi.UpdatePriceQuantity(hJualInDb.BRG_MP, hargaJualBaru.ToString(), "", customer.TOKEN);
                         var lzdApiJob = new LazadaControllerJob();
-                        lzdApiJob.UpdatePrice_Job(dbPathEra, hJualInDb.BRG_MP, hargaJualBaru.ToString(), customer.TOKEN, customer.PERSO);
+                        lzdApiJob.UpdatePrice_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", hJualInDb.BRG_MP, hargaJualBaru.ToString(), customer.TOKEN, customer.PERSO);
 #else
                         var sqlStorage = new SqlServerStorage(EDBConnID);
                         var clientJobServer = new BackgroundJobClient(sqlStorage);
-                        clientJobServer.Enqueue<LazadaControllerJob>(x => x.UpdatePrice_Job(dbPathEra, hJualInDb.BRG_MP, hargaJualBaru.ToString(), customer.TOKEN, customer.PERSO));
+                        clientJobServer.Enqueue<LazadaControllerJob>(x => x.UpdatePrice_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", hJualInDb.BRG_MP, hargaJualBaru.ToString(), customer.TOKEN, customer.PERSO));
 #endif
                     }
                 }
@@ -31333,7 +31470,7 @@ namespace MasterOnline.Controllers
                     dataJob.display = displayJob ? "true" : "false";
 
                     var BliApiJob = new BlibliControllerJob();
-                    BliApiJob.UpdateProdukQOH_Display_Job(idenJob, dataJob);
+                    BliApiJob.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "Update Price", dataJob.kode_mp, idenJob, dataJob);
 
 #else
                     BlibliControllerJob.BlibliAPIData idenJob = new BlibliControllerJob.BlibliAPIData
@@ -31363,7 +31500,7 @@ namespace MasterOnline.Controllers
 
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(idenJob, dataJob));
+                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "Update Price", dataJob.kode_mp, idenJob, dataJob));
 #endif
                 }
                 else if (customer.NAMA.Equals(kdElevenia))
@@ -31454,23 +31591,23 @@ namespace MasterOnline.Controllers
                                 if (brg_mp[1] == "0")
                                 {
 #if Debug_AWS || DEBUG
-                                    Task.Run(() => ShopeeApi.UpdatePrice(data, hJualInDb.BRG_MP, (float)hargaJualBaru)).Wait();
-                                    ShopeeApiJob.UpdatePrice_Job(dataJob, hJualInDb.BRG_MP, (float)hargaJualBaru);
+                                    //Task.Run(() => ShopeeApi.UpdatePrice(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", hJualInDb.BRG_MP, dataJob, (float)hargaJualBaru)).Wait();
+                                    ShopeeApiJob.UpdatePrice_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", hJualInDb.BRG_MP, dataJob, (float)hargaJualBaru);
 #else
                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job(dataJob, hJualInDb.BRG_MP, (float)hargaJualBaru));
+                                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", hJualInDb.BRG_MP, dataJob, (float)hargaJualBaru));
 #endif
                                 }
                                 else if (brg_mp[1] != "")
                                 {
 #if Debug_AWS || DEBUG
-                                    Task.Run(() => ShopeeApi.UpdateVariationPrice(data, hJualInDb.BRG_MP, (float)hargaJualBaru)).Wait();
-                                    ShopeeApiJob.UpdateVariationPrice_Job(dataJob, hJualInDb.BRG_MP, (float)hargaJualBaru);
+                                    //Task.Run(() => ShopeeApi.UpdateVariationPrice(data, hJualInDb.BRG_MP, (float)hargaJualBaru)).Wait();
+                                    ShopeeApiJob.UpdateVariationPrice_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", hJualInDb.BRG_MP, dataJob, (float)hargaJualBaru);
 #else
                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateVariationPrice_Job(dataJob, hJualInDb.BRG_MP, (float)hargaJualBaru));
+                                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateVariationPrice_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", hJualInDb.BRG_MP, dataJob, (float)hargaJualBaru));
                                     
 #endif
                                 }
@@ -31501,10 +31638,11 @@ namespace MasterOnline.Controllers
                         //change by nurul 12/2/2020
                         //Task.Run(() => new TokopediaControllerJob().UpdatePrice(iden, Convert.ToInt32(hJualInDb.BRG_MP), (float)hargaJualBaru)).Wait();
                         //Task.Run(() => new TokopediaControllerJob().UpdatePrice(iden, Convert.ToInt32(hJualInDb.BRG_MP), (int)hargaJualBaru)).Wait();
-                        new TokopediaControllerJob().UpdatePrice_Job(iden, Convert.ToInt32(hJualInDb.BRG_MP), (int)hargaJualBaru);
+                        new TokopediaControllerJob().UpdatePrice_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", Convert.ToInt32(hJualInDb.BRG_MP), iden, (int)hargaJualBaru);
                         //end change by nurul 12/2/2020
+                        //dbPathEra, hJualInDb.BRG_MP, customer.CUST, "Price", "Update Price", hargaJualBaru.ToString(), customer.TOKEN, customer.PERSO);
 #else
-                TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                        TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
                     {
                         merchant_code = customer.Sort1_Cust, //FSID
                         API_client_password = customer.API_CLIENT_P, //Client ID
@@ -31518,7 +31656,7 @@ namespace MasterOnline.Controllers
 
                 var sqlStorage = new SqlServerStorage(EDBConnID);
                 var clientJobServer = new BackgroundJobClient(sqlStorage);
-                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.UpdatePrice_Job(iden, Convert.ToInt32(hJualInDb.BRG_MP), (int)hargaJualBaru));
+                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.UpdatePrice_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", Convert.ToInt32(hJualInDb.BRG_MP), iden, (int)hargaJualBaru));
                                     
 #endif
                     }
@@ -31661,8 +31799,7 @@ namespace MasterOnline.Controllers
                     dataJob.display = displayJob ? "true" : "false";
 
                     var BliApiJob = new BlibliControllerJob();
-                    Task.Run(() => BliApiJob.UpdateProdukQOH_Display_Job(idenJob, dataJob)).Wait();
-
+                    Task.Run(() => BliApiJob.UpdateProdukQOH_Display_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", hJualInDb.BRG_MP, idenJob, dataJob)).Wait();
 #else
                     BlibliControllerJob.BlibliAPIData idenJob = new BlibliControllerJob.BlibliAPIData
                     {
@@ -31691,7 +31828,7 @@ namespace MasterOnline.Controllers
 
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(idenJob, dataJob));
+                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", hJualInDb.BRG_MP, idenJob, dataJob));
 #endif
                 }
             }
@@ -31771,11 +31908,11 @@ namespace MasterOnline.Controllers
                         else
                         {
 #if (DEBUG || Debug_AWS)
-                            Task.Run(() => v82CartAPI.E2Cart_UpdatePrice_82Cart(data, hJualInDb.BRG, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, (int)hargaJualGrosirBaru)).Wait();
+                            Task.Run(() => v82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, (int)hargaJualGrosirBaru)).Wait();
 #else
-                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
                         var clientJobServer = new BackgroundJobClient(sqlStorage);
-                        clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(data, hJualInDb.BRG, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, (int)hargaJualGrosirBaru));
+                        clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, (int)hargaJualGrosirBaru));
 #endif
                         }
                     }
@@ -35539,6 +35676,15 @@ namespace MasterOnline.Controllers
                                             API_url = arf01.PERSO,
                                             DatabasePathErasoft = dbPathEra
                                         };
+
+                                        // get category for 82Cart
+                                        var resultCategory82Cart = await v82CartAPI.E2Cart_GetCategoryProduct_Sync(data);
+                                        // end get category for 82Cart
+
+                                        // get attribute for 82Cart
+                                        var resultAttribute82Cart = await v82CartAPI.E2Cart_GetAttribute_Sync(data);
+                                        // end get attribute for 82Cart
+
                                         var result82Cart = await v82CartAPI.E2Cart_GetProductsList(data, arf01.RecNum.Value, page, recordCount, totalData);
                                         retBarang.exception = result82Cart.exception;
                                         retBarang.totalData = result82Cart.totalData;
@@ -35554,6 +35700,7 @@ namespace MasterOnline.Controllers
                                         else
                                         {
                                             retBarang.RecordCount = result82Cart.recordCount;
+                                            //var resultCategory82Cart = await v82CartAPI.E2Cart_GetCategoryProduct_2
                                         }
                                         //}
                                         //else
@@ -42851,29 +42998,29 @@ namespace MasterOnline.Controllers
                         }
                         //END ADD BY NURUL 3/4/2020, update no kode booking
 
-                        //add by fauzi for change status 82Cart to SHIPPED
-                        var kd82Cart = "20";
-                        var mpCust82Cart = ErasoftDbContext.ARF01.Where(m => m.NAMA == kd82Cart && m.CUST == SOA_CUST).FirstOrDefault();
-                        if (mpCust82Cart != null)
-                        {
-                            if (mpCust82Cart.Sort1_Cust != "" && !string.IsNullOrEmpty(mpCust82Cart.API_KEY) && !string.IsNullOrEmpty(mpCust82Cart.PERSO))
-                            {
-                                var sqlStorage = new SqlServerStorage(EDBConnID);
-                                var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                EightTwoCartControllerJob.E2CartAPIData idenJob = new EightTwoCartControllerJob.E2CartAPIData();
-                                idenJob.API_key = mpCust82Cart.API_KEY;
-                                idenJob.API_credential = mpCust82Cart.Sort1_Cust;
-                                idenJob.API_url = mpCust82Cart.PERSO;
-                                idenJob.DatabasePathErasoft = dbPathEra;
-                                idenJob.username = usernameLogin;
-                                idenJob.no_cust = mpCust82Cart.CUST;
+                        ////add by fauzi for change status 82Cart to SHIPPED
+                        ////var kd82Cart = "20";
+                        ////var mpCust82Cart = ErasoftDbContext.ARF01.Where(m => m.NAMA == kd82Cart && m.CUST == SOA_CUST).FirstOrDefault();
+                        ////if (mpCust82Cart != null)
+                        ////{
+                        ////    if (mpCust82Cart.Sort1_Cust != "" && !string.IsNullOrEmpty(mpCust82Cart.API_KEY) && !string.IsNullOrEmpty(mpCust82Cart.PERSO))
+                        ////    {
+                        ////        var sqlStorage = new SqlServerStorage(EDBConnID);
+                        ////        var clientJobServer = new BackgroundJobClient(sqlStorage);
+                        ////        EightTwoCartControllerJob.E2CartAPIData idenJob = new EightTwoCartControllerJob.E2CartAPIData();
+                        ////        idenJob.API_key = mpCust82Cart.API_KEY;
+                        ////        idenJob.API_credential = mpCust82Cart.Sort1_Cust;
+                        ////        idenJob.API_url = mpCust82Cart.PERSO;
+                        ////        idenJob.DatabasePathErasoft = dbPathEra;
+                        ////        idenJob.username = usernameLogin;
+                        ////        idenJob.no_cust = mpCust82Cart.CUST;
 
-                                //add by fauzi for update status TO SHIPPED CODE 4
-                                //new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, mpCust82Cart.CUST, "Pesanan", "Shipped Order", SOA_NOREF, "4");
-                                clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, mpCust82Cart.CUST, "Pesanan", "Shipped Order", SOA_NOREF, "4"));
+                        ////        //add by fauzi for update status TO SHIPPED CODE 4
+                        ////        //new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, mpCust82Cart.CUST, "Pesanan", "Shipped Order", SOA_NOREF, "4");
+                        ////        clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, mpCust82Cart.CUST, "Pesanan", "Shipped Order", SOA_NOREF, "4"));
 
-                            }
-                        }
+                        ////    }
+                        ////}
 
                         //end by fauzi
 
@@ -49234,7 +49381,9 @@ namespace MasterOnline.Controllers
                         else
                         {
                             var htmlString = retApi.Result;
-                            EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + so.no_bukti + ")");
+                            //EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + so.no_bukti + ")");
+                            var sql = "update SOT01A set status_print = '1' where no_bukti in ('" + so.no_bukti + "')";
+                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
 
                             temp_htmlString.Add(htmlString);
                         }

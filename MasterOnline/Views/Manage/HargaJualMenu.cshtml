@@ -269,7 +269,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="editHargaJualLabel82Cart">Edit Harga Jual & Grosir 82Cart</h4>
+                <h4 class="modal-title" id="editHargaJualLabel82Cart">Edit Harga Jual</h4>
             </div>
             <div class="modal-body" id="modal-gudang-qty-body">
                 <div class="row">
@@ -278,7 +278,7 @@
                         <p id="namaBarang82Cart">-</p>
                         <p id="labelAkunMp82Cart">-</p>
                         <p>Harga Jual awal: Rp <span id="hJualAwal82Cart"></span></p>
-                        <p>Harga Grosir awal: Rp <span id="hJualGrosirAwal82Cart"></span></p>
+                        @*<p>Harga Grosir awal: Rp <span id="hJualGrosirAwal82Cart"></span></p>*@
                     </div>
                     <div class="col-md-6">
                         <div class="row">
@@ -287,12 +287,12 @@
                                 <input type="text" id="HJUALBARU82Cart" name="HJUALBARU82Cart" class="form-control" style="margin-top: 10px;" />
                             </div>
                         </div>
-                        <div class="row">
+                        @*<div class="row">
                             <div class="col-m12">
                                 <b>Masukkan harga grosir yang baru:</b>
                                 <input type="text" id="HJUALPROMOSIBARU82Cart" name="HJUALPROMOSIBARU82Cart" class="form-control" style="margin-top: 10px;" />
                             </div>
-                        </div>
+                        </div>*@
                     </div>
                 </div>
             </div>
@@ -566,7 +566,9 @@
             var link = '@Html.Raw(Url.Action("UbahHargaJual82Cart", "Manage", new { recNum = "replaceRecNum", hargaJualGrosirBaru = "replaceHargaGrosirBaru", hargaJualIndukBaru = "replaceHargaBaru" }))';
             link = link.replace("replaceRecNum", encodeURIComponent($recNum));
             link = link.replace("replaceHargaBaru", encodeURIComponent($('#HJUALBARU82Cart').val()));
-            link = link.replace("replaceHargaGrosirBaru", encodeURIComponent($('#HJUALPROMOSIBARU82Cart').val()));
+            //diremark karena untuk mengubah price dasar saja
+            //link = link.replace("replaceHargaGrosirBaru", encodeURIComponent($('#HJUALPROMOSIBARU82Cart').val()));
+            link = link.replace("replaceHargaGrosirBaru", encodeURIComponent($('#HJUALBARU82Cart').val()));
             var filterBy = encodeURIComponent($('#filter_pencarian_field').val());
             //var filterBy = "";
 

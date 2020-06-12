@@ -45,6 +45,7 @@ namespace MasterOnline
 
         //add by fauzi for 82cart
         public DbSet<CATEGORY_82CART> Category82Cart { get; set; }
+        public DbSet<ATTRIBUTE_82CART> Attribute82Cart { get; set; }
 
         public MoDbContext()
             : base("name=MoDbContext")

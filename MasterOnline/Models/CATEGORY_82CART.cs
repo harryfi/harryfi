@@ -10,7 +10,6 @@ namespace MasterOnline.Models
     [Table("CATEGORY_82CART")]
     public class CATEGORY_82CART
     {
-        [Key]
         [StringLength(50)]
         public string ID_CATEGORY { get; set; }
 
@@ -29,7 +28,11 @@ namespace MasterOnline.Models
         [StringLength(1)]
         public string ACTIVE { get; set; }
 
-        //[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        //public int? RecNum { get; set; }
+        [StringLength(100)]
+        public string ACCOUNT { get; set; }
+
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int? RecNum { get; set; }
     }
 }
