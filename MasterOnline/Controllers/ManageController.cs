@@ -18573,7 +18573,17 @@ namespace MasterOnline.Controllers
                     if(!string.IsNullOrEmpty(dataStf02h.BRG_MP))
                         if (dataStf02h.BRG_MP != catatan_split[2])
                         {
-                            return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                            var cust = ErasoftDbContext.ARF01.Where(m => m.CUST == pesananInDb.CUST).SingleOrDefault();
+                            if(cust.NAMA == "16")//blibli
+                            {
+                                var gdnSku = dataStf02h.BRG_MP.Split(';');
+                                if(gdnSku[0] != catatan_split[2])
+                                    return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                            }
+                            else
+                            {
+                                return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                            }
                         }
                     dataStf02h.BRG_MP = catatan_split[2];
                     dataStf02h.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
@@ -18663,7 +18673,17 @@ namespace MasterOnline.Controllers
                     if (!string.IsNullOrEmpty(dataStf02h.BRG_MP))
                         if (dataStf02h.BRG_MP != catatan_split[2])
                         {
-                            return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                            var cust = ErasoftDbContext.ARF01.Where(m => m.CUST == fakturInDb.CUST).SingleOrDefault();
+                            if (cust.NAMA == "16")//blibli
+                            {
+                                var gdnSku = dataStf02h.BRG_MP.Split(';');
+                                if (gdnSku[0] != catatan_split[2])
+                                    return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                            }
+                            else
+                            {
+                                return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                            }
                         }
                     dataStf02h.BRG_MP = catatan_split[2];
                     dataStf02h.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
