@@ -2929,6 +2929,21 @@ namespace MasterOnline.Controllers
                         var nama2 = order.recipient.name.Replace("'", "`");
                         if (nama2.Length > 30)
                             nama2 = nama2.Substring(0, 30);
+                        string aTLP = !string.IsNullOrEmpty(order.recipient.phone) ? order.recipient.phone : "";
+                        if (aTLP.Length > 30)
+                            aTLP = aTLP.Substring(0, 30);
+                        if (NAMA_CUST.Length > 30)
+                            NAMA_CUST = NAMA_CUST.Substring(0, 30);
+                        string aAL_KIRIM1 = !string.IsNullOrEmpty(order.recipient.address.address_full) ? order.recipient.address.address_full.Replace('\'', '`') : "";
+                        if (aAL_KIRIM1.Length > 30)
+                        {
+                            aAL_KIRIM1 = aAL_KIRIM1.Substring(0, 30);
+                        }
+                        string aKODEPOS = !string.IsNullOrEmpty(order.recipient.address.postal_code) ? order.recipient.address.postal_code.Replace('\'', '`') : "";
+                        if (aKODEPOS.Length > 7)
+                        {
+                            aKODEPOS = aKODEPOS.Substring(0, 7);
+                        }
 
                         string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
                         insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
@@ -2936,71 +2951,190 @@ namespace MasterOnline.Controllers
                         var kabKot = "3174";
                         var prov = "31";
                         //insertPembeli += "('" + order.recipient.name + "','" + order.recipient.address.address_full + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
-                        insertPembeli += "('" + nama2 + "','" + order.recipient.address.address_full + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
-                        insertPembeli += "1, 'IDR', '01', '" + order.recipient.address.address_full + "', 0, 0, 0, 0, '1', 0, 0, ";
-                        insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient.address.postal_code + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
+                        insertPembeli += "('" + nama2 + "','" + order.recipient.address.address_full.Replace("'", "`") + "','" + aTLP + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                        insertPembeli += "1, 'IDR', '01', '" + aAL_KIRIM1 + "', 0, 0, 0, 0, '1', 0, 0, ";
+                        insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + aKODEPOS + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
 
                         var order_order_id = Convert.ToString(order.order_id);
                         if (orderTokpedInDb.Where(p => p.order_id == order_order_id).Count() == 0)
                         {
+                            #region cut max length dan ubah '
+                            string a_fs_id = !string.IsNullOrEmpty(order.fs_id) ? order.fs_id.Replace('\'', '`') : "";
+                            if (a_fs_id.Length > 50)
+                            {
+                                a_fs_id = a_fs_id.Substring(0, 50);
+                            }
+                            string a_order_id = !string.IsNullOrEmpty(Convert.ToString(order.order_id)) ? Convert.ToString(order.order_id).Replace('\'', '`') : "";
+                            if (a_order_id.Length > 50)
+                            {
+                                a_order_id = a_order_id.Substring(0, 50);
+                            }
+                            string a_invoice_ref_num = !string.IsNullOrEmpty(order.invoice_ref_num) ? order.invoice_ref_num.Replace('\'', '`') : "";
+                            if (a_invoice_ref_num.Length > 50)
+                            {
+                                a_invoice_ref_num = a_invoice_ref_num.Substring(0, 50);
+                            }
+                            string a_device_type = !string.IsNullOrEmpty(order.device_type) ? order.device_type.Replace('\'', '`') : "";
+                            if (a_device_type.Length > 50)
+                            {
+                                a_device_type = a_device_type.Substring(0, 50);
+                            }
+                            string a_buyer_name = !string.IsNullOrEmpty(order.buyer.name) ? order.buyer.name.Replace('\'', '`') : "";
+                            if (a_buyer_name.Length > 250)
+                            {
+                                a_buyer_name = a_buyer_name.Substring(0, 250);
+                            }
+                            string a_buyer_phone = !string.IsNullOrEmpty(order.buyer.phone) ? order.buyer.phone.Replace('\'', '`') : "";
+                            if (a_buyer_phone.Length > 50)
+                            {
+                                a_buyer_phone = a_buyer_phone.Substring(0, 50);
+                            }
+                            string a_buyer_email = !string.IsNullOrEmpty(order.buyer.email) ? order.buyer.email.Replace('\'', '`') : "";
+                            if (a_buyer_email.Length > 250)
+                            {
+                                a_buyer_email = a_buyer_email.Substring(0, 250);
+                            }
+                            string a_recipient_name = !string.IsNullOrEmpty(order.recipient.name) ? order.recipient.name.Replace('\'', '`') : "";
+                            if (a_recipient_name.Length > 250)
+                            {
+                                a_recipient_name = a_recipient_name.Substring(0, 250);
+                            }
+                            string a_recipient_address_district = !string.IsNullOrEmpty(order.recipient.address.district) ? order.recipient.address.district.Replace('\'', '`') : "";
+                            if (a_recipient_address_district.Length > 150)
+                            {
+                                a_recipient_address_district = a_recipient_address_district.Substring(0, 150);
+                            }
+                            string a_recipient_address_city = !string.IsNullOrEmpty(order.recipient.address.city) ? order.recipient.address.city.Replace('\'', '`') : "";
+                            if (a_recipient_address_city.Length > 150)
+                            {
+                                a_recipient_address_city = a_recipient_address_city.Substring(0, 150);
+                            }
+                            string a_recipient_address_province = !string.IsNullOrEmpty(order.recipient.address.province) ? order.recipient.address.province.Replace('\'', '`') : "";
+                            if (a_recipient_address_province.Length > 150)
+                            {
+                                a_recipient_address_province = a_recipient_address_province.Substring(0, 150);
+                            }
+                            string a_recipient_address_country = !string.IsNullOrEmpty(order.recipient.address.country) ? order.recipient.address.country.Replace('\'', '`') : "";
+                            if (a_recipient_address_country.Length > 150)
+                            {
+                                a_recipient_address_country = a_recipient_address_country.Substring(0, 150);
+                            }
+                            string a_recipient_address_postal_code = !string.IsNullOrEmpty(order.recipient.address.postal_code) ? order.recipient.address.postal_code.Replace('\'', '`') : "";
+                            if (a_recipient_address_postal_code.Length > 10)
+                            {
+                                a_recipient_address_postal_code = a_recipient_address_postal_code.Substring(0, 10);
+                            }
+                            string a_recipient_address_geo = !string.IsNullOrEmpty(order.recipient.address.geo) ? order.recipient.address.geo.Replace('\'', '`') : "";
+                            if (a_recipient_address_geo.Length > 150)
+                            {
+                                a_recipient_address_geo = a_recipient_address_geo.Substring(0, 150);
+                            }
+                            string a_recipient_phone = !string.IsNullOrEmpty(order.recipient.phone) ? order.recipient.phone.Replace('\'', '`') : "";
+                            if (a_recipient_phone.Length > 50)
+                            {
+                                a_recipient_phone = a_recipient_phone.Substring(0, 50);
+                            }
+                            string a_logistics_shipping_agency = !string.IsNullOrEmpty(order.logistics.shipping_agency) ? order.logistics.shipping_agency.Replace('\'', '`') : "";
+                            if (a_logistics_shipping_agency.Length > 150)
+                            {
+                                a_logistics_shipping_agency = a_logistics_shipping_agency.Substring(0, 150);
+                            }
+                            string a_logistics_service_type = !string.IsNullOrEmpty(order.logistics.service_type) ? order.logistics.service_type.Replace('\'', '`') : "";
+                            if (a_logistics_service_type.Length > 150)
+                            {
+                                a_logistics_service_type = a_logistics_service_type.Substring(0, 150);
+                            }
+                            string a_dropshipper_info_name = !string.IsNullOrEmpty(order.dropshipper_info.name) ? order.dropshipper_info.name.Replace('\'', '`') : "";
+                            if (a_dropshipper_info_name.Length > 250)
+                            {
+                                a_dropshipper_info_name = a_dropshipper_info_name.Substring(0, 250);
+                            }
+                            string a_dropshipper_info_phone = !string.IsNullOrEmpty(order.dropshipper_info.phone) ? order.dropshipper_info.phone.Replace('\'', '`') : "";
+                            if (a_dropshipper_info_phone.Length > 50)
+                            {
+                                a_dropshipper_info_phone = a_dropshipper_info_phone.Substring(0, 50);
+                            }
+                            string a_voucher_info_voucher_code = !string.IsNullOrEmpty(order.voucher_info.voucher_code) ? order.voucher_info.voucher_code.Replace('\'', '`') : "";
+                            if (a_voucher_info_voucher_code.Length > 150)
+                            {
+                                a_voucher_info_voucher_code = a_voucher_info_voucher_code.Substring(0, 150);
+                            }
+                            string a_custom_fields_awb = !string.IsNullOrEmpty(order.custom_fields.awb) ? order.custom_fields.awb.Replace('\'', '`') : "";
+                            if (a_custom_fields_awb.Length > 150)
+                            {
+                                a_custom_fields_awb = a_custom_fields_awb.Substring(0, 150);
+                            }
+                            #endregion
                             //belum ada di temp
                             foreach (var product in order.products)
                             {
+                                #region cut max length dan ubah '
+                                string a_currency = !string.IsNullOrEmpty(product.currency) ? product.currency.Replace('\'', '`') : "";
+                                if (a_currency.Length > 50)
+                                {
+                                    a_currency = a_currency.Substring(0, 50);
+                                }
+                                string a_product_sku = !string.IsNullOrEmpty(product.sku) ? product.sku.Replace('\'', '`') : "";
+                                if (a_product_sku.Length > 50)
+                                {
+                                    a_product_sku = a_product_sku.Substring(0, 50);
+                                }
+                                #endregion
                                 TEMP_TOKPED_ORDERS newOrder = new TEMP_TOKPED_ORDERS()
                                 {
-                                    fs_id = order.fs_id,
-                                    order_id = Convert.ToString(order.order_id),
+                                    fs_id = a_fs_id,
+                                    order_id = a_order_id,
                                     accept_partial = order.accept_partial,
-                                    invoice_ref_num = order.invoice_ref_num,
+                                    invoice_ref_num = a_invoice_ref_num,
                                     product_id = product.id,
-                                    product_name = product.name,
+                                    product_name = string.IsNullOrEmpty(product.name) ? "" : product.name.Replace("'", "`"),
                                     product_quantity = product.quantity,
-                                    product_notes = product.notes,
+                                    product_notes = string.IsNullOrEmpty(product.notes) ? "" : product.notes.Replace("'", "`"),
                                     product_weight = product.weight,
                                     product_total_weight = product.total_weight,
                                     product_price = product.price,
                                     product_total_price = product.total_price,
-                                    product_currency = product.currency,
-                                    product_sku = product.sku,
+                                    product_currency = a_currency,
+                                    product_sku = a_product_sku,
                                     products_fulfilled_product_id = 0,
                                     products_fulfilled_quantity_deliver = 0,
                                     products_fulfilled_quantity_reject = 0,
-                                    device_type = order.device_type,
+                                    device_type = a_device_type,
                                     buyer_id = order.buyer.id,
-                                    buyer_name = order.buyer.name,
-                                    buyer_email = order.buyer.email,
-                                    buyer_phone = order.buyer.phone,
+                                    buyer_name = a_buyer_name,
+                                    buyer_email = a_buyer_email,
+                                    buyer_phone = a_buyer_phone,
                                     shop_id = order.shop_id,
                                     payment_id = order.payment_id,
                                     //recipient_name = order.recipient.name,
                                     recipient_name = nama2,
-                                    recipient_address_address_full = order.recipient.address.address_full,
-                                    recipient_address_district = order.recipient.address.district,
+                                    recipient_address_address_full = string.IsNullOrEmpty(order.recipient.address.address_full) ? "" : order.recipient.address.address_full.Replace("'", "`"),
+                                    recipient_address_district = a_recipient_address_district,
                                     recipient_address_district_id = order.recipient.address.district_id,
-                                    recipient_address_city = order.recipient.address.city,
+                                    recipient_address_city = a_recipient_address_city,
                                     recipient_address_city_id = order.recipient.address.city_id,
-                                    recipient_address_province = order.recipient.address.province,
+                                    recipient_address_province = a_recipient_address_province,
                                     recipient_address_province_id = order.recipient.address.province_id,
-                                    recipient_address_country = order.recipient.address.country,
-                                    recipient_address_geo = order.recipient.address.geo,
-                                    recipient_address_postal_code = order.recipient.address.postal_code,
-                                    recipient_phone = order.recipient.phone,
+                                    recipient_address_country = a_recipient_address_country,
+                                    recipient_address_geo = a_recipient_address_geo,
+                                    recipient_address_postal_code = a_recipient_address_postal_code,
+                                    recipient_phone = a_buyer_phone,
                                     logistics_shipping_id = order.logistics.shipping_id,
-                                    logistics_shipping_agency = order.logistics.shipping_agency,
-                                    logistics_service_type = order.logistics.service_type,
+                                    logistics_shipping_agency = a_logistics_shipping_agency,
+                                    logistics_service_type = a_logistics_service_type,
                                     amt_ttl_product_price = order.amt.ttl_product_price,
                                     amt_shipping_cost = order.amt.shipping_cost,
                                     amt_insurance_cost = order.amt.insurance_cost,
                                     amt_ttl_amount = order.amt.ttl_amount,
                                     amt_voucher_amount = order.amt.voucher_amount,
                                     amt_toppoints_amount = order.amt.toppoints_amount,
-                                    dropshipper_info_name = order.dropshipper_info.name,
-                                    dropshipper_info_phone = order.dropshipper_info.phone,
-                                    voucher_info_voucher_code = order.voucher_info.voucher_code,
+                                    dropshipper_info_name = a_dropshipper_info_name,
+                                    dropshipper_info_phone = a_dropshipper_info_phone,
+                                    voucher_info_voucher_code = a_voucher_info_voucher_code,
                                     voucher_info_voucher_type = order.voucher_info.voucher_type,
                                     order_status = order.order_status,
                                     create_time = DateTimeOffset.FromUnixTimeSeconds(order.create_time).UtcDateTime,
-                                    custom_fields_awb = order.custom_fields.awb,
+                                    custom_fields_awb = a_custom_fields_awb,
                                     conn_id = connId,
                                     CUST = CUST,
                                     NAMA_CUST = NAMA_CUST
