@@ -15703,14 +15703,26 @@ namespace MasterOnline.Controllers
         public ActionResult EditReturFaktur(int? orderId)
         {
             var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.RecNum == orderId && p.JENIS_FORM == "3");
+            var noref = "";
+            var ceknoref = ErasoftDbContext.SIT01A.Where(a => a.NO_BUKTI == fakturInDb.NO_REF).Select(a => a.NO_REF).SingleOrDefault();
+            if (ceknoref != null)
+            {
+                var temp = ceknoref.Split(';');
+                noref = temp.Last();
+            }
+
+            var ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => pd.NO_BUKTI == fakturInDb.NO_BUKTI && pd.JENIS_FORM == "3").ToList();
+            var listBarangInFakturDetail = ListFakturDetail.Select(p => p.BRG).ToList();
 
             var vm = new FakturViewModel()
             {
                 Faktur = fakturInDb,
-                ListFaktur = ErasoftDbContext.SIT01A.ToList(),
-                ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => pd.NO_BUKTI == fakturInDb.NO_BUKTI && pd.JENIS_FORM == "3").ToList(),
+                //ListFaktur = ErasoftDbContext.SIT01A.ToList(),
+                //ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => pd.NO_BUKTI == fakturInDb.NO_BUKTI && pd.JENIS_FORM == "3").ToList(),
+                ListFakturDetail = ListFakturDetail,
                 //ListBarang = ErasoftDbContext.STF02.ToList() 'change by nurul 21/1/2019 
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
+                ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                noRef = noref
             };
 
             return PartialView("BarangReturPartial", vm);
@@ -16527,15 +16539,19 @@ namespace MasterOnline.Controllers
         {
             var InvoiceInDB = ErasoftDbContext.PBT01A.Single(p => p.RecNum == orderId && p.JENISFORM == "2");
 
+            var ListInvoiceDetail = ErasoftDbContext.PBT01B.Where(pd => pd.INV == InvoiceInDB.INV && pd.JENISFORM == "2").ToList();
+            var listBarangInFakturDetail = ListInvoiceDetail.Select(p => p.BRG).ToList();
             var vm = new InvoiceViewModel()
             {
                 Invoice = ErasoftDbContext.PBT01A.Single(p => p.INV == InvoiceInDB.INV && p.JENISFORM == "2"),
-                ListInvoiceDetail = ErasoftDbContext.PBT01B.Where(pd => pd.INV == InvoiceInDB.INV && pd.JENISFORM == "2").ToList(),
+                //ListInvoiceDetail = ErasoftDbContext.PBT01B.Where(pd => pd.INV == InvoiceInDB.INV && pd.JENISFORM == "2").ToList(),
                 //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList()
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                //ListMarketplace = MoDbContext.Marketplaces.ToList()
+                ListInvoiceDetail = ListInvoiceDetail,
+                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3" && listBarangInFakturDetail.Contains(a.BRG)).ToList()
             };
 
             return PartialView("BarangReturInvoicePartial", vm);
@@ -49384,7 +49400,7 @@ namespace MasterOnline.Controllers
                 {
                     htmlString_new += temp_htmlString[i];
                 }
-                
+
                 while (!gakketemulagi)
                 {
                     var idxHeader = htmlString_new.IndexOf("<table class=\"header\"", lastIndexHeader);
@@ -49490,7 +49506,7 @@ namespace MasterOnline.Controllers
                         return new JsonResult { Data = new { mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                         //return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
                     }
-                    
+
                 }
             }
             catch (Exception ex)
@@ -49853,6 +49869,730 @@ namespace MasterOnline.Controllers
             }
         }
         //end add by nurul 2/6/2020
+
+        //add by nurul 8/6/2020
+        public ActionResult ListFakturForReturPopUp(string noCust)
+        {
+            var vm = new FakturViewModel()
+            {
+                noCust = noCust,
+            };
+
+            return View(vm);
+        }
+
+        public ActionResult RefreshFakturForReturPopUp(int? page, string search = "", string cust = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["custParam"] = cust;
+
+            string[] getkata = search.Split(' ');
+            string sSQLnofaktur = "";
+            string sSQLnoref = "";
+            string sSQLPembeli = "";
+            string sSQLsisa = "";
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLnofaktur += " AND ";
+                            sSQLnoref += " AND ";
+                            sSQLPembeli += " AND ";
+                            sSQLsisa += " AND ";
+                        }
+
+                        sSQLnofaktur += " no_bukti like '%" + getkata[i] + "%' ";
+                        sSQLnoref += "  isnull(no_ref,'') like '%" + getkata[i] + "%' ";
+                        sSQLPembeli += "  isnull(namapemesan,'') like '%" + getkata[i] + "%' ";
+                        sSQLsisa += "  isnull(netto,0) like '%" + getkata[i] + "%' ";
+
+                    }
+                }
+            }
+
+
+            string sSQLSelect = "";
+            sSQLSelect += "select no_bukti, tgl, no_ref, namapemesan, netto ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(no_bukti) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "from sit01a (nolock) ";
+            sSQL2 += "WHERE JENIS_FORM='2' AND CUST = '" + cust + "' AND STATUS IN (0,1) AND NO_BUKTI NOT IN ";
+            sSQL2 += "(SELECT DISTINCT NO_REF FROM SIT01A (nolock) WHERE JENIS_FORM='3' AND STATUS IN (0,1)) ";
+            if (search != "")
+            {
+                sSQL2 += " AND ( " + sSQLnofaktur + " or " + sSQLnoref + " or " + sSQLPembeli + " or " + sSQLsisa + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "order by tgl desc, no_bukti desc ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListArf01c = ErasoftDbContext.Database.SqlQuery<FakturForReturPrompt>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<FakturForReturPrompt> pageOrders = new StaticPagedList<FakturForReturPrompt>(ListArf01c, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableFakturForReturPopUp", pageOrders);
+        }
+
+        public ActionResult ListBrgForReturPopUp(string noFaktur)
+        {
+            //var sSQL = "select no_urut, a.brg, nama + ' ' + isnull(nama2,'') as nama, qty, gudang from sit01b a inner join stf02 b on a.brg=b.brg where a.no_bukti='" + noFaktur + "' and b.type='3'";
+            //var getDetail = ErasoftDbContext.Database.SqlQuery<brgForReturPrompt>(sSQL).ToList();
+            //var getDetail = ErasoftDbContext.SIT01B.Where(a => a.NO_BUKTI == noFaktur && a.JENIS_FORM == "2").ToList();
+            var vm = new FakturViewModel()
+            {
+                noFaktur = noFaktur,
+                //listGudang = ErasoftDbContext.STF18.ToList()
+                //listBarangRetur = getDetail,
+            };
+
+            return View(vm);
+        }
+        public ActionResult RefreshBrgForReturPopUp(string noFaktur)
+        {
+            var sSQL = "select no_urut as recnum, a.brg, nama + ' ' + isnull(nama2,'') as nama, qty, gudang from sit01b a inner join stf02 b on a.brg=b.brg where a.no_bukti='" + noFaktur + "' and b.type='3'";
+            var getDetail = ErasoftDbContext.Database.SqlQuery<brgForReturPrompt>(sSQL).ToList();
+            //var getDetail = ErasoftDbContext.SIT01B.Where(a => a.NO_BUKTI == noFaktur && a.JENIS_FORM == "2").ToList();
+            var vm = new FakturViewModel()
+            {
+                noFaktur = noFaktur,
+                listBarangRetur = getDetail,
+            };
+
+            return PartialView("TableBarangForReturPenj", vm);
+        }
+        //region retur pembelian 
+        public ActionResult ListFakturForReturInvPopUp(string noCust)
+        {
+            var vm = new InvoiceViewModel()
+            {
+                noCust = noCust,
+            };
+
+            return View(vm);
+        }
+
+        public ActionResult RefreshFakturForReturInvPopUp(int? page, string search = "", string cust = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["custParam"] = cust;
+
+            string[] getkata = search.Split(' ');
+            string sSQLnofaktur = "";
+            string sSQLnama = "";
+            string sSQLsisa = "";
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLnofaktur += " AND ";
+                            sSQLnama += " AND ";
+                            sSQLsisa += " AND ";
+                        }
+
+                        sSQLnofaktur += " inv like '%" + getkata[i] + "%' ";
+                        sSQLnama += "  nama like '%" + getkata[i] + "%' ";
+                        sSQLsisa += "  isnull(netto,0) like '%" + getkata[i] + "%' ";
+
+                    }
+                }
+            }
+
+
+            string sSQLSelect = "";
+            sSQLSelect += "select inv, tgl, nama, netto ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(inv) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "from pbt01a (nolock) ";
+            sSQL2 += "WHERE JENISFORM='1' AND SUPP = '" + cust + "' AND STATUS IN (0,1) AND inv NOT IN ";
+            sSQL2 += "(SELECT DISTINCT REF FROM PBT01A (nolock) WHERE JENISFORM='2' AND STATUS IN (0,1)) ";
+            if (search != "")
+            {
+                sSQL2 += " AND ( " + sSQLnofaktur + " or " + sSQLnama + " or " + sSQLsisa + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "order by tgl desc, INV desc ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListArf01c = ErasoftDbContext.Database.SqlQuery<FakturForReturInvPrompt>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<FakturForReturInvPrompt> pageOrders = new StaticPagedList<FakturForReturInvPrompt>(ListArf01c, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableFakturForReturInvPopUp", pageOrders);
+        }
+
+        public ActionResult ListBrgForReturInvPopUp(string noFaktur)
+        {
+            //var sSQL = "select no_urut, a.brg, nama + ' ' + isnull(nama2,'') as nama, qty, gudang from sit01b a inner join stf02 b on a.brg=b.brg where a.no_bukti='" + noFaktur + "' and b.type='3'";
+            //var getDetail = ErasoftDbContext.Database.SqlQuery<brgForReturPrompt>(sSQL).ToList();
+            //var getDetail = ErasoftDbContext.SIT01B.Where(a => a.NO_BUKTI == noFaktur && a.JENIS_FORM == "2").ToList();
+            var vm = new InvoiceViewModel()
+            {
+                noInv = noFaktur,
+                //listGudang = ErasoftDbContext.STF18.ToList()
+                //listBarangRetur = getDetail,
+            };
+
+            return View(vm);
+        }
+        public ActionResult RefreshBrgForReturInvPopUp(string noFaktur)
+        {
+            var sSQL = "select no as recnum, a.brg, nama + ' ' + isnull(nama2,'') as nama, qty, gd from pbt01b a inner join stf02 b on a.brg=b.brg where a.INV='" + noFaktur + "' and b.type='3'";
+            var getDetail = ErasoftDbContext.Database.SqlQuery<brgForReturInvPrompt>(sSQL).ToList();
+            //var getDetail = ErasoftDbContext.SIT01B.Where(a => a.NO_BUKTI == noFaktur && a.JENIS_FORM == "2").ToList();
+            var vm = new InvoiceViewModel()
+            {
+                noInv = noFaktur,
+                listBarangReturInv = getDetail,
+            };
+
+            return PartialView("TableBarangForReturInvPenj", vm);
+        }
+
+        public ActionResult SaveHeaderReturFaktur(FakturViewModel dataVm)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    dataVm.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
+                    return new JsonResult { Data = new { mo_error = dataVm.Errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var noBukti = "";
+                var noRef = dataVm.Faktur.NO_REF;
+
+                if (dataVm.Faktur.RecNum == null)
+                {
+
+                    var cekREf = ErasoftDbContext.SIT01A.SingleOrDefault(f => f.NO_REF == dataVm.Faktur.NO_REF);
+                    if (cekREf == null)
+                    {
+                        var lastBukti = GenerateAutoNumber(ErasoftDbContext, "RJ", "SIT01A", "NO_BUKTI");
+                        var noOrder = "RJ" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+
+                        var fakturInDb = ErasoftDbContext.SIT01A.SingleOrDefault(f => f.NO_BUKTI == dataVm.Faktur.NO_REF);
+
+                        if (fakturInDb != null)
+                        {
+                            dataVm.Faktur.PEMESAN = fakturInDb.PEMESAN;
+                            dataVm.Faktur.NAMAPEMESAN = fakturInDb.NAMAPEMESAN;
+                        }
+
+                        var CustInDb = ErasoftDbContext.ARF01.SingleOrDefault(p => p.CUST == dataVm.Faktur.CUST);
+                        if (CustInDb != null)
+                        {
+                            dataVm.Faktur.NAMA_CUST = CustInDb.NAMA;
+                            dataVm.Faktur.AL = CustInDb.AL;
+                            dataVm.Faktur.AL2 = CustInDb.AL2;
+                            dataVm.Faktur.AL3 = CustInDb.AL3;
+                        }
+                        dataVm.Faktur.NO_BUKTI = noOrder;
+                        dataVm.Faktur.NO_F_PAJAK = "";
+                        dataVm.Faktur.PPN_Bln_Lapor = Convert.ToByte(dataVm.Faktur.TGL.ToString("MM"));
+                        dataVm.Faktur.PPN_Thn_Lapor = Convert.ToByte(dataVm.Faktur.TGL.ToString("yyyy").Substring(2, 2));
+
+                        dataVm.Faktur.TGLINPUT = DateTime.Today;
+
+                        noBukti = noOrder;
+                        try
+                        {
+                            ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
+                            ErasoftDbContext.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+                            var tempSI = ErasoftDbContext.SIT01A.Where(a => a.NO_BUKTI == dataVm.Faktur.NO_BUKTI).Single();
+                            if (tempSI != null)
+                            {
+                                if (tempSI.NO_BUKTI == noOrder)
+                                {
+                                    var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                    lastBuktiNew++;
+                                    noOrder = "RJ" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                    dataVm.Faktur.NO_BUKTI = noOrder;
+                                    ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                            }
+                            else
+                            {
+                                dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                                return new JsonResult { Data = new { mo_error = dataVm.Errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        dataVm.Faktur.NO_BUKTI = cekREf.NO_BUKTI;
+                        noBukti = cekREf.NO_BUKTI;
+                    }
+                }
+                return new JsonResult { Data = new { mo_success = true, mo_bukti = noBukti, mo_ref = noRef }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                var err = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+        public ActionResult SaveDetailReturFaktur(string get_selected, string bukti, string noref, string gudang)
+        {
+            try
+            {
+                bool returBaru = false;
+                var temp_brg = "";
+                if (get_selected != null && get_selected != "")
+                {
+                    var rec_detail = get_selected.Split(',');
+                    foreach (var rec in rec_detail)
+                    {
+                        if (temp_brg != "")
+                        {
+                            temp_brg += ",";
+                        }
+
+                        temp_brg += "'" + rec + "'";
+                    }
+                    returBaru = true;
+                }
+                else
+                {
+                    returBaru = false;
+                    return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Tidak ada barang yang dipilih.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                if (bukti != "" && bukti != null)
+                {
+                    returBaru = true;
+                }
+                else
+                {
+                    returBaru = false;
+                    return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                if (noref != "" && noref != null)
+                {
+                    returBaru = true;
+                }
+                else
+                {
+                    returBaru = false;
+                    return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                var cekExistHeader = ErasoftDbContext.SIT01A.Where(a => a.NO_BUKTI == bukti && a.NO_REF == noref).FirstOrDefault();
+                if (cekExistHeader != null)
+                {
+                    returBaru = true;
+                }
+                else
+                {
+                    returBaru = false;
+                    return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                if (returBaru)
+                {
+                    //change proses save detail
+                    //object[] spParams = {
+                    //        new SqlParameter("@NOBUK", bukti),
+                    //        new SqlParameter("@NO_REF", noref),
+                    //        new SqlParameter("@REC_DETAIL", temp_brg),
+                    //        new SqlParameter("@GD", gudang)
+                    //    };
+
+                    //ErasoftDbContext.Database.ExecuteSqlCommand("exec [SP_AUTOLOADRETUR_PENJUALAN] @NOBUK, @NO_REF, @REC_DETAIL, @GD", spParams);
+
+                    if (temp_brg.Count() > 0)
+                    {
+                        //insert detail
+                        string insertDetail = "INSERT INTO SIT01B (JENIS_FORM,NO_BUKTI,BRG,BRG_CUST,H_SATUAN,SATUAN,QTY,GUDANG,DISCOUNT,NILAI_DISC, ";
+                        insertDetail += "   HARGA,QTY_KIRIM,AUTO_LOAD,USERNAME,TGLINPUT,QTY_RETUR,WRITE_KONFIG,DISCOUNT_2,DISCOUNT_3, ";
+                        insertDetail += "   DISCOUNT_4,DISCOUNT_5,NILAI_DISC_1,NILAI_DISC_2,NILAI_DISC_3,NILAI_DISC_4,NILAI_DISC_5, ";
+                        insertDetail += "   TOTAL_LOT,TOTAL_QTY,TGL_KIRIM,NO_URUT_SO,CATATAN,QTY_BESAR,QTY_KECIL,BRG_SO,TRANS_NO_URUT, ";
+                        insertDetail += "   SATUAN_N,QTY_N,NTITIPAN,DISC_TITIPAN,QOH ";
+                        insertDetail += "   )";
+                        insertDetail += "SELECT ";
+                        insertDetail += "   3,'" + bukti + "', B.BRG,B.BRG_CUST,B.H_SATUAN,B.SATUAN,B.QTY,'" + gudang + "', ";
+                        insertDetail += "   B.DISCOUNT,B.NILAI_DISC,B.HARGA,B.QTY_KIRIM,B.AUTO_LOAD,B.USERNAME,B.TGLINPUT,B.QTY_RETUR,B.WRITE_KONFIG,B.DISCOUNT_2, ";
+                        insertDetail += "   B.DISCOUNT_3,B.DISCOUNT_4,B.DISCOUNT_5,B.NILAI_DISC_1,B.NILAI_DISC_2,B.NILAI_DISC_3,B.NILAI_DISC_4,B.NILAI_DISC_5,B.TOTAL_LOT, ";
+                        insertDetail += "   B.TOTAL_QTY,B.TGL_KIRIM,B.NO_URUT_SO,B.CATATAN,B.QTY_BESAR,B.QTY_KECIL,B.BRG_SO,B.NO_URUT,B.SATUAN_N,B.QTY_N,B.NTITIPAN,B.DISC_TITIPAN,B.QOH ";
+                        insertDetail += "FROM SIT01A A LEFT JOIN SIT01B B ON A.NO_BUKTI=B.NO_BUKTI  ";
+                        insertDetail += "WHERE A.NO_BUKTI='" + noref + "' AND B.NO_URUT IN (" + temp_brg + ") ";
+                        ErasoftDbContext.Database.ExecuteSqlCommand(insertDetail);
+                        //update header
+                        string updateHeader = "UPDATE A SET ";
+                        updateHeader += "A.MATERAI=ISNULL(B.MATERAI,0), ";
+                        updateHeader += "A.BRUTO=ISNULL(B.BRUTO,0), ";
+                        updateHeader += "A.DISCOUNT=ISNULL(B.DISCOUNT,0), ";
+                        updateHeader += "A.NILAI_DISC=ISNULL(B.NILAI_DISC,0), ";
+                        updateHeader += "A.PPN=ISNULL(B.PPN,0), ";
+                        updateHeader += "A.NILAI_PPN=ISNULL(B.NILAI_PPN,0), ";
+                        updateHeader += "A.NETTO=ISNULL(B.NETTO,0) ";
+                        updateHeader += "FROM SIT01A A ";
+                        updateHeader += "INNER JOIN ( ";
+                        updateHeader += "select B.NO_BUKTI,ISNULL(B.MATERAI,0) AS MATERAI, ";
+                        updateHeader += "ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.H_SATUAN,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) AS BRUTO, ";
+                        updateHeader += "ISNULL(B.DISCOUNT,0) AS DISCOUNT,ISNULL(B.NILAI_DISC,0) AS NILAI_DISC, ISNULL(B.PPN,0) AS PPN,";
+                        //updateHeader += "ISNULL(B.NILAI_PPN,0) AS NILAI_PPN, ";
+                        //--nppn
+                        updateHeader += "ISNULL( (ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.H_SATUAN,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) - ISNULL(B.NILAI_DISC,0)) * ISNULL(B.PPN,0) /100 ,0) AS NILAI_PPN,";
+                        //netto
+                        updateHeader += "ISNULL(";
+                        updateHeader += "ISNULL(SUM(ISNULL(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.H_SATUAN,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0),0)),0) ";
+                        updateHeader += "- ISNULL(B.NILAI_DISC,0) + ISNULL(B.MATERAI,0) ";
+                        updateHeader += "+ ISNULL( (ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.H_SATUAN,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) - ISNULL(B.NILAI_DISC,0)) * ISNULL(B.PPN,0) /100 ,0) ";
+                        updateHeader += ",0) AS NETTO FROM SIT01A B INNER JOIN SIT01B C ON C.NO_BUKTI=B.NO_BUKTI ";
+                        updateHeader += "WHERE B.NO_BUKTI='" + noref + "' AND C.NO_URUT in (" + temp_brg + ") ";
+                        updateHeader += "GROUP BY B.NO_BUKTI, B.MATERAI,B.DISCOUNT,B.NILAI_DISC,B.PPN,B.NILAI_PPN ";
+                        updateHeader += ")B ON A.NO_REF=B.NO_BUKTI WHERE A.NO_BUKTI='" + bukti + "'";
+                        ErasoftDbContext.Database.ExecuteSqlCommand(updateHeader);
+                    }
+
+                    //end change proses save detail
+
+                    List<string> listBrg = new List<string>();
+                    var detailReturFakturInDb = ErasoftDbContext.SIT01B.AsNoTracking().Where(pd => pd.NO_BUKTI == bukti && pd.JENIS_FORM == "3").ToList();
+                    foreach (var item in detailReturFakturInDb)
+                    {
+                        listBrg.Add(item.BRG);
+                    }
+                    updateStockMarketPlace(listBrg, "[INS_RJ][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+                }
+                ModelState.Clear();
+
+                var ListFakturDetail = ErasoftDbContext.SIT01B.AsNoTracking().Where(pd => pd.NO_BUKTI == bukti && pd.JENIS_FORM == "3").ToList();
+                var listBarangInFakturDetail = ListFakturDetail.Select(p => p.BRG).ToList();
+                var noref_MP = "";
+                var ceknoref = ErasoftDbContext.SIT01A.Where(a => a.NO_BUKTI == noref).Select(a => a.NO_REF).SingleOrDefault();
+                if (ceknoref != null)
+                {
+                    var temp = ceknoref.Split(';');
+                    noref_MP = temp.Last();
+                }
+                var vm = new FakturViewModel()
+                {
+                    Faktur = ErasoftDbContext.SIT01A.AsNoTracking().Single(p => p.NO_BUKTI == bukti && p.JENIS_FORM == "3"),
+                    ListFakturDetail = ListFakturDetail,
+                    ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                    noRef = noref_MP
+                };
+
+                return PartialView("BarangReturPartial", vm);
+            }
+            catch (Exception ex)
+            {
+                var err = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+        public ActionResult SaveHeaderReturInvoice(InvoiceViewModel dataVm)
+        {
+            try
+            {
+                //if (!ModelState.IsValid)
+                //{
+                //    dataVm.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
+                //    return new JsonResult { Data = new { mo_error = dataVm.Errors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                //}
+
+                var noBukti = "";
+                var noRef = dataVm.Invoice.REF;
+
+                bool returBaru = false;
+
+                if (dataVm.Invoice.RecNum == null)
+                {
+                    var cekREf = ErasoftDbContext.PBT01A.SingleOrDefault(f => f.REF == dataVm.Invoice.REF);
+                    if (cekREf == null)
+                    {
+                        var lastBukti = GenerateAutoNumber(ErasoftDbContext, "RB", "PBT01A", "INV");
+                        var noOrder = "RB" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+
+                        var invoiceDetailInDb = ErasoftDbContext.PBT01B.Where(b => b.INV == dataVm.Invoice.REF).ToList();
+                        //foreach (var item in invoiceDetailInDb)
+                        //{
+                        //    var qtyOnHand = GetQOHSTF08A(item.BRG, item.GD);
+
+                        //    if (qtyOnHand - item.QTY < 0)
+                        //    {
+                        //        var vmError = new InvoiceViewModel()
+                        //        {
+
+                        //        };
+                        //        vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + item.BRG + " ) di gudang " + item.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                        //        //return Json(vmError, JsonRequestBehavior.AllowGet);
+                        //        return new JsonResult { Data = new { mo_error = "Tidak bisa retur, Qty untuk barang ( " + item.BRG + " ) di gudang " + item.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        //    }
+                        //}
+
+                        var returInDb = ErasoftDbContext.PBT01A.SingleOrDefault(f => f.INV == dataVm.Invoice.REF);
+                        if (returInDb != null)
+                        {
+                            dataVm.Invoice.TERM = returInDb.TERM;
+                            dataVm.Invoice.TGJT = returInDb.TGJT;
+                            dataVm.Invoice.BRUTO = returInDb.BRUTO;
+                            dataVm.Invoice.NETTO = returInDb.NETTO;
+                            dataVm.Invoice.PPN = returInDb.PPN;
+                            dataVm.Invoice.NPPN = returInDb.NPPN;
+                            dataVm.Invoice.NDISC1 = returInDb.NDISC1;
+                            dataVm.Invoice.BIAYA_LAIN = returInDb.BIAYA_LAIN;
+                        }
+
+                        dataVm.Invoice.INV = noOrder;
+                        dataVm.Invoice.F_PAJAK = "";
+                        dataVm.Invoice.NAMA = ErasoftDbContext.APF01.Single(p => p.SUPP == dataVm.Invoice.SUPP).NAMA;
+                        dataVm.Invoice.PPN_Bln_Lapor = Convert.ToByte(dataVm.Invoice.TGL?.ToString("MM") ?? "0");
+                        dataVm.Invoice.PPN_Thn_Lapor = Convert.ToByte(dataVm.Invoice.TGL?.ToString("yyyy").Substring(2, 2) ?? "0");
+
+                        dataVm.Invoice.TGLINPUT = DateTime.Today;
+
+                        noBukti = noOrder;
+                        try
+                        {
+                            ErasoftDbContext.PBT01A.Add(dataVm.Invoice);
+                            ErasoftDbContext.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+                            var tempSI = ErasoftDbContext.PBT01A.Where(a => a.INV == dataVm.Invoice.INV).Single();
+                            if (tempSI != null)
+                            {
+                                if (tempSI.INV == noOrder)
+                                {
+                                    var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                    lastBuktiNew++;
+                                    noOrder = "RB" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                    dataVm.Invoice.INV = noOrder;
+                                    ErasoftDbContext.PBT01A.Add(dataVm.Invoice);
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                            }
+                            else
+                            {
+                                dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                                //return Json(dataVm, JsonRequestBehavior.AllowGet);
+                                return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                            }
+                        }
+                        returBaru = true;
+                    }
+                }
+
+                ErasoftDbContext.SaveChanges();
+                ModelState.Clear();
+
+                return new JsonResult { Data = new { mo_success = true, mo_bukti = noBukti, mo_ref = noRef }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                var err = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+        public ActionResult SaveDetailReturInvoice(string get_selected, string bukti, string noref, string gudang)
+        {
+            try
+            {
+                bool returBaru = false;
+                var temp_brg = "";
+                var rec_detail = new List<string>();
+                if (get_selected != null && get_selected != "")
+                {
+                    rec_detail = get_selected.Split(',').ToList();
+                    foreach (var rec in rec_detail)
+                    {
+                        if (temp_brg != "")
+                        {
+                            temp_brg += ",";
+                        }
+
+                        temp_brg += "'" + rec + "'";
+                    }
+                    returBaru = true;
+                }
+                else
+                {
+                    returBaru = false;
+                    return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Tidak ada barang yang dipilih.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                if (bukti != "" && bukti != null)
+                {
+                    returBaru = true;
+                }
+                else
+                {
+                    returBaru = false;
+                    return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                if (noref != "" && noref != null)
+                {
+                    returBaru = true;
+                }
+                else
+                {
+                    returBaru = false;
+                    return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                var cekExistHeader = ErasoftDbContext.PBT01A.Where(a => a.INV == bukti && a.REF == noref).FirstOrDefault();
+                if (cekExistHeader != null)
+                {
+                    returBaru = true;
+                }
+                else
+                {
+                    returBaru = false;
+                    return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var invoiceDetailInDb = ErasoftDbContext.PBT01B.Where(b => b.INV == noref).ToList();
+                if (invoiceDetailInDb.Count() > 0)
+                {
+                    foreach (var item in rec_detail)
+                    {
+                        var getbrg = invoiceDetailInDb.Where(a => a.NO.ToString() == item).FirstOrDefault();
+                        var qtyOnHand = GetQOHSTF08A(getbrg.BRG, gudang);
+
+                        if (qtyOnHand - getbrg.QTY < 0)
+                        {
+                            var vmError = new InvoiceViewModel()
+                            {
+
+                            };
+                            vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + getbrg.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                            //return Json(vmError, JsonRequestBehavior.AllowGet);
+                            string sql1 = "delete from pbt01a where inv='" + bukti + "'";
+                            ErasoftDbContext.Database.ExecuteSqlCommand(sql1);
+                            return new JsonResult { Data = new { mo_error = "Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + getbrg.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        }
+                    }
+                }
+                else
+                {
+                    returBaru = false;
+                    return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                if (returBaru)
+                {
+                    //change proses save detail
+                    //    object[] spParams = {
+                    //new SqlParameter("@NOBUK",dataVm.Invoice.INV),
+                    //new SqlParameter("@NO_REF",dataVm.Invoice.REF)
+                    //};
+
+                    //    ErasoftDbContext.Database.ExecuteSqlCommand("exec [SP_AUTOLOADRETUR_PEMBELIAN] @NOBUK, @NO_REF", spParams);
+
+                    if (temp_brg.Count() > 0)
+                    {
+                        //insert detail
+                        string insertDetail = "INSERT INTO PBT01B (JENISFORM,INV,PO,BRG,NAMA_BRG,GD,BK,QTY,DISC2,NDISC2,HBELI,THARGA,NOBUK,AUTO_LOAD, ";
+                        insertDetail += "   QTY_RETUR,BIAYA,USERNAME,TGLINPUT,TOTAL_LOT,TOTAL_QTY,DISCOUNT_1,DISCOUNT_2,DISCOUNT_3, ";
+                        insertDetail += "   NILAI_DISC_1,NILAI_DISC_2,NILAI_DISC_3,KET,NO_URUT_PO,PPNBM,NILAI_PPNBM,BRG_ORIGINAL,LKU ";
+                        insertDetail += "   )";
+                        insertDetail += "SELECT ";
+                        insertDetail += "   '2','" + bukti + "',B.PO,B.BRG,B.NAMA_BRG,'" + gudang + "',B.BK,B.QTY,B.DISC2,B.NDISC2,B.HBELI,B.THARGA,B.NOBUK,B.AUTO_LOAD,";
+                        insertDetail += "   B.QTY_RETUR,B.BIAYA,B.USERNAME,B.TGLINPUT,B.TOTAL_LOT,B.TOTAL_QTY,B.DISCOUNT_1,B.DISCOUNT_2,B.DISCOUNT_3, ";
+                        insertDetail += "   B.NILAI_DISC_1,B.NILAI_DISC_2,B.NILAI_DISC_3,B.KET,B.NO,B.PPNBM,B.NILAI_PPNBM,B.BRG_ORIGINAL,B.LKU ";
+                        insertDetail += "FROM PBT01A A LEFT JOIN PBT01B B ON A.INV=B.INV  ";
+                        insertDetail += "WHERE A.INV='" + noref + "' AND B.NO IN (" + temp_brg + ") ";
+                        ErasoftDbContext.Database.ExecuteSqlCommand(insertDetail);
+                        //update header
+                        string updateHeader = "UPDATE A SET ";
+                        updateHeader += "A.BRUTO=ISNULL(B.BRUTO,0), ";
+                        updateHeader += "A.DISC1=ISNULL(B.DISC1,0), ";
+                        updateHeader += "A.NDISC1=ISNULL(B.NDISC1,0), ";
+                        updateHeader += "A.NPPN=ISNULL(B.NPPN, 0), ";
+                        updateHeader += "A.NETTO=ISNULL(B.NETTO,0) ";
+                        updateHeader += "FROM PBT01A A ";
+                        updateHeader += "INNER JOIN ( ";
+                        updateHeader += "select B.INV, ISNULL(B.BIAYA_LAIN,0) AS BIAYA_LAIN, ";
+                        updateHeader += "ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.HBELI,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) AS BRUTO, ";
+                        updateHeader += "ISNULL(B.DISC1,0) AS DISC1,ISNULL(B.NDISC1,0) AS NDISC1,ISNULL(B.PPN,0) AS PPN,";
+                        //updateHeader += "ISNULL(B.NPPN,0) AS NPPN, ";
+                        //nppn
+                        updateHeader += "ISNULL( (ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.HBELI,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) - ISNULL(B.NDISC1,0)) * ISNULL(B.PPN,0) /100 ,0) AS NPPN,";
+                        //netto
+                        updateHeader += "ISNULL(";                        
+                        updateHeader += "ISNULL(SUM(ISNULL(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.HBELI,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0),0)),0) ";
+                        updateHeader += "- ISNULL(B.NDISC1,0) + ISNULL(B.BIAYA_LAIN,0) ";
+                        updateHeader += "+ ISNULL( (ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.HBELI,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) - ISNULL(B.NDISC1,0)) * ISNULL(B.PPN,0) /100 ,0) ";
+                        updateHeader += ",0) AS NETTO FROM PBT01A B INNER JOIN PBT01B C ON C.INV=B.INV ";
+                        updateHeader += "WHERE B.INV='" + noref + "' AND C.NO in (" + temp_brg + ") ";
+                        updateHeader += "GROUP BY B.INV, B.BIAYA_LAIN,B.DISC1,B.NDISC1,B.PPN,B.NPPN  ";
+                        updateHeader += ")B ON A.REF=B.INV WHERE A.INV='" + bukti + "'";
+                        ErasoftDbContext.Database.ExecuteSqlCommand(updateHeader);
+                    }
+
+                    //end change proses save detail
+                                        
+                    List<string> listBrg = new List<string>();
+                    var detailReturInvoiceInDb = ErasoftDbContext.PBT01B.AsNoTracking().Where(pd => pd.INV == bukti && pd.JENISFORM == "2").ToList();
+                    foreach (var item in detailReturInvoiceInDb)
+                    {
+                        listBrg.Add(item.BRG);
+                    }
+                    updateStockMarketPlace(listBrg, "[INS_RB][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+
+                }
+                ModelState.Clear();
+                
+                //var cek = ErasoftDbContext.PBT01A.AsNoTracking().Single(p => p.INV == bukti && p.JENISFORM == "2");
+                //var cek2 = ErasoftDbContext.PBT01B.AsNoTracking().Where(pd => pd.INV == bukti && pd.JENISFORM == "2").ToList();
+                var ListInvoiceDetail = ErasoftDbContext.PBT01B.AsNoTracking().Where(pd => pd.INV == bukti && pd.JENISFORM == "2").ToList();
+                var listBarangInInvoiceDetail = ListInvoiceDetail.Select(p => p.BRG).ToList();
+                var vm = new InvoiceViewModel()
+                {
+                    Invoice = ErasoftDbContext.PBT01A.AsNoTracking().Single(p => p.INV == bukti && p.JENISFORM == "2"),
+                    ListInvoiceDetail = ListInvoiceDetail,
+                    ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInInvoiceDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                };
+
+                return PartialView("BarangReturInvoicePartial", vm);
+            }
+            catch (Exception ex)
+            {
+                var err = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+        //end add by nurul 8/6/2020
     }
     public class smolSTF02
     {
