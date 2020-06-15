@@ -2441,12 +2441,17 @@ namespace MasterOnline.Controllers
         }
 
         //Get All Orders State.
-        public ActionResult E2Cart_GetOrdersState(E2CartAPIData iden)
+        public async Task<BindingBase82Cart> E2Cart_GetOrdersState(E2CartAPIData iden)
         {
+            var ret = new BindingBase82Cart
+            {
+                status = 0,
+                recordCount = 0,
+                exception = 0,
+                totalData = 0
+            };
 
             string urll = string.Format("{0}/api/v1/getOrderStates?apiKey={1}&apiCredential={2}", iden.API_url, iden.API_key, iden.API_credential);
-
-
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
             myReq.ContentType = "application/json";
@@ -2469,12 +2474,15 @@ namespace MasterOnline.Controllers
 
             if (!string.IsNullOrEmpty(responseServer))
             {
-                var lOrderState = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartOrderStateResult)) as E2CartOrderStateResult;
+                var resultOrderState = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartOrderStateResult)) as E2CartOrderStateResult;
 
-                ViewBag.OrderState = lOrderState.data;
+                if(resultOrderState.error == "none" && resultOrderState.data.Length > 0)
+                {
+                    //ret.dataObject = resultOrderState.data;
+                }
+
             }
-
-            return View();
+            return ret;
         }
 
         //[AutomaticRetry(Attempts = 2)]

@@ -1311,8 +1311,8 @@ namespace MasterOnline.Controllers
                         idenJob.username = username;
                         idenJob.no_cust = tblCustomer.CUST;
 
-                        //connId_JobId = dbPathEra + "_82Cart_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EightTwoCartControllerJob>(x => x.E2Cart_GetOrderByStatus(idenJob, EightTwoCartControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                        connId_JobId = dbPathEra + "_82Cart_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EightTwoCartControllerJob>(x => x.E2Cart_GetOrderByStatus(idenJob, EightTwoCartControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_82Cart_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EightTwoCartControllerJob>(x => x.E2Cart_GetOrderByStatus(idenJob, EightTwoCartControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
@@ -1332,7 +1332,7 @@ namespace MasterOnline.Controllers
                         iden.username = username;
                         iden.no_cust = tblCustomer.CUST;
 
-                        //await new EightTwoCartController().E2Cart_GetOrderByStatus(iden, EightTwoCartController.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
+                        await new EightTwoCartControllerJob().E2Cart_GetOrderByStatus(iden, EightTwoCartControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
 
                         await new EightTwoCartControllerJob().E2Cart_GetOrderByStatus(iden, EightTwoCartControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
 
