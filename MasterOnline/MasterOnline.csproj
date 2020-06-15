@@ -6391,6 +6391,14 @@
     <Content Include="Views\Admin\TablePesananHangfireJob.cshtml" />
     <Content Include="Views\Manage\ListDetailStokBarang.cshtml" />
     <Content Include="Views\Manage\CetakLabelTokped.cshtml" />
+    <Content Include="Views\Manage\TableFakturForReturPopUp.cshtml" />
+    <Content Include="Views\Manage\ListFakturForReturPopUp.cshtml" />
+    <Content Include="Views\Manage\ListBrgForReturPopUp.cshtml" />
+    <Content Include="Views\Manage\TableBarangForReturPenj.cshtml" />
+    <Content Include="Views\Manage\ListBrgForReturInvPopUp.cshtml" />
+    <Content Include="Views\Manage\ListFakturForReturInvPopUp.cshtml" />
+    <Content Include="Views\Manage\TableBarangForReturInvPenj.cshtml" />
+    <Content Include="Views\Manage\TableFakturForReturInvPopUp.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -19,5 +19,31 @@ namespace MasterOnline.ViewModels
         public List<Marketplace> ListMarketplace { get; set; } = new List<Marketplace>();
         public List<APT03B> ListNInvoice { get; set; } = new List<APT03B>();
         public List<String> Errors { get; set; } = new List<string>();
+
+        //add by nurul 9/6/2020
+        public string setGd { get; set; }
+        public string noInv { get; set; }
+        public string noCust { get; set; }
+        public List<STF18> listGudang { get; set; }
+        public List<brgForReturInvPrompt> listBarangReturInv = new List<brgForReturInvPrompt>();
+        //end add by nurul 9/6/2020
     }
+
+    //add by nurul 9/6/2020
+    public class FakturForReturInvPrompt
+    {
+        public string inv { get; set; }
+        public DateTime tgl { get; set; }
+        public string nama { get; set; }
+        public double netto { get; set; }
+    }
+    public class brgForReturInvPrompt
+    {
+        public int recnum { get; set; }
+        public string brg { get; set; }
+        public string nama { get; set; }
+        public double qty { get; set; }
+        public string gudang { get; set; }
+    }
+    //end add by nurul 9/6/2020
 }

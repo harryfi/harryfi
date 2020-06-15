@@ -1,0 +1,24 @@
+﻿@model MasterOnline.ViewModels.InvoiceViewModel
+<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+    <thead>
+        <tr role="row">
+            <th class="sorting text-center center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; align-self:flex-start"><input type="checkbox" class="dt-checkboxes-select-all center" id="all_checkbox_barang" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Kode Barang</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Nama Barang</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px;">Qty</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var barang in Model.listBarangReturInv)
+        {
+        <tr>
+            <td style="text-align:center">
+                <input type="checkbox" class="dt-checkboxes center checkbox_barang" data-recnum="@barang.recnum" style="align-self:flex-start; width:30px; height:28px;" />
+            </td>
+            <td>@barang.brg</td>
+            <td>@barang.nama</td>
+            <td  style="text-align:center">@barang.qty</td>
+        </tr>
+        }
+    </tbody>
+</table>
