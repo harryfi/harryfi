@@ -19904,7 +19904,10 @@ namespace MasterOnline.Controllers
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.AcceptBuyerCancellation(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI));
-                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.CancelOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI, cancelReason, listVariable));
+                                //change by nurul 16/6/2020
+                                //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.CancelOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI, cancelReason, listVariable));
+                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.CancelOrder(dbPathEra, pesanan.NO_BUKTI, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI, cancelReason, listVariable));
+                                //end change by nurul 16/6/2020
                                 //Task.Run(() => new ShopeeControllerJob().CancelOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI, cancelReason, listVariable).Wait());
                                 //end change by calvin 10 april 2019, jadi pakai backgroundjob
                             }
@@ -20881,7 +20884,10 @@ namespace MasterOnline.Controllers
 
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo, "0"));
+                    //change by nurul 16/6/2020
+                    //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo, "0"));
+                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo, "0"));
+                    //end change by nurul 16/6/2020
                     //await new ShopeeControllerJob().InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Change Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo);
                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
@@ -20909,7 +20915,10 @@ namespace MasterOnline.Controllers
                     //await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
+                    //change by nurul 16/6/2020
+                    //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
+                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
+                    //end change by nurul 16/6/2020
                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
                 else if (metode == "2") // NON INTEGRATED
@@ -20931,7 +20940,10 @@ namespace MasterOnline.Controllers
 
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticNonIntegrated(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
+                    //change by nurul 16/6/2020
+                    //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticNonIntegrated(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
+                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticNonIntegrated(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
+                    //end change by nurul 16/6/2020
                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
             }
@@ -40120,7 +40132,10 @@ namespace MasterOnline.Controllers
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
 
                                             string nilaiTRACKING_SHIPMENT = "P[;]" + pAddress + "[;]" + pTime;
-                                            clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT));
+                                            //change by nurul 16/6/2020
+                                            //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT));
+                                            clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT));
+                                            //end change by nurul 16/6/2020
                                             listSuccess.Add(new listSuccessPrintLabel
                                             {
                                                 no_referensi = so.no_referensi
@@ -40278,11 +40293,17 @@ namespace MasterOnline.Controllers
                                                 };
 #if (DEBUG || Debug_AWS)
                                                 var shoApi = new ShopeeControllerJob();
-                                                var notrack = Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
-#else
+                                                //change by nurul 16/6/2020
+                                                //var notrack = Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
+                                                var notrack = Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
+                                                //end change by nurul 16/6/2020
+#else   
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
+                                                //change by nurul 16/6/2020
+                                                //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
+                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
+                                                //end change by nurul 16/6/2020
 #endif
                                                 listSuccess.Add(new listSuccessPrintLabel()
                                                 {
@@ -40300,11 +40321,17 @@ namespace MasterOnline.Controllers
                                                 };
 #if (DEBUG || Debug_AWS)
                                                 var shoApi = new ShopeeControllerJob();
-                                                Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job)).Wait();
+                                                //change by nurul 16/6/2020
+                                                //Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job)).Wait();
+                                                Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job)).Wait();
+                                                //end change by nurul 16/6/2020
 #else
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
+                                                //change by nurul 16/6/2020
+                                                //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
+                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
+                                                //end change by nurul 16/6/2020
 #endif
 
                                                 listSuccess.Add(new listSuccessPrintLabel()
