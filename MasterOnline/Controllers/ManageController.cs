@@ -15380,6 +15380,9 @@ namespace MasterOnline.Controllers
             //add by nurul 16/1/2020, tampil sisa faktur
             sSQLSelect += ",ISNULL(SUM(D.NETTO + D.DEBET - D.KREDIT - D.BAYAR),0) AS SISA_FAKTUR ";
             //end add by nurul 16/1/2020, tampil sisa faktur
+            //add by nurul 16/6/2020
+            sSQLSelect += ", isnull(A.NO_REF,'') AS REFERENSI ";
+            //end add by nurul 16/6/2020
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -15474,6 +15477,9 @@ namespace MasterOnline.Controllers
             //add by nurul 16/1/2020, tampil sisa faktur
             sSQLSelect += ",ISNULL(SUM(D.NETTO + D.DEBET - D.KREDIT - D.BAYAR),0) AS SISA_FAKTUR ";
             //end add by nurul 16/1/2020, tampil sisa faktur
+            //add by nurul 16/6/2020
+            sSQLSelect += ", isnull(A.NO_REF,'') AS REFERENSI ";
+            //end add by nurul 16/6/2020
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
