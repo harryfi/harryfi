@@ -249,5 +249,75 @@ namespace MasterOnline.Models
         public string ANAME_30 { get; set; }
         [StringLength(1)]
         public string STATUS_30 { get; set; }
+
+        public int? VARIANT_ID_31 { get; set; }
+        public int? HAS_UNIT_31 { get; set; }
+        [StringLength(250)]
+        public string ANAME_31 { get; set; }
+        [StringLength(1)]
+        public string STATUS_31 { get; set; }
+
+        public int? VARIANT_ID_32 { get; set; }
+        public int? HAS_UNIT_32 { get; set; }
+        [StringLength(250)]
+        public string ANAME_32 { get; set; }
+        [StringLength(1)]
+        public string STATUS_32 { get; set; }
+
+        public int? VARIANT_ID_33 { get; set; }
+        public int? HAS_UNIT_33 { get; set; }
+        [StringLength(250)]
+        public string ANAME_33 { get; set; }
+        [StringLength(1)]
+        public string STATUS_33 { get; set; }
+
+        public int? VARIANT_ID_34 { get; set; }
+        public int? HAS_UNIT_34 { get; set; }
+        [StringLength(250)]
+        public string ANAME_34 { get; set; }
+        [StringLength(1)]
+        public string STATUS_34 { get; set; }
+
+        public int? VARIANT_ID_35 { get; set; }
+        public int? HAS_UNIT_35 { get; set; }
+        [StringLength(250)]
+        public string ANAME_35 { get; set; }
+        [StringLength(1)]
+        public string STATUS_35 { get; set; }
+
+        public int? VARIANT_ID_36 { get; set; }
+        public int? HAS_UNIT_36 { get; set; }
+        [StringLength(250)]
+        public string ANAME_36 { get; set; }
+        [StringLength(1)]
+        public string STATUS_36 { get; set; }
+
+        public int? VARIANT_ID_37 { get; set; }
+        public int? HAS_UNIT_37 { get; set; }
+        [StringLength(250)]
+        public string ANAME_37 { get; set; }
+        [StringLength(1)]
+        public string STATUS_37 { get; set; }
+
+        public int? VARIANT_ID_38 { get; set; }
+        public int? HAS_UNIT_38 { get; set; }
+        [StringLength(250)]
+        public string ANAME_38 { get; set; }
+        [StringLength(1)]
+        public string STATUS_38 { get; set; }
+
+        public int? VARIANT_ID_39 { get; set; }
+        public int? HAS_UNIT_39 { get; set; }
+        [StringLength(250)]
+        public string ANAME_39 { get; set; }
+        [StringLength(1)]
+        public string STATUS_39 { get; set; }
+
+        public int? VARIANT_ID_40 { get; set; }
+        public int? HAS_UNIT_40 { get; set; }
+        [StringLength(250)]
+        public string ANAME_40 { get; set; }
+        [StringLength(1)]
+        public string STATUS_40 { get; set; }
     }
 }
