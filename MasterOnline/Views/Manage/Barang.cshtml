@@ -3716,9 +3716,9 @@
             });
         }
 
-        function ClearAttribute82Cart(divIDpertama,divIDselanjutnya,i,undoing){
-            var fieldAttributeCode = '#ListHargaJualPermarket_' + i + '__ACODE_' + i;
-            var fieldAttributeName = '#ListHargaJualPermarket_' + i + '__ANAME_' + i;
+        function ClearAttribute82Cart(divIDpertama,divIDselanjutnya,i,undoing,recnumArf01){
+            var fieldAttributeCode = '#ListHargaJualPermarket_' + i + '__ACODE_' + (i + 1);
+            var fieldAttributeName = '#ListHargaJualPermarket_' + i + '__ANAME_' + (i + 1);
             var msg = "Kosongkan Attribute ?";
             if (undoing) {
                 msg = "Kembalikan Seperti Semula ?";
@@ -3743,8 +3743,8 @@
             for (var i = 0; i < listMarket.length; i++) {
                 if (listMarket[i].NAMA == idMarket82Cart.toString() && (spec < 0 || spec == i)) {
                     var selectAttribute82CartID = 'Attribute_82Cart_' + listMarket[i].RecNum;
-                    var fieldAttributeCode = '#ListHargaJualPermarket_' + i + '__ACODE_' + i;
-                    var fieldAttributeName = '#ListHargaJualPermarket_' + i + '__ANAME_' + i;
+                    var fieldAttributeCode = '#ListHargaJualPermarket_' + i + '__ACODE_' + (i + 1);
+                    var fieldAttributeName = '#ListHargaJualPermarket_' + i + '__ANAME_' + (i + 1);
                     var nextselectID = "Attribute_82Cart_2_" + listMarket[i].RecNum;
                     var attribute82CartSelanjutnya =  '#attribute_82Cart_selanjutnya_' + listMarket[i].RecNum;
                     var listMarketRecNum = listMarket[i].RecNum;
@@ -3758,7 +3758,7 @@
 
                         if (ListHargaJualPermarketView[0] != undefined) {
 
-                            $(fieldAttributeCode).val(ListHargaJualPermarketView[0]['__ACODE_' + i]);
+                            $(fieldAttributeCode).val(ListHargaJualPermarketView[0]['__ACODE_' + (i + 1)]);
 
                             var fieldAttributeCodeValue = $(fieldAttributeCode).val();
                             FuncGetKategori82CartByChildCode(fieldAttributeCodeValue, listMarketRecNum, fieldAttributeCode, ListHargaJualPermarketView, listMarket[i].PERSO);
@@ -4441,6 +4441,10 @@
                 belumSetFocus = false;
                 $('#JD_detail_tab_focus').click();
             }
+            if (error82Cart == 1 && belumSetFocus) {
+                belumSetFocus = false;
+                $('#82Cart_detail_tab_focus').click();
+            }
             //end add by calvin 23 april 2019
 
             @*  remark by calvin 23 april 2019, pindah ke toggleRequiredDetailPerMarketplace
@@ -4495,7 +4499,8 @@
         var errorLazada = 0;
         var errorBlibli = 0;
         var errorElevenia= 0;
-        var errorJDID= 0;
+        var errorJDID = 0;
+        var error82Cart = 0;
 
         function toggleRequiredDetailPerMarketplace(){
             errorShopee = 0;
@@ -4504,6 +4509,7 @@
             errorBlibli = 0;
             errorElevenia = 0;
             errorJDID = 0;
+            error82Cart = 0;
             $('.cbxTarget').each(function () {
                 var $this = $(this);
 
@@ -4551,6 +4557,9 @@
                                         errorElevenia = 1;
                                         break;
                                     case "19":
+                                        errorJDID = 1;
+                                        break;
+                                    case "":
                                         errorJDID = 1;
                                         break;
                                 }

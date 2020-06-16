@@ -1492,9 +1492,9 @@
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.ACODE_1 != null)
                                                                                     {
-                                                                                        <button type="button" onclick="ClearAttribute82Cart('attribute_82Cart_pertama_' + @recnumArf01, 'attribute_82Cart_selanjutnya_' + @recnumArf01, @i, true);">Undo</button>
+                                                                                        <button type="button" onclick="ClearAttribute82Cart('attribute_82Cart_pertama_' + @recnumArf01, 'attribute_82Cart_selanjutnya_' + @recnumArf01, @i, true, @recnumArf01);">Undo</button>
                                                                                     }
-                                                                                    <button type="button" onclick="ClearAttribute82Cart('attribute_82Cart_pertama_' + @recnumArf01, 'attribute_82Cart_selanjutnya_' + @recnumArf01, @i, false);">Clear</button>
+                                                                                    <button type="button" onclick="ClearAttribute82Cart('attribute_82Cart_pertama_' + @recnumArf01, 'attribute_82Cart_selanjutnya_' + @recnumArf01, @i, false, @recnumArf01);">Clear</button>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row">

@@ -9666,7 +9666,7 @@ namespace MasterOnline.Controllers
                                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 
 #if (DEBUG || Debug_AWS)
-                                            EightTwoCartController.E2CartAPIData iden = new EightTwoCartController.E2CartAPIData
+                                            EightTwoCartControllerJob.E2CartAPIData iden = new EightTwoCartControllerJob.E2CartAPIData
                                             {
                                                 username = usernameLogin,
                                                 no_cust = tblCustomer.CUST,
@@ -9676,9 +9676,9 @@ namespace MasterOnline.Controllers
                                                 API_url = tblCustomer.PERSO,
                                                 DatabasePathErasoft = dbPathEra
                                             };
-                                            EightTwoCartController c82CartAPI = new EightTwoCartController();
+                                            EightTwoCartControllerJob c82CartAPI = new EightTwoCartControllerJob();
 
-                                            //c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
+                                            c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
                                             //Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
 #else
                                             EightTwoCartControllerJob.E2CartAPIData dataJob = new EightTwoCartControllerJob.E2CartAPIData
@@ -9697,7 +9697,7 @@ namespace MasterOnline.Controllers
 
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                            //clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
+                                            clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
 #endif
                                         }
                                     }
@@ -10972,8 +10972,8 @@ namespace MasterOnline.Controllers
                     DatabasePathErasoft = dbPathEra
                 };
 
-                string url = "dev.api.82cart.com";
-                string urll = string.Format("https://{0}/api/v1/getManufacturer?apiKey={1}&apiCredential={2}", url, data.API_key, data.API_credential);
+                //string url = "dev.api.82cart.com";
+                string urll = string.Format("{0}/api/v1/getManufacturer?apiKey={1}&apiCredential={2}", data.API_url, data.API_key, data.API_credential);
 
                 HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                 myReq.Method = "GET";
