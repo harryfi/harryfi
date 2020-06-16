@@ -449,6 +449,7 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
+            int jmlhPesananUbahDibayar = 0;
             SetupContext(iden);
 
             //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
@@ -679,7 +680,7 @@ namespace MasterOnline.Controllers
                                                             CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
                                                             CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
                                                             CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 1;
-                                                            CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                                            //CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                                             CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
                                                             EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
@@ -711,6 +712,8 @@ namespace MasterOnline.Controllers
                         string[] statusCAP = { "2", "3" }; // CODE STATUS PESANAN PAYMENT ACCEPTED, DAN PREPARATION IN PROGRESS INSERT KE DB
                         string ordersn = "";
                         jmlhPesananDibayar = 0;
+
+                        string ordersn2 = "";
 
                         for (int itemOrderExisting = 0; itemOrderExisting < statusCAP.Length; itemOrderExisting++)
                         {
@@ -890,24 +893,35 @@ namespace MasterOnline.Controllers
                                             CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
                                             CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
                                             CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 1;
-                                            CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                            //CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                             CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
                                             EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
                                         }
                                     }
+                                    else
+                                    {
+                                        ordersn2 = ordersn2 + "'" + order.id_order + "',";
+                                    }
+
+                                }
+                                if (!string.IsNullOrEmpty(ordersn2))
+                                {
+                                    ordersn2 = ordersn2.Substring(0, ordersn2.Length - 1);
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn2 + ") AND STATUS_TRANSAKSI = '0'");
+                                    if (rowAffected > 0)
+                                    {
+                                        jmlhPesananUbahDibayar += rowAffected;
+                                    }
                                 }
                             }
                         }
-                        //if (!string.IsNullOrEmpty(ordersn))
-                        //{
-                            //ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                            //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
-                            //if (rowAffected > 0)
-                            //{
-                            //    jmlhPesananDibayar++;
-                            //}
-                        //}
+
+                        if (jmlhPesananUbahDibayar > 0)
+                        {
+                            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                            contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari 82Cart.");
+                        }
 
                         if (jmlhPesananDibayar > 0)
                         {
