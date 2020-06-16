@@ -920,7 +920,7 @@ namespace MasterOnline.Controllers
                         if (jmlhPesananUbahDibayar > 0)
                         {
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                            contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari 82Cart.");
+                            contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananUbahDibayar) + " Pesanan terbayar dari 82Cart.");
                         }
 
                         if (jmlhPesananDibayar > 0)
