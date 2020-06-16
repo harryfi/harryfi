@@ -939,7 +939,7 @@ namespace MasterOnline.Controllers
                         CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
                         CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
                         CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
-                        CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                        //CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = Cust;
 
                         EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
