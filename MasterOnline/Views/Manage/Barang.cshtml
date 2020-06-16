@@ -3559,8 +3559,8 @@
                     var selectCategory82CartID = 'Category_82Cart_' + listMarket[i].RecNum;
                     var fieldCategoryCode = '#ListHargaJualPermarket_' + i +'__CATEGORY_CODE';
                     var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
-                    var fieldCatCode = '#ListHargaJualPermarket_' + i + '__ACODE_' + (i + 1);
-                    var fieldCatName = '#ListHargaJualPermarket_' + i + '__ANAME_' + (i + 1);
+                    var fieldCatCode = '#ListHargaJualPermarket_' + i + '__ACODE_';
+                    var fieldCatName = '#ListHargaJualPermarket_' + i + '__ANAME_';
                     var nextselectID = "Category_82Cart_2_" + listMarket[i].RecNum;
                     var category82CartSelanjutnya =  '#category_82Cart_selanjutnya_' + listMarket[i].RecNum;
                     var listMarketRecNum = listMarket[i].RecNum;
@@ -3667,8 +3667,8 @@
                 var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="'+ nextselectID +'" data-valid-toggle-required="1" placeholder="Harap pilih" required="required"></select></div>';
                 $(category82CartSelanjutnya).append(nextselect);
 
-                $(fieldCatCode + (next)).val(values[0]).trigger("change");
-                $(fieldCatName + (next)).val($('#' + selectCategory82CartID + " option:selected").text()).trigger("change");
+                $(fieldCatCode + (next - 1)).val(values[0]).trigger("change");
+                $(fieldCatName + (next - 1)).val($('#' + selectCategory82CartID + " option:selected").text()).trigger("change");
 
                 getKategoriSelanjutnya82Cart(values[0], listMarketRecNum, nextselectID, next + 1, fieldCategoryCode, fieldCategoryName, fieldCatCode, fieldCatName, listMarketPERSO);
             }
