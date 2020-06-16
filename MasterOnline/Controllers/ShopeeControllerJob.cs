@@ -2377,88 +2377,187 @@ namespace MasterOnline.Controllers
         {
             SetupContext(iden);
             string ret = "";
+            //add by nurul 16/6/2020
+            List<string> orderToProcess = new List<string>();
+            string responseFromServer = "";
+            //end add by nurul 16/6/2020
             var list_ordersn = ErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.NO_PO_CUST.Contains("SH") && a.CUST == CUST && (a.STATUS_TRANSAKSI.Contains("03") || a.STATUS_TRANSAKSI.Contains("04"))).Select(a => a.NO_REFERENSI).ToList();
             if (list_ordersn.Count() > 0)
             {
-                var ordersn_list = list_ordersn.ToArray();
-
-                int MOPartnerID = 841371;
-                string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-                //string ret = "";
-
-                long seconds = CurrentTimeSecond();
-                DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
-
-                string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
-
-                GetOrderDetailsData HttpBody = new GetOrderDetailsData
+                //add by nurul 16/6/2020
+                if (list_ordersn.Count() > 50)
                 {
-                    partner_id = MOPartnerID,
-                    shopid = Convert.ToInt32(iden.merchant_code),
-                    timestamp = seconds,
-                    ordersn_list = ordersn_list
-                    //ordersn_list = ordersn_list.ToArray()
-                };
-
-                string myData = JsonConvert.SerializeObject(HttpBody);
-
-                string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                myReq.Method = "POST";
-                myReq.Headers.Add("Authorization", signature);
-                myReq.Accept = "application/json";
-                myReq.ContentType = "application/json";
-                string responseFromServer = "";
-
-                myReq.ContentLength = myData.Length;
-                using (var dataStream = myReq.GetRequestStream())
-                {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-                }
-                using (WebResponse response = await myReq.GetResponseAsync())
-                {
-                    using (Stream stream = response.GetResponseStream())
+                    var hitungOrder = 0;
+                    hitungOrder = list_ordersn.Count();
+                    foreach (var order1 in list_ordersn)
                     {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                    }
-                }
-
-                if (responseFromServer != "")
-                {
-                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
-                    var connIdARF01C = Guid.NewGuid().ToString();
-
-                    foreach (var order in result.orders)
-                    {
-                        //ret = order.tracking_no;
-                        if (order.tracking_no != null || order.tracking_no != "")
+                        if (orderToProcess.Count() == 49 || orderToProcess.Count() + 1 == hitungOrder)
                         {
-                            var dTrackNo = order.tracking_no;
-                            var noref = order.ordersn;
-                            var tempCust = CUST;
-                            var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.NO_REFERENSI == noref && p.CUST == tempCust);
-                            if (pesananInDb != null)
+                            orderToProcess.Add(order1);
+
+                            var ordersn_list = orderToProcess.ToArray();
+
+                            int MOPartnerID = 841371;
+                            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+
+                            long seconds = CurrentTimeSecond();
+                            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+                            string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
+
+                            GetOrderDetailsData HttpBody = new GetOrderDetailsData
                             {
-                                pesananInDb.TRACKING_SHIPMENT = dTrackNo;
-                                ErasoftDbContext.SaveChanges();
+                                partner_id = MOPartnerID,
+                                shopid = Convert.ToInt32(iden.merchant_code),
+                                timestamp = seconds,
+                                ordersn_list = ordersn_list
+                            };
+
+                            string myData = JsonConvert.SerializeObject(HttpBody);
+
+                            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+                            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                            myReq.Method = "POST";
+                            myReq.Headers.Add("Authorization", signature);
+                            myReq.Accept = "application/json";
+                            myReq.ContentType = "application/json";
+                            //string responseFromServer = "";
+
+                            myReq.ContentLength = myData.Length;
+                            using (var dataStream = myReq.GetRequestStream())
+                            {
+                                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                            }
+                            using (WebResponse response = await myReq.GetResponseAsync())
+                            {
+                                using (Stream stream = response.GetResponseStream())
+                                {
+                                    StreamReader reader = new StreamReader(stream);
+                                    responseFromServer = reader.ReadToEnd();
+                                }
                             }
 
+                            if (responseFromServer != "")
+                            {
+                                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+                                var connIdARF01C = Guid.NewGuid().ToString();
+
+                                foreach (var order in result.orders)
+                                {
+                                    if (order.tracking_no != null || order.tracking_no != "")
+                                    {
+                                        var dTrackNo = order.tracking_no;
+                                        var noref = order.ordersn;
+                                        var tempCust = CUST;
+                                        var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.NO_REFERENSI == noref && p.CUST == tempCust);
+                                        if (pesananInDb != null)
+                                        {
+                                            pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                                            ErasoftDbContext.SaveChanges();
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        throw new Exception("Update Resi JOB Gagal. Tracking Number Null.");
+                                    }
+                                }
+                            }
+
+                            hitungOrder = hitungOrder - orderToProcess.Count();
+                            orderToProcess.Clear();
                         }
                         else
                         {
-                            throw new Exception("Update Resi JOB Gagal. Tracking Number Null.");
+                            orderToProcess.Add(order1);
+                        }
+                    }
+                }
+                else
+                {
+                //end add by nurul 16/6/2020
+
+                    var ordersn_list = list_ordersn.ToArray();
+
+                    int MOPartnerID = 841371;
+                    string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+                    //string ret = "";
+
+                    long seconds = CurrentTimeSecond();
+                    DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+                    string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
+
+                    GetOrderDetailsData HttpBody = new GetOrderDetailsData
+                    {
+                        partner_id = MOPartnerID,
+                        shopid = Convert.ToInt32(iden.merchant_code),
+                        timestamp = seconds,
+                        ordersn_list = ordersn_list
+                        //ordersn_list = ordersn_list.ToArray()
+                    };
+
+                    string myData = JsonConvert.SerializeObject(HttpBody);
+
+                    string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "POST";
+                    myReq.Headers.Add("Authorization", signature);
+                    myReq.Accept = "application/json";
+                    myReq.ContentType = "application/json";
+                    //string responseFromServer = "";
+
+                    myReq.ContentLength = myData.Length;
+                    using (var dataStream = myReq.GetRequestStream())
+                    {
+                        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    }
+                    using (WebResponse response = await myReq.GetResponseAsync())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
                         }
                     }
 
+                    if (responseFromServer != "")
+                    {
+                        var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+                        var connIdARF01C = Guid.NewGuid().ToString();
 
-                    //}
-                    //catch (Exception ex2)
-                    //{
-                    //    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-                    //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                    //}
+                        foreach (var order in result.orders)
+                        {
+                            //ret = order.tracking_no;
+                            if (order.tracking_no != null || order.tracking_no != "")
+                            {
+                                var dTrackNo = order.tracking_no;
+                                var noref = order.ordersn;
+                                var tempCust = CUST;
+                                var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.NO_REFERENSI == noref && p.CUST == tempCust);
+                                if (pesananInDb != null)
+                                {
+                                    pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                                    ErasoftDbContext.SaveChanges();
+                                }
+
+                            }
+                            else
+                            {
+                                throw new Exception("Update Resi JOB Gagal. Tracking Number Null.");
+                            }
+                        }
+
+
+                        //}
+                        //catch (Exception ex2)
+                        //{
+                        //    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                        //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                        //}
+                    }
                 }
             }
             return ret;
