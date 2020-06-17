@@ -35822,11 +35822,11 @@ namespace MasterOnline.Controllers
                                         };
 
                                         // get category for 82Cart
-                                        var resultCategory82Cart = await v82CartAPI.E2Cart_GetCategoryProduct_Sync(data);
+                                        //var resultCategory82Cart = await v82CartAPI.E2Cart_GetCategoryProduct_Sync(data);
                                         // end get category for 82Cart
 
                                         // get attribute for 82Cart
-                                        var resultAttribute82Cart = await v82CartAPI.E2Cart_GetAttribute_Sync(data);
+                                        //var resultAttribute82Cart = await v82CartAPI.E2Cart_GetAttribute_Sync(data);
                                         // end get attribute for 82Cart
 
                                         var result82Cart = await v82CartAPI.E2Cart_GetProductsList(data, arf01.RecNum.Value, page, recordCount, totalData);

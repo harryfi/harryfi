@@ -274,9 +274,9 @@ namespace MasterOnline.Controllers
                                     ret.nextPage = 1;
 
                                 List<TEMP_BRG_MP> listNewRecord = new List<TEMP_BRG_MP>();
-                                var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET.Equals(IdMarket)).Select(t => new { t.CUST, t.BRG_MP }).ToList();
+                                var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == IdMarket && t.BRG_MP != null).Select(t => new { t.CUST, t.BRG_MP }).ToList();
                                 //var tempBrg_local = (from a in ErasoftDbContext.TEMP_BRG_MP where a.IDMARKET == IdMarket select new tempBrg_local { BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
-                                var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == IdMarket).Select(t => new { t.RecNum, t.BRG_MP }).ToList();
+                                var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == IdMarket && t.BRG_MP != null).Select(t => new { t.RecNum, t.BRG_MP }).ToList();
                                 string brgMp = "";
 
                                 foreach (var item in resultAPI.data)
