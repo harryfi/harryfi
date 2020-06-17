@@ -70,12 +70,15 @@
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 90px;">No. Faktur</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Faktur</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Jatuh Tempo</th>
+                @*add by nurul 16/6/2020*@
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 90px;">No. Referensi</th>
+                @*end add by nurul 16/6/2020*@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 90px;">Marketplace</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 90px;">Pembeli</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Total</th>
                 @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Posting</th>
-                    <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 60px;">Edit / Lihat</th>
-                    <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>*@
+        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 60px;">Edit / Lihat</th>
+        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>*@
             </tr>
         </thead>
         <tbody>
@@ -99,24 +102,25 @@
                 //var nFaktur = Model.ListNFaktur.FirstOrDefault(n => n.NFAKTUR == faktur.NO_BUKTI);
                 //var pesananSesuaiFaktur = Model.ListPesanan.FirstOrDefault(p => p.NO_BUKTI == faktur.NO_SO);
                 //DateTime tglJtTempo = faktur.TGL_JT_TEMPO ?? DateTime.MinValue;
-                <tr>
-                    <td>@faktur.NO_FAKTUR</td>
-                    <td>@(faktur.TGL?.ToString("dd/MM/yyyy"))</td>
-                    <td>@(faktur.TGLJTTEMPO?.ToString("dd/MM/yyyy"))</td>
-                    @*<td>@NamaMarket</td>*@
-                    @*<td>@(NamaMarket + " (" + buyer.PERSO + ")")</td>*@
-                    <td>@(faktur.MARKET + " (" + faktur.PERSO + ")")</td>
-                    <td>
-                        @*@(buyer.NAMA + " (" + buyer.PERSO + ")")*@
-                        @*@buyer.NAMA*@
-                        @*@faktur.NAMAPEMESAN*@
-                        @faktur.PEMBELI
-                    </td>
-                    <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.SISA_FAKTUR)</td>
+            <tr>
+                <td>@faktur.NO_FAKTUR</td>
+                <td>@(faktur.TGL?.ToString("dd/MM/yyyy"))</td>
+                <td>@(faktur.TGLJTTEMPO?.ToString("dd/MM/yyyy"))</td>
+                <td>@faktur.REFERENSI</td>
+                @*<td>@NamaMarket</td>*@
+                @*<td>@(NamaMarket + " (" + buyer.PERSO + ")")</td>*@
+                <td>@(faktur.MARKET + " (" + faktur.PERSO + ")")</td>
+                <td>
+                    @*@(buyer.NAMA + " (" + buyer.PERSO + ")")*@
+                    @*@buyer.NAMA*@
+                    @*@faktur.NAMAPEMESAN*@
+                    @faktur.PEMBELI
+                </td>
+                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.SISA_FAKTUR)</td>
 
 
 
-                </tr>
+            </tr>
             }
         </tbody>
     </table>
@@ -148,8 +152,18 @@
         $(function () {
             $('#tabelfakturlunaspartialpager').on('click', 'a', function () {
                 if (this.href != "") {
+                    //add by nurul 16/6/2020
+                    var filterby = get_faktur_lunas_filterby();
+                    var filtervalue = get_faktur_lunas_filtervalue(filterby);
+                    var link = this.href;
+                    link += "&filter=replaceFilter&filtervalue=replaceValueFilter";
+                    link = link.replace("replaceFilter", encodeURIComponent(filterby));
+                    link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+                    //end add by nurul 16/6/2020
+
                     $.ajax({
-                        url: this.href,
+                        //url: this.href,
+                        url: link,
                         type: 'GET',
                         cache: false,
                         beforeSend: function () {

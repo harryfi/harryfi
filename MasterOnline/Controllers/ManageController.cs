@@ -15239,7 +15239,7 @@ namespace MasterOnline.Controllers
         //    return PartialView("TableFakturPartial", vm);
         //}
 
-        public ActionResult RefreshTableFaktur1(int? page, string search = "")
+        public ActionResult RefreshTableFaktur1(int? page, string search = "", string filter = "", string filtervalue = "")
         {
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
@@ -15253,6 +15253,7 @@ namespace MasterOnline.Controllers
             string sSQLpembeli = "";
             string sSQLnetto = "";
             string sSQLkurir = "";
+            string sSQLstatus = "";
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -15267,64 +15268,141 @@ namespace MasterOnline.Controllers
                             sSQLpembeli += " and ";
                             sSQLnetto += " and ";
                             sSQLkurir += " and ";
+                            sSQLstatus += " and ";
                         }
 
 
-                        sSQLkode += " ( A.NO_BUKTI like '%" + getkata[i] + "%' ) ";
-                        sSQLmarket += "  ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ) ";
-                        sSQLref += " ( A.NO_REF like '%" + getkata[i] + "%' ) ";
-                        sSQLpembeli += "  ( A.NAMAPEMESAN like '%" + getkata[i] + "%' ) ";
-                        sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' ) ";
-                        sSQLkurir += " ( ISNULL(A.NAMAPENGIRIM,'') LIKE '%" + getkata[i] + "%' ) ";
-
+                        //sSQLkode += " ( A.NO_BUKTI like '%" + getkata[i] + "%' ) ";
+                        //sSQLmarket += "  ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ) ";
+                        //sSQLref += " ( A.NO_REF like '%" + getkata[i] + "%' ) ";
+                        //sSQLpembeli += "  ( A.NAMAPEMESAN like '%" + getkata[i] + "%' ) ";
+                        //sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' ) ";
+                        //sSQLkurir += " ( ISNULL(A.NAMAPENGIRIM,'') LIKE '%" + getkata[i] + "%' ) ";
+                        sSQLkode += " ( A.NO_FAKTUR like '%" + getkata[i] + "%' ) ";
+                        sSQLmarket += "  ( (isnull(A.MARKET,'') + ' (' + isnull(A.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ) ";
+                        sSQLref += " ( A.REFERENSI like '%" + getkata[i] + "%' ) ";
+                        sSQLpembeli += "  ( A.PEMBELI like '%" + getkata[i] + "%' ) ";
+                        sSQLnetto += " ( A.TOTAL like '%" + getkata[i] + "%' ) ";
+                        sSQLkurir += " ( ISNULL(A.KURIR,'') LIKE '%" + getkata[i] + "%' ) ";
+                        sSQLstatus += " ( ISNULL(A.STATUS_FAKTUR,'') LIKE '%" + getkata[i] + "%' ) ";
                     }
                 }
             }
             //sSQL2 += " AND ( " + sSQLkode + " or " + sSQLmarket + " or " + sSQLperso + " or " + sSQLpembeli + " ) ";
             //END ADD BY NURUL 27/9/2019
-
+            string sSQLFirstSelect = "select * from ( ";
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(D.STATUS_TRANSAKSI,'') AS [STATUS], ISNULL(A.NO_SO,'') AS NOSO, ISNULL(E.NO_BUKTI,'') AS PEMBAYARAN, ISNULL(A.STATUS,'') AS STATUS_FAKTUR, ISNULL(F.BUKTI_RET,'') AS FKT_RETUR ";
+            //sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(D.STATUS_TRANSAKSI,'') AS [STATUS], ISNULL(A.NO_SO,'') AS NOSO, ISNULL(E.NO_BUKTI,'') AS PEMBAYARAN, ISNULL(A.STATUS,'') AS STATUS_FAKTUR, ISNULL(F.BUKTI_RET,'') AS FKT_RETUR ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(D.STATUS_TRANSAKSI,'') AS [STATUS], ISNULL(A.NO_SO,'') AS NOSO, ISNULL(E.NO_BUKTI,'') AS PEMBAYARAN, ISNULL(F.BUKTI_RET,'') AS FKT_RETUR ";
             //ADD BY NURUL 4/3/2020
             sSQLSelect += ",ISNULL(A.NAMAPENGIRIM,'') AS KURIR ";
             //END ADD BY NURUL 4/3/2020
+            //ADD BY NURUL 16/6/2020
+            sSQLSelect += ",CASE WHEN ISNULL(A.STATUS,'')='2' THEN 'BATAL' WHEN ISNULL(F.BUKTI_RET,'') <> '' THEN 'RETUR' ELSE 'SELESAI' END AS STATUS_FAKTUR ";
+            //END ADD BY NURUL 16/6/2020
             string sSQLCount = "";
-            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH FROM ( ";
             string sSQL2 = "";
-            sSQL2 += "FROM SIT01A A ";
+            //add by nurul 16/6/2020
+            string sSQLTemp = "";
+            switch (filter)
+            {
+                case "marketplace":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            var listCustSesuaiFilter = ErasoftDbContext.ARF01.Where(p => p.NAMA == filtervalue).Select(p => p.CUST).ToList();
+                            var queryfilter = "";
+                            foreach (var item in listCustSesuaiFilter)
+                            {
+                                if (queryfilter != "") { queryfilter += ","; }
+                                queryfilter += "'" + item + "'";
+                            }
+                            sSQLTemp = "SELECT * INTO #SIT01A FROM SIT01A WHERE ";
+                            if (queryfilter != "")
+                            {
+                                sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                            }
+                            else
+                            {
+                                sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                            }
+                            sSQL2 += "FROM #SIT01A A ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SIT01A A ";
+                        }
+                    }
+                    break;
+                default:
+                    {
+                        sSQL2 += "FROM SIT01A A ";
+                    }
+                    break;
+            }
+            //end add by nurul 16/6/2020
+            //sSQL2 += "FROM SIT01A A ";
             sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
             sSQL2 += "LEFT JOIN SOT01A D ON A.NO_SO = D.NO_BUKTI ";
             //sSQL2 += "LEFT JOIN ART03B E ON A.NO_BUKTI = E.NFAKTUR ";
             sSQL2 += "LEFT JOIN (SELECT DISTINCT NO_BUKTI FROM SIT01A A INNER JOIN ART03B B ON A.NO_BUKTI = B.NFAKTUR)E ON A.NO_BUKTI = E.NO_BUKTI ";
             sSQL2 += "LEFT JOIN (select ret.jenis_form,ret.no_bukti as bukti_ret,ret.no_ref as no_si,fkt.no_bukti as bukti_faktur from sit01a ret inner join sit01a fkt on fkt.no_bukti=ret.no_ref where ret.jenis_form='3') F ON A.NO_BUKTI=F.BUKTI_FAKTUR ";
-            sSQL2 += "WHERE A.JENIS_FORM = '2' ";
+            string sSQLWhere = "";
+            //string sSQLWhere2 = "";
+            sSQLWhere += "WHERE A.JENIS_FORM = '2')A ";
+            string sSQLEndSelect = "";
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR B.PERSO LIKE '%" + search + "%' OR A.NO_REF LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( " + sSQLkode + " or " + sSQLmarket + " or " + sSQLref + " or " + sSQLpembeli + " or " + sSQLnetto + " OR " + sSQLkurir + " ) ";
+                sSQLEndSelect += " WHERE ( " + sSQLkode + " or " + sSQLmarket + " or " + sSQLref + " or " + sSQLpembeli + " or " + sSQLnetto + " OR " + sSQLkurir + " OR " + sSQLstatus + " ) ";
             }
 
+            //sSQLWhere2 += ")A ";
+            
+            if (filter == "status" && filtervalue != null && filtervalue != "Harap Pilih")
+            {
+                if (sSQLEndSelect == "")
+                {
+                    sSQLEndSelect += "WHERE A.STATUS_FAKTUR LIKE '%" + filtervalue + "%'";
+                }
+                else
+                {
+                    sSQLEndSelect += "AND A.STATUS_FAKTUR LIKE '%" + filtervalue + "%'";
+                }
+            }
+            string sSQLEndCount = ")A ";
             var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
-            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQLFirstSelect + sSQLSelect + sSQL2 + sSQLWhere + sSQLEndSelect + sSQLEndCount).Single();
             if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
             {
                 pagenumber = pagenumber - 1;
             }
-
+            
             string sSQLSelect2 = "";
-            sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+            //sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+            //add by nurul 16/6/2020
+            if (filter == "tanggal" && filtervalue == "asc")
+            {
+                sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_FAKTUR ASC ";
+            }
+            else
+            {
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_FAKTUR DESC ";
+            }
+            //end add by nurul 16/6/2020
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
-            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLTemp + sSQLFirstSelect + sSQLSelect + sSQL2 + sSQLWhere + sSQLEndSelect + sSQLSelect2).ToList();
             //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TableFakturPartial", pageOrders);
         }
 
-        public ActionResult RefreshTableFakturLunas(int? page, string search = "")
+        public ActionResult RefreshTableFakturLunas(int? page, string search = "", string filter = "", string filtervalue = "")
         {
             //IEnumerable<ART01D> FakturSudahLunas = ErasoftDbContext.ART01D.Where(a => a.NETTO.Value - a.KREDIT.Value > 0);
             //var vm = new FakturViewModel()
@@ -15386,7 +15464,46 @@ namespace MasterOnline.Controllers
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
-            sSQL2 += "FROM SIT01A A ";
+            //add by nurul 16/6/2020
+            string sSQLTemp = "";
+            switch (filter)
+            {
+                case "marketplace":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            var listCustSesuaiFilter = ErasoftDbContext.ARF01.Where(p => p.NAMA == filtervalue).Select(p => p.CUST).ToList();
+                            var queryfilter = "";
+                            foreach (var item in listCustSesuaiFilter)
+                            {
+                                if (queryfilter != "") { queryfilter += ","; }
+                                queryfilter += "'" + item + "'";
+                            }
+                            sSQLTemp = "SELECT * INTO #SIT01A FROM SIT01A WHERE ";
+                            if (queryfilter != "")
+                            {
+                                sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                            }
+                            else
+                            {
+                                sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                            }
+                            sSQL2 += "FROM #SIT01A A ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SIT01A A ";
+                        }
+                    }
+                    break;
+                default:
+                    {
+                        sSQL2 += "FROM SIT01A A ";
+                    }
+                    break;
+            }
+            //end add by nurul 16/6/2020
+            //sSQL2 += "FROM SIT01A A ";
             sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
             sSQL2 += "LEFT JOIN ART01D D ON A.NO_BUKTI = D.FAKTUR ";
@@ -15398,21 +15515,31 @@ namespace MasterOnline.Controllers
             }
             string sSQLSelect2 = "";
             //add by nurul 16/1/2020, tampil sisa faktur
-            sSQLSelect2 += "GROUP BY A.RECNUM, A.NO_BUKTI, A.TGL, C.NamaMarket, B.PERSO, A.NAMAPEMESAN, A.NETTO, A.TGL_JT_TEMPO ";
+            sSQLSelect2 += "GROUP BY A.RECNUM, A.NO_BUKTI, A.TGL, C.NamaMarket, B.PERSO, A.NAMAPEMESAN, A.NETTO, A.TGL_JT_TEMPO, A.NO_REF ";
             //end add by nurul 16/1/2020, tampil sisa faktur
-            sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+            //sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+            //add by nurul 16/6/2020
+            if (filter == "tanggal" && filtervalue == "asc")
+            {
+                sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_BUKTI ASC ";
+            }
+            else
+            {
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+            }
+            //end add by nurul 16/6/2020
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
-            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
-            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLTemp + sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQL2).Single();
 
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TableFakturLunasPartial", pageOrders);
 
             //return PartialView("TableFakturLunasPartial", vm);
         }
-        public ActionResult RefreshTableFakturTempo(string tgl, int? page, string search = "")
+        public ActionResult RefreshTableFakturTempo(string tgl, int? page, string search = "", string filter = "", string filtervalue = "")
         {
             ////IEnumerable<ART01D> FakturJatuhTempo = ErasoftDbContext.ART01D.Where(a => a.NETTO.Value - a.KREDIT.Value > 0);
             ////add by nurul 10/1/2019
@@ -15483,7 +15610,46 @@ namespace MasterOnline.Controllers
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
-            sSQL2 += "FROM SIT01A A ";
+            //add by nurul 16/6/2020
+            string sSQLTemp = "";
+            switch (filter)
+            {
+                case "marketplace":
+                    {
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                        {
+                            var listCustSesuaiFilter = ErasoftDbContext.ARF01.Where(p => p.NAMA == filtervalue).Select(p => p.CUST).ToList();
+                            var queryfilter = "";
+                            foreach (var item in listCustSesuaiFilter)
+                            {
+                                if (queryfilter != "") { queryfilter += ","; }
+                                queryfilter += "'" + item + "'";
+                            }
+                            sSQLTemp = "SELECT * INTO #SIT01A FROM SIT01A WHERE ";
+                            if (queryfilter != "")
+                            {
+                                sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                            }
+                            else
+                            {
+                                sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                            }
+                            sSQL2 += "FROM #SIT01A A ";
+                        }
+                        else
+                        {
+                            sSQL2 += "FROM SIT01A A ";
+                        }
+                    }
+                    break;
+                default:
+                    {
+                        sSQL2 += "FROM SIT01A A ";
+                    }
+                    break;
+            }
+            //end add by nurul 16/6/2020
+            //sSQL2 += "FROM SIT01A A ";
             sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
             sSQL2 += "LEFT JOIN ART01D D ON A.NO_BUKTI = D.FAKTUR ";
@@ -15495,14 +15661,24 @@ namespace MasterOnline.Controllers
             }
             string sSQLSelect2 = "";
             //add by nurul 16/1/2020, tampil sisa faktur
-            sSQLSelect2 += "GROUP BY A.RECNUM, A.NO_BUKTI, A.TGL, C.NamaMarket, B.PERSO, A.NAMAPEMESAN, A.NETTO, A.TGL_JT_TEMPO ";
+            sSQLSelect2 += "GROUP BY A.RECNUM, A.NO_BUKTI, A.TGL, C.NamaMarket, B.PERSO, A.NAMAPEMESAN, A.NETTO, A.TGL_JT_TEMPO, A.NO_REF ";
             //end add by nurul 16/1/2020, tampil sisa faktur
-            sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+            //sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+            //add by nurul 16/6/2020
+            if (filter == "tanggal" && filtervalue == "asc")
+            {
+                sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_BUKTI ASC ";
+            }
+            else
+            {
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+            }
+            //end add by nurul 16/6/2020
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
-            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
-            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLTemp + sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQL2).Single();
 
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TableFakturTempoPartial", pageOrders);
