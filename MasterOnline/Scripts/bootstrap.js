@@ -419,7 +419,7 @@ if (!jQuery) { throw new Error("Bootstrap requires jQuery") }
       this.$element.trigger(e)
       if (e.isDefaultPrevented()) return
       $next.addClass(type)
-      $next[0].offsetWidth // force reflow
+      if (typeof $next == 'object' && $next.length) $next[0].offsetWidth // force reflow
       $active.addClass(direction)
       $next.addClass(direction)
       $active
