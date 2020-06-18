@@ -3678,6 +3678,8 @@
                 //$(fieldCategoryName).val($('#' + selectCategoryShopeeID + " option:selected").text());
                 $(fieldCategoryCode).val(values[0]).trigger("change");
                 $(fieldCategoryName).val($('#' + selectCategory82CartID + " option:selected").text()).trigger("change");
+                $(fieldCatCode + (next - 1)).val(values[0]).trigger("change");
+                $(fieldCatName + (next - 1)).val($('#' + selectCategory82CartID + " option:selected").text()).trigger("change");
                 //end change by calvin 25 januari 2019
                 //getAttributeShopee(values[0],listMarketRecNum,fieldCategoryCode,null);
             }
@@ -3723,8 +3725,10 @@
         }
 
         function ClearAttribute82Cart(divIDpertama,divIDselanjutnya,i,undoing,recnumArf01){
-            var fieldAttributeCode = '#ListHargaJualPermarket_' + i + '__ACODE_' + (i + 1);
-            var fieldAttributeName = '#ListHargaJualPermarket_' + i + '__ANAME_' + (i + 1);
+            var fieldAttributeCode = '#ListHargaJualPermarket_' + i + '__ACODE_10';
+            var fieldAttributeName = '#ListHargaJualPermarket_' + i + '__ANAME_10';
+            var fieldAttributeCodeItems = '#ListHargaJualPermarket_' + i + '__ACODE_11';
+            var fieldAttributeNameItems = '#ListHargaJualPermarket_' + i + '__ANAME_11';
             var msg = "Kosongkan Attribute ?";
             if (undoing) {
                 msg = "Kembalikan Seperti Semula ?";
@@ -3736,9 +3740,12 @@
                 if (!undoing) {
                     $(fieldAttributeCode).val('');
                     $(fieldAttributeName).val('');
+                    $(fieldAttributeCodeItems).val('');
+                    $(fieldAttributeNameItems).val('');
                 }
                 else {
                     $(fieldAttributeCode).val('undo');
+                    $(fieldAttributeCodeItems).val('undo');
                 }
                 getAttributeGroupPertama82Cart(i);
             }
@@ -3749,13 +3756,15 @@
             for (var i = 0; i < listMarket.length; i++) {
                 if (listMarket[i].NAMA == idMarket82Cart.toString() && (spec < 0 || spec == i)) {
                     var selectAttribute82CartID = 'Attribute_82Cart_' + listMarket[i].RecNum;
-                    var fieldAttributeCode = '#ListHargaJualPermarket_' + i + '__ACODE_' + (i + 1);
-                    var fieldAttributeName = '#ListHargaJualPermarket_' + i + '__ANAME_' + (i + 1);
+                    var fieldAttributeCode = '#ListHargaJualPermarket_' + i + '__ACODE_10';
+                    var fieldAttributeName = '#ListHargaJualPermarket_' + i + '__ANAME_10';
+                    var fieldAttributeCodeItems = '#ListHargaJualPermarket_' + i + '__ACODE_11';
+                    var fieldAttributeNameItems = '#ListHargaJualPermarket_' + i + '__ANAME_11';
                     var nextselectID = "Attribute_82Cart_2_" + listMarket[i].RecNum;
                     var attribute82CartSelanjutnya =  '#attribute_82Cart_selanjutnya_' + listMarket[i].RecNum;
                     var listMarketRecNum = listMarket[i].RecNum;
 
-                    if ($(fieldAttributeCode).val() != "" && $(fieldAttributeCode).val() != null) {
+                    if ($(fieldAttributeCode).val() != "" && $(fieldAttributeCode).val() != null && $(fieldAttributeCodeItems).val() != "" && $(fieldAttributeCodeItems).val() != null) {
                         //edit
                         var ListHargaJualPermarketView = model_listhargajualpermarketview;
                         ListHargaJualPermarketView = $.grep( ListHargaJualPermarketView, function( n, i ) {
@@ -3764,10 +3773,12 @@
 
                         if (ListHargaJualPermarketView[0] != undefined) {
 
-                            $(fieldAttributeCode).val(ListHargaJualPermarketView[0]['__ACODE_' + (i + 1)]);
+                            $(fieldAttributeCode).val(ListHargaJualPermarketView[0]['__ACODE_10']);
+                            $(fieldAttributeCodeItems).val(ListHargaJualPermarketView[0]['__ACODE_11']);
 
                             var fieldAttributeCodeValue = $(fieldAttributeCode).val();
-                            FuncGetKategori82CartByChildCode(fieldAttributeCodeValue, listMarketRecNum, fieldAttributeCode, ListHargaJualPermarketView, listMarket[i].PERSO);
+                            var fieldAttributeCodeValueItems = $(fieldAttributeCodeItems).val();
+                            getAttributeSelanjutnya82Cart(fieldAttributeCodeValue, listMarketRecNum, fieldAttributeCode, ListHargaJualPermarketView, listMarket[i].PERSO);
                         }
 
                     }
