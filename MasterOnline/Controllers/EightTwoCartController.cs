@@ -528,9 +528,17 @@ namespace MasterOnline.Controllers
             var splitItemName = new StokControllerJob().SplitItemName(namaBrg);
             nama = splitItemName[0];
             nama2 = splitItemName[1];
-            if (!string.IsNullOrEmpty(product_varian.attribute_list[0].attribute_group) && !string.IsNullOrEmpty(product_varian.attribute_list[0].attribute))
+            //if (!string.IsNullOrEmpty(product_varian.attribute_list[0].attribute_group) && !string.IsNullOrEmpty(product_varian.attribute_list[0].attribute))
+            //{
+            //    nama2 = product_varian.attribute_list[0].attribute_group.ToString() + " " + product_varian.attribute_list[0].attribute.ToString();
+            //}
+            if (product_varian.attribute_list.Count() > 0)
             {
-                nama2 = product_varian.attribute_list[0].attribute_group.ToString() + " " + product_varian.attribute_list[0].attribute.ToString();
+                foreach (var namaItem in product_varian.attribute_list)
+                {
+                    nama2 = nama2 + namaItem.attribute_group.ToString() + " " + namaItem.attribute.ToString() + ", ";
+                }
+                nama2 = nama2.Substring(0, nama2.Length - 2);
             }
             nama3 = "";
 
