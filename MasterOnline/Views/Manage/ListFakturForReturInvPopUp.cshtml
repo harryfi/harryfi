@@ -1,0 +1,184 @@
+﻿@using MasterOnline.ViewModels
+@model InvoiceViewModel
+@{
+    ViewBag.Title = "Prompt Invoice";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    if (dataSession?.User != null)
+    {
+        var context = new MoDbContext("");
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
+
+    var nocust = Model?.noCust;
+}
+
+@section styles
+{
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <style>
+        .dont_validate_empty {
+            height: 100px;
+        }
+    </style>
+    <style>
+        #pembeli-section > div {
+            background-color: #fff;
+            padding: 20px;
+        }
+
+        #hapus_label {
+            color: orange;
+            font-weight: bold;
+        }
+    </style>
+    <style>
+        .top_nav {
+            display: none !important;
+        }
+
+        .left_col {
+            display: none !important;
+        }
+
+        .right_col {
+            margin-left: 0 !important;
+        }
+
+        footer {
+            display: none !important;
+        }
+    </style>
+
+}
+
+<div class="row" id="pembeli-section">
+    <div class="col-lg-12 col-md-12">
+        <div class="row pembeli_table_section">
+            <div class="col-lg-4 col-sm-6">
+                <div class="input-group">
+                    <input id="search_faktur" type="text" class="form-control" placeholder="Pencarian">
+                    <span class="input-group-btn">
+                        <button type="button" id="search_faktur_click" class="btn btn-primary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-6">
+            </div>
+        </div>
+        <div class="row pembeli_table_section">
+            <div id="table-faktur-popup" class="col-sm-12">
+                @*@Html.Partial("TableFakturBelumLunasPopUp")*@
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        var CUST = @Html.Raw(Json.Encode(nocust));
+        $pembeliId = "";
+
+        $(document).on('ready',
+            function () {
+                refreshTableFaktur();
+                Initialize();
+            });
+
+        function Initialize() {
+            $('#search_faktur').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableFaktur();
+                    return false;
+                }
+            });
+            $('#search_faktur_click').click(function () {
+                searchTableFaktur();
+            });
+
+        }
+
+        function pass(pembeliId, namaPembeli) {
+            this.$pembeliId = pembeliId;
+            $('#hapus_label').text(namaPembeli);
+        }
+
+        //end add by nurul
+        function pilihPrompt($value) {
+            self.window.close();
+            window.onunload = refreshTextBox;
+            function refreshTextBox() {
+                window.opener.afterPromptFaktur($value);
+            }
+        }
+
+        //add by nurul 30/4/2019
+        function refreshTableFaktur() {
+            var $link = '@Html.Raw(Url.Action("RefreshFakturForReturInvPopUp", "Manage", new { page = "replaceLastPage", search = "replaceSearch", cust = "replaceCust" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+            $link = $link.replace("replaceCust", encodeURIComponent(CUST));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-faktur-popup').hide();
+                    $('#loading_faktur_tab').show();
+                },
+                success: function (response) {
+                    $('#table-faktur-popup').html(response);
+                    $('#loading_faktur_tab').hide();
+                    $('#table-faktur-popup').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableFaktur(){
+            var $link = '@Html.Raw(Url.Action("RefreshFakturForReturInvPopUp", "Manage", new { search = "replaceSearch", cust = "replaceCust" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur').val()));
+            $link = $link.replace("replaceCust", encodeURIComponent(CUST));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_faktur_click')[0].disabled = true;
+                    $('#loading_faktur_tab').show();
+                },
+                success: function (response) {
+                    $('#search_faktur_click')[0].disabled = false;
+                    $('#table-faktur-popup').html(response);
+                    $('#loading_faktur_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_faktur_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 30/4/2019
+    </script>
+}

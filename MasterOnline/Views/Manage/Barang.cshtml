@@ -876,6 +876,10 @@
             getKategoriPertamaTokped(-1);
             getKategoriPertamaBukalapak(-1);
             getKategoriPertamaJD(-1);
+            //add by fauzi 27 Mei 2020 for 82Cart
+            getKategoriPertama82Cart(-1);
+            getAttributeGroupPertama82Cart(-1);
+            //end by fauzi
             getKategori();
             getMerk();
 
@@ -3524,6 +3528,353 @@
             //});
         }
         //END ADD BY CALVIN 18 DESEMBER 2018
+
+        //add by fauzi for 82Cart 27 Mei 2020
+         function ClearCategory82Cart(divIDpertama,divIDselanjutnya,i,undoing){
+            var fieldCategoryCode = '#ListHargaJualPermarket_' + i +'__CATEGORY_CODE';
+            var fieldCategoryName = '#ListHargaJualPermarket_' + i +'__CATEGORY_NAME';
+            var msg = "Kosongkan Kategori ?";
+            if (undoing) {
+                msg = "Kembalikan Seperti Semula ?";
+            }
+            if (confirm(msg)) {
+                $('#' + divIDpertama).html('');
+                $('#' + divIDselanjutnya).html('');
+                //$('#' + divIDattribute).html('');
+                if (!undoing) {
+                    $(fieldCategoryCode).val('');
+                    $(fieldCategoryName).val('');
+                }
+                else {
+                    $(fieldCategoryCode).val('undo');
+                }
+                getKategoriPertama82Cart(i);
+            }
+        }
+        function getKategoriPertama82Cart(spec) {
+            var idMarket82Cart = "20";
+            var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+            for (var i = 0; i < listMarket.length; i++) {
+                if (listMarket[i].NAMA == idMarket82Cart.toString() && (spec < 0 || spec == i)) {
+                    var selectCategory82CartID = 'Category_82Cart_' + listMarket[i].RecNum;
+                    var fieldCategoryCode = '#ListHargaJualPermarket_' + i +'__CATEGORY_CODE';
+                    var fieldCategoryName = '#ListHargaJualPermarket_' + i +'__CATEGORY_NAME';
+                    var nextselectID = "Category_82Cart_2_" + listMarket[i].RecNum;
+                    var category82CartSelanjutnya =  '#category_82Cart_selanjutnya_' + listMarket[i].RecNum;
+                    var listMarketRecNum = listMarket[i].RecNum;
+
+                    if ($(fieldCategoryCode).val() != "" && $(fieldCategoryCode).val() != null) {
+                        //edit
+                        var ListHargaJualPermarketView = model_listhargajualpermarketview;
+                        ListHargaJualPermarketView = $.grep( ListHargaJualPermarketView, function( n, i ) {
+                            return n.BRG===$('#Stf02_BRG').val()  && n.IDMARKET === listMarketRecNum;
+                        });
+
+                        if (ListHargaJualPermarketView[0] != undefined) {
+
+                            $(fieldCategoryCode).val(ListHargaJualPermarketView[0]['__CATEGORY_CODE']);
+
+                            var fieldCategoryCodeValue = $(fieldCategoryCode).val();
+                            FuncGetKategori82CartByChildCode(fieldCategoryCodeValue, listMarketRecNum, fieldCategoryCode, ListHargaJualPermarketView, listMarket[i].PERSO);
+                        }
+
+                    }
+                    else {
+                        //new
+                        FuncGetKategori82CartByCode(selectCategory82CartID, listMarket[i].Kode, listMarket[i].RecNum, nextselectID, category82CartSelanjutnya, fieldCategoryCode, fieldCategoryName, listMarketRecNum, listMarket[i].PERSO)
+                    }
+                }
+            }
+        }
+        function FuncGetKategori82CartByChildCode(fieldCategoryCodeValue, listMarketRecNum, fieldCategoryCode, ListHargaJualPermarketView, listMarketPERSO){
+            var link = '@Url.Action("GetKategori82CartByChildCode", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", encodeURIComponent(fieldCategoryCodeValue));
+            link += "&accountStore=" + encodeURIComponent(listMarketPERSO);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    //generate category
+                    $.each(data,
+                        function (i, item) {
+                            if (i == 0) {
+                                var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.NAME +'">';
+                                $('#category_82Cart_pertama_' + listMarketRecNum).append(textbox);
+                            }
+                            else {
+                                var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="' + item.NAME +'"></div>';
+                                $('#category_82Cart_selanjutnya_' + listMarketRecNum).append(textbox);
+                            }
+                        });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        function FuncGetKategori82CartByCode(selectCategory82CartID, listMarket_i_Kode, listMarket_i_RecNum, nextselectID, category82CartSelanjutnya, fieldCategoryCode, fieldCategoryName, listMarketRecNum, listMarket_i_PERSO){
+            var link = '@Url.Action("GetKategori82CartByCode", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", encodeURIComponent(listMarket_i_Kode));
+            link += "&accountStore=" + encodeURIComponent(listMarket_i_PERSO);
+
+            //buat select pertama
+            var nextselect = '<select id="' + selectCategory82CartID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
+            $('#category_82Cart_pertama_' + listMarket_i_RecNum).append(nextselect);
+            //end buat select pertama
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listKategori[i] = {
+                                id: item.ID_CATEGORY + '|;|' + item.LEVEL_DEPTH,
+                                text: item.NAME
+                            };
+                        });
+
+                    var kategoriSelect = $('#' + selectCategory82CartID).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listKategori,
+                        onChange: function (value) {
+                            Kategori82CartOnChange(value, nextselectID, selectCategory82CartID, category82CartSelanjutnya, 2, fieldCategoryCode, fieldCategoryName, listMarketRecNum,listMarket_i_PERSO,this);
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        function Kategori82CartOnChange(value, nextselectID, selectCategory82CartID, category82CartSelanjutnya, next, fieldCategoryCode, fieldCategoryName, listMarketRecNum,listMarketPERSO,s){
+            s.disable();
+            var values = value.split('|;|');
+            $('#' + nextselectID).remove();
+            if (values[1] == "0") {
+                var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="'+ nextselectID +'" data-valid-toggle-required="1" placeholder="Harap pilih" required="required"></select></div>';
+                $(category82CartSelanjutnya).append(nextselect);
+                getKategoriSelanjutnya82Cart(values[0], listMarketRecNum, nextselectID, next + 1, fieldCategoryCode, fieldCategoryName, listMarketPERSO);
+            }
+            else if (values[1] == "1") {
+                //change by calvin 25 januari 2019
+                //$(fieldCategoryCode).val(values[0]);
+                //$(fieldCategoryName).val($('#' + selectCategoryShopeeID + " option:selected").text());
+                $(fieldCategoryCode).val(values[0]).trigger("change");
+                $(fieldCategoryName).val($('#' + selectCategory82CartID + " option:selected").text()).trigger("change");
+                //end change by calvin 25 januari 2019
+                //getAttributeShopee(values[0],listMarketRecNum,fieldCategoryCode,null);
+            }
+        }
+        function getKategoriSelanjutnya82Cart(categoryCode, listMarketRecNum, SelectID, next, fieldCategoryCode, fieldCategoryName, listMarketPERSO){
+            var link = '@Url.Action("GetKategori82CartByParentCode", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode));
+            link += "&accountStore=" + encodeURIComponent(listMarketPERSO);
+
+            var nextselectID = "Category_82Cart_"+ next +"_" + listMarketRecNum;
+            var category82CartSelanjutnya =  '#category_82Cart_selanjutnya_' + listMarketRecNum;
+            var selectCategory82CartID = SelectID;
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listKategori[i] = {
+                                id: item.ID_CATEGORY + '|;|' + item.LEVEL_DEPTH,
+                                text: item.NAME
+                            };
+                        });
+
+                    var kategoriSelect = $('#' + selectCategory82CartID).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listKategori,
+                        onChange: function (value) {
+                            Kategori82CartOnChange(value, nextselectID, selectCategory82CartID, category82CartSelanjutnya, next, fieldCategoryCode, fieldCategoryName, listMarketRecNum,listMarketPERSO,this);
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function ClearAttribute82Cart(divIDpertama,divIDselanjutnya,i,undoing){
+            var fieldAttributeCode = '#ListHargaJualPermarket_' + i + '__ACODE_' + i;
+            var fieldAttributeName = '#ListHargaJualPermarket_' + i + '__ANAME_' + i;
+            var msg = "Kosongkan Attribute ?";
+            if (undoing) {
+                msg = "Kembalikan Seperti Semula ?";
+            }
+            if (confirm(msg)) {
+                $('#' + divIDpertama).html('');
+                $('#' + divIDselanjutnya).html('');
+                //$('#' + divIDattribute).html('');
+                if (!undoing) {
+                    $(fieldAttributeCode).val('');
+                    $(fieldAttributeName).val('');
+                }
+                else {
+                    $(fieldAttributeCode).val('undo');
+                }
+                getAttributeGroupPertama82Cart(i);
+            }
+        }
+        function getAttributeGroupPertama82Cart(spec) {
+            var idMarket82Cart = "20";
+            var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+            for (var i = 0; i < listMarket.length; i++) {
+                if (listMarket[i].NAMA == idMarket82Cart.toString() && (spec < 0 || spec == i)) {
+                    var selectAttribute82CartID = 'Attribute_82Cart_' + listMarket[i].RecNum;
+                    var fieldAttributeCode = '#ListHargaJualPermarket_' + i + '__ACODE_' + i;
+                    var fieldAttributeName = '#ListHargaJualPermarket_' + i + '__ANAME_' + i;
+                    var nextselectID = "Attribute_82Cart_2_" + listMarket[i].RecNum;
+                    var attribute82CartSelanjutnya =  '#attribute_82Cart_selanjutnya_' + listMarket[i].RecNum;
+                    var listMarketRecNum = listMarket[i].RecNum;
+
+                    if ($(fieldAttributeCode).val() != "" && $(fieldAttributeCode).val() != null) {
+                        //edit
+                        var ListHargaJualPermarketView = model_listhargajualpermarketview;
+                        ListHargaJualPermarketView = $.grep( ListHargaJualPermarketView, function( n, i ) {
+                            return n.BRG===$('#Stf02_BRG').val()  && n.IDMARKET === listMarketRecNum;
+                        });
+
+                        if (ListHargaJualPermarketView[0] != undefined) {
+
+                            $(fieldAttributeCode).val(ListHargaJualPermarketView[0]['__ACODE_' + i]);
+
+                            var fieldAttributeCodeValue = $(fieldAttributeCode).val();
+                            FuncGetKategori82CartByChildCode(fieldAttributeCodeValue, listMarketRecNum, fieldAttributeCode, ListHargaJualPermarketView, listMarket[i].PERSO);
+                        }
+
+                    }
+                    else {
+                        //new
+                        FuncGetAttributeGroup82CartByCode(selectAttribute82CartID, listMarket[i].Kode, listMarket[i].RecNum, nextselectID, attribute82CartSelanjutnya, fieldAttributeCode, fieldAttributeName, listMarketRecNum, listMarket[i].PERSO)
+                    }
+                }
+            }
+        }
+
+        function FuncGetAttributeGroup82CartByCode(selectAttribute82CartID, listMarket_i_Kode, listMarket_i_RecNum, nextselectID, attribute82CartSelanjutnya, fieldAttributeCode, fieldAttributeName, listMarketRecNum, listMarket_i_PERSO){
+            var link = '@Url.Action("GetAttributeGroup82CartByCode", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", encodeURIComponent(listMarket_i_Kode));
+            link += "&accountStore=" + encodeURIComponent(listMarket_i_PERSO);
+
+            //buat select pertama
+            var nextselect = '<select id="' + selectAttribute82CartID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
+            $('#attribute_82Cart_pertama_' + listMarket_i_RecNum).append(nextselect);
+            //end buat select pertama
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listAttribute = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listAttribute[i] = {
+                                id: item.id_attribute_group + '|;|' + item.id_attribute,
+                                text: item.group_name
+                            };
+                        });
+
+                    var kategoriSelect = $('#' + selectAttribute82CartID).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAttribute,
+                        onChange: function (value) {
+                            Attribute82CartOnChange(value, nextselectID, selectAttribute82CartID, attribute82CartSelanjutnya, 2, fieldAttributeCode, fieldAttributeName, listMarketRecNum,listMarket_i_PERSO,this);
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function Attribute82CartOnChange(value, nextselectID, selectAttribute82CartID, attribute82CartSelanjutnya, next, fieldAttributeCode, fieldAttributeName, listMarketRecNum, listMarketPERSO, s) {
+            s.disable();
+            var values = value.split('|;|');
+            $('#' + nextselectID).remove();
+            if (values[1] == "null") {
+                var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="' + nextselectID + '" data-valid-toggle-required="1" placeholder="Harap pilih" required="required"></select></div>';
+                $(attribute82CartSelanjutnya).append(nextselect);
+                getAttributeSelanjutnya82Cart(values[0], listMarketRecNum, nextselectID, next + 1, fieldAttributeCode, fieldAttributeName, listMarketPERSO);
+            }
+            else if (values[1] != "null") {
+                //change by calvin 25 januari 2019
+                //$(fieldCategoryCode).val(values[0]);
+                //$(fieldCategoryName).val($('#' + selectCategoryShopeeID + " option:selected").text());
+                $(fieldAttributeCode).val(values[0]).trigger("change");
+                $(fieldAttributeName).val($('#' + selectAttribute82CartID + " option:selected").text()).trigger("change");
+                //end change by calvin 25 januari 2019
+                //getAttributeShopee(values[0],listMarketRecNum,fieldCategoryCode,null);
+            }
+        }
+
+        function getAttributeSelanjutnya82Cart(attributeCode, listMarketRecNum, SelectID, next, fieldAttributeCode, fieldAttributeName, listMarketPERSO){
+            var link = '@Url.Action("GetAttribute82CartByChildCode", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", encodeURIComponent(attributeCode));
+            link += "&accountStore=" + encodeURIComponent(listMarketPERSO);
+
+            var nextselectID = "Attribute_82Cart_"+ next +"_" + listMarketRecNum;
+            var attribute82CartSelanjutnya =  '#attribute_82Cart_selanjutnya_' + listMarketRecNum;
+            var selectAttribute82CartID = SelectID;
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listAttribute = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listAttribute[i] = {
+                                id: item.id_attribute + '|;|' + item.id_attribute,
+                                text: item.attribute_name
+                            };
+                        });
+
+                    var attributeSelect = $('#' + selectAttribute82CartID).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAttribute,
+                        onChange: function (value) {
+                            Attribute82CartOnChange(value, nextselectID, selectAttribute82CartID, attribute82CartSelanjutnya, next, fieldAttributeCode, fieldAttributeName, listMarketRecNum,listMarketPERSO,this);
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        //end by fauzi
+
         //ADD BY CALVIN 6 FEBRUARI 2019
         function ClearCategoryTokped(divIDpertama,divIDselanjutnya,divIDattribute,i,undoing){
             var fieldCategoryCode = '#ListHargaJualPermarket_'+ i +'__CATEGORY_CODE';
@@ -4778,6 +5129,23 @@
         //END ADD BY CALVIN 20 SEPTEMBER 2019, PROMPT LAZADA BLIBLI
 
         //add by fauzi for 82Cart
+        var PromptCategory82CartTextBox = "";
+        function PromptCategory82Cart(i, r) {
+            PromptCategory82CartTextBox = i;
+            showPromptCategory82CartTextBoxWindow(r);
+        }
+
+        function showPromptCategory82CartTextBoxWindow(val) {
+            var $link = '@Url.Action("PromptCategory82Cart", "Manage",new { credential = "replaceCredential"})';
+            $link = $link.replace("replaceCredential", encodeURIComponent(val));
+            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+        }
+        function afterPromptCategory82Cart(val) {
+            $('#Category' + PromptCategory82CartTextBox + '82Cart').val(val);
+            $('#ListHargaJualPermarket_' + PromptCategory82CartTextBox + '__CATEGORY_CODE').val(val);
+        }
+
+
         var PromptBrand82CartTextBox = "";
         function PromptBrand82Cart(i, r) {
             PromptBrand82CartTextBox = i;

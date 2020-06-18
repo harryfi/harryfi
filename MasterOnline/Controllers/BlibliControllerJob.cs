@@ -1004,14 +1004,111 @@ namespace MasterOnline.Controllers
                             var nama = result.value.custName.Replace("'", "`");
                             if (nama.Length > 30)
                                 nama = nama.Substring(0, 30);
+                            #region cut max length dan ubah '
+                            var order_no = !string.IsNullOrEmpty(result.value.orderNo) ? result.value.orderNo.Replace("'", "`") : "";
+                            if (order_no.Length > 50)
+                                order_no = order_no.Substring(0, 50);
+                            var order_ItemNo = !string.IsNullOrEmpty(result.value.orderItemNo) ? result.value.orderItemNo.Replace("'", "`") : "";
+                            if (order_ItemNo.Length > 50)
+                                order_ItemNo = order_ItemNo.Substring(0, 50);
+                            var orderStatus = !string.IsNullOrEmpty(result.value.orderStatus) ? result.value.orderStatus.Replace("'", "`") : "";
+                            if (orderStatus.Length > 10)
+                                orderStatus = orderStatus.Substring(0, 10);
+                            var orderStatusString = !string.IsNullOrEmpty(result.value.orderStatusString) ? result.value.orderStatusString.Replace("'", "`") : "";
+                            if (orderStatusString.Length > 250)
+                                orderStatusString = orderStatusString.Substring(0, 250);
+                            var customerEmail = !string.IsNullOrEmpty(result.value.customerEmail) ? result.value.customerEmail.Replace("'", "`") : "";
+                            if (customerEmail.Length > 250)
+                                customerEmail = customerEmail.Substring(0, 250);
+                            var logisticsService = !string.IsNullOrEmpty(result.value.logisticsService) ? result.value.logisticsService.Replace("'", "`") : "";
+                            if (logisticsService.Length > 250)
+                                logisticsService = logisticsService.Substring(0, 250);
+                            var currentLogisticService = !string.IsNullOrEmpty(result.value.currentLogisticService) ? result.value.currentLogisticService.Replace("'", "`") : "";
+                            if (currentLogisticService.Length > 250)
+                                currentLogisticService = currentLogisticService.Substring(0, 250);
+                            var pickupPoint = !string.IsNullOrEmpty(result.value.pickupPoint) ? result.value.pickupPoint.Replace("'", "`") : "";
+                            if (pickupPoint.Length > 50)
+                                pickupPoint = pickupPoint.Substring(0, 50);
+                            var gdnSku = !string.IsNullOrEmpty(result.value.gdnSku) ? result.value.gdnSku.Replace("'", "`") : "";
+                            if (gdnSku.Length > 100)
+                                gdnSku = gdnSku.Substring(0, 100);
+                            var gdnItemSku = !string.IsNullOrEmpty(result.value.gdnItemSku) ? result.value.gdnItemSku.Replace("'", "`") : "";
+                            if (gdnItemSku.Length > 100)
+                                gdnItemSku = gdnItemSku.Substring(0, 100);
+                            var merchantSku = !string.IsNullOrEmpty(result.value.merchantSku) ? result.value.merchantSku.Replace("'", "`") : "";
+                            if (merchantSku.Length > 100)
+                                merchantSku = merchantSku.Substring(0, 100);
+                            var merchantDeliveryType = !string.IsNullOrEmpty(result.value.merchantDeliveryType) ? result.value.merchantDeliveryType.Replace("'", "`") : "";
+                            if (merchantDeliveryType.Length > 50)
+                                merchantDeliveryType = merchantDeliveryType.Substring(0, 50);
+                            var awbNumber = !string.IsNullOrEmpty(result.value.awbNumber) ? result.value.awbNumber.Replace("'", "`") : "";
+                            if (awbNumber.Length > 50)
+                                awbNumber = awbNumber.Substring(0, 50);
+                            var awbStatus = !string.IsNullOrEmpty(result.value.awbStatus) ? result.value.awbStatus.Replace("'", "`") : "";
+                            if (awbStatus.Length > 50)
+                                awbStatus = awbStatus.Substring(0, 50);
+                            var shippingCity = !string.IsNullOrEmpty(result.value.shippingCity) ? result.value.shippingCity.Replace("'", "`") : "";
+                            if (shippingCity.Length > 200)
+                                shippingCity = shippingCity.Substring(0, 200);
+                            var shippingSubDistrict = !string.IsNullOrEmpty(result.value.shippingSubDistrict) ? result.value.shippingSubDistrict.Replace("'", "`") : "";
+                            if (shippingSubDistrict.Length > 200)
+                                shippingSubDistrict = shippingSubDistrict.Substring(0, 200);
+                            var shippingDistrict = !string.IsNullOrEmpty(result.value.shippingDistrict) ? result.value.shippingDistrict.Replace("'", "`") : "";
+                            if (shippingDistrict.Length > 200)
+                                shippingDistrict = shippingDistrict.Substring(0, 200);
+                            var shippingProvince = !string.IsNullOrEmpty(result.value.shippingProvince) ? result.value.shippingProvince.Replace("'", "`") : "";
+                            if (shippingProvince.Length > 200)
+                                shippingProvince = shippingProvince.Substring(0, 200);
+                            var shippingMobile = !string.IsNullOrEmpty(result.value.shippingMobile) ? result.value.shippingMobile.Replace("'", "`") : "";
+                            if (shippingMobile.Length > 100)
+                                shippingMobile = shippingMobile.Substring(0, 100);
+                            //var startOperationalTime = !string.IsNullOrEmpty(result.value.startOperationalTime) ? result.value.startOperationalTime.Replace("'", "`") : "";
+                            //if (startOperationalTime.Length > 200)
+                            //    startOperationalTime = startOperationalTime.Substring(0, 200);
+                            //var endOperationalTime = !string.IsNullOrEmpty(result.value.endOperationalTime) ? result.value.endOperationalTime.Replace("'", "`") : "";
+                            //if (endOperationalTime.Length > 200)
+                            //    endOperationalTime = endOperationalTime.Substring(0, 200);
+                            var issuer = !string.IsNullOrEmpty(result.value.issuer) ? result.value.issuer.Replace("'", "`") : "";
+                            if (issuer.Length > 200)
+                                issuer = issuer.Substring(0, 200);
+                            var refundResolution = !string.IsNullOrEmpty(result.value.refundResolution) ? result.value.refundResolution.Replace("'", "`") : "";
+                            if (refundResolution.Length > 200)
+                                refundResolution = refundResolution.Substring(0, 200);
+                            var productTypeCode = !string.IsNullOrEmpty(result.value.productTypeCode) ? result.value.productTypeCode.Replace("'", "`") : "";
+                            if (productTypeCode.Length > 10)
+                                productTypeCode = productTypeCode.Substring(0, 10);
+                            var productTypeName = !string.IsNullOrEmpty(result.value.productTypeName) ? result.value.productTypeName.Replace("'", "`") : "";
+                            if (productTypeName.Length > 200)
+                                productTypeName = productTypeName.Substring(0, 200);
+                            var shippingRecipientName = !string.IsNullOrEmpty(result.value.shippingRecipientName) ? result.value.shippingRecipientName.Replace("'", "`") : "";
+                            if (shippingRecipientName.Length > 200)
+                                shippingRecipientName = shippingRecipientName.Substring(0, 200);
+                            var logisticsProductCode = !string.IsNullOrEmpty(result.value.logisticsProductCode) ? result.value.logisticsProductCode.Replace("'", "`") : "";
+                            if (logisticsProductCode.Length > 50)
+                                logisticsProductCode = logisticsProductCode.Substring(0, 50);
+                            var logisticsProductName = !string.IsNullOrEmpty(result.value.logisticsProductName) ? result.value.logisticsProductName.Replace("'", "`") : "";
+                            if (logisticsProductName.Length > 200)
+                                logisticsProductName = logisticsProductName.Substring(0, 200);
+                            var logisticsOptionCode = !string.IsNullOrEmpty(result.value.logisticsOptionCode) ? result.value.logisticsOptionCode.Replace("'", "`") : "";
+                            if (logisticsOptionCode.Length > 50)
+                                logisticsOptionCode = logisticsOptionCode.Substring(0, 50);
+                            var logisticsOptionName = !string.IsNullOrEmpty(result.value.logisticsOptionName) ? result.value.logisticsOptionName.Replace("'", "`") : "";
+                            if (logisticsOptionName.Length > 200)
+                                logisticsOptionName = logisticsOptionName.Substring(0, 200);
+                            if (NAMA_CUST.Length > 50)
+                                NAMA_CUST = NAMA_CUST.Substring(0, 50);
+                            var shippingZipCode = !string.IsNullOrEmpty(result.value.shippingZipCode) ? result.value.shippingZipCode.Replace("'", "`") : "";
+                            if (shippingZipCode.Length > 7)// karena di arf01 max length = 7
+                                shippingZipCode = shippingZipCode.Substring(0, 7);
+                            #endregion
                             try
                             {
                                 oCommand.Parameters[0].Value = CUST;
                                 oCommand.Parameters[1].Value = NAMA_CUST;
                                 oCommand.Parameters[2].Value = connId;
 
-                                oCommand.Parameters["@orderNo"].Value = result.value.orderNo;
-                                oCommand.Parameters["@orderItemNo"].Value = result.value.orderItemNo;
+                                oCommand.Parameters["@orderNo"].Value = order_no;
+                                oCommand.Parameters["@orderItemNo"].Value = order_ItemNo;
                                 oCommand.Parameters["@qty"].Value = result.value.qty;
                                 oCommand.Parameters["@orderDate"].Value = DateTimeOffset.FromUnixTimeMilliseconds(result.value.orderDate).UtcDateTime.AddHours(7);
                                 //change by Tri 12 Mei 2020, autocanceldate bisa null
@@ -1019,8 +1116,8 @@ namespace MasterOnline.Controllers
                                 oCommand.Parameters["@autoCancelDate"].Value = DateTimeOffset.FromUnixTimeMilliseconds(result.value.autoCancelDate.HasValue ? result.value.autoCancelDate.Value : result.value.orderDate).UtcDateTime.AddHours(7);
                                 //end change by Tri 12 Mei 2020, autocanceldate bisa null
 
-                                oCommand.Parameters["@productName"].Value = result.value.productName;
-                                oCommand.Parameters["@productItemName"].Value = result.value.productItemName;
+                                oCommand.Parameters["@productName"].Value = !string.IsNullOrEmpty(result.value.productName) ? result.value.productName.Replace("'", "`") : "";
+                                oCommand.Parameters["@productItemName"].Value = !string.IsNullOrEmpty(result.value.productItemName) ? result.value.productItemName.Replace("'", "`") : "";
                                 //change by Tri 27 Mar 2020, gunakan final price
                                 //oCommand.Parameters["@productPrice"].Value = result.value.productPrice;
                                 //oCommand.Parameters["@total"].Value = result.value.total;
@@ -1032,57 +1129,57 @@ namespace MasterOnline.Controllers
                                 //oCommand.Parameters["@custName"].Value = result.value.custName;
                                 oCommand.Parameters["@custName"].Value = nama;
                                 //oCommand.Parameters["@orderStatus"].Value = result.value.orderStatus != null ? result.value.orderStatus : "";
-                                var ordStatus = result.value.orderStatus != null ? result.value.orderStatus : "";
+                                var ordStatus = orderStatus;
                                 if (ordStatus == "PF" || ordStatus == "PU")
                                 {
                                     ordStatus = "FP";
                                 }
                                 oCommand.Parameters["@orderStatus"].Value = ordStatus;
-                                oCommand.Parameters["@orderStatusString"].Value = result.value.orderStatusString != null ? result.value.orderStatusString : "";
-                                oCommand.Parameters["@customerAddress"].Value = result.value.customerAddress != null ? result.value.customerAddress : "";
-                                oCommand.Parameters["@customerEmail"].Value = result.value.customerEmail != null ? result.value.customerEmail : "";
+                                oCommand.Parameters["@orderStatusString"].Value = orderStatusString;
+                                oCommand.Parameters["@customerAddress"].Value = result.value.customerAddress != null ? result.value.customerAddress.Replace("'", "`") : "";
+                                oCommand.Parameters["@customerEmail"].Value = customerEmail;
 
-                                oCommand.Parameters["@logisticsService"].Value = result.value.logisticsService != null ? result.value.logisticsService : "";
-                                oCommand.Parameters["@currentLogisticService"].Value = result.value.currentLogisticService != null ? result.value.currentLogisticService : "";
-                                oCommand.Parameters["@pickupPoint"].Value = result.value.pickupPoint != null ? result.value.pickupPoint : "";
-                                oCommand.Parameters["@gdnSku"].Value = result.value.gdnSku;
-                                oCommand.Parameters["@gdnItemSku"].Value = result.value.gdnItemSku;
+                                oCommand.Parameters["@logisticsService"].Value = logisticsService;
+                                oCommand.Parameters["@currentLogisticService"].Value = currentLogisticService;
+                                oCommand.Parameters["@pickupPoint"].Value = pickupPoint;
+                                oCommand.Parameters["@gdnSku"].Value = gdnSku;
+                                oCommand.Parameters["@gdnItemSku"].Value = gdnItemSku;
 
-                                oCommand.Parameters["@merchantSku"].Value = result.value.merchantSku != null ? result.value.merchantSku : "";
+                                oCommand.Parameters["@merchantSku"].Value = merchantSku;
                                 oCommand.Parameters["@totalWeight"].Value = result.value.totalWeight;
-                                oCommand.Parameters["@merchantDeliveryType"].Value = result.value.merchantDeliveryType;
-                                oCommand.Parameters["@awbNumber"].Value = result.value.awbNumber != null ? result.value.awbNumber : "";
-                                oCommand.Parameters["@awbStatus"].Value = result.value.awbStatus != null ? result.value.awbStatus : "";
+                                oCommand.Parameters["@merchantDeliveryType"].Value = merchantDeliveryType;
+                                oCommand.Parameters["@awbNumber"].Value = awbNumber;
+                                oCommand.Parameters["@awbStatus"].Value = awbStatus;
 
-                                oCommand.Parameters["@shippingStreetAddress"].Value = result.value.shippingStreetAddress;
-                                oCommand.Parameters["@shippingCity"].Value = result.value.shippingCity;
-                                oCommand.Parameters["@shippingSubDistrict"].Value = result.value.shippingSubDistrict;
-                                oCommand.Parameters["@shippingDistrict"].Value = result.value.shippingSubDistrict;
-                                oCommand.Parameters["@shippingProvince"].Value = result.value.shippingProvince;
+                                oCommand.Parameters["@shippingStreetAddress"].Value = !string.IsNullOrEmpty(result.value.shippingStreetAddress) ? result.value.shippingStreetAddress.Replace("'", "`") : "";
+                                oCommand.Parameters["@shippingCity"].Value = shippingCity;
+                                oCommand.Parameters["@shippingSubDistrict"].Value = shippingSubDistrict;
+                                oCommand.Parameters["@shippingDistrict"].Value = shippingSubDistrict;
+                                oCommand.Parameters["@shippingProvince"].Value = shippingProvince;
 
-                                oCommand.Parameters["@shippingZipCode"].Value = result.value.shippingZipCode;
+                                oCommand.Parameters["@shippingZipCode"].Value = shippingZipCode;
                                 oCommand.Parameters["@shippingCost"].Value = result.value.shippingCost;
-                                oCommand.Parameters["@shippingMobile"].Value = result.value.shippingMobile;
+                                oCommand.Parameters["@shippingMobile"].Value = shippingMobile;
                                 oCommand.Parameters["@shippingInsuredAmount"].Value = result.value.shippingInsuredAmount;
-                                oCommand.Parameters["@startOperationalTime"].Value = result.value.startOperationalTime != null ? result.value.startOperationalTime : "";
+                                oCommand.Parameters["@startOperationalTime"].Value = result.value.startOperationalTime ?? 0;
 
-                                oCommand.Parameters["@endOperationalTime"].Value = result.value.endOperationalTime != null ? result.value.endOperationalTime : "";
-                                oCommand.Parameters["@issuer"].Value = result.value.issuer != null ? result.value.issuer : "";
-                                oCommand.Parameters["@refundResolution"].Value = result.value.refundResolution != null ? result.value.refundResolution : "";
-                                oCommand.Parameters["@unFullFillReason"].Value = result.value.unFullFillReason != null ? result.value.unFullFillReason : "";
+                                oCommand.Parameters["@endOperationalTime"].Value = result.value.endOperationalTime ?? 0;
+                                oCommand.Parameters["@issuer"].Value = issuer ;
+                                oCommand.Parameters["@refundResolution"].Value = refundResolution;
+                                oCommand.Parameters["@unFullFillReason"].Value = !string.IsNullOrEmpty(result.value.unFullFillReason) ? result.value.unFullFillReason.Replace("'", "`") : "";
                                 oCommand.Parameters["@unFullFillQuantity"].Value = result.value.unFullFillQuantity != null ? result.value.unFullFillQuantity : 0;
 
-                                oCommand.Parameters["@productTypeCode"].Value = result.value.productTypeCode != null ? result.value.productTypeCode : "";
-                                oCommand.Parameters["@productTypeName"].Value = result.value.productTypeName != null ? result.value.productTypeName : "";
-                                oCommand.Parameters["@custNote"].Value = result.value.custNote != null ? result.value.custNote : "";
-                                oCommand.Parameters["@shippingRecipientName"].Value = result.value.shippingRecipientName != null ? result.value.shippingRecipientName : "";
-                                oCommand.Parameters["@logisticsProductCode"].Value = result.value.logisticsProductCode != null ? result.value.logisticsProductCode : "";
+                                oCommand.Parameters["@productTypeCode"].Value = productTypeCode;
+                                oCommand.Parameters["@productTypeName"].Value = productTypeName;
+                                oCommand.Parameters["@custNote"].Value = result.value.custNote != null ? result.value.custNote.Replace("'", "`") : "";
+                                oCommand.Parameters["@shippingRecipientName"].Value = shippingRecipientName;
+                                oCommand.Parameters["@logisticsProductCode"].Value = logisticsProductCode;
 
-                                oCommand.Parameters["@logisticsProductName"].Value = result.value.logisticsProductName != null ? result.value.logisticsProductName : "";
-                                oCommand.Parameters["@logisticsOptionCode"].Value = result.value.logisticsOptionCode != null ? result.value.logisticsOptionCode : "";
-                                oCommand.Parameters["@logisticsOptionName"].Value = result.value.logisticsOptionName != null ? result.value.logisticsOptionName : "";
-                                oCommand.Parameters["@destinationLongitude"].Value = result.value.destinationLongitude;
-                                oCommand.Parameters["@destinationLatitude"].Value = result.value.destinationLatitude;
+                                oCommand.Parameters["@logisticsProductName"].Value = logisticsProductName;
+                                oCommand.Parameters["@logisticsOptionCode"].Value = logisticsOptionCode ;
+                                oCommand.Parameters["@logisticsOptionName"].Value = logisticsOptionName;
+                                oCommand.Parameters["@destinationLongitude"].Value = result.value.destinationLongitude ?? 0;
+                                oCommand.Parameters["@destinationLatitude"].Value = result.value.destinationLatitude ?? 0;
 
                                 if (oCommand.ExecuteNonQuery() == 1)
                                 {
@@ -1094,13 +1191,14 @@ namespace MasterOnline.Controllers
                                     //if (nama.Length > 30)
                                     //    nama = nama.Substring(0, 30);
 
+
                                     string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
                                     insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
                                     insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
                                     //insertPembeli += "('" + result.value.custName + "','" + result.value.shippingStreetAddress + "','" + result.value.shippingMobile + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
-                                    insertPembeli += "('" + nama + "','" + result.value.shippingStreetAddress + "','" + result.value.shippingMobile + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
-                                    insertPembeli += "1, 'IDR', '01', '" + result.value.shippingStreetAddress + "', 0, 0, 0, 0, '1', 0, 0, ";
-                                    insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + result.value.shippingZipCode + "', '" + result.value.customerEmail + "', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "')";
+                                    insertPembeli += "('" + nama + "','" + result.value.shippingStreetAddress.Replace("'", "`") + "','" + shippingMobile + "','" + NAMA_CUST + "',0,0,'0','01',";
+                                    insertPembeli += "1, 'IDR', '01', '" + result.value.shippingStreetAddress.Replace("'", "`") + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                    insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + shippingZipCode + "', '" + customerEmail + "', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "')";
                                     EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
 
                                     SqlCommand CommandSQL = new SqlCommand();
@@ -1124,6 +1222,7 @@ namespace MasterOnline.Controllers
                                     CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                    //CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
                                     EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
@@ -2220,7 +2319,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke Blibli gagal.")]
-        public async Task<string> UpdateProdukQOH_Display_Job(BlibliAPIData iden, BlibliProductData data)
+        public async Task<string> UpdateProdukQOH_Display_Job(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, string product_id, BlibliAPIData iden, BlibliProductData data)
         {
             SetupContext(iden);
             //if merchant code diisi. barulah upload produk
@@ -6135,9 +6234,9 @@ namespace MasterOnline.Controllers
                                 oCommand.Parameters["@shippingCost"].Value = result.value.shippingCost;
                                 oCommand.Parameters["@shippingMobile"].Value = result.value.shippingMobile;
                                 oCommand.Parameters["@shippingInsuredAmount"].Value = result.value.shippingInsuredAmount;
-                                oCommand.Parameters["@startOperationalTime"].Value = result.value.startOperationalTime != null ? result.value.startOperationalTime : "";
+                                oCommand.Parameters["@startOperationalTime"].Value = result.value.startOperationalTime ?? 0;
 
-                                oCommand.Parameters["@endOperationalTime"].Value = result.value.endOperationalTime != null ? result.value.endOperationalTime : "";
+                                oCommand.Parameters["@endOperationalTime"].Value = result.value.endOperationalTime ?? 0;
                                 oCommand.Parameters["@issuer"].Value = result.value.issuer != null ? result.value.issuer : "";
                                 oCommand.Parameters["@refundResolution"].Value = result.value.refundResolution != null ? result.value.refundResolution : "";
                                 oCommand.Parameters["@unFullFillReason"].Value = result.value.unFullFillReason != null ? result.value.unFullFillReason : "";
@@ -8490,8 +8589,9 @@ namespace MasterOnline.Controllers
             public string pickupPointCountry { get; set; }
             public string pickupPointZipcode { get; set; }
             public string merchantDeliveryType { get; set; }
-            public bool installationRequired { get; set; }
-            public object awbNumber { get; set; }
+            public bool? installationRequired { get; set; }
+            //public object awbNumber { get; set; }
+            public string awbNumber { get; set; }
             public string awbStatus { get; set; }
             public string shippingStreetAddress { get; set; }
             public string shippingCity { get; set; }
@@ -8502,11 +8602,20 @@ namespace MasterOnline.Controllers
             public string shippingMobile { get; set; }
             public float shippingCost { get; set; }
             public float shippingInsuredAmount { get; set; }
-            public object startOperationalTime { get; set; }
-            public object endOperationalTime { get; set; }
-            public object issuer { get; set; }
-            public object refundResolution { get; set; }
-            public object unFullFillReason { get; set; }
+            //public object startOperationalTime { get; set; }
+            public long? startOperationalTime { get; set; }
+
+            //public object endOperationalTime { get; set; }
+            public long? endOperationalTime { get; set; }
+
+            //public object issuer { get; set; }
+            public string issuer { get; set; }
+
+            //public object refundResolution { get; set; }
+            public string refundResolution { get; set; }
+
+            //public object unFullFillReason { get; set; }
+            public string unFullFillReason { get; set; }
             public object unFullFillQuantity { get; set; }
             public string productTypeCode { get; set; }
             public string productTypeName { get; set; }
@@ -8517,8 +8626,8 @@ namespace MasterOnline.Controllers
             public string logisticsOptionCode { get; set; }
             public object originLongitude { get; set; }
             public object originLatitude { get; set; }
-            public float destinationLongitude { get; set; }
-            public float destinationLatitude { get; set; }
+            public float? destinationLongitude { get; set; }
+            public float? destinationLatitude { get; set; }
             public float itemWeightInKg { get; set; }
             public object fulfillmentInfo { get; set; }
             public object settlementInfo { get; set; }

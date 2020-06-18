@@ -5141,44 +5141,49 @@
                     beforeSend: function() {
                         $('#loading_spinner').show();
                     },
-                    success: function(response) {
-                        alert('Data berhasil disimpan!');
-                        $('#modalFixNotFound').modal('hide');
-                        //samakan dengan function lihatFaktur onSuccess
-                        $modeEdit = 1;
+                    success: function (response) {
+                        if (response.Errors != null) {
+                            alert(response.Errors[0]);
+                        }
+                        else {
+                            alert('Data berhasil disimpan!');
+                            $('#modalFixNotFound').modal('hide');
+                            //samakan dengan function lihatFaktur onSuccess
+                            $modeEdit = 1;
 
-                        $('#form-partial').html(response);
-                        $('#form-partial').show();
-                        $('#form_subs').hide();
-                        $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
-                        refreshInputan();
-                        getTanggal();
-                        getBuyer();
-                        getDataBarang();
-                        getMarketplace();
+                            $('#form-partial').html(response);
+                            $('#form-partial').show();
+                            $('#form_subs').hide();
+                            $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
+                            refreshInputan();
+                            getTanggal();
+                            getBuyer();
+                            getDataBarang();
+                            getMarketplace();
 
-                        $('.faktur_table_section').hide();
-                        $('.faktur_editor_section').show();
+                            $('.faktur_table_section').hide();
+                            $('.faktur_editor_section').show();
 
-                        $('#myTab li a').each(function () {
-                            $(this).removeAttr('data-toggle');
+                            $('#myTab li a').each(function () {
+                                $(this).removeAttr('data-toggle');
 
-                            if ($(this).attr('id') === 'faktur-tab') return;
+                                if ($(this).attr('id') === 'faktur-tab') return;
 
-                            $(this).addClass('disabled-tab');
+                                $(this).addClass('disabled-tab');
 
-                        });
+                            });
 
-                        $('#faktur-tempo-tab').off('click').on('click', function () {
-                            $('#div_tgl_Tempo').hide();
-                        });
+                            $('#faktur-tempo-tab').off('click').on('click', function () {
+                                $('#div_tgl_Tempo').hide();
+                            });
 
-                        $nettoSebelumnya += $bakalNetto;
-                        $('input, select, .btn-danger').each(function () {
-                            $(this).attr('disabled', 'disabled');
-                        });
-                        $('#tambah-pembeli').hide();
-                        $('tr[data-faktur-id="0"]').remove();
+                            $nettoSebelumnya += $bakalNetto;
+                            $('input, select, .btn-danger').each(function () {
+                                $(this).attr('disabled', 'disabled');
+                            });
+                            $('#tambah-pembeli').hide();
+                            $('tr[data-faktur-id="0"]').remove();
+                        }
                         $('#loading_spinner').hide();
                         //end samakan dengan function lihatFaktur onSuccess
                     },

@@ -705,6 +705,7 @@
     <Compile Include="Models\Api\ResultDataJurnalAkunting.cs" />
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
     <Compile Include="Models\API_LOG_MARKETPLACE_HANGFIRE.cs" />
+    <Compile Include="Models\ATTRIBUTE_82CART.cs" />
     <Compile Include="Models\ATTRIBUTE_BL.cs" />
     <Compile Include="Models\ATTRIBUTE_JDID_AND_OPT.cs" />
     <Compile Include="Models\ATTRIBUTE_OPT_TOKPED.cs" />
@@ -6390,6 +6391,14 @@
     <Content Include="Views\Admin\TablePesananHangfireJob.cshtml" />
     <Content Include="Views\Manage\ListDetailStokBarang.cshtml" />
     <Content Include="Views\Manage\CetakLabelTokped.cshtml" />
+    <Content Include="Views\Manage\TableFakturForReturPopUp.cshtml" />
+    <Content Include="Views\Manage\ListFakturForReturPopUp.cshtml" />
+    <Content Include="Views\Manage\ListBrgForReturPopUp.cshtml" />
+    <Content Include="Views\Manage\TableBarangForReturPenj.cshtml" />
+    <Content Include="Views\Manage\ListBrgForReturInvPopUp.cshtml" />
+    <Content Include="Views\Manage\ListFakturForReturInvPopUp.cshtml" />
+    <Content Include="Views\Manage\TableBarangForReturInvPenj.cshtml" />
+    <Content Include="Views\Manage\TableFakturForReturInvPopUp.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
