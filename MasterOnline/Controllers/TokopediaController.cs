@@ -1597,7 +1597,8 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                ret.nextPage = 1;
+                //ret.nextPage = 1;
+                ret.nextPage = 0;//stop get data brg jika exception di call API
                 ret.exception = 1;
                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
@@ -1631,7 +1632,8 @@ namespace MasterOnline.Controllers
                             //{
                             //ret.message += err.ToString() + "_;_";
                             //}
-                            ret.message += result.header.reason;
+                            //ret.message += result.header.reason;
+                            ret.message += (result.header.reason ?? result.header.messages);
                             //currentLog.REQUEST_EXCEPTION = ret.message;
                             //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                         }
@@ -2069,7 +2071,8 @@ namespace MasterOnline.Controllers
                         //{
                         //ret.message += err.ToString() + "_;_";
                         //}
-                        ret.message += result.header.reason;
+                        //ret.message += result.header.reason;
+                        ret.message += (result.header.reason ?? result.header.messages);
                         //currentLog.REQUEST_EXCEPTION = ret.message;
                         //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                     }
@@ -3208,7 +3211,13 @@ namespace MasterOnline.Controllers
             if (responseFromServer != "")
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetEtalaseReturn)) as GetEtalaseReturn;
-                res = result.data.etalase;
+                if(result.data != null)
+                {
+                    if(result.data.etalase != null)
+                    {
+                        res = result.data.etalase;
+                    }
+                }
             }
             return res;
         }
