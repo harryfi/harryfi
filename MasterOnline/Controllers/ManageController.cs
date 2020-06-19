@@ -15428,6 +15428,7 @@ namespace MasterOnline.Controllers
             string sSQLmarket = "";
             string sSQLpembeli = "";
             string sSQLnetto = "";
+            string sSQLref = "";
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -15440,6 +15441,7 @@ namespace MasterOnline.Controllers
                             sSQLmarket += " and ";
                             sSQLpembeli += " and ";
                             sSQLnetto += " and ";
+                            sSQLref += " and ";
                         }
 
 
@@ -15447,7 +15449,7 @@ namespace MasterOnline.Controllers
                         sSQLmarket += "  ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ) ";
                         sSQLpembeli += "  ( A.NAMAPEMESAN like '%" + getkata[i] + "%' ) ";
                         sSQLnetto += " ( (D.NETTO + D.DEBET - D.KREDIT - D.BAYAR) like '%" + getkata[i] + "%' ) ";
-
+                        sSQLref += " ( A.NO_REF like '%" + getkata[i] + "%' ) ";
                     }
                 }
             }
@@ -15511,7 +15513,7 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR B.PERSO LIKE '%" + search + "%' OR A.TGL_JT_TEMPO LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( " + sSQLkode + " or " + sSQLmarket + " or " + sSQLpembeli + " or " + sSQLnetto + " ) ";
+                sSQL2 += " AND ( " + sSQLkode + " or " + sSQLmarket + " or " + sSQLpembeli + " or " + sSQLnetto + " or " + sSQLref + " ) ";
             }
             string sSQLSelect2 = "";
             //add by nurul 16/1/2020, tampil sisa faktur
@@ -15574,6 +15576,7 @@ namespace MasterOnline.Controllers
             string sSQLmarket = "";
             string sSQLpembeli = "";
             string sSQLnetto = "";
+            string sSQLref = "";
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -15586,6 +15589,7 @@ namespace MasterOnline.Controllers
                             sSQLmarket += " and ";
                             sSQLpembeli += " and ";
                             sSQLnetto += " and ";
+                            sSQLref += " and ";
                         }
 
 
@@ -15593,7 +15597,7 @@ namespace MasterOnline.Controllers
                         sSQLmarket += "  ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ) ";
                         sSQLpembeli += "  ( A.NAMAPEMESAN like '%" + getkata[i] + "%' ) ";
                         sSQLnetto += " ( (D.NETTO + D.DEBET - D.KREDIT - D.BAYAR) like '%" + getkata[i] + "%' ) ";
-
+                        sSQLref += "  ( A.NO_REF like '%" + getkata[i] + "%' ) ";
                     }
                 }
             }
@@ -15657,7 +15661,7 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR B.PERSO LIKE '%" + search + "%' OR A.TGL_JT_TEMPO LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( " + sSQLkode + " or " + sSQLmarket + " or " + sSQLpembeli + " or " + sSQLnetto + " ) ";
+                sSQL2 += " AND ( " + sSQLkode + " or " + sSQLmarket + " or " + sSQLpembeli + " or " + sSQLnetto + " or " + sSQLref + " ) ";
             }
             string sSQLSelect2 = "";
             //add by nurul 16/1/2020, tampil sisa faktur
