@@ -145,18 +145,21 @@
                     @faktur.PEMBELI
                 </td>
                 <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.TOTAL)</td>
-                @if (faktur.STATUS_FAKTUR == "2")
-                {
-                    <td>Batal</td>
-                }
-                else if (faktur.FKT_RETUR != "")
-                {
-                    <td>Retur</td>
-                }
-                else
-                {
-                    <td>Selesai</td>
-                }
+                @*change by nurul 16/6/2020*@
+                @*@if (faktur.STATUS_FAKTUR == "2")
+        {
+            <td>Batal</td>
+        }
+        else if (faktur.FKT_RETUR != "")
+        {
+            <td>Retur</td>
+        }
+        else
+        {
+            <td>Selesai</td>
+        }*@
+                <td>@faktur.STATUS_FAKTUR</td>
+                @*end change by nurul 16/6/2020*@
                 @if (Convert.ToString(faktur.POSTING) == "Y")
                 {
                     <td>
@@ -246,8 +249,18 @@
         $(function () {
             $('#tabelfakturpartialpager').on('click', 'a', function () {
                 if (this.href != "") {
+                    //add by nurul 16/6/2020
+                    var filterby = get_faktur_filterby();
+                    var filtervalue = get_faktur_filtervalue(filterby);
+                    var link = this.href;
+                    link += "&filter=replaceFilter&filtervalue=replaceValueFilter";
+                    link = link.replace("replaceFilter", encodeURIComponent(filterby));
+                    link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+                    //end add by nurul 16/6/2020
+
                     $.ajax({
-                        url: this.href,
+                        //url: this.href,
+                        url: link,
                         type: 'GET',
                         cache: false,
                         beforeSend: function () {

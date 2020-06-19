@@ -58,6 +58,9 @@
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 90px;">No. Faktur</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Faktur</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Jatuh Tempo</th>
+                @*add by nurul 16/6/2020*@
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 90px;">No. Referensi</th>
+                @*end add by nurul 16/6/2020*@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 90px;">Marketplace</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 90px;">Pembeli</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Total</th>
@@ -91,6 +94,7 @@
                     <td>@faktur.NO_FAKTUR</td>
                     <td>@(faktur.TGL?.ToString("dd/MM/yyyy"))</td>
                     <td>@(faktur.TGLJTTEMPO?.ToString("dd/MM/yyyy"))</td>
+                    <td>@faktur.REFERENSI</td>
                     @*<td>@NamaMarket</td>*@
                     @*<td>@(NamaMarket + " (" + buyer.PERSO + ")")</td>*@
                     <td>@(faktur.MARKET + " (" + faktur.PERSO + ")")</td>
@@ -136,8 +140,18 @@
     $(function () {
         $('#tabelfakturtempopartialpager').on('click', 'a', function () {
             if (this.href != "") {
+                //add by nurul 16/6/2020
+                var filterby = get_faktur_tempo_filterby();
+                var filtervalue = get_faktur_tempo_filtervalue(filterby);
+                var link = this.href;
+                link += "&filter=replaceFilter&filtervalue=replaceValueFilter";
+                link = link.replace("replaceFilter", encodeURIComponent(filterby));
+                link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+                //end add by nurul 16/6/2020
+
                 $.ajax({
-                    url: this.href,
+                    //url: this.href,
+                    url: link,
                     type: 'GET',
                     cache: false,
                     beforeSend: function () {
