@@ -60,6 +60,13 @@ namespace MasterOnline.ViewModels
         //end add by nurul 6/4/2020
         public bool adaError { get; set; }
         public bool TidakLanjutProses { get; set; }
+
+        public bool statusLoopDownload { get; set; }
+        public bool statusSuccessDownload { get; set; }
+        public int progressDownload { get; set; }
+        public int percentDownload { get; set; }
+        public int countAllDownload { get; set; }
+        public bool selesaiProsesDownload { get; set; }
     }
 
     public class DetailLazada

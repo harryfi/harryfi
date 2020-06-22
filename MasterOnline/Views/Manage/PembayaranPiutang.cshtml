@@ -384,24 +384,24 @@
 </div>
 
 @*<div class="modal fade" id="konfHapusPiutang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content addpixelmodaltpiutang">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin menghapus piutang ini?</h4>
+        <div class="modal-dialog" role="document">
+            <div class="modal-content addpixelmodaltpiutang">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-center">
+                        <h4>Apakah Anda yakin ingin menghapus piutang ini?</h4>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                    <button type="button" class="btn btn-success" onclick="deletePiutang();">Ya</button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="deletePiutang();">Ya</button>
-            </div>
         </div>
-    </div>
-</div>*@
+    </div>*@
 @*//add by nurul 24/4/2020*@
 <div class="modal fade" id="konfHapusPiutang" tabindex="-1" role="dialog" aria-labelledby="UbahStatusMulti">
     <div class="modal-dialog" role="document">
@@ -528,7 +528,7 @@
 <div class="modal fade" id="konfUpload" tabindex="-1" role="dialog">
     <div class="modal-dialog" id="modal-upload" role="document">
         @*<div class="modal-content modalresponsive">*@
-        <div class="modal-content modalresponsive" >
+        <div class="modal-content modalresponsive">
             @*<div id="loading_upload" class="text-center">
                     <div id="loading_upload_image">
                         <img src="~/Content/Images/spinner.gif" />
@@ -785,6 +785,7 @@
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
 
     <script type="text/javascript">
+        var fileNameProcessDownload = "";
         var promptFaktur = "";
         var tempNobuk = "";
         var tempLog = "";
@@ -1891,7 +1892,7 @@
             });
         }
 
-        
+
 
         @*function deletePiutang() {
             var $savePage = $('#txt_last_page').val();
@@ -2271,11 +2272,12 @@
                     $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
                     $('#pBar_uploadFile').html('0% Complete');
                     //$('#progressBarUpload').modal('show');
-                    $('#pBar_DownloadFile').css('width', '20%').attr('aria-valuenow', 20);
-                    $('#pBar_DownloadFile').html('20% Complete');
+                    $('#pBar_DownloadFile').css('width', '0%').attr('aria-valuenow', 0);
+                    $('#pBar_DownloadFile').html('0% Complete');
                     $('#progressBarDownload').show();
                     $('#progressBarUpload').show();
-                    uploadFileExcelPiutang(null, 0, "0;0", "false;false", null, false);
+                    //uploadFileExcelPiutang(null, 0, "0;0", "false;false", null, false);
+                    uploadFileExcelPiutang(null, 0, "0;0", "false;false", null, false, "0;0", "false;false");
                 } else {
                     $('#progressBarDownload').hide();
                     $('#progressBarUpload').hide();
@@ -2284,7 +2286,7 @@
             }
         }
 
-        function uploadFileExcelPiutang(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess, vBuktiLog, vNoProcess) {
+        function uploadFileExcelPiutang(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess, vBuktiLog, vNoProcess, vpercentvprogressDownload, vstatusLoopvSuccessDownload) {
 
             var splitpro = vpercentvprogress.split(';');
             var vpercent = splitpro[0];
@@ -2293,6 +2295,14 @@
             var splitStatus = vstatusLoopvSuccess.split(';');
             var vstatusLoop = splitStatus[0];
             var vstatusSuccess = splitStatus[1];
+
+            var splitproDownload = vpercentvprogressDownload.split(';');
+            var vpercentDownload = splitproDownload[0];
+            var vprogressDownload = splitproDownload[1];
+
+            var splitStatusDownload = vstatusLoopvSuccessDownload.split(';');
+            var vstatusLoopDownload = splitStatusDownload[0];
+            var vstatusSuccessDownload = splitStatusDownload[1];
 
 
             if ($('#file_upload_excel')[0].files.length <= 0) {
@@ -2328,6 +2338,7 @@
                         formdata.append(fileInput.files[i].name, fileInput.files[i]);
                         $('#lblPBUpload').text('Processing File : ' + fileInput.files[i].name);
                         $('#lblPBDownload').text('Uploading File : ' + fileInput.files[i].name);
+                        fileNameProcessDownload = fileInput.files[i].name;
                     }
                 }
 
@@ -2340,7 +2351,7 @@
 
                 var $urlProgress = "";
                 if ($tempMP1.toUpperCase() == "SHOPEE") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayar1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayar1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess", percentDanprogressDownload = "rep7percent;rep8progress", statusLoopSuccessDownload= "rep9loop;rep10success", filename="repFileName" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "TOKOPEDIA") {
                     $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarTokped1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
@@ -2365,6 +2376,13 @@
                 $urlProgress = $urlProgress.replace("repLog", vBuktiLog);
                 $urlProgress = $urlProgress.replace("repNoProcess", vNoProcess);
 
+                $urlProgress = $urlProgress.replace("rep7percent", vpercentDownload);
+                $urlProgress = $urlProgress.replace("rep8progress", vprogressDownload);
+                $urlProgress = $urlProgress.replace("rep9loop", String(vstatusLoopDownload));
+                $urlProgress = $urlProgress.replace("rep10success", String(vstatusSuccessDownload));
+                $urlProgress = $urlProgress.replace("repFileName", String(fileNameProcessDownload));
+
+
                 $.ajax({
                     type: "POST",
                     url: $urlProgress,
@@ -2387,106 +2405,119 @@
                             tempNobuk = ret.nobuk;
                             tempLog = ret.buktiLog;
 
-                            $('#pBar_DownloadFile').css('width', '100%').attr('aria-valuenow', 100);
-                            $('#pBar_DownloadFile').html('100% Complete');
+                            //$('#pBar_DownloadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            //$('#pBar_DownloadFile').html('100% Complete');
 
-                            if (ret.countAll != null && ret.statusLoop == true && ret.statusSuccess == false && ret.TidakLanjutProses == false) {
-                                $('#pBar_uploadFile').css('width', ret.percent + '%').attr('aria-valuenow', ret.percent);
-                                $('#pBar_uploadFile').html(ret.percent + '% Complete');
+                                if (ret.statusLoopDownload == true && ret.statusSuccessDownload == false && ret.TidakLanjutProses == false && ret.selesaiProsesDownload == false) {
+                                    $('#pBar_DownloadFile').css('width', ret.percentDownload + '%').attr('aria-valuenow', ret.percentDownload);
+                                    $('#pBar_DownloadFile').html(ret.percentDownload + '% Complete');
 
-                                if (ret.progress <= ret.countAll) {
-                                    uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses);
-                                }
+                                    if (ret.progressDownload <= ret.countAllDownload) {
+                                        uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload + 1), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload));
+                                    }
+                                } else if (ret.statusSuccessDownload == true && ret.selesaiProsesDownload == true) {
+                                    $('#pBar_DownloadFile').css('width', '100%').attr('aria-valuenow', 100);
+                                    $('#pBar_DownloadFile').html('100% Complete');
+                                    if (ret.progress <= ret.countAll) {
+                                        uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload + 1), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload));
+                                    }
+                                } else if (ret.countAll != null && ret.statusLoop == true && ret.statusSuccess == false && ret.TidakLanjutProses == false && ret.selesaiProsesDownload == true) {
+                                    $('#pBar_uploadFile').css('width', ret.percent + '%').attr('aria-valuenow', ret.percent);
+                                    $('#pBar_uploadFile').html(ret.percent + '% Complete');
 
-                            } else if (ret.statusSuccess == true) {
-                                $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
-                                $('#pBar_uploadFile').html('100% Complete');
-                                $('#btnUploadExcelPiutang').removeAttr('disabled');
-                                //setTimeout(popupAlertUploadSaldoAwal, 500);
-                                $('#konfUpload_btn_tidak').show();
-                                $("#konfUpload").modal('hide');
-                                
-                                refreshInputan();
-                                getTanggal();
-                                getMarketplace();
-                                //getFaktur($("#Piutang_CUST").val());
-                                //FakturSelect(listFaktur);
-                                //$('input, select').each(function () {
-                                //    $(this).attr('disabled', 'disabled');
-                                //});
-                                getDetailBayarPiutang();
-                                $('#btn-simpan-perubahan-row').hide();
-                                $('#btn-autoload').click(function () {
-                                    $('#file_upload_excel').removeAttr('disabled');
-                                });
-                                //$("#btn-error-row").show();
-                                $tempErr.length = 0;
-                                $tempErr = listError;
-                                popupAlertUploadSaldoAwal;
-                                if (ret.adaError == true) {
-                                    //if (ret.nobuk != null) {
-                                    //    $("#btn-error").click();
-                                    //    showError(ret.nobuk, ret.buktiLog);
-                                    //} else {
-                                    //    alert(ret.Errors);
-                                    //}
+                                    if (ret.progress <= ret.countAll) {
+                                        uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload + 1), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload));
+                                    }
+
+                                } else if (ret.statusSuccess == true && ret.selesaiProsesDownload == true) {
+                                    $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                                    $('#pBar_uploadFile').html('100% Complete');
+                                    $('#btnUploadExcelPiutang').removeAttr('disabled');
+                                    //setTimeout(popupAlertUploadSaldoAwal, 500);
+                                    $('#konfUpload_btn_tidak').show();
+                                    $("#konfUpload").modal('hide');
+
+                                    refreshInputan();
+                                    getTanggal();
+                                    getMarketplace();
+                                    //getFaktur($("#Piutang_CUST").val());
+                                    //FakturSelect(listFaktur);
+                                    //$('input, select').each(function () {
+                                    //    $(this).attr('disabled', 'disabled');
+                                    //});
+                                    getDetailBayarPiutang();
+                                    $('#btn-simpan-perubahan-row').hide();
+                                    $('#btn-autoload').click(function () {
+                                        $('#file_upload_excel').removeAttr('disabled');
+                                    });
+                                    //$("#btn-error-row").show();
+                                    $tempErr.length = 0;
+                                    $tempErr = listError;
+                                    popupAlertUploadSaldoAwal;
+                                    if (ret.adaError == true) {
                                         $("#modalError").modal('show');
                                         showError(tempNobuk, tempLog);
-                                }
-                            } else {
-                                $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
-                                $('#pBar_uploadFile').html('0% Complete');
-                                $('#btnUploadExcelPiutang').removeAttr('disabled');
-                                //setTimeout(alert("Proses upload pembayaran piutang gagal. Klik Lihat Error!"), 500);
-                                $('#konfUpload_btn_tidak').show();
-                                $("#konfUpload").modal('hide');
+                                    }
+                                } else {
+                                    $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                                    $('#pBar_uploadFile').html('0% Complete');
+                                    $('#btnUploadExcelPiutang').removeAttr('disabled');
+                                    //setTimeout(alert("Proses upload pembayaran piutang gagal. Klik Lihat Error!"), 500);
+                                    $('#konfUpload_btn_tidak').show();
+                                    $("#konfUpload").modal('hide');
 
-                                refreshInputan();
-                                getTanggal();
-                                getMarketplace();
-                                //getFaktur($("#Piutang_CUST").val());
-                                //FakturSelect(listFaktur);
-                                //$('input, select').each(function () {
-                                //    $(this).attr('disabled', 'disabled');
-                                //});
-                                getDetailBayarPiutang();
-                                $('#btn-simpan-perubahan-row').hide();
-                                $('#btn-autoload').click(function () {
-                                    $('#file_upload_excel').removeAttr('disabled');
-                                });
-                                //$("#btn-error-row").show();
-                                $tempErr.length = 0;
-                                $tempErr = listError;
-                                alert("Proses upload pembayaran piutang gagal.");
-                                if (ret.adaError == true) {
-                                    //if (ret.nobuk != null) {
-                                    //    $("#btn-error").click();
-                                    //    showError(ret.nobuk, ret.buktiLog);
-
-                                    //} else {
-                                    //    alert(ret.Errors);
-                                    //}
+                                    refreshInputan();
+                                    getTanggal();
+                                    getMarketplace();
+                                    //getFaktur($("#Piutang_CUST").val());
+                                    //FakturSelect(listFaktur);
+                                    //$('input, select').each(function () {
+                                    //    $(this).attr('disabled', 'disabled');
+                                    //});
+                                    getDetailBayarPiutang();
+                                    $('#btn-simpan-perubahan-row').hide();
+                                    $('#btn-autoload').click(function () {
+                                        $('#file_upload_excel').removeAttr('disabled');
+                                    });
+                                    //$("#btn-error-row").show();
+                                    $tempErr.length = 0;
+                                    $tempErr = listError;
+                                    alert("Proses upload pembayaran piutang gagal.");
+                                    if (ret.adaError == true) {
                                         $("#modalError").modal('show');
                                         showError(tempNobuk, tempLog);
+                                    }
                                 }
-                            }
 
 
                         } else {
                             tempNobuk = response.nobuk;
                             tempLog = response.buktiLog;
-                            $('#pBar_DownloadFile').css('width', '100%').attr('aria-valuenow', 100);
-                            $('#pBar_DownloadFile').html('100% Complete');
+                            //$('#pBar_DownloadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            //$('#pBar_DownloadFile').html('100% Complete');
 
-                            if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false && response.TidakLanjutProses == false) {
+                            if (response.statusLoopDownload == true && response.statusSuccessDownload == false && response.TidakLanjutProses == false && response.selesaiProsesDownload == false) {
+                                $('#pBar_DownloadFile').css('width', response.percentDownload + '%').attr('aria-valuenow', response.percentDownload);
+                                $('#pBar_DownloadFile').html(response.percentDownload + '% Complete');
+
+                                if (response.progressDownload <= response.countAllDownload) {
+                                    uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload + 1), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload));
+                                }
+                            } else if (response.statusSuccessDownload == true && response.selesaiProsesDownload == true) {
+                                $('#pBar_DownloadFile').css('width', '100%').attr('aria-valuenow', 100);
+                                $('#pBar_DownloadFile').html('100% Complete');
+                                if (response.progress <= response.countAll) {
+                                    uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload + 1), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload));
+                                }
+                            } else if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false && response.TidakLanjutProses == false && response.selesaiProsesDownload == true) {
                                 $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
                                 $('#pBar_uploadFile').html(response.percent + '% Complete');
 
                                 if (response.progress <= response.countAll) {
-                                    uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses);
+                                    uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload + 1), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload));
                                 }
 
-                            } else if (response.statusSuccess == true) {
+                            } else if (response.statusSuccess == true && response.selesaiProsesDownload == true) {
                                 $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                                 $('#pBar_uploadFile').html('100% Complete');
                                 $('#btnUploadExcelPiutang').removeAttr('disabled');
