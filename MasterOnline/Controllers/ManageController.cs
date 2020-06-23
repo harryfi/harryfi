@@ -40340,7 +40340,15 @@ namespace MasterOnline.Controllers
                                             string nilaiTRACKING_SHIPMENT = "P[;]" + pAddress + "[;]" + pTime;
                                             //change by nurul 16/6/2020
                                             //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT));
+#if (DEBUG || Debug_AWS)
+                                            var shoApi = new ShopeeControllerJob();
+                                            //change by nurul 16/6/2020
+                                            //Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job)).Wait();
+                                            Task.Run(() => shoApi.InitLogisticPickup(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT)).Wait();
+                                                //end change by nurul 16/6/2020
+#else
                                             clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT));
+#endif
                                             //end change by nurul 16/6/2020
                                             listSuccess.Add(new listSuccessPrintLabel
                                             {
@@ -40503,7 +40511,7 @@ namespace MasterOnline.Controllers
                                                 //var notrack = Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
                                                 var notrack = Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
                                                 //end change by nurul 16/6/2020
-#else   
+#else
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                 //change by nurul 16/6/2020
