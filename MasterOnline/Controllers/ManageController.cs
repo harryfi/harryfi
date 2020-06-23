@@ -10832,6 +10832,20 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public ActionResult PromptAttribute82Cart(string cust, string attribute)
+        {
+            try
+            {
+                ViewData["cust"] = cust;
+                ViewData["attribute"] = attribute;
+                return View("PromptAttribute82Cart");
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+
         public static long CurrentTimeMillis()
         {
             //        return (long)DateTime.Now.ToUniversalTime().Subtract(
@@ -11020,6 +11034,89 @@ namespace MasterOnline.Controllers
             }
 
             return PartialView("TablePromptBrand82Cart");
+        }
+
+        public async Task<ActionResult> RefreshAttribute82Cart(string attribute, int cust, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["cust"] = cust;
+            ViewData["attribute"] = attribute;
+            var marketPlace = ErasoftDbContext.ARF01.Where(p => p.RecNum == cust).SingleOrDefault();
+            if (marketPlace != null)
+            {
+                EightTwoCartController.E2CartAPIData data = new EightTwoCartController.E2CartAPIData
+                {
+                    no_cust = marketPlace.CUST,
+                    account_store = marketPlace.PERSO,
+                    API_key = marketPlace.API_KEY,
+                    API_credential = marketPlace.Sort1_Cust,
+                    API_url = marketPlace.PERSO,
+                    DatabasePathErasoft = dbPathEra
+                };
+
+                //string url = "dev.api.82cart.com";
+                string urll = string.Format("{0}/api/v1/getAttribute?apiKey={1}&apiCredential={2}", data.API_url, data.API_key, data.API_credential);
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.ContentType = "application/json";
+                string responseServer = "";
+
+                try
+                {
+                    using (WebResponse response = myReq.GetResponse())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseServer = reader.ReadToEnd();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+
+                if (!string.IsNullOrEmpty(responseServer))
+                {
+                    var vresult = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartAttributeResult)) as E2CartAttributeResult;
+                    var list_value = new List<ATTRIBUTE_82CART_LIST>();
+                    if (vresult != null)
+                    {
+                        if (vresult.error.ToString() == "none" && vresult.data.Length > 0)
+                        {
+                            if (vresult.data != null)
+                            {
+                                foreach (var item in vresult.data)
+                                {
+
+                                    if (item.attribute.Count() > 0)
+                                    {
+                                        if (item.id_attribute_group == attribute) {
+                                            foreach (var detail in item.attribute)
+                                            {
+                                                list_value.Add(new ATTRIBUTE_82CART_LIST()
+                                                {
+                                                    id_attribute = detail.id_attribute,
+                                                    attribute_name = detail.attribute_name,
+                                                    color_attribute = detail.color
+                                                });
+                                            }
+                                        }
+                                    }
+
+                                }
+                                IPagedList<ATTRIBUTE_82CART_LIST> pageOrders = new StaticPagedList<ATTRIBUTE_82CART_LIST>(list_value, pagenumber + 1, 10, 10);
+                                return PartialView("TablePromptAttribute82Cart", pageOrders);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return PartialView("TablePromptAttribute82Cart");
         }
 
         protected JsonResult JsonErrorMessage(string message)
@@ -49710,6 +49807,31 @@ namespace MasterOnline.Controllers
         public string meta_title { get; set; }
         public string meta_description { get; set; }
         public string meta_keywords { get; set; }
+    }
+
+    public class E2CartAttributeResult
+    {
+        public string requestid { get; set; }
+        public string error { get; set; }
+        public E2CartAttribute[] data { get; set; }
+    }
+
+    public class E2CartAttribute
+    {
+        public string id_attribute_group { get; set; }
+        //public string is_color_group { get; set; }
+        //public string group_type { get; set; }
+        //public string group_position { get; set; }
+        public string group_name { get; set; }
+        public attribute[] attribute { get; set; }
+    }
+
+    public class attribute
+    {
+        public string id_attribute { get; set; }
+        public string color { get; set; }
+        //public string attribute_position { get; set; }
+        public string attribute_name { get; set; }
     }
     //end by fauzi for 82Cart Get Category from API
 
