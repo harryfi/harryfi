@@ -905,7 +905,10 @@ namespace MasterOnline.Controllers
                         //{
                         using (SqlCommand oCommand = oConnection.CreateCommand())
                         {
-                            oCommand.CommandText = "DELETE FROM [TEMP_BLI_ORDERDETAIL] WHERE CUST = '" + CUST + "'";
+                            //change 23 jun 2020
+                            //oCommand.CommandText = "DELETE FROM [TEMP_BLI_ORDERDETAIL] WHERE CUST = '" + CUST + "'";
+                            oCommand.CommandText = "DELETE FROM [TEMP_BLI_ORDERDETAIL]";
+                            //end change 23 jun 2020
                             oCommand.ExecuteNonQuery();
                             //oCommand.Transaction = oTransaction;
                             oCommand.CommandType = CommandType.Text;
