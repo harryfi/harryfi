@@ -66,7 +66,7 @@
                 $('#txtKodeKategoriShopee').val($(fieldCategoryCode).val());
                 $('#txtNamaKategoriShopee').val($(fieldCategoryName).val());
             }
-            if ((target == '#82cart_detail_tab_variant')) {
+            if ((target == '#e2cart_detail_tab_variant')) {
                 var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txt82CartCategoryCodeFound').val() + '__CATEGORY_CODE';
                 var fieldCategoryName = '#ListHargaJualPermarket_' + $('#txt82CartCategoryCodeFound').val() + '__CATEGORY_NAME';
                 $('#txtKodeKategori82Cart').val($(fieldCategoryCode).val());
@@ -1848,8 +1848,8 @@
                 opt_selected_1: $('#select_opt_level_1').val(),
                 opt_selected_2: $('#select_opt_level_2').val(),
                 opt_selected_3: $('#select_opt_level_3').val(),
-                shopee: {
-                    code: shopee_code,
+                e2cart : {
+                    code: e2cart_code,
                     var_judul: {
                         lv_1: $("#txtJudulVariant82CartLv1").val(),
                         lv_2: $("#txtJudulVariant82CartLv2").val(),
@@ -2304,6 +2304,7 @@
                     <div class="col-md-12 col-sm-12 col-xs-12">
                         @{
                             var shopeeCategoryCodeFound = -1;
+                            var e2cartCategoryCodeFound = -1;
                             var tokpedCategoryCodeFound = -1;
                             var blibliCategoryCodeFound = -1;
                             var lazadaCategoryCodeFound = -1;
@@ -2327,6 +2328,21 @@
                                             //end add by calvin 24 april 2019
                                             shopeeCategoryCodeFound = i;
                                             @Html.TextBox("txtShopeeCategoryCodeFound", @shopeeCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                        }
+                                    }
+                                }
+                            }
+                            if (e2cartCategoryCodeFound == -1)
+                            {
+                                if (idMarket == 20)
+                                {
+                                    if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
+                                    {
+                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault()?.DISPLAY;
+                                        if (cekDisplay ?? false)
+                                        {
+                                            e2cartCategoryCodeFound = i;
+                                            @Html.TextBox("txt82CartCategoryCodeFound", @e2cartCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
                                         }
                                     }
                                 }
