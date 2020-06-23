@@ -6399,6 +6399,8 @@
     <Content Include="Views\Manage\ListFakturForReturInvPopUp.cshtml" />
     <Content Include="Views\Manage\TableBarangForReturInvPenj.cshtml" />
     <Content Include="Views\Manage\TableFakturForReturInvPopUp.cshtml" />
+    <Content Include="Views\Manage\PromptAttribute82Cart.cshtml" />
+    <Content Include="Views\Manage\TablePromptAttribute82Cart.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
