@@ -63,9 +63,7 @@
                 </td>
                 <td style="width: 40px; max-width: 40px; align-self:flex-start; border-left:hidden">
                 </td>
-                <td>@item.attribute_name <button type="button" id="save_prompt_btn" class="btn btn-success" onclick="pilihPrompt(this)">
-    Simpan
-</button></td>
+                <td>@item.attribute_name</td>
             </tr>
             }
         </tbody>
@@ -120,26 +118,5 @@
             $(this).prop('checked'));
     });
 
-    function pilihPrompt(sender) {
-        var rows_selected = [];
-        var rows_selected_name = [];
-
-        $('.checkbox_gntstatus_attribute').each(function (i, item) {
-            //if ($('#checkbox_all_gntstatus_sudahdibayar').is(":checked")) {
-            //    rows_selected.push($(item).attr("data-recnum"));
-            //} else
-            if ($(item).is(":checked")) {
-                rows_selected.push($(item).attr("data-attribute"));
-                rows_selected_name.push($(item).attr("data-attributename"));
-            }
-        });
-
-        let value = $(sender).attr('data-value');
-        let name = $(sender).attr('data-valuename');
-        self.window.close();
-        window.onunload = refreshTextBox;
-        function refreshTextBox() {
-            window.opener.afterPromptAttribute82Cart(value.toString(), name.toString(), rows_selected, rows_selected_name);
-        }
-    }
+    
 </script>

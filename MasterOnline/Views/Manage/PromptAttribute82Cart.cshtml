@@ -25,7 +25,7 @@
                     </button>
                 </span>*@
                 <span class="input-group-btn">
-                    <button type="button" id="save_prompt_btn" class="btn btn-success" onclick="pilihPrompt(this)">
+                    <button type="button" id="save_prompt_btn" class="btn btn-success" onclick="saveCheckBoxAttribute()">
                         Simpan
                     </button>
                 </span>
@@ -81,5 +81,21 @@
         });
     }
 
-    
+    function saveCheckBoxAttribute() {
+        var rows_selected = [];
+        var rows_selected_name = [];
+
+        $('.checkbox_gntstatus_attribute').each(function (i, item) {
+            if ($(item).is(":checked")) {
+                rows_selected.push($(item).attr("data-attribute"));
+                rows_selected_name.push($(item).attr("data-attributename"));
+            }
+        });
+
+        self.window.close();
+        window.onunload = refreshTextBox2;
+        function refreshTextBox2() {
+            window.opener.afterPromptAttribute82Cart(rows_selected, rows_selected_name);
+        }
+    }
 </script>
