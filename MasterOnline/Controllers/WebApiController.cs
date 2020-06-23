@@ -134,5 +134,88 @@ namespace MasterOnline.Controllers
                 throw;
             }
         }
+
+        [System.Web.Http.Route("api/refreshstokmp")]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
+        public async Task<IHttpActionResult> RefreshStokMP([FromBody]JsonData data)
+        {
+
+            try
+            {
+                JsonApi result;
+                string apiKey = "";
+                string dbPathEra = "";
+                string userName = "";
+
+                var re = Request;
+                var headers = re.Headers;
+
+                if (headers.Contains("X-API-KEY"))
+                {
+                    apiKey = headers.GetValues("X-API-KEY").First();
+                }
+
+                if (apiKey != "REFRESHSTOKMP_M@STERONLINE4P1K3Y")
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Wrong API KEY!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                if (headers.Contains("DBPATHERA"))
+                {
+                    dbPathEra = headers.GetValues("DBPATHERA").First();
+                }
+                else
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "DBPATHERA can not be empty!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                if (headers.Contains("USERNAME"))
+                {
+                    userName = headers.GetValues("USERNAME").First();
+                }
+                else
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "USERNAME can not be empty!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                await Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, userName));
+
+                result = new JsonApi()
+                {
+                    code = 200,
+                    message = "Success",
+                    data = null
+                };
+
+                return Json(result);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
     }
 }
