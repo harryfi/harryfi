@@ -8121,6 +8121,7 @@ namespace MasterOnline.Controllers
                 var kdElevenia = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA");
                 var kdShopee = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
                 var kdTokped = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+                var kd82Cart = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "82CART");
                 var validPrice = true;
 
                 string[] imgPath = new string[Request.Files.Count];
@@ -8630,6 +8631,10 @@ namespace MasterOnline.Controllers
                                             else if (kdMarket == kdElevenia.IdMarket.ToString())
                                             {
                                                 namaMarket = "ELEVENIA";
+                                            }
+                                            else if (kdMarket == kd82Cart.IdMarket.ToString())
+                                            {
+                                                namaMarket = "82CART";
                                             }
                                             if (namaMarket != "")
                                             {
@@ -9826,7 +9831,7 @@ namespace MasterOnline.Controllers
                                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 
 #if (DEBUG || Debug_AWS)
-                                            EightTwoCartController.E2CartAPIData iden = new EightTwoCartController.E2CartAPIData
+                                            EightTwoCartControllerJob.E2CartAPIData iden = new EightTwoCartControllerJob.E2CartAPIData
                                             {
                                                 username = usernameLogin,
                                                 no_cust = tblCustomer.CUST,
@@ -9836,9 +9841,9 @@ namespace MasterOnline.Controllers
                                                 API_url = tblCustomer.PERSO,
                                                 DatabasePathErasoft = dbPathEra
                                             };
-                                            EightTwoCartController c82CartAPI = new EightTwoCartController();
+                                            EightTwoCartControllerJob c82CartAPI = new EightTwoCartControllerJob();
 
-                                            //c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
+                                            c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
                                             //Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
 #else
                                             EightTwoCartControllerJob.E2CartAPIData dataJob = new EightTwoCartControllerJob.E2CartAPIData
@@ -9857,7 +9862,7 @@ namespace MasterOnline.Controllers
 
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                            //clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
+                                            clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
 #endif
                                         }
                                     }
@@ -10992,6 +10997,20 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public ActionResult PromptAttribute82Cart(string cust, string attribute)
+        {
+            try
+            {
+                ViewData["cust"] = cust;
+                ViewData["attribute"] = attribute;
+                return View("PromptAttribute82Cart");
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+
         public static long CurrentTimeMillis()
         {
             //        return (long)DateTime.Now.ToUniversalTime().Subtract(
@@ -11132,8 +11151,8 @@ namespace MasterOnline.Controllers
                     DatabasePathErasoft = dbPathEra
                 };
 
-                string url = "dev.api.82cart.com";
-                string urll = string.Format("https://{0}/api/v1/getManufacturer?apiKey={1}&apiCredential={2}", url, data.API_key, data.API_credential);
+                //string url = "dev.api.82cart.com";
+                string urll = string.Format("{0}/api/v1/getManufacturer?apiKey={1}&apiCredential={2}", data.API_url, data.API_key, data.API_credential);
 
                 HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                 myReq.Method = "GET";
@@ -11180,6 +11199,89 @@ namespace MasterOnline.Controllers
             }
 
             return PartialView("TablePromptBrand82Cart");
+        }
+
+        public async Task<ActionResult> RefreshAttribute82Cart(string attribute, int cust, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["cust"] = cust;
+            ViewData["attribute"] = attribute;
+            var marketPlace = ErasoftDbContext.ARF01.Where(p => p.RecNum == cust).SingleOrDefault();
+            if (marketPlace != null)
+            {
+                EightTwoCartController.E2CartAPIData data = new EightTwoCartController.E2CartAPIData
+                {
+                    no_cust = marketPlace.CUST,
+                    account_store = marketPlace.PERSO,
+                    API_key = marketPlace.API_KEY,
+                    API_credential = marketPlace.Sort1_Cust,
+                    API_url = marketPlace.PERSO,
+                    DatabasePathErasoft = dbPathEra
+                };
+
+                //string url = "dev.api.82cart.com";
+                string urll = string.Format("{0}/api/v1/getAttribute?apiKey={1}&apiCredential={2}", data.API_url, data.API_key, data.API_credential);
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.ContentType = "application/json";
+                string responseServer = "";
+
+                try
+                {
+                    using (WebResponse response = myReq.GetResponse())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseServer = reader.ReadToEnd();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+
+                if (!string.IsNullOrEmpty(responseServer))
+                {
+                    var vresult = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartAttributeResult)) as E2CartAttributeResult;
+                    var list_value = new List<ATTRIBUTE_82CART_LIST>();
+                    if (vresult != null)
+                    {
+                        if (vresult.error.ToString() == "none" && vresult.data.Length > 0)
+                        {
+                            if (vresult.data != null)
+                            {
+                                foreach (var item in vresult.data)
+                                {
+
+                                    if (item.attribute.Count() > 0)
+                                    {
+                                        if (item.id_attribute_group == attribute) {
+                                            foreach (var detail in item.attribute)
+                                            {
+                                                list_value.Add(new ATTRIBUTE_82CART_LIST()
+                                                {
+                                                    id_attribute = detail.id_attribute,
+                                                    attribute_name = detail.attribute_name,
+                                                    color_attribute = detail.color
+                                                });
+                                            }
+                                        }
+                                    }
+
+                                }
+                                IPagedList<ATTRIBUTE_82CART_LIST> pageOrders = new StaticPagedList<ATTRIBUTE_82CART_LIST>(list_value, pagenumber + 1, 10, 10);
+                                return PartialView("TablePromptAttribute82Cart", pageOrders);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return PartialView("TablePromptAttribute82Cart");
         }
 
         protected JsonResult JsonErrorMessage(string message)
@@ -13497,6 +13599,133 @@ namespace MasterOnline.Controllers
             if (listNewData.Count() > 0)
             {
                 var listStf02IinDb = ErasoftDbContext.STF02I.Where(p => p.BRG == brg && p.MARKET == "SHOPEE").ToList();
+                ErasoftDbContext.STF02I.RemoveRange(listStf02IinDb);
+                ErasoftDbContext.SaveChanges();
+
+                ErasoftDbContext.STF02I.AddRange(listNewData);
+
+                //add by nurul 27/11/2019, add tgl last edit
+                var tempBrg = ErasoftDbContext.STF02.Where(p => p.BRG == brg).SingleOrDefault();
+                if (tempBrg != null)
+                {
+                    tempBrg.Tgl_Input = DateTime.Today;
+                }
+                //end add by nurul 27/11/2019, add tgl last edit
+
+                ErasoftDbContext.SaveChanges();
+            }
+            #endregion
+            var vm = new BarangDetailVarViewModel()
+            {
+
+            };
+
+            return Json(vm, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult SaveMappingVar82Cart(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3, StrukturVariantMp e2cart)
+        {
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == code);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            List<STF02I> listNewData = new List<STF02I>();
+            #region Create Ulang STF02I
+            {
+                if (opt_selected_1 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_1)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdata = new STF02I()
+                                {
+                                    MARKET = "82CART",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 1,
+                                    MP_JUDUL_VAR = e2cart.var_judul.lv_1,
+                                    MP_VALUE_VAR = e2cart.var_detail.lv_1[i],
+                                    MP_CATEGORY_CODE = e2cart.code
+                                };
+                                listNewData.Add(newdata);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_2 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_2)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdata = new STF02I()
+                                {
+                                    MARKET = "82CART",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 2,
+                                    MP_JUDUL_VAR = e2cart.var_judul.lv_2,
+                                    MP_VALUE_VAR = e2cart.var_detail.lv_2[i],
+                                    MP_CATEGORY_CODE = e2cart.code
+                                };
+                                listNewData.Add(newdata);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_3 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_3)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdata = new STF02I()
+                                {
+                                    MARKET = "82CART",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 3,
+                                    MP_JUDUL_VAR = e2cart.var_judul.lv_3,
+                                    MP_VALUE_VAR = e2cart.var_detail.lv_3[i],
+                                    MP_CATEGORY_CODE = e2cart.code
+                                };
+                                listNewData.Add(newdata);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+            }
+            #endregion
+
+            #region Save STF02I
+            if (listNewData.Count() > 0)
+            {
+                var listStf02IinDb = ErasoftDbContext.STF02I.Where(p => p.BRG == brg && p.MARKET == "82CART").ToList();
                 ErasoftDbContext.STF02I.RemoveRange(listStf02IinDb);
                 ErasoftDbContext.SaveChanges();
 
@@ -51079,6 +51308,31 @@ namespace MasterOnline.Controllers
         public string meta_title { get; set; }
         public string meta_description { get; set; }
         public string meta_keywords { get; set; }
+    }
+
+    public class E2CartAttributeResult
+    {
+        public string requestid { get; set; }
+        public string error { get; set; }
+        public E2CartAttribute[] data { get; set; }
+    }
+
+    public class E2CartAttribute
+    {
+        public string id_attribute_group { get; set; }
+        //public string is_color_group { get; set; }
+        //public string group_type { get; set; }
+        //public string group_position { get; set; }
+        public string group_name { get; set; }
+        public attribute[] attribute { get; set; }
+    }
+
+    public class attribute
+    {
+        public string id_attribute { get; set; }
+        public string color { get; set; }
+        //public string attribute_position { get; set; }
+        public string attribute_name { get; set; }
     }
     //end by fauzi for 82Cart Get Category from API
 

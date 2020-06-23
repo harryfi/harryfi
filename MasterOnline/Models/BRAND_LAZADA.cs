@@ -29,5 +29,12 @@ namespace MasterOnline.Models
         public string name { get; set; }
         public string active { get; set; }
     }
+
+    public class ATTRIBUTE_82CART_LIST
+    {
+        public string id_attribute { get; set; }
+        public string color_attribute { get; set; }
+        public string attribute_name { get; set; }
+    }
     //end add
 }
