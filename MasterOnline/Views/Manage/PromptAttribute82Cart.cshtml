@@ -16,12 +16,17 @@
     <div class="row">
         <div class="col-lg-4 col-sm-6">
             <div class="input-group">
-                <input id="search_prompt" type="text" class="form-control" placeholder="Pencarian">
+                @*<input id="search_prompt" type="text" class="form-control" placeholder="Pencarian">*@
                 <input id="txt_cust" type="hidden" class="form-control" value="@ViewData["cust"]">
                 <input id="txt_category" type="hidden" class="form-control" value="@ViewData["attribute"]">
-                <span class="input-group-btn">
+                @*<span class="input-group-btn">
                     <button type="button" id="search_prompt_btn" class="btn btn-primary">
                         <i class="fa fa-search"></i>
+                    </button>
+                </span>*@
+                <span class="input-group-btn">
+                    <button type="button" id="save_prompt_btn" class="btn btn-success" onclick="pilihPrompt(this)">
+                        Simpan
                     </button>
                 </span>
             </div>
@@ -76,13 +81,5 @@
         });
     }
 
-    function pilihPrompt(sender) {
-        let value = $(sender).attr('data-value');
-        let name = $(sender).attr('data-valuename');
-        self.window.close();
-        window.onunload = refreshTextBox;
-        function refreshTextBox() {
-            window.opener.afterPromptAttribute82Cart(value.toString(), name.toString());
-        }
-    }
+    
 </script>

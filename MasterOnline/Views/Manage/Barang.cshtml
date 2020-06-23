@@ -5226,10 +5226,12 @@
             $link = $link.replace("replaceAtt", valueAttribute);
             window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
         }
-        function afterPromptAttribute82Cart(val,name) {
+        function afterPromptAttribute82Cart(val,name, arrVal, arrName) {
             $('#Attribute' + PromptAttribute82CartTextBox + '82Cart').val(name);
             $('#ListHargaJualPermarket_' + PromptAttribute82CartTextBox + '__AVALUE_11').val(val);
             $('#ListHargaJualPermarket_' + PromptAttribute82CartTextBox + '__ANAME_11').val(name);
+            $('#ListHargaJualPermarket_' + PromptAttribute82CartTextBox + '__AVALUE_12').val(arrVal);
+            $('#ListHargaJualPermarket_' + PromptAttribute82CartTextBox + '__ANAME_12').val(arrName);
         }
         //end add by fauzi for 82Cart
 

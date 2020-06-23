@@ -46,6 +46,7 @@
     <table class="table table-striped table-bordered table-hover">
         <thead>
             <tr role="row">
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; border-right:hidden; align-self:flex-start"><input type="checkbox" class="dt-checkboxes-select-all center" id="checkbox_all_gntstatus_attribute" style="margin-top: 20px; border-right:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Pilih</th>
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 100%;">Attribute</th>
             </tr>
@@ -53,14 +54,19 @@
         <tbody>
             @foreach (var item in Model)
             {
-                <tr>
-                    <td class="edit-hapus-col">
-                        <button class="btn btn-primary" data-value="@item.id_attribute" data-valuename="@item.attribute_name" onclick="pilihPrompt(this)">
-                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-                        </button>
-                    </td>
-                    <td>@item.attribute_name</td>
-                </tr>
+            <tr>
+                <td class="edit-hapus-col">
+                    @*<button class="btn btn-primary" data-value="@item.id_attribute" data-valuename="@item.attribute_name" onclick="pilihPrompt(this)">
+            <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+        </button>*@
+                    <input type="checkbox" class="dt-checkboxes center checkbox_gntstatus_attribute" data-attribute="@item.id_attribute" data-attributename="@item.attribute_name" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
+                </td>
+                <td style="width: 40px; max-width: 40px; align-self:flex-start; border-left:hidden">
+                </td>
+                <td>@item.attribute_name <button type="button" id="save_prompt_btn" class="btn btn-success" onclick="pilihPrompt(this)">
+    Simpan
+</button></td>
+            </tr>
             }
         </tbody>
     </table>
@@ -108,4 +114,32 @@
             }
         });
     });
+
+    $("#checkbox_all_gntstatus_attribute").click(function () {
+        $(".checkbox_gntstatus_attribute").prop('checked',
+            $(this).prop('checked'));
+    });
+
+    function pilihPrompt(sender) {
+        var rows_selected = [];
+        var rows_selected_name = [];
+
+        $('.checkbox_gntstatus_attribute').each(function (i, item) {
+            //if ($('#checkbox_all_gntstatus_sudahdibayar').is(":checked")) {
+            //    rows_selected.push($(item).attr("data-recnum"));
+            //} else
+            if ($(item).is(":checked")) {
+                rows_selected.push($(item).attr("data-attribute"));
+                rows_selected_name.push($(item).attr("data-attributename"));
+            }
+        });
+
+        let value = $(sender).attr('data-value');
+        let name = $(sender).attr('data-valuename');
+        self.window.close();
+        window.onunload = refreshTextBox;
+        function refreshTextBox() {
+            window.opener.afterPromptAttribute82Cart(value.toString(), name.toString(), rows_selected, rows_selected_name);
+        }
+    }
 </script>
