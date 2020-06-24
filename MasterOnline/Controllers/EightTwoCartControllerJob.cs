@@ -293,7 +293,7 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             SetupContext(iden);
-            
+
             var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper()).FirstOrDefault();
             var marketplace = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper() == log_CUST.ToUpper()).FirstOrDefault();
             if (brgInDb == null || marketplace == null)
@@ -308,31 +308,31 @@ namespace MasterOnline.Controllers
 
             if (detailBrg != null)
             {
-                    if (detailBrg.ACODE_1 != null)
-                    {
-                        categoryID = categoryID + detailBrg.ACODE_1 + ",";
-                    }
-                    if (detailBrg.ACODE_2 != null)
-                    {
-                        categoryID = categoryID + detailBrg.ACODE_2 + ",";
-                    }
-                    if (detailBrg.ACODE_3 != null)
-                    {
-                        categoryID = categoryID + detailBrg.ACODE_3 + ",";
-                    }
-                    if (detailBrg.ACODE_4 != null)
-                    {
-                        categoryID = categoryID + detailBrg.ACODE_4 + ",";
-                    }
+                if (detailBrg.ACODE_1 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_1 + ",";
+                }
+                if (detailBrg.ACODE_2 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_2 + ",";
+                }
+                if (detailBrg.ACODE_3 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_3 + ",";
+                }
+                if (detailBrg.ACODE_4 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_4 + ",";
+                }
 
-                    if (detailBrg.ACODE_10 != null)
-                    {
-                        attributeIDGroup = detailBrg.ACODE_10;
-                    }
-                    if (detailBrg.ACODE_11 != null)
-                    {
-                        attributeIDItems = detailBrg.ACODE_11;
-                    }
+                if (detailBrg.ACODE_10 != null)
+                {
+                    attributeIDGroup = detailBrg.ACODE_10;
+                }
+                if (detailBrg.ACODE_11 != null)
+                {
+                    attributeIDItems = detailBrg.ACODE_11;
+                }
             }
 
             categoryID = categoryID.Substring(0, categoryID.Length - 1);
@@ -510,6 +510,254 @@ namespace MasterOnline.Controllers
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var client = new BackgroundJobClient(sqlStorage);
                                 client.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdateStock_82Cart(dbPathEra, item.BRG, iden.no_cust, "Stock", "Update Stok", dataLocal, item.BRG_MP, Convert.ToInt32(qty_stock), iden.username));
+                                //end handle update stock for default product
+#endif
+                                //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }
+                        }
+                        else
+                        {
+                            if (resultAPI.error != null && resultAPI.error != "none")
+                            {
+                                //currentLog.REQUEST_EXCEPTION = resultAPI.error.ToString();
+                                //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+            return ret;
+        }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_create_product")]
+        [NotifyOnFailed("Update Product {obj} ke 82Cart Gagal.")]
+        public async Task<string> E2Cart_UpdateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, E2CartAPIData iden)
+        {
+            string ret = "";
+            SetupContext(iden);
+
+            var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper()).FirstOrDefault();
+            var marketplace = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper() == log_CUST.ToUpper()).FirstOrDefault();
+            if (brgInDb == null || marketplace == null)
+                return "invalid passing data";
+            var detailBrg = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper() && b.IDMARKET == marketplace.RecNum && b.DISPLAY == true).FirstOrDefault();
+            if (detailBrg == null)
+                return "invalid passing data";
+
+            var categoryID = "";
+            var attributeIDGroup = "";
+            var attributeIDItems = "";
+
+            if (detailBrg != null)
+            {
+                if (detailBrg.ACODE_1 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_1 + ",";
+                }
+                if (detailBrg.ACODE_2 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_2 + ",";
+                }
+                if (detailBrg.ACODE_3 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_3 + ",";
+                }
+                if (detailBrg.ACODE_4 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_4 + ",";
+                }
+
+                if (detailBrg.ACODE_10 != null)
+                {
+                    attributeIDGroup = detailBrg.ACODE_10;
+                }
+                if (detailBrg.ACODE_11 != null)
+                {
+                    attributeIDItems = detailBrg.ACODE_11;
+                }
+            }
+
+            categoryID = categoryID.Substring(0, categoryID.Length - 1);
+            string[] splitCat = categoryID.Split(',');
+            var finalCategory = splitCat.Last();
+
+            string urll = string.Format("{0}/api/v1/editProduct", iden.API_url);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+
+            string[] splitBrg = detailBrg.BRG_MP.Split(';');
+
+            //Required parameters, other parameters can be add
+            var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
+            postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
+            postData += "&id_product=" + Uri.EscapeDataString(splitBrg[0]);
+            postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA);
+            postData += "&reference=" + Uri.EscapeDataString(brgInDb.BRG);
+            postData += "&active=" + Uri.EscapeDataString("1");
+            postData += "&visibility=" + Uri.EscapeDataString("both");
+            postData += "&available_for_order=" + Uri.EscapeDataString("1");
+            postData += "&show_price=" + Uri.EscapeDataString("1");
+            postData += "&online_only=" + Uri.EscapeDataString("0");
+            postData += "&condition=" + Uri.EscapeDataString("new");
+            postData += "&wholesale_price=" + Uri.EscapeDataString("0");
+            postData += "&price=" + Uri.EscapeDataString(detailBrg.HJUAL.ToString());
+            postData += "&on_sale=" + Uri.EscapeDataString("1");
+            postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").ToLower());
+            postData += "&width=" + Uri.EscapeDataString(brgInDb.LEBAR.ToString());
+            postData += "&height=" + Uri.EscapeDataString(brgInDb.TINGGI.ToString());
+            postData += "&depth=" + Uri.EscapeDataString("0");
+            postData += "&weight=" + Uri.EscapeDataString(brgInDb.BERAT.ToString());
+            postData += "&additional_shipping_cost=" + Uri.EscapeDataString("0");
+            postData += "&minimal_quantity=" + Uri.EscapeDataString("1");
+            postData += "&out_of_stock=" + Uri.EscapeDataString("0");
+            postData += "&id_category_default=" + Uri.EscapeDataString(finalCategory.ToString());
+            postData += "&category=" + Uri.EscapeDataString("[" + categoryID.ToString() + "]");
+            postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38.ToString());
+
+            //Start handle Check Category
+            EightTwoCartControllerJob.E2CartAPIData dataLocal = new EightTwoCartControllerJob.E2CartAPIData
+            {
+                username = iden.username,
+                no_cust = iden.no_cust,
+                API_key = iden.API_key,
+                API_credential = iden.API_credential,
+                API_url = iden.API_url,
+                DatabasePathErasoft = iden.DatabasePathErasoft
+            };
+            EightTwoCartControllerJob c82CartController = new EightTwoCartControllerJob();
+
+            //Start handle description
+            var vDescription = brgInDb.Deskripsi;
+            vDescription = new StokControllerJob().RemoveSpecialCharacters(vDescription);
+
+            //add by nurul 20/1/2020, handle <p> dan enter double di shopee
+            vDescription = vDescription.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
+            vDescription = vDescription.Replace("<li>", "- ").Replace("</li>", "\r\n");
+            vDescription = vDescription.Replace("<ul>", "").Replace("</ul>", "\r\n");
+            vDescription = vDescription.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
+            vDescription = vDescription.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
+            vDescription = vDescription.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
+            //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
+
+            //add by calvin 10 september 2019
+            vDescription = vDescription.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
+            vDescription = vDescription.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
+            vDescription = vDescription.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
+            vDescription = vDescription.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
+            //HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
+            //HttpBody.description = HttpBody.description.Replace("&nbsp;", "");
+
+            vDescription = System.Text.RegularExpressions.Regex.Replace(vDescription, "<.*?>", String.Empty);
+            //end add by calvin 10 september 2019
+
+            postData += "&short_description=" + Uri.EscapeDataString(vDescription);
+            postData += "&description=" + Uri.EscapeDataString(vDescription);
+            //end handle description
+
+            //handle image
+            List<string> lGambarUploaded = new List<string>();
+
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
+            {
+                lGambarUploaded.Add(brgInDb.LINK_GAMBAR_1);
+            }
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
+            {
+                lGambarUploaded.Add(brgInDb.LINK_GAMBAR_2);
+            }
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
+            {
+                lGambarUploaded.Add(brgInDb.LINK_GAMBAR_3);
+            }
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
+            {
+                lGambarUploaded.Add(brgInDb.LINK_GAMBAR_4);
+            }
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
+            {
+                lGambarUploaded.Add(brgInDb.LINK_GAMBAR_5);
+            }
+            
+            if(lGambarUploaded.Count() > 0)
+            {
+                var tempListBarang = c82CartController.E2Cart_GetProduct_ForListImage(dataLocal, detailBrg.BRG_MP);
+            }
+
+            //end handle image
+
+            //start handle stock
+            double qty_stock = 1;
+            qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(kodeProduk, "ALL");
+            if (qty_stock > 0)
+            {
+                //postData += "&quantity=" + Uri.EscapeDataString(qty_stock.ToString());
+            }
+            //end handle stock
+
+            var data = Encoding.ASCII.GetBytes(postData);
+
+            myReq.Method = "POST";
+            myReq.ContentType = "application/x-www-form-urlencoded";
+            myReq.ContentLength = data.Length;
+
+            try
+            {
+                string responseFromServer = "";
+
+                using (var stream = myReq.GetRequestStream())
+                {
+                    stream.Write(data, 0, data.Length);
+                }
+
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream2 = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream2);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(responseFromServer))
+                {
+                    var resultAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ResultCreateProduct82Cart)) as ResultCreateProduct82Cart;
+
+                    if (resultAPI != null)
+                    {
+                        if (resultAPI.error == "none" && resultAPI.results == "success")
+                        {
+                            if (resultAPI.data != null)
+                            {
+                                //handle attribute product
+                                //c82CartController.E2Cart_AddAttributeProduct(dataLocal, detailBrg.BRG_MP, attributeIDGroup, attributeIDItems, brgInDb.BERAT.ToString());
+                                //Task.Run(() => 
+                                //end handle attribute product
+
+                                //handle all image was uploaded
+                                foreach (var images in lGambarUploaded)
+                                {
+                                    c82CartController.E2Cart_AddImageProduct(dataLocal, detailBrg.BRG_MP, images);
+                                    //Task.Run(() => 
+                                }
+                                //end handle all image was uploaded
+
+                                //start handle update stock for default product
+
+#if (DEBUG || Debug_AWS)
+                                Task.Run(() => c82CartController.E2Cart_UpdateStock_82Cart(dbPathEra, detailBrg.BRG, iden.no_cust, "Stock", "Update Stok", dataLocal, detailBrg.BRG_MP, Convert.ToInt32(qty_stock), iden.username)).Wait();
+#else
+                                var EDB = new DatabaseSQL(dbPathEra);
+                                string EDBConnID = EDB.GetConnectionString("ConnId");
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var client = new BackgroundJobClient(sqlStorage);
+                                client.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdateStock_82Cart(dbPathEra, detailBrg.BRG, iden.no_cust, "Stock", "Update Stok", dataLocal, detailBrg.BRG_MP, Convert.ToInt32(qty_stock), iden.username));
                                 //end handle update stock for default product
 #endif
                                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
@@ -1194,14 +1442,14 @@ namespace MasterOnline.Controllers
 
             //try
             //{
-                using (WebResponse response = myReq.GetResponse())
+            using (WebResponse response = myReq.GetResponse())
+            {
+                using (Stream stream = response.GetResponseStream())
                 {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseServer = reader.ReadToEnd();
-                    }
+                    StreamReader reader = new StreamReader(stream);
+                    responseServer = reader.ReadToEnd();
                 }
+            }
             //}
             //catch (Exception ex)
             //{
@@ -1503,7 +1751,7 @@ namespace MasterOnline.Controllers
             //Required parameters, other parameters can be add
             var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
-            if(brg_mp_split[1] == "0")
+            if (brg_mp_split[1] == "0")
             {
                 postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
                 postData += "&price=" + Uri.EscapeDataString(priceInduk.ToString());
@@ -1517,7 +1765,7 @@ namespace MasterOnline.Controllers
                 postData += "&wholesale_price=" + Uri.EscapeDataString(priceGrosir.ToString());
 
             }
-            
+
             var data = Encoding.ASCII.GetBytes(postData);
 
             myReq.Method = "POST";
@@ -1578,6 +1826,110 @@ namespace MasterOnline.Controllers
             return "";
         }
 
+        //Get All Attributes.
+        public async Task<String> E2Cart_GetProduct_ForListImage(E2CartAPIData iden, string brg_mp)
+        {
+            //var ret = new BindingBase82Cart
+            //{
+            //    status = 0,
+            //    recordCount = 0,
+            //    exception = 0,
+            //    totalData = 0
+            //};
+            string ret = "";
+            string[] splitBrg = brg_mp.Split(';');
+            string urll = string.Format("{0}/api/v1/getProduct?apiKey={1}&apiCredential={2}&id_product={3}", iden.API_url, iden.API_key, iden.API_credential, splitBrg[0]);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+            string responseServer = "";
+
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (!string.IsNullOrEmpty(responseServer))
+            {
+                var vresultAttributeAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartProductListResult)) as E2CartProductListResult;
+                if (vresultAttributeAPI.error == "none" && vresultAttributeAPI.data != null)
+                {
+                    if (vresultAttributeAPI.data.Count() > 0)
+                    {
+                        try
+                        {
+                            //ret.dataProductList = vresultAttributeAPI.data;
+                            if (vresultAttributeAPI.data != null)
+                            {
+                                foreach(var dataListImages in vresultAttributeAPI.data.Select(p => p.image_product).ToList())
+                                {
+                                    foreach (var item in dataListImages) {
+                                        var deleteImage = E2Cart_Delete_ImageList(iden, item.id_image);
+                                    }
+                                }
+                                //foreach (var item in dataListImages) {
+                                //    item.
+                                //}
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+                }
+            }
+
+            return ret;
+        }
+
+        public async Task<String> E2Cart_Delete_ImageList(E2CartAPIData iden, string id_image)
+        {
+            string urll = string.Format("{0}/api/v1/deleteProductImage", iden.API_url);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+
+            //Required parameters, other parameters can be add
+            var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
+            postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
+            postData += "&id_image=" + Uri.EscapeDataString(id_image);
+
+            var data = Encoding.ASCII.GetBytes(postData);
+
+            myReq.Method = "POST";
+            myReq.ContentType = "application/x-www-form-urlencoded";
+            myReq.ContentLength = data.Length;
+
+            using (var stream = myReq.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+            }
+
+            var response = (HttpWebResponse) myReq.GetResponse();
+
+            var responseServer = new StreamReader(response.GetResponseStream()).ReadToEnd();
+
+            if (!string.IsNullOrEmpty(responseServer))
+            {
+                var resServer = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer);
+
+                //ViewBag.response = resServer;
+            }
+
+            return "";
+        }
+
         public async Task<BindingBase82Cart> E2Cart_GetOrdersState(E2CartAPIData iden)
         {
             var ret = new BindingBase82Cart
@@ -1589,7 +1941,7 @@ namespace MasterOnline.Controllers
             };
 
             SetupContext(iden);
-            
+
             string urll = string.Format("{0}/api/v1/getOrderStates?apiKey={1}&apiCredential={2}", iden.API_url, iden.API_key, iden.API_credential);
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -1638,6 +1990,116 @@ namespace MasterOnline.Controllers
             UNPAID = 23
         }
 
+
+        public class resultDeleteImage
+        {
+            public string requestid { get; set; }
+            public string error { get; set; }
+            public string results { get; set; }
+        }
+
+
+        public class E2CartProductListResult
+        {
+            public string requestid { get; set; }
+            public string error { get; set; }
+            public E2CartProduct[] data { get; set; }
+        }
+
+        public class E2CartProduct
+        {
+            public string apiKey { get; set; }
+            public string apiCredential { get; set; }
+            public string id_product { get; set; }
+            public string name { get; set; }
+            public string ean13 { get; set; }
+            public string upc { get; set; }
+            public string active { get; set; }
+            public string visibility { get; set; }
+            public string available_for_order { get; set; }
+            public string show_price { get; set; }
+            public string online_only { get; set; }
+            public string condition { get; set; }
+            public string description_short { get; set; }
+            public string description { get; set; }
+            public string meta_keywords { get; set; }
+            public string wholesale_price { get; set; }
+            public string price { get; set; }
+            public string on_sale { get; set; }
+            public string meta_title { get; set; }
+            public string meta_description { get; set; }
+            public string link_rewrite { get; set; }
+            public string id_category_default { get; set; }
+            public string category_default { get; set; }
+            public E2CartProductCategory[] category { get; set; }
+            public string cover_image_url { get; set; }
+            public Image_Product[] image_product { get; set; }
+            public string id_manufacturer { get; set; }
+            public object manufacturer { get; set; }
+            public string width { get; set; }
+            public string height { get; set; }
+            public string depth { get; set; }
+            public string weight { get; set; }
+            public string additional_shipping_cost { get; set; }
+            public int quantity { get; set; }
+            public int minimal_quantity { get; set; }
+            public int out_of_stock { get; set; }
+            public string indexed { get; set; }
+            public string date_add { get; set; }
+            public string date_upd { get; set; }
+            public ProductCombinations[] combinations { get; set; }
+        }
+
+        public class ProductCombinations
+        {
+            public string id_product_attribute { get; set; }
+            public string attribute_reference { get; set; }
+            public string attribute_ean13 { get; set; }
+            public string upc { get; set; }
+            public string wholesale_price { get; set; }
+            public string price { get; set; }
+            public string weight { get; set; }
+            public string quantity { get; set; }
+            public string default_on { get; set; }
+            public attribute_image[] attribute_image { get; set; }
+            public attribute_list[] attribute_list { get; set; }
+        }
+
+        public class attribute_list
+        {
+            public string id_attribute_group { get; set; }
+            public string attribute_group { get; set; }
+            public string id_attribute { get; set; }
+            public string attribute { get; set; }
+        }
+
+        public class attribute_image
+        {
+            public long id_image { get; set; }
+            public string image_url { get; set; }
+        }
+
+        public class Image_Product
+        {
+            public string id_image { get; set; }
+            public string link_image { get; set; }
+        }
+
+        public class E2CartProductCategory
+        {
+            public string id_category { get; set; }
+            public string category_name { get; set; }
+            public string name { get; set; }
+            public string id_parent { get; set; }
+            public string level_depth { get; set; }
+            public string active { get; set; }
+            public string date_add { get; set; }
+            public string date_upd { get; set; }
+            public string position { get; set; }
+            public E2CartProductCategory[] child { get; set; }
+
+        }
+
         public class BindingBase82Cart
         {
             public int status { get; set; }
@@ -1651,6 +2113,7 @@ namespace MasterOnline.Controllers
             public string id_manufacture { get; set; }
             public string name_manufacture { get; set; }
             public E2CartOrderState[] dataObject { get; set; }
+            public E2CartProduct[] dataProductList { get; set; }
         }
 
         public class E2CartOrderStateResult

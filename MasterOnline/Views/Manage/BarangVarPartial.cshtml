@@ -1229,6 +1229,7 @@
                     tokped_code: tokped_code,
                     blibli_code: blibli_code,
                     lazada_code: lazada_code,
+                    e2cart_code: e2cart_code,
                     code: $('#txtKodeKategori').val(),
                     opt_selected_1: $('#select_opt_level_1').val(),
                     opt_selected_2: $('#select_opt_level_2').val(),
@@ -1639,6 +1640,29 @@
         if (validasi_autoloadStf02Variant) {
             if (!$('#save_map_var_shopee').prop('disabled')) {
                 message_validasi_autoloadStf02Variant = "Mohon simpan setting Opsi Shopee.";
+            }
+        }
+    }
+    function validasiAutoloadStf02Variant82Cart() {
+        $(".txtVariant82CartLv1_").each(function (i, item) {
+            if ($(item).val() == "") {
+                validasi_autoloadStf02Variant = false;
+            }
+        });
+        $(".txtVariant82CartLv2_").each(function (i, item) {
+            if ($(item).val() == "") {
+                validasi_autoloadStf02Variant = false;
+            }
+        });
+        $(".txtVariant82CartLv3_").each(function (i, item) {
+            if ($(item).val() == "") {
+                validasi_autoloadStf02Variant = false;
+            }
+        });
+        message_validasi_autoloadStf02Variant = "Mohon isi semua Opsi 82Cart.";
+        if (validasi_autoloadStf02Variant) {
+            if (!$('#save_map_var_82Cart').prop('disabled')) {
+                message_validasi_autoloadStf02Variant = "Mohon simpan setting Opsi 82Cart.";
             }
         }
     }

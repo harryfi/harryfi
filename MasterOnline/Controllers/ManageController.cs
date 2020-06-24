@@ -9881,44 +9881,49 @@ namespace MasterOnline.Controllers
                                         {
                                             if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                             {
-                                                //EightTwoCartController.E2CartAPIData iden = new EightTwoCartController.E2CartAPIData
-                                                //{
-                                                //    username = usernameLogin,
-                                                //    no_cust = tblCustomer.CUST,
-                                                //    account_store = tblCustomer.PERSO,
-                                                //    API_key = tblCustomer.API_KEY,
-                                                //    API_credential = tblCustomer.Sort1_Cust,
-                                                //    API_url = tblCustomer.PERSO,
-                                                //    DatabasePathErasoft = dbPathEra
-                                                //};
-                                                //EightTwoCartController c82CartAPI = new EightTwoCartController();
+                                                EightTwoCartControllerJob.E2CartAPIData iden = new EightTwoCartControllerJob.E2CartAPIData
+                                                {
+                                                    username = usernameLogin,
+                                                    no_cust = tblCustomer.CUST,
+                                                    account_store = tblCustomer.PERSO,
+                                                    API_key = tblCustomer.API_KEY,
+                                                    API_credential = tblCustomer.Sort1_Cust,
+                                                    API_url = tblCustomer.PERSO,
+                                                    DatabasePathErasoft = dbPathEra
+                                                };
+                                                EightTwoCartControllerJob c82CartAPI = new EightTwoCartControllerJob();
 
-                                                //var temp_brg = (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG);
+                                                var temp_brg = (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG);
 
-                                                //var sqlStorage = new SqlServerStorage(EDBConnID);
-                                                //var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                var clientJobServer = new BackgroundJobClient(sqlStorage);
 #if (Debug_AWS || DEBUG)
-                                                //Task.Run(() => shoAPI2.UpdateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", data, temp_brg, tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()).Wait());
+                                                c82CartAPI.E2Cart_UpdateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", iden);
 #else
-                                                //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", data, temp_brg, tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
+                                                clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", iden));
 #endif
 
                                                 //Task.Run(() => shoAPI.UpdateImage(iden, temp_brg, stf02h.BRG_MP).Wait());
                                                 //string[] brg_mp = stf02h.BRG_MP.Split(';');
-                                                //if (updateHarga)
-                                                //{
-                                                //    if (brg_mp.Count() == 2)
-                                                //    {
-                                                //        if (brg_mp[1] == "0")
-                                                //        {
-                                                //            Task.Run(() => shoAPI.UpdatePrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
-                                                //        }
-                                                //        else if (brg_mp[1] != "")
-                                                //        {
-                                                //            Task.Run(() => shoAPI.UpdateVariationPrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
-                                                //        }
-                                                //    }
-                                                //}
+                                                if (updateHarga)
+                                                {
+                                                    //if (brg_mp.Count() == 2)
+                                                    //{
+                                                    //    if (brg_mp[1] == "0")
+                                                    //    {
+#if (Debug_AWS || DEBUG)
+                                                    Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0)).Wait();
+#else
+                                                clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0));
+#endif
+                                                    //Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0)).Wait();
+                                                        //}
+                                                        //else if (brg_mp[1] != "")
+                                                        //{
+                                                        //    Task.Run(() => c82CartAPI.UpdateVariationPrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
+                                                        //}
+                                                    //}
+                                                }
                                             }
                                             else
                                             {
@@ -11434,7 +11439,7 @@ namespace MasterOnline.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public ActionResult SaveOptVariantBarang(string brg, string shopee_code, string tokped_code, string blibli_code, string lazada_code, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3)
+        public ActionResult SaveOptVariantBarang(string brg, string shopee_code, string tokped_code, string blibli_code, string lazada_code, string e2cart_code, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3)
         {
             var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == code);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
@@ -11499,6 +11504,7 @@ namespace MasterOnline.Controllers
                 var Histori_Tokped_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "TOKPED" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == tokped_code).OrderByDescending(p => p.RECNUM).ToList();
                 var Histori_Blibli_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "BLIBLI" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == blibli_code).OrderByDescending(p => p.RECNUM).ToList();
                 var Histori_Lazada_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "LAZADA" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == lazada_code).OrderByDescending(p => p.RECNUM).ToList();
+                var Histori_82Cart_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "82CART" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == e2cart_code).OrderByDescending(p => p.RECNUM).ToList();
 
                 if (opt_selected_1 != null)
                 {
@@ -11506,6 +11512,7 @@ namespace MasterOnline.Controllers
                     var Histori_Tokped = Histori_Tokped_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_Blibli = Histori_Blibli_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_Lazada = Histori_Lazada_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_82Cart = Histori_82Cart_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_1)
                     {
                         if (item != "")
@@ -11590,6 +11597,19 @@ namespace MasterOnline.Controllers
                                 MP_CATEGORY_CODE = lazada_code
                             };
                             listNewData.Add(newdataLazada);
+
+                            STF02I newdata82Cart = new STF02I()
+                            {
+                                MARKET = "82CART",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 1,
+                                MP_JUDUL_VAR = Histori_82Cart.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_82Cart.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = e2cart_code
+                            };
+                            listNewData.Add(newdata82Cart);
                         }
                     }
                 }
@@ -11599,6 +11619,7 @@ namespace MasterOnline.Controllers
                     var Histori_Tokped = Histori_Tokped_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_Blibli = Histori_Blibli_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_Lazada = Histori_Lazada_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_82Cart = Histori_82Cart_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_2)
                     {
                         if (item != "")
@@ -11683,6 +11704,19 @@ namespace MasterOnline.Controllers
                                 MP_CATEGORY_CODE = lazada_code
                             };
                             listNewData.Add(newdataLazada);
+
+                            STF02I newdata82Cart = new STF02I()
+                            {
+                                MARKET = "82CART",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 2,
+                                MP_JUDUL_VAR = Histori_82Cart.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_82Cart.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = e2cart_code
+                            };
+                            listNewData.Add(newdata82Cart);
                         }
                     }
                 }
@@ -11692,6 +11726,7 @@ namespace MasterOnline.Controllers
                     var Histori_Tokped = Histori_Tokped_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_Blibli = Histori_Blibli_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_Lazada = Histori_Lazada_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_82Cart = Histori_82Cart_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_3)
                     {
                         if (item != "")
@@ -11776,6 +11811,19 @@ namespace MasterOnline.Controllers
                                 MP_CATEGORY_CODE = lazada_code
                             };
                             listNewData.Add(newdataLazada);
+
+                            STF02I newdata82Cart = new STF02I()
+                            {
+                                MARKET = "82CART",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 3,
+                                MP_JUDUL_VAR = Histori_82Cart.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_82Cart.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = e2cart_code
+                            };
+                            listNewData.Add(newdata82Cart);
                         }
                     }
                 }
