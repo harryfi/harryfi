@@ -2415,13 +2415,13 @@
                                     if (ret.progressDownload <= ret.countAllDownload) {
                                         uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload + 1), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload));
                                     }
-                                } else if (ret.statusSuccessDownload == true && ret.selesaiProsesDownload == true) {
+                                } else if (ret.statusSuccessDownload == true && ret.selesaiProsesDownload == true && ret.statusSuccess == false && ret.statusLoopDownload == true) {
                                     $('#pBar_DownloadFile').css('width', '100%').attr('aria-valuenow', 100);
                                     $('#pBar_DownloadFile').html('100% Complete');
                                     if (ret.progress <= ret.countAll) {
                                         uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload + 1), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload));
                                     }
-                                } else if (ret.countAll != null && ret.statusLoop == true && ret.statusSuccess == false && ret.TidakLanjutProses == false && ret.selesaiProsesDownload == true) {
+                                } else if (ret.countAll != null && ret.statusLoop == true && ret.statusSuccess == false && ret.TidakLanjutProses == false) {
                                     $('#pBar_uploadFile').css('width', ret.percent + '%').attr('aria-valuenow', ret.percent);
                                     $('#pBar_uploadFile').html(ret.percent + '% Complete');
 
@@ -2429,7 +2429,7 @@
                                         uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload + 1), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload));
                                     }
 
-                                } else if (ret.statusSuccess == true && ret.selesaiProsesDownload == true) {
+                                } else if (ret.statusSuccess == true) {
                                     $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                                     $('#pBar_uploadFile').html('100% Complete');
                                     $('#btnUploadExcelPiutang').removeAttr('disabled');
@@ -2496,20 +2496,20 @@
                             //$('#pBar_DownloadFile').css('width', '100%').attr('aria-valuenow', 100);
                             //$('#pBar_DownloadFile').html('100% Complete');
 
-                            if (response.statusLoopDownload == true && response.statusSuccessDownload == false && response.TidakLanjutProses == false && response.selesaiProsesDownload == false) {
+                            if (response.statusLoopDownload == true && response.statusSuccessDownload == false && response.TidakLanjutProses == false && response.selesaiProsesDownload == false && response.statusSuccess == false) {
                                 $('#pBar_DownloadFile').css('width', response.percentDownload + '%').attr('aria-valuenow', response.percentDownload);
                                 $('#pBar_DownloadFile').html(response.percentDownload + '% Complete');
 
                                 if (response.progressDownload <= response.countAllDownload) {
                                     uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload + 1), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload));
                                 }
-                            } else if (response.statusSuccessDownload == true && response.selesaiProsesDownload == true) {
+                            } else if (response.statusSuccessDownload == true && response.selesaiProsesDownload == true && response.statusSuccess == false) {
                                 $('#pBar_DownloadFile').css('width', '100%').attr('aria-valuenow', 100);
                                 $('#pBar_DownloadFile').html('100% Complete');
                                 if (response.progress <= response.countAll) {
                                     uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload + 1), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload));
                                 }
-                            } else if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false && response.TidakLanjutProses == false && response.selesaiProsesDownload == true) {
+                            } else if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false && response.TidakLanjutProses == false) {
                                 $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
                                 $('#pBar_uploadFile').html(response.percent + '% Complete');
 
@@ -2517,7 +2517,7 @@
                                     uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload + 1), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload));
                                 }
 
-                            } else if (response.statusSuccess == true && response.selesaiProsesDownload == true) {
+                            } else if (response.statusSuccess == true) {
                                 $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                                 $('#pBar_uploadFile').html('100% Complete');
                                 $('#btnUploadExcelPiutang').removeAttr('disabled');

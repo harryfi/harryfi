@@ -41294,10 +41294,10 @@ namespace MasterOnline.Controllers
                                                 {
                                                     Tanggal = worksheet.Cells[i, 1].Value == null ? DateTime.Now : Convert.ToDateTime(worksheet.Cells[i, 1].Value),
                                                     PenerimaDana = worksheet.Cells[i, 2].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 2].Value),
-                                                    JumlahDana = worksheet.Cells[i, 10].Value == null ? 0 : Convert.ToDouble(worksheet.Cells[i, 10].Value),
-                                                    Deskripsi = worksheet.Cells[i, 2].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 2].Value),
-                                                    Status = worksheet.Cells[i, 2].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 2].Value),
-                                                    Saldo = worksheet.Cells[i, 10].Value == null ? 0 : Convert.ToDouble(worksheet.Cells[i, 10].Value)
+                                                    JumlahDana = worksheet.Cells[i, 3].Value == null ? 0 : Convert.ToDouble(worksheet.Cells[i, 3].Value),
+                                                    Deskripsi = worksheet.Cells[i, 4].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 4].Value),
+                                                    Status = worksheet.Cells[i, 5].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 5].Value),
+                                                    Saldo = worksheet.Cells[i, 6].Value == null ? 0 : Convert.ToDouble(worksheet.Cells[i, 6].Value)
                                                 };
                                                 if (!string.IsNullOrEmpty(a.Deskripsi) && a.PenerimaDana == "Saldo Penjual")
                                                 {
@@ -41748,7 +41748,7 @@ namespace MasterOnline.Controllers
                                     ret.TidakLanjutProses = false;
                                     ret.statusLoopDownload = true;
                                     var tempPercent = Convert.ToInt32(progDownload[0]);
-                                    var cekPer20 = (ret.countAllDownload / 10);
+                                    //var cekPer20 = (ret.countAllDownload / 10);
                                     var cekPer10 = (ret.countAllDownload * 20 / 100);
                                     var temp40 = Convert.ToInt32(progDownload[1]) + 500;
                                     data_proses_lanjut.AddRange(data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("TIDAK ADA")).ToList());
@@ -41764,6 +41764,7 @@ namespace MasterOnline.Controllers
                                         ret.statusSuccessDownload = true;
                                         ret.percentDownload = 100;
                                         ret.progressDownload = data_proses.Count();
+                                        ret.statusLoopDownload = false;
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
                                     else
@@ -41845,6 +41846,7 @@ namespace MasterOnline.Controllers
                                                     {
                                                         ret.statusSuccessDownload = true;
                                                         ret.selesaiProsesDownload = true;
+                                                        ret.statusLoopDownload = false;
                                                     }
                                                     if (tempPercent != ret.percentDownload)
                                                     {
@@ -41866,6 +41868,7 @@ namespace MasterOnline.Controllers
                                                 {
                                                     ret.statusSuccessDownload = true;
                                                     ret.selesaiProsesDownload = true;
+                                                    ret.statusLoopDownload = false;
                                                 }
                                                 if (tempPercent != ret.percentDownload)
                                                 {
@@ -44211,7 +44214,7 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 11/11/2019, upload pembayaran lazada 
-        public ActionResult UploadXcelBayarLazada(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess, string log)
+        public ActionResult UploadXcelBayarLazada(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess, string log, string percentDanprogressDownload, string statusLoopSuccessDownload, string filename)
         {
             BindUploadExcelBayar ret = new BindUploadExcelBayar();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
@@ -44233,16 +44236,27 @@ namespace MasterOnline.Controllers
             string[] status = statusLoopSuccess.Split(';');
             string[] prog = percentDanprogress.Split(';');
 
+            string[] statusDownload = statusLoopSuccessDownload.Split(';');
+            string[] progDownload = percentDanprogressDownload.Split(';');
+
             ret.statusLoop = Convert.ToBoolean(status[0]);
             if (ret.statusLoop == false)
             {
                 ret.buktiLog = "Log_Upload_Pembayaran_Lazada" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
             }
 
+            ret.statusLoopDownload = Convert.ToBoolean(statusDownload[0]);
+            if (filename != null && filename != "")
+            {
+                ret.TipeData = filename;
+            }
+            ret.selesaiProsesDownload = false;
+
             try
             {
                 var mp = MoDbContext.Marketplaces.ToList();
                 ret.statusSuccess = Convert.ToBoolean(status[1]);
+                ret.statusSuccessDownload = Convert.ToBoolean(statusDownload[1]);
                 ret.sudahSimpanTemp = false;
 
                 if (ret.byteData == null && ret.statusLoop == false)
@@ -44692,185 +44706,342 @@ namespace MasterOnline.Controllers
                                         }
 
 
-                                        var ssql2 = "select * from TEMP_UPLOAD_EXCEL_BAYAR where ket = '" + ret.nobuk + "' and cust ='" + cust_id + "' and nama_file = '" + ret.TipeData + "'";
-                                        data_proses.AddRange(ErasoftDbContext.Database.SqlQuery<TEMP_UPLOAD_EXCEL_BAYAR>(ssql2).ToList());
+                                        //var ssql2 = "select * from TEMP_UPLOAD_EXCEL_BAYAR where ket = '" + ret.nobuk + "' and cust ='" + cust_id + "' and nama_file = '" + ret.TipeData + "'";
+                                        //data_proses.AddRange(ErasoftDbContext.Database.SqlQuery<TEMP_UPLOAD_EXCEL_BAYAR>(ssql2).ToList());
 
-                                        data_proses_lanjut.AddRange(data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("TIDAK ADA")).ToList());
-                                        ret.countAll = data_proses_lanjut.Count();
-                                        if (data_proses_lanjut.Count() > 0)
-                                        {
-                                            var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
-                                            if (cekListSIKosong.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekListSIKosong)
-                                                {
-                                                    ret.adaError = true;
-                                                    if (ret.buktiLog != "")
-                                                    {
-                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                                        {
-                                                            LOG_FILE = ret.buktiLog,
-                                                            VARIABLE_1 = ret.nobuk,
-                                                            VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").<br />",
-                                                            TEXT_2 = ref1,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            USERNAME = uname
-                                                        };
-                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                        ErasoftDbContext.SaveChanges();
-                                                    }
-                                                }
-                                            }
-                                            var cekSudahAda = data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("SUDAH ADA")).Select(a => a.NOREF).ToList();
-                                            if (cekSudahAda.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekSudahAda)
-                                                {
-                                                    ret.adaError = true;
-                                                    if (ret.buktiLog != "")
-                                                    {
-                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                                        {
-                                                            LOG_FILE = ret.buktiLog,
-                                                            VARIABLE_1 = ret.nobuk,
-                                                            VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah proses bayar",
-                                                            TEXT_2 = ref1,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            USERNAME = uname
-                                                        };
-                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                        ErasoftDbContext.SaveChanges();
-                                                    }
-                                                }
-                                            }
-                                            var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
-                                            if (cekLunas.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekLunas)
-                                                {
-                                                    ret.adaError = true;
-                                                    if (ret.buktiLog != "")
-                                                    {
-                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                                        {
-                                                            LOG_FILE = ret.buktiLog,
-                                                            VARIABLE_1 = ret.nobuk,
-                                                            VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah lunas.<br />",
-                                                            TEXT_2 = ref1,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            USERNAME = uname
-                                                        };
-                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                        ErasoftDbContext.SaveChanges();
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
-                                            if (cekListSIKosong.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekListSIKosong)
-                                                {
-                                                    ret.adaError = true;
-                                                    if (ret.buktiLog != "")
-                                                    {
-                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                                        {
-                                                            LOG_FILE = ret.buktiLog,
-                                                            VARIABLE_1 = ret.nobuk,
-                                                            VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").<br />",
-                                                            TEXT_2 = ref1,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            USERNAME = uname
-                                                        };
-                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                        ErasoftDbContext.SaveChanges();
-                                                    }
-                                                }
-                                            }
-                                            var cekSudahAda = data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("SUDAH ADA")).Select(a => a.NOREF).ToList();
-                                            if (cekSudahAda.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekSudahAda)
-                                                {
-                                                    ret.adaError = true;
-                                                    if (ret.buktiLog != "")
-                                                    {
-                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                                        {
-                                                            LOG_FILE = ret.buktiLog,
-                                                            VARIABLE_1 = ret.nobuk,
-                                                            VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah proses bayar",
-                                                            TEXT_2 = ref1,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            USERNAME = uname
-                                                        };
-                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                        ErasoftDbContext.SaveChanges();
-                                                    }
-                                                }
-                                            }
-                                            var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
-                                            if (cekLunas.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekLunas)
-                                                {
-                                                    ret.adaError = true;
-                                                    if (ret.buktiLog != "")
-                                                    {
-                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                                        {
-                                                            LOG_FILE = ret.buktiLog,
-                                                            VARIABLE_1 = ret.nobuk,
-                                                            VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah lunas.<br />",
-                                                            TEXT_2 = ref1,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            USERNAME = uname
-                                                        };
-                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                        ErasoftDbContext.SaveChanges();
-                                                    }
-                                                }
-                                            }
-                                            var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
-                                            ErasoftDbContext.ART03A.Remove(piutangInDb);
-                                            ErasoftDbContext.SaveChanges();
-                                            ret.Errors.Add("Tidak ada data yang dapat diproses.<br />");
-                                            ret.adaError = true;
+                                        //data_proses_lanjut.AddRange(data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("TIDAK ADA")).ToList());
+                                        //ret.countAll = data_proses_lanjut.Count();
+                                        //if (data_proses_lanjut.Count() > 0)
+                                        //{
+                                        //    var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
+                                        //    if (cekListSIKosong.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekListSIKosong)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").<br />",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //    var cekSudahAda = data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("SUDAH ADA")).Select(a => a.NOREF).ToList();
+                                        //    if (cekSudahAda.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekSudahAda)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah proses bayar",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //    var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
+                                        //    if (cekLunas.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekLunas)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah lunas.<br />",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //}
+                                        //else
+                                        //{
+                                        //    var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
+                                        //    if (cekListSIKosong.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekListSIKosong)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").<br />",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //    var cekSudahAda = data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("SUDAH ADA")).Select(a => a.NOREF).ToList();
+                                        //    if (cekSudahAda.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekSudahAda)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah proses bayar",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //    var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
+                                        //    if (cekLunas.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekLunas)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah lunas.<br />",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //    var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
+                                        //    ErasoftDbContext.ART03A.Remove(piutangInDb);
+                                        //    ErasoftDbContext.SaveChanges();
+                                        //    ret.Errors.Add("Tidak ada data yang dapat diproses.<br />");
+                                        //    ret.adaError = true;
 
-                                            TABLE_LOG_DETAIL logDetail1 = new TABLE_LOG_DETAIL
-                                            {
-                                                LOG_FILE = ret.buktiLog,
-                                                VARIABLE_1 = ret.nobuk,
-                                                VARIABLE_2 = ret.TipeData,
-                                                TEXT_1 = "Tidak ada data yang dapat diproses.<br />",
-                                                TEXT_2 = "",
-                                                TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                USERNAME = uname
-                                            };
-                                            ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail1);
-                                            ErasoftDbContext.SaveChanges();
+                                        //    TABLE_LOG_DETAIL logDetail1 = new TABLE_LOG_DETAIL
+                                        //    {
+                                        //        LOG_FILE = ret.buktiLog,
+                                        //        VARIABLE_1 = ret.nobuk,
+                                        //        VARIABLE_2 = ret.TipeData,
+                                        //        TEXT_1 = "Tidak ada data yang dapat diproses.<br />",
+                                        //        TEXT_2 = "",
+                                        //        TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //        USERNAME = uname
+                                        //    };
+                                        //    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail1);
+                                        //    ErasoftDbContext.SaveChanges();
 
-                                            var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
-                                            if (cekErr > 0)
-                                            {
-                                                ret.adaError = true;
-                                            }
-                                            ret.TidakLanjutProses = true;
-                                            return Json(ret, JsonRequestBehavior.AllowGet);
-                                        }
+                                        //    var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
+                                        //    if (cekErr > 0)
+                                        //    {
+                                        //        ret.adaError = true;
+                                        //    }
+                                        //    ret.TidakLanjutProses = true;
+                                        //    return Json(ret, JsonRequestBehavior.AllowGet);
+                                        //}
+                                        //ret.TidakLanjutProses = false;
+                                        //ret.statusLoop = true;
+                                        //return Json(ret, JsonRequestBehavior.AllowGet);
                                         ret.TidakLanjutProses = false;
+                                        ret.statusLoopDownload = true;
                                         ret.statusLoop = true;
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
+                                }
+
+                                if (ret.statusLoopDownload == true && ret.statusSuccessDownload == false && ret.selesaiProsesDownload == false)
+                                {
+                                    var ssql2 = "select * from TEMP_UPLOAD_EXCEL_BAYAR where ket = '" + ret.nobuk + "' and cust ='" + cust_id + "' and nama_file = '" + ret.TipeData + "'";
+                                    data_proses.AddRange(ErasoftDbContext.Database.SqlQuery<TEMP_UPLOAD_EXCEL_BAYAR>(ssql2).ToList());
+                                    ret.countAllDownload = data_proses.Count();
+                                    progDownload[1] = Convert.ToString(Convert.ToInt32(progDownload[1]) - 1);
+                                    if (Convert.ToInt32(progDownload[1]) == 0)
+                                    {
+                                        progDownload[1] = "0";
+                                    }
+
+                                    if (data_proses.Count() > 0)
+                                    {
+                                        ret.TidakLanjutProses = false;
+                                        ret.statusLoopDownload = true;
+                                        var tempPercent = Convert.ToInt32(progDownload[0]);
+                                        //var cekPer20 = (ret.countAllDownload / 10);
+                                        var cekPer10 = (ret.countAllDownload * 20 / 100);
+                                        var temp40 = Convert.ToInt32(progDownload[1]) + 500;
+                                        data_proses_lanjut.AddRange(data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("TIDAK ADA")).ToList());
+                                        ret.countAll = data_proses_lanjut.Count();
+
+                                        var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
+                                        var cekSudahAda = data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("SUDAH ADA")).Select(a => a.NOREF).ToList();
+                                        var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
+
+                                        if (data_proses_lanjut.Count() > 0 && data_proses_lanjut.Count() == data_proses.Count())
+                                        {
+                                            ret.selesaiProsesDownload = true;
+                                            ret.statusSuccessDownload = true;
+                                            ret.percentDownload = 100;
+                                            ret.progressDownload = data_proses.Count();
+                                            ret.statusLoopDownload = false;
+                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                        }
+                                        else
+                                        {
+                                            var hitungTotal = cekListSIKosong.Count() + cekSudahAda.Count() + cekLunas.Count();
+                                            for (int i = Convert.ToInt32(progDownload[1]); i < (cekListSIKosong.Count() + cekSudahAda.Count() + cekLunas.Count()); i++)
+                                            {
+                                                var countProcess = data_proses_lanjut.Count() + i;
+                                                ret.TidakLanjutProses = false;
+                                                ret.statusLoopDownload = true;
+                                                ret.progressDownload = countProcess + 1;
+                                                ret.percentDownload = ((countProcess + 1) * 100) / ret.countAllDownload;
+                                                if (cekListSIKosong.Count() - (i + 1) > 0)
+                                                {
+                                                    ret.adaError = true;
+                                                    if (ret.buktiLog != "")
+                                                    {
+                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                        {
+                                                            LOG_FILE = ret.buktiLog,
+                                                            VARIABLE_1 = ret.nobuk,
+                                                            VARIABLE_2 = ret.TipeData,
+                                                            TEXT_1 = "Faktur dengan No. Ref " + cekListSIKosong[i] + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").<br />",
+                                                            TEXT_2 = cekListSIKosong[i],
+                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                            USERNAME = uname
+                                                        };
+                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                                        ErasoftDbContext.SaveChanges();
+                                                    }
+                                                }
+                                                else if (cekSudahAda.Count() - (i + 1) > 0)
+                                                {
+                                                    var indexAda = i - cekListSIKosong.Count() - 1;
+                                                    ret.adaError = true;
+                                                    if (ret.buktiLog != "")
+                                                    {
+                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                        {
+                                                            LOG_FILE = ret.buktiLog,
+                                                            VARIABLE_1 = ret.nobuk,
+                                                            VARIABLE_2 = ret.TipeData,
+                                                            TEXT_1 = "Faktur dengan No. Ref " + cekSudahAda[indexAda] + " sudah proses bayar",
+                                                            TEXT_2 = cekSudahAda[indexAda],
+                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                            USERNAME = uname
+                                                        };
+                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                                        ErasoftDbContext.SaveChanges();
+                                                    }
+                                                }
+                                                else if (cekLunas.Count() - (i + 1) > 0)
+                                                {
+                                                    var indexLunas = i - (cekListSIKosong.Count() + cekSudahAda.Count()) - 1;
+                                                    ret.adaError = true;
+                                                    if (ret.buktiLog != "")
+                                                    {
+                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                        {
+                                                            LOG_FILE = ret.buktiLog,
+                                                            VARIABLE_1 = ret.nobuk,
+                                                            VARIABLE_2 = ret.TipeData,
+                                                            TEXT_1 = "Faktur dengan No. Ref " + cekLunas[indexLunas] + " sudah lunas.<br />",
+                                                            TEXT_2 = cekLunas[indexLunas],
+                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                            USERNAME = uname
+                                                        };
+                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                                        ErasoftDbContext.SaveChanges();
+                                                    }
+                                                }
+
+                                                if (cekPer10 > 500)
+                                                {
+                                                    if ((ret.progressDownload == temp40) || ret.percentDownload == 100)
+                                                    {
+                                                        ret.statusSuccessDownload = false;
+                                                        if (ret.percentDownload > 99 && ret.percentDownload <= 101)
+                                                        {
+                                                            ret.statusSuccessDownload = true;
+                                                            ret.selesaiProsesDownload = true;
+                                                            ret.statusLoopDownload = false;
+                                                        }
+                                                        if (tempPercent != ret.percentDownload)
+                                                        {
+                                                            if (ret.statusSuccessDownload == false)
+                                                            {
+                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else if (ret.percentDownload == 20 ||
+                                                ret.percentDownload == 40 ||
+                                                ret.percentDownload == 60 ||
+                                                ret.percentDownload == 80 ||
+                                                ret.percentDownload == 100)
+                                                {
+                                                    ret.statusSuccessDownload = false;
+                                                    if (ret.percentDownload > 99 && ret.percentDownload <= 101)
+                                                    {
+                                                        ret.statusSuccessDownload = true;
+                                                        ret.selesaiProsesDownload = true;
+                                                        ret.statusLoopDownload = false;
+                                                    }
+                                                    if (tempPercent != ret.percentDownload)
+                                                    {
+                                                        if (ret.statusSuccessDownload == false)
+                                                        {
+                                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    ret.TidakLanjutProses = false;
+                                    return Json(ret, JsonRequestBehavior.AllowGet);
                                 }
                                 #endregion
                                 if (ret.statusLoop == true)
@@ -46344,89 +46515,238 @@ namespace MasterOnline.Controllers
                                         }
 
 
-                                        var ssql2 = "select * from TEMP_UPLOAD_EXCEL_BAYAR where ket = '" + ret.nobuk + "' and cust ='" + cust_id + "' and nama_file = '" + ret.TipeData + "'";
-                                        data_proses.AddRange(ErasoftDbContext.Database.SqlQuery<TEMP_UPLOAD_EXCEL_BAYAR>(ssql2).ToList());
+                                        //var ssql2 = "select * from TEMP_UPLOAD_EXCEL_BAYAR where ket = '" + ret.nobuk + "' and cust ='" + cust_id + "' and nama_file = '" + ret.TipeData + "'";
+                                        //data_proses.AddRange(ErasoftDbContext.Database.SqlQuery<TEMP_UPLOAD_EXCEL_BAYAR>(ssql2).ToList());
 
+                                        //data_proses_lanjut.AddRange(data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("TIDAK ADA")).ToList());
+                                        //ret.countAll = data_proses_lanjut.Count();
+                                        //if (data_proses_lanjut.Count() > 0)
+                                        //{
+                                        //    var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
+                                        //    if (cekListSIKosong.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekListSIKosong)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").<br />",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //    var cekSudahAda = data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("SUDAH ADA")).Select(a => a.NOREF).ToList();
+                                        //    if (cekSudahAda.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekSudahAda)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah proses bayar",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //    var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
+                                        //    if (cekLunas.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekLunas)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah lunas.<br />",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //}
+                                        //else
+                                        //{
+                                        //    var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
+                                        //    if (cekListSIKosong.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekListSIKosong)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").<br />",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //    var cekSudahAda = data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("SUDAH ADA")).Select(a => a.NOREF).ToList();
+                                        //    if (cekSudahAda.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekSudahAda)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah proses bayar",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //    var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
+                                        //    if (cekLunas.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekLunas)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah lunas.<br />",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //    var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
+                                        //    ErasoftDbContext.ART03A.Remove(piutangInDb);
+                                        //    ErasoftDbContext.SaveChanges();
+                                        //    ret.Errors.Add("Tidak ada data yang dapat diproses.<br />");
+                                        //    ret.adaError = true;
+
+                                        //    TABLE_LOG_DETAIL logDetail1 = new TABLE_LOG_DETAIL
+                                        //    {
+                                        //        LOG_FILE = ret.buktiLog,
+                                        //        VARIABLE_1 = ret.nobuk,
+                                        //        VARIABLE_2 = ret.TipeData,
+                                        //        TEXT_1 = "Tidak ada data yang dapat diproses.<br />",
+                                        //        TEXT_2 = "",
+                                        //        TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //        USERNAME = uname
+                                        //    };
+                                        //    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail1);
+                                        //    ErasoftDbContext.SaveChanges();
+
+                                        //    var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
+                                        //    if (cekErr > 0)
+                                        //    {
+                                        //        ret.adaError = true;
+                                        //    }
+                                        //    ret.TidakLanjutProses = true;
+                                        //    return Json(ret, JsonRequestBehavior.AllowGet);
+                                        //}
+                                        //ret.TidakLanjutProses = false;
+                                        //ret.statusLoop = true;
+                                        //return Json(ret, JsonRequestBehavior.AllowGet);
+
+                                        ret.TidakLanjutProses = false;
+                                        ret.statusLoopDownload = true;
+                                        ret.statusLoop = true;
+                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+
+                                if (ret.statusLoopDownload == true && ret.statusSuccessDownload == false && ret.selesaiProsesDownload == false)
+                                {
+                                    var ssql2 = "select * from TEMP_UPLOAD_EXCEL_BAYAR where ket = '" + ret.nobuk + "' and cust ='" + cust_id + "' and nama_file = '" + ret.TipeData + "'";
+                                    data_proses.AddRange(ErasoftDbContext.Database.SqlQuery<TEMP_UPLOAD_EXCEL_BAYAR>(ssql2).ToList());
+                                    ret.countAllDownload = data_proses.Count();
+                                    progDownload[1] = Convert.ToString(Convert.ToInt32(progDownload[1]) - 1);
+                                    if (Convert.ToInt32(progDownload[1]) == 0)
+                                    {
+                                        progDownload[1] = "0";
+                                    }
+
+                                    if (data_proses.Count() > 0)
+                                    {
+                                        ret.TidakLanjutProses = false;
+                                        ret.statusLoopDownload = true;
+                                        var tempPercent = Convert.ToInt32(progDownload[0]);
+                                        //var cekPer20 = (ret.countAllDownload / 10);
+                                        var cekPer10 = (ret.countAllDownload * 20 / 100);
+                                        var temp40 = Convert.ToInt32(progDownload[1]) + 500;
                                         data_proses_lanjut.AddRange(data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("TIDAK ADA")).ToList());
                                         ret.countAll = data_proses_lanjut.Count();
-                                        if (data_proses_lanjut.Count() > 0)
+
+                                        var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
+                                        var cekSudahAda = data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("SUDAH ADA")).Select(a => a.NOREF).ToList();
+                                        var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
+
+                                        if (data_proses_lanjut.Count() > 0 && data_proses_lanjut.Count() == data_proses.Count())
                                         {
-                                            var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
-                                            if (cekListSIKosong.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekListSIKosong)
-                                                {
-                                                    ret.adaError = true;
-                                                    if (ret.buktiLog != "")
-                                                    {
-                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                                        {
-                                                            LOG_FILE = ret.buktiLog,
-                                                            VARIABLE_1 = ret.nobuk,
-                                                            VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").<br />",
-                                                            TEXT_2 = ref1,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            USERNAME = uname
-                                                        };
-                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                        ErasoftDbContext.SaveChanges();
-                                                    }
-                                                }
-                                            }
-                                            var cekSudahAda = data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("SUDAH ADA")).Select(a => a.NOREF).ToList();
-                                            if (cekSudahAda.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekSudahAda)
-                                                {
-                                                    ret.adaError = true;
-                                                    if (ret.buktiLog != "")
-                                                    {
-                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                                        {
-                                                            LOG_FILE = ret.buktiLog,
-                                                            VARIABLE_1 = ret.nobuk,
-                                                            VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah proses bayar",
-                                                            TEXT_2 = ref1,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            USERNAME = uname
-                                                        };
-                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                        ErasoftDbContext.SaveChanges();
-                                                    }
-                                                }
-                                            }
-                                            var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
-                                            if (cekLunas.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekLunas)
-                                                {
-                                                    ret.adaError = true;
-                                                    if (ret.buktiLog != "")
-                                                    {
-                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                                        {
-                                                            LOG_FILE = ret.buktiLog,
-                                                            VARIABLE_1 = ret.nobuk,
-                                                            VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah lunas.<br />",
-                                                            TEXT_2 = ref1,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            USERNAME = uname
-                                                        };
-                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                        ErasoftDbContext.SaveChanges();
-                                                    }
-                                                }
-                                            }
+                                            ret.selesaiProsesDownload = true;
+                                            ret.statusSuccessDownload = true;
+                                            ret.percentDownload = 100;
+                                            ret.progressDownload = data_proses.Count();
+                                            ret.statusLoopDownload = false;
+                                            return Json(ret, JsonRequestBehavior.AllowGet);
                                         }
                                         else
                                         {
-                                            var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
-                                            if (cekListSIKosong.Count() > 0)
+                                            var hitungTotal = cekListSIKosong.Count() + cekSudahAda.Count() + cekLunas.Count();
+                                            for (int i = Convert.ToInt32(progDownload[1]); i < (cekListSIKosong.Count() + cekSudahAda.Count() + cekLunas.Count()); i++)
                                             {
-                                                foreach (var ref1 in cekListSIKosong)
+                                                var countProcess = data_proses_lanjut.Count() + i;
+                                                ret.TidakLanjutProses = false;
+                                                ret.statusLoopDownload = true;
+                                                ret.progressDownload = countProcess + 1;
+                                                ret.percentDownload = ((countProcess + 1) * 100) / ret.countAllDownload;
+                                                if (cekListSIKosong.Count() - (i + 1) > 0)
                                                 {
                                                     ret.adaError = true;
                                                     if (ret.buktiLog != "")
@@ -46436,8 +46756,8 @@ namespace MasterOnline.Controllers
                                                             LOG_FILE = ret.buktiLog,
                                                             VARIABLE_1 = ret.nobuk,
                                                             VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").<br />",
-                                                            TEXT_2 = ref1,
+                                                            TEXT_1 = "Faktur dengan No. Ref " + cekListSIKosong[i] + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").<br />",
+                                                            TEXT_2 = cekListSIKosong[i],
                                                             TGL_INPUT = DateTime.UtcNow.AddHours(7),
                                                             USERNAME = uname
                                                         };
@@ -46445,12 +46765,9 @@ namespace MasterOnline.Controllers
                                                         ErasoftDbContext.SaveChanges();
                                                     }
                                                 }
-                                            }
-                                            var cekSudahAda = data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("SUDAH ADA")).Select(a => a.NOREF).ToList();
-                                            if (cekSudahAda.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekSudahAda)
+                                                else if (cekSudahAda.Count() - (i + 1) > 0)
                                                 {
+                                                    var indexAda = i - cekListSIKosong.Count() - 1;
                                                     ret.adaError = true;
                                                     if (ret.buktiLog != "")
                                                     {
@@ -46459,8 +46776,8 @@ namespace MasterOnline.Controllers
                                                             LOG_FILE = ret.buktiLog,
                                                             VARIABLE_1 = ret.nobuk,
                                                             VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah proses bayar",
-                                                            TEXT_2 = ref1,
+                                                            TEXT_1 = "Faktur dengan No. Ref " + cekSudahAda[indexAda] + " sudah proses bayar",
+                                                            TEXT_2 = cekSudahAda[indexAda],
                                                             TGL_INPUT = DateTime.UtcNow.AddHours(7),
                                                             USERNAME = uname
                                                         };
@@ -46468,12 +46785,9 @@ namespace MasterOnline.Controllers
                                                         ErasoftDbContext.SaveChanges();
                                                     }
                                                 }
-                                            }
-                                            var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
-                                            if (cekLunas.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekLunas)
+                                                else if (cekLunas.Count() - (i + 1) > 0)
                                                 {
+                                                    var indexLunas = i - (cekListSIKosong.Count() + cekSudahAda.Count()) - 1;
                                                     ret.adaError = true;
                                                     if (ret.buktiLog != "")
                                                     {
@@ -46482,8 +46796,8 @@ namespace MasterOnline.Controllers
                                                             LOG_FILE = ret.buktiLog,
                                                             VARIABLE_1 = ret.nobuk,
                                                             VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah lunas.<br />",
-                                                            TEXT_2 = ref1,
+                                                            TEXT_1 = "Faktur dengan No. Ref " + cekLunas[indexLunas] + " sudah lunas.<br />",
+                                                            TEXT_2 = cekLunas[indexLunas],
                                                             TGL_INPUT = DateTime.UtcNow.AddHours(7),
                                                             USERNAME = uname
                                                         };
@@ -46491,42 +46805,53 @@ namespace MasterOnline.Controllers
                                                         ErasoftDbContext.SaveChanges();
                                                     }
                                                 }
-                                            }
-                                            var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
-                                            ErasoftDbContext.ART03A.Remove(piutangInDb);
-                                            ErasoftDbContext.SaveChanges();
-                                            ret.Errors.Add("Tidak ada data yang dapat diproses.<br />");
-                                            ret.adaError = true;
 
-                                            TABLE_LOG_DETAIL logDetail1 = new TABLE_LOG_DETAIL
-                                            {
-                                                LOG_FILE = ret.buktiLog,
-                                                VARIABLE_1 = ret.nobuk,
-                                                VARIABLE_2 = ret.TipeData,
-                                                TEXT_1 = "Tidak ada data yang dapat diproses.<br />",
-                                                TEXT_2 = "",
-                                                TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                USERNAME = uname
-                                            };
-                                            ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail1);
-                                            ErasoftDbContext.SaveChanges();
-
-                                            var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
-                                            if (cekErr > 0)
-                                            {
-                                                ret.adaError = true;
+                                                if (cekPer10 > 500)
+                                                {
+                                                    if ((ret.progressDownload == temp40) || ret.percentDownload == 100)
+                                                    {
+                                                        ret.statusSuccessDownload = false;
+                                                        if (ret.percentDownload > 99 && ret.percentDownload <= 101)
+                                                        {
+                                                            ret.statusSuccessDownload = true;
+                                                            ret.selesaiProsesDownload = true;
+                                                            ret.statusLoopDownload = false;
+                                                        }
+                                                        if (tempPercent != ret.percentDownload)
+                                                        {
+                                                            if (ret.statusSuccessDownload == false)
+                                                            {
+                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else if (ret.percentDownload == 20 ||
+                                                ret.percentDownload == 40 ||
+                                                ret.percentDownload == 60 ||
+                                                ret.percentDownload == 80 ||
+                                                ret.percentDownload == 100)
+                                                {
+                                                    ret.statusSuccessDownload = false;
+                                                    if (ret.percentDownload > 99 && ret.percentDownload <= 101)
+                                                    {
+                                                        ret.statusSuccessDownload = true;
+                                                        ret.selesaiProsesDownload = true;
+                                                        ret.statusLoopDownload = false;
+                                                    }
+                                                    if (tempPercent != ret.percentDownload)
+                                                    {
+                                                        if (ret.statusSuccessDownload == false)
+                                                        {
+                                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                                        }
+                                                    }
+                                                }
                                             }
-                                            ret.TidakLanjutProses = true;
-                                            return Json(ret, JsonRequestBehavior.AllowGet);
                                         }
-                                        ret.TidakLanjutProses = false;
-                                        ret.statusLoop = true;
-                                        return Json(ret, JsonRequestBehavior.AllowGet);
-
-                                        //ret.TidakLanjutProses = false;
-                                        //ret.statusLoopDownload = true;
-                                        //return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
+                                    ret.TidakLanjutProses = false;
+                                    return Json(ret, JsonRequestBehavior.AllowGet);
                                 }
                                 #endregion                                
 
@@ -48137,7 +48462,7 @@ namespace MasterOnline.Controllers
         //end add by nurul 4/11/2019, upload pembayaran Blibli 
 
         //end add by nurul 19/5/2020, upload pembayaran versi baru
-        public ActionResult UploadXcelBayarBlibli1(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess, string log)
+        public ActionResult UploadXcelBayarBlibli1(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess, string log, string percentDanprogressDownload, string statusLoopSuccessDownload, string filename)
         {
             BindUploadExcelBayar ret = new BindUploadExcelBayar();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
@@ -48159,16 +48484,27 @@ namespace MasterOnline.Controllers
             string[] status = statusLoopSuccess.Split(';');
             string[] prog = percentDanprogress.Split(';');
 
+            string[] statusDownload = statusLoopSuccessDownload.Split(';');
+            string[] progDownload = percentDanprogressDownload.Split(';');
+
             ret.statusLoop = Convert.ToBoolean(status[0]);
             if (ret.statusLoop == false)
             {
                 ret.buktiLog = "Log_Upload_Pembayaran_Blibli" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
             }
 
+            ret.statusLoopDownload = Convert.ToBoolean(statusDownload[0]);
+            if (filename != null && filename != "")
+            {
+                ret.TipeData = filename;
+            }
+            ret.selesaiProsesDownload = false;
+
             try
             {
                 var mp = MoDbContext.Marketplaces.ToList();
                 ret.statusSuccess = Convert.ToBoolean(status[1]);
+                ret.statusSuccessDownload = Convert.ToBoolean(statusDownload[1]);
                 ret.sudahSimpanTemp = false;
 
                 if (ret.byteData == null && ret.statusLoop == false)
@@ -48560,185 +48896,343 @@ namespace MasterOnline.Controllers
                                         }
 
 
-                                        var ssql2 = "select * from TEMP_UPLOAD_EXCEL_BAYAR where ket = '" + ret.nobuk + "' and cust ='" + cust_id + "' and nama_file = '" + ret.TipeData + "'";
-                                        data_proses.AddRange(ErasoftDbContext.Database.SqlQuery<TEMP_UPLOAD_EXCEL_BAYAR>(ssql2).ToList());
+                                        //var ssql2 = "select * from TEMP_UPLOAD_EXCEL_BAYAR where ket = '" + ret.nobuk + "' and cust ='" + cust_id + "' and nama_file = '" + ret.TipeData + "'";
+                                        //data_proses.AddRange(ErasoftDbContext.Database.SqlQuery<TEMP_UPLOAD_EXCEL_BAYAR>(ssql2).ToList());
 
-                                        data_proses_lanjut.AddRange(data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("TIDAK ADA")).ToList());
-                                        ret.countAll = data_proses_lanjut.Count();
-                                        if (data_proses_lanjut.Count() > 0)
-                                        {
-                                            var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
-                                            if (cekListSIKosong.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekListSIKosong)
-                                                {
-                                                    ret.adaError = true;
-                                                    if (ret.buktiLog != "")
-                                                    {
-                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                                        {
-                                                            LOG_FILE = ret.buktiLog,
-                                                            VARIABLE_1 = ret.nobuk,
-                                                            VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").<br />",
-                                                            TEXT_2 = ref1,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            USERNAME = uname
-                                                        };
-                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                        ErasoftDbContext.SaveChanges();
-                                                    }
-                                                }
-                                            }
-                                            var cekSudahAda = data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("SUDAH ADA")).Select(a => a.NOREF).ToList();
-                                            if (cekSudahAda.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekSudahAda)
-                                                {
-                                                    ret.adaError = true;
-                                                    if (ret.buktiLog != "")
-                                                    {
-                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                                        {
-                                                            LOG_FILE = ret.buktiLog,
-                                                            VARIABLE_1 = ret.nobuk,
-                                                            VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah proses bayar",
-                                                            TEXT_2 = ref1,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            USERNAME = uname
-                                                        };
-                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                        ErasoftDbContext.SaveChanges();
-                                                    }
-                                                }
-                                            }
-                                            var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
-                                            if (cekLunas.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekLunas)
-                                                {
-                                                    ret.adaError = true;
-                                                    if (ret.buktiLog != "")
-                                                    {
-                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                                        {
-                                                            LOG_FILE = ret.buktiLog,
-                                                            VARIABLE_1 = ret.nobuk,
-                                                            VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah lunas.<br />",
-                                                            TEXT_2 = ref1,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            USERNAME = uname
-                                                        };
-                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                        ErasoftDbContext.SaveChanges();
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
-                                            if (cekListSIKosong.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekListSIKosong)
-                                                {
-                                                    ret.adaError = true;
-                                                    if (ret.buktiLog != "")
-                                                    {
-                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                                        {
-                                                            LOG_FILE = ret.buktiLog,
-                                                            VARIABLE_1 = ret.nobuk,
-                                                            VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").<br />",
-                                                            TEXT_2 = ref1,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            USERNAME = uname
-                                                        };
-                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                        ErasoftDbContext.SaveChanges();
-                                                    }
-                                                }
-                                            }
-                                            var cekSudahAda = data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("SUDAH ADA")).Select(a => a.NOREF).ToList();
-                                            if (cekSudahAda.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekSudahAda)
-                                                {
-                                                    ret.adaError = true;
-                                                    if (ret.buktiLog != "")
-                                                    {
-                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                                        {
-                                                            LOG_FILE = ret.buktiLog,
-                                                            VARIABLE_1 = ret.nobuk,
-                                                            VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah proses bayar",
-                                                            TEXT_2 = ref1,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            USERNAME = uname
-                                                        };
-                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                        ErasoftDbContext.SaveChanges();
-                                                    }
-                                                }
-                                            }
-                                            var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
-                                            if (cekLunas.Count() > 0)
-                                            {
-                                                foreach (var ref1 in cekLunas)
-                                                {
-                                                    ret.adaError = true;
-                                                    if (ret.buktiLog != "")
-                                                    {
-                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                                        {
-                                                            LOG_FILE = ret.buktiLog,
-                                                            VARIABLE_1 = ret.nobuk,
-                                                            VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah lunas.<br />",
-                                                            TEXT_2 = ref1,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            USERNAME = uname
-                                                        };
-                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                        ErasoftDbContext.SaveChanges();
-                                                    }
-                                                }
-                                            }
-                                            var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
-                                            ErasoftDbContext.ART03A.Remove(piutangInDb);
-                                            ErasoftDbContext.SaveChanges();
-                                            ret.Errors.Add("Tidak ada data yang dapat diproses.<br />");
-                                            ret.adaError = true;
+                                        //data_proses_lanjut.AddRange(data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("TIDAK ADA")).ToList());
+                                        //ret.countAll = data_proses_lanjut.Count();
+                                        //if (data_proses_lanjut.Count() > 0)
+                                        //{
+                                        //    var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
+                                        //    if (cekListSIKosong.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekListSIKosong)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").<br />",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //    var cekSudahAda = data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("SUDAH ADA")).Select(a => a.NOREF).ToList();
+                                        //    if (cekSudahAda.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekSudahAda)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah proses bayar",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //    var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
+                                        //    if (cekLunas.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekLunas)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah lunas.<br />",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //}
+                                        //else
+                                        //{
+                                        //    var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
+                                        //    if (cekListSIKosong.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekListSIKosong)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").<br />",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //    var cekSudahAda = data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("SUDAH ADA")).Select(a => a.NOREF).ToList();
+                                        //    if (cekSudahAda.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekSudahAda)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah proses bayar",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //    var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
+                                        //    if (cekLunas.Count() > 0)
+                                        //    {
+                                        //        foreach (var ref1 in cekLunas)
+                                        //        {
+                                        //            ret.adaError = true;
+                                        //            if (ret.buktiLog != "")
+                                        //            {
+                                        //                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        //                {
+                                        //                    LOG_FILE = ret.buktiLog,
+                                        //                    VARIABLE_1 = ret.nobuk,
+                                        //                    VARIABLE_2 = ret.TipeData,
+                                        //                    TEXT_1 = "Faktur dengan No. Ref " + ref1 + " sudah lunas.<br />",
+                                        //                    TEXT_2 = ref1,
+                                        //                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //                    USERNAME = uname
+                                        //                };
+                                        //                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        //                ErasoftDbContext.SaveChanges();
+                                        //            }
+                                        //        }
+                                        //    }
+                                        //    var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
+                                        //    ErasoftDbContext.ART03A.Remove(piutangInDb);
+                                        //    ErasoftDbContext.SaveChanges();
+                                        //    ret.Errors.Add("Tidak ada data yang dapat diproses.<br />");
+                                        //    ret.adaError = true;
 
-                                            TABLE_LOG_DETAIL logDetail1 = new TABLE_LOG_DETAIL
-                                            {
-                                                LOG_FILE = ret.buktiLog,
-                                                VARIABLE_1 = ret.nobuk,
-                                                VARIABLE_2 = ret.TipeData,
-                                                TEXT_1 = "Tidak ada data yang dapat diproses.<br />",
-                                                TEXT_2 = "",
-                                                TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                USERNAME = uname
-                                            };
-                                            ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail1);
-                                            ErasoftDbContext.SaveChanges();
+                                        //    TABLE_LOG_DETAIL logDetail1 = new TABLE_LOG_DETAIL
+                                        //    {
+                                        //        LOG_FILE = ret.buktiLog,
+                                        //        VARIABLE_1 = ret.nobuk,
+                                        //        VARIABLE_2 = ret.TipeData,
+                                        //        TEXT_1 = "Tidak ada data yang dapat diproses.<br />",
+                                        //        TEXT_2 = "",
+                                        //        TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        //        USERNAME = uname
+                                        //    };
+                                        //    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail1);
+                                        //    ErasoftDbContext.SaveChanges();
 
-                                            var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
-                                            if (cekErr > 0)
-                                            {
-                                                ret.adaError = true;
-                                            }
-                                            ret.TidakLanjutProses = true;
-                                            return Json(ret, JsonRequestBehavior.AllowGet);
-                                        }
+                                        //    var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
+                                        //    if (cekErr > 0)
+                                        //    {
+                                        //        ret.adaError = true;
+                                        //    }
+                                        //    ret.TidakLanjutProses = true;
+                                        //    return Json(ret, JsonRequestBehavior.AllowGet);
+                                        //}
+                                        //ret.TidakLanjutProses = false;
+                                        //ret.statusLoop = true;
+                                        //return Json(ret, JsonRequestBehavior.AllowGet);
+
                                         ret.TidakLanjutProses = false;
+                                        ret.statusLoopDownload = true;
                                         ret.statusLoop = true;
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
+                                }
+
+                                if (ret.statusLoopDownload == true && ret.statusSuccessDownload == false && ret.selesaiProsesDownload == false)
+                                {
+                                    var ssql2 = "select * from TEMP_UPLOAD_EXCEL_BAYAR where ket = '" + ret.nobuk + "' and cust ='" + cust_id + "' and nama_file = '" + ret.TipeData + "'";
+                                    data_proses.AddRange(ErasoftDbContext.Database.SqlQuery<TEMP_UPLOAD_EXCEL_BAYAR>(ssql2).ToList());
+                                    ret.countAllDownload = data_proses.Count();
+                                    progDownload[1] = Convert.ToString(Convert.ToInt32(progDownload[1]) - 1);
+                                    if (Convert.ToInt32(progDownload[1]) == 0)
+                                    {
+                                        progDownload[1] = "0";
+                                    }
+
+                                    if (data_proses.Count() > 0)
+                                    {
+                                        ret.TidakLanjutProses = false;
+                                        ret.statusLoopDownload = true;
+                                        var tempPercent = Convert.ToInt32(progDownload[0]);
+                                        //var cekPer20 = (ret.countAllDownload / 10);
+                                        var cekPer10 = (ret.countAllDownload * 20 / 100);
+                                        var temp40 = Convert.ToInt32(progDownload[1]) + 500;
+                                        data_proses_lanjut.AddRange(data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("TIDAK ADA")).ToList());
+                                        ret.countAll = data_proses_lanjut.Count();
+
+                                        var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
+                                        var cekSudahAda = data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("SUDAH ADA")).Select(a => a.NOREF).ToList();
+                                        var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
+
+                                        if (data_proses_lanjut.Count() > 0 && data_proses_lanjut.Count() == data_proses.Count())
+                                        {
+                                            ret.selesaiProsesDownload = true;
+                                            ret.statusSuccessDownload = true;
+                                            ret.percentDownload = 100;
+                                            ret.progressDownload = data_proses.Count();
+                                            ret.statusLoopDownload = false;
+                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                        }
+                                        else
+                                        {
+                                            var hitungTotal = cekListSIKosong.Count() + cekSudahAda.Count() + cekLunas.Count();
+                                            for (int i = Convert.ToInt32(progDownload[1]); i < (cekListSIKosong.Count() + cekSudahAda.Count() + cekLunas.Count()); i++)
+                                            {
+                                                var countProcess = data_proses_lanjut.Count() + i;
+                                                ret.TidakLanjutProses = false;
+                                                ret.statusLoopDownload = true;
+                                                ret.progressDownload = countProcess + 1;
+                                                ret.percentDownload = ((countProcess + 1) * 100) / ret.countAllDownload;
+                                                if (cekListSIKosong.Count() - (i + 1) > 0)
+                                                {
+                                                    ret.adaError = true;
+                                                    if (ret.buktiLog != "")
+                                                    {
+                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                        {
+                                                            LOG_FILE = ret.buktiLog,
+                                                            VARIABLE_1 = ret.nobuk,
+                                                            VARIABLE_2 = ret.TipeData,
+                                                            TEXT_1 = "Faktur dengan No. Ref " + cekListSIKosong[i] + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").<br />",
+                                                            TEXT_2 = cekListSIKosong[i],
+                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                            USERNAME = uname
+                                                        };
+                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                                        ErasoftDbContext.SaveChanges();
+                                                    }
+                                                }
+                                                else if (cekSudahAda.Count() - (i + 1) > 0)
+                                                {
+                                                    var indexAda = i - cekListSIKosong.Count() - 1;
+                                                    ret.adaError = true;
+                                                    if (ret.buktiLog != "")
+                                                    {
+                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                        {
+                                                            LOG_FILE = ret.buktiLog,
+                                                            VARIABLE_1 = ret.nobuk,
+                                                            VARIABLE_2 = ret.TipeData,
+                                                            TEXT_1 = "Faktur dengan No. Ref " + cekSudahAda[indexAda] + " sudah proses bayar",
+                                                            TEXT_2 = cekSudahAda[indexAda],
+                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                            USERNAME = uname
+                                                        };
+                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                                        ErasoftDbContext.SaveChanges();
+                                                    }
+                                                }
+                                                else if (cekLunas.Count() - (i + 1) > 0)
+                                                {
+                                                    var indexLunas = i - (cekListSIKosong.Count() + cekSudahAda.Count()) - 1;
+                                                    ret.adaError = true;
+                                                    if (ret.buktiLog != "")
+                                                    {
+                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                        {
+                                                            LOG_FILE = ret.buktiLog,
+                                                            VARIABLE_1 = ret.nobuk,
+                                                            VARIABLE_2 = ret.TipeData,
+                                                            TEXT_1 = "Faktur dengan No. Ref " + cekLunas[indexLunas] + " sudah lunas.<br />",
+                                                            TEXT_2 = cekLunas[indexLunas],
+                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                            USERNAME = uname
+                                                        };
+                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                                        ErasoftDbContext.SaveChanges();
+                                                    }
+                                                }
+
+                                                if (cekPer10 > 500)
+                                                {
+                                                    if ((ret.progressDownload == temp40) || ret.percentDownload == 100)
+                                                    {
+                                                        ret.statusSuccessDownload = false;
+                                                        if (ret.percentDownload > 99 && ret.percentDownload <= 101)
+                                                        {
+                                                            ret.statusSuccessDownload = true;
+                                                            ret.selesaiProsesDownload = true;
+                                                            ret.statusLoopDownload = false;
+                                                        }
+                                                        if (tempPercent != ret.percentDownload)
+                                                        {
+                                                            if (ret.statusSuccessDownload == false)
+                                                            {
+                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else if (ret.percentDownload == 20 ||
+                                                ret.percentDownload == 40 ||
+                                                ret.percentDownload == 60 ||
+                                                ret.percentDownload == 80 ||
+                                                ret.percentDownload == 100)
+                                                {
+                                                    ret.statusSuccessDownload = false;
+                                                    if (ret.percentDownload > 99 && ret.percentDownload <= 101)
+                                                    {
+                                                        ret.statusSuccessDownload = true;
+                                                        ret.selesaiProsesDownload = true;
+                                                        ret.statusLoopDownload = false;
+                                                    }
+                                                    if (tempPercent != ret.percentDownload)
+                                                    {
+                                                        if (ret.statusSuccessDownload == false)
+                                                        {
+                                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    ret.TidakLanjutProses = false;
+                                    return Json(ret, JsonRequestBehavior.AllowGet);
                                 }
                                 #endregion
                                 if (ret.statusLoop == true)
