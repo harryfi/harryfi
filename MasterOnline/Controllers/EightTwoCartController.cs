@@ -365,9 +365,35 @@ namespace MasterOnline.Controllers
                                                 }
                                                 else
                                                 {
-                                                    //newrecord.TYPE = "3";
-                                                    //newrecord.KODE_BRG_INDUK = Convert.ToString(item.id_product);
-                                                    typeBrg = 2;
+                                                    if (item.combinations.Length == 1)
+                                                    {
+                                                        newrecord.TYPE = "4";
+                                                        if (item.combinations[0].id_product_attribute.ToString() != null)
+                                                        {
+                                                            var skuBRG = "";
+                                                            if (!string.IsNullOrEmpty(item.combinations[0].attribute_reference))
+                                                            {
+                                                                skuBRG = item.combinations[0].attribute_reference;
+                                                            }
+                                                            else
+                                                            {
+                                                                skuBRG = brgMp;
+                                                            }
+                                                            if (item.combinations[0].attribute_list.Count() > 0)
+                                                            {
+                                                                foreach (var namaItem in item.combinations[0].attribute_list)
+                                                                {
+                                                                    nama2 = nama2 + namaItem.attribute_group.ToString() + " " + namaItem.attribute.ToString() + ", ";
+                                                                }
+                                                                nama2 = nama2.Substring(0, nama2.Length - 2);
+                                                            }
+                                                            newrecord.SELLER_SKU = skuBRG;
+                                                            newrecord.BRG_MP = Convert.ToString(item.id_product) + ";" + item.combinations[0].id_product_attribute.ToString();
+                                                            newrecord.NAMA2 = nama2;
+                                                            //newrecord.KODE_BRG_INDUK = Convert.ToString(item.id_product);
+                                                            typeBrg = 2;
+                                                        }
+                                                    }
                                                 }
                                             }
                                             if (item.weight != null)
@@ -429,6 +455,13 @@ namespace MasterOnline.Controllers
                                                                 }
                                                             }
                                                         }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if (item.cover_image_url != null)
+                                                    {
+                                                        newrecord.IMAGE = item.cover_image_url;
                                                     }
                                                 }
 
