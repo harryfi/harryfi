@@ -1906,6 +1906,12 @@ namespace MasterOnline.Controllers
             SetupContext(dbPathEra, uname);
             int page = 0;
             var more = true;
+            //add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
+            
+            var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+            //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
 
             while (more)
             {
@@ -1933,7 +1939,12 @@ namespace MasterOnline.Controllers
             SetupContext(dbPathEra, uname);
             int page = 0;
             var more = true;
+            //add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
 
+            var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+            //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
             while (more)
             {
                 var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page, "ready_to_ship");
@@ -2524,6 +2535,13 @@ namespace MasterOnline.Controllers
             SetupContext(dbPathEra, uname);
             int page = 0;
             var more = true;
+
+            //add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
+
+            var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+            //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
 
             while (more)
             {
