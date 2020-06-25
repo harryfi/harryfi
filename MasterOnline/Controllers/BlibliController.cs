@@ -2329,7 +2329,7 @@ namespace MasterOnline.Controllers
                         //var a = HttpUtility.HtmlEncode(b);
                         //var c = HttpUtility.HtmlDecode(a);
                         string IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.ToString();
-                        string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, ";
+                        string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, AVALUE_45, ";
                         sSQL += "Deskripsi, AVALUE_39, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, IMAGE4, IMAGE5, KODE_BRG_INDUK, TYPE,";
                         sSQL += "ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
                         sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
@@ -2430,8 +2430,8 @@ namespace MasterOnline.Controllers
                             //end change 9/9/19, cek gudang sku karena productitemcode bisa duplikat
                             kdBrgInduk = splitSku[splitSku.Length - 1] + ";" + result.value.productCode;
                             //cek brg induk di db
-                            var brgIndukinDB = ErasoftDbContext.STF02H.Where(p => p.BRG_MP.Contains(prdCd) && p.IDMARKET.ToString() == IdMarket).FirstOrDefault();
-                            //var brgIndukinDB = ErasoftDbContext.STF02H.Where(p => p.BRG_MP == kdBrgInduk && p.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                            //var brgIndukinDB = ErasoftDbContext.STF02H.Where(p => p.BRG_MP.Contains(prdCd) && p.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                            var brgIndukinDB = ErasoftDbContext.STF02H.Where(p => p.BRG_MP == kdBrgInduk && p.IDMARKET.ToString() == IdMarket).FirstOrDefault();
                             var tempBrgIndukinDB = ErasoftDbContext.TEMP_BRG_MP.Where(p => p.BRG_MP == kdBrgInduk && p.IDMARKET.ToString() == IdMarket).FirstOrDefault();
                             //var tempBrgIndukinDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
                             //var brgIndukinDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
@@ -2462,7 +2462,7 @@ namespace MasterOnline.Controllers
                         sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
                         //change 25 juli 2019, tukar harga jual dgn harga promo
                         //sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
-                        sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , '" + unqsellpoint + "' , " + IdMarket + " , " + result.value.items[0].prices[0].salePrice + " , " + result.value.items[0].prices[0].price;
+                        sSQL += cust + "' , '" + namaBrg + "' , '" + desc.Replace('\'', '`') + "' , '" + unqsellpoint + "' , " + IdMarket + " , " + result.value.items[0].prices[0].salePrice + " , " + result.value.items[0].prices[0].price;
                         //end change 25 juli 2019, tukar harga jual dgn harga promo
                         //change 21/8/2019, barang varian ambil 1 gambar saja
                         if (numVarian > 1)
@@ -3542,7 +3542,7 @@ namespace MasterOnline.Controllers
             sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
             //change 9/9/19, add unique selling point
             //sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
-            sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , '" + unqsellpoint + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
+            sSQL += cust + "' , '" + namaBrg + "' , '" + desc.Replace('\'', '`') + "' , '" + unqsellpoint + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
             //end change 9/9/19, add unique selling point
             sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "', '', ''";
             //add kode brg induk dan type brg
@@ -5166,6 +5166,8 @@ namespace MasterOnline.Controllers
             ATTRIBUTE_BLIBLI_AND_OPT ret = new ATTRIBUTE_BLIBLI_AND_OPT();
             //foreach (var item in category)
             //{
+            if (category == null)
+                return ret;
             string categoryCode = category.CATEGORY_CODE;
             string categoryName = category.CATEGORY_NAME;
             //    string categoryCode = "3 -1000001";
