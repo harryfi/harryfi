@@ -9713,32 +9713,25 @@ namespace MasterOnline.Controllers
                                         {
                                             if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                             {
-                                                ShopifyController.ShopifyAPIData iden = new ShopifyController.ShopifyAPIData();
+                                                ShopifyControllerJob.ShopifyAPIData iden = new ShopifyControllerJob.ShopifyAPIData();
                                                 iden.no_cust = tblCustomer.CUST;
                                                 iden.DatabasePathErasoft = dbPathEra;
                                                 iden.account_store = tblCustomer.PERSO;
                                                 iden.API_key = tblCustomer.API_KEY;
                                                 iden.API_password = tblCustomer.API_CLIENT_P;
 
-                                                ShopifyController ShopifyAPI = new ShopifyController();
+                                                ShopifyControllerJob ShopifyAPI = new ShopifyControllerJob();
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
 #if (Debug_AWS || DEBUG)
                                                 //Task.Run(() => ShopifyAPI.UpdateProduct(iden, stf02h.BRG_MP, tblCustomer.CUST).Wait());
                                                 //var checkProductExist = ShopifyAPI.GetItemSingle(iden, stf02h.BRG);
-                                                ShopifyAPI.CheckProduct(iden, stf02h.BRG_MP, stf02h.BRG);
+                                                //ShopifyAPI.CheckProduct(iden, stf02h.BRG_MP, stf02h.BRG);
 
-                                                //if (checkProductExist = 1)
-                                                //{
+                                                ShopifyAPI.Shopify_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Update Produk", iden, stf02h.BRG_MP);
 
-                                                //}
-                                                //else
-                                                //{
-
-                                                //}
-                                                //ShopifyAPI.UpdateProduct(iden, stf02h.BRG, tblCustomer.CUST);
 #else
-                                                //clientJobServer.Enqueue<ShopifyControllerJob>(x => x.UpdateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", data, temp_brg, tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
+                                                clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Update Produk", iden, stf02h.BRG_MP));
 #endif
                                                 //end unremark by nurul 15/1/2020, biar bisa update deskripsi, tapi panjang lebar dan tinggi harus <= 40 cm
                                                 //end remark by calvin 26 februari 2019
