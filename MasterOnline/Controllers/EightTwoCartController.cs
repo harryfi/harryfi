@@ -229,6 +229,7 @@ namespace MasterOnline.Controllers
             var limit = "10";
             var offset = 10 * page;
 
+            //string urll = string.Format("{0}/api/v1/getProduct?apiKey={1}&apiCredential={2}&name=Bear Burp", iden.API_url, iden.API_key, iden.API_credential, limit, offset);
             string urll = string.Format("{0}/api/v1/getProduct?apiKey={1}&apiCredential={2}&limit={3}&offset={4}", iden.API_url, iden.API_key, iden.API_credential, limit, offset);
 
 
@@ -239,7 +240,7 @@ namespace MasterOnline.Controllers
 
             try
             {
-                using (WebResponse response = myReq.GetResponse())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -365,9 +366,35 @@ namespace MasterOnline.Controllers
                                                 }
                                                 else
                                                 {
-                                                    //newrecord.TYPE = "3";
-                                                    //newrecord.KODE_BRG_INDUK = Convert.ToString(item.id_product);
-                                                    typeBrg = 2;
+                                                    if (item.combinations.Length == 1)
+                                                    {
+                                                        newrecord.TYPE = "4";
+                                                        if (item.combinations[0].id_product_attribute.ToString() != null)
+                                                        {
+                                                            var skuBRG = "";
+                                                            if (!string.IsNullOrEmpty(item.combinations[0].attribute_reference))
+                                                            {
+                                                                skuBRG = item.combinations[0].attribute_reference;
+                                                            }
+                                                            else
+                                                            {
+                                                                skuBRG = brgMp;
+                                                            }
+                                                            if (item.combinations[0].attribute_list.Count() > 0)
+                                                            {
+                                                                foreach (var namaItem in item.combinations[0].attribute_list)
+                                                                {
+                                                                    nama2 = nama2 + namaItem.attribute_group.ToString() + " " + namaItem.attribute.ToString() + ", ";
+                                                                }
+                                                                nama2 = nama2.Substring(0, nama2.Length - 2);
+                                                            }
+                                                            newrecord.SELLER_SKU = skuBRG;
+                                                            newrecord.BRG_MP = Convert.ToString(item.id_product) + ";" + item.combinations[0].id_product_attribute.ToString();
+                                                            newrecord.NAMA2 = nama2;
+                                                            //newrecord.KODE_BRG_INDUK = Convert.ToString(item.id_product);
+                                                            typeBrg = 2;
+                                                        }
+                                                    }
                                                 }
                                             }
                                             if (item.weight != null)
@@ -426,6 +453,29 @@ namespace MasterOnline.Controllers
 
                                                                         }
                                                                     }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if (item.cover_image_url != null)
+                                                    {
+                                                        newrecord.IMAGE = item.cover_image_url;
+                                                    }
+                                                    if(item.image_product.Count() > 1)
+                                                    {
+                                                        newrecord.IMAGE2 = item.image_product[1].link_image.ToString();
+                                                        if(item.image_product.Count() > 2)
+                                                        {
+                                                            newrecord.IMAGE3 = item.image_product[2].link_image.ToString();
+                                                            if (item.image_product.Count() > 3)
+                                                            {
+                                                                newrecord.IMAGE4 = item.image_product[3].link_image.ToString();
+                                                                if (item.image_product.Count() > 4)
+                                                                {
+                                                                    newrecord.IMAGE5 = item.image_product[4].link_image.ToString();
                                                                 }
                                                             }
                                                         }
