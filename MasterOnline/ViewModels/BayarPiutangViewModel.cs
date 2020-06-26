@@ -67,6 +67,14 @@ namespace MasterOnline.ViewModels
         public int percentDownload { get; set; }
         public int countAllDownload { get; set; }
         public bool selesaiProsesDownload { get; set; }
+
+        public bool statusLoopTemp { get; set; }
+        public bool statusSuccessTemp { get; set; }
+        public int progressTemp { get; set; }
+        public int percentTemp { get; set; }
+        public int countAllTemp { get; set; }
+        //public bool selesaiProsesTemp { get; set; }
+        public string fileCsvPath { get; set; }
     }
 
     public class DetailLazada

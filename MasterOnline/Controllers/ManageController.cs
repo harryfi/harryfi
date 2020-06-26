@@ -41075,7 +41075,7 @@ namespace MasterOnline.Controllers
             return Json(detail, JsonRequestBehavior.AllowGet);
         }
 
-        public async Task<ActionResult> UploadXcelBayar1(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess, string log, bool NoProcess, string percentDanprogressDownload, string statusLoopSuccessDownload, string filename)
+        public async Task<ActionResult> UploadXcelBayar1(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess, string log, bool NoProcess, string percentDanprogressDownload, string statusLoopSuccessDownload, string filename, string percentDanprogressTemp, string statusLoopSuccessTemp, string fileCsvTemp)
         {
             BindUploadExcelBayar ret = new BindUploadExcelBayar();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
@@ -41102,10 +41102,19 @@ namespace MasterOnline.Controllers
             string[] statusDownload = statusLoopSuccessDownload.Split(';');
             string[] progDownload = percentDanprogressDownload.Split(';');
 
+            string[] statusTemp = statusLoopSuccessTemp.Split(';');
+            string[] progTemp = percentDanprogressTemp.Split(';');
+
             ret.statusLoop = Convert.ToBoolean(status[0]);
-            if (ret.statusLoop == false)
+            ret.statusLoopDownload = Convert.ToBoolean(statusDownload[0]);
+            ret.statusLoopTemp = Convert.ToBoolean(statusTemp[0]);
+            if (ret.statusLoop == false && ret.statusLoopDownload == false && ret.statusSuccessTemp == false)
             {
                 ret.buktiLog = "Log_Upload_Pembayaran_Shopee" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+            }
+            else
+            {
+                ret.buktiLog = log;
             }
 
             ret.statusLoopDownload = Convert.ToBoolean(statusDownload[0]);
@@ -41113,7 +41122,9 @@ namespace MasterOnline.Controllers
             {
                 ret.TipeData = filename;
             }
-            ret.selesaiProsesDownload = false;
+            //ret.selesaiProsesDownload = false;
+            ret.TidakLanjutProses = NoProcess;
+            
 
             try
             {
@@ -41121,23 +41132,27 @@ namespace MasterOnline.Controllers
                 var mp = MoDbContext.Marketplaces.ToList();
                 ret.statusSuccess = Convert.ToBoolean(status[1]);
                 ret.statusSuccessDownload = Convert.ToBoolean(statusDownload[1]);
+                ret.statusSuccessTemp = Convert.ToBoolean(statusTemp[1]);
                 ret.sudahSimpanTemp = false;
                 //var tipeData = "";
 
-                if (ret.byteData == null && ret.statusLoop == false)
+                if (ret.byteData == null && ret.statusLoop == false && ret.statusSuccessTemp == false)
                 {
-                    ret.adaError = false;
-                    LOG_IMPORT_FAKTUR newLogImportPiutang = new LOG_IMPORT_FAKTUR
+                    if (ret.statusLoopTemp == false)
                     {
-                        CUST = cust_id,
-                        UPLOADER = uname,
-                        LAST_FAKTUR_UPLOADED = "",
-                        UPLOAD_DATETIME = DateTime.UtcNow.AddHours(7),
-                        LAST_FAKTUR_UPLOADED_DATETIME = DateTime.UtcNow.AddHours(7),
-                        LOG_FILE = ret.buktiLog,
-                    };
-                    ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportPiutang);
-                    ErasoftDbContext.SaveChanges();
+                        ret.adaError = false;
+                        LOG_IMPORT_FAKTUR newLogImportPiutang = new LOG_IMPORT_FAKTUR
+                        {
+                            CUST = cust_id,
+                            UPLOADER = uname,
+                            LAST_FAKTUR_UPLOADED = "",
+                            UPLOAD_DATETIME = DateTime.UtcNow.AddHours(7),
+                            LAST_FAKTUR_UPLOADED_DATETIME = DateTime.UtcNow.AddHours(7),
+                            LOG_FILE = ret.buktiLog,
+                        };
+                        ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportPiutang);
+                        ErasoftDbContext.SaveChanges();
+                    }
 
                     if (Request.Files[0] != null && Request.Files[0].ContentLength > 0)
                     {
@@ -41163,7 +41178,16 @@ namespace MasterOnline.Controllers
                                     tr = new StreamReader(inputStream);
                                 }
 
-                                string namaFile = dbPathEra + "_BayarShopee_" + DateTime.Now.ToString("yyyyMMdd_HHmmssffff") + ".csv";
+                                string namaFile = "";
+                                if (ret.statusLoopTemp == false)
+                                {
+                                    namaFile = dbPathEra + "_BayarShopee_" + DateTime.Now.ToString("yyyyMMdd_HHmmssffff") + ".csv";
+                                }
+                                else
+                                {
+                                    namaFile = fileCsvTemp;
+                                }
+                                ret.fileCsvPath = namaFile;
                                 System.IO.File.WriteAllBytes(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile), data);
                                 using (var sr = new StreamReader(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile)))
                                 {
@@ -41177,51 +41201,148 @@ namespace MasterOnline.Controllers
                                     reader.Configuration.Delimiter = ",";
                                     reader.Configuration.PrepareHeaderForMatch = (header, index) => Regex.Replace(header, @"\s|[().]", string.Empty);
                                     var records_excell = reader.GetRecords<ShopeeExcelBayarPiutang>();
+                                    var cekCount = records_excell.ToList();
+                                    ret.countAllTemp = cekCount.Count();
                                     try
                                     {
-                                        var cekAdaTemp = ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.FirstOrDefault();
-                                        if (cekAdaTemp != null)
+                                        if (ret.statusLoopTemp == true)
                                         {
-                                            ErasoftDbContext.Database.ExecuteSqlCommand("delete from TEMP_UPLOAD_EXCEL_BAYAR");
+                                            progTemp[1] = Convert.ToString(Convert.ToInt32(progTemp[1]) - 1);
                                         }
-                                        foreach (var dataPiutang in records_excell)
+                                        if (Convert.ToInt32(progTemp[1]) == 0)
                                         {
-                                            var a = new ShopeeExcelBayarPiutang
+                                            progTemp[1] = "0";
+                                        }
+                                        
+                                        if (cekCount.Count() > 0)
+                                        {
+                                            ret.TidakLanjutProses = false;
+                                            
+                                            var tempPercent = Convert.ToInt32(progTemp[0]);
+                                            var cekPer10 = (ret.countAllTemp / 4);
+                                            var temp40 = Convert.ToInt32(progTemp[1]) + 1000;
+
+                                            if (ret.statusLoopTemp == false)
                                             {
-                                                Tanggal = Convert.ToDateTime(dataPiutang.Tanggal),
-                                                PenerimaDana = Convert.ToString(dataPiutang.PenerimaDana),
-                                                JumlahDana = Convert.ToDouble(dataPiutang.JumlahDana),
-                                                Deskripsi = Convert.ToString(dataPiutang.Deskripsi),
-                                                Status = Convert.ToString(dataPiutang.Status),
-                                                Saldo = Convert.ToDouble(dataPiutang.Saldo)
-                                            };
-                                            if (!string.IsNullOrEmpty(a.Deskripsi) && a.PenerimaDana == "Saldo Penjual")
-                                            {
-                                                var getref = a.Deskripsi.Split('#');
-                                                if (getref.Count() > 1)
+                                                var cekAdaTemp = ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.FirstOrDefault();
+                                                if (cekAdaTemp != null)
                                                 {
-                                                    TEMP_UPLOAD_EXCEL_BAYAR rec = new TEMP_UPLOAD_EXCEL_BAYAR()
-                                                    {
-                                                        NAMA_FILE = ret.TipeData,
-                                                        CUST = cust_id,
-                                                        MARKETPLACE = "SHOPEE",
-                                                        NOREF = getref.Last(),
-                                                        TGL = a.Tanggal,
-                                                        BAYAR = a.JumlahDana,
-                                                        POTONGAN = 0,
-                                                        NILAI_REF = a.JumlahDana,
-                                                        NILAI_LAIN = 0,
-                                                        TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                        SUDAH_INPUT = false,
-                                                        USERNAME = uname,
-                                                        KET = ""
-                                                    };
-                                                    temp_records.Add(rec);
-                                                    ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Add(rec);
-                                                    ErasoftDbContext.SaveChanges();
-                                                    ret.sudahSimpanTemp = true;
+                                                    ErasoftDbContext.Database.ExecuteSqlCommand("delete from TEMP_UPLOAD_EXCEL_BAYAR");
                                                 }
                                             }
+                                            ret.statusLoopTemp = true;
+                                            //foreach (var dataPiutang in records_excell)
+                                            for (int i = Convert.ToInt32(progTemp[1]); i < cekCount.Count(); i++)
+                                            {
+                                                ret.TidakLanjutProses = false;
+                                                ret.statusLoopTemp = true;
+                                                ret.progressTemp = i + 1;
+                                                ret.percentTemp = ((i + 1) * 100) / ret.countAllTemp;
+
+                                                var a = new ShopeeExcelBayarPiutang
+                                                {
+                                                    //Tanggal = Convert.ToDateTime(dataPiutang.Tanggal),
+                                                    //PenerimaDana = Convert.ToString(dataPiutang.PenerimaDana),
+                                                    //JumlahDana = Convert.ToDouble(dataPiutang.JumlahDana),
+                                                    //Deskripsi = Convert.ToString(dataPiutang.Deskripsi),
+                                                    //Status = Convert.ToString(dataPiutang.Status),
+                                                    //Saldo = Convert.ToDouble(dataPiutang.Saldo)
+                                                    Tanggal = Convert.ToDateTime(cekCount[i].Tanggal),
+                                                    PenerimaDana = Convert.ToString(cekCount[i].PenerimaDana),
+                                                    JumlahDana = Convert.ToDouble(cekCount[i].JumlahDana),
+                                                    Deskripsi = Convert.ToString(cekCount[i].Deskripsi),
+                                                    Status = Convert.ToString(cekCount[i].Status),
+                                                    Saldo = Convert.ToDouble(cekCount[i].Saldo)
+                                                };
+                                                if (!string.IsNullOrEmpty(a.Deskripsi) && a.PenerimaDana == "Saldo Penjual")
+                                                {
+                                                    var getref = a.Deskripsi.Split('#');
+                                                    if (getref.Count() > 1)
+                                                    {
+                                                        TEMP_UPLOAD_EXCEL_BAYAR rec = new TEMP_UPLOAD_EXCEL_BAYAR()
+                                                        {
+                                                            NAMA_FILE = ret.TipeData,
+                                                            CUST = cust_id,
+                                                            MARKETPLACE = "SHOPEE",
+                                                            NOREF = getref.Last(),
+                                                            TGL = a.Tanggal,
+                                                            BAYAR = a.JumlahDana,
+                                                            POTONGAN = 0,
+                                                            NILAI_REF = a.JumlahDana,
+                                                            NILAI_LAIN = 0,
+                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                            SUDAH_INPUT = false,
+                                                            USERNAME = uname,
+                                                            KET = ""
+                                                        };
+                                                        temp_records.Add(rec);
+                                                        ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Add(rec);
+                                                        ErasoftDbContext.SaveChanges();
+                                                        //ret.sudahSimpanTemp = true;                                                        
+                                                    }
+                                                }
+
+                                                if (cekPer10 > 1000)
+                                                {
+                                                    if ((ret.progressTemp == temp40) || ret.percentTemp == 100)
+                                                    {
+                                                        ret.statusSuccessTemp = false;
+                                                        if (ret.percentTemp > 99 && ret.percentTemp <= 101)
+                                                        {
+                                                            ret.statusSuccessTemp = true;
+                                                            ret.statusLoopTemp = false;
+                                                            ret.sudahSimpanTemp = true;
+                                                        }
+                                                        if (tempPercent != ret.percentTemp)
+                                                        {
+                                                            if (ret.statusSuccessTemp == false)
+                                                            {
+                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else if (ret.percentTemp == 20 ||
+                                                ret.percentTemp == 40 ||
+                                                ret.percentTemp == 60 ||
+                                                ret.percentTemp == 80 ||
+                                                ret.percentTemp == 100)
+                                                {
+                                                    ret.statusSuccessTemp = false;
+                                                    if (ret.percentTemp > 99 && ret.percentTemp <= 101)
+                                                    {
+                                                        ret.statusSuccessTemp = true;
+                                                        ret.statusLoopTemp = false;
+                                                        ret.sudahSimpanTemp = true;
+                                                    }
+                                                    if (tempPercent != ret.percentTemp)
+                                                    {
+                                                        if (ret.statusSuccessTemp == false)
+                                                        {
+                                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            ret.Errors.Add("File " + ret.TipeData + " tidak ada data pembayaran.<br />");
+                                            ret.adaError = true;
+                                            TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                            {
+                                                LOG_FILE = ret.buktiLog,
+                                                VARIABLE_1 = ret.nobuk,
+                                                VARIABLE_2 = ret.TipeData,
+                                                TEXT_1 = "File " + ret.TipeData + " tidak ada data pembayaran.<br />",
+                                                TEXT_2 = "",
+                                                TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                USERNAME = uname
+                                            };
+                                            ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                            ErasoftDbContext.SaveChanges();
+                                            ret.TidakLanjutProses = true;
+                                            return Json(ret, JsonRequestBehavior.AllowGet);
                                         }
                                     }
                                     catch (Exception ex)
@@ -41246,6 +41367,10 @@ namespace MasterOnline.Controllers
 
                                 }
                                 System.IO.File.Delete(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile));
+                                if(ret.statusSuccessTemp == false)
+                                {
+                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                }
                             }
                             else if (ret.TipeData.Split('.').Last().ToLower().Contains("xls"))
                             {
@@ -41279,64 +41404,135 @@ namespace MasterOnline.Controllers
                                     {
                                         //loop all worksheets
                                         var worksheet = excelPackage.Workbook.Worksheets[1];
-                                        var cekAdaTemp = ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.FirstOrDefault();
-                                        if (cekAdaTemp != null)
+                                        string cekValid = worksheet.Cells[1, 1].Value == null ? "" : worksheet.Cells[1, 1].Value.ToString();
+                                        if (!string.IsNullOrEmpty(cekValid) && cekValid.Contains("Shopee"))
                                         {
-                                            ErasoftDbContext.Database.ExecuteSqlCommand("delete from TEMP_UPLOAD_EXCEL_BAYAR");
-                                        }
-                                        for (int i = 8; i <= worksheet.Dimension.End.Row; i++)
-                                        {
-                                            string cekValid = worksheet.Cells[1, 1].Value == null ? "" : worksheet.Cells[1, 1].Value.ToString();
-                                            if (!string.IsNullOrEmpty(cekValid) && cekValid.Contains("Shopee"))
+                                            if (ret.statusLoopTemp == false)
                                             {
-                                                //Columns start from A5, start mapping column
-                                                var a = new ShopeeExcelBayarPiutang
+                                                var cekAdaTemp = ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.FirstOrDefault();
+                                                if (cekAdaTemp != null)
                                                 {
-                                                    Tanggal = worksheet.Cells[i, 1].Value == null ? DateTime.Now : Convert.ToDateTime(worksheet.Cells[i, 1].Value),
-                                                    PenerimaDana = worksheet.Cells[i, 2].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 2].Value),
-                                                    JumlahDana = worksheet.Cells[i, 3].Value == null ? 0 : Convert.ToDouble(worksheet.Cells[i, 3].Value),
-                                                    Deskripsi = worksheet.Cells[i, 4].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 4].Value),
-                                                    Status = worksheet.Cells[i, 5].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 5].Value),
-                                                    Saldo = worksheet.Cells[i, 6].Value == null ? 0 : Convert.ToDouble(worksheet.Cells[i, 6].Value)
-                                                };
-                                                if (!string.IsNullOrEmpty(a.Deskripsi) && a.PenerimaDana == "Saldo Penjual")
+                                                    ErasoftDbContext.Database.ExecuteSqlCommand("delete from TEMP_UPLOAD_EXCEL_BAYAR");
+                                                }
+                                            }
+                                            ret.countAllTemp = worksheet.Dimension.End.Row - 7;
+                                            //for (int i = 8; i <= worksheet.Dimension.End.Row; i++)
+                                            if (ret.countAllTemp > 0)
+                                            {
+                                                if (ret.statusLoop == true)
                                                 {
-                                                    var getref = a.Deskripsi.Split('#');
-                                                    if (getref.Count() > 1)
+                                                    progTemp[1] = Convert.ToString(Convert.ToInt32(progTemp[1]) - 1);
+                                                }
+                                                
+                                                if (Convert.ToInt32(progTemp[1]) == 0)
+                                                {
+                                                    progTemp[1] = "0";
+                                                }
+                                                ret.TidakLanjutProses = false;
+                                                ret.statusLoopTemp = true;
+                                                var tempPercent = Convert.ToInt32(progTemp[0]);
+                                                var cekPer10 = (ret.countAllTemp / 4);
+                                                var temp40 = Convert.ToInt32(progTemp[1]) + 1000;
+
+                                                for (int i = Convert.ToInt32(progTemp[1]) + 8; i < worksheet.Dimension.End.Row; i++)
+                                                {
+                                                    ret.TidakLanjutProses = false;
+                                                    ret.statusLoopTemp = true;
+                                                    ret.progressTemp = i + 1;
+                                                    ret.percentTemp = ((i + 1) * 100) / ret.countAllTemp;
+
+
+                                                    //Columns start from A5, start mapping column
+                                                    var a = new ShopeeExcelBayarPiutang
                                                     {
-                                                        TEMP_UPLOAD_EXCEL_BAYAR rec = new TEMP_UPLOAD_EXCEL_BAYAR()
+                                                        Tanggal = worksheet.Cells[i, 1].Value == null ? DateTime.Now : Convert.ToDateTime(worksheet.Cells[i, 1].Value),
+                                                        PenerimaDana = worksheet.Cells[i, 2].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 2].Value),
+                                                        JumlahDana = worksheet.Cells[i, 3].Value == null ? 0 : Convert.ToDouble(worksheet.Cells[i, 3].Value),
+                                                        Deskripsi = worksheet.Cells[i, 4].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 4].Value),
+                                                        Status = worksheet.Cells[i, 5].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 5].Value),
+                                                        Saldo = worksheet.Cells[i, 6].Value == null ? 0 : Convert.ToDouble(worksheet.Cells[i, 6].Value)
+                                                    };
+                                                    if (!string.IsNullOrEmpty(a.Deskripsi) && a.PenerimaDana == "Saldo Penjual")
+                                                    {
+                                                        var getref = a.Deskripsi.Split('#');
+                                                        if (getref.Count() > 1)
                                                         {
-                                                            NAMA_FILE = ret.TipeData,
-                                                            CUST = cust_id,
-                                                            MARKETPLACE = "SHOPEE",
-                                                            NOREF = getref.Last(),
-                                                            TGL = a.Tanggal,
-                                                            BAYAR = a.JumlahDana,
-                                                            POTONGAN = 0,
-                                                            NILAI_REF = a.JumlahDana,
-                                                            NILAI_LAIN = 0,
-                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                            SUDAH_INPUT = false,
-                                                            USERNAME = uname,
-                                                            KET = ""
-                                                        };
-                                                        temp_records.Add(rec);
-                                                        ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Add(rec);
-                                                        ErasoftDbContext.SaveChanges();
-                                                        ret.sudahSimpanTemp = true;
+                                                            TEMP_UPLOAD_EXCEL_BAYAR rec = new TEMP_UPLOAD_EXCEL_BAYAR()
+                                                            {
+                                                                NAMA_FILE = ret.TipeData,
+                                                                CUST = cust_id,
+                                                                MARKETPLACE = "SHOPEE",
+                                                                NOREF = getref.Last(),
+                                                                TGL = a.Tanggal,
+                                                                BAYAR = a.JumlahDana,
+                                                                POTONGAN = 0,
+                                                                NILAI_REF = a.JumlahDana,
+                                                                NILAI_LAIN = 0,
+                                                                TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                                SUDAH_INPUT = false,
+                                                                USERNAME = uname,
+                                                                KET = ""
+                                                            };
+                                                            temp_records.Add(rec);
+                                                            ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Add(rec);
+                                                            ErasoftDbContext.SaveChanges();
+                                                            //ret.sudahSimpanTemp = true;
+                                                        }
+                                                    }
+
+                                                    if (cekPer10 > 1000)
+                                                    {
+                                                        if ((ret.progressTemp == temp40) || ret.percentTemp == 100)
+                                                        {
+                                                            ret.statusSuccessTemp = false;
+                                                            if (ret.percentTemp > 99 && ret.percentTemp <= 101)
+                                                            {
+                                                                ret.statusSuccessTemp = true;
+                                                                ret.statusLoopTemp = false;
+                                                                ret.sudahSimpanTemp = true;
+                                                            }
+                                                            if (tempPercent != ret.percentTemp)
+                                                            {
+                                                                if (ret.statusSuccessTemp == false)
+                                                                {
+                                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    else if (ret.percentTemp == 20 ||
+                                                    ret.percentTemp == 40 ||
+                                                    ret.percentTemp == 60 ||
+                                                    ret.percentTemp == 80 ||
+                                                    ret.percentTemp == 100)
+                                                    {
+                                                        ret.statusSuccessTemp = false;
+                                                        if (ret.percentTemp > 99 && ret.percentTemp <= 101)
+                                                        {
+                                                            ret.statusSuccessTemp = true;
+                                                            ret.statusLoopTemp = false;
+                                                            ret.sudahSimpanTemp = true;
+                                                        }
+                                                        if (tempPercent != ret.percentTemp)
+                                                        {
+                                                            if (ret.statusSuccessTemp == false)
+                                                            {
+                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
                                             else
                                             {
-                                                ret.Errors.Add("File bukan data pembayaran Shopee.<br />");
+                                                ret.Errors.Add("File " + ret.TipeData + " tidak ada data pembayaran.<br />");
                                                 ret.adaError = true;
                                                 TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
                                                 {
                                                     LOG_FILE = ret.buktiLog,
                                                     VARIABLE_1 = ret.nobuk,
                                                     VARIABLE_2 = ret.TipeData,
-                                                    TEXT_1 = "File bukan data pembayaran Shopee.<br />",
+                                                    TEXT_1 = "File " + ret.TipeData + " tidak ada data pembayaran.<br />",
                                                     TEXT_2 = "",
                                                     TGL_INPUT = DateTime.UtcNow.AddHours(7),
                                                     USERNAME = uname
@@ -41347,19 +41543,38 @@ namespace MasterOnline.Controllers
                                                 return Json(ret, JsonRequestBehavior.AllowGet);
                                             }
                                         }
+                                        else
+                                        {
+                                            ret.Errors.Add("File bukan data pembayaran Shopee.<br />");
+                                            ret.adaError = true;
+                                            TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                            {
+                                                LOG_FILE = ret.buktiLog,
+                                                VARIABLE_1 = ret.nobuk,
+                                                VARIABLE_2 = ret.TipeData,
+                                                TEXT_1 = "File bukan data pembayaran Shopee.<br />",
+                                                TEXT_2 = "",
+                                                TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                USERNAME = uname
+                                            };
+                                            ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                            ErasoftDbContext.SaveChanges();
+                                            ret.TidakLanjutProses = true;
+                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                        }
                                     }
                                 }
                             }
                             else
                             {
-                                ret.Errors.Add("File " + Request.Files[0].FileName + " setidaknya harus dalam format '.xls' atau '.xlsx' atau '.csv'.<br />");
+                                ret.Errors.Add("File " + ret.TipeData + " setidaknya harus dalam format '.xls' atau '.xlsx' atau '.csv'.<br />");
                                 ret.adaError = true;
                                 TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
                                 {
                                     LOG_FILE = ret.buktiLog,
                                     VARIABLE_1 = ret.nobuk,
                                     VARIABLE_2 = ret.TipeData,
-                                    TEXT_1 = "File " + Request.Files[0].FileName + " setidaknya harus dalam format '.xls' atau '.xlsx' atau '.csv'.<br />",
+                                    TEXT_1 = "File " + ret.TipeData + " setidaknya harus dalam format '.xls' atau '.xlsx' atau '.csv'.<br />",
                                     TEXT_2 = "",
                                     TGL_INPUT = DateTime.UtcNow.AddHours(7),
                                     USERNAME = uname
@@ -41413,7 +41628,8 @@ namespace MasterOnline.Controllers
                             List<TEMP_UPLOAD_EXCEL_BAYAR> data_proses_lanjut = new List<TEMP_UPLOAD_EXCEL_BAYAR>();
                             List<ART03B> list_detail = new List<ART03B>();
                             #region create induk
-                            if (temp_records.Count() > 0)
+                            //if (temp_records.Count() > 0)
+                            if (ret.countAllTemp > 0 && ret.statusLoopDownload == false && ret.statusSuccessTemp == true)
                             {
                                 if (ret.statusLoop == false)
                                 {
@@ -41436,7 +41652,8 @@ namespace MasterOnline.Controllers
                                         TGL = Convert.ToDateTime(tgl),
                                         CUST = cust_id,
                                         //add logfile u/ save log name and count record process
-                                        log_file = ret.buktiLog + ";" + temp_records.Count().ToString()
+                                        //log_file = ret.buktiLog + ";" + temp_records.Count().ToString()
+                                        log_file = ret.buktiLog + ";" + ret.countAllTemp.ToString()
                                     };
 
                                     var lastBukti = GenerateAutoNumber(ErasoftDbContext, "CR", "ART03A", "BUKTI");
@@ -41467,8 +41684,6 @@ namespace MasterOnline.Controllers
                                     try
                                     {
                                         ErasoftDbContext.ART03A.Add(art03a);
-
-
                                         ErasoftDbContext.SaveChanges();
                                     }
                                     catch (Exception ex)
@@ -41512,20 +41727,20 @@ namespace MasterOnline.Controllers
                                     ret.TPOT = art03a.TPOT;
                                     ret.TBAYAR = art03a.TBAYAR;
                                     ret.TLEBIHBAYAR = Convert.ToDouble(art03a.TLEBIH_BAYAR);
-                                    if (temp_records.Count() > 0)
-                                    {
-                                        var string_rec = "";
-                                        foreach (var rec1 in temp_records)
-                                        {
-                                            if (string_rec != "")
-                                            {
-                                                string_rec += ",";
-                                            }
-                                            string_rec += "'" + rec1.RECNUM + "'";
-                                        }
-                                        ErasoftDbContext.Database.ExecuteSqlCommand("update TEMP_UPLOAD_EXCEL_BAYAR set ket = '" + art03a.BUKTI + "' where RECNUM in (" + string_rec + ")");
-                                    }
-
+                                    //if (temp_records.Count() > 0)
+                                    //{
+                                    //    var string_rec = "";
+                                    //    foreach (var rec1 in temp_records)
+                                    //    {
+                                    //        if (string_rec != "")
+                                    //        {
+                                    //            string_rec += ",";
+                                    //        }
+                                    //        string_rec += "'" + rec1.RECNUM + "'";
+                                    //    }
+                                    //    ErasoftDbContext.Database.ExecuteSqlCommand("update TEMP_UPLOAD_EXCEL_BAYAR set ket = '" + art03a.BUKTI + "' where RECNUM in (" + string_rec + ")");
+                                    //}
+                                    ErasoftDbContext.Database.ExecuteSqlCommand("update TEMP_UPLOAD_EXCEL_BAYAR set ket = '" + art03a.BUKTI + "'");
 
                                     List<string> list_ref = new List<string>();
                                     list_ref = ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == ret.nobuk && a.NAMA_FILE == ret.TipeData && a.CUST == cust_id).Select(A => A.NOREF).ToList();
@@ -41737,7 +41952,10 @@ namespace MasterOnline.Controllers
                                 var ssql2 = "select * from TEMP_UPLOAD_EXCEL_BAYAR where ket = '" + ret.nobuk + "' and cust ='" + cust_id + "' and nama_file = '" + ret.TipeData + "'";
                                 data_proses.AddRange(ErasoftDbContext.Database.SqlQuery<TEMP_UPLOAD_EXCEL_BAYAR>(ssql2).ToList());
                                 ret.countAllDownload = data_proses.Count();
-                                progDownload[1] = Convert.ToString(Convert.ToInt32(progDownload[1]) - 1);
+                                if (ret.statusLoop == true)
+                                {
+                                    progDownload[1] = Convert.ToString(Convert.ToInt32(progDownload[1]) - 1);
+                                }
                                 if (Convert.ToInt32(progDownload[1]) == 0)
                                 {
                                     progDownload[1] = "0";
@@ -41777,7 +41995,13 @@ namespace MasterOnline.Controllers
                                             ret.statusLoopDownload = true;
                                             ret.progressDownload = countProcess + 1;
                                             ret.percentDownload = ((countProcess + 1) * 100) / ret.countAllDownload;
-                                            if (cekListSIKosong.Count() - (i + 1) > 0)
+                                            var a = cekSudahAda.Count();
+                                            var b = cekListSIKosong.Count();
+                                            var c = cekLunas.Count();
+                                            var cek1 = cekListSIKosong.Count() - (i);
+                                            int cek2 = Convert.ToInt32(a - (i - b));
+                                            var cek3 = Convert.ToInt32(c - (i - (a + b)));
+                                            if (cekListSIKosong.Count() - (i) > 0)
                                             {
                                                 ret.adaError = true;
                                                 if (ret.buktiLog != "")
@@ -41796,9 +42020,9 @@ namespace MasterOnline.Controllers
                                                     ErasoftDbContext.SaveChanges();
                                                 }
                                             }
-                                            else if (cekSudahAda.Count() - (i + 1) > 0)
+                                            else if (cek2 > 0)
                                             {
-                                                var indexAda = i - cekListSIKosong.Count() - 1;
+                                                var indexAda = (i) - cekListSIKosong.Count();
                                                 ret.adaError = true;
                                                 if (ret.buktiLog != "")
                                                 {
@@ -41816,9 +42040,9 @@ namespace MasterOnline.Controllers
                                                     ErasoftDbContext.SaveChanges();
                                                 }
                                             }
-                                            else if (cekLunas.Count() - (i + 1) > 0)
+                                            else if (cek3 > 0)
                                             {
-                                                var indexLunas = i - (cekListSIKosong.Count() + cekSudahAda.Count()) - 1;
+                                                var indexLunas = (i) - (cekListSIKosong.Count() + cekSudahAda.Count());
                                                 ret.adaError = true;
                                                 if (ret.buktiLog != "")
                                                 {
@@ -44936,7 +45160,13 @@ namespace MasterOnline.Controllers
                                                 ret.statusLoopDownload = true;
                                                 ret.progressDownload = countProcess + 1;
                                                 ret.percentDownload = ((countProcess + 1) * 100) / ret.countAllDownload;
-                                                if (cekListSIKosong.Count() - (i + 1) > 0)
+                                                var a = cekSudahAda.Count();
+                                                var b = cekListSIKosong.Count();
+                                                var c = cekLunas.Count();
+                                                var cek1 = cekListSIKosong.Count() - (i);
+                                                int cek2 = Convert.ToInt32(a - (i - b));
+                                                var cek3 = Convert.ToInt32(c - (i - (a + b)));
+                                                if (cekListSIKosong.Count() - (i) > 0)
                                                 {
                                                     ret.adaError = true;
                                                     if (ret.buktiLog != "")
@@ -44955,9 +45185,9 @@ namespace MasterOnline.Controllers
                                                         ErasoftDbContext.SaveChanges();
                                                     }
                                                 }
-                                                else if (cekSudahAda.Count() - (i + 1) > 0)
+                                                else if (cek2 > 0)
                                                 {
-                                                    var indexAda = i - cekListSIKosong.Count() - 1;
+                                                    var indexAda = (i) - cekListSIKosong.Count();
                                                     ret.adaError = true;
                                                     if (ret.buktiLog != "")
                                                     {
@@ -44975,9 +45205,9 @@ namespace MasterOnline.Controllers
                                                         ErasoftDbContext.SaveChanges();
                                                     }
                                                 }
-                                                else if (cekLunas.Count() - (i + 1) > 0)
+                                                else if (cek3 > 0)
                                                 {
-                                                    var indexLunas = i - (cekListSIKosong.Count() + cekSudahAda.Count()) - 1;
+                                                    var indexLunas = (i) - (cekListSIKosong.Count() + cekSudahAda.Count());
                                                     ret.adaError = true;
                                                     if (ret.buktiLog != "")
                                                     {
@@ -46746,7 +46976,13 @@ namespace MasterOnline.Controllers
                                                 ret.statusLoopDownload = true;
                                                 ret.progressDownload = countProcess + 1;
                                                 ret.percentDownload = ((countProcess + 1) * 100) / ret.countAllDownload;
-                                                if (cekListSIKosong.Count() - (i + 1) > 0)
+                                                var a = cekSudahAda.Count();
+                                                var b = cekListSIKosong.Count();
+                                                var c = cekLunas.Count();
+                                                var cek1 = cekListSIKosong.Count() - (i);
+                                                int cek2 = Convert.ToInt32(a - (i - b));
+                                                var cek3 = Convert.ToInt32(c - (i - (a + b)));
+                                                if (cekListSIKosong.Count() - (i) > 0)
                                                 {
                                                     ret.adaError = true;
                                                     if (ret.buktiLog != "")
@@ -46765,9 +47001,9 @@ namespace MasterOnline.Controllers
                                                         ErasoftDbContext.SaveChanges();
                                                     }
                                                 }
-                                                else if (cekSudahAda.Count() - (i + 1) > 0)
+                                                else if (cek2 > 0)
                                                 {
-                                                    var indexAda = i - cekListSIKosong.Count() - 1;
+                                                    var indexAda = (i) - cekListSIKosong.Count();
                                                     ret.adaError = true;
                                                     if (ret.buktiLog != "")
                                                     {
@@ -46785,9 +47021,9 @@ namespace MasterOnline.Controllers
                                                         ErasoftDbContext.SaveChanges();
                                                     }
                                                 }
-                                                else if (cekLunas.Count() - (i + 1) > 0)
+                                                else if (cek3 > 0)
                                                 {
-                                                    var indexLunas = i - (cekListSIKosong.Count() + cekSudahAda.Count()) - 1;
+                                                    var indexLunas = (i) - (cekListSIKosong.Count() + cekSudahAda.Count());
                                                     ret.adaError = true;
                                                     if (ret.buktiLog != "")
                                                     {
@@ -49127,7 +49363,13 @@ namespace MasterOnline.Controllers
                                                 ret.statusLoopDownload = true;
                                                 ret.progressDownload = countProcess + 1;
                                                 ret.percentDownload = ((countProcess + 1) * 100) / ret.countAllDownload;
-                                                if (cekListSIKosong.Count() - (i + 1) > 0)
+                                                var a = cekSudahAda.Count();
+                                                var b = cekListSIKosong.Count();
+                                                var c = cekLunas.Count();
+                                                var cek1 = cekListSIKosong.Count() - (i);
+                                                int cek2 = Convert.ToInt32(a - (i - b));
+                                                var cek3 = Convert.ToInt32(c - (i - (a + b)));
+                                                if (cekListSIKosong.Count() - (i) > 0)
                                                 {
                                                     ret.adaError = true;
                                                     if (ret.buktiLog != "")
@@ -49146,9 +49388,9 @@ namespace MasterOnline.Controllers
                                                         ErasoftDbContext.SaveChanges();
                                                     }
                                                 }
-                                                else if (cekSudahAda.Count() - (i + 1) > 0)
+                                                else if (cek2 > 0)
                                                 {
-                                                    var indexAda = i - cekListSIKosong.Count() - 1;
+                                                    var indexAda = (i) - cekListSIKosong.Count();
                                                     ret.adaError = true;
                                                     if (ret.buktiLog != "")
                                                     {
@@ -49166,9 +49408,9 @@ namespace MasterOnline.Controllers
                                                         ErasoftDbContext.SaveChanges();
                                                     }
                                                 }
-                                                else if (cekLunas.Count() - (i + 1) > 0)
+                                                else if (cek3 > 0)
                                                 {
-                                                    var indexLunas = i - (cekListSIKosong.Count() + cekSudahAda.Count()) - 1;
+                                                    var indexLunas = (i) - (cekListSIKosong.Count() + cekSudahAda.Count());
                                                     ret.adaError = true;
                                                     if (ret.buktiLog != "")
                                                     {
