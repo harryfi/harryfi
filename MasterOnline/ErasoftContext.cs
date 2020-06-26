@@ -424,6 +424,10 @@ namespace MasterOnline
         public virtual DbSet<TEMP_82CART_ORDERS_ITEM> TEMP_82CART_ORDERS_ITEM { get; set; }
         public DbSet<CATEGORY_82CART> Category82Cart { get; set; }
         //end by fauzi for 82cart
+        //add by fauzi for shopify
+        public virtual DbSet<TEMP_SHOPIFY_ORDERS> TEMP_SHOPIFY_ORDERS { get; set; }
+        public virtual DbSet<TEMP_SHOPIFY_ORDERS_ITEM> TEMP_SHOPIFY_ORDERS_ITEM { get; set; }
+        //end by fauzi
         //add by fauzi for upload saldo awal upgrade
         public virtual DbSet<TEMP_SALDOAWAL> TEMP_SALDOAWAL { get; set; }
         //end by fauzi for upload saldo awal upgrade

@@ -321,6 +321,8 @@
     <Compile Include="Controllers\EightTwoCartControllerJob.cs" />
     <Compile Include="Controllers\JDIDControllerJob.cs" />
     <Compile Include="Controllers\ExcelControllerJob.cs" />
+    <Compile Include="Controllers\ShopifyController.cs" />
+    <Compile Include="Controllers\ShopifyControllerJob.cs" />
     <Compile Include="Controllers\StokControllerJob.cs" />
     <Compile Include="Controllers\BlibliControllerJob.cs" />
     <Compile Include="Controllers\BlibliController.cs" />
