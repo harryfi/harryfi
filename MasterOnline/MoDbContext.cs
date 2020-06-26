@@ -43,6 +43,9 @@ namespace MasterOnline
         public DbSet<CATEGORY_BUKALAPAK> CATEGORY_BUKALAPAKs { get; set; }
         public DbSet<BRAND_LAZADA> BrandLazada { get; set; }
 
+
+        public DbSet<CATEGORY_SHOPIFY> CategoryShopify { get; set; }
+
         //add by fauzi for 82cart
         public DbSet<CATEGORY_82CART> Category82Cart { get; set; }
         public DbSet<ATTRIBUTE_82CART> Attribute82Cart { get; set; }

@@ -56,6 +56,7 @@
         InitSettingVariantElevenia();
         InitSettingVariantJdid();
         InitSettingVariant82Cart();
+        InitSettingVariantshopify();
 
         $('#variant-tabs a:first').tab('show');
         $('#variant-tabs a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -71,6 +72,12 @@
                 var fieldCategoryName = '#ListHargaJualPermarket_' + $('#txt82CartCategoryCodeFound').val() + '__CATEGORY_NAME';
                 $('#txtKodeKategori82Cart').val($(fieldCategoryCode).val());
                 $('#txtNamaKategori82Cart').val($(fieldCategoryName).val());
+            }
+            if ((target == '#shopify_detail_tab_variant')) {
+                var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtshopifyCategoryCodeFound').val() + '__CATEGORY_CODE';
+                var fieldCategoryName = '#ListHargaJualPermarket_' + $('#txtshopifyCategoryCodeFound').val() + '__CATEGORY_NAME';
+                $('#txtKodeKategorishopify').val($(fieldCategoryCode).val());
+                $('#txtNamaKategorishopify').val($(fieldCategoryName).val());
             }
             if ((target == '#tokped_detail_tab_variant')) {
                 var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtTokpedCategoryCodeFound').val() + '__CATEGORY_CODE';
@@ -177,6 +184,47 @@
         }
         else {
             $('#e2cart_detail_tab_variant_button').remove();
+        }
+    }
+
+    function InitSettingVariantshopify() {
+        if ($('#txtshopifyCategoryCodeFound').val() > -1) {
+            var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtshopifyCategoryCodeFound').val() + '__CATEGORY_CODE';
+            var fieldCategoryName = '#ListHargaJualPermarket_' + $('#txtshopifyCategoryCodeFound').val() + '__CATEGORY_NAME';
+            $(fieldCategoryCode).change(function () {
+                $('#txtKodeKategorishopify').val($(fieldCategoryCode).val());
+            });
+            $(fieldCategoryName).change(function () {
+                $('#txtNamaKategorishopify').val($(fieldCategoryName).val());
+            });
+
+            $('.txtJudulVariantshopifyLv').each(function () {
+                var $this = $(this);
+                $this.off('change').on('change', function () {
+                    $('#save_map_var_shopify').removeAttr('disabled');
+                });
+            });
+            $('.txtVariantshopifyLv1_').each(function () {
+                var $this = $(this);
+                $this.off('change').on('change', function () {
+                    $('#save_map_var_shopify').removeAttr('disabled');
+                });
+            });
+            $('.txtVariantshopifyLv2_').each(function () {
+                var $this = $(this);
+                $this.off('change').on('change', function () {
+                    $('#save_map_var_shopify').removeAttr('disabled');
+                });
+            });
+            $('.txtVariantshopifyLv3_').each(function () {
+                var $this = $(this);
+                $this.off('change').on('change', function () {
+                    $('#save_map_var_shopify').removeAttr('disabled');
+                });
+            });
+        }
+        else {
+            $('#shopify_detail_tab_variant_button').remove();
         }
     }
 
@@ -1170,6 +1218,19 @@
             }
             //END CEK 82CART
 
+            //CEK SHOPIFY
+            var shopify_code = "";
+            var ada_shopify = false;
+            if ($('#txtshopifyCategoryCodeFound').val() != undefined) {
+                if ($('#txtshopifyCategoryCodeFound').val() > -1) {
+                    ada_shopify = true;
+                    var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtshopifyCategoryCodeFound').val() + '__CATEGORY_CODE';
+                    shopify_code = $(fieldCategoryCode).val();
+                    validasiProsesBarangVarPartialshopify();
+                }
+            }
+            //END CEK SHOPIFY
+
             //CEK TOKPED
             var tokped_code = "";
             var ada_tokped = false;
@@ -1230,6 +1291,7 @@
                     blibli_code: blibli_code,
                     lazada_code: lazada_code,
                     e2cart_code: e2cart_code,
+                    shopify_code: shopify_code,
                     code: $('#txtKodeKategori').val(),
                     opt_selected_1: $('#select_opt_level_1').val(),
                     opt_selected_2: $('#select_opt_level_2').val(),
@@ -1276,6 +1338,15 @@
             if ($(fieldCategoryCode).val() == null || $(fieldCategoryCode).val() == "") {
                 validasi_prosesBarangVarPartial = false;
                 message_validasi_prosesBarangVarPartial = "Category 82Cart harus dipilih terlebih dahulu.";
+            }
+        }
+    }
+    function validasiProsesBarangVarPartialshopify() {
+        var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtshopifyCategoryCodeFound').val() + '__CATEGORY_CODE';
+        if ($(fieldCategoryCode).val() != undefined) {
+            if ($(fieldCategoryCode).val() == null || $(fieldCategoryCode).val() == "") {
+                validasi_prosesBarangVarPartial = false;
+                message_validasi_prosesBarangVarPartial = "Category Shopify harus dipilih terlebih dahulu.";
             }
         }
     }
@@ -3797,6 +3868,317 @@
                                 <div class="form-group">
                                     <div class="col-md-12 col-sm-12 col-xs-12" style="margin: auto;display: flex;flex-direction: row;justify-content: center;">
                                         <input type="button" class="btn btn-primary pull-right" id="save_map_var_82Cart" disabled="disabled" style="margin:0px;padding-left:10px;padding-right:10px" value="Simpan" onclick="SaveMapVar82Cart()" />
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div id="shopify_detail_tab_variant" class="tab-pane fade in">
+                <div class="row" style="padding-top:10px">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="form-group" style="display:none">
+                            @Html.Label("lblKodeKategorishopify", "Kode Kategori", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                @Html.TextBox("txtKodeKategorishopify", "", new { @class = "form-control", disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("lblNamaKategoriMOshopify", "Kategori MO", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                @Html.TextBox("txtNamaKategoriMOshopify", Model.Kategori.KET, new { @class = "form-control", disabled = "disabled" })
+                            </div>
+                            @Html.Label("lblNamaKategorishopify", "Kategori shopify", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                @Html.TextBox("txtNamaKategorishopify", "", new { @class = "form-control", disabled = "disabled" })
+                            </div>
+                        </div>
+                        @{
+                            var adaSettingshopify = false;
+                            var VariantPerMpshopifyLv1 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 1 && p.CATEGORY_MO == code_kategori && p.MARKET == "SHOPIFY").OrderBy(p => p.RECNUM).ToList();
+                            if (VariantPerMpshopifyLv1.Count() > 0)
+                            {
+                                adaSettingshopify = true;
+                                var textJudulVar1 = "";
+                                var judulVar1 = VariantPerMpshopifyLv1.FirstOrDefault();
+                                if (judulVar1 != null)
+                                {
+                                    textJudulVar1 = judulVar1.MP_JUDUL_VAR;
+                                }
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Shopify</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOshopifyLv1", Model.Variant_Level_1.VALUE_JUDUL_VAR, new
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulVariantshopifyLv1", textJudulVar1, new
+                                                               {
+                                                                   @class = "form-control txtJudulVariantshopifyLv",
+                                                                   placeholder = "Nama Variasi"
+                                                               })
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Shopify</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpshopifyLv1.Count(); i++)
+                                                            {
+                                                                var textKetVar1 = "";
+                                                                var KetVar1 = VariantOptMasterLv1.Where(p => p.KODE_VAR == VariantPerMpshopifyLv1[i].KODE_VAR).FirstOrDefault();
+                                                                if (KetVar1 != null)
+                                                                {
+                                                                    textKetVar1 = KetVar1.KET_VAR;
+                                                                }
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOshopifyLv1", textKetVar1, new
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("txtVariantshopifyLv1_" + VariantPerMpshopifyLv1[i].RECNUM, VariantPerMpshopifyLv1[i].MP_VALUE_VAR, new
+                                                                   {
+                                                                       @class = "form-control txtVariantshopifyLv1_",
+                                                                       placeholder = "Nama Opsi"
+                                                                   })
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+
+                            var VariantPerMpshopifyLv2 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 2 && p.CATEGORY_MO == code_kategori && p.MARKET == "SHOPIFY").OrderBy(p => p.RECNUM).ToList();
+                            if (VariantPerMpshopifyLv2.Count() > 0)
+                            {
+                                adaSettingshopify = true;
+                                var textJudulVar2 = "";
+                                var judulVar2 = VariantPerMpshopifyLv2.FirstOrDefault();
+                                if (judulVar2 != null)
+                                {
+                                    textJudulVar2 = judulVar2.MP_JUDUL_VAR;
+                                }
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Shopify</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOshopifyLv2", Model.Variant_Level_2.VALUE_JUDUL_VAR, new
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulVariantshopifyLv2", textJudulVar2, new
+                                                               {
+                                                                   @class = "form-control txtJudulVariantshopifyLv",
+                                                                   placeholder = "Nama Variasi"
+                                                               })
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Shopify</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpshopifyLv2.Count(); i++)
+                                                            {
+                                                                var textKetVar2 = "";
+                                                                var KetVar2 = VariantOptMasterLv2.Where(p => p.KODE_VAR == VariantPerMpshopifyLv2[i].KODE_VAR).FirstOrDefault();
+                                                                if (KetVar2 != null)
+                                                                {
+                                                                    textKetVar2 = KetVar2.KET_VAR;
+                                                                }
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOshopifyLv2", textKetVar2, new
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("txtVariantshopifyLv2_" + VariantPerMpshopifyLv2[i].RECNUM, VariantPerMpshopifyLv2[i].MP_VALUE_VAR, new
+                                                                   {
+                                                                       @class = "form-control txtVariantshopifyLv2_",
+                                                                       placeholder = "Nama Opsi"
+                                                                   })
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+
+                            var VariantPerMpshopifyLv3 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 3 && p.CATEGORY_MO == code_kategori && p.MARKET == "SHOPIFY").OrderBy(p => p.RECNUM).ToList();
+                            if (VariantPerMpshopifyLv3.Count() > 0)
+                            {
+                                adaSettingshopify = true;
+                                var textJudulVar3 = "";
+                                var judulVar3 = VariantPerMpshopifyLv3.FirstOrDefault();
+                                if (judulVar3 != null)
+                                {
+                                    textJudulVar3 = judulVar3.MP_JUDUL_VAR;
+                                }
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none; text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Shopify</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOshopifyLv3", Model.Variant_Level_3.VALUE_JUDUL_VAR, new
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulVariantshopifyLv3", textJudulVar3, new
+                                                               {
+                                                                   @class = "form-control txtJudulVariantshopifyLv",
+                                                                   placeholder = "Nama Variasi"
+                                                               })
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Shopify</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpshopifyLv3.Count(); i++)
+                                                            {
+                                                                var textKetVar3 = "";
+                                                                var KetVar3 = VariantOptMasterLv3.Where(p => p.KODE_VAR == VariantPerMpshopifyLv3[i].KODE_VAR).FirstOrDefault();
+                                                                if (KetVar3 != null)
+                                                                {
+                                                                    textKetVar3 = KetVar3.KET_VAR;
+                                                                }
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOshopifyLv3", textKetVar3, new
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("txtVariantshopifyLv3_" + VariantPerMpshopifyLv3[i].RECNUM, VariantPerMpshopifyLv3[i].MP_VALUE_VAR, new
+                                                                   {
+                                                                       @class = "form-control txtVariantshopifyLv3_",
+                                                                       placeholder = "Nama Opsi"
+                                                                   })
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+                            if (adaSettingshopify)
+                            {
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12" style="margin: auto;display: flex;flex-direction: row;justify-content: center;">
+                                        <input type="button" class="btn btn-primary pull-right" id="save_map_var_shopify" disabled="disabled" style="margin:0px;padding-left:10px;padding-right:10px" value="Simpan" onclick="SaveMapVarshopify()" />
                                     </div>
                                 </div>
                             }

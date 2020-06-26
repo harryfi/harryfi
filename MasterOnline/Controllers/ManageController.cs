@@ -3569,6 +3569,18 @@ namespace MasterOnline.Controllers
                 }
                 //add by nurul, tambah validasi duplikat nama akun jika offline
 
+                //add by fauzi handle field password tidak dipakai untuk marketplace SHOPIFY karena lengthnya 20. jadi menggunakan field API_CLIENT_P dengan lenght 
+                if (getMP.ToUpper() == "SHOPIFY")
+                {
+
+                    if (!string.IsNullOrWhiteSpace(customer.Customers.PASSWORD))
+                    {
+                        customer.Customers.PASSWORD = "";
+                    }
+                    customer.Customers.TLP = ".";
+                }
+                //end 
+
                 //add by fauzi handle field password tidak dipakai untuk marketplace 82Cart
                 if (getMP.ToUpper() == "82CART")
                 {
@@ -3634,6 +3646,17 @@ namespace MasterOnline.Controllers
                     //}
                 }
                 //add by nurul, tambah validasi duplikat nama akun jika offline
+
+                //add by fauzi handle field password tidak dipakai untuk marketplace SHOPIFY karena lengthnya 20. jadi menggunakan field API_CLIENT_P dengan lenght 
+                if (getMP.ToUpper() == "SHOPIFY")
+                {
+                    if (!string.IsNullOrWhiteSpace(customer.Customers.PASSWORD))
+                    {
+                        customer.Customers.PASSWORD = "";
+                    }
+                    customer.Customers.TLP = ".";
+                }
+                //end 
 
                 //add by fauzi handle field password tidak dipakai untuk marketplace 82cart
                 if (getMP.ToUpper() == "82CART")
@@ -3759,6 +3782,23 @@ namespace MasterOnline.Controllers
                 };
                 TokopediaController tokopediaApi = new TokopediaController();
                 Task.Run(() => tokopediaApi.GetToken(dataTokped)).Wait();
+            }
+            #endregion
+
+            #region shopify
+            else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPIFY").IdMarket.ToString()))
+            {
+                ShopifyController.ShopifyAPIData dataShopify = new ShopifyController.ShopifyAPIData
+                {
+                    no_cust = kdCustomer, //no ID Customer
+                    account_store = customer.Customers.PERSO, //account store name
+                    API_password = customer.Customers.API_CLIENT_P, //API Password
+                    API_key = customer.Customers.API_KEY, //API Key
+                    email = customer.Customers.EMAIL, //recnum
+                    DatabasePathErasoft = dbPathEra,
+                };
+                ShopifyController shopifyApi = new ShopifyController();
+                Task.Run(() => shopifyApi.Shopify_GetAccount(dataShopify)).Wait();
             }
             #endregion
 
@@ -6299,6 +6339,62 @@ namespace MasterOnline.Controllers
         #endregion
         //end add by calvin 18 desember 2018
 
+        //add by fauzi for shopify 05 Maret 2020
+        #region Kategori Shopify
+        [HttpGet]
+        public ActionResult GetKategoriShopifyByChildCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            List<CATEGORY_SHOPEE> listKategoriShopee = new List<CATEGORY_SHOPEE>();
+            if (!string.IsNullOrEmpty(code))
+            {
+                var category = MoDbContext.CategoryShopee.Where(k => codelist.Contains(k.CATEGORY_CODE)).FirstOrDefault();
+                listKategoriShopee.Add(category);
+
+                if (category.PARENT_CODE != "")
+                {
+                    bool TopParent = false;
+                    while (!TopParent)
+                    {
+                        category = MoDbContext.CategoryShopee.Where(k => k.CATEGORY_CODE.Equals(category.PARENT_CODE)).FirstOrDefault();
+                        listKategoriShopee.Add(category);
+                        if (string.IsNullOrEmpty(category.PARENT_CODE))
+                        {
+                            TopParent = true;
+                        }
+                    }
+                }
+            }
+            //return Json(listKategoriShopee.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriShopee),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+
+        [HttpGet]
+        public ActionResult GetKategoriShopifyByCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listKategoriShopify = ErasoftDbContext.STF02E.Where(m => m.LEVEL == "1").OrderBy(m => m.KET).ToList();
+
+            //return Json(listKategoriShopee, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriShopify),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+        #endregion
+        //end by fauzi for shopify 05 Maret 2020
+
         //add by calvin 6 februari 2019
         #region Kategori Tokped
         [HttpGet]
@@ -7922,6 +8018,9 @@ namespace MasterOnline.Controllers
                     #endregion
                     saveBarangShopee(1, dataBarang, false);
                     saveBarangTokpedVariant(1, barangInDb.BRG, false);
+                    #region SHOPIFY
+                    saveBarangShopify(1, dataBarang);
+                    #endregion
                     //add by fauzi for 82Cart
                     saveBarang82Cart(1, dataBarang, false);
                     //end add by fauzi for 82Cart
@@ -7935,6 +8034,7 @@ namespace MasterOnline.Controllers
                     saveBarangBlibli(2, dataBarang);
                     saveBarangElevenia(2, dataBarang, imgPath);
                     saveBarangShopee(2, dataBarang, updateHarga);
+                    saveBarangShopify(2, dataBarang);
                     //add by fauzi for 82Cart
                     saveBarang82Cart(2, dataBarang, false);
                     //end add by fauzi for 82Cart
@@ -8122,6 +8222,7 @@ namespace MasterOnline.Controllers
                 var kdShopee = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
                 var kdTokped = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
                 var kd82Cart = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "82CART");
+                var kdShopify = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPIFY");
                 var validPrice = true;
 
                 string[] imgPath = new string[Request.Files.Count];
@@ -8635,6 +8736,10 @@ namespace MasterOnline.Controllers
                                             else if (kdMarket == kd82Cart.IdMarket.ToString())
                                             {
                                                 namaMarket = "82CART";
+                                            }
+                                            else if (kdMarket == kdShopify.IdMarket.ToString())
+                                            {
+                                                namaMarket = "SHOPIFY";
                                             }
                                             if (namaMarket != "")
                                             {
@@ -9536,6 +9641,162 @@ namespace MasterOnline.Controllers
                 }
             }
         }
+
+        //add by fauzi for shopify
+        public void saveBarangShopify(int mode, BarangViewModel dataBarang)
+        {
+            //var ret = "";
+            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID || b.BRG == dataBarang.Stf02.BRG);
+            var kdShopify = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPIFY");
+            if (barangInDb != null && kdShopify != null)
+            {
+                var listShopify = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopify.IdMarket.ToString()).ToList();
+                if (listShopify.Count > 0)
+                {
+                    switch (mode)
+                    {
+                        #region Create Product lalu Hide Item
+                        case 1:
+                            {
+                                foreach (ARF01 tblCustomer in listShopify)
+                                {
+                                    if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                                    {
+                                        var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
+                                        if (display)
+                                        {
+
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) + "'";
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
+                                            //ShopifyController.ShopifyAPIData iden = new ShopifyController.ShopifyAPIData();
+                                            //iden.no_cust = tblCustomer.CUST;
+                                            //iden.DatabasePathErasoft = dbPathEra;
+                                            //iden.account_store = tblCustomer.PERSO;
+                                            //iden.API_key = tblCustomer.API_KEY;
+                                            //iden.API_password = tblCustomer.API_CLIENT_P;
+
+                                            //ShopifyController ShopifyAPI = new ShopifyController();
+
+                                            //Task.Run(() => ShopifyAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST).Wait());
+                                            //ShopifyAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST);
+
+
+                                            ShopifyControllerJob.ShopifyAPIData data = new ShopifyControllerJob.ShopifyAPIData();
+                                            data.no_cust = tblCustomer.CUST;
+                                            data.username = usernameLogin;
+                                            data.DatabasePathErasoft = dbPathEra;
+                                            data.account_store = tblCustomer.PERSO;
+                                            data.API_key = tblCustomer.API_KEY;
+                                            data.API_password = tblCustomer.API_CLIENT_P;
+#if (DEBUG || Debug_AWS)
+                                            new ShopifyControllerJob().Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data);
+#else
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                            clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data));
+#endif
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        #endregion
+                        case 2:
+                            {
+                                foreach (ARF01 tblCustomer in listShopify)
+                                {
+                                    if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                                    {
+                                        var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == barangInDb.BRG && p.IDMARKET == tblCustomer.RecNum).FirstOrDefault();
+                                        if (stf02h != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                            {
+                                                ShopifyControllerJob.ShopifyAPIData iden = new ShopifyControllerJob.ShopifyAPIData();
+                                                iden.no_cust = tblCustomer.CUST;
+                                                iden.DatabasePathErasoft = dbPathEra;
+                                                iden.account_store = tblCustomer.PERSO;
+                                                iden.API_key = tblCustomer.API_KEY;
+                                                iden.API_password = tblCustomer.API_CLIENT_P;
+
+                                                ShopifyControllerJob ShopifyAPI = new ShopifyControllerJob();
+                                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+#if (Debug_AWS || DEBUG)
+                                                //Task.Run(() => ShopifyAPI.UpdateProduct(iden, stf02h.BRG_MP, tblCustomer.CUST).Wait());
+                                                //var checkProductExist = ShopifyAPI.GetItemSingle(iden, stf02h.BRG);
+                                                //ShopifyAPI.CheckProduct(iden, stf02h.BRG_MP, stf02h.BRG);
+
+                                                ShopifyAPI.Shopify_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Update Produk", iden, stf02h.BRG_MP);
+
+#else
+                                                clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Update Produk", iden, stf02h.BRG_MP));
+#endif
+                                                //end unremark by nurul 15/1/2020, biar bisa update deskripsi, tapi panjang lebar dan tinggi harus <= 40 cm
+                                                //end remark by calvin 26 februari 2019
+                                                //Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), stf02h.BRG_MP).Wait());
+
+                                                //ShopeeController shoAPI = new ShopeeController();
+                                                //Task.Run(() => shoAPI.UpdateImage(iden, temp_brg, stf02h.BRG_MP).Wait());
+                                                //string[] brg_mp = stf02h.BRG_MP.Split(';');
+                                                //if (updateHarga)
+                                                //{
+                                                //    if (brg_mp.Count() == 2)
+                                                //    {
+                                                //        if (brg_mp[1] == "0")
+                                                //        {
+                                                //            Task.Run(() => shoAPI.UpdatePrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
+                                                //        }
+                                                //        else if (brg_mp[1] != "")
+                                                //        {
+                                                //            Task.Run(() => shoAPI.UpdateVariationPrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
+                                                //        }
+                                                //    }
+                                                //}
+                                            }
+                                            else
+                                            {
+                                                if (stf02h.DISPLAY)
+                                                {
+                                                    //ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
+                                                    //{
+                                                    //    merchant_code = tblCustomer.Sort1_Cust,
+                                                    //};
+                                                    //ShopeeController shoAPI = new ShopeeController();
+                                                    //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) + "'";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                                                    ShopifyControllerJob.ShopifyAPIData data = new ShopifyControllerJob.ShopifyAPIData();
+                                                    data.no_cust = tblCustomer.CUST;
+                                                    data.username = usernameLogin;
+                                                    data.DatabasePathErasoft = dbPathEra;
+                                                    data.account_store = tblCustomer.PERSO;
+                                                    data.API_key = tblCustomer.API_KEY;
+                                                    data.API_password = tblCustomer.API_CLIENT_P;
+#if (DEBUG || Debug_AWS)
+                                                    Task.Run(() => new ShopifyControllerJob().Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data).Wait());
+#else
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                    clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data));
+#endif
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            //return ret;
+        }
+
         protected void saveBarangShopee(int mode, BarangViewModel dataBarang, bool updateHarga)
         {
             var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID || b.BRG == dataBarang.Stf02.BRG);
@@ -10988,6 +11249,21 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public ActionResult PromptBrandShopify(string merchant_code, string category)
+        {
+            try
+            {
+                ViewData["cust"] = merchant_code;
+                ViewData["category"] = category;
+                return View("PromptBrandShopify");
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+
+
         public ActionResult PromptBrand82Cart(string merchant_code, string category)
         {
             try
@@ -11439,7 +11715,7 @@ namespace MasterOnline.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public ActionResult SaveOptVariantBarang(string brg, string shopee_code, string tokped_code, string blibli_code, string lazada_code, string e2cart_code, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3)
+        public ActionResult SaveOptVariantBarang(string brg, string shopee_code, string tokped_code, string blibli_code, string lazada_code, string e2cart_code, string shopify_code, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3)
         {
             var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == code);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
@@ -11505,6 +11781,7 @@ namespace MasterOnline.Controllers
                 var Histori_Blibli_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "BLIBLI" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == blibli_code).OrderByDescending(p => p.RECNUM).ToList();
                 var Histori_Lazada_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "LAZADA" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == lazada_code).OrderByDescending(p => p.RECNUM).ToList();
                 var Histori_82Cart_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "82CART" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == e2cart_code).OrderByDescending(p => p.RECNUM).ToList();
+                var Histori_shopify_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "SHOPIFY" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == shopify_code).OrderByDescending(p => p.RECNUM).ToList();
 
                 if (opt_selected_1 != null)
                 {
@@ -11513,6 +11790,7 @@ namespace MasterOnline.Controllers
                     var Histori_Blibli = Histori_Blibli_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_Lazada = Histori_Lazada_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_82Cart = Histori_82Cart_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_shopify = Histori_shopify_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_1)
                     {
                         if (item != "")
@@ -11610,6 +11888,19 @@ namespace MasterOnline.Controllers
                                 MP_CATEGORY_CODE = e2cart_code
                             };
                             listNewData.Add(newdata82Cart);
+
+                            STF02I newdatashopify = new STF02I()
+                            {
+                                MARKET = "SHOPIFY",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 1,
+                                MP_JUDUL_VAR = Histori_shopify.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_shopify.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = shopify_code
+                            };
+                            listNewData.Add(newdatashopify);
                         }
                     }
                 }
@@ -11620,6 +11911,7 @@ namespace MasterOnline.Controllers
                     var Histori_Blibli = Histori_Blibli_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_Lazada = Histori_Lazada_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_82Cart = Histori_82Cart_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_shopify = Histori_shopify_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_2)
                     {
                         if (item != "")
@@ -11717,6 +12009,19 @@ namespace MasterOnline.Controllers
                                 MP_CATEGORY_CODE = e2cart_code
                             };
                             listNewData.Add(newdata82Cart);
+
+                            STF02I newdatashopify = new STF02I()
+                            {
+                                MARKET = "SHOPIFY",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 2,
+                                MP_JUDUL_VAR = Histori_shopify.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_shopify.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = shopify_code
+                            };
+                            listNewData.Add(newdatashopify);
                         }
                     }
                 }
@@ -11727,6 +12032,7 @@ namespace MasterOnline.Controllers
                     var Histori_Blibli = Histori_Blibli_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_Lazada = Histori_Lazada_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_82Cart = Histori_82Cart_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_shopify = Histori_shopify_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_3)
                     {
                         if (item != "")
@@ -11824,6 +12130,19 @@ namespace MasterOnline.Controllers
                                 MP_CATEGORY_CODE = e2cart_code
                             };
                             listNewData.Add(newdata82Cart);
+
+                            STF02I newdatashopify = new STF02I()
+                            {
+                                MARKET = "SHOPIFY",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 3,
+                                MP_JUDUL_VAR = Histori_shopify.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_shopify.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = shopify_code
+                            };
+                            listNewData.Add(newdatashopify);
                         }
                     }
                 }
@@ -13774,6 +14093,133 @@ namespace MasterOnline.Controllers
             if (listNewData.Count() > 0)
             {
                 var listStf02IinDb = ErasoftDbContext.STF02I.Where(p => p.BRG == brg && p.MARKET == "82CART").ToList();
+                ErasoftDbContext.STF02I.RemoveRange(listStf02IinDb);
+                ErasoftDbContext.SaveChanges();
+
+                ErasoftDbContext.STF02I.AddRange(listNewData);
+
+                //add by nurul 27/11/2019, add tgl last edit
+                var tempBrg = ErasoftDbContext.STF02.Where(p => p.BRG == brg).SingleOrDefault();
+                if (tempBrg != null)
+                {
+                    tempBrg.Tgl_Input = DateTime.Today;
+                }
+                //end add by nurul 27/11/2019, add tgl last edit
+
+                ErasoftDbContext.SaveChanges();
+            }
+            #endregion
+            var vm = new BarangDetailVarViewModel()
+            {
+
+            };
+
+            return Json(vm, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult SaveMappingVarshopify(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3, StrukturVariantMp shopify)
+        {
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == code);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            List<STF02I> listNewData = new List<STF02I>();
+            #region Create Ulang STF02I
+            {
+                if (opt_selected_1 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_1)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdata = new STF02I()
+                                {
+                                    MARKET = "SHOPIFY",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 1,
+                                    MP_JUDUL_VAR = shopify.var_judul.lv_1,
+                                    MP_VALUE_VAR = shopify.var_detail.lv_1[i],
+                                    MP_CATEGORY_CODE = shopify.code
+                                };
+                                listNewData.Add(newdata);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_2 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_2)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdata = new STF02I()
+                                {
+                                    MARKET = "SHOPIFY",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 2,
+                                    MP_JUDUL_VAR = shopify.var_judul.lv_2,
+                                    MP_VALUE_VAR = shopify.var_detail.lv_2[i],
+                                    MP_CATEGORY_CODE = shopify.code
+                                };
+                                listNewData.Add(newdata);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_3 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_3)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdata = new STF02I()
+                                {
+                                    MARKET = "SHOPIFY",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 3,
+                                    MP_JUDUL_VAR = shopify.var_judul.lv_3,
+                                    MP_VALUE_VAR = shopify.var_detail.lv_3[i],
+                                    MP_CATEGORY_CODE = shopify.code
+                                };
+                                listNewData.Add(newdata);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+            }
+            #endregion
+
+            #region Save STF02I
+            if (listNewData.Count() > 0)
+            {
+                var listStf02IinDb = ErasoftDbContext.STF02I.Where(p => p.BRG == brg && p.MARKET == "SHOPIFY").ToList();
                 ErasoftDbContext.STF02I.RemoveRange(listStf02IinDb);
                 ErasoftDbContext.SaveChanges();
 
@@ -20455,6 +20901,27 @@ namespace MasterOnline.Controllers
                                 clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Cancel Order", pesanan.NO_REFERENSI, "6"));
 #endif
                             }
+
+                            //add by fauzi for shopify
+                            if (mp.NamaMarket.ToUpper().Contains("SHOPIFY"))
+                            {
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                ShopifyControllerJob.ShopifyAPIData idenJob = new ShopifyControllerJob.ShopifyAPIData();
+                                idenJob.no_cust = marketPlace.CUST;
+                                idenJob.username = usernameLogin;
+                                idenJob.DatabasePathErasoft = dbPathEra;
+                                idenJob.account_store = marketPlace.PERSO;
+                                idenJob.API_key = marketPlace.API_KEY;
+                                idenJob.API_password = marketPlace.API_CLIENT_P;
+
+                                //add by fauzi for update status CANCELED
+#if (DEBUG || Debug_AWS)
+                                new ShopifyControllerJob().Shopify_SetOrderStatusCancelled(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Cancel Order", idenJob);
+#else
+                                clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusCancelled(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Cancel Order", idenJob));
+#endif
+                            }
                         }
                         break;
                     case "02":
@@ -20556,6 +21023,27 @@ namespace MasterOnline.Controllers
                             clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Packing Order", pesanan.NO_REFERENSI, "3"));
 #else
                             new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Packing Order", pesanan.NO_REFERENSI, "3");
+#endif
+                        }
+
+                        //add by fauzi for shopify
+                        if (mp.NamaMarket.ToUpper().Contains("SHOPIFY"))
+                        {
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                            ShopifyControllerJob.ShopifyAPIData idenJob = new ShopifyControllerJob.ShopifyAPIData();
+                            idenJob.no_cust = marketPlace.CUST;
+                            idenJob.username = usernameLogin;
+                            idenJob.DatabasePathErasoft = dbPathEra;
+                            idenJob.account_store = marketPlace.PERSO;
+                            idenJob.API_key = marketPlace.API_KEY;
+                            idenJob.API_password = marketPlace.API_CLIENT_P;
+
+                            //add by fauzi for update status TO PACKING
+#if (DEBUG || Debug_AWS)
+                            //new ShopifyControllerJob().Shopify_SetOrderStatusCancelled(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Packing Order", idenJob);
+#else
+                            //clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusCancelled(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Packing Order", idenJob));
 #endif
                         }
                         break;
@@ -20763,6 +21251,27 @@ namespace MasterOnline.Controllers
                             clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Paid Order", pesanan.NO_REFERENSI, "2"));
 #else
                             new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Paid Order", pesanan.NO_REFERENSI, "2");
+#endif
+                        }
+
+                        //add by fauzi for shopify
+                        if (mp.NamaMarket.ToUpper().Contains("SHOPIFY"))
+                        {
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                            ShopifyControllerJob.ShopifyAPIData idenJob = new ShopifyControllerJob.ShopifyAPIData();
+                            idenJob.no_cust = marketPlace.CUST;
+                            idenJob.username = usernameLogin;
+                            idenJob.DatabasePathErasoft = dbPathEra;
+                            idenJob.account_store = marketPlace.PERSO;
+                            idenJob.API_key = marketPlace.API_KEY;
+                            idenJob.API_password = marketPlace.API_CLIENT_P;
+
+                            //add by fauzi for update status TO PACKING
+#if (DEBUG || Debug_AWS)
+                            new ShopifyControllerJob().Shopify_SetOrderStatusPaid(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Paid Order", idenJob, pesanan.TOTAL_SEMUA);
+#else
+                            clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusPaid(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Paid Order", idenJob, pesanan.TOTAL_SEMUA));
 #endif
                         }
                         break;
@@ -31942,6 +32451,8 @@ namespace MasterOnline.Controllers
             var kdBlibli = "16";
             var kdElevenia = "9";
             var kdShopee = "17";
+            var kdShopify = "21";
+            var kd82Cart = "20";
             var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.RecNum == hJualInDb.IDMARKET);
             if (customer != null)
             {
@@ -32250,6 +32761,37 @@ namespace MasterOnline.Controllers
                                     
 #endif
                                 }
+                            }
+                        }
+                    }
+                }
+                else if (customer.NAMA.Equals(kdShopify))
+                {
+                    if (!string.IsNullOrWhiteSpace(customer.Sort1_Cust))
+                    {
+                        var ShopifyApi = new ShopifyControllerJob();
+
+                        ShopifyControllerJob.ShopifyAPIData data = new ShopifyControllerJob.ShopifyAPIData()
+                        {
+                            no_cust = customer.Sort1_Cust,
+                            account_store = customer.PERSO,
+                            API_key = customer.API_KEY,
+                            API_password = customer.API_CLIENT_P
+                        };
+                        if (hJualInDb.BRG_MP != "")
+                        {
+                            string[] brg_mp = hJualInDb.BRG_MP.Split(';');
+                            if (brg_mp.Count() == 2)
+                            {
+
+#if Debug_AWS || DEBUG
+                                Task.Run(() => ShopifyApi.Shopify_UpdatePrice_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (double)hargaJualBaru)).Wait();
+#else
+                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                    clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_UpdatePrice_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (float)hargaJualBaru));
+                                    
+#endif
                             }
                         }
                     }
@@ -36350,7 +36892,46 @@ namespace MasterOnline.Controllers
 
                                         return Json(retBarang, JsonRequestBehavior.AllowGet);
                                     }
+                                case "SHOPIFY":
+                                    var Shopify = new ShopifyController();
+                                    if (string.IsNullOrEmpty(arf01.Sort1_Cust))
+                                    {
+                                        return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
+                                    }
+                                    else
+                                    {
+                                        ShopifyController.ShopifyAPIData data = new ShopifyController.ShopifyAPIData()
+                                        {
+                                            no_cust = arf01.CUST,
+                                            account_store = arf01.PERSO,
+                                            API_key = arf01.API_KEY,
+                                            API_password = arf01.API_CLIENT_P
+                                        };
+                                        var resultShopify = await Shopify.Shopify_GetProductList_Sync(data, arf01.RecNum.Value, page + 1, recordCount, totalData);
+                                        retBarang.exception = resultShopify.exception;
+                                        retBarang.totalData = resultShopify.totalData;
+                                        //change 18 juli 2019, error tetap lanjut next page
+                                        //if (resultShopee.status == 1)
+                                        //{
+                                        //    if (!string.IsNullOrEmpty(resultShopee.message))
+                                        if (resultShopify.nextPage == 1)
+                                        {
+                                            retBarang.RecordCount = resultShopify.recordCount;
+                                            retBarang.Recursive = true;
+                                        }
+                                        else
+                                        {
+                                            retBarang.RecordCount = resultShopify.recordCount;
+                                        }
+                                        //}
+                                        //else
+                                        //{
+                                        //    retBarang.RecordCount = resultShopee.recordCount;
+                                        //}
+                                        //end change 18 juli 2019, error tetap lanjut next page
 
+                                        return Json(retBarang, JsonRequestBehavior.AllowGet);
+                                    }
                                 default:
                                     return JsonErrorMessage("Fasilitas untuk mengambil data dari marketplace ini belum dibuka.");
                             }
@@ -37918,6 +38499,13 @@ namespace MasterOnline.Controllers
                         ret.message = "Harga Jual harus lebih dari 100.";
                     }
                     break;
+                case "21"://SHOPIFY
+                    if (price < 0)
+                    {
+                        ret.status = 0;
+                        ret.message = "Harga Jual harus lebih dari 0.";
+                    }
+                    break;
             }
             return ret;
         }
@@ -39368,6 +39956,9 @@ namespace MasterOnline.Controllers
                     break;
                 //case "20":
                 //    viewName = "PackingList82Cart";
+                //    break;
+                //case "21":
+                //    viewName = "PackingListShopify";
                 //    break;
                 default:
                     viewName = "";
