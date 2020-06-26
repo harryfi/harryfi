@@ -959,7 +959,7 @@ namespace MasterOnline.Controllers
                                     //if (brg_mp[1] == "0" || brg_mp[1] == "")
                                     //{
 #if (DEBUG || Debug_AWS)
-                                    Task.Run(() => Shopify_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                    Shopify_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null);
 #else
                                         client.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
 #endif
@@ -2677,6 +2677,25 @@ namespace MasterOnline.Controllers
                     responseFromServer = await reader.ReadToEndAsync();
                 }
             };
+
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            //myReq.Method = "PUT";
+            //myReq.Headers.Add("X-Shopify-Access-Token", (iden.API_password));
+            //myReq.Accept = "application/json";
+            //myReq.ContentType = "application/json";
+            //myReq.ContentLength = myData.Length;
+            //using (var dataStream = myReq.GetRequestStream())
+            //{
+            //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            //}
+            //using (WebResponse response = myReq.GetResponse())
+            //{
+            //    using (Stream stream = response.GetResponseStream())
+            //    {
+            //        StreamReader reader = new StreamReader(stream);
+            //        responseFromServer = reader.ReadToEnd();
+            //    }
+            //}
 
 
             if (responseFromServer != "")

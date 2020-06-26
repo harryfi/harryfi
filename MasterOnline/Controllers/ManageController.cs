@@ -9690,7 +9690,7 @@ namespace MasterOnline.Controllers
                                             data.API_key = tblCustomer.API_KEY;
                                             data.API_password = tblCustomer.API_CLIENT_P;
 #if (DEBUG || Debug_AWS)
-                                            Task.Run(() => new ShopifyControllerJob().Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data).Wait());
+                                            new ShopifyControllerJob().Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data);
 #else
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);

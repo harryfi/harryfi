@@ -165,6 +165,7 @@ namespace MasterOnline.Controllers
                 //try
                 //{
                 var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(ResultOrderShopify)) as ResultOrderShopify;
+                if (listOrder != null)
                 if (listOrder.orders != null)
                 {
                     //string[] statusAwaiting = { "1", "3", "10", "11", "13", "14", "16", "17", "18", "19", "20", "21", "23", "25" };
@@ -173,11 +174,9 @@ namespace MasterOnline.Controllers
                     //var dariTgl = DateTimeOffset.UtcNow.AddDays(-10).DateTime;
                     if (listOrder.orders.Count() > 0)
                     {
-                        jmlhNewOrder = 0;
+                        //jmlhNewOrder = 0;
 
                         var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
-
-                        //string[] brg_mp_split = OrderNoInDb.Split(';');
 
                         #region UNPAID
                         if (stat == StatusOrder.UNPAID)
@@ -189,7 +188,7 @@ namespace MasterOnline.Controllers
                                 {
                                     try
                                     {
-                                        if (!OrderNoInDb.Contains(order.id.ToString()))
+                                        if (!OrderNoInDb.Contains(order.id.ToString() + ";" + Convert.ToString(order.order_number)))
                                         {
                                             jmlhNewOrder++;
                                             var connIdARF01C = Guid.NewGuid().ToString();
@@ -478,6 +477,7 @@ namespace MasterOnline.Controllers
                 //try
                 //{
                 var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(ResultOrderShopify)) as ResultOrderShopify;
+                if (listOrder != null)
                 if (listOrder.orders != null)
                 {
                     if (listOrder.orders.Count() > 0)
@@ -490,9 +490,9 @@ namespace MasterOnline.Controllers
                         {
                             foreach (var item in orderFilterPaid)
                             {
-                                if (OrderNoInDb.Contains(item.order_number.ToString()))
+                                if (OrderNoInDb.Contains(item.id.ToString() + ";" + Convert.ToString(item.order_number)))
                                 {
-                                    ordersn = ordersn + "'" + Convert.ToString(item.order_number) + "',";
+                                    ordersn = ordersn + "'" + item.id.ToString() + ";" + Convert.ToString(item.order_number) + "',";
                                 }
                             }
                         }
@@ -504,7 +504,7 @@ namespace MasterOnline.Controllers
                             if (jmlhOrderPaid > 0)
                             {
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderPaid) + " Pesanan dari Shopify sudah selesai.");
+                                contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderPaid) + " Pesanan terbayar dari Shopify.");
                             }
                         }
                     }
@@ -603,9 +603,9 @@ namespace MasterOnline.Controllers
                         {
                             foreach (var item in orderFilterCompleted)
                             {
-                                if (OrderNoInDb.Contains(item.order_number.ToString()))
+                                if (OrderNoInDb.Contains(item.id.ToString() + ";" + Convert.ToString(item.order_number)))
                                 {
-                                    ordersn = ordersn + "'" + Convert.ToString(item.order_number) + "',";
+                                    ordersn = ordersn + "'" + item.id.ToString() + ";" + Convert.ToString(item.order_number) + "',";
                                 }
                             }
                         }
@@ -687,6 +687,7 @@ namespace MasterOnline.Controllers
                 //try
                 //{
                 var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(ResultOrderShopify)) as ResultOrderShopify;
+                if (listOrder != null)
                 if (listOrder.orders != null)
                 {
                     if (listOrder.orders.Count() > 0)
@@ -699,9 +700,9 @@ namespace MasterOnline.Controllers
                         {
                             foreach (var item in listOrder.orders)
                             {
-                                if (OrderNoInDb.Contains(item.id.ToString()))
+                                if (OrderNoInDb.Contains(item.id.ToString() + ";" + Convert.ToString(item.order_number)))
                                 {
-                                    ordersn = ordersn + "'" + Convert.ToString(item.id) + "',";
+                                    ordersn = ordersn + "'" + item.id.ToString() + ";" + Convert.ToString(item.order_number) + "',";
                                 }
                             }
                         }
@@ -721,13 +722,13 @@ namespace MasterOnline.Controllers
                                 foreach (var order in listOrder.orders)
                                 {
                                     string reasonValue;
-                                    if (listReason.TryGetValue(Convert.ToString(order.id), out reasonValue))
+                                    if (listReason.TryGetValue(order.id.ToString() + ";" + Convert.ToString(order.order_number), out reasonValue))
                                     {
                                         if (!string.IsNullOrEmpty(sSQL1))
                                         {
                                             sSQL1 += " UNION ALL ";
                                         }
-                                        sSQL1 += " SELECT '" + Convert.ToString(order.id) + "' NO_REFERENSI, '" + listReason[Convert.ToString(order.id)] + "' ALASAN ";
+                                        sSQL1 += " SELECT '" + order.id.ToString() + ";" + Convert.ToString(order.order_number) + "' NO_REFERENSI, '" + listReason[order.id.ToString() + ";" + Convert.ToString(order.order_number)] + "' ALASAN ";
                                     }
                                 }
                                 sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
@@ -829,6 +830,25 @@ namespace MasterOnline.Controllers
                     responseFromServer = await reader.ReadToEndAsync();
                 }
             };
+
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            //myReq.Method = "PUT";
+            //myReq.Headers.Add("X-Shopify-Access-Token", (iden.API_password));
+            //myReq.Accept = "application/json";
+            //myReq.ContentType = "application/json";
+            //myReq.ContentLength = myData.Length;
+            //using (var dataStream = myReq.GetRequestStream())
+            //{
+            //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            //}
+            //using (WebResponse response = myReq.GetResponse())
+            //{
+            //    using (Stream stream = response.GetResponseStream())
+            //    {
+            //        StreamReader reader = new StreamReader(stream);
+            //        responseFromServer = reader.ReadToEnd();
+            //    }
+            //}
 
 
             if (responseFromServer != "")
@@ -1163,28 +1183,47 @@ namespace MasterOnline.Controllers
             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 
             string responseFromServer = "";
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", (iden.API_password));
-            var content = new StringContent(myData, Encoding.UTF8, "application/json");
-            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+            //var client = new HttpClient();
+            //client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", (iden.API_password));
+            //var content = new StringContent(myData, Encoding.UTF8, "application/json");
+            //content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
 
-            try
+            //try
+            //{
+            //    ////manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            //    HttpResponseMessage clientResponse = await client.PostAsync(vformatUrl, content);
+
+            //    using (HttpContent responseContent = clientResponse.Content)
+            //    {
+            //        using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+            //        {
+            //            responseFromServer = await reader.ReadToEndAsync();
+            //        }
+            //    };
+            //}
+            //catch (Exception ex)
+            //{
+            //    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    ////manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "POST";
+            myReq.Headers.Add("X-Shopify-Access-Token", (iden.API_password));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
             {
-                ////manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-                HttpResponseMessage clientResponse = await client.PostAsync(vformatUrl, content);
-
-                using (HttpContent responseContent = clientResponse.Content)
-                {
-                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
-                    {
-                        responseFromServer = await reader.ReadToEndAsync();
-                    }
-                };
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
             }
-            catch (Exception ex)
+            using (WebResponse response = myReq.GetResponse())
             {
-                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                ////manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
             }
 
             if (responseFromServer != null)
@@ -1382,7 +1421,24 @@ namespace MasterOnline.Controllers
                     responseFromServer = await reader.ReadToEndAsync();
                 }
             };
-
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            //myReq.Method = "PUT";
+            //myReq.Headers.Add("X-Shopify-Access-Token", (iden.API_password));
+            //myReq.Accept = "application/json";
+            //myReq.ContentType = "application/json";
+            //myReq.ContentLength = myData.Length;
+            //using (var dataStream = myReq.GetRequestStream())
+            //{
+            //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            //}
+            //using (WebResponse response = myReq.GetResponse())
+            //{
+            //    using (Stream stream = response.GetResponseStream())
+            //    {
+            //        StreamReader reader = new StreamReader(stream);
+            //        responseFromServer = reader.ReadToEnd();
+            //    }
+            //}
 
             if (responseFromServer != "")
             {
