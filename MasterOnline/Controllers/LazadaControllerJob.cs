@@ -2396,7 +2396,7 @@ namespace MasterOnline.Controllers
                                     CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
-                                    //CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
 
                                     EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
@@ -2801,7 +2801,7 @@ namespace MasterOnline.Controllers
                                 CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
-                                //CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
                                 //remark to test
                                 EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);

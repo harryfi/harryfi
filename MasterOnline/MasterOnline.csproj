@@ -717,6 +717,7 @@
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
     <Compile Include="Models\CATEGORY_82CART.cs" />
+    <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
     <Compile Include="Models\TEMP_SALDOAWAL.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS_ITEM.cs" />
