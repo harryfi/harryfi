@@ -458,7 +458,7 @@ namespace MasterOnline.Controllers
                     stream.Write(data, 0, data.Length);
                 }
 
-                using (WebResponse response = myReq.GetResponse())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream2 = response.GetResponseStream())
                     {
@@ -488,15 +488,13 @@ namespace MasterOnline.Controllers
                                 }
 
                                 //handle attribute product
-                                c82CartController.E2Cart_AddAttributeProduct(dataLocal, item.BRG_MP, attributeIDGroup, attributeIDItems, brgInDb.BERAT.ToString());
-                                //Task.Run(() => 
+                                Task.Run(() => c82CartController.E2Cart_AddAttributeProduct(dataLocal, item.BRG_MP, attributeIDGroup, attributeIDItems, brgInDb.BERAT.ToString())).Wait();
                                 //end handle attribute product
 
                                 //handle all image was uploaded
                                 foreach (var images in lGambarUploaded)
                                 {
-                                    c82CartController.E2Cart_AddImageProduct(dataLocal, item.BRG_MP, images);
-                                    //Task.Run(() => 
+                                    Task.Run(() => c82CartController.E2Cart_AddImageProduct(dataLocal, item.BRG_MP, images)).Wait(); 
                                 }
                                 //end handle all image was uploaded
 
@@ -716,7 +714,7 @@ namespace MasterOnline.Controllers
                     stream.Write(data, 0, data.Length);
                 }
 
-                using (WebResponse response = myReq.GetResponse())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream2 = response.GetResponseStream())
                     {
@@ -921,7 +919,7 @@ namespace MasterOnline.Controllers
 
             //try
             //{
-            using (WebResponse response = myReq.GetResponse())
+            using (WebResponse response = await myReq.GetResponseAsync())
             {
                 using (Stream stream = response.GetResponseStream())
                 {
@@ -989,10 +987,10 @@ namespace MasterOnline.Controllers
 
                                                             insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                                                                 ((nama ?? "").Replace("'", "`")),
-                                                                ((order.delivery_address[0].address1 ?? "").Replace("'", "`")),
+                                                                ((order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state),
                                                                 ((order.delivery_address[0].phone_mobile ?? "").Replace("'", "`")),
                                                                 (NAMA_CUST.Replace(',', '.')),
-                                                                ((order.delivery_address[0].address1 + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`")),
+                                                                ((order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state),
                                                                 DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                                                                 (username),
                                                                 ((order.delivery_address[0].postcode ?? "").Replace("'", "`")),
@@ -1024,7 +1022,7 @@ namespace MasterOnline.Controllers
                                                             TEMP_82CART_ORDERS newOrder = new TEMP_82CART_ORDERS()
                                                             {
                                                                 actual_shipping_cost = order.total_shipping,
-                                                                buyer_username = order.firstname + " " + order.lastname,
+                                                                buyer_username = nama,
                                                                 cod = false,
                                                                 country = "",
                                                                 create_time = Convert.ToDateTime(dateOrder),
@@ -1046,12 +1044,12 @@ namespace MasterOnline.Controllers
                                                                 pay_time = Convert.ToDateTime(datePay),
                                                                 //end change by nurul 5/12/2019, local time 
                                                                 Recipient_Address_country = order.delivery_address[0].id_country ?? "ID",
-                                                                Recipient_Address_state = order.delivery_address[0].id_state ?? "",
+                                                                Recipient_Address_state = order.delivery_address[0].state ?? "",
                                                                 Recipient_Address_city = order.delivery_address[0].city ?? "",
                                                                 Recipient_Address_town = "",
                                                                 Recipient_Address_district = "",
-                                                                Recipient_Address_full_address = order.delivery_address[0].address1 ?? "",
-                                                                Recipient_Address_name = order.firstname + " " + order.lastname ?? "",
+                                                                Recipient_Address_full_address = (order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state,
+                                                                Recipient_Address_name = nama,
                                                                 Recipient_Address_phone = order.delivery_address[0].phone_mobile ?? order.delivery_address[0].phone ?? "",
                                                                 Recipient_Address_zipcode = order.delivery_address[0].postcode,
                                                                 service_code = order.id_carrier,
@@ -1209,10 +1207,10 @@ namespace MasterOnline.Controllers
 
                                             insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                                                 ((nama ?? "").Replace("'", "`")),
-                                                ((order.delivery_address[0].address1 ?? "").Replace("'", "`")),
+                                                ((order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state),
                                                 ((order.delivery_address[0].phone_mobile ?? "").Replace("'", "`")),
                                                 (NAMA_CUST.Replace(',', '.')),
-                                                ((order.delivery_address[0].address1 + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`")),
+                                                ((order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state),
                                                 DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                                                 (username),
                                                 ((order.delivery_address[0].postcode ?? "").Replace("'", "`")),
@@ -1244,7 +1242,7 @@ namespace MasterOnline.Controllers
                                             TEMP_82CART_ORDERS newOrder = new TEMP_82CART_ORDERS()
                                             {
                                                 actual_shipping_cost = order.total_shipping,
-                                                buyer_username = order.firstname + " " + order.lastname,
+                                                buyer_username = nama,
                                                 cod = false,
                                                 country = "",
                                                 create_time = Convert.ToDateTime(dateOrder),
@@ -1266,12 +1264,12 @@ namespace MasterOnline.Controllers
                                                 pay_time = Convert.ToDateTime(datePay),
                                                 //end change by nurul 5/12/2019, local time 
                                                 Recipient_Address_country = order.delivery_address[0].id_country ?? "ID",
-                                                Recipient_Address_state = order.delivery_address[0].id_state ?? "",
+                                                Recipient_Address_state = order.delivery_address[0].state ?? "",
                                                 Recipient_Address_city = order.delivery_address[0].city ?? "",
                                                 Recipient_Address_town = "",
                                                 Recipient_Address_district = "",
-                                                Recipient_Address_full_address = order.delivery_address[0].address1 ?? "",
-                                                Recipient_Address_name = order.firstname + " " + order.lastname ?? "",
+                                                Recipient_Address_full_address = (order.delivery_address[0].address1 ?? "" + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`") + " " + order.delivery_address[0].state,
+                                                Recipient_Address_name = nama,
                                                 Recipient_Address_phone = order.delivery_address[0].phone_mobile ?? order.delivery_address[0].phone ?? "",
                                                 Recipient_Address_zipcode = order.delivery_address[0].postcode,
                                                 service_code = order.id_carrier,
@@ -1442,7 +1440,7 @@ namespace MasterOnline.Controllers
 
             //try
             //{
-            using (WebResponse response = myReq.GetResponse())
+            using (WebResponse response = await myReq.GetResponseAsync())
             {
                 using (Stream stream = response.GetResponseStream())
                 {
@@ -1544,7 +1542,7 @@ namespace MasterOnline.Controllers
             myReq.ContentType = "application/json";
             string responseServer = "";
 
-            using (WebResponse response = myReq.GetResponse())
+            using (WebResponse response = await myReq.GetResponseAsync())
             {
                 using (Stream stream = response.GetResponseStream())
                 {
@@ -1847,7 +1845,7 @@ namespace MasterOnline.Controllers
 
             try
             {
-                using (WebResponse response = myReq.GetResponse())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -1916,7 +1914,7 @@ namespace MasterOnline.Controllers
                 stream.Write(data, 0, data.Length);
             }
 
-            var response = (HttpWebResponse) myReq.GetResponse();
+            var response = (HttpWebResponse) await myReq.GetResponseAsync();
 
             var responseServer = new StreamReader(response.GetResponseStream()).ReadToEnd();
 
@@ -1950,7 +1948,7 @@ namespace MasterOnline.Controllers
 
             try
             {
-                using (WebResponse response = myReq.GetResponse())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -2275,6 +2273,7 @@ namespace MasterOnline.Controllers
             public string address2 { get; set; }
             public string postcode { get; set; }
             public string city { get; set; }
+            public string state { get; set; }
             public string other { get; set; }
             public string phone { get; set; }
             public string phone_mobile { get; set; }
