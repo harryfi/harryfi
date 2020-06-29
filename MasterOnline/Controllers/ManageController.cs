@@ -41108,7 +41108,7 @@ namespace MasterOnline.Controllers
             ret.statusLoop = Convert.ToBoolean(status[0]);
             ret.statusLoopDownload = Convert.ToBoolean(statusDownload[0]);
             ret.statusLoopTemp = Convert.ToBoolean(statusTemp[0]);
-            if (ret.statusLoop == false && ret.statusLoopDownload == false && ret.statusSuccessTemp == false)
+            if (ret.statusLoop == false && ret.statusLoopDownload == false && ret.statusLoopTemp == false)
             {
                 ret.buktiLog = "Log_Upload_Pembayaran_Shopee" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
             }
@@ -41415,11 +41415,11 @@ namespace MasterOnline.Controllers
                                                     ErasoftDbContext.Database.ExecuteSqlCommand("delete from TEMP_UPLOAD_EXCEL_BAYAR");
                                                 }
                                             }
-                                            ret.countAllTemp = worksheet.Dimension.End.Row - 7;
+                                            ret.countAllTemp = worksheet.Dimension.End.Row - 8;
                                             //for (int i = 8; i <= worksheet.Dimension.End.Row; i++)
                                             if (ret.countAllTemp > 0)
                                             {
-                                                if (ret.statusLoop == true)
+                                                if (ret.statusLoopTemp == true)
                                                 {
                                                     progTemp[1] = Convert.ToString(Convert.ToInt32(progTemp[1]) - 1);
                                                 }
@@ -41438,8 +41438,8 @@ namespace MasterOnline.Controllers
                                                 {
                                                     ret.TidakLanjutProses = false;
                                                     ret.statusLoopTemp = true;
-                                                    ret.progressTemp = i + 1;
-                                                    ret.percentTemp = ((i + 1) * 100) / ret.countAllTemp;
+                                                    ret.progressTemp = i - 7;
+                                                    ret.percentTemp = ((i - 7) * 100) / ret.countAllTemp;
 
 
                                                     //Columns start from A5, start mapping column
@@ -41968,7 +41968,7 @@ namespace MasterOnline.Controllers
                                     var tempPercent = Convert.ToInt32(progDownload[0]);
                                     //var cekPer20 = (ret.countAllDownload / 10);
                                     var cekPer10 = (ret.countAllDownload * 20 / 100);
-                                    var temp40 = Convert.ToInt32(progDownload[1]) + 500;
+                                    var temp40 = Convert.ToInt32(progDownload[1]) + 1000;
                                     data_proses_lanjut.AddRange(data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("TIDAK ADA")).ToList());
                                     ret.countAll = data_proses_lanjut.Count();
 
@@ -42061,7 +42061,7 @@ namespace MasterOnline.Controllers
                                                 }
                                             }
 
-                                            if (cekPer10 > 500)
+                                            if (cekPer10 > 1000)
                                             {
                                                 if ((ret.progressDownload == temp40) || ret.percentDownload == 100)
                                                 {
