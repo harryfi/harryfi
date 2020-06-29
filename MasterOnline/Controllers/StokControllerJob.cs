@@ -1072,6 +1072,7 @@ namespace MasterOnline.Controllers
             var kdTokped = 15;
             var kdJD = 19;
             var kd82Cart = 20;
+            var kdshopify = 21;
 
             string EDBConnID = EDB.GetConnectionString("ConnId");
             var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -1309,6 +1310,42 @@ namespace MasterOnline.Controllers
                         }
                     }
                     //end add by calvin 18 desember 2018
+                    else if (marketPlace.NAMA.Equals(kdshopify.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
+                        {
+                            ShopifyAPIData data = new ShopifyAPIData()
+                            {
+                                no_cust = marketPlace.Sort1_Cust,
+                                account_store = marketPlace.PERSO,
+                                API_key = marketPlace.API_KEY,
+                                API_password = marketPlace.API_CLIENT_P
+                            };
+                            if (stf02h.BRG_MP != "")
+                            {
+                                string[] brg_mp = stf02h.BRG_MP.Split(';');
+                                if (brg_mp.Count() == 2)
+                                {
+                                    //if (brg_mp[1] == "0" || brg_mp[1] == "")
+                                    //{
+#if (DEBUG || Debug_AWS)
+                                    Shopify_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null);
+#else
+                                    client.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+#endif
+                                    //}
+                                    //else if (brg_mp[1] != "")
+                                    //{
+                                    //#if (DEBUG || Debug_AWS)
+                                    //                                        Task.Run(() => Shopify_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                    //#else
+                                    //                                        client.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+                                    //#endif
+                                    //}
+                                }
+                            }
+                        }
+                    }
                     //add by Tri 11 April 2019
                     else if (marketPlace.NAMA.Equals(kdJD.ToString()))
                     {

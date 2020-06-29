@@ -983,7 +983,7 @@ namespace MasterOnline.Controllers
 
 
                                                             string fullname = order.firstname.ToString() + " " + order.lastname.ToString();
-                                                            string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.lastname.ToString();
+                                                            string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.firstname.ToString() + " " + order.lastname.ToString();
 
                                                             insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                                                                 ((nama ?? "").Replace("'", "`")),
@@ -1203,7 +1203,7 @@ namespace MasterOnline.Controllers
 
 
                                             string fullname = order.firstname.ToString() + " " + order.lastname.ToString();
-                                            string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.lastname.ToString();
+                                            string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.firstname.ToString() + " " + order.lastname.ToString();
 
                                             insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                                                 ((nama ?? "").Replace("'", "`")),
