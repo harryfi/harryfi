@@ -1370,6 +1370,32 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalShopifyAPIKey" tabindex="-1" role="dialog" aria-labelledby="jdDescLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Shopify API Key</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-left">
+                    <h4>1. Login akun Shopify Anda sebagai store di web : https://accounts.shopify.com/store-login </h4>
+                    <h4>2. Klik Menu Apps di samping kiri Anda, kemudian klik Manage private apps pada bagian bawah halaman.</h4>
+                    <h4>3. Jika sudah lakukan Create New Private App, Klik nama Private App dan akan terlihat API Key dan Password.</h4>
+                    <h4>4. Jika Anda belum memiliki Private App, silahkan klik tombol Create New Private App di pojok kanan atas.</h4>
+                    <h4>5. Isi Private App Name, Emergency Developer Email.</h4>
+                    <h4>6. Ubah hak akses sesuai yang Anda perlukan seperti (Product, Variants dan koleksinya).</h4>
+                    <h4>7. Centang untuk memberikan akses data StoreFront API.</h4>
+                    <h4>8. Klik Save.</h4>
+                    <h4>9. Setelah sukses, copy data tadi ke Master Online (API key dan Password API Key).</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section scripts
 {
     <script src="~/Content/selectize.js" type="text/javascript"></script>
@@ -1673,6 +1699,9 @@
                                     var elev = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Elevenia"))?.IdMarket.ToString();
                                     var jd = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("JD.ID"))?.IdMarket.ToString();
                                     var others = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Contains("lain"))?.IdMarket.ToString();
+                                    //add by fauzi 26 Februari 2020 untuk penambahan marketplace Shopify
+                                    var shopify = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Contains("Shopify"))?.IdMarket.ToString();
+                                    //end
                                 }
                                 if (@bklapak == value ||  @blibli == value ) {
                                     $('#password-akun').show();
@@ -1689,6 +1718,8 @@
                                 @*if ('@Model.Customers' != null) {
 
                                 }*@
+
+                                showHideShopifyForm(false);
                                 
 
                                 if (@bklapak != value && @tokped != value && @shopee != value && @others != value) {
@@ -1824,6 +1855,15 @@
                                     $('#txt-nama-akun').prop('placeholder', '');
                                 }
 
+                                if (@shopify == value) {
+                                    showHideShopifyForm(true);
+                                    $('#password-akun').val('');
+                                    $('#BlibliMerchantID').show();
+                                    $('#BlibliClient').show();
+                                    $('#BlibliClientPass').show();
+                                    $('#Customers_TLP').val('.');
+                                }
+
                             }
                         }
                     });
@@ -1843,6 +1883,9 @@
                 var kdBlibli = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Blibli"))?.IdMarket.ToString();
                 var kdElevenia = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Elevenia"))?.IdMarket.ToString();
                 var kdJd = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("JD.ID"))?.IdMarket.ToString();
+                //add by fauzi 26 Februari 2020 untuk modal tata cara create API KEY di shopify
+                var kdShopify = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Shopify"))?.IdMarket.ToString();
+                //end
                  }
             @*if (codeMarketplace == @kdLzd) {
                 $('#modalLazadaAPIKey').modal('show');
@@ -1857,6 +1900,9 @@
             }
             else if (codeMarketplace == @kdJd){
                 $('#modalJDAPIKey').modal('show');
+            }
+            else if (codeMarketplace == @kdShopify) {
+                $('#modalShopifyAPIKey').modal('show');
             }
         }
         //end add by Tri, function to open modal on how to get api key each marketplace
@@ -2062,6 +2108,50 @@
                 $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
 
                 $('#lbl_Customers_API_KEY').html("API Secret Key *");
+                $('#labelAPI_CLIENT_U').html("API client username *");
+            }
+        }
+
+        function showHideShopifyForm(show) {
+            $('#labelSort1_Cust').remove();
+            $('#txtSort1_Cust').remove();
+            $('#labelAPI_CLIENT_U').remove();
+            $('#txtAPI_CLIENT_U').remove();
+            $('#labelAPI_CLIENT_P').remove();
+            $('#txtAPI_CLIENT_P').remove();
+            $('#labelAPI_Key').remove();
+            //$('#txtAPI_Key').remove();
+            //$('#labelKetTokped1').remove();
+            //$('#labelKetTokped2').remove();
+            if (show) {
+                //var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">Merchant ID *</label>';
+
+                var valuetxtSort1_Cust = "";
+                if ($('#Customers_Sort1_Cust').val() != null) {
+                    valuetxtSort1_Cust = $('#Customers_Sort1_Cust').val();
+                }
+                //var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Merchant ID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="' + valuetxtSort1_Cust + '" maxlength="10"></div>';
+
+                //var labelAPI_CLIENT_U = '<label id="labelAPI_CLIENT_U" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">API client *</label>';
+
+                //var valuetxtAPI_CLIENT_U = "";
+                //if ($('#Customers_API_CLIENT_U').val() != null) {
+                //    valuetxtAPI_CLIENT_U = $('#Customers_API_CLIENT_U').val();
+                //}
+                //var txtAPI_CLIENT_U = '<div id="txtAPI_CLIENT_U" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_CLIENT_U must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="' + valuetxtAPI_CLIENT_U + '" maxlength="50"></div>';
+
+                var labelAPI_CLIENT_P = '<label id="labelAPI_CLIENT_P" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_P">API password *</label>';
+                var valuetxtAPI_CLIENT_P = "";
+                if ($('#Customers_API_CLIENT_P').val() != null) {
+                    valuetxtAPI_CLIENT_P = $('#Customers_API_CLIENT_P').val();
+                }
+                var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" required="required" type="text" value="' + valuetxtAPI_CLIENT_P + '"></div>';
+
+                //$('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
+                //$('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
+                $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
+
+                //$('#lbl_Customers_API_KEY').html("API Secret Key *");
                 $('#labelAPI_CLIENT_U').html("API client username *");
             }
         }
@@ -2537,6 +2627,24 @@
                             lblPopUp.style.visibility = 'hidden';
                     }
                     //end add by calvin, button for generate lazada code
+
+                    if (@shopify == response.Customers.NAMA) {
+                        $('#lbl_Customers_API_KEY').html("API Key *");
+                        
+                        var labelAPI_CLIENT_P = '<label id="labelAPI_CLIENT_P" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_P">API password *</label>';
+                        var valuetxtAPI_CLIENT_P = "";
+                        if (response.Customers.API_CLIENT_P != null) {
+                            valuetxtAPI_CLIENT_P = response.Customers.API_CLIENT_P;
+                        }
+                        var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" required="required" type="text" value="' + valuetxtAPI_CLIENT_P + '"></div>';
+                        
+                        $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
+                        $('#divAPIKey').show();
+                        $('#BlibliMerchantID').hide();
+                        $('#BlibliClient').hide();
+                        $('#BlibliClientPass').show();
+                        $('#Customers_TLP').val('.');
+                    }
 
                     //add by fauzi 82Cart
                     if (@v82cart == response.Customers.NAMA) {

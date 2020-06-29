@@ -1098,9 +1098,10 @@ namespace MasterOnline.Controllers
                 title = (brgInDb.NAMA + " " + brgInDb.NAMA2).Trim().Replace("’", "`"),
                 body_html = brgInDb.Deskripsi.Replace("’", "`"),
                 vendor = brgInDb.KET_SORT2,
-                product_type = detailBrg.CATEGORY_NAME,
+                product_type = brgInDb.KET_SORT1,
                 tags = "",
                 template_suffix = "",
+                available = true,
                 published = true,
                 variants = new List<ShopifyCreateProductDataVariant>(),
                 images = new List<ShopifyCreateProductImages>()
@@ -1112,10 +1113,22 @@ namespace MasterOnline.Controllers
                 option1 = brgInDb.NAMA2,
                 price = detailBrg.HJUAL.ToString(),
                 inventory_quantity = 1,
-                grams = Convert.ToInt32(brgInDb.BERAT / 1000),
+                grams = Convert.ToInt32(brgInDb.BERAT * 1000),
                 weight = Convert.ToInt64(brgInDb.BERAT),
+                weight_unit = "kg",
                 sku = detailBrg.BRG
             };
+
+            if (brgInDb.TYPE == "3")
+            {
+                variants.option1 = null;
+                variants.title = null;
+            }
+            else
+            {
+                variants.option1 = brgInDb.NAMA;
+                variants.title = brgInDb.NAMA;
+            }
 
             body.variants.Add(variants);
 
@@ -1328,9 +1341,10 @@ namespace MasterOnline.Controllers
                 title = (brgInDb.NAMA + " " + brgInDb.NAMA2).Trim().Replace("’", "`"),
                 body_html = brgInDb.Deskripsi.Replace("’", "`"),
                 vendor = brgInDb.KET_SORT2,
-                product_type = detailBrg.CATEGORY_NAME,
+                product_type = brgInDb.KET_SORT1,
                 //tags = "",
                 //template_suffix = "",
+                available = true,
                 published = true,
                 variants = new List<VariantProductUpdate>(),
                 images = new List<ImagesUpdateProduct>()
@@ -1338,15 +1352,27 @@ namespace MasterOnline.Controllers
 
             VariantProductUpdate variantsData = new VariantProductUpdate
             {
-                title = brgInDb.NAMA,
-                option1 = brgInDb.NAMA2,
+                id = Convert.ToInt64(brg_mp_split[1]),
+                //title = brgInDb.NAMA,
+                //option1 = brgInDb.NAMA,
                 price = Convert.ToInt32(detailBrg.HJUAL),
                 inventory_quantity = 1,
-                grams = Convert.ToInt32(brgInDb.BERAT / 1000),
+                grams = Convert.ToInt32(brgInDb.BERAT * 1000),
                 weight = Convert.ToInt32(brgInDb.BERAT),
                 unit_weight = "kg",
                 sku = detailBrg.BRG
             };
+
+            if (brgInDb.TYPE == "3")
+            {
+                variantsData.option1 = "Default Title";
+                variantsData.title = "Default Title";
+            }
+            else
+            {
+                variantsData.option1 = brgInDb.NAMA;
+                variantsData.title = brgInDb.NAMA;
+            }
 
             body.variants.Add(variantsData);
 
@@ -1693,6 +1719,7 @@ namespace MasterOnline.Controllers
             public string template_suffix { get; set; }
             public string tags { get; set; }
             public bool published { get; set; }
+            public bool available { get; set; }
             public List<ShopifyCreateProductDataVariant> variants { get; set; }
             public List<ShopifyCreateProductImages> images { get; set; }
         }
