@@ -145,7 +145,7 @@ namespace MasterOnline.Controllers
                                 {
                                     if (!String.IsNullOrWhiteSpace(DatabasePathErasoft.ToString()))
                                     {
-                                        var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', AL = '" + result.shop.address1 + "', Sort1_Cust = '" + result.shop.id + "', TLP = '" + result.shop.phone + "' WHERE CUST = '" + dataAPI.no_cust + "'");
+                                        var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', AL = '" + result.shop.address1 + "', Sort1_Cust = '" + result.shop.id + "' WHERE CUST = '" + dataAPI.no_cust + "'");
                                         if (resultquery != 0)
                                         {
                                             contextNotif.Clients.Group(dataAPI.DatabasePathErasoft).notifTransaction("Akun marketplace " + result.shop.name.ToString() + " (Shopify) berhasil aktif", true);
