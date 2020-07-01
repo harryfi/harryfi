@@ -41942,7 +41942,7 @@ namespace MasterOnline.Controllers
                                     //}
                                     ret.TidakLanjutProses = false;
                                     ret.statusLoopDownload = true;
-                                    ret.percentDownload = 10;
+                                    //ret.percentDownload = 10;
                                     ret.statusLoop = true;
                                     return Json(ret, JsonRequestBehavior.AllowGet);
                                 }
@@ -44796,7 +44796,7 @@ namespace MasterOnline.Controllers
                                 if (recordsLazada.Count() != 0)
                                 {
                                     #region create induk
-                                    if (ret.statusLoop == false && ret.statusLoopTemp == false)
+                                    if (ret.statusLoop == false && ret.statusLoopTemp == false )
                                     {
                                         var art03a = new ART03A
                                         {
@@ -45159,7 +45159,7 @@ namespace MasterOnline.Controllers
                                         //return Json(ret, JsonRequestBehavior.AllowGet);
                                         ret.TidakLanjutProses = false;
                                         ret.statusLoopDownload = true;
-                                        ret.percentDownload = 10;
+                                        //ret.percentDownload = 10;
                                         ret.statusLoop = true;
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
@@ -46984,7 +46984,7 @@ namespace MasterOnline.Controllers
 
                                         ret.TidakLanjutProses = false;
                                         ret.statusLoopDownload = true;
-                                        ret.percentDownload = 10;
+                                        //ret.percentDownload = 10;
                                         ret.statusLoop = true;
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
@@ -49380,7 +49380,7 @@ namespace MasterOnline.Controllers
 
                                         ret.TidakLanjutProses = false;
                                         ret.statusLoopDownload = true;
-                                        ret.percentDownload = 10;
+                                        //ret.percentDownload = 10;
                                         ret.statusLoop = true;
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
