@@ -2216,8 +2216,13 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Resi Pesanan {obj} ke Shopee Gagal.")]
         public async Task<string> GetOrderDetailsForTrackNo(ShopeeAPIData iden, string[] ordersn_list)
         {
+            SetupContext(iden);
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
@@ -2268,7 +2273,22 @@ namespace MasterOnline.Controllers
 
                 foreach (var order in result.orders)
                 {
-                    ret = order.tracking_no;
+                    var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.NO_REFERENSI == order.ordersn);
+                    
+                    if (order.tracking_no != null && order.tracking_no != "")
+                    {
+                        ret = order.tracking_no;
+                        if (pesananInDb != null)
+                        {
+                            pesananInDb.TRACKING_SHIPMENT = order.tracking_no;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee gagal.");
+                    }
                 }
                 //}
                 //catch (Exception ex2)
@@ -3663,7 +3683,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
-        [NotifyOnFailed("Update Resi Pesanan {obj} ke Shopee Gagal.")]
+        [NotifyOnFailed("Proses Dropoff/JOB Pesanan {obj} ke Shopee Gagal.")]
         public async Task<string> InitLogisticDropOff(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string ordersn, ShopeeInitLogisticDropOffDetailData data, int recnum, string dBranch, string dSender, string dTrackNo, string set_job)
         {
             SetupContext(iden);
@@ -4006,7 +4026,13 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    throw new Exception(result.msg);
+                    var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
+                    if (pesananInDb != null)
+                    {
+                        pesananInDb.status_kirim = "1";
+                        ErasoftDbContext.SaveChanges();
+                    }
+                        throw new Exception(result.msg);
 
                     //currentLog.REQUEST_EXCEPTION = result.msg;
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
@@ -4236,6 +4262,12 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
+                    var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
+                    if (pesananInDb != null)
+                    {
+                        pesananInDb.status_kirim = "1";
+                        ErasoftDbContext.SaveChanges();
+                    }
                     throw new Exception(result.msg);
                     //currentLog.REQUEST_EXCEPTION = result.msg;
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
