@@ -16,7 +16,7 @@
 //}
 }
 @Html.AntiForgeryToken()
-<script type="text/javascript">
+    <script type="text/javascript">
     $(document).ready(function () {
         if ($('#Stf02_ID').val() == "") {
             $('#Stf02_ID').val($('#txtStf02ID').val());
@@ -683,6 +683,7 @@
                     $('#save_map_var_lazada').removeAttr('disabled');
                 });
             });
+            //selectJudulVariantLazadaLv1
             //end add by nurul 26/2/2020, opsi variasi jadi textbox
 
             if ($('#selectJudulVariantLazadaLv1').length > 0 || $('#selectJudulVariantLazadaLv2').length > 0 || $('#selectJudulVariantLazadaLv3').length > 0) {
@@ -729,6 +730,7 @@
                                     //remark by nurul 26/2/2020, opsi variasi jadi textbox
                                     //SearchOptVariantLazada(1, value);
                                     //end remark by nurul 26/2/2020, opsi variasi jadi textbox
+                                    $('#save_map_var_lazada').removeAttr('disabled');
                                 }
                             });
                             attributeSelect[0].selectize.clearOptions();
@@ -761,6 +763,7 @@
                                     //remark by nurul 26/2/2020, opsi variasi jadi textbox
                                     //SearchOptVariantLazada(2, value);
                                     //end remark by nurul 26/2/2020, opsi variasi jadi textbox
+                                    $('#save_map_var_lazada').removeAttr('disabled');
                                 }
                             });
                             attributeSelect[0].selectize.clearOptions();
@@ -793,6 +796,7 @@
                                     //remark by nurul 26/2/2020, opsi variasi jadi textbox
                                     //SearchOptVariantLazada(3, value);
                                     //end remark by nurul 26/2/2020, opsi variasi jadi textbox
+                                    $('#save_map_var_lazada').removeAttr('disabled');
                                 }
                             });
                             attributeSelect[0].selectize.clearOptions();
@@ -2286,7 +2290,7 @@
             }
         }
     }
-</script>
+    </script>
 <div class="form-horizontal">
     <div class="modal fade" id="KonfKodeBarangVariasi" tabindex="-1" role="dialog" aria-labelledby="KonfKodeBarangVariasiLabel">
         <div class="modal-dialog" role="document">

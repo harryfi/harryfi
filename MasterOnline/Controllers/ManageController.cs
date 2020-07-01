@@ -13796,7 +13796,10 @@ namespace MasterOnline.Controllers
             {
                 foreach(var items in listStf02ToUpdate)
                 {
-                    if(STF02_Induk.NAMA != items.NAMA || !items.NAMA2.Contains(STF02_Induk.NAMA2))
+                    var namaBarang = items.NAMA + ' ' + (items.NAMA2 ?? "");
+                    var namaBarangInduk = STF02_Induk.NAMA + ' ' + (STF02_Induk.NAMA2 ?? "");
+                    //if (STF02_Induk.NAMA != items.NAMA || !items.NAMA2.Contains(STF02_Induk.NAMA2))
+                    if (!namaBarang.Contains(namaBarangInduk))
                     {
                         string ket_varlv1 = "";
                         string ket_varlv2 = "";
