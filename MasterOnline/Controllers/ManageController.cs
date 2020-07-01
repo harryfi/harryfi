@@ -21227,7 +21227,7 @@ namespace MasterOnline.Controllers
 #if (DEBUG || Debug_AWS)
                             new ShopifyControllerJob().Shopify_SetOrderStatusFulfillment(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Shipped Order", idenJob);
 #else
-                            clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusFulfillment(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Shipped Order", idenJob, pesanan.TOTAL_SEMUA));
+                            clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusFulfillment(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Shipped Order", idenJob));
 #endif
                         }
                         break;
@@ -44324,7 +44324,7 @@ namespace MasterOnline.Controllers
 #if (DEBUG || Debug_AWS)
                             new ShopifyControllerJob().Shopify_SetOrderStatusFulfillment(dbPathEra, SOA_NOREF, mpCust82Cart.CUST, "Pesanan", "Shipped Order", idenJob);
 #else
-                            clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusFulfillment(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Shipped Order", idenJob, pesanan.TOTAL_SEMUA));
+                            clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusFulfillment(dbPathEra, SOA_NOREF, mpCust82Cart.CUST, "Pesanan", "Shipped Order", idenJob));
 #endif
                             }
                         }
