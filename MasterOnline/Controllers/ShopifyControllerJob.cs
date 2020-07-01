@@ -1036,6 +1036,8 @@ namespace MasterOnline.Controllers
                 notify_customer = true
             };
 
+            body.fulfillment = dataFulfillment;
+
             string myData = JsonConvert.SerializeObject(body);
 
             var client = new HttpClient();

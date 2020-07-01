@@ -21572,6 +21572,14 @@ namespace MasterOnline.Controllers
             pesananInDb.NETTO = pesananInDb.BRUTO - pesananInDb.NILAI_DISC + pesananInDb.NILAI_PPN +
                                 pesananInDb.ONGKOS_KIRIM;
 
+            //add by fauzi 01/07/2020 tambah untuk nama kurir jika diisi manual di form pesanan
+            if (!string.IsNullOrEmpty(dataUpdate.Exp))
+            {
+                int recnumEkpedisi = Convert.ToInt32(dataUpdate.Exp);
+                var namaKurir = MoDbContext.Ekspedisi.Where(p => p.RecNum == recnumEkpedisi).SingleOrDefault().NamaEkspedisi;
+                pesananInDb.SHIPMENT = namaKurir.ToString();
+            }
+
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
