@@ -820,6 +820,7 @@
                 //$('#progressBarUpload').modal('hide');
                 $('#progressBarUpload').hide();
                 $('#progressBarDownload').hide();
+                $('#progressBarTemp').hide();
                 $('#progressBarPot').hide();
                 $('#progressBarDelete').hide();
                 refreshTablePiutang1();
@@ -2294,8 +2295,14 @@
                     $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
                     $('#pBar_uploadFile').html('0% Complete');
                     //$('#progressBarUpload').modal('show');
-                    $('#pBar_DownloadFile').css('width', '0%').attr('aria-valuenow', 0);
-                    $('#pBar_DownloadFile').html('0% Complete');
+                    
+                    if ($tempMP1.toUpperCase() == "SHOPEE") {
+                        $('#pBar_DownloadFile').css('width', '0%').attr('aria-valuenow', 0);
+                        $('#pBar_DownloadFile').html('0% Complete');
+                    } else {
+                        $('#pBar_DownloadFile').css('width', '5%').attr('aria-valuenow', 5);
+                        $('#pBar_DownloadFile').html('5% Complete');
+                    }
                     $('#pBar_TempFile').css('width', '0%').attr('aria-valuenow', 0);
                     $('#pBar_TempFile').html('0% Complete');
                     $('#progressBarDownload').show();
@@ -2330,13 +2337,23 @@
             var vstatusLoopDownload = splitStatusDownload[0];
             var vstatusSuccessDownload = splitStatusDownload[1];
 
-            var splitproTemp = vpercentvprogressTemp.split(';');
-            var vpercentTemp = splitproTemp[0];
-            var vprogressTemp = splitproTemp[1];
+            var splitproTemp = [];
+            var vpercentTemp = "";
+            var vprogressTemp = "";
 
-            var splitStatusTemp = vstatusLoopvSuccessTemp.split(';');
-            var vstatusLoopTemp = splitStatusTemp[0];
-            var vstatusSuccessTemp = splitStatusTemp[1];
+            var splitStatusTemp = [];
+            var vstatusLoopTemp = "";
+            var vstatusSuccessTemp = "";
+
+            if ($tempMP1.toUpperCase() == "SHOPEE") {
+                splitproTemp = vpercentvprogressTemp.split(';');
+                vpercentTemp = splitproTemp[0];
+                vprogressTemp = splitproTemp[1];
+
+                splitStatusTemp = vstatusLoopvSuccessTemp.split(';');
+                vstatusLoopTemp = splitStatusTemp[0];
+                vstatusSuccessTemp = splitStatusTemp[1];
+            }
 
 
             if ($('#file_upload_excel')[0].files.length <= 0) {
@@ -2395,16 +2412,20 @@
                     $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayar1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess", percentDanprogressDownload = "rep7percent;rep8progress", statusLoopSuccessDownload= "rep9loop;rep10success", filename="repFileName", percentDanprogressTemp = "rep11percent;rep12progress", statusLoopSuccessTemp = "rep13loop;rep14success", fileCsvTemp = "repFileCsv" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "TOKOPEDIA") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarTokped1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess", percentDanprogressDownload = "rep7percent;rep8progress", statusLoopSuccessDownload = "rep9loop;rep10success", filename = "repFileName", percentDanprogressTemp = "rep11percent;rep12progress", statusLoopSuccessTemp = "rep13loop;rep14success" }))';
+                    $('#progressBarTemp').hide();
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarTokped1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess", percentDanprogressDownload = "rep7percent;rep8progress", statusLoopSuccessDownload = "rep9loop;rep10success", filename = "repFileName" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "LAZADA") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarLazada", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess", percentDanprogressDownload = "rep7percent;rep8progress", statusLoopSuccessDownload = "rep9loop;rep10success", filename = "repFileName", percentDanprogressTemp = "rep11percent;rep12progress", statusLoopSuccessTemp = "rep13loop;rep14success" }))';
+                    $('#progressBarTemp').hide();
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarLazada", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess", percentDanprogressDownload = "rep7percent;rep8progress", statusLoopSuccessDownload = "rep9loop;rep10success", filename = "repFileName" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "BUKALAPAK") {
+                    $('#progressBarTemp').hide();
                     $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBukalapak", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "BLIBLI") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBlibli1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess", percentDanprogressDownload = "rep7percent;rep8progress", statusLoopSuccessDownload = "rep9loop;rep10success", filename = "repFileName", percentDanprogressTemp = "rep11percent;rep12progress", statusLoopSuccessTemp = "rep13loop;rep14success" }))';
+                    $('#progressBarTemp').hide();
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBlibli1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess", percentDanprogressDownload = "rep7percent;rep8progress", statusLoopSuccessDownload = "rep9loop;rep10success", filename = "repFileName" }))';
                 }
 
                 $urlProgress = $urlProgress.replace("rep1", vnobuk);
@@ -2423,14 +2444,118 @@
                 $urlProgress = $urlProgress.replace("rep10success", String(vstatusSuccessDownload));
                 $urlProgress = $urlProgress.replace("repFileName", String(fileNameProcessDownload));
 
-                $urlProgress = $urlProgress.replace("rep11percent", vpercentTemp);
-                $urlProgress = $urlProgress.replace("rep12progress", vprogressTemp);
-                $urlProgress = $urlProgress.replace("rep13loop", String(vstatusLoopTemp));
-                $urlProgress = $urlProgress.replace("rep14success", String(vstatusSuccessTemp));
-
                 if ($tempMP1.toUpperCase() == "SHOPEE") {
+                    $urlProgress = $urlProgress.replace("rep11percent", vpercentTemp);
+                    $urlProgress = $urlProgress.replace("rep12progress", vprogressTemp);
+                    $urlProgress = $urlProgress.replace("rep13loop", String(vstatusLoopTemp));
+                    $urlProgress = $urlProgress.replace("rep14success", String(vstatusSuccessTemp));
+
                     $urlProgress = $urlProgress.replace("repFileCsv", vTempCsv);
                 }
+
+                //if ($tempMP1.toUpperCase() == "LAZADA") {
+                //    $urlProgress = $urlProgress.replace("repListDetail", vTempCsv);
+                //}
+
+
+                @*var $urlProgress = "";
+                if ($tempMP1.toUpperCase() == "SHOPEE") {
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayar1", "Manage"))';
+                    $postdata = {
+                        nobuk: vnobuk,
+                        countAll: vcountAll,
+                        percentDanprogress: vpercent + ";" + vprogress,
+                        statusLoopSuccess: String(vstatusLoop) + ";" + String(vstatusSuccess),
+                        log: vBuktiLog,
+                        NoProcess: vNoProcess,
+                        percentDanprogressDownload: vpercentDownload + ";" + vprogressDownload,
+                        statusLoopSuccessDownload: String(vstatusLoopDownload) + ";" + String(vstatusSuccessDownload),
+                        filename: String(fileNameProcessDownload),
+                        percentDanprogressTemp: vpercentTemp + ";" + vprogressTemp,
+                        statusLoopSuccessTemp: String(vstatusLoopTemp) + ";" + String(vstatusSuccessTemp),
+                        fileCsvTemp: vTempCsv,
+                        listDetail: vTempCsv,
+                    };
+                }
+                else if ($tempMP1.toUpperCase() == "TOKOPEDIA") {
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarTokped1", "Manage"))';
+                    $postdata = {
+                        nobuk: vnobuk,
+                        countAll: vcountAll,
+                        percentDanprogress: vpercent + ";" + vprogress,
+                        statusLoopSuccess: String(vstatusLoop) + ";" + String(vstatusSuccess),
+                        log: vBuktiLog,
+                        NoProcess: vNoProcess,
+                        percentDanprogressDownload: vpercentDownload + ";" + vprogressDownload,
+                        statusLoopSuccessDownload: String(vstatusLoopDownload) + ";" + String(vstatusSuccessDownload),
+                        filename: String(fileNameProcessDownload),
+                        percentDanprogressTemp: vpercentTemp + ";" + vprogressTemp,
+                        statusLoopSuccessTemp: String(vstatusLoopTemp) + ";" + String(vstatusSuccessTemp),
+                    };
+                }
+                else if ($tempMP1.toUpperCase() == "LAZADA") {
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarLazada", "Manage"))';
+                    $postdata = {
+                        nobuk: vnobuk,
+                        countAll: vcountAll,
+                        percentDanprogress: vpercent + ";" + vprogress,
+                        statusLoopSuccess: String(vstatusLoop) + ";" + String(vstatusSuccess),
+                        log: vBuktiLog,
+                        NoProcess: vNoProcess,
+                        percentDanprogressDownload: vpercentDownload + ";" + vprogressDownload,
+                        statusLoopSuccessDownload: String(vstatusLoopDownload) + ";" + String(vstatusSuccessDownload),
+                        filename: String(fileNameProcessDownload),
+                        percentDanprogressTemp: vpercentTemp + ";" + vprogressTemp,
+                        statusLoopSuccessTemp: String(vstatusLoopTemp) + ";" + String(vstatusSuccessTemp),
+                        listDetail: vTempCsv
+                    };
+                }
+                else if ($tempMP1.toUpperCase() == "BUKALAPAK") {
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBukalapak", "Manage"))';
+                    $postdata = {
+                        nobuk: vnobuk,
+                        countAll: vcountAll,
+                        percentDanprogress: vpercent + ";" + vprogress,
+                        statusLoopSuccess: String(vstatusLoop) + ";" + String(vstatusSuccess),
+                        log: vBuktiLog,
+                        NoProcess: vNoProcess,
+                    };
+                }
+                else if ($tempMP1.toUpperCase() == "BLIBLI") {
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBlibli1", "Manage"))';
+                    $postdata = {
+                        nobuk: vnobuk,
+                        countAll: vcountAll,
+                        percentDanprogress: vpercent + ";" + vprogress,
+                        statusLoopSuccess: String(vstatusLoop) + ";" + String(vstatusSuccess),
+                        log: vBuktiLog,
+                        NoProcess: vNoProcess,
+                        percentDanprogressDownload: vpercentDownload + ";" + vprogressDownload,
+                        statusLoopSuccessDownload: String(vstatusLoopDownload) + ";" + String(vstatusSuccessDownload),
+                        filename: String(fileNameProcessDownload),
+                        percentDanprogressTemp: vpercentTemp + ";" + vprogressTemp,
+                        statusLoopSuccessTemp: String(vstatusLoopTemp) + ";" + String(vstatusSuccessTemp)
+                    };
+                }*@
+
+                
+                //$postdata = {
+                //    nobuk: vnobuk,
+                //    countAll: vcountAll,
+                //    percentDanprogress: vpercent + ";" + vprogress,
+                //    statusLoopSuccess: String(vstatusLoop) + ";" + String(vstatusSuccess),
+                //    log: vBuktiLog,
+                //    NoProcess: vNoProcess,
+                //    percentDanprogressDownload: vpercentDownload + ";" + vprogressDownload,
+                //    statusLoopSuccessDownload: String(vstatusLoopDownload) + ";" + String(vstatusSuccessDownload),
+                //    filename: String(fileNameProcessDownload),
+                //    percentDanprogressTemp: vpercentTemp + ";" + vprogressTemp,
+                //    statusLoopSuccessTemp: String(vstatusLoopTemp) + ";" + String(vstatusSuccessTemp),
+                //    fileCsvTemp: vTempCsv,
+                //    listDetail: vTempCsv
+                //};
+
+
 
                 $.ajax({
                     type: "POST",
@@ -2438,25 +2563,23 @@
                     data: formdata,
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
+                    //contentType: "application/json; charset=UTF-8",
+                    //cache: false,
+                    //data: JSON.stringify($postdata),
                     beforeSend: function () {
                         $('#konfUpload_btn_tidak').hide();
                     },
                     success: function (response) {
                         if (response.countAll == undefined) {
-                            //$('#loading_upload').hide();
-                            //$("#konfUpload").modal('hide');
 
                             $modeEdit = 1; // 0 new, 1 edit
                             $('.piutang_table_section').hide();
                             $('.piutang_editor_section').show();
                             $('#form-partial').html(response);
-                            //$('#table_detail').html(response);
                             tempNobuk = ret.nobuk;
                             tempLog = ret.buktiLog;
 
-                            //$('#pBar_DownloadFile').css('width', '100%').attr('aria-valuenow', 100);
-                            //$('#pBar_DownloadFile').html('100% Complete');
-                                if (ret.countAllTemp != null && ret.statusLoopTemp == true && ret.statusSuccessTemp == false && ret.TidakLanjutProses == false) {
+                                if (ret.countAllTemp != null && ret.statusLoopTemp == true && ret.statusSuccessTemp == false && ret.TidakLanjutProses == false && $tempMP1.toUpperCase() == "SHOPEE") {
                                     $('#pBar_TempFile').css('width', ret.percentTemp + '%').attr('aria-valuenow', ret.percentTemp);
                                     $('#pBar_TempFile').html(ret.percentTemp + '% Complete');
 
@@ -2464,17 +2587,17 @@
                                         if ($tempMP1.toUpperCase() == "SHOPEE") {
                                             uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload), String(ret.percentTemp) + ";" + String(ret.progressTemp + 1), String(ret.statusLoopTemp) + ";" + String(ret.statusSuccessTemp), String(ret.fileCsvPath));
                                         } else {
-                                            uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload), String(ret.percentTemp) + ";" + String(ret.progressTemp + 1), String(ret.statusLoopTemp) + ";" + String(ret.statusSuccessTemp));
+                                            uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload));
                                         }
                                     }
-                                } else if (ret.countAllDownload == 0 && ret.statusSuccessTemp == true && ret.statusSuccess == false && ret.TidakLanjutProses == false) {
+                                } else if (ret.countAllDownload == 0 && ret.statusSuccessTemp == true && ret.statusSuccess == false && ret.TidakLanjutProses == false && $tempMP1.toUpperCase() == "SHOPEE") {
                                     $('#pBar_TempFile').css('width', '100%').attr('aria-valuenow', 100);
                                     $('#pBar_TempFile').html('100% Complete');
                                     if (ret.progressTemp <= ret.countAllTemp) {
                                         if ($tempMP1.toUpperCase() == "SHOPEE") {
                                             uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload + 1), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload), String(ret.percentTemp) + ";" + String(ret.progressTemp), String(ret.statusLoopTemp) + ";" + String(ret.statusSuccessTemp), String(ret.fileCsvPath));
                                         } else {
-                                            uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload + 1), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload), String(ret.percentTemp) + ";" + String(ret.progressTemp), String(ret.statusLoopTemp) + ";" + String(ret.statusSuccessTemp));
+                                            uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload + 1), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload));
                                         }
                                     }
                                 } else if (ret.countAllDownload != null && ret.statusLoopDownload == true && ret.statusSuccessDownload == false && ret.TidakLanjutProses == false && ret.selesaiProsesDownload == false) {
@@ -2485,7 +2608,7 @@
                                         if ($tempMP1.toUpperCase() == "SHOPEE") {
                                             uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload + 1), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload), String(ret.percentTemp) + ";" + String(ret.progressTemp), String(ret.statusLoopTemp) + ";" + String(ret.statusSuccessTemp), String(ret.fileCsvPath));
                                         } else {
-                                            uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload + 1), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload), String(ret.percentTemp) + ";" + String(ret.progressTemp), String(ret.statusLoopTemp) + ";" + String(ret.statusSuccessTemp));
+                                            uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload + 1), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload));
                                         }
                                     }
                                 } else if (ret.countAll == 0 && ret.statusSuccessDownload == true && ret.selesaiProsesDownload == true && ret.statusSuccess == false && ret.TidakLanjutProses == true) {
@@ -2495,7 +2618,7 @@
                                         if ($tempMP1.toUpperCase() == "SHOPEE") {
                                             uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload), String(ret.percentTemp) + ";" + String(ret.progressTemp), String(ret.statusLoopTemp) + ";" + String(ret.statusSuccessTemp), String(ret.fileCsvPath));
                                         } else {
-                                            uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload), String(ret.percentTemp) + ";" + String(ret.progressTemp), String(ret.statusLoopTemp) + ";" + String(ret.statusSuccessTemp));
+                                            uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload));
                                         }
                                     }
                                 } else if (ret.countAll != null && ret.statusLoop == true && ret.statusSuccess == false && ret.TidakLanjutProses == false) {
@@ -2506,7 +2629,7 @@
                                         if ($tempMP1.toUpperCase() == "SHOPEE") {
                                             uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload), String(ret.percentTemp) + ";" + String(ret.progressTemp), String(ret.statusLoopTemp) + ";" + String(ret.statusSuccessTemp), String(ret.fileCsvPath));
                                         } else {
-                                            uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload), String(ret.percentTemp) + ";" + String(ret.progressTemp), String(ret.statusLoopTemp) + ";" + String(ret.statusSuccessTemp));
+                                            uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses, String(ret.percentDownload) + ";" + String(ret.progressDownload), String(ret.statusLoopDownload) + ";" + String(ret.statusSuccessDownload));
                                         }
                                     }
 
@@ -2514,24 +2637,17 @@
                                     $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                                     $('#pBar_uploadFile').html('100% Complete');
                                     $('#btnUploadExcelPiutang').removeAttr('disabled');
-                                    //setTimeout(popupAlertUploadSaldoAwal, 500);
                                     $('#konfUpload_btn_tidak').show();
                                     $("#konfUpload").modal('hide');
 
                                     refreshInputan();
                                     getTanggal();
                                     getMarketplace();
-                                    //getFaktur($("#Piutang_CUST").val());
-                                    //FakturSelect(listFaktur);
-                                    //$('input, select').each(function () {
-                                    //    $(this).attr('disabled', 'disabled');
-                                    //});
                                     getDetailBayarPiutang();
                                     $('#btn-simpan-perubahan-row').hide();
                                     $('#btn-autoload').click(function () {
                                         $('#file_upload_excel').removeAttr('disabled');
                                     });
-                                    //$("#btn-error-row").show();
                                     $tempErr.length = 0;
                                     $tempErr = listError;
                                     popupAlertUploadSaldoAwal;
@@ -2543,24 +2659,17 @@
                                     $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                                     $('#pBar_uploadFile').html('0% Complete');
                                     $('#btnUploadExcelPiutang').removeAttr('disabled');
-                                    //setTimeout(alert("Proses upload pembayaran piutang gagal. Klik Lihat Error!"), 500);
                                     $('#konfUpload_btn_tidak').show();
                                     $("#konfUpload").modal('hide');
 
                                     refreshInputan();
                                     getTanggal();
                                     getMarketplace();
-                                    //getFaktur($("#Piutang_CUST").val());
-                                    //FakturSelect(listFaktur);
-                                    //$('input, select').each(function () {
-                                    //    $(this).attr('disabled', 'disabled');
-                                    //});
                                     getDetailBayarPiutang();
                                     $('#btn-simpan-perubahan-row').hide();
                                     $('#btn-autoload').click(function () {
                                         $('#file_upload_excel').removeAttr('disabled');
                                     });
-                                    //$("#btn-error-row").show();
                                     $tempErr.length = 0;
                                     $tempErr = listError;
                                     alert("Proses upload pembayaran piutang gagal.");
@@ -2574,8 +2683,6 @@
                         } else {
                             tempNobuk = response.nobuk;
                             tempLog = response.buktiLog;
-                            //$('#pBar_DownloadFile').css('width', '100%').attr('aria-valuenow', 100);
-                            //$('#pBar_DownloadFile').html('100% Complete');
 
                             if (response.countAllTemp != null && response.statusLoopTemp == true && response.statusSuccessTemp == false && response.TidakLanjutProses == false) {
                                 $('#pBar_TempFile').css('width', response.percentTemp + '%').attr('aria-valuenow', response.percentTemp);
@@ -2585,7 +2692,7 @@
                                     if ($tempMP1.toUpperCase() == "SHOPEE") {
                                         uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload), String(response.percentTemp) + ";" + String(response.progressTemp + 1), String(response.statusLoopTemp) + ";" + String(response.statusSuccessTemp), String(response.fileCsvPath));
                                     } else {
-                                        uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload), String(response.percentTemp) + ";" + String(response.progressTemp + 1), String(response.statusLoopTemp) + ";" + String(response.statusSuccessTemp));
+                                        uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload));
                                     }
                                 }
                             } else if (response.countAllDownload == 0 && response.statusSuccessTemp == true && response.statusSuccess == false && response.TidakLanjutProses == false) {
@@ -2595,7 +2702,7 @@
                                     if ($tempMP1.toUpperCase() == "SHOPEE") {
                                         uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload + 1), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload), String(response.percentTemp) + ";" + String(response.progressTemp), String(response.statusLoopTemp) + ";" + String(response.statusSuccessTemp), String(response.fileCsvPath));
                                     } else {
-                                        uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload + 1), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload), String(response.percentTemp) + ";" + String(response.progressTemp), String(response.statusLoopTemp) + ";" + String(response.statusSuccessTemp));
+                                        uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload + 1), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload));
                                     }
                                 }
                             } else if (response.countAllDownload != null && response.statusLoopDownload == true && response.statusSuccessDownload == false && response.selesaiProsesDownload == false && response.TidakLanjutProses == false) {
@@ -2606,7 +2713,7 @@
                                     if ($tempMP1.toUpperCase() == "SHOPEE") {
                                         uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload + 1), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload), String(response.percentTemp) + ";" + String(response.progressTemp), String(response.statusLoopTemp) + ";" + String(response.statusSuccessTemp), String(response.fileCsvPath));
                                     } else {
-                                        uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload + 1), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload), String(response.percentTemp) + ";" + String(response.progressTemp), String(response.statusLoopTemp) + ";" + String(response.statusSuccessTemp));
+                                        uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload + 1), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload));
                                     }
                                 }
                             } else if (response.countAll == 0 && response.statusSuccessDownload == true && response.selesaiProsesDownload == true && response.statusSuccess == false && response.TidakLanjutProses == false) {
@@ -2616,7 +2723,7 @@
                                     if ($tempMP1.toUpperCase() == "SHOPEE") {
                                         uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload), String(response.percentTemp) + ";" + String(response.progressTemp), String(response.statusLoopTemp) + ";" + String(response.statusSuccessTemp), String(response.fileCsvPath));
                                     } else {
-                                        uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload), String(response.percentTemp) + ";" + String(response.progressTemp), String(response.statusLoopTemp) + ";" + String(response.statusSuccessTemp));
+                                        uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload));
                                     }
                                 }
                             } else if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false && response.TidakLanjutProses == false) {
@@ -2627,7 +2734,7 @@
                                     if ($tempMP1.toUpperCase() == "SHOPEE") {
                                         uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload), String(response.percentTemp) + ";" + String(response.progressTemp), String(response.statusLoopTemp) + ";" + String(response.statusSuccessTemp), String(response.fileCsvPath));
                                     } else {
-                                        uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload), String(response.percentTemp) + ";" + String(response.progressTemp), String(response.statusLoopTemp) + ";" + String(response.statusSuccessTemp));
+                                        uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses, String(response.percentDownload) + ";" + String(response.progressDownload), String(response.statusLoopDownload) + ";" + String(response.statusSuccessDownload));
                                     }
                                 }
 
@@ -2636,52 +2743,14 @@
                                 $('#pBar_uploadFile').html('100% Complete');
                                 $('#btnUploadExcelPiutang').removeAttr('disabled');
                                 $('#konfUpload_btn_tidak').show();
-                                //setTimeout(popupAlertUploadSaldoAwal, 500);
-
-                                    //$('#loading_upload').hide();
-                                    //alert(response.Errors);
-                                    //getFaktur($("#Piutang_CUST").val());
-                                    //FakturSelect(listFaktur);
-                                    //$('input, select').each(function () {
-                                    //    $(this).removeAttr('disabled');
-                                    //});
                                     getDetailBayarPiutang();
                                     $('#btn-autoload').click(function () {
                                         $('#file_upload_excel').removeAttr('disabled');
                                     });
-                                    //$("#konfUpload").modal('hide');
-                                    //$("#btn-error-row").show();
                                     $tempErr.length = 0;
                                     $tempErr = response.Errors;
-                                    //$("#modalError").on('show.bs.modal', function (e) {
-                                    //    //$('#modalError').find('.edit-content').html($tempErr);
-                                    //    //$('#modalError').modal('show');
-                                    //    $(this).find('.edit-content').html($tempErr);
-                                    //    $('#modalError').modal('show');
-                                    //    //$(this).modal('show');
-                                    //    //$('#loading_error').hide();
-                                    //});
-                                //    if ($tempErr.length >= 1) {
-                                //        //alert('Ada error. Silahkan klik "View Error"');
-                                //        $('#btn-error').click()
-                                //        showError(response.nobuk, response.buktiLog);
-                                //    //} else if ($tempErr.length == 1) {
-                                //    //    $("#btn-error").click();
-                                //    } else if ($tempErr.length == 0) {
-                                //        //$("#btn-error-row").hide();
-                                //}
-                                //setTimeout(popupAlertUploadSaldoAwal, 500);
                                 popupAlertUploadSaldoAwal;
                                 if (response.adaError == true) {
-                                    //
-
-                                    //if (response.nobuk != null) {
-                                    //    //showError(response.nobuk, response.buktiLog);
-                                    //        $("#modalError").modal('show');
-                                    //        showError(tempNobuk, tempLog);
-                                    //} else {
-                                    //    alert(response.Errors);
-                                    //}
                                     $("#modalError").modal('show');
                                     showError(tempNobuk, tempLog);
                                 }
@@ -2693,55 +2762,14 @@
                                 $('#pBar_uploadFile').html('0% Complete');
                                 $('#btnUploadExcelPiutang').removeAttr('disabled');
                                 $('#konfUpload_btn_tidak').show();
-                                //setTimeout(alert("Proses upload pembayaran piutang gagal. Klik Lihat Error!"), 500);
-
-
-                                    //$('#loading_upload').hide();
-                                    //alert(response.Errors);
-                                    //getFaktur($("#Piutang_CUST").val());
-                                    //FakturSelect(listFaktur);
-                                    //$('input, select').each(function () {
-                                    //    $(this).removeAttr('disabled');
-                                    //});
                                     getDetailBayarPiutang();
                                     $('#btn-autoload').click(function () {
                                         $('#file_upload_excel').removeAttr('disabled');
                                     });
-                                    //$("#konfUpload").modal('hide');
-                                    //$("#btn-error-row").show();
                                     $tempErr.length = 0;
                                     $tempErr = response.Errors;
-                                    //$("#modalError").on('show.bs.modal', function (e) {
-                                    //    //$('#modalError').find('.edit-content').html($tempErr);
-                                    //    //$('#modalError').modal('show');
-                                    //    $(this).find('.edit-content').html($tempErr);
-                                    //    $('#modalError').modal('show');
-                                    //    //$(this).modal('show');
-                                    //    //$('#loading_error').hide();
-                                    //});
-                                //    if ($tempErr.length >= 1) {
-                                //    //    alert('Ada error. Silahkan klik "View Error"');
-                                //    //} else if ($tempErr.length == 1) {
-                                //    //    $("#btn-error").click();
-                                //        $('#btn-error').click()
-                                //        showError(response.nobuk, response.buktiLog);
-                                //    } else if ($tempErr.length == 0) {
-                                //        //$("#btn-error-row").hide();
-                                //}
-                                //setTimeout(alert("Proses upload pembayaran piutang gagal."), 500);
                                 alert("Proses upload pembayaran piutang gagal.");
                                 if (response.adaError == true) {
-                                    //$('#btn-error').click()
-                                    //if (response.nobuk != null) {
-                                    //    //$('#btn-error').click()
-                                    //    //showError(response.nobuk, response.buktiLog);
-                                    //    $("#modalError").on('show.bs.modal', function (e) {
-                                    //        $("#modalError").modal('show');
-                                    //        showError(tempNobuk, tempLog);
-                                    //    });
-                                    //} else {
-                                    //    alert(response.Errors);
-                                    //}
                                     $("#modalError").modal('show');
                                     showError(tempNobuk, tempLog);
                                 }
@@ -2752,20 +2780,11 @@
                     },
                     error: function (xhr, status, error) {
                         var err = "";
-                        //if (error != undefined) {
-                        //    for (i = 0; i < error.length; i++) {
-                        //        err += error[i] + "\n";
-                        //    }
-                        //} else {
-                        //    for (i = 0; i < error.length; i++) {
-                        //        err += error[i] + "\n";
-                        //    }
-                        //}
                         alert(error);
                         console.log(error);
-                        //$('#progressBarUpload').modal('hide');
                         $('#progressBarDownload').hide();
                         $('#progressBarUpload').hide();
+                        $('#progressBarTemp').hide();
                         $('#btnUploadExcelPiutang').removeAttr('disabled');
                     }
                 });
@@ -3523,6 +3542,7 @@
                 }
             });
         }
+
     </script>
 
     <script>

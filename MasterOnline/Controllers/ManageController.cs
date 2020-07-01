@@ -41124,7 +41124,7 @@ namespace MasterOnline.Controllers
             }
             //ret.selesaiProsesDownload = false;
             ret.TidakLanjutProses = NoProcess;
-            
+
 
             try
             {
@@ -41213,11 +41213,11 @@ namespace MasterOnline.Controllers
                                         {
                                             progTemp[1] = "0";
                                         }
-                                        
+
                                         if (cekCount.Count() > 0)
                                         {
                                             ret.TidakLanjutProses = false;
-                                            
+
                                             var tempPercent = Convert.ToInt32(progTemp[0]);
                                             var cekPer10 = (ret.countAllTemp / 4);
                                             var temp40 = Convert.ToInt32(progTemp[1]) + 1000;
@@ -41367,7 +41367,7 @@ namespace MasterOnline.Controllers
 
                                 }
                                 System.IO.File.Delete(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile));
-                                if(ret.statusSuccessTemp == false)
+                                if (ret.statusSuccessTemp == false)
                                 {
                                     return Json(ret, JsonRequestBehavior.AllowGet);
                                 }
@@ -41423,7 +41423,7 @@ namespace MasterOnline.Controllers
                                                 {
                                                     progTemp[1] = Convert.ToString(Convert.ToInt32(progTemp[1]) - 1);
                                                 }
-                                                
+
                                                 if (Convert.ToInt32(progTemp[1]) == 0)
                                                 {
                                                     progTemp[1] = "0";
@@ -41942,6 +41942,7 @@ namespace MasterOnline.Controllers
                                     //}
                                     ret.TidakLanjutProses = false;
                                     ret.statusLoopDownload = true;
+                                    ret.percentDownload = 10;
                                     ret.statusLoop = true;
                                     return Json(ret, JsonRequestBehavior.AllowGet);
                                 }
@@ -41967,7 +41968,7 @@ namespace MasterOnline.Controllers
                                     ret.statusLoopDownload = true;
                                     var tempPercent = Convert.ToInt32(progDownload[0]);
                                     //var cekPer20 = (ret.countAllDownload / 10);
-                                    var cekPer10 = (ret.countAllDownload * 20 / 100);
+                                    var cekPer10 = (ret.countAllDownload / 4);
                                     var temp40 = Convert.ToInt32(progDownload[1]) + 1000;
                                     data_proses_lanjut.AddRange(data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("TIDAK ADA")).ToList());
                                     ret.countAll = data_proses_lanjut.Count();
@@ -42081,10 +42082,9 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
                                             }
-                                            else if (ret.percentDownload == 20 ||
-                                            ret.percentDownload == 40 ||
-                                            ret.percentDownload == 60 ||
-                                            ret.percentDownload == 80 ||
+                                            else if (ret.percentDownload == 25 ||
+                                            ret.percentDownload == 50 ||
+                                            ret.percentDownload == 75 ||
                                             ret.percentDownload == 100)
                                             {
                                                 ret.statusSuccessDownload = false;
@@ -42468,12 +42468,17 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
+                            else
+                            {
+                                ret.TidakLanjutProses = true;
+                            }
 
                         }
                         else
                         {
                             ret.Errors.Add("Faktur dari marketplace tidak ditemukan.<br />");
                             ret.adaError = true;
+                            ret.TidakLanjutProses = true;
                             TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
                             {
                                 LOG_FILE = ret.buktiLog,
@@ -42493,6 +42498,7 @@ namespace MasterOnline.Controllers
                         //customer not found
                         ret.Errors.Add("Akun marketplace tidak ditemukan.<br />");
                         ret.adaError = true;
+                        ret.TidakLanjutProses = true;
                         TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
                         {
                             LOG_FILE = ret.buktiLog,
@@ -42544,7 +42550,8 @@ namespace MasterOnline.Controllers
                     else
                     {
                         var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
-                        ErasoftDbContext.ART03A.Remove(piutangInDb);
+                        //ErasoftDbContext.ART03A.Remove(piutangInDb);
+                        ErasoftDbContext.Database.ExecuteSqlCommand("delete from ART03A where BUKTI ='" + ret.nobuk + "'");
                         ErasoftDbContext.SaveChanges();
                         ret.Errors.Add("Tidak ada data yang dapat diproses.<br />");
                         ret.adaError = true;
@@ -42598,7 +42605,8 @@ namespace MasterOnline.Controllers
                 else
                 {
                     var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
-                    ErasoftDbContext.ART03A.Remove(piutangInDb);
+                    //ErasoftDbContext.ART03A.Remove(piutangInDb);
+                    ErasoftDbContext.Database.ExecuteSqlCommand("delete from ART03A where BUKTI ='" + ret.nobuk + "'");
                     ErasoftDbContext.SaveChanges();
                     ret.Errors.Add("Tidak ada data yang dapat diproses.<br />");
                     ret.adaError = true;
@@ -44438,6 +44446,7 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 11/11/2019, upload pembayaran lazada 
+        //public ActionResult UploadXcelBayarLazada(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess, string log, string percentDanprogressDownload, string statusLoopSuccessDownload, string filename, string percentDanprogressTemp, string statusLoopSuccessTemp, List<TEMP_UPLOAD_EXCEL_BAYAR> listDetail)
         public ActionResult UploadXcelBayarLazada(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess, string log, string percentDanprogressDownload, string statusLoopSuccessDownload, string filename)
         {
             BindUploadExcelBayar ret = new BindUploadExcelBayar();
@@ -44463,24 +44472,39 @@ namespace MasterOnline.Controllers
             string[] statusDownload = statusLoopSuccessDownload.Split(';');
             string[] progDownload = percentDanprogressDownload.Split(';');
 
+            //string[] statusTemp = statusLoopSuccessTemp.Split(';');
+            //string[] progTemp = percentDanprogressTemp.Split(';');
+
             ret.statusLoop = Convert.ToBoolean(status[0]);
-            if (ret.statusLoop == false)
+            ret.statusLoopDownload = Convert.ToBoolean(statusDownload[0]);
+            //ret.statusLoopTemp = Convert.ToBoolean(statusTemp[0]);
+            if (ret.statusLoop == false && ret.statusLoopDownload == false)
             {
                 ret.buktiLog = "Log_Upload_Pembayaran_Lazada" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
             }
+            else
+            {
+                ret.buktiLog = log;
+            }
 
-            ret.statusLoopDownload = Convert.ToBoolean(statusDownload[0]);
             if (filename != null && filename != "")
             {
                 ret.TipeData = filename;
             }
+
+            //if(listDetail != null && listDetail.Count() > 0)
+            //{
+            //    ret.list_Detail_ret = listDetail;
+            //}
             ret.selesaiProsesDownload = false;
+            ret.countAll = countAll;
 
             try
             {
                 var mp = MoDbContext.Marketplaces.ToList();
                 ret.statusSuccess = Convert.ToBoolean(status[1]);
                 ret.statusSuccessDownload = Convert.ToBoolean(statusDownload[1]);
+                //ret.statusSuccessTemp = Convert.ToBoolean(statusTemp[1]);
                 ret.sudahSimpanTemp = false;
 
                 if (ret.byteData == null && ret.statusLoop == false)
@@ -44584,6 +44608,7 @@ namespace MasterOnline.Controllers
                                     };
                                     ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
                                     ErasoftDbContext.SaveChanges();
+                                    ret.TidakLanjutProses = true;
                                     return Json(ret, JsonRequestBehavior.AllowGet);
                                 }
 
@@ -44632,6 +44657,7 @@ namespace MasterOnline.Controllers
                                 };
                                 ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
                                 ErasoftDbContext.SaveChanges();
+                                ret.TidakLanjutProses = true;
                                 return Json(ret, JsonRequestBehavior.AllowGet);
                             }
                             using (MemoryStream stream = new MemoryStream(data))
@@ -44697,6 +44723,7 @@ namespace MasterOnline.Controllers
                                             };
                                             ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
                                             ErasoftDbContext.SaveChanges();
+                                            ret.TidakLanjutProses = true;
                                             return Json(ret, JsonRequestBehavior.AllowGet);
                                         }
                                     }
@@ -44719,6 +44746,7 @@ namespace MasterOnline.Controllers
                             };
                             ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
                             ErasoftDbContext.SaveChanges();
+                            ret.TidakLanjutProses = true;
                             return Json(ret, JsonRequestBehavior.AllowGet);
                         }
                     }
@@ -44764,11 +44792,11 @@ namespace MasterOnline.Controllers
                                 List<TEMP_UPLOAD_EXCEL_BAYAR> data_proses = new List<TEMP_UPLOAD_EXCEL_BAYAR>();
                                 List<TEMP_UPLOAD_EXCEL_BAYAR> data_proses_lanjut = new List<TEMP_UPLOAD_EXCEL_BAYAR>();
                                 List<ART03B> list_detail = new List<ART03B>();
+                                List<string> list_ref = new List<string>();
                                 if (recordsLazada.Count() != 0)
                                 {
-                                    List<string> list_ref = new List<string>();
                                     #region create induk
-                                    if (ret.statusLoop == false)
+                                    if (ret.statusLoop == false && ret.statusLoopTemp == false)
                                     {
                                         var art03a = new ART03A
                                         {
@@ -44861,6 +44889,7 @@ namespace MasterOnline.Controllers
                                                 };
                                                 ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
                                                 ErasoftDbContext.SaveChanges();
+                                                ret.TidakLanjutProses = true;
                                                 return Json(ret, JsonRequestBehavior.AllowGet);
                                             }
                                         }
@@ -44884,6 +44913,26 @@ namespace MasterOnline.Controllers
                                                             USERNAME = uname
                                                         });
                                         ErasoftDbContext.Database.ExecuteSqlCommand("update ART03A set LOG_FILE = '" + ret.buktiLog + ";" + detail1.Count().ToString() + "' where BUKTI ='" + ret.nobuk + "' and LOG_FILE ='" + ret.buktiLog + "'");
+
+                                        //        ret.TidakLanjutProses = false;
+                                        //        ret.statusLoopTemp = true;
+                                        //        ret.statusLoop = true;
+                                        //        ret.countAllTemp = detail1.Count();
+                                        //        ret.list_Detail_ret = detail1.ToList();
+                                        //        var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+                                        //        serializer.MaxJsonLength = Int32.MaxValue;
+                                        //        var result = new ContentResult
+                                        //        {
+                                        //            Content = serializer.Serialize(ret),
+                                        //            ContentType = "application/json"
+                                        //        };
+
+                                        //        //return Json(result, JsonRequestBehavior.AllowGet);
+                                        //        return result;
+                                        //    }
+                                        //}
+                                        //if (listDetail.Count > 0 && ret.statusSuccessTemp == false)
+                                        //{
                                         foreach (var bayar in detail1)
                                         {
                                             TEMP_UPLOAD_EXCEL_BAYAR rec = new TEMP_UPLOAD_EXCEL_BAYAR()
@@ -45110,6 +45159,7 @@ namespace MasterOnline.Controllers
                                         //return Json(ret, JsonRequestBehavior.AllowGet);
                                         ret.TidakLanjutProses = false;
                                         ret.statusLoopDownload = true;
+                                        ret.percentDownload = 10;
                                         ret.statusLoop = true;
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
@@ -45132,8 +45182,8 @@ namespace MasterOnline.Controllers
                                         ret.statusLoopDownload = true;
                                         var tempPercent = Convert.ToInt32(progDownload[0]);
                                         //var cekPer20 = (ret.countAllDownload / 10);
-                                        var cekPer10 = (ret.countAllDownload * 20 / 100);
-                                        var temp40 = Convert.ToInt32(progDownload[1]) + 500;
+                                        var cekPer10 = (ret.countAllDownload / 4);
+                                        var temp40 = Convert.ToInt32(progDownload[1]) + 1000;
                                         data_proses_lanjut.AddRange(data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("TIDAK ADA")).ToList());
                                         ret.countAll = data_proses_lanjut.Count();
 
@@ -45226,7 +45276,7 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
 
-                                                if (cekPer10 > 500)
+                                                if (cekPer10 > 1000)
                                                 {
                                                     if ((ret.progressDownload == temp40) || ret.percentDownload == 100)
                                                     {
@@ -45246,10 +45296,9 @@ namespace MasterOnline.Controllers
                                                         }
                                                     }
                                                 }
-                                                else if (ret.percentDownload == 20 ||
-                                                ret.percentDownload == 40 ||
-                                                ret.percentDownload == 60 ||
-                                                ret.percentDownload == 80 ||
+                                                else if (ret.percentDownload == 25 ||
+                                                ret.percentDownload == 50 ||
+                                                ret.percentDownload == 75 ||
                                                 ret.percentDownload == 100)
                                                 {
                                                     ret.statusSuccessDownload = false;
@@ -45703,6 +45752,7 @@ namespace MasterOnline.Controllers
             {
                 ret.Errors.Add(ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message + "<br />");
                 ret.adaError = true;
+                ret.TidakLanjutProses = true;
                 TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
                 {
                     LOG_FILE = ret.buktiLog,
@@ -45734,7 +45784,8 @@ namespace MasterOnline.Controllers
                     else
                     {
                         var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
-                        ErasoftDbContext.ART03A.Remove(piutangInDb);
+                        //ErasoftDbContext.ART03A.Remove(piutangInDb);
+                        ErasoftDbContext.Database.ExecuteSqlCommand("delete from ART03A where BUKTI ='" + ret.nobuk + "'");
                         ErasoftDbContext.SaveChanges();
                         ret.Errors.Add("Tidak ada data yang dapat diproses.");
                         ret.adaError = true;
@@ -45786,8 +45837,10 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
-                    ErasoftDbContext.ART03A.Remove(piutangInDb);
+                    var piutangInDb = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == ret.nobuk);
+                    //ErasoftDbContext.ART03A.Remove(piutangInDb);
+                    ErasoftDbContext.Database.ExecuteSqlCommand("delete from ART03A where BUKTI ='" + ret.nobuk + "'");
+                    ret.TidakLanjutProses = true;
                     ErasoftDbContext.SaveChanges();
                     ret.Errors.Add("Tidak ada data yang dapat diproses.");
                     ret.adaError = true;
@@ -46355,7 +46408,7 @@ namespace MasterOnline.Controllers
             string[] progDownload = percentDanprogressDownload.Split(';');
 
             ret.statusLoop = Convert.ToBoolean(status[0]);
-            if (ret.statusLoop == false)
+            if (ret.statusLoop == false && ret.statusLoopDownload == false)
             {
                 ret.buktiLog = "Log_Upload_Pembayaran_Tokopedia" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
             }
@@ -46436,6 +46489,7 @@ namespace MasterOnline.Controllers
                                 };
                                 ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
                                 ErasoftDbContext.SaveChanges();
+                                ret.TidakLanjutProses = true;
                                 return Json(ret, JsonRequestBehavior.AllowGet);
                             }
                             using (MemoryStream stream = new MemoryStream(data))
@@ -46494,6 +46548,7 @@ namespace MasterOnline.Controllers
                                             };
                                             ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
                                             ErasoftDbContext.SaveChanges();
+                                            ret.TidakLanjutProses = true;
                                             return Json(ret, JsonRequestBehavior.AllowGet);
                                         }
                                     }
@@ -46513,6 +46568,7 @@ namespace MasterOnline.Controllers
                                         };
                                         ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
                                         ErasoftDbContext.SaveChanges();
+                                        ret.TidakLanjutProses = true;
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
                                 }
@@ -46534,6 +46590,7 @@ namespace MasterOnline.Controllers
                             };
                             ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
                             ErasoftDbContext.SaveChanges();
+                            ret.TidakLanjutProses = true;
                             return Json(ret, JsonRequestBehavior.AllowGet);
                         }
                     }
@@ -46676,6 +46733,7 @@ namespace MasterOnline.Controllers
                                                 };
                                                 ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
                                                 ErasoftDbContext.SaveChanges();
+                                                ret.TidakLanjutProses = true;
                                                 return Json(ret, JsonRequestBehavior.AllowGet);
                                             }
                                         }
@@ -46926,6 +46984,7 @@ namespace MasterOnline.Controllers
 
                                         ret.TidakLanjutProses = false;
                                         ret.statusLoopDownload = true;
+                                        ret.percentDownload = 10;
                                         ret.statusLoop = true;
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
@@ -46948,8 +47007,8 @@ namespace MasterOnline.Controllers
                                         ret.statusLoopDownload = true;
                                         var tempPercent = Convert.ToInt32(progDownload[0]);
                                         //var cekPer20 = (ret.countAllDownload / 10);
-                                        var cekPer10 = (ret.countAllDownload * 20 / 100);
-                                        var temp40 = Convert.ToInt32(progDownload[1]) + 500;
+                                        var cekPer10 = (ret.countAllDownload / 4);
+                                        var temp40 = Convert.ToInt32(progDownload[1]) + 1000;
                                         data_proses_lanjut.AddRange(data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("TIDAK ADA")).ToList());
                                         ret.countAll = data_proses_lanjut.Count();
 
@@ -47042,7 +47101,7 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
 
-                                                if (cekPer10 > 500)
+                                                if (cekPer10 > 1000)
                                                 {
                                                     if ((ret.progressDownload == temp40) || ret.percentDownload == 100)
                                                     {
@@ -47062,10 +47121,9 @@ namespace MasterOnline.Controllers
                                                         }
                                                     }
                                                 }
-                                                else if (ret.percentDownload == 20 ||
-                                                ret.percentDownload == 40 ||
-                                                ret.percentDownload == 60 ||
-                                                ret.percentDownload == 80 ||
+                                                else if (ret.percentDownload == 25 ||
+                                                ret.percentDownload == 50 ||
+                                                ret.percentDownload == 75 ||
                                                 ret.percentDownload == 100)
                                                 {
                                                     ret.statusSuccessDownload = false;
@@ -47521,6 +47579,7 @@ namespace MasterOnline.Controllers
             {
                 ret.Errors.Add(ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message + "<br />");
                 ret.adaError = true;
+                ret.TidakLanjutProses = true;
                 TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
                 {
                     LOG_FILE = ret.buktiLog,
@@ -47552,7 +47611,8 @@ namespace MasterOnline.Controllers
                     else
                     {
                         var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
-                        ErasoftDbContext.ART03A.Remove(piutangInDb);
+                        //ErasoftDbContext.ART03A.Remove(piutangInDb);
+                        ErasoftDbContext.Database.ExecuteSqlCommand("delete from ART03A where BUKTI ='" + ret.nobuk + "'");
                         ErasoftDbContext.SaveChanges();
                         ret.Errors.Add("Tidak ada data yang dapat diproses.");
                         ret.adaError = true;
@@ -47605,8 +47665,10 @@ namespace MasterOnline.Controllers
                 else
                 {
                     var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
-                    ErasoftDbContext.ART03A.Remove(piutangInDb);
+                    //ErasoftDbContext.ART03A.Remove(piutangInDb);
+                    ErasoftDbContext.Database.ExecuteSqlCommand("delete from ART03A where BUKTI ='" + ret.nobuk + "'");
                     ErasoftDbContext.SaveChanges();
+                    ret.TidakLanjutProses = true;
                     ret.Errors.Add("Tidak ada data yang dapat diproses.");
                     ret.adaError = true;
 
@@ -48724,7 +48786,7 @@ namespace MasterOnline.Controllers
             string[] progDownload = percentDanprogressDownload.Split(';');
 
             ret.statusLoop = Convert.ToBoolean(status[0]);
-            if (ret.statusLoop == false)
+            if (ret.statusLoop == false && ret.statusLoopDownload == false)
             {
                 ret.buktiLog = "Log_Upload_Pembayaran_Blibli" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
             }
@@ -48806,6 +48868,7 @@ namespace MasterOnline.Controllers
                                 };
                                 ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
                                 ErasoftDbContext.SaveChanges();
+                                ret.TidakLanjutProses = true;
                                 return Json(ret, JsonRequestBehavior.AllowGet);
                             }
                             using (MemoryStream stream = new MemoryStream(data))
@@ -48873,6 +48936,7 @@ namespace MasterOnline.Controllers
                                             };
                                             ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
                                             ErasoftDbContext.SaveChanges();
+                                            ret.TidakLanjutProses = true;
                                             return Json(ret, JsonRequestBehavior.AllowGet);
                                         }
                                     }
@@ -48892,6 +48956,7 @@ namespace MasterOnline.Controllers
                                         };
                                         ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
                                         ErasoftDbContext.SaveChanges();
+                                        ret.TidakLanjutProses = true;
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
                                 }
@@ -48913,6 +48978,7 @@ namespace MasterOnline.Controllers
                             };
                             ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
                             ErasoftDbContext.SaveChanges();
+                            ret.TidakLanjutProses = true;
                             return Json(ret, JsonRequestBehavior.AllowGet);
                         }
                     }
@@ -49055,6 +49121,7 @@ namespace MasterOnline.Controllers
                                                 };
                                                 ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
                                                 ErasoftDbContext.SaveChanges();
+                                                ret.TidakLanjutProses = true;
                                                 return Json(ret, JsonRequestBehavior.AllowGet);
                                             }
                                         }
@@ -49313,6 +49380,7 @@ namespace MasterOnline.Controllers
 
                                         ret.TidakLanjutProses = false;
                                         ret.statusLoopDownload = true;
+                                        ret.percentDownload = 10;
                                         ret.statusLoop = true;
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
@@ -49335,8 +49403,8 @@ namespace MasterOnline.Controllers
                                         ret.statusLoopDownload = true;
                                         var tempPercent = Convert.ToInt32(progDownload[0]);
                                         //var cekPer20 = (ret.countAllDownload / 10);
-                                        var cekPer10 = (ret.countAllDownload * 20 / 100);
-                                        var temp40 = Convert.ToInt32(progDownload[1]) + 500;
+                                        var cekPer10 = (ret.countAllDownload / 4);
+                                        var temp40 = Convert.ToInt32(progDownload[1]) + 1000;
                                         data_proses_lanjut.AddRange(data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("TIDAK ADA")).ToList());
                                         ret.countAll = data_proses_lanjut.Count();
 
@@ -49429,7 +49497,7 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
 
-                                                if (cekPer10 > 500)
+                                                if (cekPer10 > 1000)
                                                 {
                                                     if ((ret.progressDownload == temp40) || ret.percentDownload == 100)
                                                     {
@@ -49449,10 +49517,9 @@ namespace MasterOnline.Controllers
                                                         }
                                                     }
                                                 }
-                                                else if (ret.percentDownload == 20 ||
-                                                ret.percentDownload == 40 ||
-                                                ret.percentDownload == 60 ||
-                                                ret.percentDownload == 80 ||
+                                                else if (ret.percentDownload == 25 ||
+                                                ret.percentDownload == 50 ||
+                                                ret.percentDownload == 75 ||
                                                 ret.percentDownload == 100)
                                                 {
                                                     ret.statusSuccessDownload = false;
@@ -49860,12 +49927,17 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    ret.TidakLanjutProses = true;
+                                }
                                 #endregion
 
                             }
                             else
                             {
                                 ret.adaError = true;
+                                ret.TidakLanjutProses = true;
                                 ret.Errors.Add("Faktur dari marketplace tidak ditemukan.<br />");
                                 TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
                                 {
@@ -49885,6 +49957,7 @@ namespace MasterOnline.Controllers
                         {
                             ret.Errors.Add("Akun marketplace tidak ditemukan.<br />");
                             ret.adaError = true;
+                            ret.TidakLanjutProses = true;
                             TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
                             {
                                 LOG_FILE = ret.buktiLog,
@@ -49906,6 +49979,7 @@ namespace MasterOnline.Controllers
             {
                 ret.Errors.Add(ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message + "<br />");
                 ret.adaError = true;
+                ret.TidakLanjutProses = true;
                 TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
                 {
                     LOG_FILE = ret.buktiLog,
@@ -49937,7 +50011,8 @@ namespace MasterOnline.Controllers
                     else
                     {
                         var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
-                        ErasoftDbContext.ART03A.Remove(piutangInDb);
+                        //ErasoftDbContext.ART03A.Remove(piutangInDb);
+                        ErasoftDbContext.Database.ExecuteSqlCommand("delete from ART03A where BUKTI ='" + ret.nobuk + "'");
                         ErasoftDbContext.SaveChanges();
                         ret.Errors.Add("Tidak ada data yang dapat diproses.");
                         ret.adaError = true;
@@ -49990,8 +50065,10 @@ namespace MasterOnline.Controllers
                 else
                 {
                     var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
-                    ErasoftDbContext.ART03A.Remove(piutangInDb);
+                    //ErasoftDbContext.ART03A.Remove(piutangInDb);
+                    ErasoftDbContext.Database.ExecuteSqlCommand("delete from ART03A where BUKTI ='" + ret.nobuk + "'");
                     ErasoftDbContext.SaveChanges();
+                    ret.TidakLanjutProses = true;
                     ret.Errors.Add("Tidak ada data yang dapat diproses.");
                     ret.adaError = true;
 
