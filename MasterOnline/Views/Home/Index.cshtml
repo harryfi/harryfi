@@ -59,7 +59,7 @@
 
         .cardSatua {
             width: 800px;
-            margin-left: 65px;
+            margin: auto;
             height: 455.36px;
             background: linear-gradient(to bottom, #EE1A3B, #A0193A);
             border-radius: 5px;
@@ -68,7 +68,7 @@
 
         .cardSatub {
             width: 800px;
-            margin-left: 65px;
+            margin: auto;
             height: 455.36px;
             background: linear-gradient(to bottom, #EE1A3B, #A0193A);
             border-radius: 5px;
@@ -76,6 +76,7 @@
         }
 
         .cardDuaa {
+            margin:auto;
             width: 100%;
             height: 455.36px;
             background: linear-gradient(to bottom, #EE1A3B, #A0193A);
@@ -84,6 +85,7 @@
         }
 
         .cardDuab {
+            margin: auto;
             width: 100%;
             height: 455.36px;
             background: linear-gradient(to bottom, #EE1A3B, #A0193A);
@@ -107,6 +109,36 @@
             background: linear-gradient(to bottom, #EE1A3B, #A0193A);
             border-radius: 5px;
             box-shadow: 0 1px 12px rgba(0,0,0,0.12), 0 2px 2px rgba(0,0,0,0.12), 0 4px 3px rgba(0,0,0,0.12), 0 8px 4px rgba(0,0,0,0.12);
+        }
+
+        .gambarSatua {
+            box-shadow: 0 1px 22px rgba(0,0,0,0.12);
+            width: 120px;
+        }
+
+        .gambarSatub {
+            box-shadow: 0 1px 22px rgba(0,0,0,0.12);
+            width: 100px;
+        }
+
+        .gambarDuaa {
+            box-shadow: 0 1px 22px rgba(0,0,0,0.12);
+            width: 120px;
+        }
+
+        .gambarDuab {
+            box-shadow: 0 1px 22px rgba(0,0,0,0.12);
+            width: 100px;
+        }
+
+        .gambarTigaa {
+            box-shadow: 0 1px 22px rgba(0,0,0,0.12);
+            width: 120px;
+        }
+
+        .gambarTigab {
+            box-shadow: 0 1px 22px rgba(0,0,0,0.12);
+            width: 100px;
         }
 
         .textSatua {
@@ -136,39 +168,55 @@
         }
 
         .textDuaa {
-            color: #7c003e;
-            font-size: 20pt;
             position: relative;
             margin: auto;
             z-index: 2;
             top: 50px;
+            color: white;
+            font-size: 17px;
+            min-height: 200px;
+            width: 90%;
+            height: auto;
         }
 
         .textDuab {
-            color: #7c003e;
-            font-size: 20pt;
             position: relative;
             margin: auto;
             z-index: 2;
             top: 50px;
+            color: white;
+            font-size: 17px;
+            min-height: 200px;
+            margin-bottom: 30px;
+            padding-top: 120px;
+            width: 90%;
+            height: auto;
         }
 
         .textTigaa {
-            color: #7c003e;
-            font-size: 20pt;
             position: relative;
             margin: auto;
             z-index: 2;
             top: 50px;
+            color: white;
+            font-size: 17px;
+            min-height: 200px;
+            width: 90%;
+            height: auto;
         }
 
         .textTigab {
-            color: #7c003e;
-            font-size: 20pt;
             position: relative;
             margin: auto;
             z-index: 2;
             top: 50px;
+            color: white;
+            font-size: 17px;
+            min-height: 200px;
+            margin-bottom: 30px;
+            padding-top: 120px;
+            width: 90%;
+            height: auto;
         }
 
         #modified01-prev {
@@ -181,6 +229,24 @@
         }
 
         #modified01-next {
+            right: -10px;
+            margin: auto;
+            height: 40px;
+            width: 40px;
+            background: #b6b6b6;
+            border-radius: 50%;
+        }
+
+        #modified02-prev {
+            left: -10px;
+            margin: auto;
+            height: 40px;
+            width: 40px;
+            background: #b6b6b6;
+            border-radius: 50%;
+        }
+
+        #modified02-next {
             right: -10px;
             margin: auto;
             height: 40px;
@@ -266,15 +332,31 @@
                 height: 100%;
             }
 
+            #gambarSatua {
+                width: 90px;
+            }
+
             #cardSatua {
                 width: 230px;
-                margin-left: 0px;
+                margin: auto;
                 height: 470px;
             }
 
             #cardSatub {
                 width: 230px;
-                margin-left: 0px;
+                margin: auto;
+                height: 470px;
+            }
+
+            #cardDuaa {
+                width: 230px;
+                margin: auto;
+                height: 470px;
+            }
+
+            #cardDuab {
+                width: 230px;
+                margin: auto;
                 height: 470px;
             }
 
@@ -289,7 +371,34 @@
                 margin-bottom:10px;
             }
 
+            #textDuaa {
+                top: 20px;
+                font-size: 10px;
+            }
+
+            #textDuab {
+                top: 20px;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
             #namaSatua {
+                font-size: 12px !important;
+            }
+
+            #jabatanSatua {
+                font-size: 10px !important;
+            }
+
+            #namaSatub {
+                font-size: 12px !important;
+            }
+
+            #jabatanSatub {
+                font-size: 10px !important;
+            }
+
+            #namaDuaa {
                 font-size: 12px !important;
             }
 
@@ -314,6 +423,22 @@
             }
 
             #modified01-next {
+                right: -28px;
+            }
+
+            #modified02-prev {
+                left: -28px;
+            }
+
+            #modified02-next {
+                right: -28px;
+            }
+
+            #modified03-prev {
+                left: -28px;
+            }
+
+            #modified03-next {
                 right: -28px;
             }
 
@@ -350,13 +475,25 @@
 
             #cardSatua {
                 width: 280px;
-                margin-left: 3px;
+                margin: auto;
                 height: 530px;
             }
 
             #cardSatub {
                 width: 280px;
-                margin-left: 3px;
+                margin: auto;
+                height: 530px;
+            }
+
+            #cardDuaa {
+                width: 280px;
+                margin: auto;
+                height: 530px;
+            }
+
+            #cardDuab {
+                width: 280px;
+                margin: auto;
                 height: 530px;
             }
 
@@ -372,6 +509,18 @@
                 padding-top: 120px;
             }
 
+            #textDuaa {
+                top: 30px;
+                font-size: 12px;
+            }
+
+            #textDuab {
+                top: 30px;
+                font-size: 17px;
+                margin-bottom: 50px;
+                padding-top: 120px;
+            }
+
             #titleTestimony{
                 font-size: 13pt;
             }
@@ -381,6 +530,22 @@
             }
 
             #modified01-next {
+                right: -28px;
+            }
+
+            #modified02-prev {
+                left: -28px;
+            }
+
+            #modified02-next {
+                right: -28px;
+            }
+
+            #modified03-prev {
+                left: -28px;
+            }
+
+            #modified03-next {
                 right: -28px;
             }
 
@@ -416,13 +581,25 @@
 
             #cardSatua {
                 width: 280px;
-                margin-left: 27px;
+                margin: auto;
                 height: 530px;
             }
 
             #cardSatub {
                 width: 280px;
-                margin-left: 27px;
+                margin: auto;
+                height: 530px;
+            }
+
+            #cardDuaa {
+                width: 280px;
+                margin: auto;
+                height: 530px;
+            }
+
+            #cardDuab {
+                width: 280px;
+                margin: auto;
                 height: 530px;
             }
 
@@ -434,6 +611,20 @@
                 font-size: 17px;
                 margin-bottom: 50px;
                 padding-top: 120px;
+            }
+
+            #textDuaa {
+                font-size: 12px;
+            }
+
+            #textDuab {
+                font-size: 17px;
+                margin-bottom: 50px;
+                padding-top: 120px;
+            }
+
+            #titleTestimony {
+                font-size: 13pt;
             }
 
             #logo_img_kino {
@@ -468,13 +659,25 @@
 
             #cardSatua {
                 width: 400px;
-                margin-left: 16px;
+                margin: auto;
                 height: 530px;
             }
 
             #cardSatub {
                 width: 400px;
-                margin-left: 16px;
+                margin: auto;
+                height: 530px;
+            }
+
+            #cardDuaa {
+                width: 400px;
+                margin: auto;
+                height: 530px;
+            }
+
+            #cardDuab {
+                width: 400px;
+                margin: auto;
                 height: 530px;
             }
 
@@ -483,6 +686,16 @@
             }
 
             #textSatub {
+                font-size: 17px;
+                margin-bottom: 50px;
+                padding-top: 120px;
+            }
+
+            #textDuaa {
+                font-size: 14px;
+            }
+
+            #textDuab {
                 font-size: 17px;
                 margin-bottom: 50px;
                 padding-top: 120px;
@@ -542,13 +755,25 @@
 
             #cardSatua {
                 width: 500px;
-                margin-left: 40px;
+                margin: auto;
                 height: 555.36px;
             }
 
             #cardSatub {
                 width: 500px;
-                margin-left: 40px;
+                margin: auto;
+                height: 555.36px;
+            }
+
+            #cardDuaa {
+                width: 500px;
+                margin: auto;
+                height: 555.36px;
+            }
+
+            #cardDuab {
+                width: 500px;
+                margin: auto;
                 height: 555.36px;
             }
 
@@ -558,6 +783,17 @@
             }
 
             #textSatub {
+                font-size: 23px;
+                margin-bottom: 50px;
+                padding-top: 120px;
+            }
+
+            #textDuaa {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            #textDuab {
                 font-size: 23px;
                 margin-bottom: 50px;
                 padding-top: 120px;
@@ -613,13 +849,25 @@
 
             #cardSatua {
                 width: 550px;
-                margin-left: 27px;
+                margin: auto;
                 height: 450px;
             }
 
             #cardSatub {
                 width: 550px;
-                margin-left: 27px;
+                margin: auto;
+                height: 450px;
+            }
+
+            #cardDuaa {
+                width: 550px;
+                margin: auto;
+                height: 450px;
+            }
+
+            #cardDuab {
+                width: 550px;
+                margin: auto;
                 height: 450px;
             }
 
@@ -630,6 +878,19 @@
             }
 
             #textSatub {
+                font-size: 18px;
+                min-height: 150px;
+                margin-bottom: 10px;
+                padding-top: 90px;
+            }
+
+            #textDuaa {
+                font-size: 13px;
+                margin-bottom: 10px;
+                min-height: 150px;
+            }
+
+            #textDuab {
                 font-size: 18px;
                 min-height: 150px;
                 margin-bottom: 10px;
@@ -690,13 +951,25 @@
 
             #cardSatua {
                 width: 550px;
-                margin-left: 53px;
+                margin: auto;
                 height: 420px;
             }
 
             #cardSatub {
                 width: 550px;
-                margin-left: 53px;
+                margin: auto;
+                height: 420px;
+            }
+
+            #cardDuaa {
+                width: 550px;
+                margin: auto;
+                height: 420px;
+            }
+
+            #cardDuab {
+                width: 550px;
+                margin: auto;
                 height: 420px;
             }
 
@@ -708,6 +981,20 @@
             }
 
             #textSatub {
+                font-size: 18px;
+                min-height: 150px;
+                margin-bottom: 0px;
+                padding-top: 60px;
+            }
+
+            #textDuaa {
+                top: 30px;
+                font-size: 13px;
+                margin-bottom: 0px;
+                min-height: 150px;
+            }
+
+            #textDuab {
                 font-size: 18px;
                 min-height: 150px;
                 margin-bottom: 0px;
@@ -768,13 +1055,25 @@
 
             #cardSatua {
                 width: 550px;
-                margin-left: 83px;
+                margin: auto;
                 height: 420px;
             }
 
             #cardSatub {
                 width: 550px;
-                margin-left: 83px;
+                margin: auto;
+                height: 420px;
+            }
+
+            #cardDuaa {
+                width: 550px;
+                margin: auto;
+                height: 420px;
+            }
+
+            #cardDuab {
+                width: 550px;
+                margin: auto;
                 height: 420px;
             }
 
@@ -786,6 +1085,20 @@
             }
 
             #textSatub {
+                font-size: 18px;
+                min-height: 150px;
+                margin-bottom: 0px;
+                padding-top: 60px;
+            }
+
+            #textDuaa {
+                top: 30px;
+                font-size: 13px;
+                margin-bottom: 0px;
+                min-height: 150px;
+            }
+
+            #textDuab {
                 font-size: 18px;
                 min-height: 150px;
                 margin-bottom: 0px;
@@ -846,12 +1159,22 @@
 
             #cardSatua {
                 width: 650px;
-                margin-left: 35px;
+                margin: auto;
             }
 
             #cardSatub {
                 width: 650px;
-                margin-left: 35px;
+                margin: auto;
+            }
+
+            #cardDuaa {
+                width: 650px;
+                margin: auto;
+            }
+
+            #cardDuab {
+                width: 650px;
+                margin: auto;
             }
 
             #textSatua {
@@ -862,6 +1185,20 @@
             }
 
             #textSatub {
+                font-size: 21px;
+                min-height: 150px;
+                margin-bottom: 0px;
+                padding-top: 60px;
+            }
+
+            #textDuaa {
+                top: 30px;
+                font-size: 15px;
+                margin-bottom: 0px;
+                min-height: 150px;
+            }
+
+            #textDuab {
                 font-size: 21px;
                 min-height: 150px;
                 margin-bottom: 0px;
@@ -918,13 +1255,25 @@
 
             #cardSatua {
                 width: 700px;
-                margin-left: 27px;
+                margin: auto;
                 height: 410px;
             }
 
             #cardSatub {
                 width: 700px;
-                margin-left: 27px;
+                margin: auto;
+                height: 410px;
+            }
+
+            #cardDuaa {
+                width: 700px;
+                margin: auto;
+                height: 410px;
+            }
+
+            #cardDuab {
+                width: 700px;
+                margin: auto;
                 height: 410px;
             }
 
@@ -936,6 +1285,20 @@
             }
 
             #textSatub {
+                font-size: 21px;
+                min-height: 150px;
+                margin-bottom: 0px;
+                padding-top: 60px;
+            }
+
+            #textDuaa {
+                top: 30px;
+                font-size: 15px;
+                margin-bottom: 0px;
+                min-height: 150px;
+            }
+
+            #textDuab {
                 font-size: 21px;
                 min-height: 150px;
                 margin-bottom: 0px;
@@ -992,13 +1355,25 @@
 
             #cardSatua {
                 width: 650px;
-                margin-left: 70px;
+                margin: auto;
                 height: 430px;
             }
 
             #cardSatub {
                 width: 650px;
-                margin-left: 70px;
+                margin: auto;
+                height: 430px;
+            }
+
+            #cardDuaa {
+                width: 650px;
+                margin: auto;
+                height: 430px;
+            }
+
+            #cardDuab {
+                width: 650px;
+                margin: auto;
                 height: 430px;
             }
 
@@ -1010,6 +1385,20 @@
             }
 
             #textSatub {
+                font-size: 21px;
+                min-height: 150px;
+                margin-bottom: 15px;
+                padding-top: 60px;
+            }
+
+            #textDuaa {
+                top: 30px;
+                font-size: 15px;
+                margin-bottom: 0px;
+                min-height: 150px;
+            }
+
+            #textDuab {
                 font-size: 21px;
                 min-height: 150px;
                 margin-bottom: 15px;
@@ -1066,13 +1455,25 @@
 
             #cardSatua {
                 width: 650px;
-                margin-left: 70px;
+                margin: auto;
                 height: 430px;
             }
 
             #cardSatub {
                 width: 650px;
-                margin-left: 70px;
+                margin: auto;
+                height: 430px;
+            }
+
+            #cardDuaa {
+                width: 650px;
+                margin: auto;
+                height: 430px;
+            }
+
+            #cardDuab {
+                width: 650px;
+                margin: auto;
                 height: 430px;
             }
 
@@ -1084,6 +1485,20 @@
             }
 
             #textSatub {
+                font-size: 21px;
+                min-height: 150px;
+                margin-bottom: 15px;
+                padding-top: 60px;
+            }
+
+            #textDuaa {
+                top: 30px;
+                font-size: 15px;
+                margin-bottom: 0px;
+                min-height: 150px;
+            }
+
+            #textDuab {
                 font-size: 21px;
                 min-height: 150px;
                 margin-bottom: 15px;
@@ -1132,21 +1547,28 @@
             }
         }
 
-        @@media screen and (min-width: 1400px) and (max-width: 1439px) {
-            #image_header {
-                width: 100%;
-                height: 620px;
-            }
-
+        @@media screen and (min-width: 1366px) and (max-width: 1399px) {
             #cardSatua {
                 width: 650px;
-                margin-left: 70px;
+                margin: auto;
                 height: 430px;
             }
 
             #cardSatub {
                 width: 650px;
-                margin-left: 70px;
+                margin: auto;
+                height: 430px;
+            }
+
+            #cardDuaa {
+                width: 650px;
+                margin: auto;
+                height: 430px;
+            }
+
+            #cardDuab {
+                width: 650px;
+                margin: auto;
                 height: 430px;
             }
 
@@ -1164,1247 +1586,1515 @@
                 padding-top: 60px;
             }
 
-            #logo_img_kino {
-                width: 110px;
-                margin-top: 27px;
-                margin-bottom: 10px;
-                margin-right: 5px;
+            #textDuaa {
+                top: 30px;
+                font-size: 15px;
+                margin-bottom: 0px;
+                min-height: 150px;
             }
 
-            #logo_img_LP {
-                width: 110px;
-                margin: 15px;
-                margin-left: 40px;
-            }
-
-            #logo_img_bayininja {
-                width: 80px;
-                height: 80px;
-                margin-left: 0px;
-                margin-top: 7px;
-            }
-
-            #logo_img_sinaragung {
-                width: 80px;
-                height: 80px;
-                margin-top: 7px;
-            }
-
-            #logo_img_risacorps {
-                width: 170px;
-                margin: 7px;
-                margin-top: 10px;
-                margin-right: 0px;
-                margin-left: 0px;
-            }
-
-            #logo_img_kimbo {
-                width: 110px;
-                margin: 19px;
-                margin-left: 0px;
-                margin-top: 25px;
-            }
-        }
-
-        @@media screen and (min-width: 1440px) and (max-width: 1499px) {
-            #image_header {
-                width: 100%;
-                height: 625px;
-            }
-
-            #cardSatua {
-                margin-left: 40px;
-            }
-
-            #cardSatub {
-                margin-left: 40px;
-            }
-
-            #logo_img_kino {
-                margin-top: 27px;
-                margin-bottom: 10px;
-                margin-right: 5px;
-            }
-
-            #logo_img_LP {
-                margin: 15px;
-                margin-left: 50px;
-            }
-
-            #logo_img_bayininja {
-                margin-left: 0px;
-                margin-top: 10px;
-            }
-
-            #logo_img_sinaragung {
-                margin-top: 10px;
-            }
-
-            #logo_img_risacorps {
-                margin: 7px;
-                margin-top: 5px;
-                margin-right: 0px;
-                margin-left: 0px;
-            }
-
-            #logo_img_kimbo {
-                margin: 19px;
-                margin-left: 0px;
-                margin-top: 25px;
-            }
-        }
-
-        @@media screen and (min-width: 1500px) and (max-width: 1599px) {
-            #image_header {
-                width: 100%;
-                height: 633px;
-            }
-
-            #cardSatua {
-                margin-left: 65px;
-            }
-
-            #cardSatub {
-                margin-left: 65px;
-            }
-
-            #logo_img_kino {
-                margin-top: 27px;
-                margin-bottom: 10px;
-                margin-right: 5px;
-            }
-
-            #logo_img_LP {
-                margin: 15px;
-                margin-left: 50px;
-            }
-
-            #logo_img_bayininja {
-                margin-left: 0px;
-                margin-top: 10px;
-            }
-
-            #logo_img_sinaragung {
-                margin-top: 10px;
-            }
-
-            #logo_img_risacorps {
-                margin: 7px;
-                margin-top: 5px;
-                margin-right: 0px;
-                margin-left: 0px;
-            }
-
-            #logo_img_kimbo {
-                margin: 19px;
-                margin-left: 0px;
-                margin-top: 25px;
-            }
-        }
-
-        @@media screen and (min-width: 1600px) and (max-width: 1699px) {
-            #image_header {
-                width: 100%;
-                height: 650px;
-            }
-
-            #cardSatua {
-                margin-left: 95px;
-            }
-
-            #cardSatub {
-                margin-left: 95px;
-            }
-
-            #logo_img_kino {
-                margin-top: 27px;
-                margin-bottom: 10px;
-                margin-right: 5px;
-            }
-
-            #logo_img_LP {
-                margin: 15px;
-                margin-left: 50px;
-            }
-
-            #logo_img_bayininja {
-                margin-left: 0px;
-                margin-top: 10px;
-            }
-
-            #logo_img_sinaragung {
-                margin-top: 10px;
-            }
-
-            #logo_img_risacorps {
-                margin: 7px;
-                margin-top: 5px;
-                margin-right: 0px;
-                margin-left: 0px;
-            }
-
-            #logo_img_kimbo {
-                margin: 19px;
-                margin-left: 0px;
-                margin-top: 25px;
-            }
-        }
-
-        @@media screen and (min-width: 1700px) and (max-width: 1799px) {
-            #image_header {
-                width: 100%;
-                height: 670px;
-            }
-
-            #cardSatua {
-                margin-left: 125px;
-            }
-
-            #cardSatub {
-                margin-left: 125px;
-            }
-
-            #logo_img_kino {
-                margin-top: 27px;
-                margin-bottom: 10px;
-                margin-right: 5px;
-            }
-
-            #logo_img_LP {
-                margin: 15px;
-                margin-left: 50px;
-            }
-
-            #logo_img_bayininja {
-                margin-left: 0px;
-                margin-top: 10px;
-            }
-
-            #logo_img_sinaragung {
-                margin-top: 10px;
-            }
-
-            #logo_img_risacorps {
-                margin: 7px;
-                margin-top: 5px;
-                margin-right: 0px;
-                margin-left: 0px;
-            }
-
-            #logo_img_kimbo {
-                margin: 19px;
-                margin-left: 0px;
-                margin-top: 25px;
-            }
-        }
-
-        @@media screen and (min-width: 1800px) and (max-width: 1899px) {
-            #image_header {
-                width: 100%;
-                height: 690px;
-            }
-
-            #cardSatua {
-                margin-left: 160px;
-            }
-
-            #cardSatub {
-                margin-left: 160px;
-            }
-
-
-            #logo_img_kino {
-                margin-top: 27px;
-                margin-bottom: 10px;
-                margin-right: 5px;
-            }
-
-            #logo_img_LP {
-                margin: 15px;
-                margin-left: 50px;
-            }
-
-            #logo_img_bayininja {
-                margin-left: 0px;
-                margin-top: 10px;
-            }
-
-            #logo_img_sinaragung {
-                margin-top: 10px;
-            }
-
-            #logo_img_risacorps {
-                margin: 7px;
-                margin-top: 5px;
-                margin-right: 0px;
-                margin-left: 0px;
-            }
-
-            #logo_img_kimbo {
-                margin: 19px;
-                margin-left: 0px;
-                margin-top: 25px;
-            }
-        }
-
-        @@media screen and (min-width: 1900px) and (max-width: 1999px) {
-            #image_header {
-                width: 100%;
-                height: 710px;
-            }
-
-            #cardSatua {
-                margin-left: 200px;
-            }
-
-            #cardSatub {
-                margin-left: 200px;
-            }
-
-            #logo_img_kino {
-                margin-top: 27px;
-                margin-bottom: 10px;
-                margin-right: 5px;
-            }
-
-            #logo_img_LP {
-                margin: 15px;
-                margin-left: 50px;
-            }
-
-            #logo_img_bayininja {
-                margin-left: 0px;
-                margin-top: 10px;
-            }
-
-            #logo_img_sinaragung {
-                margin-top: 10px;
-            }
-
-            #logo_img_risacorps {
-                margin: 7px;
-                margin-top: 5px;
-                margin-right: 0px;
-                margin-left: 0px;
-            }
-
-            #logo_img_kimbo {
-                margin: 19px;
-                margin-left: 0px;
-                margin-top: 25px;
-            }
-        }
-
-        @@media screen and (min-width: 2000px) and (max-width: 2199px) {
-            #image_header {
-                width: 100%;
-                height: 720px;
-            }
-
-            #cardSatua {
-                margin-left: 225px;
-            }
-
-            #cardSatub {
-                margin-left: 225px;
-            }
-
-            #logo_img_kino {
-                margin-top: 27px;
-                margin-bottom: 10px;
-                margin-right: 5px;
-            }
-
-            #logo_img_LP {
-                margin: 15px;
-                margin-left: 50px;
-            }
-
-            #logo_img_bayininja {
-                margin-left: 0px;
-                margin-top: 10px;
-            }
-
-            #logo_img_sinaragung {
-                margin-top: 10px;
-            }
-
-            #logo_img_risacorps {
-                margin: 7px;
-                margin-top: 5px;
-                margin-right: 0px;
-                margin-left: 0px;
-            }
-
-            #logo_img_kimbo {
-                margin: 19px;
-                margin-left: 0px;
-                margin-top: 25px;
-            }
-        }
-
-        @@media screen and (min-width: 2200px) and (max-width: 2299px) {
-            #image_header {
-                width: 100%;
-                height: 760px;
-            }
-
-            #cardSatua {
-                margin-left: 300px;
-            }
-
-            #cardSatub {
-                margin-left: 300px;
-            }
-
-            #logo_img_kino {
-                margin-top: 27px;
-                margin-bottom: 10px;
-                margin-right: 5px;
-            }
-
-            #logo_img_LP {
-                margin: 15px;
-                margin-left: 50px;
-            }
-
-            #logo_img_bayininja {
-                margin-left: 0px;
-                margin-top: 10px;
-            }
-
-            #logo_img_sinaragung {
-                margin-top: 10px;
-            }
-
-            #logo_img_risacorps {
-                margin: 7px;
-                margin-top: 5px;
-                margin-right: 0px;
-                margin-left: 0px;
-            }
-
-            #logo_img_kimbo {
-                margin: 19px;
-                margin-left: 0px;
-                margin-top: 25px;
-            }
-        }
-
-        @@media screen and (min-width: 2300px) and (max-width: 2399px) {
-            #image_header {
-                width: 100%;
-                height: 770px;
-            }
-
-            #cardSatua {
-                margin-left: 330px;
-            }
-
-            #cardSatub {
-                margin-left: 330px;
-            }
-
-            #logo_img_kino {
-                margin-top: 27px;
-                margin-bottom: 10px;
-                margin-right: 5px;
-            }
-
-            #logo_img_LP {
-                margin: 15px;
-                margin-left: 50px;
-            }
-
-            #logo_img_bayininja {
-                margin-left: 0px;
-                margin-top: 10px;
-            }
-
-            #logo_img_sinaragung {
-                margin-top: 10px;
-            }
-
-            #logo_img_risacorps {
-                margin: 7px;
-                margin-top: 5px;
-                margin-right: 0px;
-                margin-left: 0px;
-            }
-
-            #logo_img_kimbo {
-                margin: 19px;
-                margin-left: 0px;
-                margin-top: 25px;
-            }
-        }
-
-        @@media screen and (min-width: 2400px) and (max-width: 2499px) {
-            #image_header {
-                width: 100%;
-                height: 790px;
-            }
-
-            #cardSatua {
-                margin-left: 360px;
-            }
-
-            #cardSatub {
-                margin-left: 360px;
-            }
-
-            #logo_img_kino {
-                margin-top: 27px;
-                margin-bottom: 10px;
-                margin-right: 5px;
-            }
-
-            #logo_img_LP {
-                margin: 15px;
-                margin-left: 50px;
-            }
-
-            #logo_img_bayininja {
-                margin-left: 0px;
-                margin-top: 10px;
-            }
-
-            #logo_img_sinaragung {
-                margin-top: 10px;
-            }
-
-            #logo_img_risacorps {
-                margin: 7px;
-                margin-top: 5px;
-                margin-right: 0px;
-                margin-left: 0px;
-            }
-
-            #logo_img_kimbo {
-                margin: 19px;
-                margin-left: 0px;
-                margin-top: 25px;
-            }
-        }
-
-        @@media screen and (min-width: 2500px) and (max-width: 2559px) {
-            #image_header {
-                width: 100%;
-                height: 810px;
-            }
-
-            #cardSatua {
-                margin-left: 390px;
-            }
-
-            #cardSatub {
-                margin-left: 390px;
-            }
-
-            #logo_img_kino {
-                margin-top: 27px;
-                margin-bottom: 10px;
-                margin-right: 5px;
-            }
-
-            #logo_img_LP {
-                margin: 15px;
-                margin-left: 50px;
-            }
-
-            #logo_img_bayininja {
-                margin-left: 0px;
-                margin-top: 10px;
-            }
-
-            #logo_img_sinaragung {
-                margin-top: 10px;
-            }
-
-            #logo_img_risacorps {
-                margin: 7px;
-                margin-top: 5px;
-                margin-right: 0px;
-                margin-left: 0px;
-            }
-
-            #logo_img_kimbo {
-                margin: 19px;
-                margin-left: 0px;
-                margin-top: 25px;
-            }
-        }
-
-        @@media screen and (min-width: 2560px) {
-            #image_header {
-                width: 100%;
-                height: 820px;
-            }
-
-            #cardSatua {
-                margin-left:400px;
-            }
-
-            #cardSatub {
-                margin-left: 400px;
-            }
-
-            #logo_img_kino {
-                margin-top: 27px;
-                margin-bottom: 10px;
-                margin-right: 5px;
-            }
-
-            #logo_img_LP {
-                margin: 15px;
-                margin-left: 50px;
-            }
-
-            #logo_img_bayininja {
-                margin-left: 0px;
-                margin-top: 10px;
-            }
-
-            #logo_img_sinaragung {
-                margin-top: 10px;
-            }
-
-            #logo_img_risacorps {
-                margin: 7px;
-                margin-top: 5px;
-                margin-right: 0px;
-                margin-left: 0px;
-            }
-
-            #logo_img_kimbo {
-                margin: 19px;
-                margin-left: 0px;
-                margin-top: 25px;
-            }
-        }
-
-
-        @@media screen and (min-width: 768px) {
-            .videoWrapper iframe {
-                top: -82px;
-            }
-
-            .videoWrapper {
-                margin-top: -538px;
-                left: 0;
-            }
-
-
-            #btn-daftar-mobile {
+            #textDuab {
                 font-size: 21px;
-                margin-top: -79px;
+                min-height: 150px;
+                margin-bottom: 15px;
+                padding-top: 60px;
             }
-
-            .header_images2 {
-                padding-left: 0px;
-                padding-right: 0px;
-                margin-bottom: -20px;
-            }
+        
         }
 
-        @@media screen and (min-width: 1024px) {
+            @@media screen and (min-width: 1400px) and (max-width: 1439px) {
+                #image_header {
+                    width: 100%;
+                    height: 620px;
+                }
 
-            .videoWrapper {
-                margin-top: -240px;
+                #cardSatua {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #cardSatub {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #cardDuaa {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #cardDuab {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #textSatua {
+                    top: 30px;
+                    font-size: 15px;
+                    margin-bottom: 0px;
+                    min-height: 150px;
+                }
+
+                #textSatub {
+                    font-size: 21px;
+                    min-height: 150px;
+                    margin-bottom: 15px;
+                    padding-top: 60px;
+                }
+
+                #textDuaa {
+                    top: 30px;
+                    font-size: 15px;
+                    margin-bottom: 0px;
+                    min-height: 150px;
+                }
+
+                #textDuab {
+                    font-size: 21px;
+                    min-height: 150px;
+                    margin-bottom: 15px;
+                    padding-top: 60px;
+                }
+
+                #logo_img_kino {
+                    width: 110px;
+                    margin-top: 27px;
+                    margin-bottom: 10px;
+                    margin-right: 5px;
+                }
+
+                #logo_img_LP {
+                    width: 110px;
+                    margin: 15px;
+                    margin-left: 40px;
+                }
+
+                #logo_img_bayininja {
+                    width: 80px;
+                    height: 80px;
+                    margin-left: 0px;
+                    margin-top: 7px;
+                }
+
+                #logo_img_sinaragung {
+                    width: 80px;
+                    height: 80px;
+                    margin-top: 7px;
+                }
+
+                #logo_img_risacorps {
+                    width: 170px;
+                    margin: 7px;
+                    margin-top: 10px;
+                    margin-right: 0px;
+                    margin-left: 0px;
+                }
+
+                #logo_img_kimbo {
+                    width: 110px;
+                    margin: 19px;
+                    margin-left: 0px;
+                    margin-top: 25px;
+                }
             }
 
-            .#btn-daftar-pc {
-                margin-top: -127px;
-            }
-        }
+            @@media screen and (min-width: 1440px) and (max-width: 1499px) {
+                #image_header {
+                    width: 100%;
+                    height: 625px;
+                }
 
-        @@media screen and (min-width: 1440px) {
-            /* start of phone styles */
-            .videoWrapper {
-                margin-top: -350px;
-            }
-        }
+                #cardSatua {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
 
-        @@media screen and (max-width: 479px) {
-            /* start of phone styles */
-            .videoWrapper {
-                margin-top: -245px;
-                left: 0;
+                #cardSatub {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #cardDuaa {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #cardDuab {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #textSatua {
+                    top: 30px;
+                    font-size: 15px;
+                    margin-bottom: 0px;
+                    min-height: 150px;
+                }
+
+                #textSatub {
+                    font-size: 21px;
+                    min-height: 150px;
+                    margin-bottom: 15px;
+                    padding-top: 60px;
+                }
+
+                #textDuaa {
+                    top: 30px;
+                    font-size: 15px;
+                    margin-bottom: 0px;
+                    min-height: 150px;
+                }
+
+                #textDuab {
+                    font-size: 21px;
+                    min-height: 150px;
+                    margin-bottom: 15px;
+                    padding-top: 60px;
+                }
+
+                #logo_img_kino {
+                    margin-top: 27px;
+                    margin-bottom: 10px;
+                    margin-right: 5px;
+                }
+
+                #logo_img_LP {
+                    margin: 15px;
+                    margin-left: 50px;
+                }
+
+                #logo_img_bayininja {
+                    margin-left: 0px;
+                    margin-top: 10px;
+                }
+
+                #logo_img_sinaragung {
+                    margin-top: 10px;
+                }
+
+                #logo_img_risacorps {
+                    margin: 7px;
+                    margin-top: 5px;
+                    margin-right: 0px;
+                    margin-left: 0px;
+                }
+
+                #logo_img_kimbo {
+                    margin: 19px;
+                    margin-left: 0px;
+                    margin-top: 25px;
+                }
             }
 
-            .header_images2 {
-                margin-top: -85px;
-                padding-left: 0px;
-                padding-right: 0px;
-                margin-bottom: -20px;
+            @@media screen and (min-width: 1500px) and (max-width: 1599px) {
+                #image_header {
+                    width: 100%;
+                    height: 633px;
+                }
+
+                #cardSatua {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #cardSatub {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #cardDuaa {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #cardDuab {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #textSatua {
+                    top: 30px;
+                    font-size: 15px;
+                    margin-bottom: 0px;
+                    min-height: 150px;
+                }
+
+                #textSatub {
+                    font-size: 21px;
+                    min-height: 150px;
+                    margin-bottom: 15px;
+                    padding-top: 60px;
+                }
+
+                #textDuaa {
+                    top: 30px;
+                    font-size: 15px;
+                    margin-bottom: 0px;
+                    min-height: 150px;
+                }
+
+                #textDuab {
+                    font-size: 21px;
+                    min-height: 150px;
+                    margin-bottom: 15px;
+                    padding-top: 60px;
+                }
+
+                #logo_img_kino {
+                    margin-top: 27px;
+                    margin-bottom: 10px;
+                    margin-right: 5px;
+                }
+
+                #logo_img_LP {
+                    margin: 15px;
+                    margin-left: 50px;
+                }
+
+                #logo_img_bayininja {
+                    margin-left: 0px;
+                    margin-top: 10px;
+                }
+
+                #logo_img_sinaragung {
+                    margin-top: 10px;
+                }
+
+                #logo_img_risacorps {
+                    margin: 7px;
+                    margin-top: 5px;
+                    margin-right: 0px;
+                    margin-left: 0px;
+                }
+
+                #logo_img_kimbo {
+                    margin: 19px;
+                    margin-left: 0px;
+                    margin-top: 25px;
+                }
+            }
+            
+            @@media screen and (min-width: 1536px) and (max-width: 1599px) {
+                #cardSatua {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #cardSatub {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #cardDuaa {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #cardDuab {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #textSatua {
+                    top: 30px;
+                    font-size: 15px;
+                    margin-bottom: 0px;
+                    min-height: 150px;
+                }
+
+                #textSatub {
+                    font-size: 21px;
+                    min-height: 150px;
+                    margin-bottom: 15px;
+                    padding-top: 60px;
+                }
+
+                #textDuaa {
+                    top: 30px;
+                    font-size: 15px;
+                    margin-bottom: 0px;
+                    min-height: 150px;
+                }
+
+                #textDuab {
+                    font-size: 21px;
+                    min-height: 150px;
+                    margin-bottom: 15px;
+                    padding-top: 60px;
+                }
             }
 
-            .videoWrapper iframe {
-                top: -90px;
+            @@media screen and (min-width: 1600px) and (max-width: 1699px) {
+                #image_header {
+                    width: 100%;
+                    height: 650px;
+                }
+
+                #cardSatua {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #cardSatub {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #cardDuaa {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #cardDuab {
+                    width: 650px;
+                    margin: auto;
+                    height: 430px;
+                }
+
+                #textSatua {
+                    top: 30px;
+                    font-size: 15px;
+                    margin-bottom: 0px;
+                    min-height: 150px;
+                }
+
+                #textSatub {
+                    font-size: 21px;
+                    min-height: 150px;
+                    margin-bottom: 15px;
+                    padding-top: 60px;
+                }
+
+                #textDuaa {
+                    top: 30px;
+                    font-size: 15px;
+                    margin-bottom: 0px;
+                    min-height: 150px;
+                }
+
+                #textDuab {
+                    font-size: 21px;
+                    min-height: 150px;
+                    margin-bottom: 15px;
+                    padding-top: 60px;
+                }
+
+                #logo_img_kino {
+                    margin-top: 27px;
+                    margin-bottom: 10px;
+                    margin-right: 5px;
+                }
+
+                #logo_img_LP {
+                    margin: 15px;
+                    margin-left: 50px;
+                }
+
+                #logo_img_bayininja {
+                    margin-left: 0px;
+                    margin-top: 10px;
+                }
+
+                #logo_img_sinaragung {
+                    margin-top: 10px;
+                }
+
+                #logo_img_risacorps {
+                    margin: 7px;
+                    margin-top: 5px;
+                    margin-right: 0px;
+                    margin-left: 0px;
+                }
+
+                #logo_img_kimbo {
+                    margin: 19px;
+                    margin-left: 0px;
+                    margin-top: 25px;
+                }
+            }
+
+            @@media screen and (min-width: 1700px) and (max-width: 1799px) {
+                #image_header {
+                    width: 100%;
+                    height: 670px;
+                }
+
+                #cardSatua {
+                    margin: auto;
+                }
+
+                #cardSatub {
+                    margin: auto;
+                }
+
+                #cardDuaa {
+                    margin: auto;
+                }
+
+                #cardSatub {
+                    margin: auto;
+                }
+
+                #logo_img_kino {
+                    margin-top: 27px;
+                    margin-bottom: 10px;
+                    margin-right: 5px;
+                }
+
+                #logo_img_LP {
+                    margin: 15px;
+                    margin-left: 50px;
+                }
+
+                #logo_img_bayininja {
+                    margin-left: 0px;
+                    margin-top: 10px;
+                }
+
+                #logo_img_sinaragung {
+                    margin-top: 10px;
+                }
+
+                #logo_img_risacorps {
+                    margin: 7px;
+                    margin-top: 5px;
+                    margin-right: 0px;
+                    margin-left: 0px;
+                }
+
+                #logo_img_kimbo {
+                    margin: 19px;
+                    margin-left: 0px;
+                    margin-top: 25px;
+                }
+            }
+
+            @@media screen and (min-width: 1800px) and (max-width: 1899px) {
+                #image_header {
+                    width: 100%;
+                    height: 690px;
+                }
+
+                #cardSatua {
+                    margin: auto;
+                }
+
+                #cardSatub {
+                    margin: auto;
+                }
+
+
+                #logo_img_kino {
+                    margin-top: 27px;
+                    margin-bottom: 10px;
+                    margin-right: 5px;
+                }
+
+                #logo_img_LP {
+                    margin: 15px;
+                    margin-left: 50px;
+                }
+
+                #logo_img_bayininja {
+                    margin-left: 0px;
+                    margin-top: 10px;
+                }
+
+                #logo_img_sinaragung {
+                    margin-top: 10px;
+                }
+
+                #logo_img_risacorps {
+                    margin: 7px;
+                    margin-top: 5px;
+                    margin-right: 0px;
+                    margin-left: 0px;
+                }
+
+                #logo_img_kimbo {
+                    margin: 19px;
+                    margin-left: 0px;
+                    margin-top: 25px;
+                }
+            }
+
+            @@media screen and (min-width: 1900px) and (max-width: 1999px) {
+                #image_header {
+                    width: 100%;
+                    height: 710px;
+                }
+
+                #cardSatua {
+                    margin-left: 200px;
+                }
+
+                #cardSatub {
+                    margin-left: 200px;
+                }
+
+                #logo_img_kino {
+                    margin-top: 27px;
+                    margin-bottom: 10px;
+                    margin-right: 5px;
+                }
+
+                #logo_img_LP {
+                    margin: 15px;
+                    margin-left: 50px;
+                }
+
+                #logo_img_bayininja {
+                    margin-left: 0px;
+                    margin-top: 10px;
+                }
+
+                #logo_img_sinaragung {
+                    margin-top: 10px;
+                }
+
+                #logo_img_risacorps {
+                    margin: 7px;
+                    margin-top: 5px;
+                    margin-right: 0px;
+                    margin-left: 0px;
+                }
+
+                #logo_img_kimbo {
+                    margin: 19px;
+                    margin-left: 0px;
+                    margin-top: 25px;
+                }
+            }
+
+            @@media screen and (min-width: 2000px) and (max-width: 2199px) {
+                #image_header {
+                    width: 100%;
+                    height: 720px;
+                }
+
+                #cardSatua {
+                    margin-left: 225px;
+                }
+
+                #cardSatub {
+                    margin-left: 225px;
+                }
+
+                #logo_img_kino {
+                    margin-top: 27px;
+                    margin-bottom: 10px;
+                    margin-right: 5px;
+                }
+
+                #logo_img_LP {
+                    margin: 15px;
+                    margin-left: 50px;
+                }
+
+                #logo_img_bayininja {
+                    margin-left: 0px;
+                    margin-top: 10px;
+                }
+
+                #logo_img_sinaragung {
+                    margin-top: 10px;
+                }
+
+                #logo_img_risacorps {
+                    margin: 7px;
+                    margin-top: 5px;
+                    margin-right: 0px;
+                    margin-left: 0px;
+                }
+
+                #logo_img_kimbo {
+                    margin: 19px;
+                    margin-left: 0px;
+                    margin-top: 25px;
+                }
+            }
+
+            @@media screen and (min-width: 2200px) and (max-width: 2299px) {
+                #image_header {
+                    width: 100%;
+                    height: 760px;
+                }
+
+                #cardSatua {
+                    margin-left: 300px;
+                }
+
+                #cardSatub {
+                    margin-left: 300px;
+                }
+
+                #logo_img_kino {
+                    margin-top: 27px;
+                    margin-bottom: 10px;
+                    margin-right: 5px;
+                }
+
+                #logo_img_LP {
+                    margin: 15px;
+                    margin-left: 50px;
+                }
+
+                #logo_img_bayininja {
+                    margin-left: 0px;
+                    margin-top: 10px;
+                }
+
+                #logo_img_sinaragung {
+                    margin-top: 10px;
+                }
+
+                #logo_img_risacorps {
+                    margin: 7px;
+                    margin-top: 5px;
+                    margin-right: 0px;
+                    margin-left: 0px;
+                }
+
+                #logo_img_kimbo {
+                    margin: 19px;
+                    margin-left: 0px;
+                    margin-top: 25px;
+                }
+            }
+
+            @@media screen and (min-width: 2300px) and (max-width: 2399px) {
+                #image_header {
+                    width: 100%;
+                    height: 770px;
+                }
+
+                #cardSatua {
+                    margin-left: 330px;
+                }
+
+                #cardSatub {
+                    margin-left: 330px;
+                }
+
+                #logo_img_kino {
+                    margin-top: 27px;
+                    margin-bottom: 10px;
+                    margin-right: 5px;
+                }
+
+                #logo_img_LP {
+                    margin: 15px;
+                    margin-left: 50px;
+                }
+
+                #logo_img_bayininja {
+                    margin-left: 0px;
+                    margin-top: 10px;
+                }
+
+                #logo_img_sinaragung {
+                    margin-top: 10px;
+                }
+
+                #logo_img_risacorps {
+                    margin: 7px;
+                    margin-top: 5px;
+                    margin-right: 0px;
+                    margin-left: 0px;
+                }
+
+                #logo_img_kimbo {
+                    margin: 19px;
+                    margin-left: 0px;
+                    margin-top: 25px;
+                }
+            }
+
+            @@media screen and (min-width: 2400px) and (max-width: 2499px) {
+                #image_header {
+                    width: 100%;
+                    height: 790px;
+                }
+
+                #cardSatua {
+                    margin-left: 360px;
+                }
+
+                #cardSatub {
+                    margin-left: 360px;
+                }
+
+                #logo_img_kino {
+                    margin-top: 27px;
+                    margin-bottom: 10px;
+                    margin-right: 5px;
+                }
+
+                #logo_img_LP {
+                    margin: 15px;
+                    margin-left: 50px;
+                }
+
+                #logo_img_bayininja {
+                    margin-left: 0px;
+                    margin-top: 10px;
+                }
+
+                #logo_img_sinaragung {
+                    margin-top: 10px;
+                }
+
+                #logo_img_risacorps {
+                    margin: 7px;
+                    margin-top: 5px;
+                    margin-right: 0px;
+                    margin-left: 0px;
+                }
+
+                #logo_img_kimbo {
+                    margin: 19px;
+                    margin-left: 0px;
+                    margin-top: 25px;
+                }
+            }
+
+            @@media screen and (min-width: 2500px) and (max-width: 2559px) {
+                #image_header {
+                    width: 100%;
+                    height: 810px;
+                }
+
+                #cardSatua {
+                    margin-left: 390px;
+                }
+
+                #cardSatub {
+                    margin-left: 390px;
+                }
+
+                #logo_img_kino {
+                    margin-top: 27px;
+                    margin-bottom: 10px;
+                    margin-right: 5px;
+                }
+
+                #logo_img_LP {
+                    margin: 15px;
+                    margin-left: 50px;
+                }
+
+                #logo_img_bayininja {
+                    margin-left: 0px;
+                    margin-top: 10px;
+                }
+
+                #logo_img_sinaragung {
+                    margin-top: 10px;
+                }
+
+                #logo_img_risacorps {
+                    margin: 7px;
+                    margin-top: 5px;
+                    margin-right: 0px;
+                    margin-left: 0px;
+                }
+
+                #logo_img_kimbo {
+                    margin: 19px;
+                    margin-left: 0px;
+                    margin-top: 25px;
+                }
+            }
+
+            @@media screen and (min-width: 2560px) {
+                #image_header {
+                    width: 100%;
+                    height: 820px;
+                }
+
+                #cardSatua {
+                    margin-left: 400px;
+                }
+
+                #cardSatub {
+                    margin-left: 400px;
+                }
+
+                #logo_img_kino {
+                    margin-top: 27px;
+                    margin-bottom: 10px;
+                    margin-right: 5px;
+                }
+
+                #logo_img_LP {
+                    margin: 15px;
+                    margin-left: 50px;
+                }
+
+                #logo_img_bayininja {
+                    margin-left: 0px;
+                    margin-top: 10px;
+                }
+
+                #logo_img_sinaragung {
+                    margin-top: 10px;
+                }
+
+                #logo_img_risacorps {
+                    margin: 7px;
+                    margin-top: 5px;
+                    margin-right: 0px;
+                    margin-left: 0px;
+                }
+
+                #logo_img_kimbo {
+                    margin: 19px;
+                    margin-left: 0px;
+                    margin-top: 25px;
+                }
+            }
+
+
+            @@media screen and (min-width: 768px) {
+                .videoWrapper iframe {
+                    top: -82px;
+                }
+
+                .videoWrapper {
+                    margin-top: -538px;
+                    left: 0;
+                }
+
+
+                #btn-daftar-mobile {
+                    font-size: 21px;
+                    margin-top: -79px;
+                }
+
+                .header_images2 {
+                    padding-left: 0px;
+                    padding-right: 0px;
+                    margin-bottom: -20px;
+                }
+            }
+
+            @@media screen and (min-width: 1024px) {
+
+                .videoWrapper {
+                    margin-top: -240px;
+                }
+
+                .#btn-daftar-pc {
+                    margin-top: -127px;
+                }
+            }
+
+            @@media screen and (min-width: 1440px) {
+                /* start of phone styles */
+                .videoWrapper {
+                    margin-top: -350px;
+                }
+            }
+
+            @@media screen and (max-width: 479px) {
+                /* start of phone styles */
+                .videoWrapper {
+                    margin-top: -245px;
+                    left: 0;
+                }
+
+                .header_images2 {
+                    margin-top: -85px;
+                    padding-left: 0px;
+                    padding-right: 0px;
+                    margin-bottom: -20px;
+                }
+
+                .videoWrapper iframe {
+                    top: -90px;
+                }
+
+                #cover {
+                    margin-top: 51px !important;
+                }
+            }
+
+            @@media (min-width: 320px) and (max-width: 480px) {
+                #cover {
+                    margin-top: 51px !important;
+                }
+
+                .videoWrapper iframe {
+                    top: -90px;
+                }
+
+                .header_images2 {
+                    margin-top: -85px;
+                }
+
+                .modal-content {
+                    margin-top: 225px !important;
+                }
+
+                .modal-dialog {
+                    height: auto !important;
+                }
+
+                .title-features-mobile {
+                    font-size: 10px !important;
+                }
+
+                .sub-title-features-mobile {
+                    font-size: 9px !important;
+                }
+
+                .feature-mobile-row {
+                    margin-bottom: 25px !important;
+                }
+
+                #top a span {
+                    font-size: 12px !important;
+                }
+
+                h2.mobile-title {
+                    padding-top: 25px;
+                    font-size: 16px !important;
+                }
+
+                #cover p {
+                    font-size: 14px !important;
+                }
+
+                #mobile-app-section {
+                    margin-top: 25px !important;
+                    margin-bottom: 25px !important;
+                }
+
+                #counter_container {
+                    padding-left: 0px;
+                    padding-right: 0px;
+                }
+
+                #counter_top {
+                    position: relative;
+                    top: 26px;
+                }
+
+                #counter_bottom {
+                    position: relative;
+                    bottom: 17px;
+                }
+
+                .count {
+                    font-size: 13pt;
+                }
+
+                .foot_text {
+                    font-size: 11pt;
+                }
+
+                #counter .right {
+                    position: relative;
+                }
+
+                #central_img {
+                    width: 80%;
+                }
+
+                #counter .title {
+                    line-height: 30px;
+                    font-size: 15pt;
+                    font-weight: 300;
+                    top: 0px;
+                }
+            }
+
+            @@font-face {
+                font-family: 'RoundedElegance';
+                src: url("../../fonts/rounded_elegance.svg");
+                src: url("../../fonts/rounded_elegance.ttf") format('truetype');
+            }
+
+            body {
+                overflow-x: hidden;
+            }
+
+            .row {
+                margin-right: 0;
+                margin-left: 0;
+            }
+
+            html {
+                -webkit-text-stroke-width: 0.5pt;
+                text-rendering: optimizeLegibility !important;
+                -webkit-font-smoothing: antialiased !important;
+                -moz-osx-font-smoothing: grayscale !important;
             }
 
             #cover {
-                margin-top: 51px !important;
-            }
-        }
-
-        @@media (min-width: 320px) and (max-width: 480px) {
-            #cover {
-                margin-top: 51px !important;
+                /*margin-top: 130px;*/
+                margin-bottom: 18px;
+                background-size: cover;
+                /*min-height: 350px;*/
             }
 
-            .videoWrapper iframe {
-                top: -90px;
-            }
-
-            .header_images2 {
-                margin-top: -85px;
-            }
-
-            .modal-content {
-                margin-top: 225px !important;
-            }
-
-            .modal-dialog {
-                height: auto !important;
-            }
-
-            .title-features-mobile {
-                font-size: 10px !important;
-            }
-
-            .sub-title-features-mobile {
-                font-size: 9px !important;
-            }
-
-            .feature-mobile-row {
-                margin-bottom: 25px !important;
-            }
-
-            #top a span {
-                font-size: 12px !important;
+            h2.pc-title {
+                padding-top: 10px;
+                color: #891539;
+                font-size: 30px;
+                line-height: 60px;
+                letter-spacing: 3px;
+                font-weight: 700;
             }
 
             h2.mobile-title {
-                padding-top: 25px;
-                font-size: 16px !important;
+                color: #891539;
+                font-size: 25px;
+                line-height: 58px;
+                letter-spacing: 3px;
+                font-weight: 700;
+            }
+
+            #cover h3 {
+                font-size: 58px;
+                font-weight: 700;
+                text-transform: uppercase;
+                font-family: 'RoundedElegance';
+            }
+
+                #cover h3 span {
+                    color: #ed5565;
+                }
+
+            #cover span {
+                font-size: 53px;
             }
 
             #cover p {
-                font-size: 14px !important;
+                font-size: 18px;
+                letter-spacing: .5px;
+            }
+
+            #cover .btn {
+                background-color: #891539;
+                color: #fff;
+            }
+
+                #cover .btn:hover {
+                    background-color: #f37100 !important;
+                }
+
+            .focus-text {
+                text-transform: uppercase;
+                color: #f37100;
+            }
+
+            #btn-daftar-pc {
+                margin-left: -15px;
+                text-align: center !important;
+                margin-right: auto;
+                margin-bottom: 42px;
+                border-radius: 20px !important;
+                margin-top: -36px;
+                box-shadow: 0px 7px 5px rgb(136, 136, 136);
             }
 
             #mobile-app-section {
-                margin-top: 25px !important;
-                margin-bottom: 25px !important;
+                margin-top: 60px;
             }
 
-            #counter_container {
-                padding-left: 0px;
-                padding-right: 0px;
+            #btn-daftar-mobile {
+                font-size: 10px;
+                padding-left: 6px;
+                border-radius: 20px !important;
+                width: 150%;
+                margin-top: -121px;
+                margin-left: -29px;
+                box-shadow: 0px 7px 5px rgb(136, 136, 136);
             }
 
-            #counter_top {
-                position: relative;
-                top: 26px;
-            }
-
-            #counter_bottom {
-                position: relative;
-                bottom: 17px;
-            }
-
-            .count {
-                font-size: 13pt;
-            }
-
-            .foot_text {
-                font-size: 11pt;
-            }
-
-            #counter .right {
-                position: relative;
-            }
-
-            #central_img {
-                width: 80%;
-            }
-
-            #counter .title {
-                line-height: 30px;
-                font-size: 15pt;
-                font-weight: 300;
-                top: 0px;
-            }
-        }
-
-        @@font-face {
-            font-family: 'RoundedElegance';
-            src: url("../../fonts/rounded_elegance.svg");
-            src: url("../../fonts/rounded_elegance.ttf") format('truetype');
-        }
-
-        body {
-            overflow-x: hidden;
-        }
-
-        .row {
-            margin-right: 0;
-            margin-left: 0;
-        }
-
-        html {
-            -webkit-text-stroke-width: 0.5pt;
-            text-rendering: optimizeLegibility !important;
-            -webkit-font-smoothing: antialiased !important;
-            -moz-osx-font-smoothing: grayscale !important;
-        }
-
-        #cover {
-            /*margin-top: 130px;*/
-            margin-bottom: 18px;
-            background-size: cover;
-            /*min-height: 350px;*/
-        }
-
-        h2.pc-title {
-            padding-top: 10px;
-            color: #891539;
-            font-size: 30px;
-            line-height: 60px;
-            letter-spacing: 3px;
-            font-weight: 700;
-        }
-
-        h2.mobile-title {
-            color: #891539;
-            font-size: 25px;
-            line-height: 58px;
-            letter-spacing: 3px;
-            font-weight: 700;
-        }
-
-        #cover h3 {
-            font-size: 58px;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-family: 'RoundedElegance';
-        }
-
-            #cover h3 span {
-                color: #ed5565;
-            }
-
-        #cover span {
-            font-size: 53px;
-        }
-
-        #cover p {
-            font-size: 18px;
-            letter-spacing: .5px;
-        }
-
-        #cover .btn {
-            background-color: #891539;
-            color: #fff;
-        }
-
-            #cover .btn:hover {
-                background-color: #f37100 !important;
-            }
-
-        .focus-text {
-            text-transform: uppercase;
-            color: #f37100;
-        }
-
-        #btn-daftar-pc {
-            margin-left: -15px;
-            text-align: center !important;
-            margin-right: auto;
-            margin-bottom: 42px;
-            border-radius: 20px !important;
-            margin-top: -36px;
-            box-shadow: 0px 7px 5px rgb(136, 136, 136);
-        }
-
-        #mobile-app-section {
-            margin-top: 60px;
-        }
-
-        #btn-daftar-mobile {
-            font-size: 10px;
-            padding-left: 6px;
-            border-radius: 20px !important;
-            width: 150%;
-            margin-top: -121px;
-            margin-left: -29px;
-            box-shadow: 0px 7px 5px rgb(136, 136, 136);
-        }
-
-        #btn-video-pc {
-            width: 50%;
-            float: left;
-            background-color: #5db836 !important;
-            margin: 0 auto;
-            border-radius: 10px !important;
-            margin-top: 40px;
-            box-shadow: 0px 7px 5px rgb(136, 136, 136);
-        }
-
-        #btn-video-mobile {
-            background-color: #5db836 !important;
-            border-radius: 10px !important;
-            width: 100%;
-            margin-top: 25px;
-            box-shadow: 0px 7px 5px rgb(136, 136, 136);
-        }
-
-        #gradient-mo {
-            background: rgba(255,23,23,1);
-            background: -moz-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
-            background: -webkit-gradient(left top, right top, color-stop(0%, rgba(255,23,23,1)), color-stop(50%, rgba(137,21,57,1)), color-stop(100%, rgba(137,21,57,1)));
-            background: -webkit-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
-            background: -o-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
-            background: -ms-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
-            background: linear-gradient(to right, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
-            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff1717', endColorstr='#891539', GradientType=1 );
-            color: transparent;
-            -webkit-background-clip: text;
-            background-clip: text;
-        }
-
-        .videoWrapper {
-            /*margin-top: -350px;*/
-            position: relative;
-            padding-bottom: 52.25%; /* 16:9 */
-            padding-top: 25px;
-            height: 0;
-        }
-
-            .videoWrapper iframe {
-                padding-right: 3px;
-                position: absolute;
-                /*top: 0;*/
-                left: 0;
-                width: 100%;
-                height: 100%;
-            }
-
-        .modal-dialog {
-            width: 75%;
-            height: 75%;
-            margin: 0 auto;
-            padding: 0;
-        }
-
-        .modal-content {
-            margin-top: 35px;
-            height: auto;
-            min-height: 100%;
-            border-radius: 0;
-        }
-
-        .videoBox {
-            position: relative;
-            padding-bottom: 30.25%; /* 16:9 */
-            height: 0;
-        }
-
-            .videoBox iframe {
-                position: absolute;
-                top: 0;
-                left: 25%;
+            #btn-video-pc {
                 width: 50%;
-                height: 100%;
+                float: left;
+                background-color: #5db836 !important;
+                margin: 0 auto;
+                border-radius: 10px !important;
+                margin-top: 40px;
+                box-shadow: 0px 7px 5px rgb(136, 136, 136);
             }
 
-        #marketplace .logo-container {
-            padding: 40px 0;
-        }
-
-        .grayish-white {
-            background-color: #F5F5F5;
-        }
-
-        .grayish-white-f6 {
-            background-color: #f6f6f6;
-        }
-
-        #marketplace .title-box-red,
-        .carakerja .title-box-red {
-            padding: 10px 7px;
-        }
-
-            #marketplace .title-box-red h3,
-            .carakerja .title-box-red h3 {
-                font-size: 20px;
-                color: #fff;
-                font-weight: 400;
-                margin: 0px;
-                text-align: left !important;
-            }
-
-        #marketplace .mp-logo:first-child {
-            margin-left: 60px;
-        }
-
-        #marketplace .mp-logo {
-            margin-right: 15px;
-        }
-
-        .titleSection {
-            color: #ed5565;
-            font-size: 35px;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        .carakerja {
-            padding: 0 0 40px 0;
-            background-color: #fff;
-        }
-
-            .carakerja h3, .carakerja p {
-                font-weight: 300;
-                text-align: center;
-            }
-
-            .carakerja h3 {
-                font-size: 22px;
-            }
-
-            .carakerja p {
-                font-size: 17px;
-                line-height: 24px;
-                color: #777;
-            }
-
-            .carakerja strong {
-                font-size: 20px;
-                font-weight: 500;
-                text-align: center;
-                display: block;
-            }
-
-            .carakerja img {
+            #btn-video-mobile {
+                background-color: #5db836 !important;
+                border-radius: 10px !important;
+                width: 100%;
                 margin-top: 25px;
+                box-shadow: 0px 7px 5px rgb(136, 136, 136);
             }
 
-        #banner {
-            background: url(../../Content/Images/shattered.png) 0 50%;
-            min-height: 200px;
-            padding: 20px 0;
-            text-align: center;
-        }
-
-            #banner h2 {
-                color: #999;
-                font-size: 25px;
-                font-weight: 400;
-                margin: 30px 0 28px 0;
+            #gradient-mo {
+                background: rgba(255,23,23,1);
+                background: -moz-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+                background: -webkit-gradient(left top, right top, color-stop(0%, rgba(255,23,23,1)), color-stop(50%, rgba(137,21,57,1)), color-stop(100%, rgba(137,21,57,1)));
+                background: -webkit-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+                background: -o-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+                background: -ms-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+                background: linear-gradient(to right, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff1717', endColorstr='#891539', GradientType=1 );
+                color: transparent;
+                -webkit-background-clip: text;
+                background-clip: text;
             }
 
-        footer {
-            /*background: #891539;*/
-            background: linear-gradient(to top, #EE1A3B, #A0193A);
-            padding: 30px 0;
-        }
-
-        .footerMenuCol {
-            margin-bottom: 20px;
-        }
-
-        footer h3 {
-            color: #fff;
-            font-size: 15px;
-            font-weight: 400;
-            text-transform: uppercase;
-            margin-top: 0;
-        }
-
-        footer ul, footer ul li {
-            list-style: none;
-        }
-
-            footer ul li {
-                margin-left: -40px !important;
-                padding: 7px 0 7px 10px;
-                border-bottom: 1px solid #f9f9f9;
+            .videoWrapper {
+                /*margin-top: -350px;*/
+                position: relative;
+                padding-bottom: 52.25%; /* 16:9 */
+                padding-top: 25px;
+                height: 0;
             }
 
-                footer ul li a {
-                    color: #f7f7f7;
-                    font-size: 12px;
-                    font-weight: 300;
-                    text-decoration: none;
+                .videoWrapper iframe {
+                    padding-right: 3px;
+                    position: absolute;
+                    /*top: 0;*/
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
                 }
 
-                    footer ul li a:hover {
-                        color: #ffa600;
+            .modal-dialog {
+                width: 75%;
+                height: 75%;
+                margin: 0 auto;
+                padding: 0;
+            }
+
+            .modal-content {
+                margin-top: 35px;
+                height: auto;
+                min-height: 100%;
+                border-radius: 0;
+            }
+
+            .videoBox {
+                position: relative;
+                padding-bottom: 30.25%; /* 16:9 */
+                height: 0;
+            }
+
+                .videoBox iframe {
+                    position: absolute;
+                    top: 0;
+                    left: 25%;
+                    width: 50%;
+                    height: 100%;
+                }
+
+            #marketplace .logo-container {
+                padding: 40px 0;
+            }
+
+            .grayish-white {
+                background-color: #F5F5F5;
+            }
+
+            .grayish-white-f6 {
+                background-color: #f6f6f6;
+            }
+
+            #marketplace .title-box-red,
+            .carakerja .title-box-red {
+                padding: 10px 7px;
+            }
+
+                #marketplace .title-box-red h3,
+                .carakerja .title-box-red h3 {
+                    font-size: 20px;
+                    color: #fff;
+                    font-weight: 400;
+                    margin: 0px;
+                    text-align: left !important;
+                }
+
+            #marketplace .mp-logo:first-child {
+                margin-left: 60px;
+            }
+
+            #marketplace .mp-logo {
+                margin-right: 15px;
+            }
+
+            .titleSection {
+                color: #ed5565;
+                font-size: 35px;
+                text-align: center;
+                font-weight: 500;
+            }
+
+            .carakerja {
+                padding: 0 0 40px 0;
+                background-color: #fff;
+            }
+
+                .carakerja h3, .carakerja p {
+                    font-weight: 300;
+                    text-align: center;
+                }
+
+                .carakerja h3 {
+                    font-size: 22px;
+                }
+
+                .carakerja p {
+                    font-size: 17px;
+                    line-height: 24px;
+                    color: #777;
+                }
+
+                .carakerja strong {
+                    font-size: 20px;
+                    font-weight: 500;
+                    text-align: center;
+                    display: block;
+                }
+
+                .carakerja img {
+                    margin-top: 25px;
+                }
+
+            #banner {
+                background: url(../../Content/Images/shattered.png) 0 50%;
+                min-height: 200px;
+                padding: 20px 0;
+                text-align: center;
+            }
+
+                #banner h2 {
+                    color: #999;
+                    font-size: 25px;
+                    font-weight: 400;
+                    margin: 30px 0 28px 0;
+                }
+
+            footer {
+                /*background: #891539;*/
+                background: linear-gradient(to top, #EE1A3B, #A0193A);
+                padding: 30px 0;
+            }
+
+            .footerMenuCol {
+                margin-bottom: 20px;
+            }
+
+            footer h3 {
+                color: #fff;
+                font-size: 15px;
+                font-weight: 400;
+                text-transform: uppercase;
+                margin-top: 0;
+            }
+
+            footer ul, footer ul li {
+                list-style: none;
+            }
+
+                footer ul li {
+                    margin-left: -40px !important;
+                    padding: 7px 0 7px 10px;
+                    border-bottom: 1px solid #f9f9f9;
+                }
+
+                    footer ul li a {
+                        color: #f7f7f7;
+                        font-size: 12px;
+                        font-weight: 300;
+                        text-decoration: none;
                     }
 
-        .title-box-red {
-            background: rgba(137,21,57,1);
-            background: -moz-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
-            background: -webkit-gradient(left top, right top, color-stop(0%, rgba(137,21,57,1)), color-stop(70%, rgba(137,21,57,1)), color-stop(100%, rgba(255,23,23,1)));
-            background: -webkit-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
-            background: -o-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
-            background: -ms-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
-            background: linear-gradient(to right, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
-            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#891539', endColorstr='#ff1717', GradientType=1 );
-        }
+                        footer ul li a:hover {
+                            color: #ffa600;
+                        }
 
-        .carakerja .content-feature {
-            background-color: #f6f6f6;
-            padding-bottom: 10px;
-        }
-
-        #promo_pulsa {
-            display: none; /* Sementara */
-            position: absolute;
-            width: 20%;
-            right: 15px;
-            top: 175px;
-            z-index: 100;
-        }
-
-        .no-padding {
-            padding: 0 !important;
-        }
-
-        .title-features {
-            font-size: 15px;
-            font-weight: bold;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        .sub-title-features {
-            font-size: 14px;
-            position: absolute;
-            top: 30px;
-            left: 0;
-        }
-
-        .title-features-mobile {
-            font-size: 12px;
-            font-weight: bold;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        .sub-title-features-mobile {
-            font-size: 11px;
-            position: absolute;
-            top: 25px;
-            left: 0;
-        }
-
-        .feature-mobile-row {
-            margin-bottom: 30px;
-        }
-
-        .box-bnn {
-            min-height: 200px;
-        }
-
-            .box-bnn img {
-                margin-right: -50px;
+            .title-box-red {
+                background: rgba(137,21,57,1);
+                background: -moz-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+                background: -webkit-gradient(left top, right top, color-stop(0%, rgba(137,21,57,1)), color-stop(70%, rgba(137,21,57,1)), color-stop(100%, rgba(255,23,23,1)));
+                background: -webkit-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+                background: -o-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+                background: -ms-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+                background: linear-gradient(to right, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#891539', endColorstr='#ff1717', GradientType=1 );
             }
 
-        .hero {
-            margin: 20px 0;
-        }
-
-        .hero {
-            align-items: center;
-            height: auto;
-            min-width: 0;
-        }
-
-            .hero img {
-                width: 100%;
-                max-width: 100%;
-                /*max-height: 500px;*/
+            .carakerja .content-feature {
+                background-color: #f6f6f6;
+                padding-bottom: 10px;
             }
 
-        #soc-med-btn-nav {
-            margin-right: 0px;
-        }
+            #promo_pulsa {
+                display: none; /* Sementara */
+                position: absolute;
+                width: 20%;
+                right: 15px;
+                top: 175px;
+                z-index: 100;
+            }
 
-        /* add by fauzi for style logo image customer 29 Juni 2020 */
-        .logo_img_kino {
-            user-select: none;
-            -moz-user-select: none;
-            -webkit-user-drag: none;
-            -webkit-user-select: none;
-            -ms-user-select: none;
-            width: 130px;
-            border-radius: 5px;
-            margin-top: 28px;
-            margin-bottom: 10px;
-            margin-right: 10px;
-        }
+            .no-padding {
+                padding: 0 !important;
+            }
 
-        .logo_img_LP {
-            user-select: none;
-            -moz-user-select: none;
-            -webkit-user-drag: none;
-            -webkit-user-select: none;
-            -ms-user-select: none;
-            width: 130px;
-            border-radius: 5px;
-            margin: 20px;
-            box-shadow: 0 1px 22px rgba(0,0,0,0.12);
-        }
+            .title-features {
+                font-size: 15px;
+                font-weight: bold;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
 
-        .logo_img_bayininja {
-            user-select: none;
-            -moz-user-select: none;
-            -webkit-user-drag: none;
-            -webkit-user-select: none;
-            -ms-user-select: none;
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            box-shadow: 0 1px 22px rgba(0,0,0,0.12);
-        }
+            .sub-title-features {
+                font-size: 14px;
+                position: absolute;
+                top: 30px;
+                left: 0;
+            }
 
-        .logo_img_sinaragung {
-            user-select: none;
-            -moz-user-select: none;
-            -webkit-user-drag: none;
-            -webkit-user-select: none;
-            -ms-user-select: none;
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            box-shadow: 0 1px 22px rgba(0,0,0,0.12);
-        }
+            .title-features-mobile {
+                font-size: 12px;
+                font-weight: bold;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
 
-        .logo_img_risacorps {
-            user-select: none;
-            -moz-user-select: none;
-            -webkit-user-drag: none;
-            -webkit-user-select: none;
-            -ms-user-select: none;
-            width: 220px;
-            border-radius: 5px;
-        }
+            .sub-title-features-mobile {
+                font-size: 11px;
+                position: absolute;
+                top: 25px;
+                left: 0;
+            }
 
-        .logo_img_kimbo {
-            user-select: none;
-            -moz-user-select: none;
-            -webkit-user-drag: none;
-            -webkit-user-select: none;
-            -ms-user-select: none;
-            width: 130px;
-            border-radius: 5px;
-        }
-        /* end add style */
+            .feature-mobile-row {
+                margin-bottom: 30px;
+            }
+
+            .box-bnn {
+                min-height: 200px;
+            }
+
+                .box-bnn img {
+                    margin-right: -50px;
+                }
+
+            .hero {
+                margin: 20px 0;
+            }
+
+            .hero {
+                align-items: center;
+                height: auto;
+                min-width: 0;
+            }
+
+                .hero img {
+                    width: 100%;
+                    max-width: 100%;
+                    /*max-height: 500px;*/
+                }
+
+            #soc-med-btn-nav {
+                margin-right: 0px;
+            }
+
+            /* add by fauzi for style logo image customer 29 Juni 2020 */
+            .logo_img_kino {
+                user-select: none;
+                -moz-user-select: none;
+                -webkit-user-drag: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                width: 130px;
+                border-radius: 5px;
+                margin-top: 28px;
+                margin-bottom: 10px;
+                margin-right: 10px;
+            }
+
+            .logo_img_LP {
+                user-select: none;
+                -moz-user-select: none;
+                -webkit-user-drag: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                width: 130px;
+                border-radius: 5px;
+                margin: 20px;
+                box-shadow: 0 1px 22px rgba(0,0,0,0.12);
+            }
+
+            .logo_img_bayininja {
+                user-select: none;
+                -moz-user-select: none;
+                -webkit-user-drag: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                width: 90px;
+                height: 90px;
+                border-radius: 50%;
+                box-shadow: 0 1px 22px rgba(0,0,0,0.12);
+            }
+
+            .logo_img_sinaragung {
+                user-select: none;
+                -moz-user-select: none;
+                -webkit-user-drag: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                width: 90px;
+                height: 90px;
+                border-radius: 50%;
+                box-shadow: 0 1px 22px rgba(0,0,0,0.12);
+            }
+
+            .logo_img_risacorps {
+                user-select: none;
+                -moz-user-select: none;
+                -webkit-user-drag: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                width: 220px;
+                border-radius: 5px;
+            }
+
+            .logo_img_kimbo {
+                user-select: none;
+                -moz-user-select: none;
+                -webkit-user-drag: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                width: 130px;
+                border-radius: 5px;
+            }
+            /* end add style */
     </style>
 
 }
@@ -2991,7 +3681,7 @@
                                                 <div id="cardSatua" class="cardSatua">
                                                     <div class="textSatua" id="textSatua">"Sebelumnya saya udah cari kemana-mana, udah tes sama beberapa aplikasi lain yang sama dengan ini dan akhirnya saya putusin ke Master Online. Karena ini yang menurut saya terbaik di antara yang lain. Setelah saya pakai si ini bener2 ngebantu banget. Logika dasarnya seperti ini, yang paling kita butuhkan kan ini bisa update stok di beberapa marketplace sekaligus. Daripada kita pake beberapa admin hanya untuk beresin stok, munculin stok, potong stok, update kalau ada tambah barang, mendingan pake ini, 1 aplikasi langsung bisa. Logika dasarnya aja itu kita uda untung duluan ya. Untuk fitur-fitur lain nya masih banyak lagi."</div>
                                                     <br />
-                                                    <div class="imageCustomer"><img style="box-shadow: 0 1px 22px rgba(0,0,0,0.12)" src="~/Content/Images/testimony/logo_acc_andia.PNG" alt="ACC Andi" width="120px" /></div>
+                                                    <div class="imageCustomer"><img class="gambarSatua" id="gambarSatua" src="~/Content/Images/testimony/logo_acc_andia.PNG" alt="ACC Andi" /></div>
                                                     <div class="lineHR" id="namaSatua" style="color:white;font-size:15px;">Soemardi W.</div>
                                                     <div class="lineHR" id="jabatanSatua" style="color:white;font-size:12px;height:50px;">Founder Toko Accandi</div>
                                                     <br />
@@ -3009,7 +3699,7 @@
                                                 <div id="cardSatub" class="cardSatub">
                                                     <div class="textSatub" id="textSatub">"Stock jadi rapih, proses pesanan jauh lebih cepat, Support mantab!"</div>
                                                     <br />
-                                                    <div class="imageCustomer"><img style="box-shadow: 0 1px 22px rgba(0,0,0,0.12)" src="~/Content/Images/testimony/logo_heybabya.PNG" alt="ACC Andi" width="100px" /></div>
+                                                    <div class="imageCustomer"><img class="gambarDuaa" id="gambarDuaa" src="~/Content/Images/testimony/logo_heybabya.PNG" alt="ACC Andi"  /></div>
                                                     <div class="lineHR" id="namaSatub" style="color:white;font-size:15px;">Rocky C. K.</div>
                                                     <div class="lineHR" id="jabatanSatub" style="color:white;font-size:12px;height:50px;">Co-founder Hey Baby Indonesia</div>
                                                     <br />
@@ -3090,7 +3780,7 @@
                 </div>
             </div>
         </div>
-        @*<div class="container-fluid" style="background-color:#f4f4f4;">
+        <div class="container-fluid" style="background-color:#f4f4f4;">
             <div class="row">
                 <div class="col-md-2">
                 </div>
@@ -3098,23 +3788,23 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div id="counter">
-                                <div class="titleTestimony">Our Happy Customers (OPSI 02)</div>
+                                <div class="titleTestimony" id="titleTestimony">Our Happy Customers (OPSI 02)</div>
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div id="carouselExampleIndicators02" class="carousel slide" style="width:100%;" data-interval="5000000" data-ride="carousel" data-pause="hover" data-wrap="true">
+                        <div id="carouselExampleIndicators02" class="carousel slide" style="width:100%;" data-interval="500000" data-ride="carousel" data-pause="hover" data-wrap="true">
                             <div class="carousel-inner">
                                 <div class="item active">
                                     <div class="row">
                                         <div class="col-md-12" style="padding-bottom: 20px;">
                                             <div id="counter">
                                                 <div id="cardDuaa" class="cardDuaa">
-                                                    <div class="lineHR" style="color:white;font-size:17px;min-height:200px;width:90%;height:auto;">"Sebelumnya saya udah cari kemana-mana, udah tes sama beberapa aplikasi lain yang sama dengan ini dan akhirnya saya putusin ke Master Online. Karena ini yang menurut saya terbaik di antara yang lain. Setelah saya pakai si ini bener2 ngebantu banget. Logika dasarnya seperti ini, yang paling kita butuhkan kan ini bisa update stok di beberapa marketplace sekaligus. Daripada kita pake beberapa admin hanya untuk beresin stok, munculin stok, potong stok, update kalau ada tambah barang, mendingan pake ini, 1 aplikasi langsung bisa. Logika dasarnya aja itu kita uda untung duluan ya. Untuk fitur-fitur lain nya masih banyak lagi."</div>
+                                                    <div class="textDuaa" id="textDuaa">"Sebelumnya saya udah cari kemana-mana, udah tes sama beberapa aplikasi lain yang sama dengan ini dan akhirnya saya putusin ke Master Online. Karena ini yang menurut saya terbaik di antara yang lain. Setelah saya pakai si ini bener2 ngebantu banget. Logika dasarnya seperti ini, yang paling kita butuhkan kan ini bisa update stok di beberapa marketplace sekaligus. Daripada kita pake beberapa admin hanya untuk beresin stok, munculin stok, potong stok, update kalau ada tambah barang, mendingan pake ini, 1 aplikasi langsung bisa. Logika dasarnya aja itu kita uda untung duluan ya. Untuk fitur-fitur lain nya masih banyak lagi."</div>
                                                     <br />
                                                     <div class="imageCustomer"><img style="box-shadow: 0 1px 22px rgba(0,0,0,0.12)" src="~/Content/Images/testimony/logo_acc_andia.PNG" alt="ACC Andi" width="120px" /></div>
-                                                    <div class="lineHR" style="color:white;font-size:15px;">Soemardi W.</div>
-                                                    <div class="lineHR" style="color:white;font-size:12px;height:50px;">Founder Toko Accandi</div>
+                                                    <div class="lineHR" id="namaDuaa" style="color:white;font-size:15px;">Soemardi W.</div>
+                                                    <div class="lineHR" id="jabatanDuaa" style="color:white;font-size:12px;height:50px;">Founder Toko Accandi</div>
                                                     <br />
                                                     <br />
                                                     <br />
@@ -3128,11 +3818,11 @@
                                         <div class="col-md-12" style="padding-bottom: 20px;">
                                             <div id="counter">
                                                 <div id="cardDuab" class="cardDuab">
-                                                    <div class="lineHR" style="color:white;font-size:23px;min-height:10px;margin-bottom:30px;padding-top:120px;width:90%;height:auto;">"Stock jadi rapih, proses pesanan jauh lebih cepat, Support mantab!"</div>
+                                                    <div class="textDuab" id="textDuab">"Stock jadi rapih, proses pesanan jauh lebih cepat, Support mantab!"</div>
                                                     <br />
                                                     <div class="imageCustomer"><img style="box-shadow: 0 1px 22px rgba(0,0,0,0.12)" src="~/Content/Images/testimony/logo_heybabya.PNG" alt="ACC Andi" width="100px" /></div>
-                                                    <div class="lineHR" style="color:white;font-size:15px;">Rocky C. K.</div>
-                                                    <div class="lineHR" style="color:white;font-size:12px;height:50px;">Co-founder Hey Baby Indonesia</div>
+                                                    <div class="lineHR" id="namaDuab" style="color:white;font-size:15px;">Rocky C. K.</div>
+                                                    <div class="lineHR" id="jabatanDuab" style="color:white;font-size:12px;height:50px;">Co-founder Hey Baby Indonesia</div>
                                                     <br />
                                                     <br />
                                                     <br />
@@ -3142,11 +3832,11 @@
                                     </div>
                                 </div>
                             </div>
-                            <a class="carousel-control-prev" style="left: -110px;margin: auto;height: 40px;width: 40px;background: #b6b6b6;border-radius: 50%;" href="#carouselExampleIndicators02" role="button" data-slide="prev">
+                            <a class="carousel-control-prev" id="modified02-prev" href="#carouselExampleIndicators02" role="button" data-slide="prev">
                                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                 <span class="sr-only">Previous</span>
                             </a>
-                            <a class="carousel-control-next" style="right: -110px;margin: auto;height: 40px;width: 40px;background: #b6b6b6;border-radius: 50%;" href="#carouselExampleIndicators02" role="button" data-slide="next">
+                            <a class="carousel-control-next" id="modified02-next" href="#carouselExampleIndicators02" role="button" data-slide="next">
                                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                 <span class="sr-only">Next</span>
                             </a>
@@ -3211,7 +3901,7 @@
                 </div>
             </div>
         </div>
-        <div class="container-fluid" style="background-color:#f4f4f4;">
+        @*<div class="container-fluid" style="background-color:#f4f4f4;">
             <div class="row">
                 <div class="col-md-2">
                 </div>
@@ -3219,7 +3909,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div id="counter">
-                                <div class="titleTestimony">Our Happy Customers (OPSI 03)</div>
+                                <div class="titleTestimony" id="titleTestimony">Our Happy Customers (OPSI 03)</div>
                             </div>
                         </div>
                     </div>
