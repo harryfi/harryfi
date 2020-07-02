@@ -2220,7 +2220,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Resi Pesanan {obj} ke Shopee Gagal.")]
-        public async Task<string> GetOrderDetailsForTrackNo(ShopeeAPIData iden, string[] ordersn_list)
+        public async Task<string> GetOrderDetailsForTrackNo(ShopeeAPIData iden, string[] ordersn_list, int retry)
         {
             SetupContext(iden);
             int MOPartnerID = 841371;
@@ -2286,8 +2286,30 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                        contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee gagal.");
+                        //var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        //contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee gagal.");
+                        //List<string> list_ordersn = new List<string>();
+                        //list_ordersn.Add(ordersn);
+                        
+                        var cekRetry = retry;      
+                        if (cekRetry >= 0 &&  cekRetry < 2)
+                        {
+                            cekRetry = retry + 1;
+                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                            var client = new BackgroundJobClient(sqlStorage);
+#if (DEBUG || Debug_AWS)
+                            GetOrderDetailsForTrackNo(iden, ordersn_list.ToArray(), cekRetry);
+#else
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, ordersn_list.ToArray(), cekRetry));
+#endif
+                        }
+                        else
+                        {
+                            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                            contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee gagal.");
+                        }
                     }
                 }
                 //}
@@ -3901,9 +3923,9 @@ namespace MasterOnline.Controllers
 
                         var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
-                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
+                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
 #else
-                            client.Enqueue<StokControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray()));
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
 #endif
 
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
@@ -4230,9 +4252,9 @@ namespace MasterOnline.Controllers
 
                         var client = new BackgroundJobClient(sqlStorage);
 #if (DEBUG || Debug_AWS)
-                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
+                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
 #else
-                            client.Enqueue<StokControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray()));
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
 #endif
 
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
