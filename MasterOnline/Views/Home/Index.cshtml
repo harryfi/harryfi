@@ -122,12 +122,17 @@
         }
 
         .textSatub {
-            color: #7c003e;
-            font-size: 20pt;
             position: relative;
             margin: auto;
             z-index: 2;
             top: 50px;
+            color: white;
+            font-size: 17px;
+            min-height: 200px;
+            margin-bottom: 30px;
+            padding-top: 120px;
+            width: 90%;
+            height: auto;
         }
 
         .textDuaa {
@@ -164,6 +169,24 @@
             margin: auto;
             z-index: 2;
             top: 50px;
+        }
+
+        #modified01-prev {
+            left: -10px;
+            margin: auto;
+            height: 40px;
+            width: 40px;
+            background: #b6b6b6;
+            border-radius: 50%;
+        }
+
+        #modified01-next {
+            right: -10px;
+            margin: auto;
+            height: 40px;
+            width: 40px;
+            background: #b6b6b6;
+            border-radius: 50%;
         }
 
         .imageLogoSemua {
@@ -243,6 +266,57 @@
                 height: 100%;
             }
 
+            #cardSatua {
+                width: 230px;
+                margin-left: 0px;
+                height: 470px;
+            }
+
+            #cardSatub {
+                width: 230px;
+                margin-left: 0px;
+                height: 470px;
+            }
+
+            #textSatua {
+                top: 20px;
+                font-size: 10px;
+            }
+
+            #textSatub {
+                top: 20px;
+                font-size: 16px;
+                margin-bottom:10px;
+            }
+
+            #namaSatua {
+                font-size: 12px !important;
+            }
+
+            #jabatanSatua {
+                font-size: 10px !important;
+            }
+
+            #namaSatub {
+                font-size: 12px !important;
+            }
+
+            #jabatanSatub {
+                font-size: 10px !important;
+            }
+
+            #titleTestimony {
+                font-size: 11pt;
+            }
+
+            #modified01-prev {
+                left: -28px;
+            }
+
+            #modified01-next {
+                right: -28px;
+            }
+
             #logo_img_kino {
                 margin-bottom: 10px;
             }
@@ -292,7 +366,22 @@
             }
 
             #textSatub {
-                font-size: 12px;
+                top: 30px;
+                font-size: 17px;
+                margin-bottom: 50px;
+                padding-top: 120px;
+            }
+
+            #titleTestimony{
+                font-size: 13pt;
+            }
+
+            #modified01-prev {
+                left: -28px;
+            }
+
+            #modified01-next {
+                right: -28px;
             }
 
             #logo_img_kino {
@@ -342,7 +431,9 @@
             }
 
             #textSatub {
-                font-size: 12px;
+                font-size: 17px;
+                margin-bottom: 50px;
+                padding-top: 120px;
             }
 
             #logo_img_kino {
@@ -376,15 +467,29 @@
             }
 
             #cardSatua {
-                width: 500px;
-                margin-left: 40px;
-                height: 555.36px;
+                width: 400px;
+                margin-left: 16px;
+                height: 530px;
             }
 
             #cardSatub {
-                width: 500px;
-                margin-left: 40px;
-                height: 555.36px;
+                width: 400px;
+                margin-left: 16px;
+                height: 530px;
+            }
+
+            #textSatua {
+                font-size: 14px;
+            }
+
+            #textSatub {
+                font-size: 17px;
+                margin-bottom: 50px;
+                padding-top: 120px;
+            }
+
+            #titleTestimony {
+                font-size: 16pt;
             }
 
             #logo_img_kino {
@@ -447,6 +552,17 @@
                 height: 555.36px;
             }
 
+            #textSatua {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            #textSatub {
+                font-size: 23px;
+                margin-bottom: 50px;
+                padding-top: 120px;
+            }
+
             #logo_img_kino {
                 width: 80px;
                 margin-top: 27px;
@@ -505,6 +621,10 @@
                 width: 550px;
                 margin-left: 27px;
                 height: 555.36px;
+            }
+
+            #titleTestimony {
+                font-size: 17pt;
             }
 
             #logo_img_kino {
@@ -2722,7 +2842,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div id="counter">
-                                <div class="titleTestimony">Our Happy Customers (OPSI 01)</div>
+                                <div class="titleTestimony" id="titleTestimony">Our Happy Customers (OPSI 01)</div>
                             </div>
                         </div>
                     </div>
@@ -2752,7 +2872,7 @@
                                         <div class="col-md-12" style="padding-bottom: 20px;">
                                             <div id="counter">
                                                 <div id="cardSatub" class="cardSatub">
-                                                    <div class="lineHR" id="textSatub" class="textSatub" style="color:white;font-size:20px;min-height:10px;margin-bottom:30px;padding-top:120px;width:90%;height:auto;">"Stock jadi rapih, proses pesanan jauh lebih cepat, Support mantab!"</div>
+                                                    <div class="textSatub" id="textSatub">"Stock jadi rapih, proses pesanan jauh lebih cepat, Support mantab!"</div>
                                                     <br />
                                                     <div class="imageCustomer"><img style="box-shadow: 0 1px 22px rgba(0,0,0,0.12)" src="~/Content/Images/testimony/logo_heybabya.PNG" alt="ACC Andi" width="100px" /></div>
                                                     <div class="lineHR" id="namaSatub" style="color:white;font-size:15px;">Rocky C. K.</div>
@@ -2766,11 +2886,11 @@
                                     </div>
                                 </div>
                             </div>
-                            <a class="carousel-control-prev" style="left: -10px;margin: auto;height: 40px;width: 40px;background: #b6b6b6;border-radius: 50%;" href="#carouselExampleIndicators01" role="button" data-slide="prev">
+                            <a class="carousel-control-prev" id="modified01-prev" href="#carouselExampleIndicators01" role="button" data-slide="prev">
                                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                 <span class="sr-only">Previous</span>
                             </a>
-                            <a class="carousel-control-next" style="right: -10px;margin: auto;height: 40px;width: 40px;background: #b6b6b6;border-radius: 50%;" href="#carouselExampleIndicators01" role="button" data-slide="next">
+                            <a class="carousel-control-next" id="modified01-next" href="#carouselExampleIndicators01" role="button" data-slide="next">
                                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                 <span class="sr-only">Next</span>
                             </a>
