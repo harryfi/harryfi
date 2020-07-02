@@ -971,10 +971,72 @@ namespace MasterOnline.Controllers
                 //amount = "14300.00",
                 amount = Convert.ToString(totalSemua),
                 //parent_id = "2881947566139",
-                parent_id = resultParentID.ToString(),
+                parent_id = resultParentID.id_parent_transaction.ToString(),
                 status = "success",
                 currency = "IDR"
             };
+
+            body.transaction = transaksi;
+
+            string myData = JsonConvert.SerializeObject(body);
+
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", (iden.API_password));
+            var content = new StringContent(myData, Encoding.UTF8, "application/json");
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+            string responseFromServer = "";
+
+            try
+            {
+                HttpResponseMessage clientResponse = await client.PostAsync(vformatUrl, content);
+
+                using (HttpContent responseContent = clientResponse.Content)
+                {
+                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                    {
+                        responseFromServer = await reader.ReadToEndAsync();
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (responseFromServer != null)
+            {
+
+            }
+            return ret;
+        }
+
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Faktur Pesanan {obj} ke Shopify Gagal.")]
+        public async Task<string> Shopify_SetOrderStatusFulfillment(string dbPathEra, string orderId, string log_CUST, string log_ActionCategory, string log_ActionName, ShopifyAPIData iden)
+        {
+            string ret = "";
+            string connID = Guid.NewGuid().ToString();
+            SetupContext(iden);
+
+            string[] splitOrderID = orderId.Split(';');
+
+            string urll = "https://{0}:{1}@{2}.myshopify.com/admin/orders/" + splitOrderID[0] + "/fulfillments.json";
+            var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store);
+
+            RequestFulfillment body = new RequestFulfillment
+            {
+                fulfillment = new FulfillmentDataRequest()
+            };
+
+            FulfillmentDataRequest dataFulfillment = new FulfillmentDataRequest
+            {
+                location_id = null,
+                tracking_number = null,
+                tracking_urls = null,
+                notify_customer = true
+            };
+
+            body.fulfillment = dataFulfillment;
 
             string myData = JsonConvert.SerializeObject(body);
 
@@ -1047,7 +1109,7 @@ namespace MasterOnline.Controllers
                     {
                         foreach (var item in result.transactions)
                         {
-                            if (Convert.ToString(item.id) != null && Convert.ToString(item.parent_id) == null)
+                            if (!string.IsNullOrEmpty(Convert.ToString(item.id)) && string.IsNullOrEmpty(Convert.ToString(item.parent_id)))
                             {
                                 ret.id_parent_transaction = Convert.ToString(item.id);
                             }
@@ -1699,6 +1761,19 @@ namespace MasterOnline.Controllers
             public string parent_id { get; set; }
             public string status { get; set; }
             public string currency { get; set; }
+        }
+
+        public class RequestFulfillment
+        {
+            public FulfillmentDataRequest fulfillment { get; set; }
+        }
+
+        public class FulfillmentDataRequest
+        {
+            public string location_id { get; set; }
+            public string tracking_number { get; set; }
+            public string tracking_urls { get; set; }
+            public bool notify_customer { get; set; }
         }
 
 
