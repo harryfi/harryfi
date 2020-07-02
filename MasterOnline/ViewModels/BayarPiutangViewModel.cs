@@ -25,6 +25,8 @@ namespace MasterOnline.ViewModels
         public List<FakturJson> listFakturBelumLunas { get; set; } = new List<FakturJson>();
         public string noCust { get; set; }
         public List<tempOngkirFaktur> ListOngkir = new List<tempOngkirFaktur>();
+
+        public List<TEMP_UPLOAD_EXCEL_BAYAR> listDetailBayar = new List<TEMP_UPLOAD_EXCEL_BAYAR>();
     }
 
     public class BindUploadExcelBayar
@@ -60,6 +62,22 @@ namespace MasterOnline.ViewModels
         //end add by nurul 6/4/2020
         public bool adaError { get; set; }
         public bool TidakLanjutProses { get; set; }
+
+        public bool statusLoopDownload { get; set; }
+        public bool statusSuccessDownload { get; set; }
+        public int progressDownload { get; set; }
+        public int percentDownload { get; set; }
+        public int countAllDownload { get; set; }
+        public bool selesaiProsesDownload { get; set; }
+
+        public bool statusLoopTemp { get; set; }
+        public bool statusSuccessTemp { get; set; }
+        public int progressTemp { get; set; }
+        public int percentTemp { get; set; }
+        public int countAllTemp { get; set; }
+        //public bool selesaiProsesTemp { get; set; }
+        public string fileCsvPath { get; set; }
+        public List<TEMP_UPLOAD_EXCEL_BAYAR> list_Detail_ret = new List<TEMP_UPLOAD_EXCEL_BAYAR>();
     }
 
     public class DetailLazada
