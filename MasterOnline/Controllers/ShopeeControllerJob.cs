@@ -2216,8 +2216,13 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public async Task<string> GetOrderDetailsForTrackNo(ShopeeAPIData iden, string[] ordersn_list)
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Resi Pesanan {obj} ke Shopee Gagal.")]
+        public async Task<string> GetOrderDetailsForTrackNo(ShopeeAPIData iden, string[] ordersn_list, int retry)
         {
+            SetupContext(iden);
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
@@ -2268,7 +2273,44 @@ namespace MasterOnline.Controllers
 
                 foreach (var order in result.orders)
                 {
-                    ret = order.tracking_no;
+                    var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.NO_REFERENSI == order.ordersn);
+                    
+                    if (order.tracking_no != null && order.tracking_no != "")
+                    {
+                        ret = order.tracking_no;
+                        if (pesananInDb != null)
+                        {
+                            pesananInDb.TRACKING_SHIPMENT = order.tracking_no;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        //var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        //contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee gagal.");
+                        //List<string> list_ordersn = new List<string>();
+                        //list_ordersn.Add(ordersn);
+                        
+                        var cekRetry = retry;      
+                        if (cekRetry >= 0 &&  cekRetry < 2)
+                        {
+                            cekRetry = retry + 1;
+                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                            var client = new BackgroundJobClient(sqlStorage);
+#if (DEBUG || Debug_AWS)
+                            GetOrderDetailsForTrackNo(iden, ordersn_list.ToArray(), cekRetry);
+#else
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, ordersn_list.ToArray(), cekRetry));
+#endif
+                        }
+                        else
+                        {
+                            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                            contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee gagal.");
+                        }
+                    }
                 }
                 //}
                 //catch (Exception ex2)
@@ -3663,7 +3705,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
-        [NotifyOnFailed("Update Resi Pesanan {obj} ke Shopee Gagal.")]
+        [NotifyOnFailed("Proses Dropoff/JOB Pesanan {obj} ke Shopee Gagal.")]
         public async Task<string> InitLogisticDropOff(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string ordersn, ShopeeInitLogisticDropOffDetailData data, int recnum, string dBranch, string dSender, string dTrackNo, string set_job)
         {
             SetupContext(iden);
@@ -3758,6 +3800,8 @@ namespace MasterOnline.Controllers
             {
                 //try
                 //{
+                
+
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
                 if ((result.error == null ? "" : result.error) == "")
                 {
@@ -3868,7 +3912,66 @@ namespace MasterOnline.Controllers
                         //end DIGANTI PAKE THROW UNTUK RETRY NYA
                     }
                     //end add by nurul 6/3/2020, u/ handle pertama kali proses dropoff berhasil tapi tracking_no null 
-                    else if (!string.IsNullOrWhiteSpace(result.tracking_no) || !string.IsNullOrWhiteSpace(result.tracking_number))
+                    else if (string.IsNullOrWhiteSpace(result.tracking_no) && string.IsNullOrWhiteSpace(result.tracking_number))
+                    {
+                        List<string> list_ordersn = new List<string>();
+                        list_ordersn.Add(ordersn);
+                        //var trackno = await GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
+
+                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                        var client = new BackgroundJobClient(sqlStorage);
+#if (DEBUG || Debug_AWS)
+                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
+#else
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
+#endif
+
+                        var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
+                        if (pesananInDb != null)
+                        {
+                            if (dTrackNo == "")
+                            {
+                                //dTrackNo = trackno;
+                            }
+                            //string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
+                            //if (nilaiTRACKING_SHIPMENT == "D[;][;][;]")
+                            //{
+                            //    nilaiTRACKING_SHIPMENT = "";
+                            //}
+                            //                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            if (set_job == "1")
+                            {
+                                pesananInDb.NO_PO_CUST = dTrackNo;
+                            }
+                            else
+                            {
+                                pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                            }
+                            pesananInDb.status_kirim = "2";
+                            //if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT) && set_job != "1")
+                            //{
+                            //    pesananInDb.status_kirim = "1";
+                            //}
+                            if (string.IsNullOrWhiteSpace(pesananInDb.NO_PO_CUST) && set_job == "1")
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
+
+                            ErasoftDbContext.SaveChanges();
+                            if (set_job != "1")
+                            {
+                                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Proses Dropoff/JOB Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
+                            }
+                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        }
+
+
+                        
+                    }
+                    else
                     {
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                         if (pesananInDb != null)
@@ -3893,10 +3996,10 @@ namespace MasterOnline.Controllers
                                 pesananInDb.TRACKING_SHIPMENT = dTrackNo;
                             }
                             pesananInDb.status_kirim = "2";
-                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT) && set_job != "1")
-                            {
-                                pesananInDb.status_kirim = "1";
-                            }
+                            //if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT) && set_job != "1")
+                            //{
+                            //    pesananInDb.status_kirim = "1";
+                            //}
                             if (string.IsNullOrWhiteSpace(pesananInDb.NO_PO_CUST) && set_job == "1")
                             {
                                 pesananInDb.status_kirim = "1";
@@ -3906,61 +4009,64 @@ namespace MasterOnline.Controllers
                             if (set_job != "1")
                             {
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
+                                contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Proses Dropoff/JOB Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
                             }
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                         }
-                    }
-                    else
-                    {
-                        List<string> list_ordersn = new List<string>();
-                        list_ordersn.Add(ordersn);
-                        var trackno = await GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
+                        //List<string> list_ordersn = new List<string>();
+                        //list_ordersn.Add(ordersn);
+                        //var trackno = await GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
 
-                        var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
-                        if (pesananInDb != null)
-                        {
-                            if (dTrackNo == "")
-                            {
-                                dTrackNo = trackno;
-                            }
-                            string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
-                            if (nilaiTRACKING_SHIPMENT == "D[;][;][;]")
-                            {
-                                nilaiTRACKING_SHIPMENT = "";
-                            }
-                            //                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
-                            if (set_job == "1")
-                            {
-                                pesananInDb.NO_PO_CUST = dTrackNo;
-                            }
-                            else
-                            {
-                                pesananInDb.TRACKING_SHIPMENT = dTrackNo;
-                            }
-                            pesananInDb.status_kirim = "2";
-                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT) && set_job != "1")
-                            {
-                                pesananInDb.status_kirim = "1";
-                            }
-                            if (string.IsNullOrWhiteSpace(pesananInDb.NO_PO_CUST) && set_job == "1")
-                            {
-                                pesananInDb.status_kirim = "1";
-                            }
+                        //var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
+                        //if (pesananInDb != null)
+                        //{
+                        //    if (dTrackNo == "")
+                        //    {
+                        //        dTrackNo = trackno;
+                        //    }
+                        //    string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
+                        //    if (nilaiTRACKING_SHIPMENT == "D[;][;][;]")
+                        //    {
+                        //        nilaiTRACKING_SHIPMENT = "";
+                        //    }
+                        //    //                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                        //    if (set_job == "1")
+                        //    {
+                        //        pesananInDb.NO_PO_CUST = dTrackNo;
+                        //    }
+                        //    else
+                        //    {
+                        //        pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                        //    }
+                        //    pesananInDb.status_kirim = "2";
+                        //    if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT) && set_job != "1")
+                        //    {
+                        //        pesananInDb.status_kirim = "1";
+                        //    }
+                        //    if (string.IsNullOrWhiteSpace(pesananInDb.NO_PO_CUST) && set_job == "1")
+                        //    {
+                        //        pesananInDb.status_kirim = "1";
+                        //    }
 
-                            ErasoftDbContext.SaveChanges();
-                            if (set_job != "1")
-                            {
-                                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
-                            }
-                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                        }
+                        //    ErasoftDbContext.SaveChanges();
+                        //    if (set_job != "1")
+                        //    {
+                        //        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        //        contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
+                        //    }
+                        //    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        //}
                     }
                 }
                 else
                 {
-                    throw new Exception(result.msg);
+                    var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
+                    if (pesananInDb != null)
+                    {
+                        pesananInDb.status_kirim = "1";
+                        ErasoftDbContext.SaveChanges();
+                    }
+                        throw new Exception(result.msg);
 
                     //currentLog.REQUEST_EXCEPTION = result.msg;
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
@@ -4140,25 +4246,34 @@ namespace MasterOnline.Controllers
                     {
                         List<string> list_ordersn = new List<string>();
                         list_ordersn.Add(ordersn);
-                        var trackno = await GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
+                        //var trackno = await GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
+                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                        var client = new BackgroundJobClient(sqlStorage);
+#if (DEBUG || Debug_AWS)
+                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0);
+#else
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray(), 0));
+#endif
 
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                         if (pesananInDb != null)
                         {
-                            string nilaiTRACKING_SHIPMENT = "P[;]" + data.address_id + "[;]" + data.pickup_time_id + "[;]" + trackno;
+                            //string nilaiTRACKING_SHIPMENT = "P[;]" + data.address_id + "[;]" + data.pickup_time_id + "[;]" + trackno;
 
                             //                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
-                            pesananInDb.TRACKING_SHIPMENT = trackno;
+                            //pesananInDb.TRACKING_SHIPMENT = trackno;
                             pesananInDb.status_kirim = "2";
-                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
-                            {
-                                pesananInDb.status_kirim = "1";
-                            }
+                            //if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                            //{
+                            //    pesananInDb.status_kirim = "1";
+                            //}
 
                             ErasoftDbContext.SaveChanges();
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                             //contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
-                            contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
+                            contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                         }
                     }
@@ -4175,10 +4290,10 @@ namespace MasterOnline.Controllers
                             }
                             pesananInDb.TRACKING_SHIPMENT = dTrackNo;
                             pesananInDb.status_kirim = "2";
-                            if (string.IsNullOrWhiteSpace(dTrackNo))
-                            {
-                                pesananInDb.status_kirim = "1";
-                            }
+                            //if (string.IsNullOrWhiteSpace(dTrackNo))
+                            //{
+                            //    pesananInDb.status_kirim = "1";
+                            //}
                             ErasoftDbContext.SaveChanges();
 
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
@@ -4190,6 +4305,12 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
+                    var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
+                    if (pesananInDb != null)
+                    {
+                        pesananInDb.status_kirim = "1";
+                        ErasoftDbContext.SaveChanges();
+                    }
                     throw new Exception(result.msg);
                     //currentLog.REQUEST_EXCEPTION = result.msg;
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
