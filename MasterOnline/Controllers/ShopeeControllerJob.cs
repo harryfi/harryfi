@@ -3778,6 +3778,8 @@ namespace MasterOnline.Controllers
             {
                 //try
                 //{
+                
+
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
                 if ((result.error == null ? "" : result.error) == "")
                 {
@@ -3892,20 +3894,30 @@ namespace MasterOnline.Controllers
                     {
                         List<string> list_ordersn = new List<string>();
                         list_ordersn.Add(ordersn);
-                        var trackno = await GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
+                        //var trackno = await GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
+
+                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                        var client = new BackgroundJobClient(sqlStorage);
+#if (DEBUG || Debug_AWS)
+                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
+#else
+                            client.Enqueue<StokControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray()));
+#endif
 
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                         if (pesananInDb != null)
                         {
                             if (dTrackNo == "")
                             {
-                                dTrackNo = trackno;
+                                //dTrackNo = trackno;
                             }
-                            string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
-                            if (nilaiTRACKING_SHIPMENT == "D[;][;][;]")
-                            {
-                                nilaiTRACKING_SHIPMENT = "";
-                            }
+                            //string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
+                            //if (nilaiTRACKING_SHIPMENT == "D[;][;][;]")
+                            //{
+                            //    nilaiTRACKING_SHIPMENT = "";
+                            //}
                             //                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
                             if (set_job == "1")
                             {
@@ -3929,7 +3941,7 @@ namespace MasterOnline.Controllers
                             if (set_job != "1")
                             {
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
+                                contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Proses Dropoff/JOB Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
                             }
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                         }
@@ -3975,7 +3987,7 @@ namespace MasterOnline.Controllers
                             if (set_job != "1")
                             {
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
+                                contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Proses Dropoff/JOB Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
                             }
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                         }
@@ -4212,15 +4224,24 @@ namespace MasterOnline.Controllers
                     {
                         List<string> list_ordersn = new List<string>();
                         list_ordersn.Add(ordersn);
-                        var trackno = await GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
+                        //var trackno = await GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
+                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                        var client = new BackgroundJobClient(sqlStorage);
+#if (DEBUG || Debug_AWS)
+                        GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
+#else
+                            client.Enqueue<StokControllerJob>(x => x.GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray()));
+#endif
 
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                         if (pesananInDb != null)
                         {
-                            string nilaiTRACKING_SHIPMENT = "P[;]" + data.address_id + "[;]" + data.pickup_time_id + "[;]" + trackno;
+                            //string nilaiTRACKING_SHIPMENT = "P[;]" + data.address_id + "[;]" + data.pickup_time_id + "[;]" + trackno;
 
                             //                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
-                            pesananInDb.TRACKING_SHIPMENT = trackno;
+                            //pesananInDb.TRACKING_SHIPMENT = trackno;
                             pesananInDb.status_kirim = "2";
                             //if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
                             //{
