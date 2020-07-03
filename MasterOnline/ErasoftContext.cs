@@ -423,6 +423,10 @@ namespace MasterOnline
         public virtual DbSet<TEMP_82CART_ORDERS_ITEM> TEMP_82CART_ORDERS_ITEM { get; set; }
         public virtual DbSet<TEMP_SALDOAWAL> TEMP_SALDOAWAL { get; set; }
 
+        //add by fauzi for upload pesanan 03 Juli 2020
+        public virtual DbSet<TEMP_UPLOADPESANAN> TEMP_UPLOADPESANAN { get; set; }
+        //end by fauzi for upload pesanan 03 Juli 2020
+
         public virtual DbSet<TEMP_TOKPED_ORDERS> TEMP_TOKPED_ORDERS { get; set; }
         //public virtual DbSet<API_LOG_MARKETPLACE_PER_ITEM> API_LOG_MARKETPLACE_PER_ITEM { get; set; }
         //public virtual DbSet<TEMP_BRG_MP_EXCEL> TEMP_BRG_MP_EXCEL { get; set; }
