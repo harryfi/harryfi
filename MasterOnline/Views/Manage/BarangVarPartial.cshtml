@@ -157,34 +157,228 @@
                 $('#txtNamaKategori82Cart').val($(fieldCategoryName).val());
             });
 
-            $('.txtJudulVariant82CartLv').each(function () {
-                var $this = $(this);
-                $this.off('change').on('change', function () {
-                    $('#save_map_var_82Cart').removeAttr('disabled');
+            if ($('#selectJudulVariant82CartLv1').length > 0 || $('#selectJudulVariant82CartLv2').length > 0 || $('#selectJudulVariant82CartLv3').length > 0) {
+                var link = '@Url.Action("GetAttribute82CartByCode_varian_group", "Manage", new { code = "replaceCode" })';
+                link = link.replace("replaceCode", encodeURIComponent($(fieldCategoryCode).val() + ';' + $('#txt82CartMarketRecnumFound').val()));
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var SelectList = [];
+                        var counter = 0;
+                        $.each(data,
+                            function (i, item) {
+                                for (var a = 0; a < data.length; a++) {
+                                    //var VARIANT_ID = item["VARIANT_ID_" + (a + 1)];
+                                    //var HAS_UNIT = item["HAS_UNIT_" + (a + 1)];
+                                    //var ANAME = item["ANAME_" + (a + 1)];
+                                    //var VARIANT_ID = item["id_attribute_group"][i];
+                                    //var HAS_UNIT = item["attribute"][i];
+                                    //var ANAME = item["group_name"][i];
+                                    var VARIANT_ID = item.id_attribute_group;
+                                    var HAS_UNIT = item.attribute.length;
+                                    var ANAME = item.group_name;
+
+                                    if (VARIANT_ID != null && VARIANT_ID != "") {
+                                        //if (HAS_UNIT > 0) {
+                                            //$.each(data.attribute,
+                                            //    function (j, item_unit) {
+                                                    //for (var b = 0; b < data.attribute.length; b++) {
+                                                        //if (item_unit["id_attribute_group"] == VARIANT_ID) {
+                                                        //SelectList[counter] = {
+                                                            //id: VARIANT_ID + '|;|' + item_unit["id_attribute"],
+                                                            //text: ANAME + ' ' + item_unit["attribute_name"]
+                                                            //id: VARIANT_ID + '|;|' + "0",
+                                                            //text: ANAME
+                                                        //};
+
+                                                        //counter = counter + 1;
+                                                        //}
+                                                    //}
+                                                //});
+                                        //}
+                                        //else {
+                                            SelectList[counter] = {
+                                                id: VARIANT_ID + '|;|' + HAS_UNIT,
+                                                text: ANAME
+                                            };
+                                            counter = counter + 1;
+                                        //}
+                                    }
+                                }
+                            });
+                        var len = SelectList.length;
+
+                        if ($('#selectJudulVariant82CartLv1').length > 0) {
+                            var attributeSelect = $('#selectJudulVariant82CartLv1').selectize({
+                                valueField: 'id',
+                                searchField: 'text',
+                                options: SelectList,
+                                onChange: function (value) {
+                                    var values = value.split('|;|');
+                                    $('#txtJudulVariant82CartLv1').val(values[0]);
+                                    SearchOptVariant82Cart(1, values[0]);
+                                }
+                            });
+                            attributeSelect[0].selectize.clearOptions();
+                            attributeSelect[0].selectize.renderCache = {};
+                            attributeSelect[0].selectize.load(function (callback) {
+                                callback(SelectList);
+
+                                if ($('#txtJudulVariant82CartLv1').val() != "") {
+                                    var FoundValue = "";
+                                    for (var d = 0; d < len; d++) {
+                                        if (FoundValue == "") {
+                                            var value = SelectList[d].id;
+                                            var values = value.split('|;|');
+                                            if ($('#txtJudulVariant82CartLv1').val() == values[0]) {
+                                                FoundValue = SelectList[d].id;
+                                                attributeSelect[0].selectize.setValue(FoundValue, false);
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                        if ($('#selectJudulVariant82CartLv2').length > 0) {
+                            var attributeSelect = $('#selectJudulVariant82CartLv2').selectize({
+                                valueField: 'id',
+                                searchField: 'text',
+                                options: SelectList,
+                                onChange: function (value) {
+                                    var values = value.split('|;|');
+                                    $('#txtJudulVariant82CartLv2').val(values[0]);
+                                    SearchOptVariant82Cart(2, values[0]);
+                                }
+                            });
+                            attributeSelect[0].selectize.clearOptions();
+                            attributeSelect[0].selectize.renderCache = {};
+                            attributeSelect[0].selectize.load(function (callback) {
+                                callback(SelectList);
+
+                                if ($('#txtJudulVariant82CartLv2').val() != "") {
+                                    var FoundValue = "";
+                                    for (var d = 0; d < len; d++) {
+                                        if (FoundValue == "") {
+                                            var value = SelectList[d].id;
+                                            var values = value.split('|;|');
+                                            if ($('#txtJudulVariant82CartLv2').val() == values[0]) {
+                                                FoundValue = SelectList[d].id;
+                                                attributeSelect[0].selectize.setValue(FoundValue, false);
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                        if ($('#selectJudulVariant82CartLv3').length > 0) {
+                            var attributeSelect = $('#selectJudulVariant82CartLv3').selectize({
+                                valueField: 'id',
+                                searchField: 'text',
+                                options: SelectList,
+                                onChange: function (value) {
+                                    var values = value.split('|;|');
+                                    $('#txtJudulVariant82CartLv3').val(values[0]);
+                                    SearchOptVariant82Cart(3, values[0]);
+                                }
+                            });
+                            attributeSelect[0].selectize.clearOptions();
+                            attributeSelect[0].selectize.renderCache = {};
+                            attributeSelect[0].selectize.load(function (callback) {
+                                callback(SelectList);
+
+                                if ($('#txtJudulVariant82CartLv3').val() != "") {
+                                    var FoundValue = "";
+                                    for (var d = 0; d < len; d++) {
+                                        if (FoundValue == "") {
+                                            var value = SelectList[d].id;
+                                            var values = value.split('|;|');
+                                            if ($('#txtJudulVariant82CartLv3').val() == values[0]) {
+                                                FoundValue = SelectList[d].id;
+                                                attributeSelect[0].selectize.setValue(FoundValue, false);
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
                 });
-            });
-            $('.txtVariant82CartLv1_').each(function () {
-                var $this = $(this);
-                $this.off('change').on('change', function () {
-                    $('#save_map_var_82Cart').removeAttr('disabled');
-                });
-            });
-            $('.txtVariant82CartLv2_').each(function () {
-                var $this = $(this);
-                $this.off('change').on('change', function () {
-                    $('#save_map_var_82Cart').removeAttr('disabled');
-                });
-            });
-            $('.txtVariant82CartLv3_').each(function () {
-                var $this = $(this);
-                $this.off('change').on('change', function () {
-                    $('#save_map_var_82Cart').removeAttr('disabled');
-                });
-            });
+            }
         }
         else {
             $('#e2cart_detail_tab_variant_button').remove();
         }
+    }
+
+        function SearchOptVariant82Cart(level, variant_id) {
+        var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txt82CartCategoryCodeFound').val() + '__CATEGORY_CODE';
+
+        var link = '@Url.Action("GetAttribute82CartByCode_varian_item", "Manage", new { code = "replaceCode" })';
+        link = link.replace("replaceCode", encodeURIComponent(variant_id + ';' + $(fieldCategoryCode).val() + ';' + $('#txt82CartMarketRecnumFound').val()));
+        $.ajax({
+            type: "GET",
+            url: link,
+            contentType: 'application/json',
+            cache: false,
+            success: function (data) {
+                var SelectList = [];
+                $.each(data,
+                    function (i, item) {
+                        SelectList[i] = {
+                            id: item.id_attribute,
+                            text: item.attribute_name
+                        };
+                    });
+
+                $(".selectVariant82CartLv" + level + "_").each(function (i, item) {
+                    //var data_recnum = $(item).attr("data-recnum");
+                    var data_recnum = $($(item).closest('.tampungdatarecnum')).attr('data-recnum');
+                    var len = SelectList.length;
+
+                    var attributeOptSelect = $(item).selectize({
+                        maxItems: 1,
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: SelectList,
+                        onChange: function (value) {
+                            $('#save_map_var_82Cart').removeAttr('disabled');
+                            var input_data_recnum = $($(this.$input).closest('.tampungdatarecnum')).attr('data-recnum');
+                            $('#txtVariant82CartLv' + level + '_' + input_data_recnum).val(value);
+                        }
+                    });
+
+                    attributeOptSelect[0].selectize.clearOptions();
+                    attributeOptSelect[0].selectize.renderCache = {};
+                    attributeOptSelect[0].selectize.load(function (callback) {
+                        callback(SelectList);
+
+                        if ($('#txtVariant82CartLv' + level + '_' + data_recnum).val() != "") {
+                            var FoundValue = "";
+                            for (var d = 0; d < len; d++) {
+                                if (FoundValue == "") {
+                                    var value = SelectList[d].id;
+                                    if ($('#txtVariant82CartLv' + level + '_' + data_recnum).val() == value) {
+                                        FoundValue = SelectList[d].id;
+                                        attributeOptSelect[0].selectize.setValue(FoundValue, true);//silent = true, agar tidak set button save_map_var_82Cart enable
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+            },
+            error: function (xhr) {
+                console.log(xhr);
+            }
+        });
     }
 
     function InitSettingVariantshopify() {
@@ -3625,11 +3819,8 @@
                                                                })
                                                                 </td>
                                                                 <td>
-                                                                    @Html.TextBox("txtJudulVariant82CartLv1", textJudulVar1, new
-                                                               {
-                                                                   @class = "form-control txtJudulVariant82CartLv",
-                                                                   placeholder = "Nama Variasi"
-                                                               })
+                                                                    <select id="selectJudulVariant82CartLv1" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariant82CartLv1", textJudulVar1)
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -3665,11 +3856,10 @@
                                                                    })
                                                                     </td>
                                                                     <td>
-                                                                        @Html.TextBox("txtVariant82CartLv1_" + VariantPerMp82CartLv1[i].RECNUM, VariantPerMp82CartLv1[i].MP_VALUE_VAR, new
-                                                                   {
-                                                                       @class = "form-control txtVariant82CartLv1_",
-                                                                       placeholder = "Nama Opsi"
-                                                                   })
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMp82CartLv1[i].RECNUM">
+                                                                            <select id="selectVariant82CartLv1_@(VariantPerMp82CartLv1[i].RECNUM)" data-recnum="@VariantPerMp82CartLv1[i].RECNUM" class="selectVariant82CartLv1_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariant82CartLv1_" + VariantPerMp82CartLv1[i].RECNUM, VariantPerMp82CartLv1[i].MP_VALUE_VAR, new { @class = "txtVariant82CartLv1_" })
+                                                                        </div>
                                                                     </td>
                                                                 </tr>
                                                             }
@@ -3718,11 +3908,8 @@
                                                                })
                                                                 </td>
                                                                 <td>
-                                                                    @Html.TextBox("txtJudulVariant82CartLv2", textJudulVar2, new
-                                                               {
-                                                                   @class = "form-control txtJudulVariant82CartLv",
-                                                                   placeholder = "Nama Variasi"
-                                                               })
+                                                                    <select id="selectJudulVariant82CartLv2" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariant82CartLv2", textJudulVar2)
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -3758,11 +3945,10 @@
                                                                    })
                                                                     </td>
                                                                     <td>
-                                                                        @Html.TextBox("txtVariant82CartLv2_" + VariantPerMp82CartLv2[i].RECNUM, VariantPerMp82CartLv2[i].MP_VALUE_VAR, new
-                                                                   {
-                                                                       @class = "form-control txtVariant82CartLv2_",
-                                                                       placeholder = "Nama Opsi"
-                                                                   })
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMp82CartLv2[i].RECNUM">
+                                                                            <select id="selectVariant82CartLv2_@(VariantPerMp82CartLv2[i].RECNUM)" data-recnum="@VariantPerMp82CartLv2[i].RECNUM" class="selectVariant82CartLv2_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariant82CartLv2_" + VariantPerMp82CartLv2[i].RECNUM, VariantPerMp82CartLv2[i].MP_VALUE_VAR, new { @class = "txtVariant82CartLv2_" })
+                                                                        </div>
                                                                     </td>
                                                                 </tr>
                                                             }
@@ -3811,11 +3997,8 @@
                                                                })
                                                                 </td>
                                                                 <td>
-                                                                    @Html.TextBox("txtJudulVariant82CartLv3", textJudulVar3, new
-                                                               {
-                                                                   @class = "form-control txtJudulVariant82CartLv",
-                                                                   placeholder = "Nama Variasi"
-                                                               })
+                                                                    <select id="selectJudulVariant82CartLv3" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariant82CartLv3", textJudulVar3)
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -3851,11 +4034,10 @@
                                                                    })
                                                                     </td>
                                                                     <td>
-                                                                        @Html.TextBox("txtVariant82CartLv3_" + VariantPerMp82CartLv3[i].RECNUM, VariantPerMp82CartLv3[i].MP_VALUE_VAR, new
-                                                                   {
-                                                                       @class = "form-control txtVariant82CartLv3_",
-                                                                       placeholder = "Nama Opsi"
-                                                                   })
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMp82CartLv3[i].RECNUM">
+                                                                            <select id="selectVariant82CartLv3_@(VariantPerMp82CartLv3[i].RECNUM)" data-recnum="@VariantPerMp82CartLv3[i].RECNUM" class="selectVariant82CartLv3_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariant82CartLv3_" + VariantPerMp82CartLv3[i].RECNUM, VariantPerMp82CartLv3[i].MP_VALUE_VAR, new { @class = "txtVariant82CartLv3_" })
+                                                                        </div>
                                                                     </td>
                                                                 </tr>
                                                             }

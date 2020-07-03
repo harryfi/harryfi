@@ -1762,6 +1762,90 @@ namespace MasterOnline.Controllers
 
         }
 
+        public E2CartAttributeResult E2Cart_GetAttributeGroup_Varian()
+        {
+            var retAttr = new E2CartAttributeResult();
+            var account = ErasoftDbContext.ARF01.Where(m => m.NAMA == "20").SingleOrDefault();
+            string urll = string.Format("{0}/api/v1/getAttribute?apiKey={1}&apiCredential={2}", account.PERSO, account.API_KEY, account.Sort1_Cust);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+            string responseServer = "";
+
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            var vresultAttributeAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartAttributeResult)) as E2CartAttributeResult;
+            if (vresultAttributeAPI.error == "none" && vresultAttributeAPI.data != null)
+            {
+                if (vresultAttributeAPI.data.Count() > 0)
+                {
+                    retAttr.data = vresultAttributeAPI.data;
+                    //foreach (var attributeGroup in vresultAttributeAPI.data)
+                    //{
+                    //     = 
+                    //}
+                }
+            }
+
+            return retAttr;
+        }
+
+        public E2CartAttribute E2Cart_GetAttributeItem_Varian(string codeGroup)
+        {
+            var retAttr = new E2CartAttribute();
+            var account = ErasoftDbContext.ARF01.Where(m => m.NAMA == "20").SingleOrDefault();
+            string urll = string.Format("{0}/api/v1/getAttribute?apiKey={1}&apiCredential={2}&id_attribute_group={3}", account.PERSO, account.API_KEY, account.Sort1_Cust, codeGroup);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+            string responseServer = "";
+
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            var vresultAttributeAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartAttributeResult)) as E2CartAttributeResult;
+            if (vresultAttributeAPI.error == "none" && vresultAttributeAPI.data != null)
+            {
+                if (vresultAttributeAPI.data.Count() > 0)
+                {
+                    foreach (var attributeGroup in vresultAttributeAPI.data)
+                    {
+                        retAttr.attribute = attributeGroup.attribute;
+                    }
+                }
+            }
+
+            return retAttr;
+        }
 
         //Get All Attributes.
         public async Task<String> E2Cart_GetAttribute_Sync(E2CartAPIData iden)
