@@ -3440,7 +3440,7 @@ namespace MasterOnline.Controllers
 
                                     if (splitArguments.Length > 0)
                                     {
-                                        var no_cust82Cart = splitArguments[11].ToString();
+                                        var no_cust82Cart = splitArguments[12].ToString();
                                         string[] apiKey82Cart = splitArguments[3].ToString().Split(':');
                                         string[] username82Cart = splitArguments[1].ToString().Split(':');
                                         string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE API_KEY = '" + apiKey82Cart[1] + "' AND CUST = '" + no_cust82Cart + "'; ";
@@ -3451,6 +3451,29 @@ namespace MasterOnline.Controllers
                                             //{
                                                 checkApprove = true;
                                             namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + username82Cart[1];
+                                            //namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                            //}
+                                        }
+                                    }
+                                }
+                                else if (marketplace.ToUpper() == "SHOPIFY")
+                                {
+
+                                    string[] splitArguments = resultDataJob.Tables[0].Rows[i]["ARGUMENTS"].ToString().Replace("\"", "").Replace("\\", "").Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "").Split(',');
+
+                                    if (splitArguments.Length > 0)
+                                    {
+                                        var no_custShopify = splitArguments[10].ToString();
+                                        string[] apiKeyShopify = splitArguments[3].ToString().Split(':');
+                                        string[] usernameShopify = splitArguments[1].ToString().Split(':');
+                                        string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE API_KEY = '" + apiKeyShopify[1] + "' AND CUST = '" + no_custShopify + "'; ";
+                                        var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_SHOPIFY", queryCheckToko);
+                                        if (resultDataToko.Tables[0].Rows.Count > 0)
+                                        {
+                                            //if (resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() == username82Cart[1])
+                                            //{
+                                            checkApprove = true;
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameShopify[1];
                                             //namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
                                             //}
                                         }

@@ -305,6 +305,9 @@ namespace MasterOnline.Controllers
             var categoryID = "";
             var attributeIDGroup = "";
             var attributeIDItems = "";
+            var attributeIDItemsLV1 = "";
+            var attributeIDItemsLV2 = "";
+            var attributeIDItemsLV3 = "";
 
             if (detailBrg != null)
             {
@@ -377,6 +380,7 @@ namespace MasterOnline.Controllers
                 API_key = iden.API_key,
                 API_credential = iden.API_credential,
                 API_url = iden.API_url,
+                ID_MARKET = iden.ID_MARKET,
                 DatabasePathErasoft = iden.DatabasePathErasoft
             };
             EightTwoCartControllerJob c82CartController = new EightTwoCartControllerJob();
@@ -487,8 +491,62 @@ namespace MasterOnline.Controllers
                                     ErasoftDbContext.SaveChanges();
                                 }
 
+                                if (brgInDb.TYPE == "4") // punya variasi
+                                {
+                                    //handle variasi product
+                                    #region variasi product
+                                    var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
+                                    var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "82CART").ToList().OrderBy(p => p.RECNUM);
+
+                                    #region varian LV1
+                                    if (var_strukturVar.Where(p => p.LEVEL_VAR == 1).Count() > 0)
+                                    {
+                                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR;
+                                        var variant_id_items = var_strukturVar.Where(p => p.LEVEL_VAR == 1).ToList();
+                                        foreach (var itemVar in variant_id_items)
+                                        {
+                                            var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
+                                            c82CartController.E2Cart_AddAttributeProduct(dataLocal, dataBRGItem.BRG, item.BRG_MP, variant_id_group, itemVar.MP_VALUE_VAR, brgInDb.BERAT.ToString(), dataBRGItem.LINK_GAMBAR_1.ToString());
+
+                                        }
+                                    }
+                                    #endregion
+
+                                    #region varian LV2
+                                    if (var_strukturVar.Where(p => p.LEVEL_VAR == 2).Count() > 0)
+                                    {
+                                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR;
+                                        var variant_id_items = var_strukturVar.Where(p => p.LEVEL_VAR == 2).ToList();
+                                        foreach (var itemVar in variant_id_items)
+                                        {
+                                            var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
+                                            c82CartController.E2Cart_AddAttributeProduct(dataLocal, dataBRGItem.BRG, item.BRG_MP, variant_id_group, itemVar.MP_VALUE_VAR, brgInDb.BERAT.ToString(), dataBRGItem.LINK_GAMBAR_1.ToString());
+
+                                        }
+                                    }
+                                    #endregion
+
+                                    #region varian LV3
+                                    if (var_strukturVar.Where(p => p.LEVEL_VAR == 3).Count() > 0)
+                                    {
+                                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 3).FirstOrDefault().MP_JUDUL_VAR;
+                                        var variant_id_items = var_strukturVar.Where(p => p.LEVEL_VAR == 3).ToList();
+                                        foreach (var itemVar in variant_id_items)
+                                        {
+                                            var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
+                                            c82CartController.E2Cart_AddAttributeProduct(dataLocal, dataBRGItem.BRG, item.BRG_MP, variant_id_group, itemVar.MP_VALUE_VAR, brgInDb.BERAT.ToString(), dataBRGItem.LINK_GAMBAR_1.ToString());
+
+                                        }
+                                    }
+                                    #endregion
+
+
+                                    #endregion
+                                    //end handle variasi product
+                                }
+
                                 //handle attribute product
-                                Task.Run(() => c82CartController.E2Cart_AddAttributeProduct(dataLocal, item.BRG_MP, attributeIDGroup, attributeIDItems, brgInDb.BERAT.ToString())).Wait();
+                                //Task.Run(() => c82CartController.E2Cart_AddAttributeProduct(dataLocal, item.BRG_MP, attributeIDGroup, attributeIDItems, brgInDb.BERAT.ToString())).Wait();
                                 //end handle attribute product
 
                                 //handle all image was uploaded
@@ -782,8 +840,9 @@ namespace MasterOnline.Controllers
         }
 
         //Add Product Image.
-        public async Task<string> E2Cart_AddAttributeProduct(E2CartAPIData iden, string brg_mp, string attributeGroup, string attributeItems, string weight)
+        public async Task<string> E2Cart_AddAttributeProduct(E2CartAPIData iden, string kodeBarang, string brg_mp, string attributeGroup, string attributeItems, string weight, string urlImage)
         {
+            SetupContext(iden);
             string[] brg_mp_split = brg_mp.Split(';');
             string urll = string.Format("{0}/api/v1/addProductAttribute", iden.API_url);
 
@@ -796,7 +855,63 @@ namespace MasterOnline.Controllers
             postData += "&id_attribute_group=" + Uri.EscapeDataString(attributeGroup);
             postData += "&id_attribute=" + Uri.EscapeDataString("[" + attributeItems + "]");
             postData += "&weight=" + Uri.EscapeDataString(weight);
+            postData += "&reference=" + Uri.EscapeDataString(kodeBarang);
+            postData += "&image_url=" + Uri.EscapeDataString(urlImage);
 
+
+            var data = Encoding.ASCII.GetBytes(postData);
+
+            myReq.Method = "POST";
+            myReq.ContentType = "application/x-www-form-urlencoded";
+            myReq.ContentLength = data.Length;
+
+            using (var stream = myReq.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+            }
+
+            var response = (HttpWebResponse)myReq.GetResponse();
+
+            var responseServer = new StreamReader(response.GetResponseStream()).ReadToEnd();
+
+            if (!string.IsNullOrEmpty(responseServer))
+            {
+                //var resServer = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer);
+                var resultAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(ResultAddAttribute)) as ResultAddAttribute;
+
+                if (resultAPI != null)
+                {
+                    if (resultAPI.error == "none" && resultAPI.results == "success")
+                    {
+                        if (resultAPI.data != null)
+                        {
+                            var idAttribute = resultAPI.data.id;
+                            string Link_Error = "0;Buat Produk;;";
+                            var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(brg_mp_split[0] + ";" + idAttribute) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(kodeBarang) + "' AND IDMARKET = '" + Convert.ToString(iden.ID_MARKET) + "'");
+                            //var e2CartController = new EightTwoCartControllerJob();
+                            //E2Cart_AddImageProduct_varian(iden, brg_mp_split[0], Convert.ToString(idAttribute), urlImage);
+                        }
+                    }
+                }
+                //ViewBag.response = resServer;
+            }
+
+            return "";
+        }
+
+        //Add Product Image.
+        public async Task<string> E2Cart_AddImageProduct(E2CartAPIData iden, string brg_mp, string image_url)
+        {
+            string[] brg_mp_split = brg_mp.Split(';');
+            string urll = string.Format("{0}/api/v1/addProductImage", iden.API_url);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+
+            //Required parameters, other parameters can be add
+            var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
+            postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
+            postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
+            postData += "&image_url=" + Uri.EscapeDataString(image_url);
 
             var data = Encoding.ASCII.GetBytes(postData);
 
@@ -824,9 +939,8 @@ namespace MasterOnline.Controllers
         }
 
         //Add Product Image.
-        public async Task<string> E2Cart_AddImageProduct(E2CartAPIData iden, string brg_mp, string image_url)
+        public async Task<string> E2Cart_AddImageProduct_varian(E2CartAPIData iden, string product_id, string brg_varian, string image_url)
         {
-            string[] brg_mp_split = brg_mp.Split(';');
             string urll = string.Format("{0}/api/v1/addProductImage", iden.API_url);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
@@ -834,7 +948,8 @@ namespace MasterOnline.Controllers
             //Required parameters, other parameters can be add
             var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
-            postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
+            postData += "&id_product=" + Uri.EscapeDataString(product_id);
+            postData += "&id_product_attribute=" + Uri.EscapeDataString("[" + brg_varian + "]");
             postData += "&image_url=" + Uri.EscapeDataString(image_url);
 
             var data = Encoding.ASCII.GetBytes(postData);
@@ -1189,7 +1304,8 @@ namespace MasterOnline.Controllers
                                             }
                                             else if (statusCAP[itemOrderExisting].ToString() == "3")
                                             {
-                                                statusOrderSP = "PREPARATION IN PROGRESS";
+                                                //statusOrderSP = "PREPARATION IN PROGRESS";
+                                                statusOrderSP = "PAID";
                                             }
 
                                             var connIdARF01C = Guid.NewGuid().ToString();
@@ -2139,7 +2255,38 @@ namespace MasterOnline.Controllers
             public string email { get; set; }
             public int rec_num { get; set; }
             public string API_url { get; set; }
+            public string ID_MARKET { get; set; }
             public string API_credential { get; set; }
+        }
+
+        public class ResultAddAttribute
+        {
+            public string requestid { get; set; }
+            public string error { get; set; }
+            public string results { get; set; }
+            public AttributeData data { get; set; }
+        }
+
+        public class AttributeData
+        {
+            public string id_product { get; set; }
+            public string reference { get; set; }
+            public string supplier_reference { get; set; }
+            public string location { get; set; }
+            public string ean13 { get; set; }
+            public string upc { get; set; }
+            public string wholesale_price { get; set; }
+            public string price { get; set; }
+            public string unit_price_impact { get; set; }
+            public string ecotax { get; set; }
+            public string minimal_quantity { get; set; }
+            public string quantity { get; set; }
+            public string weight { get; set; }
+            public string default_on { get; set; }
+            public string available_date { get; set; }
+            public int id { get; set; }
+            public object id_shop_list { get; set; }
+            public bool force_id { get; set; }
         }
 
         public class ResultCreateProduct82Cart
