@@ -17,11 +17,13 @@ namespace MasterOnline.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RecNum { get; set; }
 
+        [Required]
         [StringLength(70)]
         public string NO_REFERENSI { get; set; }
 
         public DateTime? TGL_PESANAN { get; set; }
 
+        [Required]
         [StringLength(20)]
         public string MARKETPLACE { get; set; }
 
@@ -34,6 +36,7 @@ namespace MasterOnline.Models
         [StringLength(50)]
         public string KODE_KURIR { get; set; }
 
+        [Required]
         [StringLength(50)]
         public string STATUS_PESANAN { get; set; }
 
@@ -55,7 +58,10 @@ namespace MasterOnline.Models
         public double? NILAI_PPN { get; set; }
         public double ONGKIR { get; set; }
         public double? NETTO { get; set; }
+
+        [Required]
         public double QTY { get; set; }
+
         public double HARGA_SATUAN { get; set; }
         public double? DISC1 { get; set; }
         public double? NDISC1 { get; set; }

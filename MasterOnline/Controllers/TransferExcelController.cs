@@ -1397,6 +1397,11 @@ namespace MasterOnline.Controllers
 
                                     var noBuktiSO = "";
 
+                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_UPLOADPESANAN");
+                                    List<TEMP_UPLOADPESANAN> batchinsertItem = new List<TEMP_UPLOADPESANAN>();
+
+                                    batchinsertItem = new List<TEMP_UPLOADPESANAN>();
+
                                     // start looping
                                     for (int i = Convert.ToInt32(prog[0]); i <= worksheet.Dimension.End.Row; i++)
                                     {
@@ -1433,6 +1438,67 @@ namespace MasterOnline.Controllers
                                         string ndisc2 = worksheet.Cells[5, 26].Value == null ? "0" : worksheet.Cells[5, 26].Value.ToString();
                                         string total = worksheet.Cells[5, 27].Value == null ? "0" : worksheet.Cells[5, 27].Value.ToString();
 
+                                        string[] no_cust = marketplace.Split(';');
+
+                                        if (!string.IsNullOrEmpty(no_referensi))
+                                        {
+                                            if (!string.IsNullOrEmpty(marketplace))
+                                            {
+                                                if (!string.IsNullOrEmpty(kode_kurir))
+                                                {
+                                                    if (!string.IsNullOrEmpty(kode_brg))
+                                                    {
+                                                        TEMP_UPLOADPESANAN newrecordToTemp = new TEMP_UPLOADPESANAN()
+                                                        {
+                                                            NO_REFERENSI = no_referensi,
+                                                            TGL_PESANAN = DateTime.Now.AddHours(7),
+                                                            MARKETPLACE = no_cust[0].ToString(),
+                                                            NAMA_PEMBELI = nama_pembeli,
+                                                            ALAMAT_KIRIM = alamat_kirim,
+                                                            KODE_KURIR = kode_kurir,
+                                                            TOP = Convert.ToInt32(top),
+                                                            TGL_JATUH_TEMPO = DateTime.Now.AddHours(7).AddDays(1),
+                                                            KETERANGAN = keterangan,
+                                                            BRUTO = Convert.ToInt32(bruto),
+                                                            DISKON = Convert.ToInt32(diskon),
+                                                            PPN = Convert.ToInt32(ppn),
+                                                            NILAI_PPN = Convert.ToInt32(nilai_ppn),
+                                                            ONGKIR = Convert.ToInt32(ongkir),
+                                                            NETTO = Convert.ToInt32(netto),
+                                                            STATUS_PESANAN = status_pesanan,
+                                                            KODE_BRG = kode_brg,
+                                                            NAMA_BRG = nama_brg,
+                                                            QTY = Convert.ToInt32(qty),
+                                                            HARGA_SATUAN = Convert.ToInt32(harga_satuan),
+                                                            DISC1 = Convert.ToInt32(disc1),
+                                                            NDISC1 = Convert.ToInt32(ndisc1),
+                                                            DISC2 = Convert.ToInt32(disc2),
+                                                            NDISC2 = Convert.ToInt32(ndisc2),
+                                                            TOTAL = Convert.ToInt32(total)
+                                                        };
+
+                                                        batchinsertItem.Add(newrecordToTemp);
+                                                        ret.countAll = ret.countAll + 1;
+                                                    }
+                                                    else
+                                                    {
+                                                        //log error masukan log tidak ada barang di DB
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    //log error masukan log tidak ada kode kurir 
+                                                }
+                                            }
+                                            else
+                                            {
+                                                //log error masukan log tidak ada marketplace
+                                            }
+                                        }
+                                        else
+                                        {
+                                            //log error masukan log tidak ada no referensi
+                                        }
 
 
                                         //if (!string.IsNullOrEmpty(no_referensi))
@@ -1691,6 +1757,10 @@ namespace MasterOnline.Controllers
                                         //    //log error masukan log tidak ada no referensi
                                         //}
                                     } // end looping
+
+                                    eraDB.TEMP_UPLOADPESANAN.AddRange(batchinsertItem);
+                                    eraDB.SaveChanges();
+                                    transaction.Commit();
                                 }
                             }
                         }
