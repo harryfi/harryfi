@@ -1406,7 +1406,7 @@ namespace MasterOnline.Controllers
                                         var bagiProses = (ret.countAll - 1) * (Convert.ToDecimal(30) / Convert.ToDecimal(100));
                                         bagiProses = Decimal.Round(bagiProses);
 
-                                        //cek referensi
+                                        //get ALL DATA
                                         string no_referensi = worksheet.Cells[5, 2].Value == null ? "" : worksheet.Cells[5, 2].Value.ToString();
                                         string tgl_pesanan = worksheet.Cells[5, 3].Value == null ? "" : worksheet.Cells[5, 3].Value.ToString();
                                         string marketplace = worksheet.Cells[5, 4].Value == null ? "" : worksheet.Cells[5, 4].Value.ToString();
@@ -1573,7 +1573,7 @@ namespace MasterOnline.Controllers
                                                                     STATUS_TRANSAKSI = "01",
                                                                     SUPP = "0",
                                                                     Status_Approve = "",
-                                                                    TERM = 1,
+                                                                    TERM = 10,
                                                                     TGL = DateTime.Now.AddHours(7),
                                                                     TGL_INPUT = DateTime.Now.AddHours(7),
                                                                     TGL_JTH_TEMPO = DateTime.Now.AddHours(7).AddDays(1),
@@ -1587,8 +1587,8 @@ namespace MasterOnline.Controllers
                                                                     U_MUKA = 0,
                                                                     VLT = "",
                                                                     ZONA = "",
-                                                                    status_kirim = null,
-                                                                    status_print = null
+                                                                    status_kirim = "0",
+                                                                    status_print = "0"
                                                                 };
 
                                                                 try
