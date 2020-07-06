@@ -47795,7 +47795,7 @@ namespace MasterOnline.Controllers
                                                             //tempData.REF = tempDesc[1].Substring[1];
                                                             if (tempDesc[1].Contains(" "))
                                                             {
-                                                                var getref = tempDesc[2].Split(' ');
+                                                                var getref = tempDesc[1].Split(' ');
                                                                 tempData.REF = "INV/" + getref[0];
                                                             }
                                                             else
