@@ -10247,7 +10247,7 @@ namespace MasterOnline.Controllers
                                                         API_key = tblCustomer.API_KEY,
                                                         API_credential = tblCustomer.Sort1_Cust,
                                                         API_url = tblCustomer.PERSO,
-                                                        ID_MARKET = tblCustomer.RecNum.Value.ToString(),
+                                                        //ID_MARKET = tblCustomer.RecNum.Value.ToString(),
                                                         DatabasePathErasoft = dbPathEra
                                                     };
                                                     EightTwoCartController c82CartAPI = new EightTwoCartController();
@@ -47789,9 +47789,19 @@ namespace MasterOnline.Controllers
                                                         }
                                                         if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 2].Value)))
                                                         {
-                                                            var tempDesc = Convert.ToString(worksheet.Cells[i, 2].Value).Split('-');
+                                                            //var tempDesc = Convert.ToString(worksheet.Cells[i, 2].Value).Split('-');
+                                                            var tempDesc = Convert.ToString(worksheet.Cells[i, 2].Value).Split(new string[] { "INV/" }, StringSplitOptions.None);
                                                             tempData.KETERANGAN = tempDesc[0];
-                                                            tempData.REF = tempDesc[1].Substring(1);
+                                                            //tempData.REF = tempDesc[1].Substring[1];
+                                                            if (tempDesc[1].Contains(" "))
+                                                            {
+                                                                var getref = tempDesc[2].Split(' ');
+                                                                tempData.REF = "INV/" + getref[0];
+                                                            }
+                                                            else
+                                                            {
+                                                                tempData.REF = "INV/" + tempDesc[1];
+                                                            }
 
                                                         }
                                                         if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
