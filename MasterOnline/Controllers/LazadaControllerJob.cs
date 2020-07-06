@@ -2304,7 +2304,7 @@ namespace MasterOnline.Controllers
                                     insertQ += "('" + order.order_id + "','" + nama1 + "','" + nama2 + "','" + order_number + "','" + payment_method + "','" + remarks;
                                     //change by nurul 4/12/2019, local time
                                     //insertQ += "','" + order.delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + order.gift_message + "','" + order.voucher_code + "','" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.address_billing.first_name.Replace('\'', '`') + "','" + order.address_billing.last_name.Replace('\'', '`');
-                                    insertQ += "','" + delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + gift_message + "','" + voucher_code + "','" + tempCreated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + tempUpdated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + billing_first_name + "','" + billing_last_name.Replace('\'', '`');
+                                    insertQ += "','" + delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + gift_message + "','" + voucher_code + "','" + tempCreated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + tempUpdated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + billing_first_name + "','" + billing_last_name;
                                     //end change by nurul 4/12/2019, local time 
                                     //insertQ += "','" + order.address_billing.phone + "','" + order.address_billing.phone2 + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + order.address_billing.address2.Replace('\'', '`') + "','" + order.address_billing.address3.Replace('\'', '`') + "','" + order.address_billing.address4.Replace('\'', '`') + "','" + order.address_billing.address5.Replace('\'', '`');
                                     insertQ += "','" + phone + "','" + phone2 + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + billing_address2 + "','" + billing_address3 + "','" + billing_address4 + "','" + billing_address5;
@@ -2373,7 +2373,7 @@ namespace MasterOnline.Controllers
                                         if (tblKabKot.Tables[0].Rows.Count > 0)
                                             kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
 
-                                        var nama = order.address_billing.first_name.Replace('\'', '`').Replace("'", "`");
+                                        var nama = order.address_billing.first_name.Replace('\'', '`');
                                         if (nama.Length > 30)
                                             nama = nama.Substring(0, 30);
 
@@ -2896,7 +2896,7 @@ namespace MasterOnline.Controllers
                                     insertQ += "('" + order.order_id + "','" + nama1 + "','" + nama2 + "','" + order_number + "','" + payment_method + "','" + remarks;
                                     //change by nurul 4/12/2019, local time
                                     //insertQ += "','" + order.delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + order.gift_message + "','" + order.voucher_code + "','" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.address_billing.first_name.Replace('\'', '`') + "','" + order.address_billing.last_name.Replace('\'', '`');
-                                    insertQ += "','" + delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + gift_message + "','" + voucher_code + "','" + tempCreated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + tempUpdated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + billing_first_name + "','" + billing_last_name.Replace('\'', '`');
+                                    insertQ += "','" + delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + gift_message + "','" + voucher_code + "','" + tempCreated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + tempUpdated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + billing_first_name + "','" + billing_last_name;
                                     //end change by nurul 4/12/2019, local time 
                                     //insertQ += "','" + order.address_billing.phone + "','" + order.address_billing.phone2 + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + order.address_billing.address2.Replace('\'', '`') + "','" + order.address_billing.address3.Replace('\'', '`') + "','" + order.address_billing.address4.Replace('\'', '`') + "','" + order.address_billing.address5.Replace('\'', '`');
                                     insertQ += "','" + phone + "','" + phone2 + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + billing_address2 + "','" + billing_address3 + "','" + billing_address4 + "','" + billing_address5;
