@@ -10247,7 +10247,7 @@ namespace MasterOnline.Controllers
                                                         API_key = tblCustomer.API_KEY,
                                                         API_credential = tblCustomer.Sort1_Cust,
                                                         API_url = tblCustomer.PERSO,
-                                                        ID_MARKET = tblCustomer.RecNum.Value.ToString(),
+                                                        //ID_MARKET = tblCustomer.RecNum.Value.ToString(),
                                                         DatabasePathErasoft = dbPathEra
                                                     };
                                                     EightTwoCartController c82CartAPI = new EightTwoCartController();

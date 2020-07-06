@@ -2076,7 +2076,7 @@ namespace MasterOnline.Controllers
             }
             var httpReason = clientResponse.ReasonPhrase;
 
-            
+
 
             //}
             //catch (Exception ex)
@@ -2300,7 +2300,7 @@ namespace MasterOnline.Controllers
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                     }
                 }
-                else if(httpReason == "Bad Request")
+                else if (httpReason == "Bad Request")
                 {
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 }
@@ -2422,66 +2422,70 @@ namespace MasterOnline.Controllers
             string ret = "";
             var token = SetupContext(iden);
             iden.token = token;
-            string[] splitNoRef = noref.Split(';');
-            string urll = "https://fs.tokopedia.net/v2/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/order?invoice_num=" + Uri.EscapeDataString(splitNoRef.Last());
-            long milis = CurrentTimeMillis();
-
-
-            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
-
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "GET";
-            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
-            myReq.Accept = "application/x-www-form-urlencoded";
-            myReq.ContentType = "application/json";
-            string responseFromServer = "";
-            //try
-            //{
-            using (WebResponse response = await myReq.GetResponseAsync())
+            var getPesanan = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI.Contains(noref)).FirstOrDefault();
+            if (getPesanan != null)
             {
-                using (Stream stream = response.GetResponseStream())
-                {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
-                }
-            }
-            //using (WebResponse response = myReq.GetResponse())
-            //{
-            //    using (Stream stream = response.GetResponseStream())
-            //    {
-            //        StreamReader reader = new StreamReader(stream);
-            //        responseFromServer = reader.ReadToEnd();
-            //    }
-            //}
-            //}
-            //catch (WebException e)
-            //{
-            //    string err = "";
-            //    if (e.Status == WebExceptionStatus.ProtocolError)
-            //    {
-            //        WebResponse resp = e.Response;
-            //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-            //        {
-            //            err = sr.ReadToEnd();
-            //        }
-            //    }
-            //    throw new Exception(err);
-            //}
+                string[] splitNoRef = getPesanan.NO_REFERENSI.Split(';');
+                string urll = "https://fs.tokopedia.net/v2/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/order?invoice_num=" + Uri.EscapeDataString(splitNoRef.Last());
+                long milis = CurrentTimeMillis();
 
-            if (responseFromServer != null)
-            {
-                TokpedSingleOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedSingleOrderResult)) as TokpedSingleOrderResult;
-                if (result.header.error_code == 0)
+
+                DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+                myReq.Accept = "application/x-www-form-urlencoded";
+                myReq.ContentType = "application/json";
+                string responseFromServer = "";
+                try
                 {
-                    var tempAWB = result.data.order_info.shipping_info.awb;
-                    if (tempAWB != null && tempAWB != "")
+                    using (WebResponse response = await myReq.GetResponseAsync())
+                    //using (WebResponse response = myReq.GetResponse())
                     {
-                        var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
-                        if (pesananIndb != null)
+                        using (Stream stream = response.GetResponseStream())
                         {
-                            ret = ret + tempAWB;
-                            pesananIndb.TRACKING_SHIPMENT = tempAWB;
-                            ErasoftDbContext.SaveChanges();
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                        }
+                    }
+                    //using (WebResponse response = myReq.GetResponse())
+                    //{
+                    //    using (Stream stream = response.GetResponseStream())
+                    //    {
+                    //        StreamReader reader = new StreamReader(stream);
+                    //        responseFromServer = reader.ReadToEnd();
+                    //    }
+                    //}
+                }
+                catch (WebException e)
+                {
+                    string err = "";
+                    if (e.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        WebResponse resp = e.Response;
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            err = sr.ReadToEnd();
+                        }
+                    }
+                }
+
+                if (responseFromServer != null)
+                {
+                    TokpedSingleOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedSingleOrderResult)) as TokpedSingleOrderResult;
+                    if (result.header.error_code == 0)
+                    {
+                        var tempAWB = result.data.order_info.shipping_info.awb;
+                        if (tempAWB != null && tempAWB != "")
+                        {
+                            //var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
+                            if (getPesanan != null)
+                            {
+                                ret = ret + tempAWB;
+                                getPesanan.TRACKING_SHIPMENT = tempAWB;
+                                ErasoftDbContext.SaveChanges();
+                            }
                         }
                     }
                 }
@@ -3850,12 +3854,12 @@ namespace MasterOnline.Controllers
                         //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                     }
                 }
-                if(responseFromServer != "")
+                if (responseFromServer != "")
                 {
                     var result = JsonConvert.DeserializeObject(responseFromServer, typeof(UpdatePriceResponse)) as UpdatePriceResponse;
-                    if(result != null)
+                    if (result != null)
                     {
-                        if(result.header.error_code != 0)
+                        if (result.header.error_code != 0)
                         {
                             currentLog.REQUEST_EXCEPTION = (result.header.reason ?? result.header.messages);
                             manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
@@ -3863,11 +3867,11 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            if(result.data != null)
+                            if (result.data != null)
                             {
-                                if(result.data.failed_rows > 0)
+                                if (result.data.failed_rows > 0)
                                 {
-                                    if(result.data.failed_rows_data.Length > 0)
+                                    if (result.data.failed_rows_data.Length > 0)
                                     {
                                         var rowFailedMessage = "";
                                         foreach (var itemRow in result.data.failed_rows_data)
@@ -3882,7 +3886,7 @@ namespace MasterOnline.Controllers
                                     else
                                     {
                                         currentLog.REQUEST_EXCEPTION = responseFromServer;
-                                    }                                    
+                                    }
                                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                                     throw new Exception(currentLog.REQUEST_EXCEPTION);
                                 }
@@ -5041,51 +5045,51 @@ namespace MasterOnline.Controllers
                     {
                         string a = "";
                         int i = 0;
-                        if(result.data != null)
-                        foreach (var attribs in result.data)
-                        {
-                            a = Convert.ToString(i + 1);
-
-                            ATTRIBUTE_TOKPED newRecord = new ATTRIBUTE_TOKPED();
-
-                            newRecord["VARIANT_ID_" + a] = attribs.variant_id;
-                            newRecord["HAS_UNIT_" + a] = attribs.has_unit;
-                            newRecord["ANAME_" + a] = attribs.name;
-                            newRecord["STATUS_" + a] = Convert.ToString(attribs.status);
-                            ret.attribute.Add(newRecord);
-
-                            if (attribs.units.Count() > 0)
+                        if (result.data != null)
+                            foreach (var attribs in result.data)
                             {
-                                foreach (var unit in attribs.units)
-                                {
-                                    ATTRIBUTE_UNIT_TOKPED newRecordUnit = new ATTRIBUTE_UNIT_TOKPED();
-                                    newRecordUnit["VARIANT_ID"] = attribs.variant_id;
-                                    newRecordUnit["UNIT_ID"] = unit.unit_id;
-                                    newRecordUnit["UNIT_NAME"] = unit.name;
-                                    newRecordUnit["UNIT_SHORT_NAME"] = unit.short_name;
-                                    ret.attribute_unit.Add(newRecordUnit);
-                                }
+                                a = Convert.ToString(i + 1);
 
-                                foreach (var unit in attribs.units)
+                                ATTRIBUTE_TOKPED newRecord = new ATTRIBUTE_TOKPED();
+
+                                newRecord["VARIANT_ID_" + a] = attribs.variant_id;
+                                newRecord["HAS_UNIT_" + a] = attribs.has_unit;
+                                newRecord["ANAME_" + a] = attribs.name;
+                                newRecord["STATUS_" + a] = Convert.ToString(attribs.status);
+                                ret.attribute.Add(newRecord);
+
+                                if (attribs.units.Count() > 0)
                                 {
-                                    if (unit.values != null)
+                                    foreach (var unit in attribs.units)
                                     {
-                                        foreach (var opt in unit.values)
+                                        ATTRIBUTE_UNIT_TOKPED newRecordUnit = new ATTRIBUTE_UNIT_TOKPED();
+                                        newRecordUnit["VARIANT_ID"] = attribs.variant_id;
+                                        newRecordUnit["UNIT_ID"] = unit.unit_id;
+                                        newRecordUnit["UNIT_NAME"] = unit.name;
+                                        newRecordUnit["UNIT_SHORT_NAME"] = unit.short_name;
+                                        ret.attribute_unit.Add(newRecordUnit);
+                                    }
+
+                                    foreach (var unit in attribs.units)
+                                    {
+                                        if (unit.values != null)
                                         {
-                                            ATTRIBUTE_OPT_TOKPED newRecordOpt = new ATTRIBUTE_OPT_TOKPED();
-                                            newRecordOpt["VALUE_ID"] = opt.value_id;
-                                            newRecordOpt["UNIT_ID"] = unit.unit_id;
-                                            newRecordOpt["VALUE"] = opt.value;
-                                            newRecordOpt["HEX_CODE"] = opt.hex_code;
-                                            newRecordOpt["ICON"] = opt.icon;
-                                            newRecordOpt["VARIANT_ID"] = attribs.variant_id;
-                                            ret.attribute_opt.Add(newRecordOpt);
+                                            foreach (var opt in unit.values)
+                                            {
+                                                ATTRIBUTE_OPT_TOKPED newRecordOpt = new ATTRIBUTE_OPT_TOKPED();
+                                                newRecordOpt["VALUE_ID"] = opt.value_id;
+                                                newRecordOpt["UNIT_ID"] = unit.unit_id;
+                                                newRecordOpt["VALUE"] = opt.value;
+                                                newRecordOpt["HEX_CODE"] = opt.hex_code;
+                                                newRecordOpt["ICON"] = opt.icon;
+                                                newRecordOpt["VARIANT_ID"] = attribs.variant_id;
+                                                ret.attribute_opt.Add(newRecordOpt);
+                                            }
                                         }
                                     }
                                 }
+                                i = i + 1;
                             }
-                            i = i + 1;
-                        }
                     }
                     catch (Exception ex2)
                     {
@@ -6787,7 +6791,7 @@ namespace MasterOnline.Controllers
             public TokopediaAckOrderHeader header { get; set; }
             public string data { get; set; }
             //end change by nurul 4/6/2020
-        }    
+        }
         //end add by nurul 23/3/2020
 
         //add 4 jun 2020
