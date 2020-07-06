@@ -2985,6 +2985,7 @@ namespace MasterOnline.Controllers
                         {
                             newOrder.estimated_shipping_fee = (ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee).ToString();
                         }
+                        var listPromo = new Dictionary<long, double>();//add 6 juli 2020
                         foreach (var item in order.items)
                         {
                             string item_name = !string.IsNullOrEmpty(item.item_name) ? item.item_name.Replace('\'', '`') : "";
@@ -3031,8 +3032,18 @@ namespace MasterOnline.Controllers
                             {
                                 if (item.promotion_type == "bundle_deal")
                                 {
-                                    var promoPrice = await GetEscrowDetail(iden, order.ordersn, item.item_id, item.variation_id);
-                                    newOrderItem.variation_discounted_price = promoPrice;
+                                    var discount = 0d;
+                                    if (!listPromo.ContainsKey(item.promotion_id))
+                                    {
+                                        discount = await GetEscrowDetail(iden, order.ordersn, item.item_id, item.variation_id, item.promotion_id);
+                                    }
+                                    else
+                                    {
+                                        discount = listPromo[item.promotion_id];
+                                    }
+                                    newOrderItem.variation_discounted_price = item.variation_original_price;
+                                    newOrderItem.DISC = discount;
+                                    newOrderItem.N_DISC = Convert.ToInt64(newOrderItem.variation_discounted_price) * newOrderItem.variation_quantity_purchased * discount;
                                 }
                             }
                             batchinsertItem.Add(newOrderItem);
@@ -3156,11 +3167,11 @@ namespace MasterOnline.Controllers
             return null;
         }
         //end add by Tri 14 Apr 2020, api untuk ambil shipping fee 
-        public async Task<string> GetEscrowDetail(ShopeeAPIData iden, string ordersn, long itemId, long variationId)
+        public async Task<double> GetEscrowDetail(ShopeeAPIData iden, string ordersn, long itemId, long variationId, long activityId)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            string ret = "0";
+            var ret = 0d;
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -3213,14 +3224,20 @@ namespace MasterOnline.Controllers
                         {
                             foreach (var act in result.order.activity)
                             {
-                                foreach (var item in act.items)
+                                //foreach (var item in act.items)
+                                //{
+                                //if (item.item_id == itemId && item.variation_id == variationId)
+                                //{
+                                //    var hargapromo = Convert.ToInt64(act.discounted_price) / item.quantity_purchased;
+                                //    return hargapromo.ToString();
+                                //}
+                                //}
+                                if (act.activity_id == activityId)
                                 {
-                                    if (item.item_id == itemId && item.variation_id == variationId)
-                                    {
-                                        var hargapromo = Convert.ToInt64(act.discounted_price) / item.quantity_purchased;
-                                        return hargapromo.ToString();
-                                    }
+                                    double discount = (Convert.ToInt64(act.original_price) - Convert.ToInt64(act.discounted_price)) * 100 / Convert.ToInt64(act.original_price);
+                                    return discount;
                                 }
+
                             }
                         }
                     }
@@ -8036,6 +8053,7 @@ namespace MasterOnline.Controllers
             public long variation_id { get; set; }
             public string variation_name { get; set; }
             public long item_id { get; set; }
+            public long promotion_id { get; set; }
             public int variation_quantity_purchased { get; set; }
             public string variation_sku { get; set; }
             public string variation_original_price { get; set; }
@@ -8615,7 +8633,7 @@ namespace MasterOnline.Controllers
             public double shipping_fee_discount_from_3pl { get; set; }
             public double seller_shipping_discount { get; set; }
             public double estimated_shipping_fee { get; set; }
-            public object[] seller_voucher_code { get; set; }
+            //public object[] seller_voucher_code { get; set; }
             public double drc_adjustable_refund { get; set; }
         }
 
@@ -8673,7 +8691,8 @@ namespace MasterOnline.Controllers
         {
             public string discounted_price { get; set; }
             public string original_price { get; set; }
-            public int activity_id { get; set; }
+            //public int activity_id { get; set; }
+            public long activity_id { get; set; }
             public Item2[] items { get; set; }
             public string activity_type { get; set; }
         }
