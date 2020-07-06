@@ -2395,7 +2395,7 @@ namespace MasterOnline.Controllers
                         foreach(var itemKurir in dataKurir)
                         {
                             sheet2.Cells[4 + j, 6].Value = itemKurir.RecNum;
-                            sheet2.Cells[4 + j, 7].Value = itemKurir.NamaEkspedisi;
+                            sheet2.Cells[4 + j, 7].Value = itemKurir.RecNum + ";" + itemKurir.NamaEkspedisi;
                             j += 1;
                         }
                     }
