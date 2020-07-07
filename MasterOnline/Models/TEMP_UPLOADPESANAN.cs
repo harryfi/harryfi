@@ -30,7 +30,7 @@ namespace MasterOnline.Models
         [StringLength(100)]
         public string NAMA_PEMBELI { get; set; }
 
-        [Column(TypeName = "text")]
+        [StringLength(255)]
         public string ALAMAT_KIRIM { get; set; }
 
         [StringLength(50)]

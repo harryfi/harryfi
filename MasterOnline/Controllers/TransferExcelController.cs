@@ -1412,31 +1412,31 @@ namespace MasterOnline.Controllers
                                         bagiProses = Decimal.Round(bagiProses);
 
                                         //get ALL DATA
-                                        string no_referensi = worksheet.Cells[5, 2].Value == null ? "" : worksheet.Cells[5, 2].Value.ToString();
-                                        string tgl_pesanan = worksheet.Cells[5, 3].Value == null ? "" : worksheet.Cells[5, 3].Value.ToString();
-                                        string marketplace = worksheet.Cells[5, 4].Value == null ? "" : worksheet.Cells[5, 4].Value.ToString();
-                                        string nama_pembeli = worksheet.Cells[5, 6].Value == null ? "" : worksheet.Cells[5, 6].Value.ToString();
-                                        string alamat_kirim = worksheet.Cells[5, 7].Value == null ? "" : worksheet.Cells[5, 7].Value.ToString();
-                                        string kode_kurir = worksheet.Cells[5, 8].Value == null ? "" : worksheet.Cells[5, 8].Value.ToString();
-                                        string top = worksheet.Cells[5, 9].Value == null ? "1" : worksheet.Cells[5, 9].Value.ToString();
-                                        string tgl_jatuh_tempo = worksheet.Cells[5, 10].Value == null ? "" : worksheet.Cells[5, 10].Value.ToString();
-                                        string keterangan = worksheet.Cells[5, 11].Value == null ? "" : worksheet.Cells[5, 11].Value.ToString();
-                                        string bruto = worksheet.Cells[5, 12].Value == null ? "0" : worksheet.Cells[5, 12].Value.ToString();
-                                        string diskon = worksheet.Cells[5, 13].Value == null ? "0" : worksheet.Cells[5, 13].Value.ToString();
-                                        string ppn = worksheet.Cells[5, 14].Value == null ? "0" : worksheet.Cells[5, 14].Value.ToString();
-                                        string nilai_ppn = worksheet.Cells[5, 15].Value == null ? "0" : worksheet.Cells[5, 15].Value.ToString();
-                                        string ongkir = worksheet.Cells[5, 16].Value == null ? "0" : worksheet.Cells[5, 16].Value.ToString();
-                                        string netto = worksheet.Cells[5, 17].Value == null ? "0" : worksheet.Cells[5, 17].Value.ToString();
-                                        string status_pesanan = worksheet.Cells[5, 18].Value == null ? "" : worksheet.Cells[5, 18].Value.ToString();
-                                        string kode_brg = worksheet.Cells[5, 19].Value == null ? "" : worksheet.Cells[5, 19].Value.ToString();
-                                        string nama_brg = worksheet.Cells[5, 20].Value == null ? "" : worksheet.Cells[5, 20].Value.ToString();
-                                        string qty = worksheet.Cells[5, 21].Value == null ? "0" : worksheet.Cells[5, 21].Value.ToString();
-                                        string harga_satuan = worksheet.Cells[5, 22].Value == null ? "0" : worksheet.Cells[5, 22].Value.ToString();
-                                        string disc1 = worksheet.Cells[5, 23].Value == null ? "0" : worksheet.Cells[5, 23].Value.ToString();
-                                        string ndisc1 = worksheet.Cells[5, 24].Value == null ? "0" : worksheet.Cells[5, 24].Value.ToString();
-                                        string disc2 = worksheet.Cells[5, 25].Value == null ? "0" : worksheet.Cells[5, 25].Value.ToString();
-                                        string ndisc2 = worksheet.Cells[5, 26].Value == null ? "0" : worksheet.Cells[5, 26].Value.ToString();
-                                        string total = worksheet.Cells[5, 27].Value == null ? "0" : worksheet.Cells[5, 27].Value.ToString();
+                                        string no_referensi = worksheet.Cells[i, 2].Value == null ? "" : worksheet.Cells[i, 2].Value.ToString();
+                                        string tgl_pesanan = worksheet.Cells[i, 3].Value == null ? "" : worksheet.Cells[i, 3].Value.ToString();
+                                        string marketplace = worksheet.Cells[i, 4].Value == null ? "" : worksheet.Cells[i, 4].Value.ToString();
+                                        string nama_pembeli = worksheet.Cells[i, 5].Value == null ? "" : worksheet.Cells[i, 5].Value.ToString();
+                                        string alamat_kirim = worksheet.Cells[i, 6].Value == null ? "" : worksheet.Cells[i, 6].Value.ToString();
+                                        string kode_kurir = worksheet.Cells[i, 7].Value == null ? "" : worksheet.Cells[i, 7].Value.ToString();
+                                        string top = worksheet.Cells[i, 8].Value == null ? "1" : worksheet.Cells[i, 8].Value.ToString();
+                                        string tgl_jatuh_tempo = worksheet.Cells[i, 9].Value == null ? "" : worksheet.Cells[i, 9].Value.ToString();
+                                        string keterangan = worksheet.Cells[i, 10].Value == null ? "" : worksheet.Cells[i, 10].Value.ToString();
+                                        string bruto = worksheet.Cells[i, 11].Value == null ? "0" : worksheet.Cells[i, 11].Value.ToString();
+                                        string diskon = worksheet.Cells[i, 12].Value == null ? "0" : worksheet.Cells[i, 12].Value.ToString();
+                                        string ppn = worksheet.Cells[i, 13].Value == null ? "0" : worksheet.Cells[i, 13].Value.ToString();
+                                        string nilai_ppn = worksheet.Cells[i, 14].Value == null ? "0" : worksheet.Cells[i, 14].Value.ToString();
+                                        string ongkir = worksheet.Cells[i, 15].Value == null ? "0" : worksheet.Cells[i, 15].Value.ToString();
+                                        string netto = worksheet.Cells[i, 16].Value == null ? "0" : worksheet.Cells[i, 16].Value.ToString();
+                                        string status_pesanan = worksheet.Cells[i, 17].Value == null ? "" : worksheet.Cells[i, 17].Value.ToString();
+                                        string kode_brg = worksheet.Cells[i, 18].Value == null ? "" : worksheet.Cells[i, 18].Value.ToString();
+                                        string nama_brg = worksheet.Cells[i, 19].Value == null ? "" : worksheet.Cells[i, 19].Value.ToString();
+                                        string qty = worksheet.Cells[i, 20].Value == null ? "0" : worksheet.Cells[i, 20].Value.ToString();
+                                        string harga_satuan = worksheet.Cells[i, 21].Value == null ? "0" : worksheet.Cells[i, 21].Value.ToString();
+                                        string disc1 = worksheet.Cells[i, 22].Value == null ? "0" : worksheet.Cells[i, 22].Value.ToString();
+                                        string ndisc1 = worksheet.Cells[i, 23].Value == null ? "0" : worksheet.Cells[i, 23].Value.ToString();
+                                        string disc2 = worksheet.Cells[i, 24].Value == null ? "0" : worksheet.Cells[i, 24].Value.ToString();
+                                        string ndisc2 = worksheet.Cells[i, 25].Value == null ? "0" : worksheet.Cells[i, 25].Value.ToString();
+                                        string total = worksheet.Cells[i, 26].Value == null ? "0" : worksheet.Cells[i, 26].Value.ToString();
 
                                         string[] no_cust = marketplace.Split(';');
                                         string[] kurir = kode_kurir.Split(';');
@@ -1533,7 +1533,7 @@ namespace MasterOnline.Controllers
 
                             if (NoReffTempUploadPesanan != null)
                             {
-                                var noReffDistinct = NoReffTempUploadPesanan.Distinct();
+                                var noReffDistinct = NoReffTempUploadPesanan.Distinct().ToList(); //FILTER DUPLICATE NO REFERENSI
 
                                 var noBuktiSO = "";
 
@@ -1548,6 +1548,9 @@ namespace MasterOnline.Controllers
                                 batchinsertHeader = new List<SOT01A>();
                                 batchinsertItemDetail = new List<SOT01B>();
 
+
+                                int iProcess = 0;
+
                                 foreach (var itemNoReff in noReffDistinct) // LOOPING UNTUK SEMUA PESANAN
                                 {
                                     string connID = Guid.NewGuid().ToString();
@@ -1557,14 +1560,14 @@ namespace MasterOnline.Controllers
                                         var dataTempUploadPesananPerReff = eraDBagain.TEMP_UPLOADPESANAN.Where(p => p.NO_REFERENSI == itemNoReff).ToList();
 
                                         //check no referensi lagi untuk pesanan dengan 1 no ref/ 1 nobuk dan barang lebih dari satu
-                                        var checkDuplicateSO = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == itemNoReff).FirstOrDefault();
+                                        var checkDuplicateSO = eraDBagain.SOT01A.Where(p => p.NO_REFERENSI == itemNoReff).FirstOrDefault();
                                         if (checkDuplicateSO == null)
                                         {
                                             //if (!string.IsNullOrWhiteSpace(noBuktiSO))
                                             //{
                                             //    transc.Commit();
                                             //}
-                                            var lastBukti = new ManageController().GenerateAutoNumber(ErasoftDbContext, "SO", "SOT01A", "NO_BUKTI");
+                                            var lastBukti = new ManageController().GenerateAutoNumber(eraDBagain, "SO", "SOT01A", "NO_BUKTI");
                                             var noOrder = "SO" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
                                             noBuktiSO = noOrder;
 
@@ -1586,6 +1589,7 @@ namespace MasterOnline.Controllers
 
                                             bool statusDetailInsert = true;
 
+
                                             foreach (var item in dataTempUploadPesananPerReff) // LOOPING DI DALAM SATU PESANAN
                                             {
                                                 if (statusDetailInsert)
@@ -1597,7 +1601,8 @@ namespace MasterOnline.Controllers
                                                         if (checkBarang != null)
                                                         {
                                                             //var dataKurir = MoDbContext.Ekspedisi.Where(p => p.RecNum == Convert.ToInt32(item.KODE_KURIR)).FirstOrDefault();
-                                                            var dataKurir = dataMasterKurir.Where(p => p.RecNum == Convert.ToInt32(item.KODE_KURIR)).FirstOrDefault();
+                                                            int checkKodeKurir = Convert.ToInt32(item.KODE_KURIR);
+                                                            var dataKurir = dataMasterKurir.Where(p => p.RecNum == checkKodeKurir).FirstOrDefault();
                                                             if (dataKurir != null)
                                                             {
                                                                 //var dataToko = ErasoftDbContext.ARF01.Where(p => p.CUST == item.MARKETPLACE).FirstOrDefault();
@@ -1611,45 +1616,52 @@ namespace MasterOnline.Controllers
                                                                         string[] brgMPOrderItemID = dataBarang.BRG_MP.Split(';');
 
                                                                         var kodePembeli = "";
-                                                                        var dataPembeli = ErasoftDbContext.ARF01C.Where(p => p.NAMA == item.NAMA_PEMBELI && p.AL == item.ALAMAT_KIRIM).FirstOrDefault();
+                                                                        string address = "";
+                                                                        var dataPembeli = eraDBagain.ARF01C.Where(p => p.NAMA == item.NAMA_PEMBELI).FirstOrDefault();
+                                                                        //var dataPembeli = eraDBagain.ARF01C.Where(p => p.NAMA == item.NAMA_PEMBELI && p.AL.ToString() == item.ALAMAT_KIRIM.ToString()).FirstOrDefault();
                                                                         //var dataPembeli = dataMasterARF01C.Where(p => p.NAMA == item.NAMA_PEMBELI && p.AL == item.ALAMAT_KIRIM).FirstOrDefault();
                                                                         string nama = item.NAMA_PEMBELI.Length > 30 ? item.NAMA_PEMBELI.Substring(0, 30) : item.NAMA_PEMBELI.ToString();
 
                                                                         if (dataPembeli == null)
                                                                         {
                                                                             var connIdARF01C = Guid.NewGuid().ToString();
+                                                                            var kodePembeliLast = eraDBagain.ARF01C.Select(p => p.BUYER_CODE).ToList().LastOrDefault();
+                                                                            kodePembeliLast = Convert.ToString(Convert.ToInt32(kodePembeliLast) + 1).PadLeft(10, '0');
+
                                                                             string insertPembeli = "INSERT INTO ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
                                                                             insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
-                                                                            insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+                                                                            insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, BUYER_CODE) VALUES ";
                                                                             var kabKot = "3174";
                                                                             var prov = "31";
 
-
-                                                                            insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
+                                                                            address = item.ALAMAT_KIRIM.Length > 30 ? item.ALAMAT_KIRIM.Substring(0, 30) : item.ALAMAT_KIRIM;
+                                                                            
+                                                                            insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01', '01', 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                                                                                 ((nama ?? "").Replace("'", "`")),
-                                                                                ((item.ALAMAT_KIRIM ?? "").Replace("'", "`")),
+                                                                                ((address ?? "").Replace("'", "`")),
                                                                                  (("").Replace("'", "`")),
                                                                                 (dataToko.PERSO.Replace(',', '.')),
-                                                                                ((item.ALAMAT_KIRIM ?? "").Replace("'", "`")),
+                                                                                ((address ?? "").Replace("'", "`")),
                                                                                 DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                                                                                 (username),
-                                                                                (("-").Replace("'", "`")),
+                                                                                (("").Replace("'", "`")),
                                                                                 kabKot,
                                                                                 prov,
-                                                                                connIdARF01C
+                                                                                kodePembeliLast
                                                                                 );
                                                                             insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
                                                                             EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
-                                                                            kodePembeli = ErasoftDbContext.ARF01C.Where(p => p.NAMA == nama).Select(p => p.BUYER_CODE).FirstOrDefault();
+                                                                            kodePembeli = eraDBagain.ARF01C.Where(p => p.NAMA == nama).Select(p => p.BUYER_CODE).FirstOrDefault();
                                                                             //kodePembeli = dataMasterARF01C.Where(p => p.NAMA == nama).Select(p => p.BUYER_CODE).FirstOrDefault();
                                                                         }
                                                                         else
                                                                         {
+                                                                            address = dataPembeli.AL.Length > 30 ? dataPembeli.AL.Substring(0, 30) : dataPembeli.AL;
                                                                             kodePembeli = dataPembeli.BUYER_CODE;
                                                                         }
 
                                                                         //initialize for HEADER
-                                                                        alamat_kirim = item.ALAMAT_KIRIM;
+                                                                        alamat_kirim = address;
                                                                         bruto = Convert.ToInt32(item.BRUTO);
                                                                         no_custMarketplace = item.MARKETPLACE;
                                                                         diskon = Convert.ToInt32(item.DISKON);
@@ -1723,10 +1735,10 @@ namespace MasterOnline.Controllers
                                                                         {
                                                                             //transaction.Commit();
                                                                             ret.statusSuccess = true;
-                                                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                                                            //return Json(ret, JsonRequestBehavior.AllowGet);
                                                                         }
-
-                                                                        //Functions.SendProgress("Process in progress...", i, worksheet.Dimension.End.Row);
+                                                                        iProcess = iProcess + 1;
+                                                                        Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(noReffDistinct.Count() - 1));
 
                                                                     }
                                                                     else
@@ -1766,7 +1778,7 @@ namespace MasterOnline.Controllers
 
                                             if (statusDetailInsert)
                                             {
-                                                var checkDuplicateHeader = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == itemNoReff).FirstOrDefault();
+                                                var checkDuplicateHeader = eraDBagain.SOT01A.Where(p => p.NO_REFERENSI == itemNoReff).FirstOrDefault();
                                                 if (checkDuplicateHeader == null)
                                                 {
                                                     var sot01a = new SOT01A
@@ -1847,6 +1859,7 @@ namespace MasterOnline.Controllers
                                                         eraDBagain.SOT01A.AddRange(batchinsertHeader);
                                                         eraDBagain.SOT01B.AddRange(batchinsertItemDetail);
                                                         eraDBagain.SaveChanges();
+                                                        transc.Commit();
                                                         batchinsertHeader.Clear();
                                                         batchinsertItemDetail.Clear();
 
@@ -2269,7 +2282,7 @@ namespace MasterOnline.Controllers
                         worksheet.Cells[5 + i, 3].Value = dateNow; //TGL 
                         worksheet.Cells[5 + i, 4].Value = "-- Silahkan Pilih Marketplace --"; //MARKETPLACE
                         //worksheet.Cells[5 + i, 5].Value = "001028"; //KODE_PEMBELI
-                        worksheet.Cells[5 + i, 5].Value = "Dani"; //PEMBELI
+                        worksheet.Cells[5 + i, 5].Value = "Fauzi"; //PEMBELI
                         worksheet.Cells[5 + i, 6].Value = "Jl. Alaydrus No.37, RT.8/RW.2, Petojo Utara, Kecamatan Gambir, Kota Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10130"; //ALAMAT_KIRIM
                         worksheet.Cells[5 + i, 7].Value = "-- Silahkan Pilih Kurir --"; //KURIR
                         worksheet.Cells[5 + i, 8].Value = "10"; //TOP
