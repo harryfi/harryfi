@@ -3551,6 +3551,7 @@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
 <script type="text/javascript">
+        var $statusAPI = window.text;
         var $modeEditPesanan = 0;
         var $modeEditDibayar = 0;
         var $modeEditSelesai = 0;
@@ -3900,7 +3901,7 @@
         };
 
         $(document).ready(function () {
-
+            $statusAPI = "";
             $("#ckpsn1").prop('checked', true);
             $(".ckps").change(function () {
                 $(".ckps").prop('checked', false);
@@ -4187,6 +4188,7 @@
                     $nettoSebelumnya = 0;
 
                     refreshTablePesanan();
+                    $statusAPI = "";
                 }
             });
 
@@ -4996,6 +4998,7 @@
             //$('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
             refreshTablePesanan();
+            $statusAPI = "";
         }
 
         function Initialize() {
@@ -5994,6 +5997,13 @@
             //$('#table_tambah_pesanan > tbody > tr > td.editable').prop('contentEditable', true);
 
             //$('#table_tambah_pesanan > tbody > tr > td.editable').on('click',
+            //add by nurul 7/7/2020
+            if ($statusAPI == "1") {
+                $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > .harga-barang').removeClass('editable');
+            } else {
+                $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > .harga-barang').addClass('editable');
+            }
+            //end add by nurul 1/7/2019
             $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.editable').off('click').on('click',
                 function() {
                     var $this = $(this);
@@ -6023,6 +6033,15 @@
                         $inputClass = 'ndisc-input';
                     }
 
+                    //ADD BY NURUL 7/7/2020
+                    else if ($statusAPI == "1") {
+                        if ($class == 'harga-barang editable') {
+                            $inputClass = 'harga-input';
+                        }
+                        var $hargaBarangAwal = convertToAngka($($trElement + ' .harga-barang').text());
+                    }
+                    //END ADD BY NURUL 7/7/2020
+
                     var $input = $('<input>', {
                         'class': $inputClass + ' num-only',
                         //value: $this.val(),
@@ -6035,7 +6054,15 @@
 
                                     hitungUlangdisc1();
                                     hitungUlangdisc2();
-                                } else if ($class === 'disc1-barang editable') {
+                                }
+                                //add by nurul 1/7/2019
+                                else if ($class === 'harga-barang editable') {
+                                    $this.html(convertToRupiah($hargaBarangAwal) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="PesananDetail_H_SATUAN" name="PesananDetail.H_SATUAN" type="hidden" value="">');
+                                    hitungUlangdisc1();
+                                    hitungUlangdisc2();
+                                }
+                                //end add by nurul 1/7/2019
+                                else if ($class === 'disc1-barang editable') {
                                     $this.html(0 +
                                         '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="PesananDetail_DISCOUNT" name="PesananDetail.DISCOUNT" type="hidden" value="0">');
 
@@ -6093,7 +6120,13 @@
 
                                     hitungUlangdisc1();
                                     hitungUlangdisc2();
-
+                                }
+                                    //add by nurul 1/7/2019
+                                else if ($class === 'harga-barang editable') {
+                                    $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="PesananDetail_H_SATUAN" name="PesananDetail.H_SATUAN" type="hidden" value="">');
+                                    hitungUlangdisc1();
+                                    hitungUlangdisc2();
+                                //end add by nurul 1/7/2019
                                 } else if ($class === 'disc1-barang editable') {
                                     $this.html(this.value +
                                         '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="PesananDetail_DISCOUNT" name="PesananDetail.DISCOUNT" type="hidden" value="' +
@@ -6324,7 +6357,10 @@
                                 id: item.CUST,
                                 text: $namaMarket + " (" + item.PERSO + ")",
                                 term: item.TOP,
-                                akun: item.PERSO
+                                akun: item.PERSO,
+                                //add by nurul 7/7/2020, tambah hide untuk status link marketplace
+                                stat: item.STATUS_API
+                                //end add by nurul 7/7/2020
                             };
                         });
 
@@ -6343,6 +6379,7 @@
                                 $("#Pesanan_CUST").val(value).trigger('change');
                                 $("#Pesanan_NAMA_CUST").val($objSup[0].akun);
                                 if ($objSup[0] != null) {
+                                    $statusAPI = $objSup[0].stat;
                                     $("#Pesanan_TERM").val($objSup[0].term).change();
                                 }
 
@@ -8357,6 +8394,7 @@
 
         function refreshForm1() {
             refreshInputan();
+            $statusAPI = "";
             @*remark by calvin 26 agustus 2019, tidak diperlukan, karena saat tambah baru, di refresh.
             var link = '@Url.Action("RefreshPesananForm", "Manage")';
 
