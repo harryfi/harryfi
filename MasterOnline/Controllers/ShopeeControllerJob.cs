@@ -3036,6 +3036,7 @@ namespace MasterOnline.Controllers
                                     if (!listPromo.ContainsKey(item.promotion_id))
                                     {
                                         discount = await GetEscrowDetail(iden, order.ordersn, item.item_id, item.variation_id, item.promotion_id);
+                                        listPromo.Add(item.promotion_id, discount);
                                     }
                                     else
                                     {
@@ -3043,7 +3044,7 @@ namespace MasterOnline.Controllers
                                     }
                                     newOrderItem.variation_discounted_price = item.variation_original_price;
                                     newOrderItem.DISC = discount;
-                                    newOrderItem.N_DISC = Convert.ToInt64(newOrderItem.variation_discounted_price) * newOrderItem.variation_quantity_purchased * discount;
+                                    newOrderItem.N_DISC = Convert.ToInt64(newOrderItem.variation_discounted_price) * newOrderItem.variation_quantity_purchased * discount / 100;
                                 }
                             }
                             batchinsertItem.Add(newOrderItem);
