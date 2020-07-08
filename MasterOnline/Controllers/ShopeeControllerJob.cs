@@ -5376,7 +5376,71 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+        public async Task<GetVariationResult> CekVariationShopee( ShopeeAPIData iden, long item_id)
+        {
+            var MOVariationNew = MOVariation.ToList();
 
+            var ret = new GetVariationResult();
+            SetupContext(iden);
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/get";
+
+            ShopeeGetVariation HttpBody = new ShopeeGetVariation
+            {
+                partner_id = MOPartnerID,
+                item_id = item_id,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (currentLog != null)
+            {
+                manageAPI_LOG_MARKETPLACE(api_status.RePending, ErasoftDbContext, iden, currentLog);
+            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
+
+
+            if (responseFromServer != "")
+            {
+                ret = JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariationResult)) as GetVariationResult;
+                
+            }
+
+            return ret;
+        }
         public class ShopeeUpdateVariation
         {
             public int[] tier_index { get; set; }
@@ -5704,6 +5768,10 @@ namespace MasterOnline.Controllers
                 List<string> tier1_images = new List<string>();
                 //List<string> tier2_images = new List<string>();
                 List<string> tier1_code = new List<string>();
+                string sSQL = "SELECT A.BRG, SORT8, SORT9, ISNULL(BRG_MP, '') BRG_MP, LINK_GAMBAR_1 ";
+                sSQL += "FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG ";
+                sSQL += "WHERE PART = '" + brg + "' AND IDMARKET = " + marketplace.RecNum;
+                var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
                 foreach (var item in ListVariant.OrderBy(p => p.ID))
                 {
                     var stf02h = ListStf02hVariasi.Where(p => p.BRG.ToUpper() == item.BRG.ToUpper() && p.IDMARKET == marketplace.RecNum).FirstOrDefault();
@@ -5842,7 +5910,30 @@ namespace MasterOnline.Controllers
             }
             HttpBody.variation = variation.ToArray();
             HttpBody.tier_variation = tier_variation.ToArray();
-
+            ////add by Tri
+            //if(HttpBody.variation.Length > 0)
+            //{
+            //   var dataBrg = await CekVariationShopee(iden, item_id);
+            //    if(dataBrg != null)
+            //    {
+            //        if(dataBrg.variations != null)
+            //        {
+            //            if(dataBrg.variations.Length > 0)
+            //            {
+            //                var tempVariation = HttpBody.variation;
+            //                var tempVariation2 = new ShopeeVariation[HttpBody.variation.Length];
+            //                foreach(var currentVar in dataBrg.variations)
+            //                {
+            //                    foreach(var varMO in HttpBody.variation)
+            //                    {
+            //                        if(currentVar.variation_id)
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+            ////end add by Tri
             string myData = JsonConvert.SerializeObject(HttpBody);
             myData = myData.Replace(",\"images_url\":null", " ");//remove images_url from tier 2
 
