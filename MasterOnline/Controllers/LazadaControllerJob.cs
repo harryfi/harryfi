@@ -3687,7 +3687,7 @@ namespace MasterOnline.Controllers
                                             variation = variation.Substring(0, 50);
                                         var product_detail_url = string.IsNullOrEmpty(items.product_detail_url) ? "" : items.product_detail_url.Replace('\'', '`');
                                         if (product_detail_url.Length > 50)
-                                            product_detail_url = shipping_type.Substring(0, 50);
+                                            product_detail_url = product_detail_url.Substring(0, 50);
                                         var invoice_number = string.IsNullOrEmpty(items.invoice_number) ? "" : items.invoice_number.Replace('\'', '`');
                                         if (invoice_number.Length > 50)
                                             invoice_number = invoice_number.Substring(0, 50);
