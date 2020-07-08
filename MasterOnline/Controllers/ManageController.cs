@@ -28117,6 +28117,18 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
+        public ActionResult ListLogErrorUploadPesanan(string cust)
+        {
+            //var partialVm = new FakturViewModel()
+            //{
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //    ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
+            //};
+            ActionResult ret = RefreshTableLogErrorUploadPesanan(1, cust);
+            return ret;
+        }
+
+        [HttpGet]
         public ActionResult ListLogSinkronisasi(string cust)
         {
             var a = cust.Split(',');
@@ -29517,6 +29529,46 @@ namespace MasterOnline.Controllers
             //return File(path, System.Net.Mime.MediaTypeNames.Application.Octet, Path.GetFileName(path));
         }
         //add by Tri 3 Juli 2019, upload faktur bl
+
+        public ActionResult RefreshTableLogErrorUploadPesanan(int? page, string cust = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = cust;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "SELECT RECNUM, REQUEST_DATETIME , REQUEST_EXCEPTION, REQUEST_RESULT ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM API_LOG_MARKETPLACE ";
+            //sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
+            if (cust != "")
+            {
+                //sSQL2 += "WHERE (A.CUST LIKE '%" + cust + "%' ) ";
+                sSQL2 += "WHERE (REQUEST_ACTION LIKE '%Upload Excel Pesanan%' ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 5) - 4;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+                if (pagenumber <= 0)
+                {
+                    pagenumber = 0;
+                }
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY REQUEST_DATETIME DESC  ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 5) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listPromosi = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_HANGFIRE>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<API_LOG_MARKETPLACE_HANGFIRE> pageOrders = new StaticPagedList<API_LOG_MARKETPLACE_HANGFIRE>(listPromosi, pagenumber + 1, 5, totalCount.JUMLAH);
+            return PartialView("LogErrorUploadPesanan", pageOrders);
+        }
 
 
         public ActionResult RefreshTableUploadFaktur(int? page, string cust = "")

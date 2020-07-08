@@ -6387,6 +6387,7 @@
     <Content Include="Views\Manage\ListFakturBelumLunasPopUp.cshtml" />
     <Content Include="Views\Manage\TableFakturBelumLunasPopUp.cshtml" />
     <Content Include="Views\Manage\ListDetailPesananBarang.cshtml" />
+    <Content Include="Views\Manage\LogErrorUploadPesanan.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

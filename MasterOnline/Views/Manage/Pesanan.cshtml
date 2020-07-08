@@ -2400,6 +2400,28 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="openLogError();">Log Error</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                @*<button type="button" class="btn btn-success" onclick="closeEditor()">Ya</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="LogErroruploadPesanan" tabindex="-1" role="dialog" aria-labelledby="labelUploadPesanan">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelLogErrorUploadPesanan">Log Error Upload Excel Pesanan</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div id="logErroruploadpesananviewdiv">
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
                 @*<button type="button" class="btn btn-success" onclick="closeEditor()">Ya</button>*@
             </div>
@@ -5177,6 +5199,21 @@
             });
         }
         //end add by Tri, call midtrans api get token
+
+        function openLogError() {
+            $('#uploadPesanan').modal('hide');
+            $('#LogErroruploadPesanan').modal('show');
+
+            var link = '@Url.Action("ListLogErrorUploadPesanan", "Manage")';
+            link += '?cust=' + encodeURIComponent($('#Pesanan_CUST').val());
+            $.ajax({
+                cache: false,
+                url: link,
+                success: function (response) {
+                    $('#logErroruploadpesananviewdiv').html(response);
+                }
+            })
+        }
 
         function closeEditor() {
             $('#modalTutupEditor').modal('hide');
