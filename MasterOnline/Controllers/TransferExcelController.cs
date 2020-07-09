@@ -1419,9 +1419,10 @@ namespace MasterOnline.Controllers
                                         string marketplace = worksheet.Cells[i, 4].Value == null ? "" : worksheet.Cells[i, 4].Value.ToString();
                                         string nama_pembeli = worksheet.Cells[i, 5].Value == null ? "" : worksheet.Cells[i, 5].Value.ToString();
                                         string alamat_kirim = worksheet.Cells[i, 6].Value == null ? "" : worksheet.Cells[i, 6].Value.ToString();
-                                        string kode_kurir = worksheet.Cells[i, 7].Value == null ? "" : worksheet.Cells[i, 7].Value.ToString();
-                                        string top = worksheet.Cells[i, 8].Value == null ? "1" : worksheet.Cells[i, 8].Value.ToString();
-                                        string tgl_jatuh_tempo = worksheet.Cells[i, 9].Value == null ? "" : worksheet.Cells[i, 9].Value.ToString();
+                                        string no_telpPembeli = worksheet.Cells[i, 7].Value == null ? "" : worksheet.Cells[i, 7].Value.ToString();
+                                        string kode_kurir = worksheet.Cells[i, 8].Value == null ? "" : worksheet.Cells[i, 8].Value.ToString();
+                                        string top = worksheet.Cells[i, 9].Value == null ? "1" : worksheet.Cells[i, 9].Value.ToString();
+                                        //string tgl_jatuh_tempo = worksheet.Cells[i, 9].Value == null ? "" : worksheet.Cells[i, 9].Value.ToString(); DIHAPUS
                                         string keterangan = worksheet.Cells[i, 10].Value == null ? "" : worksheet.Cells[i, 10].Value.ToString();
                                         string bruto = worksheet.Cells[i, 11].Value == null ? "0" : worksheet.Cells[i, 11].Value.ToString();
                                         string diskon = worksheet.Cells[i, 12].Value == null ? "0" : worksheet.Cells[i, 12].Value.ToString();
@@ -1429,89 +1430,156 @@ namespace MasterOnline.Controllers
                                         string nilai_ppn = worksheet.Cells[i, 14].Value == null ? "0" : worksheet.Cells[i, 14].Value.ToString();
                                         string ongkir = worksheet.Cells[i, 15].Value == null ? "0" : worksheet.Cells[i, 15].Value.ToString();
                                         string netto = worksheet.Cells[i, 16].Value == null ? "0" : worksheet.Cells[i, 16].Value.ToString();
-                                        string status_pesanan = worksheet.Cells[i, 17].Value == null ? "" : worksheet.Cells[i, 17].Value.ToString();
-                                        string kode_brg = worksheet.Cells[i, 18].Value == null ? "" : worksheet.Cells[i, 18].Value.ToString();
-                                        string nama_brg = worksheet.Cells[i, 19].Value == null ? "" : worksheet.Cells[i, 19].Value.ToString();
-                                        string qty = worksheet.Cells[i, 20].Value == null ? "0" : worksheet.Cells[i, 20].Value.ToString();
-                                        string harga_satuan = worksheet.Cells[i, 21].Value == null ? "0" : worksheet.Cells[i, 21].Value.ToString();
-                                        string disc1 = worksheet.Cells[i, 22].Value == null ? "0" : worksheet.Cells[i, 22].Value.ToString();
-                                        string ndisc1 = worksheet.Cells[i, 23].Value == null ? "0" : worksheet.Cells[i, 23].Value.ToString();
-                                        string disc2 = worksheet.Cells[i, 24].Value == null ? "0" : worksheet.Cells[i, 24].Value.ToString();
-                                        string ndisc2 = worksheet.Cells[i, 25].Value == null ? "0" : worksheet.Cells[i, 25].Value.ToString();
-                                        string total = worksheet.Cells[i, 26].Value == null ? "0" : worksheet.Cells[i, 26].Value.ToString();
+                                        //string status_pesanan = worksheet.Cells[i, 17].Value == null ? "" : worksheet.Cells[i, 17].Value.ToString(); DIHAPUS
+                                        string kode_brg = worksheet.Cells[i, 17].Value == null ? "" : worksheet.Cells[i, 17].Value.ToString();
+                                        string nama_brg = worksheet.Cells[i, 18].Value == null ? "" : worksheet.Cells[i, 18].Value.ToString();
+                                        string qty = worksheet.Cells[i, 19].Value == null ? "0" : worksheet.Cells[i, 19].Value.ToString();
+                                        string harga_satuan = worksheet.Cells[i, 20].Value == null ? "0" : worksheet.Cells[i, 20].Value.ToString();
+                                        //string disc1 = worksheet.Cells[i, 22].Value == null ? "0" : worksheet.Cells[i, 22].Value.ToString(); DIHAPUS
+                                        string ndisc1 = worksheet.Cells[i, 21].Value == null ? "0" : worksheet.Cells[i, 21].Value.ToString();
+                                        //string disc2 = worksheet.Cells[i, 24].Value == null ? "0" : worksheet.Cells[i, 24].Value.ToString(); DIHAPUS
+                                        //string ndisc2 = worksheet.Cells[i, 25].Value == null ? "0" : worksheet.Cells[i, 25].Value.ToString(); DIHAPUS
+                                        string total = worksheet.Cells[i, 22].Value == null ? "0" : worksheet.Cells[i, 22].Value.ToString();
 
                                         
-
                                         if (!string.IsNullOrEmpty(no_referensi))
                                         {
-                                            if (!string.IsNullOrEmpty(marketplace))
+                                            if (no_referensi.Length <= 70)
                                             {
-                                                if (!string.IsNullOrEmpty(kode_kurir))
+                                                if (!string.IsNullOrEmpty(marketplace))
                                                 {
-                                                    string[] no_cust = marketplace.Split(';');
-                                                    string[] kurir = kode_kurir.Split(';');
-
-                                                    if (!string.IsNullOrEmpty(kode_brg))
+                                                    if (!string.IsNullOrEmpty(kode_kurir))
                                                     {
-                                                        bruto = bruto.Replace(",", "").Replace(".", "");
-                                                        diskon = diskon.Replace(",", "").Replace(".", "");
-                                                        ppn = ppn.Replace(",", "").Replace(".", "");
-                                                        nilai_ppn = nilai_ppn.Replace(",", "").Replace(".", "");
-                                                        ongkir = ongkir.Replace(",", "").Replace(".", "");
-                                                        netto = netto.Replace(",", "").Replace(".", "");
-                                                        qty = qty.Replace(",", "").Replace(".", "");
-                                                        harga_satuan = harga_satuan.Replace(",", "").Replace(".", "");
-                                                        disc1 = disc1.Replace(",", "").Replace(".", "");
-                                                        ndisc1 = ndisc1.Replace(",", "").Replace(".", "");
-                                                        disc2 = disc2.Replace(",", "").Replace(".", "");
-                                                        ndisc2 = ndisc2.Replace(",", "").Replace(".", "");
-                                                        total = total.Replace(",", "").Replace(".", "");
+                                                        string[] no_cust = marketplace.Split(';');
+                                                        string[] kurir = kode_kurir.Split(';');
 
-                                                        TEMP_UPLOADPESANAN newrecordToTemp = new TEMP_UPLOADPESANAN()
+                                                        if (!no_telpPembeli.Contains(".") || !top.Contains(".") || !bruto.Contains(".") || !diskon.Contains(".") || !ppn.Contains(".") || !nilai_ppn.Contains(".") || !ongkir.Contains(".") || !netto.Contains(".") || !qty.Contains(".") || !harga_satuan.Contains(".") || !ndisc1.Contains(".") || !total.Contains("."))
                                                         {
-                                                            NO_REFERENSI = no_referensi,
-                                                            TGL_PESANAN = DateTime.Now.AddHours(7),
-                                                            MARKETPLACE = no_cust[0].ToString(),
-                                                            NAMA_PEMBELI = nama_pembeli,
-                                                            ALAMAT_KIRIM = alamat_kirim,
-                                                            KODE_KURIR = kurir[0],
-                                                            TOP = Convert.ToInt32(top),
-                                                            TGL_JATUH_TEMPO = DateTime.Now.AddHours(7).AddDays(1),
-                                                            KETERANGAN = keterangan,
-                                                            BRUTO = Convert.ToInt32(bruto),
-                                                            DISKON = Convert.ToInt32(diskon),
-                                                            PPN = Convert.ToInt32(ppn),
-                                                            NILAI_PPN = Convert.ToInt32(nilai_ppn),
-                                                            ONGKIR = Convert.ToInt32(ongkir),
-                                                            NETTO = Convert.ToInt32(netto),
-                                                            STATUS_PESANAN = status_pesanan,
-                                                            KODE_BRG = kode_brg,
-                                                            NAMA_BRG = nama_brg,
-                                                            QTY = Convert.ToInt32(qty),
-                                                            HARGA_SATUAN = Convert.ToInt32(harga_satuan),
-                                                            DISC1 = Convert.ToInt32(disc1),
-                                                            NDISC1 = Convert.ToInt32(ndisc1),
-                                                            DISC2 = Convert.ToInt32(disc2),
-                                                            NDISC2 = Convert.ToInt32(ndisc2),
-                                                            TOTAL = Convert.ToInt32(total)
-                                                        };
+                                                            if (!no_telpPembeli.Contains(",") || !top.Contains(",") || !bruto.Contains(",") || !diskon.Contains(",") || !ppn.Contains(",") || !nilai_ppn.Contains(",") || !ongkir.Contains(",") || !netto.Contains(",") || !qty.Contains(",") || !harga_satuan.Contains(",") || !ndisc1.Contains(",") || !total.Contains(","))
+                                                            {
+                                                                if (!string.IsNullOrEmpty(kode_brg))
+                                                                {
+                                                                    if (kode_brg.Length <= 20)
+                                                                    {
+                                                                        bruto = bruto.Replace(",", "").Replace(".", "");
+                                                                        diskon = diskon.Replace(",", "").Replace(".", "");
+                                                                        ppn = ppn.Replace(",", "").Replace(".", "");
+                                                                        nilai_ppn = nilai_ppn.Replace(",", "").Replace(".", "");
+                                                                        ongkir = ongkir.Replace(",", "").Replace(".", "");
+                                                                        netto = netto.Replace(",", "").Replace(".", "");
+                                                                        qty = qty.Replace(",", "").Replace(".", "");
+                                                                        harga_satuan = harga_satuan.Replace(",", "").Replace(".", "");
+                                                                        //disc1 = disc1.Replace(",", "").Replace(".", "");
+                                                                        ndisc1 = ndisc1.Replace(",", "").Replace(".", "");
+                                                                        //disc2 = disc2.Replace(",", "").Replace(".", "");
+                                                                        //ndisc2 = ndisc2.Replace(",", "").Replace(".", "");
+                                                                        total = total.Replace(",", "").Replace(".", "");
 
-                                                        batchinsertItem.Add(newrecordToTemp);
-                                                        //ret.countAll = ret.countAll + 1;
+                                                                        TEMP_UPLOADPESANAN newrecordToTemp = new TEMP_UPLOADPESANAN()
+                                                                        {
+                                                                            NO_REFERENSI = no_referensi,
+                                                                            TGL_PESANAN = DateTime.Now.AddHours(7),
+                                                                            MARKETPLACE = no_cust[0].ToString(),
+                                                                            NAMA_PEMBELI = nama_pembeli,
+                                                                            ALAMAT_KIRIM = alamat_kirim,
+                                                                            KODE_KURIR = kurir[0],
+                                                                            TOP = Convert.ToInt32(top),
+                                                                            TGL_JATUH_TEMPO = DateTime.Now.AddHours(7).AddDays(1),
+                                                                            KETERANGAN = keterangan,
+                                                                            BRUTO = Convert.ToInt32(bruto),
+                                                                            DISKON = Convert.ToInt32(diskon),
+                                                                            PPN = Convert.ToInt32(ppn),
+                                                                            NILAI_PPN = Convert.ToInt32(nilai_ppn),
+                                                                            ONGKIR = Convert.ToInt32(ongkir),
+                                                                            NETTO = Convert.ToInt32(netto),
+                                                                            STATUS_PESANAN = "SUDAH BAYAR",
+                                                                            KODE_BRG = kode_brg,
+                                                                            NAMA_BRG = nama_brg,
+                                                                            QTY = Convert.ToInt32(qty),
+                                                                            HARGA_SATUAN = Convert.ToInt32(harga_satuan),
+                                                                            //DISC1 = Convert.ToInt32(disc1),
+                                                                            NDISC1 = Convert.ToInt32(ndisc1),
+                                                                            //DISC2 = Convert.ToInt32(disc2),
+                                                                            //NDISC2 = Convert.ToInt32(ndisc2),
+                                                                            TOTAL = Convert.ToInt32(total)
+                                                                        };
+
+                                                                        batchinsertItem.Add(newrecordToTemp);
+                                                                        //ret.countAll = ret.countAll + 1;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                                                                        queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                                                                            (no_cust[0]),
+                                                                            (idRequest),
+                                                                            ("Upload Excel Pesanan"),
+                                                                            (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                            ("FAILED"),
+                                                                            (ret.progress + " / " + Convert.ToInt32(ret.countAll)),
+                                                                            ("kode barang lebih dari 20 karakter pada row " + i));
+                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                        //log error masukan log kode barang lebih dari 20 karakter
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                                                                    queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                                                                        (no_cust[0]),
+                                                                        (idRequest),
+                                                                        ("Upload Excel Pesanan"),
+                                                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                        ("FAILED"),
+                                                                        (ret.progress + " / " + Convert.ToInt32(ret.countAll)),
+                                                                        ("kode barang kosong pada row " + i));
+                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                    //log error masukan log kode barang kosong
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                                                                queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                                                                    (no_cust[0]),
+                                                                    (idRequest),
+                                                                    ("Upload Excel Pesanan"),
+                                                                    (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                    ("FAILED"),
+                                                                    (ret.progress + " / " + Convert.ToInt32(ret.countAll)),
+                                                                    ("terdapat karakter koma pada kolom pengisian angka di row " + i));
+                                                                EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                //log error masukan log ada koma
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                                                            queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                                                                (no_cust[0]),
+                                                                (idRequest),
+                                                                ("Upload Excel Pesanan"),
+                                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                ("FAILED"),
+                                                                (ret.progress + " / " + Convert.ToInt32(ret.countAll)),
+                                                                ("terdapat karakter titik pada kolom pengisian angka di row " + i));
+                                                            EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                            //log error masukan log ada titik
+                                                        }
                                                     }
                                                     else
                                                     {
                                                         string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
                                                         queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
-                                                            (no_cust[0]),
+                                                            (""),
                                                             (idRequest),
                                                             ("Upload Excel Pesanan"),
                                                             (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                             ("FAILED"),
                                                             (ret.progress + " / " + Convert.ToInt32(ret.countAll)),
-                                                            ("kode barang kosong pada row " + i));
+                                                            ("kode kurir kosong pada row " + i));
                                                         EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
-                                                        //log error masukan log kode barang kosong
+                                                        //log error masukan log kode kurir kosong
                                                     }
                                                 }
                                                 else
@@ -1524,9 +1592,9 @@ namespace MasterOnline.Controllers
                                                         (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                         ("FAILED"),
                                                         (ret.progress + " / " + Convert.ToInt32(ret.countAll)),
-                                                        ("kode kurir kosong pada row " + i));
+                                                        ("marketplace kosong pada row " + i));
                                                     EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
-                                                    //log error masukan log kode kurir kosong
+                                                    //log error masukan log marketplace kosong
                                                 }
                                             }
                                             else
@@ -1539,9 +1607,9 @@ namespace MasterOnline.Controllers
                                                     (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                     ("FAILED"),
                                                     (ret.progress + " / " + Convert.ToInt32(ret.countAll)),
-                                                    ("marketplace kosong pada row " + i));
+                                                    ("no referensi lebih dari 70 karakter pada row " + i));
                                                 EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
-                                                //log error masukan log marketplace kosong
+                                                //log error masukan log noref lebih dari 70 karakter
                                             }
                                         }
                                         else
@@ -1661,7 +1729,7 @@ namespace MasterOnline.Controllers
 
                                                                         var kodePembeli = "";
                                                                         string address = "";
-                                                                        var dataPembeli = eraDBagain.ARF01C.Where(p => p.NAMA == item.NAMA_PEMBELI).FirstOrDefault();
+                                                                        var dataPembeli = eraDBagain.ARF01C.Where(p => p.NAMA == item.NAMA_PEMBELI && p.TLP == item.NO_TELPPEMBELI).FirstOrDefault();
                                                                         //var dataPembeli = eraDBagain.ARF01C.Where(p => p.NAMA == item.NAMA_PEMBELI && p.AL.ToString() == item.ALAMAT_KIRIM.ToString()).FirstOrDefault();
                                                                         //var dataPembeli = dataMasterARF01C.Where(p => p.NAMA == item.NAMA_PEMBELI && p.AL == item.ALAMAT_KIRIM).FirstOrDefault();
                                                                         string nama = item.NAMA_PEMBELI.Length > 30 ? item.NAMA_PEMBELI.Substring(0, 30) : item.NAMA_PEMBELI.ToString();
@@ -2384,7 +2452,13 @@ namespace MasterOnline.Controllers
                     worksheet.Column(21).Style.Locked = false;
                     worksheet.Column(22).Style.Locked = false;
                     worksheet.Column(23).Style.Locked = false;
-                    worksheet.Column(24).Style.Locked = false;
+                    //worksheet.Column(24).Style.Locked = false;
+
+                    using (var rangePackage = worksheet.Cells[2, 1])
+                    {
+                        rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
+                    }
 
                     using (var rangePackage = worksheet.Cells[4, 1])
                     {
@@ -2392,37 +2466,31 @@ namespace MasterOnline.Controllers
                         rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Silver);
                     }
 
-                    using (var rangePackage = worksheet.Cells[4, 2, 4, 8])
+                    using (var rangePackage = worksheet.Cells[4, 2, 4, 9])
                     {
                         rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
                         rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
                     }
 
-                    using (var rangePackage = worksheet.Cells[4, 10])
+                    using (var rangePackage = worksheet.Cells[4, 11])
                     {
                         rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
                         rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
                     }
 
-                    using (var rangePackage = worksheet.Cells[4, 14, 4, 15])
+                    using (var rangePackage = worksheet.Cells[4, 15, 4, 17])
                     {
                         rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
                         rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
                     }
 
-                    using (var rangePackage = worksheet.Cells[4, 16])
+                    using (var rangePackage = worksheet.Cells[4, 19, 4, 20])
                     {
                         rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
                         rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
                     }
 
-                    using (var rangePackage = worksheet.Cells[4, 18, 4, 19])
-                    {
-                        rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                        rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
-                    }
-
-                    using (var rangePackage = worksheet.Cells[4, 24])
+                    using (var rangePackage = worksheet.Cells[4, 22])
                     {
                         rangePackage.Style.Fill.PatternType = ExcelFillStyle.Solid;
                         rangePackage.Style.Fill.BackgroundColor.SetColor(Color.Yellow);
@@ -2436,9 +2504,9 @@ namespace MasterOnline.Controllers
 
                     for (int i = 0; i < 10; i++)
                     {
-                        worksheet.Cells["X" + (5 + i)].Formula = "=S" + (5 + i) + "*R" + (5 + i) + "";
-                        worksheet.Cells["U" + (5 + i)].Formula = "=S" + (5 + i) + "*T" + (5 + i) + "/100";
-                        worksheet.Cells["W" + (5 + i)].Formula = "=S" + (5 + i) + "*V" + (5 + i) + "/100";
+                        //worksheet.Cells["X" + (5 + i)].Formula = "=S" + (5 + i) + "*R" + (5 + i) + "";
+                        //worksheet.Cells["U" + (5 + i)].Formula = "=S" + (5 + i) + "*T" + (5 + i) + "/100";
+                        //worksheet.Cells["W" + (5 + i)].Formula = "=S" + (5 + i) + "*V" + (5 + i) + "/100";
 
 
                         worksheet.Cells[5 + i, 1].Value = "-"; //NO_PESANAN
@@ -2448,29 +2516,30 @@ namespace MasterOnline.Controllers
                         //worksheet.Cells[5 + i, 5].Value = "001028"; //KODE_PEMBELI
                         worksheet.Cells[5 + i, 5].Value = ""; //PEMBELI
                         worksheet.Cells[5 + i, 6].Value = ""; //ALAMAT_KIRIM
-                        worksheet.Cells[5 + i, 7].Value = "-- Silahkan Pilih Kurir --"; //KURIR
-                        worksheet.Cells[5 + i, 8].Value = "2"; //TOP
+                        worksheet.Cells[5 + i, 7].Value = ""; //ALAMAT_KIRIM
+                        worksheet.Cells[5 + i, 8].Value = "-- Silahkan Pilih Kurir --"; //KURIR
+                        worksheet.Cells[5 + i, 9].Value = "2"; //TOP
                         //worksheet.Cells[5 + i, 9].Value = dateTGLTempo; //TGL_JATUH_TEMPO
-                        worksheet.Cells[5 + i, 9].Value = ""; //KETERANGAN
-                        worksheet.Cells[5 + i, 10].Value = 10000; //BRUTO
-                        worksheet.Cells[5 + i, 11].Value = 0; //DISC
-                        worksheet.Cells[5 + i, 12].Value = 0; //PPN
-                        worksheet.Cells[5 + i, 13].Value = 0; //NILAI_PPN
-                        worksheet.Cells[5 + i, 14].Value = 5000; //ONGKOS_KIRIM
-                        worksheet.Cells[5 + i, 15].Value = 15000; //NETTO
+                        worksheet.Cells[5 + i, 10].Value = ""; //KETERANGAN
+                        worksheet.Cells[5 + i, 11].Value = 10000; //BRUTO
+                        worksheet.Cells[5 + i, 12].Value = 0; //DISC
+                        worksheet.Cells[5 + i, 13].Value = 0; //PPN
+                        worksheet.Cells[5 + i, 14].Value = 0; //NILAI_PPN
+                        worksheet.Cells[5 + i, 15].Value = 5000; //ONGKOS_KIRIM
+                        worksheet.Cells[5 + i, 16].Value = 15000; //NETTO
                         //worksheet.Cells[5 + i, 17].Value = "SUDAH BAYAR"; //STATUS_PESANAN
-                        worksheet.Cells[5 + i, 16].Value = "123"; //KODE_BRG
-                        worksheet.Cells[5 + i, 17].Value = "Brush"; //NAMA_BARANG
-                        worksheet.Cells[5 + i, 18].Value = 1; //QTY
-                        worksheet.Cells[5 + i, 19].Value = 10000; //HARGA_SATUAN
-                        worksheet.Cells[5 + i, 20].Value = 20; //DISC1
-                        //worksheet.Cells[5 + i, 21].Value = 0; //NDISC1
-                        worksheet.Cells[5 + i, 22].Value = 30; //DISC2
+                        worksheet.Cells[5 + i, 17].Value = "123"; //KODE_BRG
+                        worksheet.Cells[5 + i, 18].Value = "Brush"; //NAMA_BARANG
+                        worksheet.Cells[5 + i, 19].Value = 1; //QTY
+                        worksheet.Cells[5 + i, 20].Value = 10000; //HARGA_SATUAN
+                        //worksheet.Cells[5 + i, 21].Value = 20; //DISC1
+                        worksheet.Cells[5 + i, 21].Value = 0; //NDISC1
+                        //worksheet.Cells[5 + i, 22].Value = 30; //DISC2
                         //worksheet.Cells[5 + i, 23].Value = 0; //NDISC2
-                        //worksheet.Cells[5 + i, 24].Value = "=S" + (5 + i) + "*R" + (5 + i) + "";//TOTAL
+                        worksheet.Cells[5 + i, 22].Value = 0;//TOTAL
                     }
 
-                    ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 24];
+                    ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 23];
                     string tableName0 = "TablePesanan";
                     ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
 
@@ -2481,28 +2550,29 @@ namespace MasterOnline.Controllers
                     //table0.Columns[4].Name = "KODE PEMBELI";
                     table0.Columns[4].Name = "PEMBELI";
                     table0.Columns[5].Name = "ALAMAT KIRIM";
-                    table0.Columns[6].Name = "KURIR";
-                    table0.Columns[7].Name = "TOP";
+                    table0.Columns[6].Name = "NO TELP PEMBELI";
+                    table0.Columns[7].Name = "KURIR";
+                    table0.Columns[8].Name = "TOP";
                     //table0.Columns[8].Name = "TGL JATUH TEMPO";
-                    table0.Columns[8].Name = "KETERANGAN";
-                    table0.Columns[9].Name = "BRUTO";
-                    table0.Columns[10].Name = "DISC";
-                    table0.Columns[11].Name = "PPN";
-                    table0.Columns[12].Name = "NILAI PPN";
-                    table0.Columns[13].Name = "ONGKOS KIRIM";
-                    table0.Columns[14].Name = "NETTO";
+                    table0.Columns[9].Name = "KETERANGAN";
+                    table0.Columns[10].Name = "BRUTO";
+                    table0.Columns[11].Name = "DISC";
+                    table0.Columns[12].Name = "PPN";
+                    table0.Columns[13].Name = "NILAI PPN";
+                    table0.Columns[14].Name = "ONGKOS KIRIM";
+                    table0.Columns[15].Name = "NETTO";
                     //table0.Columns[16].Name = "STATUS PESANAN";
-                    table0.Columns[15].Name = "KODE BRG";
-                    table0.Columns[16].Name = "NAMA BARANG";
-                    table0.Columns[17].Name = "QTY";
-                    table0.Columns[18].Name = "HARGA SATUAN";
-                    table0.Columns[19].Name = "DISC1";
+                    table0.Columns[16].Name = "KODE BRG";
+                    table0.Columns[17].Name = "NAMA BARANG";
+                    table0.Columns[18].Name = "QTY";
+                    table0.Columns[19].Name = "HARGA SATUAN";
+                    //table0.Columns[20].Name = "DISC1";
                     table0.Columns[20].Name = "NDISC1";
-                    table0.Columns[21].Name = "DISC2";
-                    table0.Columns[22].Name = "NDISC2";
-                    table0.Columns[23].Name = "TOTAL";
+                    //table0.Columns[22].Name = "DISC2";
+                    //table0.Columns[23].Name = "NDISC2";
+                    table0.Columns[21].Name = "TOTAL";
 
-                    using (var range = worksheet.Cells[4, 1, 4, 27])
+                    using (var range = worksheet.Cells[4, 1, 4, 23])
                     {
                         range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
                         range.Style.Border.Left.Style = ExcelBorderStyle.Thin;

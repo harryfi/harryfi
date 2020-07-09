@@ -33,6 +33,9 @@ namespace MasterOnline.Models
         [StringLength(255)]
         public string ALAMAT_KIRIM { get; set; }
 
+        [StringLength(15)]
+        public string NO_TELPPEMBELI { get; set; }
+
         [StringLength(50)]
         public string KODE_KURIR { get; set; }
 
