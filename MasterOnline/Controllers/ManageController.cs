@@ -43235,6 +43235,10 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
+                                        if (Convert.ToInt32(progDownload[1]) > 0)
+                                        {
+                                            progDownload[1] = Convert.ToString(Convert.ToInt32(progDownload[1]) - data_proses_lanjut.Count());
+                                        }
                                         var hitungTotal = cekListSIKosong.Count() + cekSudahAda.Count() + cekLunas.Count();
                                         for (int i = Convert.ToInt32(progDownload[1]); i < (cekListSIKosong.Count() + cekSudahAda.Count() + cekLunas.Count()); i++)
                                         {
@@ -46584,6 +46588,10 @@ namespace MasterOnline.Controllers
                                         }
                                         else
                                         {
+                                            if (Convert.ToInt32(progDownload[1]) > 0)
+                                            {
+                                                progDownload[1] = Convert.ToString(Convert.ToInt32(progDownload[1]) - data_proses_lanjut.Count());
+                                            }
                                             var hitungTotal = cekListSIKosong.Count() + cekSudahAda.Count() + cekLunas.Count();
                                             for (int i = Convert.ToInt32(progDownload[1]); i < (cekListSIKosong.Count() + cekSudahAda.Count() + cekLunas.Count()); i++)
                                             {
@@ -48419,6 +48427,10 @@ namespace MasterOnline.Controllers
                                         }
                                         else
                                         {
+                                            if (Convert.ToInt32(progDownload[1]) > 0)
+                                            {
+                                                progDownload[1] = Convert.ToString(Convert.ToInt32(progDownload[1]) - data_proses_lanjut.Count());
+                                            }
                                             var hitungTotal = cekListSIKosong.Count() + cekSudahAda.Count() + cekLunas.Count();
                                             for (int i = Convert.ToInt32(progDownload[1]); i < (cekListSIKosong.Count() + cekSudahAda.Count() + cekLunas.Count()); i++)
                                             {
@@ -50815,6 +50827,10 @@ namespace MasterOnline.Controllers
                                         }
                                         else
                                         {
+                                            if (Convert.ToInt32(progDownload[1]) > 0)
+                                            {
+                                                progDownload[1] = Convert.ToString(Convert.ToInt32(progDownload[1]) - data_proses_lanjut.Count());
+                                            }
                                             var hitungTotal = cekListSIKosong.Count() + cekSudahAda.Count() + cekLunas.Count();
                                             for (int i = Convert.ToInt32(progDownload[1]); i < (cekListSIKosong.Count() + cekSudahAda.Count() + cekLunas.Count()); i++)
                                             {
