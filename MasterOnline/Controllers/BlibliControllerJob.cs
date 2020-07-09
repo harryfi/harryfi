@@ -6618,7 +6618,8 @@ namespace MasterOnline.Controllers
             List<string> dsFeature = new List<string>();
             List<string> dsVariasi = new List<string>();
             var attribute = listAttributeBlibli.attributes.FirstOrDefault();
-            for (int i = 1; i <= 30; i++)
+            //for (int i = 1; i <= 30; i++)
+            for (int i = 1; i <= 35; i++)
             {
                 string attribute_id = Convert.ToString(attribute["ACODE_" + i.ToString()]);
                 string attribute_type = Convert.ToString(attribute["ATYPE_" + i.ToString()]);
@@ -6645,7 +6646,10 @@ namespace MasterOnline.Controllers
             //    }
             //}
 
-            for (int i = 1; i <= 30; i++)
+            //change 9 juli 2020, ambil 35 attribute
+            //for (int i = 1; i <= 30; i++)
+            for (int i = 1; i <= 35; i++)
+            //end change 9 juli 2020, ambil 35 attribute
             {
                 string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
                 string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
@@ -6996,8 +7000,10 @@ namespace MasterOnline.Controllers
 
                 //    attributeMap.Add(A_CODE, A_VALUE);
                 //}
-
-                for (int i = 1; i <= 30; i++)
+                //change 9 juli 2020, ambil 35 attribute
+                //for (int i = 1; i <= 30; i++)
+                for (int i = 1; i <= 35; i++)
+                //end change 9 juli 2020, ambil 35 attribute
                 {
                     string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
                     string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
@@ -7096,8 +7102,10 @@ namespace MasterOnline.Controllers
                 //        DefiningAttributes.Add(A_CODE, dsVariasiValues.ToArray());
                 //    }
                 //}
-
-                for (int i = 1; i <= 30; i++)
+                //change 9 juli 2020, ambil 35 attribute
+                //for (int i = 1; i <= 30; i++)
+                for (int i = 1; i <= 35; i++)
+                //end change 9 juli 2020, ambil 35 attribute
                 {
                     string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
                     string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);

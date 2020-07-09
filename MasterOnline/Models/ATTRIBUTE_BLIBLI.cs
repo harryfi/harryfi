@@ -584,6 +584,51 @@ namespace MasterOnline.Models
         public string AOPTIONS_30 { get; set; }
         public string AMANDATORY_30 { get; set; }
 
+        [StringLength(50)]
+        public string ACODE_31 { get; set; }
+        [StringLength(50)]
+        public string ATYPE_31 { get; set; }
+        [StringLength(250)]
+        public string ANAME_31 { get; set; }
+        [StringLength(1)]
+        public string AOPTIONS_31 { get; set; }
+        public string AMANDATORY_31 { get; set; }
+        [StringLength(50)]
+        public string ACODE_32 { get; set; }
+        [StringLength(50)]
+        public string ATYPE_32 { get; set; }
+        [StringLength(250)]
+        public string ANAME_32 { get; set; }
+        [StringLength(1)]
+        public string AOPTIONS_32 { get; set; }
+        public string AMANDATORY_32 { get; set; }
+        [StringLength(50)]
+        public string ACODE_33 { get; set; }
+        [StringLength(50)]
+        public string ATYPE_33 { get; set; }
+        [StringLength(250)]
+        public string ANAME_33 { get; set; }
+        [StringLength(1)]
+        public string AOPTIONS_33 { get; set; }
+        public string AMANDATORY_33 { get; set; }
+        [StringLength(50)]
+        public string ACODE_34 { get; set; }
+        [StringLength(50)]
+        public string ATYPE_34 { get; set; }
+        [StringLength(250)]
+        public string ANAME_34 { get; set; }
+        [StringLength(1)]
+        public string AOPTIONS_34 { get; set; }
+        public string AMANDATORY_34 { get; set; }
+        [StringLength(50)]
+        public string ACODE_35 { get; set; }
+        [StringLength(50)]
+        public string ATYPE_35 { get; set; }
+        [StringLength(250)]
+        public string ANAME_35 { get; set; }
+        [StringLength(1)]
+        public string AOPTIONS_35 { get; set; }
+        public string AMANDATORY_35 { get; set; }
         public int? RecNum { get; set; }
     }
 }
