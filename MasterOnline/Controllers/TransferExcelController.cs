@@ -1656,6 +1656,7 @@ namespace MasterOnline.Controllers
                                                                                                     catch (Exception ex)
                                                                                                     {
                                                                                                         messageErrorLog = "terjadi error pada insert header pesanan pada row " + i;
+                                                                                                        tw.WriteLine(messageErrorLog);
                                                                                                         queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
                                                                                                         (no_cust[0]),
                                                                                                         (connID),
@@ -1674,7 +1675,6 @@ namespace MasterOnline.Controllers
                                                                                                             EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                                                             new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                                                         }
-                                                                                                        tw.WriteLine(messageErrorLog);
                                                                                                     }
                                                                                                 }
                                                                                                 else
@@ -1743,6 +1743,7 @@ namespace MasterOnline.Controllers
                                                                                                 catch (Exception ex)
                                                                                                 {
                                                                                                     messageErrorLog = "terjadi error pada insert detail pesanan pada row " + i;
+                                                                                                    tw.WriteLine(messageErrorLog);
                                                                                                     queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
                                                                                                         (dataToko.CUST),
                                                                                                         (connID),
@@ -1761,7 +1762,6 @@ namespace MasterOnline.Controllers
                                                                                                         EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                                                         new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                                                     }
-                                                                                                    tw.WriteLine(messageErrorLog);
                                                                                                 }
 
                                                                                                 //if (ret.percent >= 100 || ret.progress == ret.countAll - 1)
@@ -1779,6 +1779,7 @@ namespace MasterOnline.Controllers
                                                                                                 int IDMarket = Convert.ToInt32(dataToko.NAMA);
                                                                                                 var dataMP = MoDbContext.Marketplaces.Where(p => p.IdMarket == IDMarket).SingleOrDefault();
                                                                                                 messageErrorLog = "Kode Barang " + kode_brg + " tidak ditemukan di toko " + dataToko.PERSO + " (" + dataMP.NamaMarket.ToString() + ")";
+                                                                                                tw.WriteLine(messageErrorLog);
                                                                                                 queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
                                                                                                     (dataToko.CUST),
                                                                                                     (connID),
@@ -1797,12 +1798,12 @@ namespace MasterOnline.Controllers
                                                                                                     EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                                                     new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                                                 }
-                                                                                                tw.WriteLine(messageErrorLog);
                                                                                             }
                                                                                         }
                                                                                         else
                                                                                         {
                                                                                             messageErrorLog = "Kode Customer Toko " + no_cust[0] + " tidak ditemukan.";
+                                                                                            tw.WriteLine(messageErrorLog);
                                                                                             queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
                                                                                                 (dataToko.CUST),
                                                                                                 (connID),
@@ -1821,12 +1822,12 @@ namespace MasterOnline.Controllers
                                                                                                 EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                                                 new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                                             }
-                                                                                            tw.WriteLine(messageErrorLog);
                                                                                         }
                                                                                     }
                                                                                     else
                                                                                     {
                                                                                         messageErrorLog = "Kode Kurir " + kode_kurir[0] + " tidak ditemukan.";
+                                                                                        tw.WriteLine(messageErrorLog);
                                                                                         queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
                                                                                             (noCust),
                                                                                             (connID),
@@ -1845,12 +1846,12 @@ namespace MasterOnline.Controllers
                                                                                             EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                                             new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                                         }
-                                                                                        tw.WriteLine(messageErrorLog);
                                                                                     }
                                                                                 }
                                                                                 else
                                                                                 {
                                                                                     messageErrorLog = "Kode Barang " + kode_brg + " tidak ditemukan.";
+                                                                                    tw.WriteLine(messageErrorLog);
                                                                                     queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
                                                                                          (noCust),
                                                                                          (connID),
@@ -1869,13 +1870,13 @@ namespace MasterOnline.Controllers
                                                                                         EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                                         new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                                     }
-                                                                                    tw.WriteLine(messageErrorLog);
                                                                                 }
 
                                                                             }
                                                                             else
                                                                             {
                                                                                 messageErrorLog = "kode barang lebih dari 20 karakter pada row " + i;
+                                                                                tw.WriteLine(messageErrorLog);
                                                                                 queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
                                                                                     (noCust),
                                                                                     (idRequest),
@@ -1894,7 +1895,6 @@ namespace MasterOnline.Controllers
                                                                                     EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                                     new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                                 }
-                                                                                tw.WriteLine(messageErrorLog);
                                                                             }
                                                                         }
                                                                         else
@@ -1909,6 +1909,7 @@ namespace MasterOnline.Controllers
                                                                                 errorMessage = "harga satuan kosong pada row " + i;
                                                                             }
                                                                             messageErrorLog = errorMessage;
+                                                                            tw.WriteLine(messageErrorLog);
                                                                             queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
                                                                                 (noCust),
                                                                                 (idRequest),
@@ -1927,12 +1928,12 @@ namespace MasterOnline.Controllers
                                                                                 EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                                 new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                             }
-                                                                            tw.WriteLine(messageErrorLog);
                                                                         }
                                                                     }
                                                                     else
                                                                     {
                                                                         messageErrorLog = "kode barang kosong pada row " + i;
+                                                                        tw.WriteLine(messageErrorLog);
                                                                         queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
                                                                             (noCust),
                                                                             (idRequest),
@@ -1951,12 +1952,12 @@ namespace MasterOnline.Controllers
                                                                             EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                             new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                         }
-                                                                        tw.WriteLine(messageErrorLog);
                                                                     }
                                                                 }
                                                                 else
                                                                 {
                                                                     messageErrorLog = "terdapat karakter koma pada kolom pengisian angka di row " + i;
+                                                                    tw.WriteLine(messageErrorLog);
                                                                     queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
                                                                         (noCust),
                                                                         (idRequest),
@@ -1975,12 +1976,12 @@ namespace MasterOnline.Controllers
                                                                         EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                         new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                     }
-                                                                    tw.WriteLine(messageErrorLog);
                                                                 }
                                                             }
                                                             else
                                                             {
                                                                 messageErrorLog = "terdapat karakter titik pada kolom pengisian angka di row " + i;
+                                                                tw.WriteLine(messageErrorLog);
                                                                 queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
                                                                     (noCust),
                                                                     (idRequest),
@@ -1999,12 +2000,12 @@ namespace MasterOnline.Controllers
                                                                     EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                     new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                 }
-                                                                tw.WriteLine(messageErrorLog);
                                                             }
                                                         }
                                                         else
                                                         {
                                                             messageErrorLog = "no telepon kosong di row " + i;
+                                                            tw.WriteLine(messageErrorLog);
                                                             queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
                                                                 (""),
                                                                 (idRequest),
@@ -2023,12 +2024,12 @@ namespace MasterOnline.Controllers
                                                                 EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                 new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                             }
-                                                            tw.WriteLine(messageErrorLog);
                                                         }
                                                     }
                                                     else
                                                     {
                                                         messageErrorLog = "kode kurir kosong pada row " + i;
+                                                        tw.WriteLine(messageErrorLog);
                                                         string[] no_cust2 = marketplace.Split(';');
                                                         var noCust = no_cust2[0];
                                                         queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2049,12 +2050,12 @@ namespace MasterOnline.Controllers
                                                             EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                             new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                         }
-                                                        tw.WriteLine(messageErrorLog);
                                                     }
                                                 }
                                                 else
                                                 {
                                                     messageErrorLog = "marketplace kosong pada row " + i;
+                                                    tw.WriteLine(messageErrorLog);
                                                     string[] no_cust2 = marketplace.Split(';');
                                                     var noCust = no_cust2[0];
                                                     queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2072,12 +2073,12 @@ namespace MasterOnline.Controllers
                                                     //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                     //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                     //new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
-                                                    tw.WriteLine(messageErrorLog);
                                                 }
                                             }
                                             else
                                             {
                                                 messageErrorLog = "no referensi lebih dari 70 karakter pada row " + i;
+                                                tw.WriteLine(messageErrorLog);
                                                 queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
                                                     (""),
                                                     (idRequest),
@@ -2088,7 +2089,6 @@ namespace MasterOnline.Controllers
                                                     (username),
                                                     (filename));
                                                 EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
-                                                tw.WriteLine(messageErrorLog);
                                                 //log error masukan log noref lebih dari 70 karakter
                                                 //var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
                                                 //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
@@ -2099,6 +2099,7 @@ namespace MasterOnline.Controllers
                                         else
                                         {
                                             messageErrorLog = "no referensi kosong pada row " + i;
+                                            tw.WriteLine(messageErrorLog);
                                             queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
                                                 (""),
                                                 (idRequest),
@@ -2109,7 +2110,6 @@ namespace MasterOnline.Controllers
                                                 (username),
                                                 (filename));
                                             EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
-                                            tw.WriteLine(messageErrorLog);
                                             //log error masukan log no referensi kosong
                                         }
 
