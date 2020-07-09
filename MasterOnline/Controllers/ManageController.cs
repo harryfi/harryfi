@@ -29553,7 +29553,7 @@ namespace MasterOnline.Controllers
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = cust;
             ViewData["LastPage"] = page;
-            string sSQLSelect = "SELECT RECNUM, REQUEST_DATETIME , REQUEST_EXCEPTION, REQUEST_RESULT ";
+            string sSQLSelect = "SELECT CUST_ATTRIBUTE_1, RECNUM, REQUEST_DATETIME , REQUEST_EXCEPTION, REQUEST_RESULT ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
             string sSQL2 = "";

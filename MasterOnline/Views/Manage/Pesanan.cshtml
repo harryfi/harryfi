@@ -2366,13 +2366,13 @@
                         </div>
                     </div>
                     @*<div class="row">*@
-                    <div class="col-md-12">
+                    @*<div class="col-md-12">
                         <div id="loading_upload" class="text-center" hidden="hidden">
                             <div id="loading_upload_image">
-                                <img src="~/Content/Images/spinner.gif" />
+                                <img style="width: 40px;" src="~/Content/Images/spinner.gif" />
                             </div>
                         </div>
-                    </div>
+                    </div>*@
                     @*</div>*@
                     <br />
                     <br />
@@ -2401,7 +2401,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" onclick="openLogError();">Log Error</button>
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-danger" onclick="closeUploadPesanan()">Tutup</button>
                 @*<button type="button" class="btn btn-success" onclick="closeEditor()">Ya</button>*@
             </div>
         </div>
@@ -4117,10 +4117,10 @@
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
                     beforeSend: function () {
-                        $('#loading_upload').show();
+                        $('#loading_upload_excel_pesanan').show();
                     },
                     success: function (response) {
-                        $('#loading_upload').hide();
+                        $('#loading_upload_excel_pesanan').hide();
                         document.getElementById("file_upload_excel_pesanan").value = "";
                         $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                         $('#pBar_uploadFile').html('100% Complete');
@@ -4167,7 +4167,7 @@
                         }
                         alert(err);
                         console.log(error);
-                        $('#loading_upload').hide();
+                        $('#loading_upload_excel_pesanan').hide();
                         $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                         $('#pBar_uploadFile').html('0% Complete');
                         $('#btnUploadExcelPesanan').removeAttr('disabled');
@@ -5214,6 +5214,15 @@
                 }
             })
         }
+
+    function closeUploadPesanan() {
+        document.getElementById("file_upload_excel_pesanan").value = "";
+        $('#uploadPesanan').modal('hide');
+        $('#LogErroruploadPesanan').modal('hide');
+        $('#progressBarUpload').hide();
+        $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+        $('#pBar_uploadFile').html('0% Complete');
+    }
 
         function downloadLogErrorUploadPesanan(txt){
             window.open('/Manage/DownloadLogErrorUploadExcelPesanan?filename=' + txt,'_blank');
