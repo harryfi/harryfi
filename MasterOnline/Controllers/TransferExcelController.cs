@@ -1648,7 +1648,7 @@ namespace MasterOnline.Controllers
                                                                                                     {
                                                                                                         eraDB.SOT01A.Add(sot01a);
                                                                                                         eraDB.SaveChanges();
-                                                                                                        transaction.Commit();
+                                                                                                        //transaction.Commit();
                                                                                                     }
                                                                                                     catch (Exception ex)
                                                                                                     {
@@ -1661,7 +1661,7 @@ namespace MasterOnline.Controllers
                                                                                                         ("FAILED"),
                                                                                                         (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                                         (username),
-                                                                                                        (path));
+                                                                                                        (filename));
                                                                                                         EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                                                         // error log terjadi error pada insert header pesanan
                                                                                                         checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
@@ -1679,12 +1679,13 @@ namespace MasterOnline.Controllers
                                                                                                     noBuktiSO = checkDuplicateHeader.NO_BUKTI;
                                                                                                 }
 
-                                                                                                if (!string.IsNullOrEmpty(diskon) || !string.IsNullOrEmpty(ndisc1) || !string.IsNullOrEmpty(nilai_ppn) || !string.IsNullOrEmpty(netto))
+                                                                                                if (!string.IsNullOrEmpty(diskon) || !string.IsNullOrEmpty(ndisc1) || !string.IsNullOrEmpty(nilai_ppn) || !string.IsNullOrEmpty(netto) || !string.IsNullOrEmpty(total))
                                                                                                 {
                                                                                                     diskon = "0";
                                                                                                     ndisc1 = "0";
                                                                                                     nilai_ppn = "0";
                                                                                                     netto = "0";
+                                                                                                    total = "0";
                                                                                                 }
 
                                                                                                 var sot01b = new SOT01B
@@ -1720,7 +1721,7 @@ namespace MasterOnline.Controllers
                                                                                                     QTY_N = Convert.ToInt32(qty),
                                                                                                     NTITIPAN = 0,
                                                                                                     DISC_TITIPAN = 0,
-                                                                                                    TOTAL = 0,
+                                                                                                    TOTAL = Convert.ToInt32(total),
                                                                                                     PPN = Convert.ToInt32(nilai_ppn),
                                                                                                     NETTO = Convert.ToInt32(netto),
                                                                                                     ORDER_ITEM_ID = brgMPOrderItemID[0].ToString(),
@@ -1747,7 +1748,7 @@ namespace MasterOnline.Controllers
                                                                                                         ("FAILED"),
                                                                                                         (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                                         (username),
-                                                                                                        (path));
+                                                                                                        (filename));
                                                                                                     EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                                                     // error log terjadi error pada insert detail pesanan
                                                                                                     checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
@@ -1782,7 +1783,7 @@ namespace MasterOnline.Controllers
                                                                                                     ("FAILED"),
                                                                                                     (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                                     (username),
-                                                                                                    (path));
+                                                                                                    (filename));
                                                                                                 EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                                                 // log error masukan ke log tidak ada databarang marketplace di STF02H
                                                                                                 var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
@@ -1806,7 +1807,7 @@ namespace MasterOnline.Controllers
                                                                                                 ("FAILED"),
                                                                                                 (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                                 (username),
-                                                                                                (path));
+                                                                                                (filename));
                                                                                             EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                                             // log error masukan log tidak ada data toko
                                                                                             var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
@@ -1830,7 +1831,7 @@ namespace MasterOnline.Controllers
                                                                                             ("FAILED"),
                                                                                             (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                             (username),
-                                                                                            (path));
+                                                                                            (filename));
                                                                                         EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                                         // log error masukan log tidak ada data kurir
                                                                                         var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
@@ -1854,7 +1855,7 @@ namespace MasterOnline.Controllers
                                                                                          ("FAILED"),
                                                                                          (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                          (username),
-                                                                                         (path));
+                                                                                         (filename));
                                                                                     EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                                     //log error masukan log tidak ada barang di DB
                                                                                     var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
@@ -1879,7 +1880,7 @@ namespace MasterOnline.Controllers
                                                                                     ("FAILED"),
                                                                                     (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                     (username),
-                                                                                    (path));
+                                                                                    (filename));
                                                                                 EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                                 //log error masukan log kode barang lebih dari 20 karakter
                                                                                 var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
@@ -1912,7 +1913,7 @@ namespace MasterOnline.Controllers
                                                                                 ("FAILED"),
                                                                                 (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                 (username),
-                                                                                (path));
+                                                                                (filename));
                                                                             EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                             //log error masukan log harga satuan kosong
                                                                             var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
@@ -1936,7 +1937,7 @@ namespace MasterOnline.Controllers
                                                                             ("FAILED"),
                                                                             (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                             (username),
-                                                                            (path));
+                                                                            (filename));
                                                                         EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                         //log error masukan log kode barang kosong
                                                                         var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
@@ -1960,7 +1961,7 @@ namespace MasterOnline.Controllers
                                                                         ("FAILED"),
                                                                         (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                         (username),
-                                                                        (path));
+                                                                        (filename));
                                                                     EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                     //log error masukan log ada koma
                                                                     var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
@@ -1984,7 +1985,7 @@ namespace MasterOnline.Controllers
                                                                     ("FAILED"),
                                                                     (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                     (username),
-                                                                    (path));
+                                                                    (filename));
                                                                 EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                 //log error masukan log ada titik
                                                                 var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
@@ -2008,7 +2009,7 @@ namespace MasterOnline.Controllers
                                                                 ("FAILED"),
                                                                 (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                 (username),
-                                                                (path));
+                                                                (filename));
                                                             EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                             //log error masukan log tidak ada no telepon
                                                             var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
@@ -2034,7 +2035,7 @@ namespace MasterOnline.Controllers
                                                             ("FAILED"),
                                                             (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                             (username),
-                                                            (path));
+                                                            (filename));
                                                         EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                         //log error masukan log kode kurir kosong
                                                         var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
@@ -2060,7 +2061,7 @@ namespace MasterOnline.Controllers
                                                         ("FAILED"),
                                                         (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                         (username),
-                                                        (path));
+                                                        (filename));
                                                     EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                     //log error masukan log marketplace kosong
                                                     //var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
@@ -2081,7 +2082,7 @@ namespace MasterOnline.Controllers
                                                     ("FAILED"),
                                                     (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                     (username),
-                                                    (path));
+                                                    (filename));
                                                 EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                 tw.WriteLine(messageErrorLog);
                                                 //log error masukan log noref lebih dari 70 karakter
@@ -2102,7 +2103,7 @@ namespace MasterOnline.Controllers
                                                 ("FAILED"),
                                                 (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                 (username),
-                                                (path));
+                                                (filename));
                                             EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                             tw.WriteLine(messageErrorLog);
                                             //log error masukan log no referensi kosong
