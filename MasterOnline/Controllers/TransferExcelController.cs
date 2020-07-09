@@ -1386,10 +1386,28 @@ namespace MasterOnline.Controllers
                                 using (System.Data.Entity.DbContextTransaction transaction = eraDB.Database.BeginTransaction())
                                 {
                                     eraDB.Database.CommandTimeout = 1800;
+
+                                    //initialize log txt
+                                    #region Logging
+                                    string messageErrorLog = "";
+                                    string filename = "Log_Upload_Pesanan_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+                                    var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename);
+                                    #endregion
+
+                                    if (!System.IO.File.Exists(path))
+                                    {
+                                        System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), ""));
+                                        var asd = System.IO.File.Create(path);
+                                        asd.Close();
+                                    }
+                                    StreamWriter tw = new StreamWriter(path);
+
+
                                     //loop all worksheets
                                     var worksheet = excelPackage.Workbook.Worksheets[1];
 
-                                    ret.countAll = worksheet.Dimension.End.Row;
+                                    ret.countAll = Convert.ToInt32(worksheet.Dimension.End.Row - 5);
+
                                     if (Convert.ToInt32(prog[1]) == 0)
                                     {
                                         prog[1] = "0";
@@ -1397,21 +1415,31 @@ namespace MasterOnline.Controllers
 
                                     var noBuktiSO = "";
 
+                                    var dataMasterSTF02 = eraDB.STF02.Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3 }).ToList();
+                                    var dataMasterSTF02H = eraDB.STF02H.Select(p => new { p.BRG, p.BRG_MP, p.IDMARKET }).ToList();
+                                    var dataMasterKurir = MoDbContext.Ekspedisi.ToList();
+                                    var dataMasterARF01 = eraDB.ARF01.ToList();
+
                                     eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_UPLOADPESANAN");
                                     List<TEMP_UPLOADPESANAN> batchinsertItem = new List<TEMP_UPLOADPESANAN>();
+                                    string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
 
                                     batchinsertItem = new List<TEMP_UPLOADPESANAN>();
 
                                     string idRequest = Guid.NewGuid().ToString();
 
+                                    int iProcess = 0;
+
                                     // start looping
                                     for (int i = Convert.ToInt32(prog[0]); i <= worksheet.Dimension.End.Row; i++)
                                     {
+                                        string connID = Guid.NewGuid().ToString();
+
                                         ret.statusLoop = true;
                                         ret.progress = i;
-                                        ret.percent = (i * 100) / (ret.countAll - 1);
-                                        var bagiProses = (ret.countAll - 1) * (Convert.ToDecimal(30) / Convert.ToDecimal(100));
-                                        bagiProses = Decimal.Round(bagiProses);
+                                        //ret.percent = (i * 100) / (ret.countAll - 1);
+                                        //var bagiProses = (ret.countAll - 1) * (Convert.ToDecimal(30) / Convert.ToDecimal(100));
+                                        //bagiProses = Decimal.Round(bagiProses);
 
                                         //get ALL DATA
                                         string no_referensi = worksheet.Cells[i, 2].Value == null ? "" : worksheet.Cells[i, 2].Value.ToString();
@@ -1441,7 +1469,7 @@ namespace MasterOnline.Controllers
                                         //string ndisc2 = worksheet.Cells[i, 25].Value == null ? "0" : worksheet.Cells[i, 25].Value.ToString(); DIHAPUS
                                         string total = worksheet.Cells[i, 22].Value == null ? "0" : worksheet.Cells[i, 22].Value.ToString();
 
-                                        
+
                                         if (!string.IsNullOrEmpty(no_referensi))
                                         {
                                             if (no_referensi.Length <= 70)
@@ -1453,584 +1481,975 @@ namespace MasterOnline.Controllers
                                                         string[] no_cust = marketplace.Split(';');
                                                         string[] kurir = kode_kurir.Split(';');
 
-                                                        if (!no_telpPembeli.Contains(".") || !top.Contains(".") || !bruto.Contains(".") || !diskon.Contains(".") || !ppn.Contains(".") || !nilai_ppn.Contains(".") || !ongkir.Contains(".") || !netto.Contains(".") || !qty.Contains(".") || !harga_satuan.Contains(".") || !ndisc1.Contains(".") || !total.Contains("."))
+                                                        if (!string.IsNullOrEmpty(no_telpPembeli))
                                                         {
-                                                            if (!no_telpPembeli.Contains(",") || !top.Contains(",") || !bruto.Contains(",") || !diskon.Contains(",") || !ppn.Contains(",") || !nilai_ppn.Contains(",") || !ongkir.Contains(",") || !netto.Contains(",") || !qty.Contains(",") || !harga_satuan.Contains(",") || !ndisc1.Contains(",") || !total.Contains(","))
+                                                            if (!no_telpPembeli.Contains(".") || !top.Contains(".") || !bruto.Contains(".") || !diskon.Contains(".") || !ppn.Contains(".") || !nilai_ppn.Contains(".") || !ongkir.Contains(".") || !netto.Contains(".") || !qty.Contains(".") || !harga_satuan.Contains(".") || !ndisc1.Contains(".") || !total.Contains("."))
                                                             {
-                                                                if (!string.IsNullOrEmpty(kode_brg))
+                                                                if (!no_telpPembeli.Contains(",") || !top.Contains(",") || !bruto.Contains(",") || !diskon.Contains(",") || !ppn.Contains(",") || !nilai_ppn.Contains(",") || !ongkir.Contains(",") || !netto.Contains(",") || !qty.Contains(",") || !harga_satuan.Contains(",") || !ndisc1.Contains(",") || !total.Contains(","))
                                                                 {
-                                                                    if (kode_brg.Length <= 20)
+                                                                    if (!string.IsNullOrEmpty(kode_brg))
                                                                     {
-                                                                        bruto = bruto.Replace(",", "").Replace(".", "");
-                                                                        diskon = diskon.Replace(",", "").Replace(".", "");
-                                                                        ppn = ppn.Replace(",", "").Replace(".", "");
-                                                                        nilai_ppn = nilai_ppn.Replace(",", "").Replace(".", "");
-                                                                        ongkir = ongkir.Replace(",", "").Replace(".", "");
-                                                                        netto = netto.Replace(",", "").Replace(".", "");
-                                                                        qty = qty.Replace(",", "").Replace(".", "");
-                                                                        harga_satuan = harga_satuan.Replace(",", "").Replace(".", "");
-                                                                        //disc1 = disc1.Replace(",", "").Replace(".", "");
-                                                                        ndisc1 = ndisc1.Replace(",", "").Replace(".", "");
-                                                                        //disc2 = disc2.Replace(",", "").Replace(".", "");
-                                                                        //ndisc2 = ndisc2.Replace(",", "").Replace(".", "");
-                                                                        total = total.Replace(",", "").Replace(".", "");
-
-                                                                        TEMP_UPLOADPESANAN newrecordToTemp = new TEMP_UPLOADPESANAN()
+                                                                        if (!string.IsNullOrEmpty(harga_satuan) || !string.IsNullOrEmpty(qty))
                                                                         {
-                                                                            NO_REFERENSI = no_referensi,
-                                                                            TGL_PESANAN = DateTime.Now.AddHours(7),
-                                                                            MARKETPLACE = no_cust[0].ToString(),
-                                                                            NAMA_PEMBELI = nama_pembeli,
-                                                                            ALAMAT_KIRIM = alamat_kirim,
-                                                                            KODE_KURIR = kurir[0],
-                                                                            TOP = Convert.ToInt32(top),
-                                                                            TGL_JATUH_TEMPO = DateTime.Now.AddHours(7).AddDays(1),
-                                                                            KETERANGAN = keterangan,
-                                                                            BRUTO = Convert.ToInt32(bruto),
-                                                                            DISKON = Convert.ToInt32(diskon),
-                                                                            PPN = Convert.ToInt32(ppn),
-                                                                            NILAI_PPN = Convert.ToInt32(nilai_ppn),
-                                                                            ONGKIR = Convert.ToInt32(ongkir),
-                                                                            NETTO = Convert.ToInt32(netto),
-                                                                            STATUS_PESANAN = "SUDAH BAYAR",
-                                                                            KODE_BRG = kode_brg,
-                                                                            NAMA_BRG = nama_brg,
-                                                                            QTY = Convert.ToInt32(qty),
-                                                                            HARGA_SATUAN = Convert.ToInt32(harga_satuan),
-                                                                            //DISC1 = Convert.ToInt32(disc1),
-                                                                            NDISC1 = Convert.ToInt32(ndisc1),
-                                                                            //DISC2 = Convert.ToInt32(disc2),
-                                                                            //NDISC2 = Convert.ToInt32(ndisc2),
-                                                                            TOTAL = Convert.ToInt32(total)
-                                                                        };
+                                                                            if (kode_brg.Length <= 20)
+                                                                            {
+                                                                                //var checkBarang = ErasoftDbContext.STF02.Where(p => p.BRG == item.KODE_BRG).Select(p => p.BRG).FirstOrDefault();
+                                                                                var checkBarang = dataMasterSTF02.Where(p => p.BRG == kode_brg).FirstOrDefault();
+                                                                                if (checkBarang != null)
+                                                                                {
+                                                                                    //var dataKurir = MoDbContext.Ekspedisi.Where(p => p.RecNum == Convert.ToInt32(item.KODE_KURIR)).FirstOrDefault();
+                                                                                    int checkKodeKurir = Convert.ToInt32(kurir[0]);
+                                                                                    var dataKurir = dataMasterKurir.Where(p => p.RecNum == checkKodeKurir).FirstOrDefault();
+                                                                                    if (dataKurir != null)
+                                                                                    {
+                                                                                        //var dataToko = ErasoftDbContext.ARF01.Where(p => p.CUST == item.MARKETPLACE).FirstOrDefault();
+                                                                                        var dataToko = dataMasterARF01.Where(p => p.CUST == no_cust[0]).FirstOrDefault();
+                                                                                        if (dataToko != null)
+                                                                                        {
+                                                                                            //var dataBarang = ErasoftDbContext.STF02H.Where(p => p.BRG == item.KODE_BRG && p.IDMARKET == dataToko.RecNum).FirstOrDefault();
+                                                                                            var dataBarang = dataMasterSTF02H.Where(p => p.BRG == kode_brg && p.IDMARKET == dataToko.RecNum).FirstOrDefault();
+                                                                                            if (dataBarang != null)
+                                                                                            {
+                                                                                                string[] brgMPOrderItemID = dataBarang.BRG_MP.Split(';');
 
-                                                                        batchinsertItem.Add(newrecordToTemp);
-                                                                        //ret.countAll = ret.countAll + 1;
+                                                                                                var kodePembeli = "";
+                                                                                                string address = "";
+                                                                                                var dataPembeli = eraDB.ARF01C.Where(p => p.NAMA == nama_pembeli && p.TLP == no_telpPembeli).FirstOrDefault();
+                                                                                                var alamatAutoSplit1 = alamat_kirim.Length > 40 ? alamat_kirim.Substring(0, 40) : alamat_kirim.ToString();
+                                                                                                var alamatAutoSplit2 = alamat_kirim.Length > 80 ? alamat_kirim.Substring(40, 80) : alamat_kirim.ToString();
+                                                                                                var alamatAutoSplit3 = alamat_kirim.Length > 120 ? alamat_kirim.Substring(80, 120) : alamat_kirim.ToString();
+
+                                                                                                if (dataPembeli == null)
+                                                                                                {
+                                                                                                    var connIdARF01C = Guid.NewGuid().ToString();
+                                                                                                    var kodePembeliLast = eraDB.ARF01C.Select(p => p.BUYER_CODE).ToList().LastOrDefault();
+                                                                                                    kodePembeliLast = Convert.ToString(Convert.ToInt32(kodePembeliLast) + 1).PadLeft(10, '0');
+
+                                                                                                    string insertPembeli = "INSERT INTO ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                                                                                                    insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                                                                                                    insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, BUYER_CODE) VALUES ";
+                                                                                                    var kabKot = "3174";
+                                                                                                    var prov = "31";
+
+                                                                                                    nama_pembeli = nama_pembeli.Length > 30 ? nama_pembeli.Substring(0, 30) : nama_pembeli.ToString();
+                                                                                                    address = alamatAutoSplit3;
+
+                                                                                                    insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01', '01', 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
+                                                                                                        ((nama_pembeli ?? "").Replace("'", "`")),
+                                                                                                        ((address ?? "").Replace("'", "`")),
+                                                                                                         (("").Replace("'", "`")),
+                                                                                                        (dataToko.PERSO.Replace(',', '.')),
+                                                                                                        ((address ?? "").Replace("'", "`")),
+                                                                                                        DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                                                                                                        (username),
+                                                                                                        (("").Replace("'", "`")),
+                                                                                                        kabKot,
+                                                                                                        prov,
+                                                                                                        kodePembeliLast
+                                                                                                        );
+                                                                                                    insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+                                                                                                    kodePembeli = eraDB.ARF01C.Where(p => p.NAMA == nama_pembeli && p.TLP == no_telpPembeli).Select(p => p.BUYER_CODE).FirstOrDefault();
+                                                                                                    //kodePembeli = dataMasterARF01C.Where(p => p.NAMA == nama).Select(p => p.BUYER_CODE).FirstOrDefault();
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    address = dataPembeli.AL.Length > 30 ? dataPembeli.AL.Substring(0, 30) : dataPembeli.AL;
+                                                                                                    kodePembeli = dataPembeli.BUYER_CODE;
+                                                                                                }
+
+                                                                                                var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
+                                                                                                if (checkDuplicateHeader == null)
+                                                                                                {
+                                                                                                    var lastBukti = new ManageController().GenerateAutoNumber(eraDB, "SU", "SOT01A", "NO_BUKTI");
+                                                                                                    var noOrder = "SU" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                                                                                                    noBuktiSO = noOrder;
+
+                                                                                                    var sot01a = new SOT01A
+                                                                                                    {
+                                                                                                        AL = alamatAutoSplit1,
+                                                                                                        AL1 = alamatAutoSplit1,
+                                                                                                        AL2 = alamatAutoSplit2,
+                                                                                                        AL3 = alamatAutoSplit3,
+                                                                                                        ALAMAT_KIRIM = alamat_kirim,
+                                                                                                        AL_CUST = "",
+                                                                                                        BRUTO = Convert.ToInt32(bruto),
+                                                                                                        CUST = no_cust[0].ToString(),
+                                                                                                        CUST_QQ = "",
+                                                                                                        DISCOUNT = Convert.ToInt32(diskon),
+                                                                                                        Date_Approve = null,
+                                                                                                        EXPEDISI = kurir[0],
+                                                                                                        HARGA_FRANCO = "0",
+                                                                                                        INDENT = false,
+                                                                                                        JAMKIRIM = null,
+                                                                                                        KET = null,
+                                                                                                        KIRIM_PENUH = false,
+                                                                                                        KODE_ALAMAT = "",
+                                                                                                        KODE_POS = null,
+                                                                                                        KODE_SALES = "",
+                                                                                                        KODE_WIL = "",
+                                                                                                        KOMISI = 0,
+                                                                                                        KOTA = null,
+                                                                                                        NAMAPEMESAN = nama_pembeli,
+                                                                                                        NAMAPENGIRIM = null,
+                                                                                                        NAMA_CUST = dataToko.PERSO,
+                                                                                                        NETTO = Convert.ToInt32(netto),
+                                                                                                        NILAI_DISC = Convert.ToInt32(ndisc1),
+                                                                                                        NILAI_PPN = Convert.ToInt32(nilai_ppn),
+                                                                                                        NILAI_TUKAR = 1,
+                                                                                                        NO_BUKTI = noBuktiSO,
+                                                                                                        NO_PENAWARAN = "",
+                                                                                                        NO_PO_CUST = "",
+                                                                                                        NO_REFERENSI = no_referensi,
+                                                                                                        N_KOMISI = 0,
+                                                                                                        N_KOMISI1 = 0,
+                                                                                                        N_UCAPAN = "",
+                                                                                                        ONGKOS_KIRIM = Convert.ToInt32(ongkir),
+                                                                                                        PEMESAN = kodePembeli,
+                                                                                                        PENGIRIM = null,
+                                                                                                        PPN = Convert.ToInt32(nilai_ppn),
+                                                                                                        PRINT_COUNT = 0,
+                                                                                                        PROPINSI = null,
+                                                                                                        RETUR_PENUH = false,
+                                                                                                        RecNum = null,
+                                                                                                        SHIPMENT = dataKurir.NamaEkspedisi,
+                                                                                                        SOT01D = null,
+                                                                                                        STATUS = "0",
+                                                                                                        STATUS_TRANSAKSI = "01",
+                                                                                                        SUPP = "0",
+                                                                                                        Status_Approve = "",
+                                                                                                        TERM = 10,
+                                                                                                        TGL = DateTime.Now.AddHours(7),
+                                                                                                        TGL_INPUT = DateTime.Now.AddHours(7),
+                                                                                                        TGL_JTH_TEMPO = DateTime.Now.AddHours(7).AddDays(Convert.ToInt32(top)),
+                                                                                                        TGL_KIRIM = null,
+                                                                                                        TIPE_KIRIM = 0,
+                                                                                                        TOTAL_SEMUA = Convert.ToInt32(total),
+                                                                                                        TOTAL_TITIPAN = 0,
+                                                                                                        TRACKING_SHIPMENT = null,
+                                                                                                        UCAPAN = "",
+                                                                                                        USER_NAME = "Upload Excel",
+                                                                                                        U_MUKA = 0,
+                                                                                                        VLT = "",
+                                                                                                        ZONA = "",
+                                                                                                        status_kirim = "0",
+                                                                                                        status_print = "0"
+                                                                                                    };
+
+                                                                                                    try
+                                                                                                    {
+                                                                                                        eraDB.SOT01A.Add(sot01a);
+                                                                                                        eraDB.SaveChanges();
+                                                                                                        transaction.Commit();
+                                                                                                    }
+                                                                                                    catch (Exception ex)
+                                                                                                    {
+                                                                                                        messageErrorLog = "terjadi error pada insert header pesanan pada row " + i;
+                                                                                                        queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                                                                                                        (no_cust[0]),
+                                                                                                        (connID),
+                                                                                                        ("Upload Excel Pesanan"),
+                                                                                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                                        ("FAILED"),
+                                                                                                        (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                        (path));
+                                                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                                                        // error log terjadi error pada insert header pesanan
+                                                                                                        checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
+                                                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                                        new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                                        tw.WriteLine(messageErrorLog);
+                                                                                                    }
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    noBuktiSO = checkDuplicateHeader.NO_BUKTI;
+                                                                                                }
+
+                                                                                                if (!string.IsNullOrEmpty(diskon) || !string.IsNullOrEmpty(ndisc1) || !string.IsNullOrEmpty(nilai_ppn) || !string.IsNullOrEmpty(netto))
+                                                                                                {
+                                                                                                    diskon = "0";
+                                                                                                    ndisc1 = "0";
+                                                                                                    nilai_ppn = "0";
+                                                                                                    netto = "0";
+                                                                                                }
+
+                                                                                                var sot01b = new SOT01B
+                                                                                                {
+                                                                                                    NO_BUKTI = noBuktiSO,
+                                                                                                    BRG = dataBarang.BRG,
+                                                                                                    BRG_CUST = "",
+                                                                                                    SATUAN = "2",
+                                                                                                    H_SATUAN = Convert.ToInt32(harga_satuan),
+                                                                                                    QTY = Convert.ToInt32(qty),
+                                                                                                    DISCOUNT = Convert.ToInt32(diskon),
+                                                                                                    NILAI_DISC = Convert.ToInt32(ndisc1),
+                                                                                                    HARGA = Convert.ToInt32(harga_satuan),
+                                                                                                    WRITE_KONFIG = false,
+                                                                                                    QTY_KIRIM = 0,
+                                                                                                    QTY_RETUR = 0,
+                                                                                                    USER_NAME = "Upload Excel",
+                                                                                                    TGL_INPUT = DateTime.Now.AddHours(7),
+                                                                                                    TGL_KIRIM = null,
+                                                                                                    LOKASI = "001",
+                                                                                                    DISCOUNT_2 = 0,
+                                                                                                    DISCOUNT_3 = 0,
+                                                                                                    DISCOUNT_4 = 0,
+                                                                                                    DISCOUNT_5 = 0,
+                                                                                                    NILAI_DISC_1 = Convert.ToInt32(ndisc1),
+                                                                                                    NILAI_DISC_2 = 0,
+                                                                                                    NILAI_DISC_3 = 0,
+                                                                                                    NILAI_DISC_4 = 0,
+                                                                                                    NILAI_DISC_5 = 0,
+                                                                                                    CATATAN = "ORDER NO : " + no_referensi + "_;_" + checkBarang.NAMA + " " + checkBarang.NAMA2 + " " + checkBarang.NAMA3 + "_;_" + dataBarang.BRG_MP,
+                                                                                                    TRANS_NO_URUT = 0,
+                                                                                                    SATUAN_N = 0,
+                                                                                                    QTY_N = Convert.ToInt32(qty),
+                                                                                                    NTITIPAN = 0,
+                                                                                                    DISC_TITIPAN = 0,
+                                                                                                    TOTAL = 0,
+                                                                                                    PPN = Convert.ToInt32(nilai_ppn),
+                                                                                                    NETTO = Convert.ToInt32(netto),
+                                                                                                    ORDER_ITEM_ID = brgMPOrderItemID[0].ToString(),
+                                                                                                    STATUS_BRG = null,
+                                                                                                    KET_DETAIL = keterangan
+                                                                                                };
+
+                                                                                                try
+                                                                                                {
+                                                                                                    eraDB.SOT01B.Add(sot01b);
+                                                                                                    eraDB.SaveChanges();
+                                                                                                    transaction.Commit();
+
+                                                                                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                                }
+                                                                                                catch (Exception ex)
+                                                                                                {
+                                                                                                    messageErrorLog = "terjadi error pada insert detail pesanan pada row " + i;
+                                                                                                    queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                                                                                                        (no_cust[0]),
+                                                                                                        (connID),
+                                                                                                        ("Upload Excel Pesanan"),
+                                                                                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                                        ("FAILED"),
+                                                                                                        (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                        (path));
+                                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                                                    // error log terjadi error pada insert detail pesanan
+                                                                                                    checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
+                                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                                    tw.WriteLine(messageErrorLog);
+                                                                                                }
+
+                                                                                                //if (ret.percent >= 100 || ret.progress == ret.countAll - 1)
+                                                                                                //{
+                                                                                                //    transaction.Commit();
+                                                                                                //    ret.statusSuccess = true;
+                                                                                                //    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                                                                //}
+                                                                                                iProcess = iProcess + 1;
+                                                                                                Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
+
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                var dataMP = MoDbContext.Marketplaces.Where(p => p.IdMarket == Convert.ToInt32(dataToko.NAMA)).SingleOrDefault();
+                                                                                                messageErrorLog = "Kode Barang " + kode_brg + " tidak ditemukan di toko " + dataToko.PERSO + " (" + dataMP.NamaMarket.ToString() + ")";
+                                                                                                queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                                                                                                    (no_cust[0]),
+                                                                                                    (connID),
+                                                                                                    ("Upload Excel Pesanan"),
+                                                                                                    (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                                    ("FAILED"),
+                                                                                                    (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                    (path));
+                                                                                                EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                                                // log error masukan ke log tidak ada databarang marketplace di STF02H
+                                                                                                var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
+                                                                                                EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                                EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                                new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                                tw.WriteLine(messageErrorLog);
+                                                                                            }
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            messageErrorLog = "Kode Customer Toko " + no_cust[0] + " tidak ditemukan.";
+                                                                                            queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                                                                                                (no_cust[0]),
+                                                                                                (connID),
+                                                                                                ("Upload Excel Pesanan"),
+                                                                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                                ("FAILED"),
+                                                                                                (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                (path));
+                                                                                            EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                                            // log error masukan log tidak ada data toko
+                                                                                            var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
+                                                                                            EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                            EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                            new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                            tw.WriteLine(messageErrorLog);
+                                                                                        }
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        messageErrorLog = "Kode Kurir " + kode_kurir[0] + " tidak ditemukan.";
+                                                                                        queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                                                                                            (no_cust[0]),
+                                                                                            (connID),
+                                                                                            ("Upload Excel Pesanan"),
+                                                                                            (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                            ("FAILED"),
+                                                                                            (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                            (path));
+                                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                                        // log error masukan log tidak ada data kurir
+                                                                                        var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == no_cust[0]).FirstOrDefault();
+                                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                        new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                        tw.WriteLine(messageErrorLog);
+                                                                                    }
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    messageErrorLog = "Kode Barang " + kode_brg + " tidak ditemukan.";
+                                                                                    queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                                                                                         (no_cust[0]),
+                                                                                         (connID),
+                                                                                         ("Upload Excel Pesanan"),
+                                                                                         (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                         ("FAILED"),
+                                                                                         (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                         (path));
+                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                                    //log error masukan log tidak ada barang di DB
+                                                                                    var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == no_cust[0]).FirstOrDefault();
+                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                    tw.WriteLine(messageErrorLog);
+                                                                                }
+
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                messageErrorLog = "kode barang lebih dari 20 karakter pada row " + i;
+                                                                                queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                                                                                    (no_cust[0]),
+                                                                                    (idRequest),
+                                                                                    ("Upload Excel Pesanan"),
+                                                                                    (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                    ("FAILED"),
+                                                                                    (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                    (path));
+                                                                                EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                                //log error masukan log kode barang lebih dari 20 karakter
+                                                                                var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == no_cust[0]).FirstOrDefault();
+                                                                                EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                tw.WriteLine(messageErrorLog);
+                                                                            }
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            var errorMessage = "";
+                                                                            if (string.IsNullOrEmpty(qty))
+                                                                            {
+                                                                                errorMessage = "qty kosong pada row " + i;
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                errorMessage = "harga satuan kosong pada row " + i;
+                                                                            }
+                                                                            messageErrorLog = errorMessage;
+                                                                            queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                                                                                (no_cust[0]),
+                                                                                (idRequest),
+                                                                                ("Upload Excel Pesanan"),
+                                                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                                                ("FAILED"),
+                                                                                (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                (path));
+                                                                            EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                            //log error masukan log harga satuan kosong
+                                                                            var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == no_cust[0]).FirstOrDefault();
+                                                                            EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                            EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                            new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                            tw.WriteLine(messageErrorLog);
+                                                                        }
                                                                     }
                                                                     else
                                                                     {
-                                                                        string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                                                                        messageErrorLog = "kode barang kosong pada row " + i;
                                                                         queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
                                                                             (no_cust[0]),
                                                                             (idRequest),
                                                                             ("Upload Excel Pesanan"),
                                                                             (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                             ("FAILED"),
-                                                                            (ret.progress + " / " + Convert.ToInt32(ret.countAll)),
-                                                                            ("kode barang lebih dari 20 karakter pada row " + i));
+                                                                            (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                            (path));
                                                                         EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
-                                                                        //log error masukan log kode barang lebih dari 20 karakter
+                                                                        //log error masukan log kode barang kosong
+                                                                        var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == no_cust[0]).FirstOrDefault();
+                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                        new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                        tw.WriteLine(messageErrorLog);
                                                                     }
                                                                 }
                                                                 else
                                                                 {
-                                                                    string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                                                                    messageErrorLog = "terdapat karakter koma pada kolom pengisian angka di row " + i;
                                                                     queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
                                                                         (no_cust[0]),
                                                                         (idRequest),
                                                                         ("Upload Excel Pesanan"),
                                                                         (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                         ("FAILED"),
-                                                                        (ret.progress + " / " + Convert.ToInt32(ret.countAll)),
-                                                                        ("kode barang kosong pada row " + i));
+                                                                        (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                        (path));
                                                                     EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
-                                                                    //log error masukan log kode barang kosong
+                                                                    //log error masukan log ada koma
+                                                                    var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == no_cust[0]).FirstOrDefault();
+                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                    tw.WriteLine(messageErrorLog);
                                                                 }
                                                             }
                                                             else
                                                             {
-                                                                string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                                                                messageErrorLog = "terdapat karakter titik pada kolom pengisian angka di row " + i;
                                                                 queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
                                                                     (no_cust[0]),
                                                                     (idRequest),
                                                                     ("Upload Excel Pesanan"),
                                                                     (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                     ("FAILED"),
-                                                                    (ret.progress + " / " + Convert.ToInt32(ret.countAll)),
-                                                                    ("terdapat karakter koma pada kolom pengisian angka di row " + i));
+                                                                    (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                    (path));
                                                                 EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
-                                                                //log error masukan log ada koma
+                                                                //log error masukan log ada titik
+                                                                var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == no_cust[0]).FirstOrDefault();
+                                                                EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                tw.WriteLine(messageErrorLog);
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                                                            messageErrorLog = "no telepon kosong di row " + i;
                                                             queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
-                                                                (no_cust[0]),
+                                                                (""),
                                                                 (idRequest),
                                                                 ("Upload Excel Pesanan"),
                                                                 (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                 ("FAILED"),
-                                                                (ret.progress + " / " + Convert.ToInt32(ret.countAll)),
-                                                                ("terdapat karakter titik pada kolom pengisian angka di row " + i));
+                                                                (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                (path));
                                                             EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
-                                                            //log error masukan log ada titik
+                                                            //log error masukan log tidak ada no telepon
+                                                            var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == no_cust[0]).FirstOrDefault();
+                                                            EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                            EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                            new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                            tw.WriteLine(messageErrorLog);
                                                         }
                                                     }
                                                     else
                                                     {
-                                                        string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                                                        messageErrorLog = "kode kurir kosong pada row " + i;
+                                                        string[] no_cust2 = marketplace.Split(';');
                                                         queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
-                                                            (""),
+                                                            (no_cust2[0]),
                                                             (idRequest),
                                                             ("Upload Excel Pesanan"),
                                                             (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                             ("FAILED"),
-                                                            (ret.progress + " / " + Convert.ToInt32(ret.countAll)),
-                                                            ("kode kurir kosong pada row " + i));
+                                                            (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                            (path));
                                                         EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                         //log error masukan log kode kurir kosong
+                                                        var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == no_cust2[0]).FirstOrDefault();
+                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                        new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                        tw.WriteLine(messageErrorLog);
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                                                    messageErrorLog = "marketplace kosong pada row " + i;
+                                                    string[] no_cust2 = marketplace.Split(';');
                                                     queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
-                                                        (""),
+                                                        (no_cust2[0]),
                                                         (idRequest),
                                                         ("Upload Excel Pesanan"),
                                                         (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                         ("FAILED"),
-                                                        (ret.progress + " / " + Convert.ToInt32(ret.countAll)),
-                                                        ("marketplace kosong pada row " + i));
+                                                        (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                        (path));
                                                     EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                     //log error masukan log marketplace kosong
+                                                    var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == no_cust2[0]).FirstOrDefault();
+                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                    tw.WriteLine(messageErrorLog);
                                                 }
                                             }
                                             else
                                             {
-                                                string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                                                messageErrorLog = "no referensi lebih dari 70 karakter pada row " + i;
                                                 queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
                                                     (""),
                                                     (idRequest),
                                                     ("Upload Excel Pesanan"),
                                                     (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                     ("FAILED"),
-                                                    (ret.progress + " / " + Convert.ToInt32(ret.countAll)),
-                                                    ("no referensi lebih dari 70 karakter pada row " + i));
+                                                    (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                    (path));
                                                 EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                tw.WriteLine(messageErrorLog);
                                                 //log error masukan log noref lebih dari 70 karakter
+                                                //var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
+                                                //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                //new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                             }
                                         }
                                         else
                                         {
-                                            string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                                            messageErrorLog = "no referensi kosong pada row " + i;
                                             queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
                                                 (""),
                                                 (idRequest),
                                                 ("Upload Excel Pesanan"),
                                                 (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                 ("FAILED"),
-                                                (ret.progress + " / " + Convert.ToInt32(ret.countAll)),
-                                                ("no referensi kosong pada row " + i));
+                                                (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                (path));
                                             EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                            tw.WriteLine(messageErrorLog);
                                             //log error masukan log no referensi kosong
                                         }
-                                        
+
                                     } // end looping
 
-                                    eraDB.TEMP_UPLOADPESANAN.AddRange(batchinsertItem);
-                                    eraDB.SaveChanges();
-                                    transaction.Commit();
-                                }
-                            }
-                        }
-                    }
+                                    tw.Close();
 
-                    using (ErasoftContext eraDBagain = new ErasoftContext(DataSourcePath, dbPathEra))
-                    {
-                        using (System.Data.Entity.DbContextTransaction transc = eraDBagain.Database.BeginTransaction())
-                        {
-                            var NoReffTempUploadPesanan = eraDBagain.TEMP_UPLOADPESANAN.Select(p => p.NO_REFERENSI).ToList();
-
-                            if (NoReffTempUploadPesanan != null)
-                            {
-                                var noReffDistinct = NoReffTempUploadPesanan.Distinct().ToList(); //FILTER DUPLICATE NO REFERENSI
-
-                                var noBuktiSO = "";
-
-                                var dataMasterSTF02 = eraDBagain.STF02.Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3 }).ToList();
-                                var dataMasterSTF02H = eraDBagain.STF02H.Select(p => new { p.BRG, p.BRG_MP, p.IDMARKET } ).ToList();
-                                var dataMasterKurir = MoDbContext.Ekspedisi.ToList();
-                                var dataMasterARF01 = eraDBagain.ARF01.ToList();
-
-                                List<SOT01A> batchinsertHeader = new List<SOT01A>();
-                                List<SOT01B> batchinsertItemDetail = new List<SOT01B>();
-
-                                batchinsertHeader = new List<SOT01A>();
-                                batchinsertItemDetail = new List<SOT01B>();
-
-
-                                int iProcess = 0;
-
-                                foreach (var itemNoReff in noReffDistinct) // LOOPING UNTUK SEMUA PESANAN
-                                {
-                                    string connID = Guid.NewGuid().ToString();
-
-                                    if (itemNoReff != null)
-                                    {
-                                        var dataTempUploadPesananPerReff = eraDBagain.TEMP_UPLOADPESANAN.Where(p => p.NO_REFERENSI == itemNoReff).ToList();
-
-                                        //check no referensi lagi untuk pesanan dengan 1 no ref/ 1 nobuk dan barang lebih dari satu
-                                        var checkDuplicateSO = eraDBagain.SOT01A.Where(p => p.NO_REFERENSI == itemNoReff).FirstOrDefault();
-                                        if (checkDuplicateSO == null)
-                                        {
-                                            //if (!string.IsNullOrWhiteSpace(noBuktiSO))
-                                            //{
-                                            //    transc.Commit();
-                                            //}
-                                            var lastBukti = new ManageController().GenerateAutoNumber(eraDBagain, "SU", "SOT01A", "NO_BUKTI");
-                                            var noOrder = "SU" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
-                                            noBuktiSO = noOrder;
-
-                                            var alamat_kirim = "";
-                                            var no_custMarketplace = "";
-                                            var kodeKurir = "";
-                                            var namaKurir = "";
-                                            var kodePemesan = "";
-                                            var namaPemesan = "";
-                                            var namaPerso = "";
-                                            var diskon = 0;
-                                            var bruto = 0;
-                                            var netto = 0;
-                                            var ndisc1 = 0;
-                                            var ndisc2 = 0;
-                                            var nilai_ppn = 0;
-                                            var total = 0;
-                                            var ongkir = 0;
-
-                                            bool statusDetailInsert = true;
-
-
-                                            foreach (var item in dataTempUploadPesananPerReff) // LOOPING DI DALAM SATU PESANAN
-                                            {
-                                                if (statusDetailInsert)
-                                                {
-                                                    if (item != null)
-                                                    {
-                                                        //var checkBarang = ErasoftDbContext.STF02.Where(p => p.BRG == item.KODE_BRG).Select(p => p.BRG).FirstOrDefault();
-                                                        var checkBarang = dataMasterSTF02.Where(p => p.BRG == item.KODE_BRG).FirstOrDefault();
-                                                        if (checkBarang != null)
-                                                        {
-                                                            //var dataKurir = MoDbContext.Ekspedisi.Where(p => p.RecNum == Convert.ToInt32(item.KODE_KURIR)).FirstOrDefault();
-                                                            int checkKodeKurir = Convert.ToInt32(item.KODE_KURIR);
-                                                            var dataKurir = dataMasterKurir.Where(p => p.RecNum == checkKodeKurir).FirstOrDefault();
-                                                            if (dataKurir != null)
-                                                            {
-                                                                //var dataToko = ErasoftDbContext.ARF01.Where(p => p.CUST == item.MARKETPLACE).FirstOrDefault();
-                                                                var dataToko = dataMasterARF01.Where(p => p.CUST == item.MARKETPLACE).FirstOrDefault();
-                                                                if (dataToko != null)
-                                                                {
-                                                                    //var dataBarang = ErasoftDbContext.STF02H.Where(p => p.BRG == item.KODE_BRG && p.IDMARKET == dataToko.RecNum).FirstOrDefault();
-                                                                    var dataBarang = dataMasterSTF02H.Where(p => p.BRG == item.KODE_BRG && p.IDMARKET == dataToko.RecNum).FirstOrDefault();
-                                                                    if (dataBarang != null)
-                                                                    {
-                                                                        string[] brgMPOrderItemID = dataBarang.BRG_MP.Split(';');
-
-                                                                        var kodePembeli = "";
-                                                                        string address = "";
-                                                                        var dataPembeli = eraDBagain.ARF01C.Where(p => p.NAMA == item.NAMA_PEMBELI && p.TLP == item.NO_TELPPEMBELI).FirstOrDefault();
-                                                                        //var dataPembeli = eraDBagain.ARF01C.Where(p => p.NAMA == item.NAMA_PEMBELI && p.AL.ToString() == item.ALAMAT_KIRIM.ToString()).FirstOrDefault();
-                                                                        //var dataPembeli = dataMasterARF01C.Where(p => p.NAMA == item.NAMA_PEMBELI && p.AL == item.ALAMAT_KIRIM).FirstOrDefault();
-                                                                        string nama = item.NAMA_PEMBELI.Length > 30 ? item.NAMA_PEMBELI.Substring(0, 30) : item.NAMA_PEMBELI.ToString();
-
-                                                                        if (dataPembeli == null)
-                                                                        {
-                                                                            var connIdARF01C = Guid.NewGuid().ToString();
-                                                                            var kodePembeliLast = eraDBagain.ARF01C.Select(p => p.BUYER_CODE).ToList().LastOrDefault();
-                                                                            kodePembeliLast = Convert.ToString(Convert.ToInt32(kodePembeliLast) + 1).PadLeft(10, '0');
-
-                                                                            string insertPembeli = "INSERT INTO ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
-                                                                            insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
-                                                                            insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, BUYER_CODE) VALUES ";
-                                                                            var kabKot = "3174";
-                                                                            var prov = "31";
-
-                                                                            address = item.ALAMAT_KIRIM.Length > 30 ? item.ALAMAT_KIRIM.Substring(0, 30) : item.ALAMAT_KIRIM;
-                                                                            
-                                                                            insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01', '01', 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
-                                                                                ((nama ?? "").Replace("'", "`")),
-                                                                                ((address ?? "").Replace("'", "`")),
-                                                                                 (("").Replace("'", "`")),
-                                                                                (dataToko.PERSO.Replace(',', '.')),
-                                                                                ((address ?? "").Replace("'", "`")),
-                                                                                DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                                                                                (username),
-                                                                                (("").Replace("'", "`")),
-                                                                                kabKot,
-                                                                                prov,
-                                                                                kodePembeliLast
-                                                                                );
-                                                                            insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
-                                                                            EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
-                                                                            kodePembeli = eraDBagain.ARF01C.Where(p => p.NAMA == nama).Select(p => p.BUYER_CODE).FirstOrDefault();
-                                                                            //kodePembeli = dataMasterARF01C.Where(p => p.NAMA == nama).Select(p => p.BUYER_CODE).FirstOrDefault();
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            address = dataPembeli.AL.Length > 30 ? dataPembeli.AL.Substring(0, 30) : dataPembeli.AL;
-                                                                            kodePembeli = dataPembeli.BUYER_CODE;
-                                                                        }
-
-                                                                        //initialize for HEADER
-                                                                        alamat_kirim = address;
-                                                                        bruto = Convert.ToInt32(item.BRUTO);
-                                                                        no_custMarketplace = item.MARKETPLACE;
-                                                                        diskon = Convert.ToInt32(item.DISKON);
-                                                                        kodeKurir = dataKurir.RecNum.Value.ToString();
-                                                                        namaKurir = dataKurir.NamaEkspedisi;
-                                                                        namaPemesan = item.NAMA_PEMBELI;
-                                                                        namaPerso = dataToko.PERSO;
-                                                                        netto = Convert.ToInt32(item.NETTO);
-                                                                        ndisc1 = Convert.ToInt32(item.NDISC1);
-                                                                        ndisc2 = Convert.ToInt32(item.NDISC2);
-                                                                        nilai_ppn = Convert.ToInt32(item.NILAI_PPN);
-                                                                        total = Convert.ToInt32(item.TOTAL);
-                                                                        ongkir = Convert.ToInt32(item.ONGKIR);
-                                                                        kodePemesan = kodePembeli;
-
-                                                                        var sot01b = new SOT01B
-                                                                        {
-                                                                            NO_BUKTI = noBuktiSO,
-                                                                            BRG = dataBarang.BRG,
-                                                                            BRG_CUST = "",
-                                                                            SATUAN = "2",
-                                                                            H_SATUAN = Convert.ToInt32(item.HARGA_SATUAN),
-                                                                            QTY = Convert.ToInt32(item.QTY),
-                                                                            DISCOUNT = Convert.ToInt32(item.DISKON),
-                                                                            NILAI_DISC = Convert.ToInt32(item.NDISC1) + Convert.ToInt32(item.NDISC2),
-                                                                            HARGA = Convert.ToInt32(item.HARGA_SATUAN),
-                                                                            WRITE_KONFIG = false,
-                                                                            QTY_KIRIM = 0,
-                                                                            QTY_RETUR = 0,
-                                                                            USER_NAME = "Upload Excel",
-                                                                            TGL_INPUT = DateTime.Now.AddHours(7),
-                                                                            TGL_KIRIM = null,
-                                                                            LOKASI = "001",
-                                                                            DISCOUNT_2 = 0,
-                                                                            DISCOUNT_3 = 0,
-                                                                            DISCOUNT_4 = 0,
-                                                                            DISCOUNT_5 = 0,
-                                                                            NILAI_DISC_1 = Convert.ToInt32(item.NDISC1),
-                                                                            NILAI_DISC_2 = Convert.ToInt32(item.NDISC2),
-                                                                            NILAI_DISC_3 = 0,
-                                                                            NILAI_DISC_4 = 0,
-                                                                            NILAI_DISC_5 = 0,
-                                                                            CATATAN = "ORDER NO : " + item.NO_REFERENSI + "_;_" + checkBarang.NAMA + " " + checkBarang.NAMA2 + " " + checkBarang.NAMA3 + "_;_" + dataBarang.BRG_MP,
-                                                                            TRANS_NO_URUT = 0,
-                                                                            SATUAN_N = 0,
-                                                                            QTY_N = Convert.ToInt32(item.QTY),
-                                                                            NTITIPAN = 0,
-                                                                            DISC_TITIPAN = 0,
-                                                                            TOTAL = 0,
-                                                                            PPN = Convert.ToInt32(item.NILAI_PPN),
-                                                                            NETTO = Convert.ToInt32(item.NETTO),
-                                                                            ORDER_ITEM_ID = brgMPOrderItemID[0].ToString(),
-                                                                            STATUS_BRG = null,
-                                                                            KET_DETAIL = item.KETERANGAN
-                                                                        };
-
-                                                                        try
-                                                                        {
-                                                                            batchinsertItemDetail.Add(sot01b);
-                                                                            statusDetailInsert = true;
-                                                                            //eraDB.SOT01B.Add(sot01b);
-                                                                            //eraDB.SaveChanges();
-                                                                        }
-                                                                        catch (Exception ex)
-                                                                        {
-                                                                            statusDetailInsert = false;
-                                                                            // error log terjadi error pada insert detail pesanan
-                                                                        }
-
-                                                                        if (ret.percent >= 100 || ret.progress == ret.countAll - 1)
-                                                                        {
-                                                                            //transaction.Commit();
-                                                                            ret.statusSuccess = true;
-                                                                            //return Json(ret, JsonRequestBehavior.AllowGet);
-                                                                        }
-                                                                        iProcess = iProcess + 1;
-                                                                        Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(noReffDistinct.Count() - 1));
-
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        var dataMP = MoDbContext.Marketplaces.Where(p => p.IdMarket == Convert.ToInt32(dataToko.NAMA)).SingleOrDefault();
-                                                                        statusDetailInsert = false;
-                                                                        string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
-                                                                        queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
-                                                                            (item.MARKETPLACE),
-                                                                            (connID),
-                                                                            ("Upload Excel Pesanan"),
-                                                                            (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
-                                                                            ("FAILED"),
-                                                                            (iProcess + " / " + Convert.ToInt32(noReffDistinct.Count() - 1)),
-                                                                            ("Kode Barang " + item.KODE_BRG + " tidak ditemukan di toko " + dataToko.PERSO + " ("+ dataMP.NamaMarket.ToString() + ")"));
-                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
-                                                                        // log error masukan ke log tidak ada databarang marketplace di STF02H
-                                                                    }
-                                                                }
-                                                                else
-                                                                {
-                                                                    statusDetailInsert = false;
-                                                                    string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
-                                                                    queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
-                                                                        (item.MARKETPLACE),
-                                                                        (connID),
-                                                                        ("Upload Excel Pesanan"),
-                                                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
-                                                                        ("FAILED"),
-                                                                        (iProcess + " / " + Convert.ToInt32(noReffDistinct.Count() - 1)),
-                                                                        ("Kode Customer Toko " + item.MARKETPLACE + " tidak ditemukan."));
-                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
-                                                                    // log error masukan log tidak ada data toko
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                statusDetailInsert = false;
-                                                                string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
-                                                                queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
-                                                                    (item.MARKETPLACE),
-                                                                    (connID),
-                                                                    ("Upload Excel Pesanan"),
-                                                                    (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
-                                                                    ("FAILED"),
-                                                                    (iProcess + " / " + Convert.ToInt32(noReffDistinct.Count() - 1)),
-                                                                    ("Kode Kurir " + item.KODE_KURIR + " tidak ditemukan."));
-                                                                EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
-                                                                // log error masukan log tidak ada data kurir
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            statusDetailInsert = false;
-                                                            string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
-                                                            queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
-                                                                (item.MARKETPLACE),
-                                                                (connID),
-                                                                ("Upload Excel Pesanan"),
-                                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
-                                                                ("FAILED"),
-                                                                (iProcess + " / " + Convert.ToInt32(noReffDistinct.Count() - 1)),
-                                                                ("Kode Barang " + item.KODE_BRG +" tidak ditemukan."));
-                                                            EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
-                                                            //log error masukan log tidak ada barang di DB
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        statusDetailInsert = false;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    batchinsertItemDetail.Clear();
-                                                }
-                                            }
-
-                                            if (statusDetailInsert)
-                                            {
-                                                var checkDuplicateHeader = eraDBagain.SOT01A.Where(p => p.NO_REFERENSI == itemNoReff).FirstOrDefault();
-                                                if (checkDuplicateHeader == null)
-                                                {
-                                                    var sot01a = new SOT01A
-                                                    {
-                                                        AL = null,
-                                                        AL1 = null,
-                                                        AL2 = null,
-                                                        AL3 = null,
-                                                        ALAMAT_KIRIM = alamat_kirim,
-                                                        AL_CUST = "",
-                                                        BRUTO = Convert.ToInt32(bruto),
-                                                        CUST = no_custMarketplace,
-                                                        CUST_QQ = "",
-                                                        DISCOUNT = Convert.ToInt32(diskon),
-                                                        Date_Approve = null,
-                                                        EXPEDISI = kodeKurir,
-                                                        HARGA_FRANCO = "0",
-                                                        INDENT = false,
-                                                        JAMKIRIM = null,
-                                                        KET = null,
-                                                        KIRIM_PENUH = false,
-                                                        KODE_ALAMAT = "",
-                                                        KODE_POS = null,
-                                                        KODE_SALES = "",
-                                                        KODE_WIL = "",
-                                                        KOMISI = 0,
-                                                        KOTA = null,
-                                                        NAMAPEMESAN = namaPemesan,
-                                                        NAMAPENGIRIM = null,
-                                                        NAMA_CUST = namaPerso,
-                                                        NETTO = Convert.ToInt32(netto),
-                                                        NILAI_DISC = Convert.ToInt32(ndisc1) + Convert.ToInt32(ndisc2),
-                                                        NILAI_PPN = Convert.ToInt32(nilai_ppn),
-                                                        NILAI_TUKAR = 1,
-                                                        NO_BUKTI = noBuktiSO,
-                                                        NO_PENAWARAN = "",
-                                                        NO_PO_CUST = "",
-                                                        NO_REFERENSI = itemNoReff,
-                                                        N_KOMISI = 0,
-                                                        N_KOMISI1 = 0,
-                                                        N_UCAPAN = "",
-                                                        ONGKOS_KIRIM = Convert.ToInt32(ongkir),
-                                                        PEMESAN = kodePemesan,
-                                                        PENGIRIM = null,
-                                                        PPN = Convert.ToInt32(nilai_ppn),
-                                                        PRINT_COUNT = 0,
-                                                        PROPINSI = null,
-                                                        RETUR_PENUH = false,
-                                                        RecNum = null,
-                                                        SHIPMENT = namaKurir,
-                                                        SOT01D = null,
-                                                        STATUS = "0",
-                                                        STATUS_TRANSAKSI = "01",
-                                                        SUPP = "0",
-                                                        Status_Approve = "",
-                                                        TERM = 10,
-                                                        TGL = DateTime.Now.AddHours(7),
-                                                        TGL_INPUT = DateTime.Now.AddHours(7),
-                                                        TGL_JTH_TEMPO = DateTime.Now.AddHours(7).AddDays(1),
-                                                        TGL_KIRIM = null,
-                                                        TIPE_KIRIM = 0,
-                                                        TOTAL_SEMUA = Convert.ToInt32(total),
-                                                        TOTAL_TITIPAN = 0,
-                                                        TRACKING_SHIPMENT = null,
-                                                        UCAPAN = "",
-                                                        USER_NAME = "Upload Excel",
-                                                        U_MUKA = 0,
-                                                        VLT = "",
-                                                        ZONA = "",
-                                                        status_kirim = "0",
-                                                        status_print = "0"
-                                                    };
-
-                                                    try
-                                                    {
-                                                        batchinsertHeader.Add(sot01a);
-
-                                                        eraDBagain.SOT01A.AddRange(batchinsertHeader);
-                                                        eraDBagain.SOT01B.AddRange(batchinsertItemDetail);
-                                                        eraDBagain.SaveChanges();
-                                                        transc.Commit();
-                                                        batchinsertHeader.Clear();
-                                                        batchinsertItemDetail.Clear();
-
-                                                        new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
-                                                    }
-                                                    catch (Exception ex)
-                                                    {
-                                                        // error log terjadi error pada insert header pesanan
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
+                                    //eraDB.TEMP_UPLOADPESANAN.AddRange(batchinsertItem);
+                                    //eraDB.SaveChanges();
+                                    //transaction.Commit();
                                 }
                             }
                         }
                     }
                 }
+
+                    //using (ErasoftContext eraDBagain = new ErasoftContext(DataSourcePath, dbPathEra))
+                    //{
+                    //    using (System.Data.Entity.DbContextTransaction transc = eraDBagain.Database.BeginTransaction())
+                    //    {
+                    //        var NoReffTempUploadPesanan = eraDBagain.TEMP_UPLOADPESANAN.Select(p => p.NO_REFERENSI).ToList();
+
+                    //        if (NoReffTempUploadPesanan != null)
+                    //        {
+                    //            var noReffDistinct = NoReffTempUploadPesanan.Distinct().ToList(); //FILTER DUPLICATE NO REFERENSI
+
+                    //            var noBuktiSO = "";
+
+                    //            var dataMasterSTF02 = eraDBagain.STF02.Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3 }).ToList();
+                    //            var dataMasterSTF02H = eraDBagain.STF02H.Select(p => new { p.BRG, p.BRG_MP, p.IDMARKET } ).ToList();
+                    //            var dataMasterKurir = MoDbContext.Ekspedisi.ToList();
+                    //            var dataMasterARF01 = eraDBagain.ARF01.ToList();
+
+                    //            List<SOT01A> batchinsertHeader = new List<SOT01A>();
+                    //            List<SOT01B> batchinsertItemDetail = new List<SOT01B>();
+
+                    //            batchinsertHeader = new List<SOT01A>();
+                    //            batchinsertItemDetail = new List<SOT01B>();
+
+
+                    //            int iProcess = 0;
+
+                    //            foreach (var itemNoReff in noReffDistinct) // LOOPING UNTUK SEMUA PESANAN
+                    //            {
+                    //                string connID = Guid.NewGuid().ToString();
+
+                    //                if (itemNoReff != null)
+                    //                {
+                    //                    var dataTempUploadPesananPerReff = eraDBagain.TEMP_UPLOADPESANAN.Where(p => p.NO_REFERENSI == itemNoReff).ToList();
+
+                    //                    //check no referensi lagi untuk pesanan dengan 1 no ref/ 1 nobuk dan barang lebih dari satu
+                    //                    var checkDuplicateSO = eraDBagain.SOT01A.Where(p => p.NO_REFERENSI == itemNoReff).FirstOrDefault();
+                    //                    if (checkDuplicateSO == null)
+                    //                    {
+                    //                        //if (!string.IsNullOrWhiteSpace(noBuktiSO))
+                    //                        //{
+                    //                        //    transc.Commit();
+                    //                        //}
+                    //                        var lastBukti = new ManageController().GenerateAutoNumber(eraDBagain, "SU", "SOT01A", "NO_BUKTI");
+                    //                        var noOrder = "SU" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                    //                        noBuktiSO = noOrder;
+
+                    //                        var alamat_kirim = "";
+                    //                        var no_custMarketplace = "";
+                    //                        var kodeKurir = "";
+                    //                        var namaKurir = "";
+                    //                        var kodePemesan = "";
+                    //                        var namaPemesan = "";
+                    //                        var namaPerso = "";
+                    //                        var diskon = 0;
+                    //                        var bruto = 0;
+                    //                        var netto = 0;
+                    //                        var ndisc1 = 0;
+                    //                        var ndisc2 = 0;
+                    //                        var nilai_ppn = 0;
+                    //                        var total = 0;
+                    //                        var ongkir = 0;
+
+                    //                        bool statusDetailInsert = true;
+
+
+                    //                        foreach (var item in dataTempUploadPesananPerReff) // LOOPING DI DALAM SATU PESANAN
+                    //                        {
+                    //                            if (statusDetailInsert)
+                    //                            {
+                    //                                if (item != null)
+                    //                                {
+                    //                                    //var checkBarang = ErasoftDbContext.STF02.Where(p => p.BRG == item.KODE_BRG).Select(p => p.BRG).FirstOrDefault();
+                    //                                    var checkBarang = dataMasterSTF02.Where(p => p.BRG == item.KODE_BRG).FirstOrDefault();
+                    //                                    if (checkBarang != null)
+                    //                                    {
+                    //                                        //var dataKurir = MoDbContext.Ekspedisi.Where(p => p.RecNum == Convert.ToInt32(item.KODE_KURIR)).FirstOrDefault();
+                    //                                        int checkKodeKurir = Convert.ToInt32(item.KODE_KURIR);
+                    //                                        var dataKurir = dataMasterKurir.Where(p => p.RecNum == checkKodeKurir).FirstOrDefault();
+                    //                                        if (dataKurir != null)
+                    //                                        {
+                    //                                            //var dataToko = ErasoftDbContext.ARF01.Where(p => p.CUST == item.MARKETPLACE).FirstOrDefault();
+                    //                                            var dataToko = dataMasterARF01.Where(p => p.CUST == item.MARKETPLACE).FirstOrDefault();
+                    //                                            if (dataToko != null)
+                    //                                            {
+                    //                                                //var dataBarang = ErasoftDbContext.STF02H.Where(p => p.BRG == item.KODE_BRG && p.IDMARKET == dataToko.RecNum).FirstOrDefault();
+                    //                                                var dataBarang = dataMasterSTF02H.Where(p => p.BRG == item.KODE_BRG && p.IDMARKET == dataToko.RecNum).FirstOrDefault();
+                    //                                                if (dataBarang != null)
+                    //                                                {
+                    //                                                    string[] brgMPOrderItemID = dataBarang.BRG_MP.Split(';');
+
+                    //                                                    var kodePembeli = "";
+                    //                                                    string address = "";
+                    //                                                    var dataPembeli = eraDBagain.ARF01C.Where(p => p.NAMA == item.NAMA_PEMBELI && p.TLP == item.NO_TELPPEMBELI).FirstOrDefault();
+                    //                                                    //var dataPembeli = eraDBagain.ARF01C.Where(p => p.NAMA == item.NAMA_PEMBELI && p.AL.ToString() == item.ALAMAT_KIRIM.ToString()).FirstOrDefault();
+                    //                                                    //var dataPembeli = dataMasterARF01C.Where(p => p.NAMA == item.NAMA_PEMBELI && p.AL == item.ALAMAT_KIRIM).FirstOrDefault();
+                    //                                                    string nama = item.NAMA_PEMBELI.Length > 30 ? item.NAMA_PEMBELI.Substring(0, 30) : item.NAMA_PEMBELI.ToString();
+
+                    //                                                    if (dataPembeli == null)
+                    //                                                    {
+                    //                                                        var connIdARF01C = Guid.NewGuid().ToString();
+                    //                                                        var kodePembeliLast = eraDBagain.ARF01C.Select(p => p.BUYER_CODE).ToList().LastOrDefault();
+                    //                                                        kodePembeliLast = Convert.ToString(Convert.ToInt32(kodePembeliLast) + 1).PadLeft(10, '0');
+
+                    //                                                        string insertPembeli = "INSERT INTO ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                    //                                                        insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                    //                                                        insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, BUYER_CODE) VALUES ";
+                    //                                                        var kabKot = "3174";
+                    //                                                        var prov = "31";
+
+                    //                                                        address = item.ALAMAT_KIRIM.Length > 30 ? item.ALAMAT_KIRIM.Substring(0, 30) : item.ALAMAT_KIRIM;
+
+                    //                                                        insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01', '01', 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
+                    //                                                            ((nama ?? "").Replace("'", "`")),
+                    //                                                            ((address ?? "").Replace("'", "`")),
+                    //                                                             (("").Replace("'", "`")),
+                    //                                                            (dataToko.PERSO.Replace(',', '.')),
+                    //                                                            ((address ?? "").Replace("'", "`")),
+                    //                                                            DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                    //                                                            (username),
+                    //                                                            (("").Replace("'", "`")),
+                    //                                                            kabKot,
+                    //                                                            prov,
+                    //                                                            kodePembeliLast
+                    //                                                            );
+                    //                                                        insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                    //                                                        EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+                    //                                                        kodePembeli = eraDBagain.ARF01C.Where(p => p.NAMA == nama).Select(p => p.BUYER_CODE).FirstOrDefault();
+                    //                                                        //kodePembeli = dataMasterARF01C.Where(p => p.NAMA == nama).Select(p => p.BUYER_CODE).FirstOrDefault();
+                    //                                                    }
+                    //                                                    else
+                    //                                                    {
+                    //                                                        address = dataPembeli.AL.Length > 30 ? dataPembeli.AL.Substring(0, 30) : dataPembeli.AL;
+                    //                                                        kodePembeli = dataPembeli.BUYER_CODE;
+                    //                                                    }
+
+                    //                                                    //initialize for HEADER
+                    //                                                    alamat_kirim = address;
+                    //                                                    bruto = Convert.ToInt32(item.BRUTO);
+                    //                                                    no_custMarketplace = item.MARKETPLACE;
+                    //                                                    diskon = Convert.ToInt32(item.DISKON);
+                    //                                                    kodeKurir = dataKurir.RecNum.Value.ToString();
+                    //                                                    namaKurir = dataKurir.NamaEkspedisi;
+                    //                                                    namaPemesan = item.NAMA_PEMBELI;
+                    //                                                    namaPerso = dataToko.PERSO;
+                    //                                                    netto = Convert.ToInt32(item.NETTO);
+                    //                                                    ndisc1 = Convert.ToInt32(item.NDISC1);
+                    //                                                    ndisc2 = Convert.ToInt32(item.NDISC2);
+                    //                                                    nilai_ppn = Convert.ToInt32(item.NILAI_PPN);
+                    //                                                    total = Convert.ToInt32(item.TOTAL);
+                    //                                                    ongkir = Convert.ToInt32(item.ONGKIR);
+                    //                                                    kodePemesan = kodePembeli;
+
+                    //                                                    var sot01b = new SOT01B
+                    //                                                    {
+                    //                                                        NO_BUKTI = noBuktiSO,
+                    //                                                        BRG = dataBarang.BRG,
+                    //                                                        BRG_CUST = "",
+                    //                                                        SATUAN = "2",
+                    //                                                        H_SATUAN = Convert.ToInt32(item.HARGA_SATUAN),
+                    //                                                        QTY = Convert.ToInt32(item.QTY),
+                    //                                                        DISCOUNT = Convert.ToInt32(item.DISKON),
+                    //                                                        NILAI_DISC = Convert.ToInt32(item.NDISC1) + Convert.ToInt32(item.NDISC2),
+                    //                                                        HARGA = Convert.ToInt32(item.HARGA_SATUAN),
+                    //                                                        WRITE_KONFIG = false,
+                    //                                                        QTY_KIRIM = 0,
+                    //                                                        QTY_RETUR = 0,
+                    //                                                        USER_NAME = "Upload Excel",
+                    //                                                        TGL_INPUT = DateTime.Now.AddHours(7),
+                    //                                                        TGL_KIRIM = null,
+                    //                                                        LOKASI = "001",
+                    //                                                        DISCOUNT_2 = 0,
+                    //                                                        DISCOUNT_3 = 0,
+                    //                                                        DISCOUNT_4 = 0,
+                    //                                                        DISCOUNT_5 = 0,
+                    //                                                        NILAI_DISC_1 = Convert.ToInt32(item.NDISC1),
+                    //                                                        NILAI_DISC_2 = Convert.ToInt32(item.NDISC2),
+                    //                                                        NILAI_DISC_3 = 0,
+                    //                                                        NILAI_DISC_4 = 0,
+                    //                                                        NILAI_DISC_5 = 0,
+                    //                                                        CATATAN = "ORDER NO : " + item.NO_REFERENSI + "_;_" + checkBarang.NAMA + " " + checkBarang.NAMA2 + " " + checkBarang.NAMA3 + "_;_" + dataBarang.BRG_MP,
+                    //                                                        TRANS_NO_URUT = 0,
+                    //                                                        SATUAN_N = 0,
+                    //                                                        QTY_N = Convert.ToInt32(item.QTY),
+                    //                                                        NTITIPAN = 0,
+                    //                                                        DISC_TITIPAN = 0,
+                    //                                                        TOTAL = 0,
+                    //                                                        PPN = Convert.ToInt32(item.NILAI_PPN),
+                    //                                                        NETTO = Convert.ToInt32(item.NETTO),
+                    //                                                        ORDER_ITEM_ID = brgMPOrderItemID[0].ToString(),
+                    //                                                        STATUS_BRG = null,
+                    //                                                        KET_DETAIL = item.KETERANGAN
+                    //                                                    };
+
+                    //                                                    try
+                    //                                                    {
+                    //                                                        batchinsertItemDetail.Add(sot01b);
+                    //                                                        statusDetailInsert = true;
+                    //                                                        //eraDB.SOT01B.Add(sot01b);
+                    //                                                        //eraDB.SaveChanges();
+                    //                                                    }
+                    //                                                    catch (Exception ex)
+                    //                                                    {
+                    //                                                        statusDetailInsert = false;
+                    //                                                        // error log terjadi error pada insert detail pesanan
+                    //                                                    }
+
+                    //                                                    if (ret.percent >= 100 || ret.progress == ret.countAll - 1)
+                    //                                                    {
+                    //                                                        //transaction.Commit();
+                    //                                                        ret.statusSuccess = true;
+                    //                                                        //return Json(ret, JsonRequestBehavior.AllowGet);
+                    //                                                    }
+                    //                                                    iProcess = iProcess + 1;
+                    //                                                    Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(noReffDistinct.Count() - 1));
+
+                    //                                                }
+                    //                                                else
+                    //                                                {
+                    //                                                    var dataMP = MoDbContext.Marketplaces.Where(p => p.IdMarket == Convert.ToInt32(dataToko.NAMA)).SingleOrDefault();
+                    //                                                    statusDetailInsert = false;
+                    //                                                    string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                    //                                                    queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                    //                                                        (item.MARKETPLACE),
+                    //                                                        (connID),
+                    //                                                        ("Upload Excel Pesanan"),
+                    //                                                        (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                    //                                                        ("FAILED"),
+                    //                                                        (iProcess + " / " + Convert.ToInt32(noReffDistinct.Count() - 1)),
+                    //                                                        ("Kode Barang " + item.KODE_BRG + " tidak ditemukan di toko " + dataToko.PERSO + " ("+ dataMP.NamaMarket.ToString() + ")"));
+                    //                                                    EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                    //                                                    // log error masukan ke log tidak ada databarang marketplace di STF02H
+                    //                                                }
+                    //                                            }
+                    //                                            else
+                    //                                            {
+                    //                                                statusDetailInsert = false;
+                    //                                                string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                    //                                                queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                    //                                                    (item.MARKETPLACE),
+                    //                                                    (connID),
+                    //                                                    ("Upload Excel Pesanan"),
+                    //                                                    (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                    //                                                    ("FAILED"),
+                    //                                                    (iProcess + " / " + Convert.ToInt32(noReffDistinct.Count() - 1)),
+                    //                                                    ("Kode Customer Toko " + item.MARKETPLACE + " tidak ditemukan."));
+                    //                                                EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                    //                                                // log error masukan log tidak ada data toko
+                    //                                            }
+                    //                                        }
+                    //                                        else
+                    //                                        {
+                    //                                            statusDetailInsert = false;
+                    //                                            string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                    //                                            queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                    //                                                (item.MARKETPLACE),
+                    //                                                (connID),
+                    //                                                ("Upload Excel Pesanan"),
+                    //                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                    //                                                ("FAILED"),
+                    //                                                (iProcess + " / " + Convert.ToInt32(noReffDistinct.Count() - 1)),
+                    //                                                ("Kode Kurir " + item.KODE_KURIR + " tidak ditemukan."));
+                    //                                            EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                    //                                            // log error masukan log tidak ada data kurir
+                    //                                        }
+                    //                                    }
+                    //                                    else
+                    //                                    {
+                    //                                        statusDetailInsert = false;
+                    //                                        string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, REQUEST_EXCEPTION) VALUES ";
+                    //                                        queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                    //                                            (item.MARKETPLACE),
+                    //                                            (connID),
+                    //                                            ("Upload Excel Pesanan"),
+                    //                                            (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                    //                                            ("FAILED"),
+                    //                                            (iProcess + " / " + Convert.ToInt32(noReffDistinct.Count() - 1)),
+                    //                                            ("Kode Barang " + item.KODE_BRG +" tidak ditemukan."));
+                    //                                        EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                    //                                        //log error masukan log tidak ada barang di DB
+                    //                                    }
+                    //                                }
+                    //                                else
+                    //                                {
+                    //                                    statusDetailInsert = false;
+                    //                                }
+                    //                            }
+                    //                            else
+                    //                            {
+                    //                                batchinsertItemDetail.Clear();
+                    //                            }
+                    //                        }
+
+                    //                        if (statusDetailInsert)
+                    //                        {
+                    //                            var checkDuplicateHeader = eraDBagain.SOT01A.Where(p => p.NO_REFERENSI == itemNoReff).FirstOrDefault();
+                    //                            if (checkDuplicateHeader == null)
+                    //                            {
+                    //                                var sot01a = new SOT01A
+                    //                                {
+                    //                                    AL = null,
+                    //                                    AL1 = null,
+                    //                                    AL2 = null,
+                    //                                    AL3 = null,
+                    //                                    ALAMAT_KIRIM = alamat_kirim,
+                    //                                    AL_CUST = "",
+                    //                                    BRUTO = Convert.ToInt32(bruto),
+                    //                                    CUST = no_custMarketplace,
+                    //                                    CUST_QQ = "",
+                    //                                    DISCOUNT = Convert.ToInt32(diskon),
+                    //                                    Date_Approve = null,
+                    //                                    EXPEDISI = kodeKurir,
+                    //                                    HARGA_FRANCO = "0",
+                    //                                    INDENT = false,
+                    //                                    JAMKIRIM = null,
+                    //                                    KET = null,
+                    //                                    KIRIM_PENUH = false,
+                    //                                    KODE_ALAMAT = "",
+                    //                                    KODE_POS = null,
+                    //                                    KODE_SALES = "",
+                    //                                    KODE_WIL = "",
+                    //                                    KOMISI = 0,
+                    //                                    KOTA = null,
+                    //                                    NAMAPEMESAN = namaPemesan,
+                    //                                    NAMAPENGIRIM = null,
+                    //                                    NAMA_CUST = namaPerso,
+                    //                                    NETTO = Convert.ToInt32(netto),
+                    //                                    NILAI_DISC = Convert.ToInt32(ndisc1) + Convert.ToInt32(ndisc2),
+                    //                                    NILAI_PPN = Convert.ToInt32(nilai_ppn),
+                    //                                    NILAI_TUKAR = 1,
+                    //                                    NO_BUKTI = noBuktiSO,
+                    //                                    NO_PENAWARAN = "",
+                    //                                    NO_PO_CUST = "",
+                    //                                    NO_REFERENSI = itemNoReff,
+                    //                                    N_KOMISI = 0,
+                    //                                    N_KOMISI1 = 0,
+                    //                                    N_UCAPAN = "",
+                    //                                    ONGKOS_KIRIM = Convert.ToInt32(ongkir),
+                    //                                    PEMESAN = kodePemesan,
+                    //                                    PENGIRIM = null,
+                    //                                    PPN = Convert.ToInt32(nilai_ppn),
+                    //                                    PRINT_COUNT = 0,
+                    //                                    PROPINSI = null,
+                    //                                    RETUR_PENUH = false,
+                    //                                    RecNum = null,
+                    //                                    SHIPMENT = namaKurir,
+                    //                                    SOT01D = null,
+                    //                                    STATUS = "0",
+                    //                                    STATUS_TRANSAKSI = "01",
+                    //                                    SUPP = "0",
+                    //                                    Status_Approve = "",
+                    //                                    TERM = 10,
+                    //                                    TGL = DateTime.Now.AddHours(7),
+                    //                                    TGL_INPUT = DateTime.Now.AddHours(7),
+                    //                                    TGL_JTH_TEMPO = DateTime.Now.AddHours(7).AddDays(1),
+                    //                                    TGL_KIRIM = null,
+                    //                                    TIPE_KIRIM = 0,
+                    //                                    TOTAL_SEMUA = Convert.ToInt32(total),
+                    //                                    TOTAL_TITIPAN = 0,
+                    //                                    TRACKING_SHIPMENT = null,
+                    //                                    UCAPAN = "",
+                    //                                    USER_NAME = "Upload Excel",
+                    //                                    U_MUKA = 0,
+                    //                                    VLT = "",
+                    //                                    ZONA = "",
+                    //                                    status_kirim = "0",
+                    //                                    status_print = "0"
+                    //                                };
+
+                    //                                try
+                    //                                {
+                    //                                    batchinsertHeader.Add(sot01a);
+
+                    //                                    eraDBagain.SOT01A.AddRange(batchinsertHeader);
+                    //                                    eraDBagain.SOT01B.AddRange(batchinsertItemDetail);
+                    //                                    eraDBagain.SaveChanges();
+                    //                                    transc.Commit();
+                    //                                    batchinsertHeader.Clear();
+                    //                                    batchinsertItemDetail.Clear();
+
+                    //                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                    //                                }
+                    //                                catch (Exception ex)
+                    //                                {
+                    //                                    // error log terjadi error pada insert header pesanan
+                    //                                }
+                    //                            }
+                    //                        }
+                    //                    }
+                    //                }
+                    //            }
+                    //        }
+                    //    }
+                    //}
+                    //}
             }
             catch (Exception ex)
             {

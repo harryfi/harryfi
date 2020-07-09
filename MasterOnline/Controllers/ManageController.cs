@@ -28105,6 +28105,24 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
+        public FileResult DownloadLogErrorUploadExcelPesanan(string filename)
+        {
+            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+
+            byte[] data = System.IO.File.ReadAllBytes(path);
+            string contentType = MimeMapping.GetMimeMapping(path);
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                FileName = filename,
+                Inline = true,
+            };
+            //Response.AppendHeader("Content-Disposition", cd.ToString());
+
+            return File(data, contentType, filename);
+        }
+
+        [HttpGet]
         public ActionResult ListImportFaktur(string cust)
         {
             //var partialVm = new FakturViewModel()
@@ -29569,7 +29587,6 @@ namespace MasterOnline.Controllers
             IPagedList<API_LOG_MARKETPLACE_HANGFIRE> pageOrders = new StaticPagedList<API_LOG_MARKETPLACE_HANGFIRE>(listPromosi, pagenumber + 1, 5, totalCount.JUMLAH);
             return PartialView("LogErrorUploadPesanan", pageOrders);
         }
-
 
         public ActionResult RefreshTableUploadFaktur(int? page, string cust = "")
         {

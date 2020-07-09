@@ -5215,6 +5215,14 @@
             })
         }
 
+        function downloadLogErrorUploadPesanan(txt){
+            window.open('/Manage/DownloadLogErrorUploadExcelPesanan?filename=' + txt,'_blank');
+
+            //var link = '@Url.Action("DownloadLogUploadFaktur", "Manage")';
+            //link += '?filename=' + txt;
+
+        }
+
         function closeEditor() {
             $('#modalTutupEditor').modal('hide');
             $('.pesanan_table_section').show();

@@ -16,6 +16,7 @@ namespace MasterOnline
         public string REQUEST_RESULT { get; set; }
         public string REQUEST_EXCEPTION { get; set; }
         public string REQUEST_ID { get; set; }
+        public string CUST_ATTRIBUTE_1 { get; set; }
     }
     public partial class HANGFIRE_SERVER_STATUS
     {

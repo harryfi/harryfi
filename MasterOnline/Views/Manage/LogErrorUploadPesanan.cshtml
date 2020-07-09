@@ -25,8 +25,8 @@
         <table id="table_history_upload" class="table table-bordered" role="grid">
             <thead>
                 <tr role="row">
+                    <th width="100">Username</th>
                     <th width="150">Tanggal Upload</th>
-                    <th width="100">Keterangan Error</th>
                     <th width="100">Jumlah Proses Berhasil</th>
                     <th width="45">Log Error</th>
                 </tr>
@@ -35,17 +35,17 @@
                 @foreach (var importLog in Model.ToList())
                 {
                 <tr data-log-recnum="log-@importLog.REQUEST_ID">
+                    <td class="log-akun">
+                        @importLog.CUST_ATTRIBUTE_1
+                    </td>
                     <td class="log-tanggal">
                         @importLog.REQUEST_DATETIME
-                    </td>
-                    <td class="log-akun">
-                        @importLog.REQUEST_EXCEPTION
                     </td>
                     <td class="log-akun">
                         @importLog.REQUEST_RESULT
                     </td>
                     <td class="log-history" style="text-align:center">
-                        <button type="button" class="btn btn-primary" onclick="downloadLogUploadFaktur('@importLog.REQUEST_RESULT')">
+                        <button type="button" class="btn btn-primary" onclick="downloadLogErrorUploadPesanan('@importLog.REQUEST_EXCEPTION')">
                             <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
                         </button>
                     </td>
