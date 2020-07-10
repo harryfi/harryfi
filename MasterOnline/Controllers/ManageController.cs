@@ -25390,37 +25390,42 @@ namespace MasterOnline.Controllers
             //    }
             //}
 
-            //var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16").ToList();
-            //if (listBLIShop.Count > 0)
-            //{
-            //    //remark by calvin 1 april 2019
-            //    //var BliApi = new BlibliController();
-            //    foreach (ARF01 tblCustomer in listBLIShop)
-            //    {
-            //        if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
-            //        {
-            //            BlibliControllerJob.BlibliAPIData data = new BlibliControllerJob.BlibliAPIData()
-            //            {
-            //                API_client_username = tblCustomer.API_CLIENT_U,
-            //                API_client_password = tblCustomer.API_CLIENT_P,
-            //                API_secret_key = tblCustomer.API_KEY,
-            //                mta_username_email_merchant = tblCustomer.EMAIL,
-            //                mta_password_password_merchant = tblCustomer.PASSWORD,
-            //                merchant_code = tblCustomer.Sort1_Cust,
-            //                token = tblCustomer.TOKEN,
-            //                idmarket = tblCustomer.RecNum.Value,
-            //                DatabasePathErasoft = dbPathEra,
-            //                username = "fixblibli"
-            //            };
-            //            await new BlibliControllerJob().GetQueueFeedDetail(data, null);
-            //            //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-06-01 00:00:00", "2019-06-30 23:59:59");
-            //            //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-07-01 00:00:00", "2019-07-31 23:59:59");
-            //            //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-08-01 00:00:00", "2019-08-31 23:59:59");
-            //            //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-09-01 00:00:00", "2019-09-30 23:59:59");
-            //            //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-10-01 00:00:00", "2019-10-30 23:59:59");
-            //        }
-            //    }
-            //}
+            var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16" && m.CUST == "001030").ToList();
+            if (listBLIShop.Count > 0)
+            {
+                //remark by calvin 1 april 2019
+                //var BliApi = new BlibliController();
+                foreach (ARF01 tblCustomer in listBLIShop)
+                {
+                    if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
+                    {
+                        BlibliControllerJob.BlibliAPIData data = new BlibliControllerJob.BlibliAPIData()
+                        {
+                            API_client_username = tblCustomer.API_CLIENT_U,
+                            //API_client_password = tblCustomer.API_CLIENT_P,
+                            API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
+                            //API_secret_key = tblCustomer.API_KEY,
+                            API_secret_key= "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
+                            mta_username_email_merchant = tblCustomer.EMAIL,
+                            mta_password_password_merchant = tblCustomer.PASSWORD,
+                            merchant_code = tblCustomer.Sort1_Cust,
+                            token = tblCustomer.TOKEN,
+                            idmarket = tblCustomer.RecNum.Value,
+                            DatabasePathErasoft = dbPathEra,
+                            username = "fixblibli"
+                        };
+                        List<string> skuMerchant = new List<string>();
+                        skuMerchant.Add("INDSALTED");
+                        await new BlibliControllerJob().CekProductActive(dbPathEra, "INDSALTED", tblCustomer.CUST, "", "", data, "", skuMerchant, tblCustomer.CUST, "", "");
+                        //await new BlibliControllerJob().GetQueueFeedDetail(data, null);
+                        //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-06-01 00:00:00", "2019-06-30 23:59:59");
+                        //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-07-01 00:00:00", "2019-07-31 23:59:59");
+                        //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-08-01 00:00:00", "2019-08-31 23:59:59");
+                        //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-09-01 00:00:00", "2019-09-30 23:59:59");
+                        //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-10-01 00:00:00", "2019-10-30 23:59:59");
+                    }
+                }
+            }
 
             //var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
             //var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
