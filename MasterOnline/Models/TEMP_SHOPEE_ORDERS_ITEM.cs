@@ -29,6 +29,8 @@ namespace MasterOnline
         public string CUST { get; set; }
         public string NAMA_CUST { get; set; }
         public string CONN_ID { get; set; }
+        public double DISC { get; set; }
+        public double N_DISC { get; set; }
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
