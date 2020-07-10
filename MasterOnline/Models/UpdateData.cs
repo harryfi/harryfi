@@ -68,5 +68,8 @@ namespace MasterOnline.Models
         public string Noref { get; set; }
         //end add by nurul 3/4/2020
 
+        //add by nurul 7/7/2020
+        public string NamaBuyer { get; set; }
+        //end add by nurul 7/7/2020
     }
 }

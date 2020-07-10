@@ -17051,6 +17051,9 @@ namespace MasterOnline.Controllers
             fakturInDb.CUST = dataUpdate.Cust;
             fakturInDb.TERM = dataUpdate.Term;
             fakturInDb.PEMESAN = dataUpdate.Buyer;
+            //add by nurul 7/7/2020
+            fakturInDb.NAMAPEMESAN = dataUpdate.NamaBuyer;
+            //end add by nurul 7/7/2020
             fakturInDb.TGL_JT_TEMPO = DateTime.ParseExact(dataUpdate.Tempo, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
             //ADD BY NURUL 5/3/2020
