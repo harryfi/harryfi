@@ -5773,18 +5773,37 @@ namespace MasterOnline.Controllers
                 var dataBrg = await CekVariationShopee(iden, item_id);
                 if (dataBrg != null)
                 {
-                    if (dataBrg.variations != null)
+                    if (dataBrg.tier_variation != null)
                     {
-                        if (dataBrg.variations.Length > 0)
+                        if (dataBrg.tier_variation.Length > 0)
                         {
-                            foreach(var dataShopee in dataBrg.tier_variation)
+                            var tempData = new List<STF02>();
+                            var newData = ListVariant;
+                            foreach (var opsiLv1 in dataBrg.tier_variation[0].options)
                             {
-
+                                var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.MARKET == "SHOPEE" && p.MP_JUDUL_VAR.ToUpper() == opsiLv1.ToUpper()).FirstOrDefault();
+                                var filterLv1 = ListVariant.Where(p => p.Sort8 == getNamaVar.KODE_VAR).ToList();
+                                if (dataBrg.tier_variation.Length > 1)
+                                {
+                                    foreach (var opsiLv2 in dataBrg.tier_variation[1].options)
+                                    {
+                                        var getNamaVar2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.MARKET == "SHOPEE" && p.MP_JUDUL_VAR.ToUpper() == opsiLv2.ToUpper()).FirstOrDefault();
+                                        var filterLv2 = filterLv1.Where(p => p.Sort9 == getNamaVar.KODE_VAR).FirstOrDefault();
+                                        if(filterLv2 != null)
+                                        {
+                                            tempData.Add(filterLv2);
+                                            newData.Remove(filterLv2);
+                                        }
+                                    }
+                                }
                             }
+                            ListVariant = tempData;
+                            ListVariant.AddRange(newData);
                         }
                     }
                 }
-                foreach (var item in ListVariant.OrderBy(p => p.ID))
+                //foreach (var item in ListVariant.OrderBy(p => p.ID))
+                foreach (var item in ListVariant)
                 {
                     var stf02h = ListStf02hVariasi.Where(p => p.BRG.ToUpper() == item.BRG.ToUpper() && p.IDMARKET == marketplace.RecNum).FirstOrDefault();
                     if (stf02h != null)
@@ -5922,30 +5941,7 @@ namespace MasterOnline.Controllers
             }
             HttpBody.variation = variation.ToArray();
             HttpBody.tier_variation = tier_variation.ToArray();
-            ////add by Tri
-            //if(HttpBody.variation.Length > 0)
-            //{
-            //   var dataBrg = await CekVariationShopee(iden, item_id);
-            //    if(dataBrg != null)
-            //    {
-            //        if(dataBrg.variations != null)
-            //        {
-            //            if(dataBrg.variations.Length > 0)
-            //            {
-            //                var tempVariation = HttpBody.variation;
-            //                var tempVariation2 = new ShopeeVariation[HttpBody.variation.Length];
-            //                foreach(var currentVar in dataBrg.variations)
-            //                {
-            //                    foreach(var varMO in HttpBody.variation)
-            //                    {
-            //                        if(currentVar.variation_id)
-            //                    }
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-            ////end add by Tri
+           
             string myData = JsonConvert.SerializeObject(HttpBody);
             myData = myData.Replace(",\"images_url\":null", " ");//remove images_url from tier 2
 
