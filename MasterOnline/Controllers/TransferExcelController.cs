@@ -1380,32 +1380,29 @@ namespace MasterOnline.Controllers
                         {
                             using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
                             {
-                                using (System.Data.Entity.DbContextTransaction transaction = eraDB.Database.BeginTransaction())
-                                {
-
+                            using (System.Data.Entity.DbContextTransaction transaction = eraDB.Database.BeginTransaction())
+                            {
                                 string connID = Guid.NewGuid().ToString();
+
+                                //initialize log txt
+                                #region Logging
+                                string messageErrorLog = "";
+                                string filename = "Log_Upload_Pesanan_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+                                var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename);
+                                #endregion
+
+                                if (!System.IO.File.Exists(path))
+                                {
+                                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), ""));
+                                    var asd = System.IO.File.Create(path);
+                                    asd.Close();
+                                }
+                                StreamWriter tw = new StreamWriter(path);
 
                                 try
                                 {
 
                                     eraDB.Database.CommandTimeout = 1800;
-
-                                    //initialize log txt
-                                    #region Logging
-                                    string messageErrorLog = "";
-                                    string filename = "Log_Upload_Pesanan_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-                                    var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename);
-                                    #endregion
-
-                                    if (!System.IO.File.Exists(path))
-                                    {
-                                        System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), ""));
-                                        var asd = System.IO.File.Create(path);
-                                        asd.Close();
-                                    }
-                                    StreamWriter tw = new StreamWriter(path);
-
-
                                     //loop all worksheets
                                     var worksheet = excelPackage.Workbook.Worksheets[1];
 
@@ -1423,11 +1420,11 @@ namespace MasterOnline.Controllers
                                     var dataMasterKurir = MoDbContext.Ekspedisi.ToList();
                                     var dataMasterARF01 = eraDB.ARF01.ToList();
 
-                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_UPLOADPESANAN");
-                                    List<TEMP_UPLOADPESANAN> batchinsertItem = new List<TEMP_UPLOADPESANAN>();
+                                    //eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_UPLOADPESANAN");
+                                    //List<TEMP_UPLOADPESANAN> batchinsertItem = new List<TEMP_UPLOADPESANAN>();
                                     string queryInsertLogError = "INSERT INTO API_LOG_MARKETPLACE (CUST, REQUEST_ID, REQUEST_ACTION, REQUEST_DATETIME, REQUEST_STATUS, REQUEST_RESULT, CUST_ATTRIBUTE_1, REQUEST_EXCEPTION) VALUES ";
 
-                                    batchinsertItem = new List<TEMP_UPLOADPESANAN>();
+                                    //batchinsertItem = new List<TEMP_UPLOADPESANAN>();
 
                                     string idRequest = Guid.NewGuid().ToString();
 
@@ -1526,9 +1523,9 @@ namespace MasterOnline.Controllers
                                                                                                 var kodePembeli = "";
                                                                                                 string address = "";
                                                                                                 var dataPembeli = eraDB.ARF01C.Where(p => p.NAMA == nama_pembeli && p.TLP == no_telpPembeli).FirstOrDefault();
-                                                                                                var alamatAutoSplit1 = alamat_kirim.Length > 40 ? alamat_kirim.Substring(0, 40) : alamat_kirim.ToString();
-                                                                                                var alamatAutoSplit2 = alamat_kirim.Length > 80 ? alamat_kirim.Substring(40, 80) : alamat_kirim.ToString();
-                                                                                                var alamatAutoSplit3 = alamat_kirim.Length > 120 ? alamat_kirim.Substring(80, 120) : alamat_kirim.ToString();
+                                                                                                var alamatAutoSplit1 = alamat_kirim.Length > 40 ? alamat_kirim.Substring(0, 39) : alamat_kirim.ToString();
+                                                                                                var alamatAutoSplit2 = alamat_kirim.Length > 80 ? alamat_kirim.Substring(40, 79) : alamat_kirim.ToString();
+                                                                                                //var alamatAutoSplit3 = alamat_kirim.Length > 120 ? alamat_kirim.Substring(80, 119) : alamat_kirim.ToString();
 
                                                                                                 if (dataPembeli == null)
                                                                                                 {
@@ -1543,7 +1540,7 @@ namespace MasterOnline.Controllers
                                                                                                     var prov = "31";
 
                                                                                                     nama_pembeli = nama_pembeli.Length > 30 ? nama_pembeli.Substring(0, 30) : nama_pembeli.ToString();
-                                                                                                    address = alamatAutoSplit3;
+                                                                                                    address = alamatAutoSplit1;
 
                                                                                                     insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01', '01', 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                                                                                                         ((nama_pembeli ?? "").Replace("'", "`")),
@@ -1576,85 +1573,85 @@ namespace MasterOnline.Controllers
                                                                                                     var noOrder = "SU" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
                                                                                                     noBuktiSO = noOrder;
 
-                                                                                                    var sot01a = new SOT01A
-                                                                                                    {
-                                                                                                        AL = alamatAutoSplit1,
-                                                                                                        AL1 = alamatAutoSplit1,
-                                                                                                        AL2 = alamatAutoSplit2,
-                                                                                                        AL3 = alamatAutoSplit3,
-                                                                                                        ALAMAT_KIRIM = alamat_kirim,
-                                                                                                        AL_CUST = "",
-                                                                                                        BRUTO = Convert.ToInt32(bruto),
-                                                                                                        CUST = no_cust[0].ToString(),
-                                                                                                        CUST_QQ = "",
-                                                                                                        DISCOUNT = Convert.ToInt32(diskon),
-                                                                                                        Date_Approve = null,
-                                                                                                        EXPEDISI = kurir[0],
-                                                                                                        HARGA_FRANCO = "0",
-                                                                                                        INDENT = false,
-                                                                                                        JAMKIRIM = null,
-                                                                                                        KET = null,
-                                                                                                        KIRIM_PENUH = false,
-                                                                                                        KODE_ALAMAT = "",
-                                                                                                        KODE_POS = null,
-                                                                                                        KODE_SALES = "",
-                                                                                                        KODE_WIL = "",
-                                                                                                        KOMISI = 0,
-                                                                                                        KOTA = null,
-                                                                                                        NAMAPEMESAN = nama_pembeli,
-                                                                                                        NAMAPENGIRIM = null,
-                                                                                                        NAMA_CUST = dataToko.PERSO,
-                                                                                                        NETTO = Convert.ToInt32(netto),
-                                                                                                        NILAI_DISC = Convert.ToInt32(ndisc1),
-                                                                                                        NILAI_PPN = Convert.ToInt32(nilai_ppn),
-                                                                                                        NILAI_TUKAR = 1,
-                                                                                                        NO_BUKTI = noBuktiSO,
-                                                                                                        NO_PENAWARAN = "",
-                                                                                                        NO_PO_CUST = "",
-                                                                                                        NO_REFERENSI = no_referensi,
-                                                                                                        N_KOMISI = 0,
-                                                                                                        N_KOMISI1 = 0,
-                                                                                                        N_UCAPAN = "",
-                                                                                                        ONGKOS_KIRIM = Convert.ToInt32(ongkir),
-                                                                                                        PEMESAN = kodePembeli,
-                                                                                                        PENGIRIM = null,
-                                                                                                        PPN = Convert.ToInt32(nilai_ppn),
-                                                                                                        PRINT_COUNT = 0,
-                                                                                                        PROPINSI = null,
-                                                                                                        RETUR_PENUH = false,
-                                                                                                        RecNum = null,
-                                                                                                        SHIPMENT = dataKurir.NamaEkspedisi,
-                                                                                                        SOT01D = null,
-                                                                                                        STATUS = "0",
-                                                                                                        STATUS_TRANSAKSI = "01",
-                                                                                                        SUPP = "0",
-                                                                                                        Status_Approve = "",
-                                                                                                        TERM = Convert.ToInt32(top),
-                                                                                                        TGL = DateTime.Now.AddHours(7),
-                                                                                                        TGL_INPUT = DateTime.Now.AddHours(7),
-                                                                                                        TGL_JTH_TEMPO = DateTime.Now.AddHours(7).AddDays(Convert.ToInt32(top)),
-                                                                                                        TGL_KIRIM = null,
-                                                                                                        TIPE_KIRIM = 0,
-                                                                                                        TOTAL_SEMUA = Convert.ToInt32(total),
-                                                                                                        TOTAL_TITIPAN = 0,
-                                                                                                        TRACKING_SHIPMENT = null,
-                                                                                                        UCAPAN = "",
-                                                                                                        USER_NAME = "Upload Excel",
-                                                                                                        U_MUKA = 0,
-                                                                                                        VLT = "IDR",
-                                                                                                        ZONA = "",
-                                                                                                        status_kirim = "0",
-                                                                                                        status_print = "0"
-                                                                                                    };
+                                                                                                var sot01a = new SOT01A
+                                                                                                {
+                                                                                                    AL = alamatAutoSplit1.Substring(0, 39),
+                                                                                                    AL1 = alamatAutoSplit1.Substring(0, 39),
+                                                                                                    AL2 = alamatAutoSplit2.Substring(0, 39),
+                                                                                                    AL3 = "",
+                                                                                                    ALAMAT_KIRIM = alamat_kirim,
+                                                                                                    AL_CUST = "",
+                                                                                                    BRUTO = Convert.ToInt32(bruto),
+                                                                                                    CUST = no_cust[0].ToString(),
+                                                                                                    CUST_QQ = "",
+                                                                                                    DISCOUNT = Convert.ToInt32(diskon),
+                                                                                                    Date_Approve = null,
+                                                                                                    EXPEDISI = kurir[0],
+                                                                                                    HARGA_FRANCO = "0",
+                                                                                                    INDENT = false,
+                                                                                                    JAMKIRIM = null,
+                                                                                                    KET = null,
+                                                                                                    KIRIM_PENUH = false,
+                                                                                                    KODE_ALAMAT = "",
+                                                                                                    KODE_POS = null,
+                                                                                                    KODE_SALES = "",
+                                                                                                    KODE_WIL = "",
+                                                                                                    KOMISI = 0,
+                                                                                                    KOTA = null,
+                                                                                                    NAMAPEMESAN = nama_pembeli,
+                                                                                                    NAMAPENGIRIM = null,
+                                                                                                    NAMA_CUST = dataToko.PERSO,
+                                                                                                    NETTO = Convert.ToInt32(netto),
+                                                                                                    NILAI_DISC = Convert.ToInt32(ndisc1),
+                                                                                                    NILAI_PPN = Convert.ToInt32(nilai_ppn),
+                                                                                                    NILAI_TUKAR = 1,
+                                                                                                    NO_BUKTI = noBuktiSO,
+                                                                                                    NO_PENAWARAN = "",
+                                                                                                    NO_PO_CUST = "",
+                                                                                                    NO_REFERENSI = no_referensi,
+                                                                                                    N_KOMISI = 0,
+                                                                                                    N_KOMISI1 = 0,
+                                                                                                    N_UCAPAN = "",
+                                                                                                    ONGKOS_KIRIM = Convert.ToInt32(ongkir),
+                                                                                                    PEMESAN = kodePembeli,
+                                                                                                    PENGIRIM = null,
+                                                                                                    PPN = Convert.ToInt32(nilai_ppn),
+                                                                                                    PRINT_COUNT = 0,
+                                                                                                    PROPINSI = null,
+                                                                                                    RETUR_PENUH = false,
+                                                                                                    RecNum = null,
+                                                                                                    SHIPMENT = dataKurir.NamaEkspedisi,
+                                                                                                    SOT01D = null,
+                                                                                                    STATUS = "0",
+                                                                                                    STATUS_TRANSAKSI = "01",
+                                                                                                    SUPP = "0",
+                                                                                                    Status_Approve = "",
+                                                                                                    TERM = Convert.ToInt32(top),
+                                                                                                    TGL = DateTime.Now.AddHours(7),
+                                                                                                    TGL_INPUT = DateTime.Now.AddHours(7),
+                                                                                                    TGL_JTH_TEMPO = DateTime.Now.AddHours(7).AddDays(Convert.ToInt32(top)),
+                                                                                                    TGL_KIRIM = null,
+                                                                                                    TIPE_KIRIM = 0,
+                                                                                                    TOTAL_SEMUA = Convert.ToInt32(total),
+                                                                                                    TOTAL_TITIPAN = 0,
+                                                                                                    TRACKING_SHIPMENT = null,
+                                                                                                    UCAPAN = "",
+                                                                                                    USER_NAME = "Upload Excel",
+                                                                                                    U_MUKA = 0,
+                                                                                                    VLT = "IDR",
+                                                                                                    ZONA = "",
+                                                                                                    status_kirim = "0",
+                                                                                                    status_print = "0"
+                                                                                                };
 
-                                                                                                    try
+                                                                                                try
                                                                                                     {
                                                                                                         eraDB.SOT01A.Add(sot01a);
-                                                                                                        eraDB.SaveChanges();
                                                                                                         //transaction.Commit();
                                                                                                     }
                                                                                                     catch (Exception ex)
                                                                                                     {
+                                                                                                        transaction.Rollback();
                                                                                                         messageErrorLog = "terjadi error pada insert header pesanan pada row " + i;
                                                                                                         tw.WriteLine(messageErrorLog);
                                                                                                         queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -1671,10 +1668,10 @@ namespace MasterOnline.Controllers
                                                                                                         checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
                                                                                                         if (checkDuplicateHeader != null)
                                                                                                         {
-                                                                                                            EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                                            EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                                            new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                                            var result = EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                                            //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                                                         }
+                                                                                                        new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                                                     }
                                                                                                 }
                                                                                                 else
@@ -1734,14 +1731,15 @@ namespace MasterOnline.Controllers
 
                                                                                                 try
                                                                                                 {
+
                                                                                                     eraDB.SOT01B.Add(sot01b);
                                                                                                     eraDB.SaveChanges();
-                                                                                                    //transaction.Commit();
 
                                                                                                     new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                                                 }
                                                                                                 catch (Exception ex)
                                                                                                 {
+                                                                                                    transaction.Rollback();
                                                                                                     messageErrorLog = "terjadi error pada insert detail pesanan pada row " + i;
                                                                                                     tw.WriteLine(messageErrorLog);
                                                                                                     queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -1753,15 +1751,15 @@ namespace MasterOnline.Controllers
                                                                                                         (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                                         (username),
                                                                                                         (filename));
-                                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                                                    var result =EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                                                     // error log terjadi error pada insert detail pesanan
                                                                                                     checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
                                                                                                     if (checkDuplicateHeader != null)
                                                                                                     {
-                                                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                                        new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                                        var result1 = EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                                        //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                                                     }
+                                                                                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                                                 }
 
                                                                                                 //if (ret.percent >= 100 || ret.progress == ret.countAll - 1)
@@ -1776,6 +1774,8 @@ namespace MasterOnline.Controllers
                                                                                             }
                                                                                             else
                                                                                             {
+                                                                                                transaction.Rollback();
+                                                                                                //transaction.Commit();
                                                                                                 int IDMarket = Convert.ToInt32(dataToko.NAMA);
                                                                                                 var dataMP = MoDbContext.Marketplaces.Where(p => p.IdMarket == IDMarket).SingleOrDefault();
                                                                                                 messageErrorLog = "Kode Barang " + kode_brg + " tidak ditemukan di toko " + dataToko.PERSO + " (" + dataMP.NamaMarket.ToString() + ")";
@@ -1789,19 +1789,21 @@ namespace MasterOnline.Controllers
                                                                                                     (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                                     (username),
                                                                                                     (filename));
-                                                                                                EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                                                var result =EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                                                 // log error masukan ke log tidak ada databarang marketplace di STF02H
                                                                                                 var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
                                                                                                 if (checkDuplicateHeader != null)
                                                                                                 {
-                                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                                    var result1 =EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                                    //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                                                 }
+                                                                                                new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                                             }
                                                                                         }
                                                                                         else
                                                                                         {
+                                                                                            transaction.Rollback();
+                                                                                            //transaction.Commit();
                                                                                             messageErrorLog = "Kode Customer Toko " + no_cust[0] + " tidak ditemukan.";
                                                                                             tw.WriteLine(messageErrorLog);
                                                                                             queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -1813,19 +1815,21 @@ namespace MasterOnline.Controllers
                                                                                                 (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                                 (username),
                                                                                                 (filename));
-                                                                                            EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                                            var result =EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                                             // log error masukan log tidak ada data toko
                                                                                             var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
                                                                                             if (checkDuplicateHeader != null)
                                                                                             {
-                                                                                                EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                                EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                                new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                                var result1 =EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                                //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                                             }
+                                                                                            new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                                         }
                                                                                     }
                                                                                     else
                                                                                     {
+                                                                                        transaction.Rollback();
+                                                                                        //transaction.Commit();
                                                                                         messageErrorLog = "Kode Kurir " + kode_kurir[0] + " tidak ditemukan.";
                                                                                         tw.WriteLine(messageErrorLog);
                                                                                         queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -1837,19 +1841,21 @@ namespace MasterOnline.Controllers
                                                                                             (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                             (username),
                                                                                             (filename));
-                                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                                        var result =EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                                         // log error masukan log tidak ada data kurir
                                                                                         var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                                                         if (checkDuplicateHeader != null)
                                                                                         {
-                                                                                            EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                            EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                            new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                            var result1 =EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                            //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                                         }
+                                                                                        new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                                     }
                                                                                 }
                                                                                 else
                                                                                 {
+                                                                                    transaction.Rollback();
+                                                                                    //transaction.Commit();
                                                                                     messageErrorLog = "Kode Barang " + kode_brg + " tidak ditemukan.";
                                                                                     tw.WriteLine(messageErrorLog);
                                                                                     queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -1861,20 +1867,22 @@ namespace MasterOnline.Controllers
                                                                                          (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                          (username),
                                                                                          (filename));
-                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                                    var result =EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                                     //log error masukan log tidak ada barang di DB
                                                                                     var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                                                     if (checkDuplicateHeader != null)
                                                                                     {
-                                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                        new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                        var result1 =EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                        //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                                     }
+                                                                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                                 }
 
                                                                             }
                                                                             else
                                                                             {
+                                                                                transaction.Rollback();
+                                                                                //transaction.Commit();
                                                                                 messageErrorLog = "kode barang lebih dari 20 karakter pada row " + i;
                                                                                 tw.WriteLine(messageErrorLog);
                                                                                 queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -1886,19 +1894,21 @@ namespace MasterOnline.Controllers
                                                                                     (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                     (username),
                                                                                     (filename));
-                                                                                EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                                var result =EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                                 //log error masukan log kode barang lebih dari 20 karakter
                                                                                 var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                                                 if (checkDuplicateHeader != null)
                                                                                 {
-                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                    var result1 =EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                    //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                                 }
+                                                                                new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                             }
                                                                         }
                                                                         else
                                                                         {
+                                                                            transaction.Rollback();
+                                                                            //transaction.Commit();
                                                                             var errorMessage = "";
                                                                             if (string.IsNullOrEmpty(qty))
                                                                             {
@@ -1919,19 +1929,21 @@ namespace MasterOnline.Controllers
                                                                                 (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                 (username),
                                                                                 (filename));
-                                                                            EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                            var result =EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                             //log error masukan log harga satuan kosong
                                                                             var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                                             if (checkDuplicateHeader != null)
                                                                             {
-                                                                                EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                                new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                var result1 =EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                                //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                             }
+                                                                            new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                         }
                                                                     }
                                                                     else
                                                                     {
+                                                                        transaction.Rollback();
+                                                                        //transaction.Commit();
                                                                         messageErrorLog = "kode barang kosong pada row " + i;
                                                                         tw.WriteLine(messageErrorLog);
                                                                         queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -1943,19 +1955,21 @@ namespace MasterOnline.Controllers
                                                                             (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                             (username),
                                                                             (filename));
-                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                        var result =EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                         //log error masukan log kode barang kosong
                                                                         var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                                         if (checkDuplicateHeader != null)
                                                                         {
-                                                                            EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                            EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                            new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                            var result1 =EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                            //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                         }
+                                                                        new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                     }
                                                                 }
                                                                 else
                                                                 {
+                                                                    transaction.Rollback();
+                                                                    //transaction.Commit();
                                                                     messageErrorLog = "terdapat karakter koma pada kolom pengisian angka di row " + i;
                                                                     tw.WriteLine(messageErrorLog);
                                                                     queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -1967,19 +1981,21 @@ namespace MasterOnline.Controllers
                                                                         (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                         (username),
                                                                         (filename));
-                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                    var result =EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                     //log error masukan log ada koma
                                                                     var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                                     if (checkDuplicateHeader != null)
                                                                     {
-                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                        EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                        new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                        var result1 =EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                        //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                     }
+                                                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                 }
                                                             }
                                                             else
                                                             {
+                                                                transaction.Rollback();
+                                                                //transaction.Commit();
                                                                 messageErrorLog = "terdapat karakter titik pada kolom pengisian angka di row " + i;
                                                                 tw.WriteLine(messageErrorLog);
                                                                 queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -1991,19 +2007,21 @@ namespace MasterOnline.Controllers
                                                                     (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                     (username),
                                                                     (filename));
-                                                                EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                                var result =EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                                 //log error masukan log ada titik
                                                                 var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                                 if (checkDuplicateHeader != null)
                                                                 {
-                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                    var result1 =EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                    //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                                 }
+                                                                new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                             }
                                                         }
                                                         else
                                                         {
+                                                            transaction.Rollback();
+                                                            //transaction.Commit();
                                                             messageErrorLog = "no telepon kosong di row " + i;
                                                             tw.WriteLine(messageErrorLog);
                                                             queryInsertLogError += string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2015,19 +2033,21 @@ namespace MasterOnline.Controllers
                                                                 (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                 (username),
                                                                 (filename));
-                                                            EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                            var result =EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                             //log error masukan log tidak ada no telepon
                                                             var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                             if (checkDuplicateHeader != null)
                                                             {
-                                                                EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                                new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                var result1 =EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                                //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                             }
+                                                            new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                         }
                                                     }
                                                     else
                                                     {
+                                                        transaction.Rollback();
+                                                        //transaction.Commit();
                                                         messageErrorLog = "kode kurir kosong pada row " + i;
                                                         tw.WriteLine(messageErrorLog);
                                                         string[] no_cust2 = marketplace.Split(';');
@@ -2041,15 +2061,15 @@ namespace MasterOnline.Controllers
                                                             (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                             (username),
                                                             (filename));
-                                                        EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                        var result =EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                         //log error masukan log kode kurir kosong
                                                         var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                         if (checkDuplicateHeader != null)
                                                         {
-                                                            EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                            EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
-                                                            new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                            var result1 =EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
+                                                            //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01B WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
                                                         }
+                                                        new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                     }
                                                 }
                                                 else
@@ -2067,7 +2087,7 @@ namespace MasterOnline.Controllers
                                                         (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                         (username),
                                                         (filename));
-                                                    EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                    var result =EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                     //log error masukan log marketplace kosong
                                                     //var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                     //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
@@ -2088,7 +2108,7 @@ namespace MasterOnline.Controllers
                                                     (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                     (username),
                                                     (filename));
-                                                EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                                var result =EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                                 //log error masukan log noref lebih dari 70 karakter
                                                 //var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
                                                 //EDB.ExecuteSQL("Constring", CommandType.Text, "DELETE FROM SOT01A WHERE NO_BUKTI ='" + checkDuplicateHeader.NO_BUKTI + "'");
@@ -2109,28 +2129,30 @@ namespace MasterOnline.Controllers
                                                 (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                 (username),
                                                 (filename));
-                                            EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
+                                            var result =EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError);
                                             //log error masukan log no referensi kosong
                                         }
 
                                     } // end looping
 
-                                    
+
 
                                     //eraDB.TEMP_UPLOADPESANAN.AddRange(batchinsertItem);
                                     //eraDB.SaveChanges();
                                     transaction.Commit();
-                                    tw.Close();
+
                                 }
                                 catch (Exception ex)
                                 {
-                                    transaction.Rollback();
-                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                    tw.WriteLine(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+                                    //transaction.Rollback();
+                                    //new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                     ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
                                 }
 
-                                }
+                                tw.Close();
                             }
+                        }
                         }
                     }
                 }
