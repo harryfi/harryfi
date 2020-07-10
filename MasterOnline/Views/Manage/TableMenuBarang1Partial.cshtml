@@ -84,6 +84,7 @@
             @foreach (var barang in Model)
             {
                 var fordetailPesanan = barang.BRG + '|' + barang.NAMA + ' ' + barang.NAMA2 + '|' + barang.QOO;
+                var forDetailStok = barang.BRG + '|' + barang.NAMA + ' ' + barang.NAMA2 + '|' + barang.QOH;
             <tr>
                 <td class="text-center"><img width="50" height="50" src="@barang.LINK_GAMBAR_1" /></td>
                 <td>@barang.BRG</td>
@@ -94,14 +95,26 @@
         <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HBELI)</td>*@
                 <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJUAL)</td>
                 @*add by nurul 16/11/2018*@
-                <td>@barang.QOH</td>
+                @*<td>@barang.QOH</td>*@
+                <td>
+                    @if (barang.QOH != 0)
+                    {
+                        <div data-tip="Lihat Detail">
+                            <a class="user-link" href="#" data-toggle="modal" data-target="#modalDetailStok" onclick="LihatDetailStok('@forDetailStok')">@barang.QOH</a>
+                        </div>
+                    }
+                    else
+                    {
+                        @barang.QOH
+                    }
+                </td>
                 @*<td>@barang.QOO</td>*@
                 <td>
                     @if (barang.QOO != 0)
                     {
-                    <div data-tip="Lihat Detail">
-                        <a class="user-link" href="#" data-toggle="modal" data-target="#modalDetailPesanan" onclick="LihatDetailPesanan('@fordetailPesanan')">@barang.QOO</a>
-                    </div>
+                        <div data-tip="Lihat Detail">
+                            <a class="user-link" href="#" data-toggle="modal" data-target="#modalDetailPesanan" onclick="LihatDetailPesanan('@fordetailPesanan')">@barang.QOO</a>
+                        </div>
                     }
                     else
                     {
@@ -150,6 +163,14 @@
         $(function () {
             $('#tabelbarang1partialpager').on('click', 'a', function () {
                 if (this.href != "") {
+                    var link = this.href;
+                    link += "&filter=replaceFilter&filtervalue=replaceValueFilter";
+                    //link = link.replace("replaceOrder", $('#Order').val());
+                    var filterby = get_filterby();
+                    var filtervalue = get_filtervalue(filterby);
+                    link = link.replace("replaceFilter", encodeURIComponent(filterby));
+                    link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+
                     $.ajax({
                         url: this.href,
                         type: 'GET',

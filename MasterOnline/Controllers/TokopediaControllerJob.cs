@@ -531,7 +531,7 @@ namespace MasterOnline.Controllers
                     description = brg_stf02.Deskripsi,
                     is_must_insurance = false,
                     is_free_return = false,
-                    //sku = brg_stf02.BRG,
+                    sku = brg_stf02.BRG,
                     stock = 1, //1 - 10000.Stock should be 1 if want to add variant product. 0 indicates always availabl
                     wholesale = null,
                     preorder = null,
@@ -2049,6 +2049,7 @@ namespace MasterOnline.Controllers
             //end change by nurul 17/2/2020
 
             string responseFromServer = "";
+            var isSuccess = false;
             //try
             //{
             var client = new HttpClient();
@@ -2058,13 +2059,25 @@ namespace MasterOnline.Controllers
             HttpResponseMessage clientResponse = await client.PostAsync(
                 urll, content);
 
-            using (HttpContent responseContent = clientResponse.Content)
+            if (clientResponse != null)
             {
-                using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                if (clientResponse.IsSuccessStatusCode)
                 {
-                    responseFromServer = await reader.ReadToEndAsync();
+                    isSuccess = true;
                 }
-            };
+                //responseFromServer = await clientResponse.Content.ReadAsStringAsync();
+                using (HttpContent responseContent = clientResponse.Content)
+                {
+                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                    {
+                        responseFromServer = await reader.ReadToEndAsync();
+                    }
+                };
+            }
+            var httpReason = clientResponse.ReasonPhrase;
+
+
+
             //}
             //catch (Exception ex)
             //{
@@ -2073,8 +2086,31 @@ namespace MasterOnline.Controllers
 
             if (responseFromServer != "")
             {
-                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CreateProductGetStatusResult)) as CreateProductGetStatusResult;
-                if (result.header.error_code == 200)
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ReqPickupResult)) as ReqPickupResult;
+                //if (result.header.error_code == 200)
+                //{
+                //    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                //    contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(NO_BUKTI_SOT01A) + " ke Tokopedia.");
+                //    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + NO_BUKTI_SOT01A + "'");
+
+                //    //ret = NO_BUKTI_SOT01A;
+
+                //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                //    await GetNoAWB(iden, NO_BUKTI_SOT01A, NO_REFERENSI_SOT01A);
+                //}
+                //else
+                //{
+                //    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                //    contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Gagal Request Pickup Pesanan " + Convert.ToString(NO_BUKTI_SOT01A) + " ke Tokopedia.");
+                //    //EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + NO_BUKTI_SOT01A + "'");
+
+                //    //currentLog.REQUEST_RESULT = result.header.reason;
+                //    //currentLog.REQUEST_EXCEPTION = result.header.messages;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                //    throw new Exception(result.header.messages + ";" + result.header.reason);
+                //}
+
+                if (isSuccess)
                 {
                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                     contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(NO_BUKTI_SOT01A) + " ke Tokopedia.");
@@ -2177,6 +2213,7 @@ namespace MasterOnline.Controllers
 
 
             string responseFromServer = "";
+            var isSuccess = false;
             //try
             //{
             var client = new HttpClient();
@@ -2186,13 +2223,30 @@ namespace MasterOnline.Controllers
             HttpResponseMessage clientResponse = await client.PostAsync(
                 urll, content);
 
-            using (HttpContent responseContent = clientResponse.Content)
+            if (clientResponse != null)
             {
-                using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                if (clientResponse.IsSuccessStatusCode)
                 {
-                    responseFromServer = await reader.ReadToEndAsync();
+                    isSuccess = true;
                 }
-            };
+                //responseFromServer = await clientResponse.Content.ReadAsStringAsync();
+                using (HttpContent responseContent = clientResponse.Content)
+                {
+                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                    {
+                        responseFromServer = await reader.ReadToEndAsync();
+                    }
+                };
+            }
+            //using (HttpContent responseContent = clientResponse.Content)
+            //{
+            //    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+            //    {
+            //        responseFromServer = await reader.ReadToEndAsync();
+            //    }
+            //};
+
+            var httpReason = clientResponse.ReasonPhrase;
             //}
             //catch (Exception ex)
             //{
@@ -2202,32 +2256,60 @@ namespace MasterOnline.Controllers
             if (responseFromServer != null)
             {
                 ActOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActOrderResult)) as ActOrderResult;
-                if (result.status == "200 Ok")
+                //if (result.status == "200 Ok")
+                //{
+                //    var pesananInDb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI == noref).FirstOrDefault();
+                //    if (pesananInDb != null)
+                //    {
+                //        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                //        //#if (DEBUG || Debug_AWS)
+                //        //                        await JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI);
+                //        //#else
+                //        //                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                //        //                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                //        //                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                //        //                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI));
+                //        //#endif
+                //    }
+                //}
+                //else if (result.error_message[0].Contains("order already ack-ed") || result.error_message[0].Contains("400") || result.error_message[0].Contains("450") || result.error_message[0].Contains("500") || result.error_message[0].Contains("600"))
+                //{
+                //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                //}
+                //else
+                //{
+                //    var err_msg = "";
+                //    if (result.error_message.Count() > 0)
+                //    {
+                //        foreach (var err in result.error_message)
+                //        {
+                //            err_msg += " " + err + ".";
+                //        }
+                //    }
+                //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                //    //throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + result.error_message[0] + ".");
+                //    throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + err_msg );
+                //}
+
+                if (isSuccess)
                 {
                     var pesananInDb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI == noref).FirstOrDefault();
                     if (pesananInDb != null)
                     {
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                        //#if (DEBUG || Debug_AWS)
-                        //                        await JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI);
-                        //#else
-                        //                        string EDBConnID = EDB.GetConnectionString("ConnId");
-                        //                        var sqlStorage = new SqlServerStorage(EDBConnID);
-
-                        //                        var Jobclient = new BackgroundJobClient(sqlStorage);
-                        //                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI));
-                        //#endif
                     }
                 }
-                else if(result.error_message.Contains("order already ack-ed"))
+                else if (httpReason == "Bad Request")
                 {
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 }
                 else
                 {
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                    throw new Exception("Update Status Accept Pesanan " + noref + " ke Tokopedia Gagal. " + result.error_message.ToArray() + ".");
+                    throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + result.header.messages + ". " + result.header.reason);
                 }
+
                 //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
                 //if (string.IsNullOrEmpty(result.errorCode.Value))
                 //{
@@ -2340,66 +2422,70 @@ namespace MasterOnline.Controllers
             string ret = "";
             var token = SetupContext(iden);
             iden.token = token;
-            string[] splitNoRef = noref.Split(';');
-            string urll = "https://fs.tokopedia.net/v2/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/order?invoice_num=" + Uri.EscapeDataString(splitNoRef.Last());
-            long milis = CurrentTimeMillis();
-
-
-            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
-
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "GET";
-            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
-            myReq.Accept = "application/x-www-form-urlencoded";
-            myReq.ContentType = "application/json";
-            string responseFromServer = "";
-            //try
-            //{
-            using (WebResponse response = await myReq.GetResponseAsync())
+            var getPesanan = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI.Contains(noref)).FirstOrDefault();
+            if (getPesanan != null)
             {
-                using (Stream stream = response.GetResponseStream())
-                {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
-                }
-            }
-            //using (WebResponse response = myReq.GetResponse())
-            //{
-            //    using (Stream stream = response.GetResponseStream())
-            //    {
-            //        StreamReader reader = new StreamReader(stream);
-            //        responseFromServer = reader.ReadToEnd();
-            //    }
-            //}
-            //}
-            //catch (WebException e)
-            //{
-            //    string err = "";
-            //    if (e.Status == WebExceptionStatus.ProtocolError)
-            //    {
-            //        WebResponse resp = e.Response;
-            //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-            //        {
-            //            err = sr.ReadToEnd();
-            //        }
-            //    }
-            //    throw new Exception(err);
-            //}
+                string[] splitNoRef = getPesanan.NO_REFERENSI.Split(';');
+                string urll = "https://fs.tokopedia.net/v2/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/order?invoice_num=" + Uri.EscapeDataString(splitNoRef.Last());
+                long milis = CurrentTimeMillis();
 
-            if (responseFromServer != null)
-            {
-                TokpedSingleOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedSingleOrderResult)) as TokpedSingleOrderResult;
-                if (result.header.error_code == 0)
+
+                DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+                myReq.Accept = "application/x-www-form-urlencoded";
+                myReq.ContentType = "application/json";
+                string responseFromServer = "";
+                try
                 {
-                    var tempAWB = result.data.order_info.shipping_info.awb;
-                    if (tempAWB != null && tempAWB != "")
+                    using (WebResponse response = await myReq.GetResponseAsync())
+                    //using (WebResponse response = myReq.GetResponse())
                     {
-                        var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
-                        if (pesananIndb != null)
+                        using (Stream stream = response.GetResponseStream())
                         {
-                            ret = ret + tempAWB;
-                            pesananIndb.TRACKING_SHIPMENT = tempAWB;
-                            ErasoftDbContext.SaveChanges();
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                        }
+                    }
+                    //using (WebResponse response = myReq.GetResponse())
+                    //{
+                    //    using (Stream stream = response.GetResponseStream())
+                    //    {
+                    //        StreamReader reader = new StreamReader(stream);
+                    //        responseFromServer = reader.ReadToEnd();
+                    //    }
+                    //}
+                }
+                catch (WebException e)
+                {
+                    string err = "";
+                    if (e.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        WebResponse resp = e.Response;
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            err = sr.ReadToEnd();
+                        }
+                    }
+                }
+
+                if (responseFromServer != null)
+                {
+                    TokpedSingleOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedSingleOrderResult)) as TokpedSingleOrderResult;
+                    if (result.header.error_code == 0)
+                    {
+                        var tempAWB = result.data.order_info.shipping_info.awb;
+                        if (tempAWB != null && tempAWB != "")
+                        {
+                            //var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
+                            if (getPesanan != null)
+                            {
+                                ret = ret + tempAWB;
+                                getPesanan.TRACKING_SHIPMENT = tempAWB;
+                                ErasoftDbContext.SaveChanges();
+                            }
                         }
                     }
                 }
@@ -2453,20 +2539,31 @@ namespace MasterOnline.Controllers
             if (responseFromServer != null)
             {
                 JOBCODResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(JOBCODResult)) as JOBCODResult;
-                if (result.status == "200")
+                var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
+                if (pesananIndb != null)
                 {
-                    var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
-                    if (pesananIndb != null)
+                    ret = result.data.order_data.Where(a => a.order.invoice_number == splitNoRef.Last()).Select(a => a.booking_data.booking_code).FirstOrDefault();
+                    //if (result.status == "200")
+                    //{
+                    //    //var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
+                    //    //if (pesananIndb != null)
+                    //    //{
+                    //      ret = result.data.order_data.Where(a => a.order.invoice_number == splitNoRef.Last()).Select(a => a.booking_data.booking_code).FirstOrDefault();
+                    //    if (ret != "" && ret != null)
+                    //    {
+                    //        //EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + NO_BUKTI_SOT01A + "'");
+                    //        pesananIndb.status_kirim = "2";
+                    //        pesananIndb.NO_PO_CUST = ret;
+                    //        ErasoftDbContext.SaveChanges();
+                    //        //} else if (pesananIndb.STATUS_TRANSAKSI == "02" && (pesananIndb.SHIPMENT.Contains("SiCepat") || pesananIndb.SHIPMENT.Contains("AnterAja") || pesananIndb.SHIPMENT.Contains("J&T") || pesananIndb.SHIPMENT.Contains("JNE") || pesananIndb.SHIPMENT.Contains("Lion")))
+                    //    }
+                    //    //}
+                    //}
+                    if (ret != "" && ret != null)
                     {
-                        ret = result.data.order_data.Where(a => a.order.invoice_number == splitNoRef.Last()).Select(a => a.booking_data.booking_code).FirstOrDefault();
-                        if (ret != "" && ret != null)
-                        {
-                            //EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + NO_BUKTI_SOT01A + "'");
-                            pesananIndb.status_kirim = "2";
-                            pesananIndb.NO_PO_CUST = ret;
-                            ErasoftDbContext.SaveChanges();
-                            //} else if (pesananIndb.STATUS_TRANSAKSI == "02" && (pesananIndb.SHIPMENT.Contains("SiCepat") || pesananIndb.SHIPMENT.Contains("AnterAja") || pesananIndb.SHIPMENT.Contains("J&T") || pesananIndb.SHIPMENT.Contains("JNE") || pesananIndb.SHIPMENT.Contains("Lion")))
-                        }
+                        pesananIndb.status_kirim = "2";
+                        pesananIndb.NO_PO_CUST = ret;
+                        ErasoftDbContext.SaveChanges();
                     }
                 }
             }
@@ -2495,13 +2592,30 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
             {
-                using (Stream stream = response.GetResponseStream())
+                using (WebResponse response = myReq.GetResponse())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
                 }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        //err = sr.ReadToEnd();
+                        responseFromServer = sr.ReadToEnd();
+                    }
+                }
+                //throw new Exception(err);
             }
             //using (WebResponse response = myReq.GetResponse())
             //{
@@ -2633,31 +2747,35 @@ namespace MasterOnline.Controllers
             {
                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
-                var orderPaid = result.data.Where(p => p.order_status == 220).ToList();
-                var orderAccepted = result.data.Where(p => p.order_status == 400).ToList();
-                //add by Tri 17 mar 2020, insert pesanan dengan status 450
-                var orderWaitingPickUp = result.data.Where(p => p.order_status == 450).ToList();
-                if (orderWaitingPickUp != null)
+                if (result.data != null)
                 {
-                    if (orderWaitingPickUp.Count > 0)
-                        orderAccepted.AddRange(orderWaitingPickUp);
-
-                }
-                //end add by Tri 17 mar 2020, insert pesanan dengan status 450
-                var orderTokpedInDb = ErasoftDbContext.TEMP_TOKPED_ORDERS.Where(p => p.fs_id == iden.merchant_code);
-
-                var last21days = DateTimeOffset.UtcNow.AddHours(7).AddDays(-21).DateTime;
-                System.DateTime datetimeisnull = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-                var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && (p.TGL ?? datetimeisnull) > last21days).Select(p => p.NO_REFERENSI).ToList();
-
-                var connIdARF01C = Guid.NewGuid().ToString();
-                rowCount = result.data.Count();
-                foreach (var order in orderPaid)
-                {
-                    if (!OrderNoInDb.Contains(order.order_id + ";" + order.invoice_ref_num))
+                    var orderPaid = result.data.Where(p => p.order_status == 220).ToList();
+                    var orderAccepted = result.data.Where(p => p.order_status == 400).ToList();
+                    //add by Tri 17 mar 2020, insert pesanan dengan status 450
+                    var orderWaitingPickUp = result.data.Where(p => p.order_status == 450).ToList();
+                    if (orderWaitingPickUp != null)
                     {
-                        List<TEMP_TOKPED_ORDERS> ListNewOrders = new List<TEMP_TOKPED_ORDERS>();
-                        ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_TOKPED_ORDERS");
+                        if (orderWaitingPickUp.Count > 0)
+                            orderAccepted.AddRange(orderWaitingPickUp);
+
+                    }
+                    //end add by Tri 17 mar 2020, insert pesanan dengan status 450
+                    var orderTokpedInDb = ErasoftDbContext.TEMP_TOKPED_ORDERS.Where(p => p.fs_id == iden.merchant_code);
+
+                    var last21days = DateTimeOffset.UtcNow.AddHours(7).AddDays(-21).DateTime;
+                    System.DateTime datetimeisnull = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+                    var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && (p.TGL ?? datetimeisnull) > last21days).Select(p => p.NO_REFERENSI).ToList();
+
+                    var connIdARF01C = Guid.NewGuid().ToString();
+                    rowCount = result.data.Count();
+                    if (orderPaid != null)
+                    {
+                        foreach (var order in orderPaid)
+                        {
+                            if (!OrderNoInDb.Contains(order.order_id + ";" + order.invoice_ref_num))
+                            {
+                                List<TEMP_TOKPED_ORDERS> ListNewOrders = new List<TEMP_TOKPED_ORDERS>();
+                                ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_TOKPED_ORDERS");
 
                         string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
                         insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
@@ -2882,49 +3000,53 @@ namespace MasterOnline.Controllers
                             }
                         }
 
-                        insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
-                        EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+                                insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                                EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
 
-                        ErasoftDbContext.TEMP_TOKPED_ORDERS.AddRange(ListNewOrders);
-                        ErasoftDbContext.SaveChanges();
+                                ErasoftDbContext.TEMP_TOKPED_ORDERS.AddRange(ListNewOrders);
+                                ErasoftDbContext.SaveChanges();
 
-                        using (SqlCommand CommandSQL = new SqlCommand())
-                        {
-                            //call sp to insert buyer data
-                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+                                using (SqlCommand CommandSQL = new SqlCommand())
+                                {
+                                    //call sp to insert buyer data
+                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
 
-                            EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
-                        };
-                        using (SqlCommand CommandSQL = new SqlCommand())
-                        {
-                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
-                            CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
-                            CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                            CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
-                            CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-                            CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
-                            CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-                            CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 1;
-                            CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
-                            CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
-                            CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
-                            CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+                                    EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                                };
+                                using (SqlCommand CommandSQL = new SqlCommand())
+                                {
+                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
+                                    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                                    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 1;
+                                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
-                            EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
-                            jmlhNewOrder++;
+                                    EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                    jmlhNewOrder++;
+                                }
+                            }
                         }
                     }
-                }
 
-                foreach (var order in orderAccepted)
-                {
-                    if (!OrderNoInDb.Contains(order.order_id + ";" + order.invoice_ref_num))
+                    if (orderAccepted != null)
                     {
-                        List<TEMP_TOKPED_ORDERS> ListNewOrders = new List<TEMP_TOKPED_ORDERS>();
+                        foreach (var order in orderAccepted)
+                        {
+                            if (!OrderNoInDb.Contains(order.order_id + ";" + order.invoice_ref_num))
+                            {
+                                List<TEMP_TOKPED_ORDERS> ListNewOrders = new List<TEMP_TOKPED_ORDERS>();
 
-                        ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_TOKPED_ORDERS");
+                                ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_TOKPED_ORDERS");
 
                         var nama2 = order.recipient.name.Replace("'", "`");
                         if (nama2.Length > 30)
@@ -3150,38 +3272,41 @@ namespace MasterOnline.Controllers
                             }
                         }
 
-                        insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
-                        EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+                                insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                                EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
 
-                        ErasoftDbContext.TEMP_TOKPED_ORDERS.AddRange(ListNewOrders);
-                        ErasoftDbContext.SaveChanges();
+                                ErasoftDbContext.TEMP_TOKPED_ORDERS.AddRange(ListNewOrders);
+                                ErasoftDbContext.SaveChanges();
 
-                        using (SqlCommand CommandSQL = new SqlCommand())
-                        {
-                            //call sp to insert buyer data
-                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+                                using (SqlCommand CommandSQL = new SqlCommand())
+                                {
+                                    //call sp to insert buyer data
+                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
 
-                            EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
-                        };
-                        using (SqlCommand CommandSQL = new SqlCommand())
-                        {
-                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
-                            CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
-                            CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                            CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
-                            CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-                            CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
-                            CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-                            CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 1;
-                            CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
-                            CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
-                            CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
-                            CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+                                    EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                                };
+                                using (SqlCommand CommandSQL = new SqlCommand())
+                                {
+                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
+                                    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                                    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 1;
+                                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
-                            EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
-                            jmlhNewOrder++;
+                                    EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                    jmlhNewOrder++;
+                                }
+                            }
                         }
                     }
                 }
@@ -3214,6 +3339,7 @@ namespace MasterOnline.Controllers
         public async Task<string> GetOrderList(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             string ret = "";
+            var token = SetupContext(iden);
 
             var daysFrom = -1;
             var daysTo = 1;
@@ -3221,11 +3347,17 @@ namespace MasterOnline.Controllers
             while (daysFrom > -13)
             {
                 await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
-                daysFrom -= 3;
-                daysTo -= 3;
-                //daysFrom -= 2;
-                //daysTo -= 2;
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrderListCompleted%' and invocationdata not like '%GetOrderListCancel%' and invocationdata not like '%GetSingleOrder%' and invocationdata not like '%CheckPendings%'");
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
         public async Task<string> GetOrderListCompleted3Days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete, int daysFrom, int daysTo)
@@ -3318,7 +3450,7 @@ namespace MasterOnline.Controllers
             {
                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
-                if(result.data != null)
+                if (result.data != null)
                 {
                     var orderCompleted = result.data.Where(p => p.order_status == 700).ToList();
                     var order701 = result.data.Where(p => p.order_status == 701).ToList(); // order yang dianggap selesai tetapi barang tidak sampai ke buyer
@@ -3343,7 +3475,7 @@ namespace MasterOnline.Controllers
                         jmlhOrderComplete = jmlhOrderComplete + rowAffected;
                     }
                 }
-                
+
             }
             if (rowCount > 99)
             {
@@ -3369,6 +3501,7 @@ namespace MasterOnline.Controllers
         {
             //if merchant code diisi. barulah GetOrderList
             string ret = "";
+            var token = SetupContext(iden);
 
             var daysFrom = -1;
             var daysTo = 1;
@@ -3377,11 +3510,17 @@ namespace MasterOnline.Controllers
             {
                 await GetOrderListCompleted3Days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
 
-                daysFrom -= 3;
-                daysTo -= 3;
-                //daysFrom -= 2;
-                //daysTo -= 2;
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\\\"}\"" + "," + "\"5\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","5","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+
             return ret;
 
         }
@@ -3516,6 +3655,7 @@ namespace MasterOnline.Controllers
         public async Task<string> GetOrderListCancel(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder)
         {
             string ret = "";
+            var token = SetupContext(iden);
 
             var daysFrom = -1;
             var daysTo = 1;
@@ -3524,11 +3664,17 @@ namespace MasterOnline.Controllers
             {
                 await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
 
-                daysFrom -= 3;
-                daysTo -= 3;
-                //daysFrom -= 2;
-                //daysTo -= 2;
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
+
+            // add tuning no duplicate hangfire job get order
+            var queryStatus = "\\\"}\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCancel%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end add tuning no duplicate hangfire job get order
+
             return ret;
         }
 
@@ -3924,7 +4070,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke Tokopedia gagal.")]
-        public async Task<string> UpdatePrice_Job(TokopediaAPIData iden, int product_id, int price)
+        public async Task<string> UpdatePrice_Job(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, int product_id, TokopediaAPIData iden, int price)
         {
             var token = SetupContext(iden);
             iden.token = token;
@@ -3973,7 +4119,51 @@ namespace MasterOnline.Controllers
                     {
                         StreamReader reader = new StreamReader(stream);
                         responseFromServer = reader.ReadToEnd();
-                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    }
+                }
+                if (responseFromServer != "")
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(UpdatePriceResponse)) as UpdatePriceResponse;
+                    if (result != null)
+                    {
+                        if (result.header.error_code != 0)
+                        {
+                            currentLog.REQUEST_EXCEPTION = (result.header.reason ?? result.header.messages);
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            throw new Exception(currentLog.REQUEST_EXCEPTION);
+                        }
+                        else
+                        {
+                            if (result.data != null)
+                            {
+                                if (result.data.failed_rows > 0)
+                                {
+                                    if (result.data.failed_rows_data.Length > 0)
+                                    {
+                                        var rowFailedMessage = "";
+                                        foreach (var itemRow in result.data.failed_rows_data)
+                                        {
+                                            if (!string.IsNullOrEmpty(itemRow.message) && itemRow.product_id != 0)
+                                            {
+                                                rowFailedMessage = rowFailedMessage + Convert.ToString(itemRow.message) + " product id:" + Convert.ToString(itemRow.product_id) + ";";
+                                            }
+                                        }
+                                        currentLog.REQUEST_EXCEPTION = "failed_rows_data:" + rowFailedMessage;
+                                    }
+                                    else
+                                    {
+                                        currentLog.REQUEST_EXCEPTION = responseFromServer;
+                                    }
+                                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                    throw new Exception(currentLog.REQUEST_EXCEPTION);
+                                }
+                                else
+                                {
+                                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -5116,56 +5306,58 @@ namespace MasterOnline.Controllers
             if (responseFromServer != null)
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariantResult)) as GetVariantResult;
-                if (string.IsNullOrEmpty(result.header.reason))
+                //if (string.IsNullOrEmpty(result.header.reason))
+                if (result.header.error_code == 0)
                 {
                     try
                     {
                         string a = "";
                         int i = 0;
-                        foreach (var attribs in result.data)
-                        {
-                            a = Convert.ToString(i + 1);
-
-                            ATTRIBUTE_TOKPED newRecord = new ATTRIBUTE_TOKPED();
-
-                            newRecord["VARIANT_ID_" + a] = attribs.variant_id;
-                            newRecord["HAS_UNIT_" + a] = attribs.has_unit;
-                            newRecord["ANAME_" + a] = attribs.name;
-                            newRecord["STATUS_" + a] = Convert.ToString(attribs.status);
-                            ret.attribute.Add(newRecord);
-
-                            if (attribs.units.Count() > 0)
+                        if (result.data != null)
+                            foreach (var attribs in result.data)
                             {
-                                foreach (var unit in attribs.units)
-                                {
-                                    ATTRIBUTE_UNIT_TOKPED newRecordUnit = new ATTRIBUTE_UNIT_TOKPED();
-                                    newRecordUnit["VARIANT_ID"] = attribs.variant_id;
-                                    newRecordUnit["UNIT_ID"] = unit.unit_id;
-                                    newRecordUnit["UNIT_NAME"] = unit.name;
-                                    newRecordUnit["UNIT_SHORT_NAME"] = unit.short_name;
-                                    ret.attribute_unit.Add(newRecordUnit);
-                                }
+                                a = Convert.ToString(i + 1);
 
-                                foreach (var unit in attribs.units)
+                                ATTRIBUTE_TOKPED newRecord = new ATTRIBUTE_TOKPED();
+
+                                newRecord["VARIANT_ID_" + a] = attribs.variant_id;
+                                newRecord["HAS_UNIT_" + a] = attribs.has_unit;
+                                newRecord["ANAME_" + a] = attribs.name;
+                                newRecord["STATUS_" + a] = Convert.ToString(attribs.status);
+                                ret.attribute.Add(newRecord);
+
+                                if (attribs.units.Count() > 0)
                                 {
-                                    if (unit.values != null)
+                                    foreach (var unit in attribs.units)
                                     {
-                                        foreach (var opt in unit.values)
+                                        ATTRIBUTE_UNIT_TOKPED newRecordUnit = new ATTRIBUTE_UNIT_TOKPED();
+                                        newRecordUnit["VARIANT_ID"] = attribs.variant_id;
+                                        newRecordUnit["UNIT_ID"] = unit.unit_id;
+                                        newRecordUnit["UNIT_NAME"] = unit.name;
+                                        newRecordUnit["UNIT_SHORT_NAME"] = unit.short_name;
+                                        ret.attribute_unit.Add(newRecordUnit);
+                                    }
+
+                                    foreach (var unit in attribs.units)
+                                    {
+                                        if (unit.values != null)
                                         {
-                                            ATTRIBUTE_OPT_TOKPED newRecordOpt = new ATTRIBUTE_OPT_TOKPED();
-                                            newRecordOpt["VALUE_ID"] = opt.value_id;
-                                            newRecordOpt["UNIT_ID"] = unit.unit_id;
-                                            newRecordOpt["VALUE"] = opt.value;
-                                            newRecordOpt["HEX_CODE"] = opt.hex_code;
-                                            newRecordOpt["ICON"] = opt.icon;
-                                            newRecordOpt["VARIANT_ID"] = attribs.variant_id;
-                                            ret.attribute_opt.Add(newRecordOpt);
+                                            foreach (var opt in unit.values)
+                                            {
+                                                ATTRIBUTE_OPT_TOKPED newRecordOpt = new ATTRIBUTE_OPT_TOKPED();
+                                                newRecordOpt["VALUE_ID"] = opt.value_id;
+                                                newRecordOpt["UNIT_ID"] = unit.unit_id;
+                                                newRecordOpt["VALUE"] = opt.value;
+                                                newRecordOpt["HEX_CODE"] = opt.hex_code;
+                                                newRecordOpt["ICON"] = opt.icon;
+                                                newRecordOpt["VARIANT_ID"] = attribs.variant_id;
+                                                ret.attribute_opt.Add(newRecordOpt);
+                                            }
                                         }
                                     }
                                 }
+                                i = i + 1;
                             }
-                            i = i + 1;
-                        }
                     }
                     catch (Exception ex2)
                     {
@@ -6860,10 +7052,70 @@ namespace MasterOnline.Controllers
         //add class postActOrder
         public class ActOrderResult
         {
+            //change by nurul 4/6/2020
+            //public string data { get; set; }
+            //public string status { get; set; }
+            //public string[] error_message { get; set; }
+            public TokopediaAckOrderHeader header { get; set; }
             public string data { get; set; }
-            public string status { get; set; }
-            public string[] error_message { get; set; }
+            //end change by nurul 4/6/2020
         }
         //end add by nurul 23/3/2020
+
+        //add 4 jun 2020
+
+        public class UpdatePriceResponse
+        {
+            public UpdatePriceResponseHeader header { get; set; }
+            public UpdatePriceResponseData data { get; set; }
+        }
+
+        public class UpdatePriceResponseHeader
+        {
+            //public float process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class UpdatePriceResponseData
+        {
+            public int succeed_rows { get; set; }
+            public int failed_rows { get; set; }
+            public UpdatePriceResponseFailed_Rows_Data[] failed_rows_data { get; set; }
+        }
+
+        public class UpdatePriceResponseFailed_Rows_Data
+        {
+            public long product_id { get; set; }
+            //public long new_price { get; set; }
+            //public long new_stock { get; set; }
+            public string message { get; set; }
+        }
+        //end add 4 jun 2020
+
+        //add by nurul 4/6/2020
+        public class TokopediaAckOrderHeader
+        {
+            public float process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public string error_code { get; set; }
+        }
+
+        public class ReqPickupResult
+        {
+            public TokopediaAckOrderHeader header { get; set; }
+            public TokpedReqPickupData data { get; set; }
+        }
+        public class TokpedReqPickupData
+        {
+            public long order_id { get; set; }
+            public long shop_id { get; set; }
+            public DateTime request_time { get; set; }
+            public string result { get; set; }
+            public string shipping_ref_num { get; set; }
+        }
+        //end add by nurul 4/6/2020
     }
 }

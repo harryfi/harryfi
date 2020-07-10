@@ -107,7 +107,9 @@
         $('.checkbox_packing_tokped').each( function() {
             if($(this).attr("data-cust") == cust && $(this).is(":checked")){
                 rows_selected.push($(this).attr("data-recnum"));
-                row_bukti.push($(this).attr("data-bukti"));
+                //row_bukti.push($(this).attr("data-bukti"));
+                var bukti = $(this).attr("data-bukti") + " ";
+                row_bukti.push(bukti);
             }
         });
 
@@ -139,58 +141,130 @@
                     cache: false,
                     data: JSON.stringify($postdata),
                     success: function (response) {
+                        //if (response != null) {
+                        //        var textareaValue = "";
+
+                        //        var adaUrl = false;
+                        //        var urlValue = "";
+                        //        var urltext = "";
+                        //        //if (response.label != undefined) {
+                        //        //    adaUrl = true;
+                        //        //    var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + response.label + "'>Print</a> </br>";
+                        //        //    urlValue = buttonHtml;
+                        //        //}
+
+                        //        //if (urltext != "") {
+                        //        //    var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + urltext + "'>Print</a> </br>";
+                        //        //    urlValue = buttonHtml;
+                        //        //}
+                        //        //if (adaUrl) {
+                        //        //    textareaValue += "Url AWB :</br>";
+                        //        //    textareaValue += urlValue;
+                        //        //}
+
+                        //        var adaError = false;
+                        //        var errorValue = "";
+                        //        if (response.mo_error != undefined) {
+                        //            response.mo_error.forEach(function (item) {
+                        //                adaError = true;
+                        //                errorValue += item + ". </br>";
+                        //            });
+                        //        }
+                        //        if (adaError) {
+                        //            textareaValue += "</br>";
+                        //            textareaValue += "Error Orders :</br>";
+                        //            textareaValue += errorValue;
+                        //        }
+                        //    $('#modalPrintTokped__textarea__' + cust).html(textareaValue);
+
+                        //    if (response.mo_label != undefined) {
+                        //        //response.mo_label.forEach(function (item) {
+                        //        //    var w = window.open('about:blank');
+                        //        //    w.document.open();
+                        //        //    w.document.write(item);
+                        //        //    w.document.close();
+                        //        //});
+                        //            var w = window.open('about:blank');
+                        //            w.document.open();
+                        //            w.document.write(response.mo_label);
+                        //            w.document.close();
+                        //    }
+
+                        //    if (!adaError && textareaValue == "") {
+                        //        $('#modalPrintTokped__' + cust).modal('hide');
+                        //    }
+                        //    //response.mo_label.forEach(function (item) {
+                        //    //        var w = window.open('about:blank');
+                        //    //        w.document.open();
+                        //    //        w.document.write(item);
+                        //    //        w.document.close();
+                        //    //    });
+                        //}
+
                         if (response != null) {
-                                var textareaValue = "";
+                            var textareaValue = "";
 
-                                var adaUrl = false;
-                                var urlValue = "";
-                                var urltext = "";
-                                //if (response.label != undefined) {
-                                //    adaUrl = true;
-                                //    var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + response.label + "'>Print</a> </br>";
-                                //    urlValue = buttonHtml;
-                                //}
-
-                                //if (urltext != "") {
-                                //    var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + urltext + "'>Print</a> </br>";
-                                //    urlValue = buttonHtml;
-                                //}
-                                //if (adaUrl) {
-                                //    textareaValue += "Url AWB :</br>";
-                                //    textareaValue += urlValue;
-                                //}
-
-                                var adaError = false;
-                                var errorValue = "";
-                                if (response.mo_error != undefined) {
-                                    response.mo_error.forEach(function (item) {
-                                        adaError = true;
-                                        errorValue += item + ". </br>";
-                                    });
-                                }
-                                if (adaError) {
-                                    textareaValue += "</br>";
-                                    textareaValue += "Error Orders :</br>";
-                                    textareaValue += errorValue;
-                                }
-                            $('#modalPrintTokped__textarea__' + cust).html(textareaValue);
-
-                            if (response.mo_label != undefined) {
-                                response.mo_label.forEach(function (item) {
-                                    var w = window.open('about:blank');
-                                    w.document.open();
-                                    w.document.write(item);
-                                    w.document.close();
+                            var adaUrl = false;
+                            var urlValue = "";
+                            var urltext = "";
+                            var adaError = false;
+                            var errorValue = "";
+                            if (response.mo_error != undefined) {
+                                response.mo_error.forEach(function (item) {
+                                    adaError = true;
+                                    errorValue += item + ". </br>";
                                 });
                             }
-                            //response.mo_label.forEach(function (item) {
-                            //        var w = window.open('about:blank');
-                            //        w.document.open();
-                            //        w.document.write(item);
-                            //        w.document.close();
-                            //    });
-                        }
+                            if (adaError) {
+                                textareaValue += "</br>";
+                                textareaValue += "Error Orders :</br>";
+                                textareaValue += errorValue;
+                            }
+                            $('#modalPrintTokped__textarea__' + cust).html(textareaValue);
 
+                            if (response.mo_label != undefined && response.mo_label != null) {
+
+                                $postdata2 = {
+                                    data: response.mo_label,
+                                };
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("CetakLabelTokped", "Manage")',
+                                    contentType: "application/json; charset=UTF-8",
+                                    cache: false,
+                                    beforeSend: function () {
+                                        $('#modalPrintLabelOption__' + cust).modal('hide');
+                                        $('#modalPrintTokped__' + cust).modal('hide');
+                                        $('#loading_spinner').show();
+                                    },
+                                    data: JSON.stringify($postdata2),
+                                    success: function (response) {
+                                        if (response != null) {
+                                            if (response.mo_error == null) {
+                                                $('#loading_spinner').hide();
+                                                var w = window.open('about:blank');
+                                                w.document.open();
+                                                w.document.write(response);
+                                                w.document.close();
+
+                                            } else {
+                                                alert(response.mo_error);
+                                                $('#loading_spinner').hide();
+                                            }
+                                        }
+
+                                    },
+                                    error: function (xhr, status, error) {
+                                        console.log(error);
+                                        $('#loading_spinner').hide();
+                                    }
+                                });
+                            } else {
+                                alert(response.mo_error);
+                                $('#loading_spinner').hide();
+                            }
+                        }
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
@@ -216,6 +290,7 @@
                     $('#ctk_ref__' + cust).attr('checked', true);
                     $('#nama_toko__' + cust).val("");
                     $('#tlp_toko__' + cust).val("");
+                    $('#ctk_ket__' + cust).attr('checked', true);
 
                     $('#btn-print-faktur__' + cust).off('click').on('click', function () {
                         var toko = $('#nama_toko__' + cust).val();
@@ -230,6 +305,7 @@
                         var port = "0";
                         var ref = "0";
                         var nama = "0";
+                        var ket = "0";
 
                         if ($("#ctk_alamat__" + cust).is(":checked") == true) {
                             alamat = "1";
@@ -272,6 +348,11 @@
                         } else if ($('#ctk_nama__' + cust).is(":checked") == false) {
                             nama = "0";
                         }
+                        if ($('#ctk_ket__' + cust).is(":checked") == true) {
+                            ket = "1";
+                        } else if ($('#ctk_ket__' + cust).is(":checked") == false) {
+                            ket = "0";
+                        }
 
                         var $alamat = '&alamat=' + alamat;
                         var $tlp = '&tlp=' + tlp;
@@ -308,7 +389,8 @@
                                             totalLink: total,
                                             portLink: port,
                                             refLink: ref,
-                                            data: response
+                                            data: response,
+                                            ketLink: ket,
                                         };
 
                                         $.ajax({
@@ -402,6 +484,7 @@
                     $('#ctk_ref__' + cust).attr('checked', true);
                     $('#nama_toko__' + cust).val("");
                     $('#tlp_toko__' + cust).val("");
+                    $('#ctk_ket__' + cust).attr('checked', true);
 
                     $('#btn-print-faktur__' + cust).off('click').on('click', function () {
                         var toko = $('#nama_toko__' + cust).val();
@@ -416,6 +499,7 @@
                         var port = "0";
                         var ref = "0";
                         var nama = "0";
+                        var ket = "0";
 
                         if ($("#ctk_alamat__" + cust).is(":checked") == true) {
                             alamat = "1";
@@ -458,6 +542,11 @@
                         } else if ($('#ctk_nama__' + cust).is(":checked") == false) {
                             nama = "0";
                         }
+                        if ($('#ctk_ket__' + cust).is(":checked") == true) {
+                            ket = "1";
+                        } else if ($('#ctk_ket__' + cust).is(":checked") == false) {
+                            ket = "0";
+                        }
 
                         var $alamat = '&alamat=' + alamat;
                         var $tlp = '&tlp=' + tlp;
@@ -478,6 +567,7 @@
                             mpLink: mp,
                             nobukLink: nobuk,
                             totalLink: total,
+                            ketLink: ket,
                         };
 
                         $('#modalPrintTokped__label__' + cust).html('Print Pesanan Tokopedia');
@@ -616,9 +706,9 @@
                 <div id="tokped_tab_content__@(item.CUST)" class="tab-pane fade in">
                     <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
                     @*add by nurul 19/3/2020*@
-                    <div class="modal fade" id="modalPrintLabelOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel__@(item.CUST)">
+                    <div class="modal fade" id="modalPrintLabelOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel__@(item.CUST)"> 
                         <div class="modal-dialog" id="modal-print-option" role="document">
-                            <div class="modal-content " style="margin:auto;height:470px;width:650px;">
+                            <div class="modal-content " style="margin:auto;height:470px;width:650px;overflow-y:auto">
                                 <div class="modal-header">
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                     <h4 class="modal-title" id="printOptionLabel__@(item.CUST)">Cetak Label</h4>
@@ -727,6 +817,21 @@
                                         <div class="col-md-1">
                                         </div>
                                     </div>
+                                    <div class="row" style="margin-top:5px">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_ket__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_ket__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-4" style="padding-top: 7px;">
+                                            Catatan Pembeli
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
                                     <br />
                                     <div class="row">
                                         <div class="col-md-1">
@@ -777,24 +882,24 @@
                             <button id="btnBookingTokped_@(item.CUST)" type="button" class="btn btn-primary" onclick="KodeBookingPackingTokped('@(item.CUST)')">Get Kode booking</button>
                             <button id="btnProsesTokped_@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingTokped('@(item.CUST)')">Request Pickup</button>
                             @*<button id="btnProsesTokped__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingTokped('@(item.CUST)')">Request Pickup</button>
-        <button id="btnPrintTokped__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintTokped">Print</button>*@
+                                <button id="btnPrintTokped__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintTokped">Print</button>*@
                             @*//add by nurul 19/3/2020*@
-                            <button id="btnPrintTokped_@(item.CUST)" type="button" class="btn btn-primary" onclick="TokopediaLabelPerPacking('@(item.CUST)')">Print</button>
-                            @*<div class="col-md-3 pull-right" style="text-align:right">
-            <div class="btn-group pull-right" role="group">
-                <button id="pl_lazada_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100px;">
-                    Print <span class="caret"></span>
-                </button>
-                <div class="dropdown-menu">
-                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintTokopedia__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TokopediaGetLabelPerPacking('@(item.CUST)','1')">
-                        <span aria-hidden="true"> Label Marketplace</span>
-                    </button>
-                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOTokopedia__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TokopediaGetLabelPerPacking('@(item.CUST)','2')">
-                        <span aria-hidden="true"> Label MasterOnline</span>
-                    </button>
-                </div>
-            </div>
-        </div>*@
+                            @*<button id="btnPrintTokped_@(item.CUST)" type="button" class="btn btn-primary" onclick="TokopediaLabelPerPacking('@(item.CUST)')">Print</button>*@
+                            <div class="pull-right" style="text-align:right">
+                                <div class="btn-group pull-right" role="group">
+                                    <button id="pl_lazada_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100px;">
+                                        Print <span class="caret"></span>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintTokopedia__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TokopediaGetLabelPerPacking('@(item.CUST)','1')">
+                                            <span aria-hidden="true"> Label Marketplace</span>
+                                        </button>
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOTokopedia__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TokopediaGetLabelPerPacking('@(item.CUST)','2')">
+                                            <span aria-hidden="true"> Label MasterOnline</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                             @*//end add by nurul 19/3/2020*@
                         </div>
                     </div>

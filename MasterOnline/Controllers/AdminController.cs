@@ -21,6 +21,7 @@ using System.Reflection;
 using PagedList;
 
 using System.Globalization;
+using System.Web.Script.Serialization;
 
 namespace MasterOnline.Controllers
 {
@@ -3222,7 +3223,13 @@ namespace MasterOnline.Controllers
                 sSQLSelectGroupMethod += "SELECT statename, invocationdata, arguments " +
                     "FROM hangfire.[job] " +
                     "WHERE invocationdata LIKE '%getorder%' and statename LIKE '%succ%' " +
-                    "GROUP BY statename, invocationdata, arguments ";
+                    "GROUP BY statename, invocationdata, arguments " +
+                    "ORDER BY invocationdata ASC ";
+                //sSQLSelectGroupMethod += "SELECT statename, invocationdata " +
+                //   "FROM hangfire.[job] " +
+                //   "WHERE invocationdata LIKE '%getorder%' and statename LIKE '%succ%' " +
+                //   "GROUP BY statename, invocationdata " +
+                //   "ORDER BY invocationdata ASC ";
 
                 var resultDataJobGroup = EDB.GetDataSet("SCon", "QUEUE_GROUP_JOB", sSQLSelectGroupMethod);
 
@@ -3309,8 +3316,12 @@ namespace MasterOnline.Controllers
                                         var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_LAZADA", queryCheckToko);
                                         if (resultDataToko.Tables[0].Rows.Count > 0)
                                         {
-                                            checkApprove = true;
+                                            //if(resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() == usernameLazada)
+                                            //{
+                                                checkApprove = true;
                                             namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameLazada;
+                                            //namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                            //}
                                         }
                                     }
                                 }
@@ -3338,8 +3349,12 @@ namespace MasterOnline.Controllers
                                         var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_BLIBLI", queryCheckToko);
                                         if (resultDataToko.Tables[0].Rows.Count > 0)
                                         {
-                                            checkApprove = true;
+                                            //if (resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() == usernameBlibli[1])
+                                            //{
+                                                checkApprove = true;
                                             namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameBlibli[1];
+                                            //namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                            //}
                                         }
                                     }
                                 }
@@ -3366,8 +3381,12 @@ namespace MasterOnline.Controllers
                                         var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_TOKOPEDIA", queryCheckToko);
                                         if (resultDataToko.Tables[0].Rows.Count > 0)
                                         {
-                                            checkApprove = true;
+                                            //if (resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() == usernameTokped[1])
+                                            //{
+                                                checkApprove = true;
                                             namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameTokped[1];
+                                            //namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                            //}
                                         }
                                     }
                                 }
@@ -3395,8 +3414,12 @@ namespace MasterOnline.Controllers
                                         var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_SHOPEE", queryCheckToko);
                                         if (resultDataToko.Tables[0].Rows.Count > 0)
                                         {
-                                            checkApprove = true;
+                                            //if (resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() == usernameShopee[1])
+                                            //{
+                                                checkApprove = true;
                                             namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameShopee[1];
+                                            //namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                            //}
                                         }
                                     }
                                 }
@@ -3417,15 +3440,42 @@ namespace MasterOnline.Controllers
 
                                     if (splitArguments.Length > 0)
                                     {
-                                        var no_cust82Cart = splitArguments[11].ToString();
+                                        var no_cust82Cart = splitArguments[12].ToString();
                                         string[] apiKey82Cart = splitArguments[3].ToString().Split(':');
                                         string[] username82Cart = splitArguments[1].ToString().Split(':');
                                         string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE API_KEY = '" + apiKey82Cart[1] + "' AND CUST = '" + no_cust82Cart + "'; ";
                                         var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_82CART", queryCheckToko);
                                         if (resultDataToko.Tables[0].Rows.Count > 0)
                                         {
-                                            checkApprove = true;
+                                            //if (resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() == username82Cart[1])
+                                            //{
+                                                checkApprove = true;
                                             namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + username82Cart[1];
+                                            //namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                            //}
+                                        }
+                                    }
+                                }
+                                else if (marketplace.ToUpper() == "SHOPIFY")
+                                {
+
+                                    string[] splitArguments = resultDataJob.Tables[0].Rows[i]["ARGUMENTS"].ToString().Replace("\"", "").Replace("\\", "").Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "").Split(',');
+
+                                    if (splitArguments.Length > 0)
+                                    {
+                                        var no_custShopify = splitArguments[10].ToString();
+                                        string[] apiKeyShopify = splitArguments[3].ToString().Split(':');
+                                        string[] usernameShopify = splitArguments[1].ToString().Split(':');
+                                        string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE API_KEY = '" + apiKeyShopify[1] + "' AND CUST = '" + no_custShopify + "'; ";
+                                        var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_SHOPIFY", queryCheckToko);
+                                        if (resultDataToko.Tables[0].Rows.Count > 0)
+                                        {
+                                            //if (resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() == username82Cart[1])
+                                            //{
+                                            checkApprove = true;
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameShopify[1];
+                                            //namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                            //}
                                         }
                                     }
                                 }

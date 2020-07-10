@@ -172,6 +172,10 @@
         });
     }
     function RetryUpdateStock() {
+        //add by fauzi
+        $('#modalRefreshStock').modal('hide');
+        //end
+
         var link = '@Url.Action("MarketplaceLogRetryStock", "Manage")';
 
         $.ajax({
@@ -245,7 +249,7 @@
             </div>
             <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12 pull-right" style="text-align:right;">
                 <button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px"
-                        onclick="RetryUpdateStock()">
+                        onclick="openModalRefreshStock()">
                     <span>Refresh Stok</span>
                 </button>
                 <button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px"
@@ -263,3 +267,28 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalRefreshStock" tabindex="-1" role="dialog" aria-labelledby="labelmodalRefreshStock">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelmodalRefreshStock">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h5>Proses Refresh Stok akan melakukan update stock semua barang di Master Online ke masing-masing marketplace. <br />Yakin ingin lanjutkan?</h5>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="RetryUpdateStock()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    //add by fauzi for popup modal refresh stock
+    function openModalRefreshStock() {
+        $('#modalRefreshStock').modal('show');
+    }
+</script>

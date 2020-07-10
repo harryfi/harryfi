@@ -738,6 +738,7 @@ namespace MasterOnline.Controllers
             var kdShopee = 17;
             var kdTokped = 15;
             var kdJD = 19;
+            var kdShopify = 21;
             var kd82Cart = 20;
             // change by fauzi 07 Januari 2020
 
@@ -939,6 +940,42 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
+                    else if (marketPlace.NAMA.Equals(kdShopify.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
+                        {
+                            ShopifyAPIData data = new ShopifyAPIData()
+                            {
+                                no_cust = marketPlace.Sort1_Cust,
+                                account_store = marketPlace.PERSO,
+                                API_key = marketPlace.API_KEY,
+                                API_password = marketPlace.API_CLIENT_P
+                            };
+                            if (stf02h.BRG_MP != "")
+                            {
+                                string[] brg_mp = stf02h.BRG_MP.Split(';');
+                                if (brg_mp.Count() == 2)
+                                {
+                                    //if (brg_mp[1] == "0" || brg_mp[1] == "")
+                                    //{
+#if (DEBUG || Debug_AWS)
+                                    Shopify_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null);
+#else
+                                        client.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+#endif
+                                    //}
+                                    //else if (brg_mp[1] != "")
+                                    //{
+                                    //#if (DEBUG || Debug_AWS)
+                                    //                                        Task.Run(() => Shopify_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                    //#else
+                                    //                                        client.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+                                    //#endif
+                                    //}
+                                }
+                            }
+                        }
+                    }
                     //end add by calvin 18 desember 2018
                     //add by Tri 11 April 2019
                     else if (marketPlace.NAMA.Equals(kdJD.ToString()))
@@ -987,10 +1024,10 @@ namespace MasterOnline.Controllers
                                     else
                                     {
 #if (DEBUG || Debug_AWS)
-                                        Task.Run(() => E2Cart_UpdateStock_82Cart(DatabasePathErasoft, data, stf02h.BRG, stf02h.BRG_MP, marketPlace.CUST, 0, uname)).Wait();
-                                        //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, data, stf02h.BRG, stf02h.BRG_MP, marketPlace.CUST, 0, uname);
+                                        Task.Run(() => E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname)).Wait();
+                                        //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname);
 #else
-                                        client.Enqueue<StokControllerJob>(x => x.E2Cart_UpdateStock_82Cart(DatabasePathErasoft, data, stf02h.BRG, stf02h.BRG_MP, marketPlace.CUST, 0, uname));
+                                        client.Enqueue<StokControllerJob>(x => x.E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname));
 #endif
                                     }
                                 }
@@ -1035,6 +1072,7 @@ namespace MasterOnline.Controllers
             var kdTokped = 15;
             var kdJD = 19;
             var kd82Cart = 20;
+            var kdshopify = 21;
 
             string EDBConnID = EDB.GetConnectionString("ConnId");
             var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -1272,6 +1310,42 @@ namespace MasterOnline.Controllers
                         }
                     }
                     //end add by calvin 18 desember 2018
+                    else if (marketPlace.NAMA.Equals(kdshopify.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
+                        {
+                            ShopifyAPIData data = new ShopifyAPIData()
+                            {
+                                no_cust = marketPlace.Sort1_Cust,
+                                account_store = marketPlace.PERSO,
+                                API_key = marketPlace.API_KEY,
+                                API_password = marketPlace.API_CLIENT_P
+                            };
+                            if (stf02h.BRG_MP != "")
+                            {
+                                string[] brg_mp = stf02h.BRG_MP.Split(';');
+                                if (brg_mp.Count() == 2)
+                                {
+                                    //if (brg_mp[1] == "0" || brg_mp[1] == "")
+                                    //{
+#if (DEBUG || Debug_AWS)
+                                    Shopify_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null);
+#else
+                                    client.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+#endif
+                                    //}
+                                    //else if (brg_mp[1] != "")
+                                    //{
+                                    //#if (DEBUG || Debug_AWS)
+                                    //                                        Task.Run(() => Shopify_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                    //#else
+                                    //                                        client.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+                                    //#endif
+                                    //}
+                                }
+                            }
+                        }
+                    }
                     //add by Tri 11 April 2019
                     else if (marketPlace.NAMA.Equals(kdJD.ToString()))
                     {
@@ -1319,10 +1393,10 @@ namespace MasterOnline.Controllers
                                     else
                                     {
 #if (DEBUG || Debug_AWS)
-                                        Task.Run(() => E2Cart_UpdateStock_82Cart(DatabasePathErasoft, data, stf02h.BRG, stf02h.BRG_MP, marketPlace.CUST, 0, uname)).Wait();
-                                        //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, data, stf02h.BRG, stf02h.BRG_MP, marketPlace.CUST, 0, uname);
+                                        Task.Run(() => E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname)).Wait();
+                                        //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname);
 #else
-                                        client.Enqueue<StokControllerJob>(x => x.E2Cart_UpdateStock_82Cart(DatabasePathErasoft, data, stf02h.BRG, stf02h.BRG_MP, marketPlace.CUST, 0, uname));
+                                        client.Enqueue<StokControllerJob>(x => x.E2Cart_UpdateStock_82Cart(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname));
 #endif
                                     }
                                 }
@@ -2456,28 +2530,28 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stok {obj} ke 82Cart gagal.")]
-        public async Task<string> E2Cart_UpdateStock_82Cart(string DatabasePathErasoft, E2CartAPIData iden, string brg, string brg_mp, string no_cust, int qty, string uname)
+        public async Task<string> E2Cart_UpdateStock_82Cart(string DatabasePathErasoft, string brg, string no_cust, string log_ActionCategory, string log_ActionName, E2CartAPIData iden, string brg_mp, int qty, string uname)
         {
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, uname);
-            var EDB = new DatabaseSQL(DatabasePathErasoft);
-            string EraServerName = EDB.GetServerName("sConn");
+            //var EDB = new DatabaseSQL(DatabasePathErasoft);
+            //string EraServerName = EDB.GetServerName("sConn");
 
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
             //handle log activity
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = milis.ToString(),
-                REQUEST_ACTION = "Update Stock",
-                REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = "Kode Barang : " + brg,
-                REQUEST_ATTRIBUTE_2 = "Barang MP : " + brg_mp,
-                REQUEST_STATUS = "Pending",
-            };
-            var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, no_cust, currentLog, "82Cart");
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = milis.ToString(),
+            //    REQUEST_ACTION = "Update Stock",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = "Kode Barang : " + brg,
+            //    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, no_cust, currentLog, "82Cart");
             //handle log activity
 
             var qtyOnHand = GetQOHSTF08A(brg, "ALL");
@@ -2488,7 +2562,7 @@ namespace MasterOnline.Controllers
 
             qty = Convert.ToInt32(qtyOnHand);
             
-            string urll = string.Format("{0}/api/v1/editInventory", iden.API_url);
+            string urll = string.Format("{0}/api/v1/editProductdetail", iden.API_url);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
 
@@ -2497,9 +2571,21 @@ namespace MasterOnline.Controllers
             //Required parameters, other parameters can be add
             var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
-            postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
-            postData += "&id_product_attribute=" + Uri.EscapeDataString(brg_mp_split[1]);
-            postData += "&stock=" + Uri.EscapeDataString(qty.ToString());
+            if (brg_mp_split[1] == "0")
+            {
+                postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
+                postData += "&quantity=" + Uri.EscapeDataString(qty.ToString());
+            }
+            else
+            {
+                postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
+                postData += "&id_product_attribute=" + Uri.EscapeDataString(brg_mp_split[1]);
+                postData += "&quantity_attribute=" + Uri.EscapeDataString(qty.ToString());
+            }
+            postData += "&available_for_order=" + Uri.EscapeDataString("1");
+            //postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
+            ////postData += "&id_product_attribute=" + Uri.EscapeDataString(brg_mp_split[1]);
+            //postData += "&stock=" + Uri.EscapeDataString(qty.ToString());
 
             var data = Encoding.ASCII.GetBytes(postData);
 
@@ -2530,27 +2616,173 @@ namespace MasterOnline.Controllers
                     var resultAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ResultUpdateStock82Cart)) as ResultUpdateStock82Cart;
                     if(resultAPI.error != "none" && resultAPI.error != null)
                     {
-                        currentLog.REQUEST_EXCEPTION = resultAPI.error.ToString();
-                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, no_cust, currentLog, "82Cart");
+                        //currentLog.REQUEST_ATTRIBUTE_3 = "Exception"; //marketplace stock
+                        //currentLog.REQUEST_EXCEPTION = resultAPI.error.ToString();
+                        //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, no_cust, currentLog, "82Cart");
                         throw new Exception(resultAPI.error.ToString());
                     }
-                    else
-                    {
-                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, no_cust, currentLog, "82Cart");
-                    }
+                    //else
+                    //{
+                    //    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, no_cust, currentLog, "82Cart");
+                    //}
                 }
             }
             catch (Exception ex)
             {
                 string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                currentLog.REQUEST_EXCEPTION = msg;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, no_cust, currentLog, "82Cart");
+                //currentLog.REQUEST_ATTRIBUTE_3 = "Exception"; //marketplace stock
+                //currentLog.REQUEST_EXCEPTION = msg;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, no_cust, currentLog, "82Cart");
                 throw new Exception(msg);
             }
             
             return ret;
         }
 
+        //add by fauzi 9 Maret 2020
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_update_stok")]
+        [NotifyOnFailed("Update Stok {obj} ke Shopify gagal.")]
+        public async Task<string> Shopify_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, ShopifyAPIData iden, string brg_mp, int qty, string uname, PerformContext context)
+        {
+            string ret = "";
+
+            SetupContext(DatabasePathErasoft, uname);
+
+            var EDB = new DatabaseSQL(DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+
+            var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            if (qtyOnHand < 0)
+            {
+                qtyOnHand = 0;
+            }
+
+            qty = Convert.ToInt32(qtyOnHand);
+
+            string[] brg_mp_split = brg_mp.Split(';');
+
+            //string urll = "https://{0}:{1}@{2}.myshopify.com/admin/products/{3}.json";
+            string urll = "https://{0}:{1}@{2}.myshopify.com/admin/variants/{3}.json";
+            var kodeBrg = "";
+            if (brg_mp_split[1] != "0")
+            {
+                kodeBrg = brg_mp_split[1];
+            }
+            else
+            {
+                kodeBrg = brg_mp_split[0];
+            }
+
+            var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store, Convert.ToInt64(kodeBrg));
+
+            ShopifyUpdateStockProduct putProdData = new ShopifyUpdateStockProduct
+            {
+                //id = Convert.ToInt64(brg_mp_split[0]),
+                //published = true,
+                //available = true,
+                variant = new ShopifyUpdateStockProductVariant()
+            };
+            //ShopifyUpdateStockProductVariant variants = new ShopifyUpdateStockProductVariant
+            //{
+            //    id = Convert.ToInt64(kodeBrg),
+            //    inventory_quantity = qty.ToString()
+            //};
+
+            putProdData.variant.id = Convert.ToInt64(kodeBrg);
+            putProdData.variant.inventory_quantity = qty.ToString();
+
+
+            //ShopifyUpdateStock putData = new ShopifyUpdateStock
+            //{
+            //    product = putProdData
+            //};
+
+            string myData = JsonConvert.SerializeObject(putProdData);
+
+            string responseFromServer = "";
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", (iden.API_password));
+            var content = new StringContent(myData, Encoding.UTF8, "application/json");
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+            HttpResponseMessage clientResponse = await client.PutAsync(vformatUrl, content);
+
+            using (HttpContent responseContent = clientResponse.Content)
+            {
+                using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                {
+                    responseFromServer = await reader.ReadToEndAsync();
+                }
+            };
+
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            //myReq.Method = "PUT";
+            //myReq.Headers.Add("X-Shopify-Access-Token", (iden.API_password));
+            //myReq.Accept = "application/json";
+            //myReq.ContentType = "application/json";
+            //myReq.ContentLength = myData.Length;
+            //using (var dataStream = myReq.GetRequestStream())
+            //{
+            //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            //}
+            //using (WebResponse response = myReq.GetResponse())
+            //{
+            //    using (Stream stream = response.GetResponseStream())
+            //    {
+            //        StreamReader reader = new StreamReader(stream);
+            //        responseFromServer = reader.ReadToEnd();
+            //    }
+            //}
+
+
+            if (responseFromServer != "")
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ResultUpdateStockVariant)) as ResultUpdateStockVariant;
+                    if (!string.IsNullOrWhiteSpace(result.ToString()))
+                    {
+                        if (result != null)
+                        {
+                            if (result.variant != null)
+                            {
+                                //foreach (var item in result.variant)
+                                //{
+                                //    if (item.inventory_quantity == qty)
+                                //    {
+                                //        //throw new Exception("Success update stock " + stf02_brg + ": " + Convert.ToString(qty) + " stock");
+                                //    }
+                                //}
+                            }
+                            else
+                            {
+                                var msgError = "";
+                                if (result.errors != null)
+                                {
+                                    msgError = result.errors;
+                                }
+                                throw new Exception("Failed update stock " + stf02_brg + ":" + Convert.ToString(qty) + " stock. " + msgError);
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Failed update stock " + stf02_brg + ":" + Convert.ToString(qty) + ". API no response");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("Failed update stock " + stf02_brg + ":" + Convert.ToString(qty) + " stock" + ". API no response");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                    throw new Exception(msg);
+                }
+            }
+
+            return ret;
+        }
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
@@ -3444,6 +3676,198 @@ namespace MasterOnline.Controllers
 
         }
 
+        public class ShopifyAPIData
+        {
+            public string no_cust { get; set; }
+            public string account_store { get; set; }
+            public string API_key { get; set; }
+            public string API_password { get; set; }
+            public string DatabasePathErasoft { get; set; }
+            public string email { get; set; }
+            public int rec_num { get; set; }
+        }
+
+        public class ShopifyUpdateData
+        {
+            public List<ShopifyUpdateDataProduct> product { get; set; }
+            public object errors { get; set; }
+        }
+
+        public class ShopifyUpdateDataProduct
+        {
+            public long id { get; set; }
+            public string title { get; set; }
+            public string body_html { get; set; }
+            public string vendor { get; set; }
+            public string product_type { get; set; }
+            public bool published { get; set; }
+            public string[] tags { get; set; }
+            public List<ShopifyUpdateDataProductVariant> variants { get; set; }
+            public List<ShopifyUpdateProductOptions> options { get; set; }
+            public List<ShopifyProductImage> images { get; set; }
+        }
+
+        public class ShopifyUpdateProductOptions
+        {
+            public long id { get; set; }
+            public string name { get; set; }
+            public object values { get; set; }
+        }
+
+        public class ShopifyProductImage
+        {
+            public long id { get; set; }
+            public string position { get; set; }
+            public string src { get; set; }
+        }
+
+        public class ShopifyUpdateDataProductVariant
+        {
+            public long id { get; set; }
+            public string title { get; set; }
+            public string price { get; set; }
+            public string sku { get; set; }
+            public string option1 { get; set; }
+            public string option2 { get; set; }
+            public string option3 { get; set; }
+            public string weight { get; set; }
+            public string weight_unit { get; set; }
+            public string inventory_item_id { get; set; }
+            public string inventory_quantity { get; set; }
+        }
+
+
+        public class ShopifyUpdateStock
+        {
+            public ShopifyUpdateStockProduct product { get; set; }
+        }
+
+        public class ShopifyUpdateStockProduct
+        {
+            //public long id { get; set; }
+            //public bool published { get; set; }
+            //public bool available { get; set; }
+            public ShopifyUpdateStockProductVariant variant { get; set; }
+        }
+
+        public class ShopifyUpdateStockProductVariant
+        {
+            public long id { get; set; }
+            //public string price { get; set; }
+            //public string sku { get; set; }
+            public string inventory_quantity { get; set; }
+            //public string weight { get; set; }
+            //public string weight_unit { get; set; }
+        }
+
+        public class ResultUpdateStockVariant
+        {
+            public object variant { get; set; }
+            public string errors { get; set; }
+        }
+
+        public class ShopifyUpdateStockResult
+        {
+            public ShopifyUpdateStockResultProduct product { get; set; }
+            public ShopifyUpdateStockResultError errors { get; set; }
+        }
+
+        public class ShopifyUpdateStockResultError
+        {
+            public string[] inventory_quantity { get; set; }
+        }
+
+        public class ShopifyUpdateStockResultProduct
+        {
+            public long id { get; set; }
+            public string title { get; set; }
+            public string body_html { get; set; }
+            public string vendor { get; set; }
+            public string product_type { get; set; }
+            public DateTime created_at { get; set; }
+            public string handle { get; set; }
+            public DateTime updated_at { get; set; }
+            public DateTime published_at { get; set; }
+            public string template_suffix { get; set; }
+            public string published_scope { get; set; }
+            public string tags { get; set; }
+            public string admin_graphql_api_id { get; set; }
+            public ShopifyUpdateStockResultProductVariant[] variants { get; set; }
+            public ShopifyUpdateStockResultProductOption[] options { get; set; }
+            public ShopifyUpdateStockResultProductImage1[] images { get; set; }
+            public ShopifyUpdateStockResultProductImage image { get; set; }
+        }
+
+        public class ShopifyUpdateStockResultProductImage
+        {
+            public long id { get; set; }
+            public long product_id { get; set; }
+            public int position { get; set; }
+            public DateTime created_at { get; set; }
+            public DateTime updated_at { get; set; }
+            public object alt { get; set; }
+            public int width { get; set; }
+            public int height { get; set; }
+            public string src { get; set; }
+            public object[] variant_ids { get; set; }
+            public string admin_graphql_api_id { get; set; }
+        }
+
+        public class ShopifyUpdateStockResultProductVariant
+        {
+            public long id { get; set; }
+            public long product_id { get; set; }
+            public string title { get; set; }
+            public string price { get; set; }
+            public string sku { get; set; }
+            public int position { get; set; }
+            public string inventory_policy { get; set; }
+            public object compare_at_price { get; set; }
+            public string fulfillment_service { get; set; }
+            public string inventory_management { get; set; }
+            public string option1 { get; set; }
+            public object option2 { get; set; }
+            public object option3 { get; set; }
+            public DateTime created_at { get; set; }
+            public DateTime updated_at { get; set; }
+            public bool taxable { get; set; }
+            public string barcode { get; set; }
+            public int grams { get; set; }
+            public object image_id { get; set; }
+            public float weight { get; set; }
+            public string weight_unit { get; set; }
+            public long inventory_item_id { get; set; }
+            public int inventory_quantity { get; set; }
+            public int old_inventory_quantity { get; set; }
+            public bool requires_shipping { get; set; }
+            public string admin_graphql_api_id { get; set; }
+        }
+
+        public class ShopifyUpdateStockResultProductOption
+        {
+            public long id { get; set; }
+            public long product_id { get; set; }
+            public string name { get; set; }
+            public int position { get; set; }
+            public string[] values { get; set; }
+        }
+
+        public class ShopifyUpdateStockResultProductImage1
+        {
+            public long id { get; set; }
+            public long product_id { get; set; }
+            public int position { get; set; }
+            public DateTime created_at { get; set; }
+            public DateTime updated_at { get; set; }
+            public object alt { get; set; }
+            public int width { get; set; }
+            public int height { get; set; }
+            public string src { get; set; }
+            public object[] variant_ids { get; set; }
+            public string admin_graphql_api_id { get; set; }
+        }
+
+
         public class ShopeeAPIData
         {
             public string merchant_code { get; set; }
@@ -3572,7 +3996,7 @@ namespace MasterOnline.Controllers
             public string requestid { get; set; }
             public string error { get; set; }
             public string results { get; set; }
-            public ResultUpdateStockData[] data { get; set; }
+            public object data { get; set; }
         }
 
         public class ResultUpdateStockData

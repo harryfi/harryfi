@@ -715,7 +715,7 @@
         width: 100%;
         height: 100%;
         position: fixed;
-        z-index: 100;
+        z-index: 9999;
         top: 0;
         right: 0;
         bottom: 0;
@@ -1264,17 +1264,59 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-sm-6">
+                    </div>
+                    <div class="row faktur_table_section">
+                        @*//add by nurul 16/6/2020*@
+                        <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <select class="form-control" id="filter_faktur_field" required="required">
+                                <option value="tanggal">Tgl. Faktur</option>
+                                <option value="marketplace">Marketplace</option>
+                                <option value="status">Status</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="col-12" id="filter_faktur_field_tanggal_div">
+                                <select class="form-control" id="filter_faktur_field_tanggal" required="required">
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_faktur_field_marketplace_div" style="display:none">
+                                <select class="form-control" id="filter_faktur_field_marketplace" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="7">Lazada</option>
+                                    <option value="8">Bukalapak</option>
+                                    <option value="9">Elevenia</option>
+                                    <option value="15">Tokopedia</option>
+                                    <option value="16">Blibli</option>
+                                    <option value="17">Shopee</option>
+                                    <option value="20">82Cart</option>
+                                    <option value="18">Offline</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_faktur_field_status_div" style="display:none">
+                                <select class="form-control" id="filter_faktur_field_status" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="SELESAI">Selesai</option>
+                                    <option value="RETUR">Retur</option>
+                                    <option value="BATAL">Batal</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-1 col-sm-12"></div>
+                        @*//add by nurul 16/6/2020*@
+                        <div class="col-lg-6 col-sm-6">
                             <div class="pull-right">
-                                <div class="pull-right" id="tambah_baru_tombol_section">
+                                <div class="pull-right" id="tambah_baru_tombol_section" style="margin-top:13px;">
                                     <button id="excelFaktur" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         Excel Faktur <span class="caret"></span>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <button type="button" onclick="$('#downloadFaktur').modal('show');" id="btn_download_faktur" class="btn btn-primary" data-style="expand-right"  style="width:100%; background-color:white; border-color:Highlight; color:black !important">
+                                        <button type="button" onclick="$('#downloadFaktur').modal('show');" id="btn_download_faktur" class="btn btn-primary" data-style="expand-right" style="width:100%; background-color:white; border-color:Highlight; color:black !important">
                                             <span>Download Faktur </span>
                                         </button>
-                                        <button type="button" id="btn-upload-faktur" class="btn btn-primary" data-toggle="modal" data-style="expand-right" data-target="#modalUploadFaktur"  style="width:100%; background-color:white; border-color:Highlight; color:black !important">
+                                        <button type="button" id="btn-upload-faktur" class="btn btn-primary" data-toggle="modal" data-style="expand-right" data-target="#modalUploadFaktur" style="width:100%; background-color:white; border-color:Highlight; color:black !important">
                                             <span>Upload Faktur</span>
                                         </button>
                                     </div>
@@ -1357,6 +1399,39 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row faktur_table_section">
+                        @*//add by nurul 16/6/2020*@
+                        <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <select class="form-control" id="filter_faktur_lunas_field" required="required">
+                                <option value="tanggal">Tgl. Faktur</option>
+                                <option value="marketplace">Marketplace</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="col-12" id="filter_faktur_lunas_field_tanggal_div">
+                                <select class="form-control" id="filter_faktur_lunas_field_tanggal" required="required">
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_faktur_lunas_field_marketplace_div" style="display:none">
+                                <select class="form-control" id="filter_faktur_lunas_field_marketplace" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="7">Lazada</option>
+                                    <option value="8">Bukalapak</option>
+                                    <option value="9">Elevenia</option>
+                                    <option value="15">Tokopedia</option>
+                                    <option value="16">Blibli</option>
+                                    <option value="17">Shopee</option>
+                                    <option value="20">82Cart</option>
+                                    <option value="18">Offline</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-9 col-sm-12"></div>
+                        @*//add by nurul 16/6/2020*@
+                    </div>
                     <div class="row faktur_table_section" style="margin-top: 5px;">
                         <div class="col-sm-12" id="table-faktur-lunas-partial">
                             @*@Html.Partial("TableFakturPartial")*@
@@ -1386,8 +1461,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row" id="div_tgl_Tempo">
-                        <div class="col-md-2">
+                    <div class="row faktur_table_section" id="div_tgl_Tempo">
+                        <div class="col-md-2 col-lg-2 col-sm-12">
                             @Html.Label("", "Per Tanggal")
                             <div class="input-group date">
                                 @Html.TextBox("Tanggal", null, new { @class = "form-control", @ReadOnly = true })
@@ -1396,7 +1471,38 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-md-10"></div>
+                        @*//add by nurul 16/6/2020*@
+                        <div class="col-lg-1 col-sm-12"></div>
+                        <label class="col-lg-1 col-sm-12" style="padding-top:30px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:23px;">
+                            <select class="form-control" id="filter_faktur_tempo_field" required="required">
+                                <option value="tanggal">Tgl. Faktur</option>
+                                <option value="marketplace">Marketplace</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:23px;">
+                            <div class="col-12" id="filter_faktur_tempo_field_tanggal_div">
+                                <select class="form-control" id="filter_faktur_tempo_field_tanggal" required="required">
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_faktur_tempo_field_marketplace_div" style="display:none">
+                                <select class="form-control" id="filter_faktur_tempo_field_marketplace" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="7">Lazada</option>
+                                    <option value="8">Bukalapak</option>
+                                    <option value="9">Elevenia</option>
+                                    <option value="15">Tokopedia</option>
+                                    <option value="16">Blibli</option>
+                                    <option value="17">Shopee</option>
+                                    <option value="20">82Cart</option>
+                                    <option value="18">Offline</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-sm-12"></div>
+                        @*//add by nurul 16/6/2020*@
                     </div>
                     <div class="row faktur_table_section" style="margin-top: 5px;">
                         <div class="col-sm-12" id="table-faktur-tempo-partial">
@@ -1889,6 +1995,21 @@
                         <div class="col-md-1">
                         </div>
                     </div>
+                    <div class="row" style="margin-top:5px">
+                        <div class="col-md-1">
+                        </div>
+                        <div class="col-md-2" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input id="ctk_ket" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                <span id="ctk_ket" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-3" style="padding-top: 7px;">
+                            Catatan Pembeli
+                        </div>
+                        <div class="col-md-1">
+                        </div>
+                    </div>
                 </div>
                 @*//add by nurul 2/5/2019*@
                 @*<div id="cetakA5Form">
@@ -2122,8 +2243,9 @@
             }
 
         }
-        
+
         function DownloadExcelFaktur() {
+            $('#loading_spinner').show();
             var drTgl = $('#DrTanggal').val();
             var sdTgl = $('#SdTanggal').val();
 
@@ -2131,12 +2253,22 @@
             link += "?drtgl=" + drTgl + "&sdtgl=" + sdTgl;
 
             $.ajax({
+                xhr: function () {
+                    var xhr = $.ajaxSettings.xhr();
+                    xhr.onprogress = function (evt) {
+                        if (evt.lengthComputable) {
+                            $('#loading_spinner').hide();
+                        }
+                        $('#loading_spinner').hide();
+                    };
+                    return xhr;
+                },
                 type: "GET",
                 url: link,
                 contentType: 'application/json',
                 cache: false,
-                async: false,
                 success: function (response) {
+                    $('#loading_spinner').hide();
                     if (response.Errors.length == 0) {
                         var bytes = new Uint8Array(response.byteExcel);
                         saveByteArray(response.namaFile, bytes);
@@ -2414,6 +2546,110 @@
             $('#format_excel').selectize();
 
             //getMarketplaceBukalapak();
+
+
+            //add by nurul 16/6/2020
+            $('#filter_faktur_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_faktur_field_tanggal_div').show();
+                        $('#filter_faktur_field_marketplace_div').hide();
+                        $('#filter_faktur_field_status_div').hide();
+                        searchTableFaktur1();
+                        break;
+                    case "marketplace":
+                        $('#filter_faktur_field_tanggal_div').hide();
+                        $('#filter_faktur_field_marketplace_div').show();
+                        $('#filter_faktur_field_status_div').hide();
+                        if ($('#filter_faktur_field_marketplace').val() != "Harap Pilih") {
+                            searchTableFaktur1();
+                        }
+                        break;
+                    case "status":
+                        $('#filter_faktur_field_tanggal_div').hide();
+                        $('#filter_faktur_field_marketplace_div').hide();
+                        $('#filter_faktur_field_status_div').show();
+                        if ($('#filter_faktur_field_status').val() != "Harap Pilih") {
+                            searchTableFaktur1();
+                        }
+                        break;
+                    default:
+                        $('#filter_faktur_field_tanggal_div').hide();
+                        $('#filter_faktur_field_marketplace_div').hide();
+                        $('#filter_faktur_field_status_div').hide();
+                        break;
+                }
+
+            });
+            $('#filter_faktur_field_tanggal').change(function () {
+                searchTableFaktur1();
+            });
+            $('#filter_faktur_field_marketplace').change(function () {
+                searchTableFaktur1();
+            });
+            $('#filter_faktur_field_status').change(function () {
+                searchTableFaktur1();
+            });
+
+            $('#filter_faktur_lunas_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_faktur_lunas_field_tanggal_div').show();
+                        $('#filter_faktur_lunas_field_marketplace_div').hide();
+                        searchTableFakturLunas();
+                        break;
+                    case "marketplace":
+                        $('#filter_faktur_lunas_field_tanggal_div').hide();
+                        $('#filter_faktur_lunas_field_marketplace_div').show();
+                        if ($('#filter_faktur_lunas_field_marketplace').val() != "Harap Pilih") {
+                            searchTableFakturLunas();
+                        }
+                        break;
+                    default:
+                        $('#filter_faktur_lunas_field_tanggal_div').hide();
+                        $('#filter_faktur_lunas_field_marketplace_div').hide();
+                        break;
+                }
+
+            });
+            $('#filter_faktur_lunas_field_tanggal').change(function () {
+                searchTableFakturLunas();
+            });
+            $('#filter_faktur_lunas_field_marketplace').change(function () {
+                searchTableFakturLunas();
+            });
+
+            $('#filter_faktur_tempo_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_faktur_tempo_field_tanggal_div').show();
+                        $('#filter_faktur_tempo_field_marketplace_div').hide();
+                        searchTableFakturTempo();
+                        break;
+                    case "marketplace":
+                        $('#filter_faktur_tempo_field_tanggal_div').hide();
+                        $('#filter_faktur_tempo_field_marketplace_div').show();
+                        if ($('#filter_faktur_tempo_field_marketplace').val() != "Harap Pilih") {
+                            searchTableFakturTempo();
+                        }
+                        break;
+                    default:
+                        $('#filter_faktur_tempo_field_tanggal_div').hide();
+                        $('#filter_faktur_tempo_field_marketplace_div').hide();
+                        break;
+                }
+
+            });
+            $('#filter_faktur_tempo_field_tanggal').change(function () {
+                searchTableFakturTempo();
+            });
+            $('#filter_faktur_tempo_field_marketplace').change(function () {
+                searchTableFakturTempo();
+            });
+            //add by nurul 16/6/2020
         });
 
         //add by Tri, call midtrans api get token
@@ -2624,9 +2860,35 @@
                 }
             });
         }
+
+        //add by nurul 16/6/2020
+        function get_faktur_lunas_filterby() {
+            return $('#filter_faktur_lunas_field').val();
+        }
+        function get_faktur_lunas_filtervalue(filterby) {
+            var filtervalue = "";
+            switch (filterby) {
+                case "tanggal":
+                    filtervalue = $('#filter_faktur_lunas_field_tanggal').val();
+                    break;
+                case "marketplace":
+                    filtervalue = $('#filter_faktur_lunas_field_marketplace').val();
+                    break;
+                default:
+                    break;
+            }
+            return filtervalue;
+        }
+        //end add by nurul 16/6/2020
         function searchTableFakturLunas(){
-            var $link = '@Html.Raw(Url.Action("RefreshTableFakturLunas", "Manage", new { search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTableFakturLunas", "Manage", new { search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur_lunas').val()));
+            //add by nurul 16/6/2020
+            var filterby = get_faktur_lunas_filterby();
+            var filtervalue = get_faktur_lunas_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 16/6/2020
 
             $.ajax({
                 type: "GET",
@@ -2701,10 +2963,36 @@
                 }
             });
         }
+
+        //add by nurul 16/6/2020
+        function get_faktur_tempo_filterby() {
+            return $('#filter_faktur_tempo_field').val();
+        }
+        function get_faktur_tempo_filtervalue(filterby) {
+            var filtervalue = "";
+            switch (filterby) {
+                case "tanggal":
+                    filtervalue = $('#filter_faktur_tempo_field_tanggal').val();
+                    break;
+                case "marketplace":
+                    filtervalue = $('#filter_faktur_tempo_field_marketplace').val();
+                    break;
+                default:
+                    break;
+            }
+            return filtervalue;
+        }
+        //end add by nurul 16/6/2020
         function searchTableFakturTempo(){
-            var $link = '@Html.Raw(Url.Action("RefreshTableFakturTempo", "Manage", new { tgl = "replacetgl", search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTableFakturTempo", "Manage", new { tgl = "replacetgl", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replacetgl", encodeURIComponent($('#Tanggal').val()));
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur_tempo').val()));
+            //add by nurul 16/6/2020
+            var filterby = get_faktur_tempo_filterby();
+            var filtervalue = get_faktur_tempo_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 16/6/2020
 
             $.ajax({
                 type: "GET",
@@ -4716,9 +5004,38 @@
                 }
             });
         }
+
+        //add by nurul 16/6/2020
+        function get_faktur_filterby() {
+            return $('#filter_faktur_field').val();
+        }
+        function get_faktur_filtervalue(filterby) {
+            var filtervalue = "";
+            switch (filterby) {
+                case "tanggal":
+                    filtervalue = $('#filter_faktur_field_tanggal').val();
+                    break;
+                case "marketplace":
+                    filtervalue = $('#filter_faktur_field_marketplace').val();
+                    break;
+                case "status":
+                    filtervalue = $('#filter_faktur_field_status').val();
+                    break;
+                default:
+                    break;
+            }
+            return filtervalue;
+        }
+        //end add by nurul 16/6/2020
         function searchTableFaktur1(){
-            var $link = '@Html.Raw(Url.Action("RefreshTableFaktur1", "Manage", new { search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTableFaktur1", "Manage", new { search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur').val()));
+            //add by nurul 16/6/2020
+            var filterby = get_faktur_filterby();
+            var filtervalue = get_faktur_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 16/6/2020
 
             $.ajax({
                 type: "GET",
@@ -5115,44 +5432,49 @@
                     beforeSend: function() {
                         $('#loading_spinner').show();
                     },
-                    success: function(response) {
-                        alert('Data berhasil disimpan!');
-                        $('#modalFixNotFound').modal('hide');
-                        //samakan dengan function lihatFaktur onSuccess
-                        $modeEdit = 1;
+                    success: function (response) {
+                        if (response.Errors != null) {
+                            alert(response.Errors[0]);
+                        }
+                        else {
+                            alert('Data berhasil disimpan!');
+                            $('#modalFixNotFound').modal('hide');
+                            //samakan dengan function lihatFaktur onSuccess
+                            $modeEdit = 1;
 
-                        $('#form-partial').html(response);
-                        $('#form-partial').show();
-                        $('#form_subs').hide();
-                        $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
-                        refreshInputan();
-                        getTanggal();
-                        getBuyer();
-                        getDataBarang();
-                        getMarketplace();
+                            $('#form-partial').html(response);
+                            $('#form-partial').show();
+                            $('#form_subs').hide();
+                            $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
+                            refreshInputan();
+                            getTanggal();
+                            getBuyer();
+                            getDataBarang();
+                            getMarketplace();
 
-                        $('.faktur_table_section').hide();
-                        $('.faktur_editor_section').show();
+                            $('.faktur_table_section').hide();
+                            $('.faktur_editor_section').show();
 
-                        $('#myTab li a').each(function () {
-                            $(this).removeAttr('data-toggle');
+                            $('#myTab li a').each(function () {
+                                $(this).removeAttr('data-toggle');
 
-                            if ($(this).attr('id') === 'faktur-tab') return;
+                                if ($(this).attr('id') === 'faktur-tab') return;
 
-                            $(this).addClass('disabled-tab');
+                                $(this).addClass('disabled-tab');
 
-                        });
+                            });
 
-                        $('#faktur-tempo-tab').off('click').on('click', function () {
-                            $('#div_tgl_Tempo').hide();
-                        });
+                            $('#faktur-tempo-tab').off('click').on('click', function () {
+                                $('#div_tgl_Tempo').hide();
+                            });
 
-                        $nettoSebelumnya += $bakalNetto;
-                        $('input, select, .btn-danger').each(function () {
-                            $(this).attr('disabled', 'disabled');
-                        });
-                        $('#tambah-pembeli').hide();
-                        $('tr[data-faktur-id="0"]').remove();
+                            $nettoSebelumnya += $bakalNetto;
+                            $('input, select, .btn-danger').each(function () {
+                                $(this).attr('disabled', 'disabled');
+                            });
+                            $('#tambah-pembeli').hide();
+                            $('tr[data-faktur-id="0"]').remove();
+                        }
                         $('#loading_spinner').hide();
                         //end samakan dengan function lihatFaktur onSuccess
                     },
@@ -5225,6 +5547,7 @@
             $('#ctk_mp').attr('checked', true);
             $('#ctk_nobuk').attr('checked', true);
             $('#ctk_total').attr('checked', true);
+            $('#ctk_ket').attr('checked', true);
 
             //$('#ctk_nama1').attr('checked', true);
             //$('#ctk_mp1').attr('checked', true);
@@ -5248,6 +5571,7 @@
                 var total = "0";
                 var nama = "0";
                 var jenisKertas = "0";
+                var ket = "0";
                 //if ($('#LayoutSize').val() == "1") {
                     @*var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
                     link = link.replace('replaceNoBuk', encodeURIComponent(nobuk));*@
@@ -5293,6 +5617,11 @@
                     } else if ($('#ctk_total').is(":checked") == false) {
                         total = "0";
                     }
+                if ($('#ctk_ket').is(":checked") == true) {
+                    ket = "1";
+                } else if ($('#ctk_ket').is(":checked") == false) {
+                    ket = "0";
+                }
                 @*} else if ($('#LayoutSize').val() == "2") {
                     var link = '@Url.Action("LihatFakturA5", "Manage", new {noBukPesanan = "replaceNoBuk"})';
                     link = link.replace('replaceNoBuk', encodeURIComponent(nobuk));
@@ -5371,6 +5700,7 @@
                                             nobukLink: nobuk,
                                             totalLink: total,
                                             namaLink: nama,
+                                            ketLink: ket,
                                         };
 
                                         $.ajax({

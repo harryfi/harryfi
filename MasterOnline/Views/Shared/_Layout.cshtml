@@ -19,6 +19,13 @@
     <meta property="og:image:secure_url" content="https://masteronline.co.id/Content/Images/MO_simple_logo.png">
     <!--tambahan SEO selesai disini-->
 
+    <!-- carousel -->
+    @*<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>*@
+    <!-- end carousel-->
+
     <title>@ViewBag.Title - Solusi Bisnis Online</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <!-- Font Awesome -->
@@ -41,20 +48,42 @@
         function gtag_report_conversion(url) { var callback = function () { if (typeof (url) != 'undefined') { window.location = url; } }; gtag('event', 'conversion', { 'send_to': 'AW-778375246/mXAzCP3X5pQBEM6glPMC', 'value': 30.0, 'currency': 'USD', 'event_callback': callback }); return false; }
     </script>
     <!-- Facebook Pixel Code -->
+    @*<script>
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window,document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+             fbq('init', '2320855488162974');
+            fbq('track', 'PageView');
+        </script>*@
+    @*<noscript>
+            <img height="1" width="1" src="https://www.facebook.com/tr?id=2320855488162974&ev=PageView&noscript=1" />
+        </noscript>*@
+    <!-- End Facebook Pixel Code -->
+
+    <!-- Facebook Pixel Code NEW UPDATE ON 23 JUNI 2020 -->
     <script>
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window,document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-         fbq('init', '2320855488162974');
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () {
+                n.callMethod ?
+                n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+            n.queue = []; t = b.createElement(e); t.async = !0;
+            t.src = v; s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '294358668412896');
         fbq('track', 'PageView');
     </script>
     <noscript>
-        <img height="1" width="1" src="https://www.facebook.com/tr?id=2320855488162974&ev=PageView&noscript=1" />
+        <img height="1" width="1" style="display:none"
+             src="https://www.facebook.com/tr?id=294358668412896&ev=PageView&noscript=1" />
     </noscript>
     <!-- End Facebook Pixel Code -->
     <style>
@@ -273,7 +302,7 @@
                 </div>
             </div>
             <div class="col-sm-12 col-xs-12 hidden-md hidden-lg" style="margin:auto;">
-                <div class="row text-center">
+                <div class="row text-center" style="font-size: 11px;margin-bottom: 24px;margin-left:-10px;margin-right:-10px;">
                     <a href="@Url.Action("Index", "Home", new {@ref = referral})" style="margin-right: 5px;">
                         <span>HOME</span>
                     </a>

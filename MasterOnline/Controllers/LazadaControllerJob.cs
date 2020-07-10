@@ -482,14 +482,23 @@ namespace MasterOnline.Controllers
                             KombinasiAttribute.Add(attributeUnique, item.BRG);
 
                         }
-                        if (!string.IsNullOrWhiteSpace(item.Sort9))
+                        //if (!string.IsNullOrWhiteSpace(item.Sort9))
+                        //{
+                        //    var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
+                        //    string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR + "[;]" + item.BRG;
+                        //    if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
+                        //    {
+                        //        KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
+                        //    }
+                        //}
+                    }
+                    if (!string.IsNullOrWhiteSpace(item.Sort9))
+                    {
+                        var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
+                        string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR + "[;]" + item.BRG;
+                        if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
                         {
-                            var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
-                            string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR + "[;]" + item.BRG;
-                            if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
-                            {
-                                KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
-                            }
+                            KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
                         }
                     }
                 }
@@ -546,22 +555,31 @@ namespace MasterOnline.Controllers
                             //        xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
                             //    }
                             //}
-                            for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
-                            {
-                                if (!attributesAdded.Contains(dsSku[i].ToString()))
-                                {
-                                    try
-                                    {
-                                        var getAttrValue = lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
-                                        xmlString += "<" + dsSku[i].ToString() + ">";
-                                        xmlString += XmlEscape(getAttrValue);
-                                        xmlString += "</" + dsSku[i].ToString() + ">";
-                                    }
-                                    catch (Exception ex)
-                                    {
 
+                            //change by Tri 29 mei 2020, loop sesuai attribute sku
+                            //for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
+                            for (int i = 0; i < dsSku.Count; i++)
+                            //end change by Tri 29 mei 2020, loop sesuai attribute sku
+                            {
+                                //add by Tri 29 mei 2020, cek dl ada value atau tidak
+                                string value = "";
+                                var cekAttr = (lzdAttrSkuWithVal.TryGetValue(dsSku[i].ToString(), out value) ? value : "");
+                                if (!string.IsNullOrEmpty(cekAttr))
+                                    //end add by Tri 29 mei 2020, cek dl ada value atau tidak
+                                    if (!attributesAdded.Contains(dsSku[i].ToString()))
+                                    {
+                                        try
+                                        {
+                                            var getAttrValue = lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
+                                            xmlString += "<" + dsSku[i].ToString() + ">";
+                                            xmlString += XmlEscape(getAttrValue);
+                                            xmlString += "</" + dsSku[i].ToString() + ">";
+                                        }
+                                        catch (Exception ex)
+                                        {
+
+                                        }
                                     }
-                                }
                             }
                             //end change 8 Apriil 2019, get attr from api
                             var qty_stock = new StokControllerJob(dbPathEra, uname).GetQOHSTF08A(item.BRG, "ALL");
@@ -909,14 +927,23 @@ namespace MasterOnline.Controllers
 
 
                         }
-                        if (!string.IsNullOrWhiteSpace(item.Sort9))
+                        //if (!string.IsNullOrWhiteSpace(item.Sort9))
+                        //{
+                        //    var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
+                        //    string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR + "[;]" + item.BRG;
+                        //    if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
+                        //    {
+                        //        KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
+                        //    }
+                        //}
+                    }
+                    if (!string.IsNullOrWhiteSpace(item.Sort9))
+                    {
+                        var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
+                        string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR + "[;]" + item.BRG;
+                        if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
                         {
-                            var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
-                            string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR + "[;]" + item.BRG;
-                            if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
-                            {
-                                KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
-                            }
+                            KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
                         }
                     }
                 }
@@ -1292,7 +1319,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke Lazada gagal.")]
-        public async Task<string> UpdatePrice_Job(string dbPathEra, string kdBrg, string harga, string token, string uname)
+        public async Task<string> UpdatePrice_Job(string dbPathEra, string kdBrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, string kdBrg, string harga, string token, string uname)
         {
             var ret = "";
             var errorMessage = "";
@@ -1876,9 +1903,15 @@ namespace MasterOnline.Controllers
         public BindingBase GetOrders(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
-            //SetupContext(dbPathEra, uname);
+            SetupContext(dbPathEra, uname);
             int page = 0;
             var more = true;
+            //add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
+            
+            var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+            //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
 
             while (more)
             {
@@ -1889,6 +1922,12 @@ namespace MasterOnline.Controllers
                     more = false;
                 }
             }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrdersUnpaid%' and invocationdata not like '%GetOrdersRTS%' and invocationdata not like '%GetOrdersCancelled%' and invocationdata not like '%GetOrdersToUpdateMO%' ");
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
 
@@ -1897,10 +1936,15 @@ namespace MasterOnline.Controllers
         public BindingBase GetOrdersRTS(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
-            //SetupContext(dbPathEra, uname);
+            SetupContext(dbPathEra, uname);
             int page = 0;
             var more = true;
+            //add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
 
+            var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+            //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
             while (more)
             {
                 var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page, "ready_to_ship");
@@ -1910,6 +1954,12 @@ namespace MasterOnline.Controllers
                     more = false;
                 }
             }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersRTS%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
 
@@ -2357,6 +2407,7 @@ namespace MasterOnline.Controllers
                                     CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
 
                                     EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
@@ -2385,6 +2436,7 @@ namespace MasterOnline.Controllers
                                 //CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
                                 //CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
                                 //CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                //CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                 //CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
 
                                 //EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
@@ -2480,9 +2532,16 @@ namespace MasterOnline.Controllers
         public BindingBase GetOrdersUnpaid(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
-            //SetupContext(dbPathEra, uname);
+            SetupContext(dbPathEra, uname);
             int page = 0;
             var more = true;
+
+            //add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + cust + "'";
+
+            var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+            //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
 
             while (more)
             {
@@ -2493,6 +2552,12 @@ namespace MasterOnline.Controllers
                     more = false;
                 }
             }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
         public BindingBase GetOrdersUnpaidWithPage(string cust, string accessToken, string dbPathEra, string uname, int page)
@@ -2754,6 +2819,7 @@ namespace MasterOnline.Controllers
                                 CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
                                 //remark to test
                                 EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
@@ -2816,16 +2882,18 @@ namespace MasterOnline.Controllers
         {
             var ret = new BindingBase();
             ret.status = 0;
-            //var jmlhNewOrder = 0;//add by calvin 1 april 2019
-            //string connectionID = Guid.NewGuid().ToString();
-            var fromDt = DateTime.Now.AddDays(-14);
-            var toDt = DateTime.Now.AddDays(1);
-
             var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(dbPathEra);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
             //var username = uname;
+
+            //var jmlhNewOrder = 0;//add by calvin 1 april 2019
+            //string connectionID = Guid.NewGuid().ToString();
+            var fromDt = DateTime.Now.AddDays(-14);
+            var toDt = DateTime.Now.AddDays(1);
+
+            
 
             var orderUnpaidList = (from a in ErasoftDbContext.SOT01A
                                        //change by nurul 10/10/2019, cari semua status kecuali cancel (11)
@@ -2841,6 +2909,11 @@ namespace MasterOnline.Controllers
             //add by Tri 10 Des 2019, cek pesanan belum dibayar
             UpdateOrderUnpaidToCancel(cust, accessToken, dbPathEra, uname);
             //end add by Tri 10 Des 2019, cek pesanan belum dibayar
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
 
             return ret;
         }
@@ -3634,7 +3707,7 @@ namespace MasterOnline.Controllers
         public BindingBase GetOrdersToUpdateMO(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
-            //SetupContext(dbPathEra, uname);
+            SetupContext(dbPathEra, uname);
             int page = 0;
             var more = true;
 
@@ -3647,6 +3720,12 @@ namespace MasterOnline.Controllers
                     more = false;
                 }
             }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersToUpdateMO%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
 
@@ -3976,6 +4055,7 @@ namespace MasterOnline.Controllers
         //                            CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
         //                            CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
         //                            CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+        //                            CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
         //                            CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
 
         //                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
@@ -4004,6 +4084,7 @@ namespace MasterOnline.Controllers
         //                        //CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
         //                        //CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
         //                          CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+        //                          CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
         //                        //CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
 
         //                        //EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);

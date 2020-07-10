@@ -1,0 +1,101 @@
+﻿@{
+    ViewBag.Title = "Prompt Attribute 82Cart";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+<style>
+
+    .top_nav {
+        display: none !important;
+    }
+
+    .close-btn {
+        display: none;
+    }
+</style>
+<div>
+    <div class="row">
+        <div class="col-lg-4 col-sm-6">
+            <div class="input-group">
+                @*<input id="search_prompt" type="text" class="form-control" placeholder="Pencarian">*@
+                <input id="txt_cust" type="hidden" class="form-control" value="@ViewData["cust"]">
+                <input id="txt_category" type="hidden" class="form-control" value="@ViewData["attribute"]">
+                @*<span class="input-group-btn">
+                    <button type="button" id="search_prompt_btn" class="btn btn-primary">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </span>*@
+                <span class="input-group-btn">
+                    <button type="button" id="save_prompt_btn" class="btn btn-success" onclick="saveCheckBoxAttribute()">
+                        Simpan
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top: 5px;">
+        <div class="col-sm-12" id="divPartial">
+            @*@Html.Partial("TablePromptAttributeBlibli")*@
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        refreshTablePrompt();
+    });
+
+    $('#search_prompt').keypress(function (e) {
+        var key = e.which;
+        if (key == 13)// the enter key code
+        {
+            refreshTablePrompt();
+            return false;
+        }
+    });
+    $('#search_prompt_btn').click(function () {
+        refreshTablePrompt();
+    });
+
+    function refreshTablePrompt() {
+        var $link = '@Html.Raw(Url.Action("RefreshAttribute82Cart", "Manage", new { attribute= "replaceCategory", cust = "replaceCust",page = "replaceLastPage", search = "replaceSearch" }))';
+
+        $link = $link.replace("replaceCategory", $('#txt_category').val());
+        $link = $link.replace("replaceCust", $('#txt_cust').val());
+        $link = $link.replace("replaceSearch", $('#search_prompt').val());
+        $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                //$('#divPartial').hide();
+                $('#loading_prompt').show();
+            },
+            success: function (response) {
+                $('#divPartial').html(response);
+                $('#loading_prompt').hide();
+                //$('#divPartial').show();
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function saveCheckBoxAttribute() {
+        var rows_selected = [];
+        var rows_selected_name = [];
+
+        $('.checkbox_gntstatus_attribute').each(function (i, item) {
+            if ($(item).is(":checked")) {
+                rows_selected.push($(item).attr("data-attribute"));
+                rows_selected_name.push($(item).attr("data-attributename"));
+            }
+        });
+
+        self.window.close();
+        window.onunload = refreshTextBox2;
+        function refreshTextBox2() {
+            window.opener.afterPromptAttribute82Cart(rows_selected, rows_selected_name);
+        }
+    }
+</script>

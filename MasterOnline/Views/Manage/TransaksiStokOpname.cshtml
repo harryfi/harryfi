@@ -33,9 +33,9 @@
             color: white;
         }
 
-        a#download-stokopname:hover, a#upload-stokopname:hover {
-            color: black;
-        }
+            a#download-stokopname:hover, a#upload-stokopname:hover {
+                color: black;
+            }
 
         .input-group {
             margin-bottom: 0;
@@ -66,15 +66,19 @@
             width: 100px;
         }
 
+        #loading_spinner {
+            z-index: 9999 !important;
+        }
+
         #GUDANG,
         #GUDANG .selectivity-single-select-input,
         #table_tambah_stok > tbody > tr > .gd-barang {
             width: 70px !important;
         }
 
-        #table_tambah_stok > tbody > tr > .gd-barang .selectize-dropdown {
-            width: 250px !important;
-        }
+            #table_tambah_stok > tbody > tr > .gd-barang .selectize-dropdown {
+                width: 250px !important;
+            }
 
         @@media screen and (max-width: 767px) {
             .table-responsive {
@@ -135,10 +139,10 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                @*<button class="btn btn-primary btn_excel_stokopname" onclick="$('#excelStokOpname').modal('show');" id="excel_stokopname">Excel Stok Opname</button>*@
-                                <button class="btn btn-primary btn_excel_stokopname" onclick="$('#excelStokOpnameMaintenance').modal('show');" id="excel_stokopname_maintenance">Excel Stok Opname</button>
-                                @*<button class="btn btn-primary btn_tambah_data" id="tambah_stok">Tambah Baru</button>*@
-                                <button class="btn btn-primary btn_tambah_data" onclick="$('#excelStokOpnameMaintenance').modal('show');" >Tambah Baru</button>
+                                <button class="btn btn-primary btn_excel_stokopname" onclick="$('#excelStokOpname').modal('show');" id="excel_stokopname">Excel Stok Opname</button>
+                                @*<button class="btn btn-primary btn_excel_stokopname" onclick="$('#excelStokOpnameMaintenance').modal('show');" id="excel_stokopname_maintenance">Excel Stok Opname</button>*@
+                                <button class="btn btn-primary btn_tambah_data" id="tambah_stok">Tambah Baru</button>
+                                @*<button class="btn btn-primary btn_tambah_data" onclick="$('#excelStokOpnameMaintenance').modal('show');" >Tambah Baru</button>*@
                             </div>
                         </div>
                     </div>
@@ -166,7 +170,7 @@
                                         </div>
                                     }
                                 }
-                                @using (Html.BeginForm("SaveTransaksiStokOpname", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id="form-stokopname" }))
+                                @using (Html.BeginForm("SaveTransaksiStokOpname", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-stokopname" }))
                                 {
                                     <div id="form-partial">
                                     </div>
@@ -209,17 +213,17 @@
                                 <input type='file' id='file_upload_excel' name="file_upload_excel" onchange="checkfile(this);"
                                        accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-2">
                                 <button type="button" class="btn btn-primary" id="btnUploadExcelSOP" onclick="uploadExcelSOP();" data-style="expand-right">
                                     <span>Upload</span>
                                 </button>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div id="loading_upload" class="text-center" hidden="hidden">
-                            <div id="loading_upload_image">
-                                <img src="~/Content/Images/spinner.gif" />
+                            <div class="col-md-2">
+                                <div id="loading_upload" class="text-center" hidden="hidden">
+                                    <div id="loading_upload_image">
+                                        <img style="width: 40px;" src="~/Content/Images/spinner.gif" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -336,6 +340,35 @@
         </div>
     </div>
 </div>
+
+@*PROGRESS BAR MODAL*@
+<div class="modal fade in" id="mod-progress" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="i-circle warning"><i class="fa fa-info"></i></div>
+                    <div id="result" style="font-size: 1.1em; padding-bottom: 5px">
+                        <p id="progressBarParagraph"></p>
+                    </div>
+                    <div style="width: 30%; margin: 0 auto; display:none;">
+                        <div id="progressbar" style="width: 300px; height: 15px"></div>
+                        <br />
+                    </div>
+                    <div id="ProgressStripe" class="progress progress-striped active" style="position:relative; top:10px; width:100%;">
+                        <div id="ProgressMessage" class="progress-bar progress-bar-info" style="width: 100%; border:none;"></div>
+                    </div>
+                    <br />
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 @section scripts
 {
@@ -634,7 +667,7 @@
         function getDataBarang() {
 
             var nobuk = $('#StokOpname_NOBUK').val();
-            
+
             var link = '@Url.Action("GetDataBarangOP", "Manage", new { nobuk = "replaceId" })';
             link = link.replace("replaceId", encodeURIComponent(nobuk));
 
@@ -687,7 +720,7 @@
                             modeEditTd();
                         } else {
                             $($trElement + ' .nama-barang').text('-');
-                            $($trElement + ' .qty-barang').html('0' + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStokOpname_Qty" name="BarangStokOpname.Qty" type="hidden" value="">');
+                            $($trElement + ' .qty-barang').html('0' + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStokOpname_Qty" name="BarangStokOpname.Qty" type="hidden" value="0">');
                             $($trElement + ' .btn-primary').attr('disabled', 'disabled');
                             getGudang();
                             onTab();
@@ -879,7 +912,11 @@
             $.ajax({
                 type: "GET",
                 url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function (response) {
+                    $('#loading_spinner').hide();
                     if (response.Errors == null) {
                         $('#table-stokopname-partial').html(response);
                         refreshTableStokOpname($savePage);
@@ -955,6 +992,7 @@
 
                     if (response.Errors[0] == null) {
                         $('#statpros').val("Sudah");
+                        getNoBuktiSOP();
                         $('#prosesSOpname').attr('disabled', 'disabled');
                         $('input, select, .btn-danger').each(function () {
                             $(this).attr('disabled', 'disabled');
@@ -970,17 +1008,37 @@
                     console.log(error);
                 }
             });
+
         }
 
-        var $brg = '';
+        function getNoBuktiSOP() {
 
-        function passBarangInDb($brg) {
-            this.$brg = $brg;
+            var nobuk = $('#StokOpname_NOBUK').val();
+
+            var link = '@Url.Action("GetNoBuktiSOP", "Manage", new { nobuk = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent(nobuk));
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+
+                    console.log(data);
+                    console.log(data.buktiOM);
+                    console.log(data.buktiOK);
+
+                    if (data) {
+                        $('#bktOM').val(data.buktiOM);
+                        $('#bktOK').val(data.buktiOK);
+                    }
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
         }
-
-        
-
-        
 
         function validasiTambahan() {
             var $isValid = true;
@@ -1078,17 +1136,26 @@
         }
 
         function DownloadExcelSOP() {
+            $('#loading_spinner').show();
             var link = '@Html.Raw(Url.Action("ListStokOpnametoExcel", "TransferExcel"))';
 
             $.ajax({
+                xhr: function () {
+                    var xhr = $.ajaxSettings.xhr();
+                    xhr.onprogress = function (evt) {
+                        if (evt.lengthComputable) {
+                           $('#loading_spinner').hide();
+                        }
+                        $('#loading_spinner').hide();
+                    };
+                    return xhr;
+                },
                 type: "GET",
                 url: link,
                 contentType: 'application/json',
                 cache: false,
-                async: false,
-                beforeSend: function () {
-                },
                 success: function (response) {
+                    $('#loading_spinner').hide();
                     if (response.Errors.length == 0) {
                         var bytes = new Uint8Array(response.byteExcel);
                         saveByteArray(response.namaFile, bytes);
@@ -1117,7 +1184,7 @@
         }
 
         function popupAlertUploadSaldoAwal_withError() {
-            alert("Proses upload dan input Stok Opname stok sudah selesai!");
+            alert("Proses upload dan input Stok Opname sudah selesai!");
         }
 
         function uploadExcelSOP() {
@@ -1134,8 +1201,6 @@
         }
 
         function uploadFileExcelStokOpname(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
-
-            console.log(vnobuk + '|' + vcountAll + '|' + vpercentvprogress + '|' + vstatusLoopvSuccess);
 
             var splitpro = vpercentvprogress.split(';');
             var vpercent = splitpro[0];
@@ -1182,36 +1247,42 @@
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
                     beforeSend: function () {
+                        $('#loading_upload').show();
                     },
                     success: function (response) {
-                        if (response.countAll != null && response.Errors.length == 0 && response.statusLoop == true && response.statusSuccess == false) {
-                            $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
-                            $('#pBar_uploadFile').html(response.percent + '% Complete');
+                        $('#loading_upload').hide();
+                        $('#btnUploadExcelSOP').removeAttr('disabled');
+                        setTimeout(popupAlertUploadSaldoAwal, 500);
+                        document.getElementById("file_upload_excel").value = "";
 
-                            if (response.progress <= response.countAll) {
-                                uploadFileExcelStokOpname(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
-                            }
+                        //if (response.countAll != null && response.Errors.length == 0 && response.statusLoop == true && response.statusSuccess == false) {
+                        //    $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
+                        //    $('#pBar_uploadFile').html(response.percent + '% Complete');
 
-                        } else if (response.statusSuccess == true && response.Errors.length == 0) {
-                            document.getElementById("file_upload_excel").value = "";
-                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
-                            $('#pBar_uploadFile').html('100% Complete');
-                            $('#btnUploadExcelSOP').removeAttr('disabled');
-                            setTimeout(popupAlertUploadSaldoAwal, 500);
+                        //    if (response.progress <= response.countAll) {
+                        //        uploadFileExcelStokOpname(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
+                        //    }
 
-                        } else if (response.statusSuccess == true && response.Errors.length > 0) {
-                            document.getElementById("file_upload_excel").value = "";
-                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
-                            $('#pBar_uploadFile').html('100% Complete');
-                            $('#btnUploadExcelSOP').removeAttr('disabled');
-                            setTimeout(popupAlertUploadSaldoAwal, 500);
+                        //} else if (response.statusSuccess == true && response.Errors.length == 0) {
+                        //    document.getElementById("file_upload_excel").value = "";
+                        //    $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                        //    $('#pBar_uploadFile').html('100% Complete');
+                        //    $('#btnUploadExcelSOP').removeAttr('disabled');
+                        //    setTimeout(popupAlertUploadSaldoAwal, 500);
 
-                        } else {
-                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
-                            $('#pBar_uploadFile').html('0% Complete');
-                            $('#btnUploadExcelSOP').removeAttr('disabled');
-                            document.getElementById("file_upload_excel").value = "";
-                        }
+                        //} else if (response.statusSuccess == true && response.Errors.length > 0) {
+                        //    document.getElementById("file_upload_excel").value = "";
+                        //    $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                        //    $('#pBar_uploadFile').html('100% Complete');
+                        //    $('#btnUploadExcelSOP').removeAttr('disabled');
+                        //    setTimeout(popupAlertUploadSaldoAwal, 500);
+
+                        //} else {
+                        //    $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                        //    $('#pBar_uploadFile').html('0% Complete');
+                        //    $('#btnUploadExcelSOP').removeAttr('disabled');
+                        //    document.getElementById("file_upload_excel").value = "";
+                        //}
 
                     },
                     error: function (xhr, status, error) {
@@ -1221,14 +1292,39 @@
                         }
                         alert(err);
                         console.log(error);
+                        $('#loading_upload').hide();
                         $('#progressBarUpload').hide();
                         $('#btnUploadExcelSOP').removeAttr('disabled');
+                        document.getElementById("file_upload_excel").value = "";
                     }
                 });
 
             }
-
         }
+
+    </script>
+
+    <script type="text/javascript">
+
+        $(function () {
+            // Reference the auto-generated proxy for the hub.
+            var progress = $.connection.progressHub;
+            //console.log(progress);
+
+            // Create a function that the hub can call back to display messages.
+            progress.client.AddProgress = function (message, percentage) {
+                $('#pBar_uploadFile').width(percentage);
+                $('#pBar_uploadFile').attr('aria-valuenow', percentage);
+                $('#pBar_uploadFile').html(percentage + ' Complete');
+
+            };
+
+            $.connection.hub.start().done(function () {
+                var connectionId = $.connection.hub.id;
+                console.log(connectionId);
+            });
+
+        });
 
     </script>
 

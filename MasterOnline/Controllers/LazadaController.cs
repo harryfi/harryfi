@@ -421,14 +421,23 @@ namespace MasterOnline.Controllers
                             KombinasiAttribute.Add(attributeUnique, item.BRG);
 
                         }
-                        if (!string.IsNullOrWhiteSpace(item.Sort9))
+                        //if (!string.IsNullOrWhiteSpace(item.Sort9))
+                        //{
+                        //    var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
+                        //    string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR + "[;]" + item.BRG;
+                        //    if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
+                        //    {
+                        //        KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
+                        //    }
+                        //}
+                    }
+                    if (!string.IsNullOrWhiteSpace(item.Sort9))
+                    {
+                        var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
+                        string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR + "[;]" + item.BRG;
+                        if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
                         {
-                            var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
-                            string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR + "[;]" + item.BRG;
-                            if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
-                            {
-                                KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
-                            }
+                            KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
                         }
                     }
                 }
@@ -821,14 +830,23 @@ namespace MasterOnline.Controllers
                             KombinasiAttribute.Add(attributeUnique, item.BRG);
 
                         }
-                        if (!string.IsNullOrWhiteSpace(item.Sort9))
+                        //if (!string.IsNullOrWhiteSpace(item.Sort9))
+                        //{
+                        //    var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
+                        //    string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR + "[;]" + item.BRG;
+                        //    if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
+                        //    {
+                        //        KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
+                        //    }
+                        //}
+                    }
+                    if (!string.IsNullOrWhiteSpace(item.Sort9))
+                    {
+                        var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
+                        string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR + "[;]" + item.BRG;
+                        if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
                         {
-                            var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
-                            string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR + "[;]" + item.BRG;
-                            if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
-                            {
-                                KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
-                            }
+                            KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
                         }
                     }
                 }
@@ -880,14 +898,23 @@ namespace MasterOnline.Controllers
                             //        xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
                             //    }
                             //}
-                            for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
+
+                            //change by Tri 29 mei 2020, loop sesuai attribute sku
+                            //for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
+                            for (int i = 0; i < dsSku.Count; i++)
+                            //end change by Tri 29 mei 2020, loop sesuai attribute sku
                             {
-                                if (!attributesAdded.Contains(dsSku[i].ToString()))
-                                {
-                                    xmlString += "<" + dsSku[i].ToString() + ">";
-                                    xmlString += XmlEscape(lzdAttrSkuWithVal[dsSku[i].ToString()].ToString());
-                                    xmlString += "</" + dsSku[i].ToString() + ">";
-                                }
+                                //add by Tri 29 mei 2020, cek dl ada value atau tidak
+                                string value = "";
+                                var cekAttr = (lzdAttrSkuWithVal.TryGetValue(dsSku[i].ToString(), out value) ? value : "");
+                                if (!string.IsNullOrEmpty(cekAttr))
+                                    //end add by Tri 29 mei 2020, cek dl ada value atau tidak
+                                    if (!attributesAdded.Contains(dsSku[i].ToString()))
+                                    {
+                                        xmlString += "<" + dsSku[i].ToString() + ">";
+                                        xmlString += XmlEscape(lzdAttrSkuWithVal[dsSku[i].ToString()].ToString());
+                                        xmlString += "</" + dsSku[i].ToString() + ">";
+                                    }
                             }
                             //end change 16 Mei 2019, get attr from api
 
@@ -2018,6 +2045,7 @@ namespace MasterOnline.Controllers
                                 CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
 
                                 EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
@@ -2276,6 +2304,7 @@ namespace MasterOnline.Controllers
                                 CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
 
                                 EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);

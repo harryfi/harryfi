@@ -2179,6 +2179,7 @@ namespace MasterOnline.Controllers
                                 CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 1;
                                 CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
                                 EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
@@ -4224,6 +4225,12 @@ namespace MasterOnline.Controllers
                 imagess.Add(brgInDb.LINK_GAMBAR_2);
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
                 imagess.Add(brgInDb.LINK_GAMBAR_3);
+            //add 25 jun 2020, ada 5 gambar
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
+                imagess.Add(brgInDb.LINK_GAMBAR_4);
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
+                imagess.Add(brgInDb.LINK_GAMBAR_5);
+            //end add 25 jun 2020, ada 5 gambar
 
             string[] brg_mp_split = brg_mp.Split(';');
             ShopeeUpdateImageData HttpBody = new ShopeeUpdateImageData

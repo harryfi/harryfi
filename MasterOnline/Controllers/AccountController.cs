@@ -848,10 +848,19 @@ namespace MasterOnline.Controllers
                         if (tblCustomer.TIDAK_HIT_UANG_R == true)
                         {
 #if (DEBUG || Debug_AWS)
+                            string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//pesanan sudah dibayar
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_update_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//update pesanan
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrdersRTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//pesanan sudah dibayar
 #else
                             string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
@@ -1097,7 +1106,10 @@ namespace MasterOnline.Controllers
                                 recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(5), recurJobOpt);
 
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_completed_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                                //change 15 mei 2020, ubah jd 30 mnit
+                                //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(30), recurJobOpt);
+                                //end change 15 mei 2020, ubah jd 30 mnit
 
                                 //pending dulu by nurul 11/12/2019
                                 //connId_JobId = dbPathEra + "_tokopedia_pesanan_completed_" + Convert.ToString(tblCustomer.RecNum.Value);
@@ -1106,7 +1118,7 @@ namespace MasterOnline.Controllers
                                 //end change by nurul 10/12/2019, ubah interval hangfire pesanan dan tambah get pesanan cancel
 
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_canceled_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderListCancel(data, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderListCancel(data, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(5), recurJobOpt);
                                 //await new TokopediaControllerJob().GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
                                 //await new TokopediaControllerJob().GetOrderListCancel(data, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
 
@@ -1271,6 +1283,74 @@ namespace MasterOnline.Controllers
             }
             #endregion
 
+            #region Shopify
+
+            var kdShopify = 21;
+            var ShopifyShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopify.ToString());
+            if (id_single_account.HasValue)
+            {
+                ShopifyShop = ShopifyShop.Where(m => m.RecNum.Value == id_single_account.Value);
+            }
+            var listShopifyShop = ShopifyShop.ToList();
+            if (listShopifyShop.Count > 0)
+            {
+                //var shopeeApi = new ShopeeController();
+                foreach (ARF01 tblCustomer in listShopifyShop)
+                {
+                    ShopifyControllerJob.ShopifyAPIData iden = new ShopifyControllerJob.ShopifyAPIData();
+                    iden.no_cust = tblCustomer.CUST;
+                    iden.username = username;
+                    iden.DatabasePathErasoft = dbPathEra;
+                    iden.account_store = tblCustomer.PERSO;
+                    iden.API_key = tblCustomer.API_KEY;
+                    iden.API_password = tblCustomer.API_CLIENT_P;
+
+                    string connId_JobId = "";
+                    //add by fauzi 25 November 2019
+                    if (tblCustomer.TIDAK_HIT_UANG_R == true)
+                    {
+#if (AWS || DEV)
+                        connId_JobId = dbPathEra + "_shopify_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopifyControllerJob>(x => x.Shopify_GetOrderByStatusUnpaid(iden, ShopifyControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+
+                        connId_JobId = dbPathEra + "_shopify_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopifyControllerJob>(x => x.Shopify_GetOrderByStatusPaid(iden, ShopifyControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+
+                        connId_JobId = dbPathEra + "_shopify_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopifyControllerJob>(x => x.Shopify_GetOrderByStatusCompleted(iden, ShopifyControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(30), recurJobOpt);
+
+                        connId_JobId = dbPathEra + "_shopify_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopifyControllerJob>(x => x.Shopify_GetOrderByStatusCancelled(iden, ShopifyControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+#else
+                        //await
+                        new ShopifyControllerJob().Shopify_GetOrderByStatusUnpaid(iden, ShopifyControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
+
+                        new ShopifyControllerJob().Shopify_GetOrderByStatusPaid(iden, ShopifyControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
+
+                        new ShopifyControllerJob().Shopify_GetOrderByStatusCompleted(iden, ShopifyControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
+
+                        new ShopifyControllerJob().Shopify_GetOrderByStatusCancelled(iden, ShopifyControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+#endif
+
+                    }
+                    else
+                    {
+                        connId_JobId = dbPathEra + "_shopify_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
+                        connId_JobId = dbPathEra + "_shopify_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
+                        connId_JobId = dbPathEra + "_shopify_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
+                        connId_JobId = dbPathEra + "_shopify_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+                    }
+                }
+            }
+            #endregion
+
             #region 82Cart
             var kd82Cart = 20;
 
@@ -1312,7 +1392,7 @@ namespace MasterOnline.Controllers
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EightTwoCartControllerJob>(x => x.E2Cart_GetOrderByStatusCancelled(idenJob, EightTwoCartControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
 
 #else
-                        EightTwoCartController.E2CartAPIData iden = new EightTwoCartController.E2CartAPIData();
+                        EightTwoCartControllerJob.E2CartAPIData iden = new EightTwoCartControllerJob.E2CartAPIData();
                         iden.API_key = tblCustomer.API_KEY;
                         iden.API_credential = tblCustomer.Sort1_Cust;
                         iden.API_url = tblCustomer.PERSO;
@@ -1320,13 +1400,13 @@ namespace MasterOnline.Controllers
                         iden.username = username;
                         iden.no_cust = tblCustomer.CUST;
 
-                        await new EightTwoCartController().E2Cart_GetOrderByStatus(iden, EightTwoCartController.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
+                        await new EightTwoCartControllerJob().E2Cart_GetOrderByStatus(iden, EightTwoCartControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
 
-                        await new EightTwoCartController().E2Cart_GetOrderByStatus(iden, EightTwoCartController.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
+                        await new EightTwoCartControllerJob().E2Cart_GetOrderByStatus(iden, EightTwoCartControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
 
-                        await new EightTwoCartController().E2Cart_GetOrderByStatusCompleted(iden, EightTwoCartController.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
+                        await new EightTwoCartControllerJob().E2Cart_GetOrderByStatusCompleted(iden, EightTwoCartControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
 
-                        await new EightTwoCartController().E2Cart_GetOrderByStatusCancelled(iden, EightTwoCartController.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                        await new EightTwoCartControllerJob().E2Cart_GetOrderByStatusCancelled(iden, EightTwoCartControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 
 #endif
 

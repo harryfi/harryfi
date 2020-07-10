@@ -85,5 +85,21 @@ namespace MasterOnline
         //add by nurul 26/3/2020
         public string no_job { get; set; }
         //end add by nurul 26/3/2020
+
+        //add by nurul 15/5/2020
+        public string ket { get; set; }
+        //end add by nurul 15/5/2020
     }
+
+    //add by nurul 2/6/2020
+    public class tempLabelTokopedia
+    {
+        public string Header { get; set; }
+        public string Resi { get; set; }
+        public string Invoice { get; set; }
+        public string Insurance { get; set; }
+        public string Address { get; set; }
+        public string Product { get; set; }
+    }
+    //end add by nurul 2/6/2020
 }

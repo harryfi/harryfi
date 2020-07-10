@@ -15,7 +15,7 @@
     var username = "";
     if (dataSession?.User != null)
     {
-        accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
         username = context.Account.Single(a => a.AccountId == accId).Username;
     }
     else
@@ -946,7 +946,7 @@
         width: 100%;
         height: 100%;
         position: fixed;
-        z-index: 100;
+        z-index: 9999;
         top: 0;
         right: 0;
         bottom: 0;
@@ -1703,6 +1703,8 @@
                                     <option value="15">Tokopedia</option>
                                     <option value="16">Blibli</option>
                                     <option value="17">Shopee</option>
+                                    <option value="20">82Cart</option>
+                                    <option value="21">Shopify</option>
                                     <option value="18">Offline</option>
                                 </select>
                             </div>
@@ -1808,6 +1810,8 @@
                                     <option value="15">Tokopedia</option>
                                     <option value="16">Blibli</option>
                                     <option value="17">Shopee</option>
+                                    <option value="20">82Cart</option>
+                                    <option value="21">Shopify</option>
                                     <option value="18">Offline</option>
                                 </select>
                             </div>
@@ -1913,6 +1917,8 @@
                                     <option value="15">Tokopedia</option>
                                     <option value="16">Blibli</option>
                                     <option value="17">Shopee</option>
+                                    <option value="20">82Cart</option>
+                                    <option value="21">Shopify</option>
                                     <option value="18">Offline</option>
                                 </select>
                             </div>
@@ -2001,6 +2007,8 @@
                                     <option value="15">Tokopedia</option>
                                     <option value="16">Blibli</option>
                                     <option value="17">Shopee</option>
+                                    <option value="20">82Cart</option>
+                                    <option value="21">Shopify</option>
                                     <option value="18">Offline</option>
                                 </select>
                             </div>
@@ -2105,6 +2113,8 @@
                                     <option value="15">Tokopedia</option>
                                     <option value="16">Blibli</option>
                                     <option value="17">Shopee</option>
+                                    <option value="20">82Cart</option>
+                                    <option value="21">Shopify</option>
                                     <option value="18">Offline</option>
                                 </select>
                             </div>
@@ -2194,6 +2204,8 @@
                                     <option value="15">Tokopedia</option>
                                     <option value="16">Blibli</option>
                                     <option value="17">Shopee</option>
+                                    <option value="20">82Cart</option>
+                                    <option value="21">Shopify</option>
                                     <option value="18">Offline</option>
                                 </select>
                             </div>
@@ -3373,6 +3385,7 @@
                             <li id="li_pesanan_shopee_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopee_tab_focus" href="#packing_pesanan_shopee" aria-expanded="false">Shopee</a></li>
                             <li id="li_pesanan_blibli_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_blibli_tab_focus" href="#packing_pesanan_blibli" aria-expanded="false">Blibli</a></li>
                             <li id="li_pesanan_82cart_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_82cart_tab_focus" href="#packing_pesanan_82cart" aria-expanded="false">82Cart</a></li>
+                            <li id="li_pesanan_shopify_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopify_tab_focus" href="#packing_pesanan_shopify" aria-expanded="false">Shopify</a></li>
                         </ul>
                         <div class="tab-content">
                             <div id="packing_pesanan_tokped" class="tab-pane fade in">
@@ -3397,6 +3410,11 @@
                             </div>
                             <div id="packing_pesanan_82cart" class="tab-pane fade in">
                                 <div class="col-lg-12" id="packing_pesanan_82cart_content">
+
+                                </div>
+                            </div>
+                            <div id="packing_pesanan_shopify" class="tab-pane fade in">
+                                <div class="col-lg-12" id="packing_pesanan_shopify_content">
 
                                 </div>
                             </div>
@@ -3828,6 +3846,7 @@
         }
 
         function DownloadExcelPesanan() {
+            $('#loading_spinner').show();
             var orId = "";
             var drTgl = $('#DrTanggal').val();
             var sdTgl = $('#SdTanggal').val();
@@ -3839,12 +3858,22 @@
             link += "?orid=" + orId + "&drtgl=" + drTgl + "&sdtgl=" + sdTgl;
 
             $.ajax({
+                xhr: function () {
+                    var xhr = $.ajaxSettings.xhr();
+                    xhr.onprogress = function (evt) {
+                        if (evt.lengthComputable) {
+                            $('#loading_spinner').hide();
+                        }
+                        $('#loading_spinner').hide();
+                    };
+                    return xhr;
+                },
                 type: "GET",
                 url: link,
                 contentType: 'application/json',
                 cache: false,
-                async: false,
                 success: function (response) {
+                    $('#loading_spinner').hide();
                     if (response.Errors.length == 0) {
                         var bytes = new Uint8Array(response.byteExcel);
                         saveByteArray(response.namaFile, bytes);
@@ -4361,7 +4390,7 @@
             });
             $('#filter_pesanan_field_marketplace').change(function () {
                 searchTablePesanan();
-            })
+            });
             $('#filter_pesanan_dibayar_field').change(function () {
                 var filterBy = $(this).val();
                 switch (filterBy) {
@@ -4389,7 +4418,7 @@
             });
             $('#filter_pesanan_dibayar_field_marketplace').change(function () {
                 searchTablePesananSudahDibayar();
-            })
+            });
 
             $('#filter_pesanan_packing_field').change(function () {
                 var filterBy = $(this).val();
@@ -4418,7 +4447,7 @@
             });
             $('#filter_pesanan_packing_field_marketplace').change(function () {
                 searchTablePesananPacking();
-            })
+            });
 
             //add by calvin 29 nov 2019
             $('#filter_pesanan_faktur_field').change(function () {
@@ -4491,7 +4520,7 @@
             });
             $('#filter_pesanan_selesai_field_marketplace').change(function () {
                 searchTablePesananSelesai();
-            })
+            });
 
             $('#filter_pesanan_cancel_field').change(function () {
                 var filterBy = $(this).val();
@@ -4675,7 +4704,7 @@
                     }
                 });
             }
-            else if (idMarketplace = "7")//lazada
+            else if (idMarketplace == "7")//lazada
             {
                 sHTML += '</div>';
                 $('#divCbCancel').append(sHTML);
@@ -4718,6 +4747,58 @@
                     }
                 });
             }
+            else if (idMarketplace == "20") {//82Cart
+                    $('#cancel_reason').hide();
+                    $('#cancel_tokped').hide();
+                    $('#divReasons').remove();
+                    //$('#ckBrg').remove();
+                    //sHTML += '</div>';
+                    //sHTML += '<div id="ckBrg" style="display:none">';
+                    //listBrg.forEach(function setCheckBox(item, index) {
+                    //    var splitText = item.split(';');
+                    //    //sHTML += '<div class="checkbox"><label><input type="checkbox" class="ckBarang" id-barang="' + splitText[0] + '"/>' + splitText[1] +'</label></div></div>';
+                    //    sHTML += '<div class="radio"><label><input type="radio" name="ckBarang" class="ckBarang" id-barang="' + splitText[0] + '"/>' + splitText[1] + '</label></div>';
+                    //});
+                    //sHTML += '</div>';
+                    //sHTML += '</div>';
+
+                    //$('#divCbCancel').append(sHTML);
+                    //$('#cancel_reason').show();
+                    ////$('#cbCancelReason').show();
+                    //listReason[0] = {
+                    //    id: "OUT_OF_STOCK",
+                    //    text: "OUT OF STOCK"
+                    //};
+                    //listReason[1] = {
+                    //    id: "CUSTOMER_REQUEST",
+                    //    text: "CUSTOMER REQUEST"
+                    //};
+                    //listReason[2] = {
+                    //    id: "UNDELIVERABLE_AREA",
+                    //    text: "UNDELIVERABLE AREA"
+                    //};
+                    ////listReason[3] = {
+                    ////    id: "COD_NOT_SUPPORTED",
+                    ////    text: "COD NOT SUPPORTED"
+                    ////};
+
+                    //var comboSelect = $('#cbCancelReason').selectize({
+                    //    valueField: 'id',
+                    //    searchField: 'text',
+                    //    options: listReason,
+                    //    onChange: function (value) {
+                    //        $('#txtCancelReason').val(value);
+                    //        //$('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                    //        if (value.includes("STOCK")) {
+                    //            $('#ckBrg').show();
+                    //        } else {
+                    //            $('#ckBrg').hide();
+                    //        }
+
+                    //    }
+                    //});
+
+                }
         }
         //end add by Tri, call midtrans api get token
 
@@ -8359,35 +8440,40 @@
                     beforeSend: function() {
                         $('#loading_spinner').show();
                     },
-                    success: function(response) {
-                        //lihatPesananSudahDibayar
-                        alert('Data berhasil disimpan!');
-                        $('#modalFixNotFound').modal('hide');
-                        //samakan dengan function lihatPesananSudahDibayar onSuccess
-                        //add by nurul 1/11/2018
-                        $modeEdit = 1;
-                        $modeEditDibayar = 1;
-                        //end add
-                        $('#form-partial-sudah-dibayar').html(response);
-                        $('#see_tgl_pesanan').removeAttr('style');
-                        //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
-                        //$('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();//remark 15 april 2019
-                        //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
-                        //ADD BY NURUL 16/4/2019
-                        //$('#see_alamat_pembeli').val().show();
-                        //END ADD BY NURUL 16/4/2019
-                        $('#TGL').parent().hide();
-                        $('.pesanan_sudah_dibayar_section').hide();
-                        $('.pesanan_editor_sudah_dibayar_section').show();
-                        //add by nurul 17/10/2018
-                        $('#myTab li a').each(function () {
-                            $(this).removeAttr('data-toggle');
+                    success: function (response) {
+                        if (response.Errors != null) {
+                            alert(response.Errors[0]);
+                        }
+                        else {
+                            //lihatPesananSudahDibayar
+                            alert('Data berhasil disimpan!');
+                            $('#modalFixNotFound').modal('hide');
+                            //samakan dengan function lihatPesananSudahDibayar onSuccess
+                            //add by nurul 1/11/2018
+                            $modeEdit = 1;
+                            $modeEditDibayar = 1;
+                            //end add
+                            $('#form-partial-sudah-dibayar').html(response);
+                            $('#see_tgl_pesanan').removeAttr('style');
+                            //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
+                            //$('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();//remark 15 april 2019
+                            //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
+                            //ADD BY NURUL 16/4/2019
+                            //$('#see_alamat_pembeli').val().show();
+                            //END ADD BY NURUL 16/4/2019
+                            $('#TGL').parent().hide();
+                            $('.pesanan_sudah_dibayar_section').hide();
+                            $('.pesanan_editor_sudah_dibayar_section').show();
+                            //add by nurul 17/10/2018
+                            $('#myTab li a').each(function () {
+                                $(this).removeAttr('data-toggle');
 
-                            if ($(this).attr('id') === 'nunggu-tab') return;
+                                if ($(this).attr('id') === 'nunggu-tab') return;
 
-                            $(this).addClass('disabled-tab');
-                        });
-                        //end add
+                                $(this).addClass('disabled-tab');
+                            });
+                            //end add
+                        }
                         $('#loading_spinner').hide();
                         //end samakan dengan function lihatPesananSudahDibayar onSuccess
                     },

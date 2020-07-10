@@ -321,6 +321,8 @@
     <Compile Include="Controllers\EightTwoCartControllerJob.cs" />
     <Compile Include="Controllers\JDIDControllerJob.cs" />
     <Compile Include="Controllers\ExcelControllerJob.cs" />
+    <Compile Include="Controllers\ShopifyController.cs" />
+    <Compile Include="Controllers\ShopifyControllerJob.cs" />
     <Compile Include="Controllers\StokControllerJob.cs" />
     <Compile Include="Controllers\BlibliControllerJob.cs" />
     <Compile Include="Controllers\BlibliController.cs" />
@@ -592,6 +594,7 @@
     </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Hubs\MasterOnlineHub.cs" />
+    <Compile Include="Hubs\ProgressHub.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.Designer.cs">
       <DependentUpon>201806190714594_AddPromoSubsAndAlterAccount.cs</DependentUpon>
@@ -704,6 +707,7 @@
     <Compile Include="Models\Api\ResultDataJurnalAkunting.cs" />
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
     <Compile Include="Models\API_LOG_MARKETPLACE_HANGFIRE.cs" />
+    <Compile Include="Models\ATTRIBUTE_82CART.cs" />
     <Compile Include="Models\ATTRIBUTE_BL.cs" />
     <Compile Include="Models\ATTRIBUTE_JDID_AND_OPT.cs" />
     <Compile Include="Models\ATTRIBUTE_OPT_TOKPED.cs" />
@@ -713,7 +717,10 @@
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
     <Compile Include="Models\CATEGORY_82CART.cs" />
+    <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
     <Compile Include="Models\TEMP_SALDOAWAL.cs" />
+    <Compile Include="Models\TEMP_SHOPIFY_ORDERS.cs" />
+    <Compile Include="Models\TEMP_SHOPIFY_ORDERS_ITEM.cs" />
     <Compile Include="Models\TEMP_UPLOAD_EXCEL_BAYAR.cs" />
     <Compile Include="Models\TABLE_LOG_DETAIL.cs" />
     <Compile Include="Models\ShopeeExcelBayarPiutang.cs" />
@@ -1063,6 +1070,7 @@
     <Compile Include="Services\UploadImageService.cs" />
     <Compile Include="Utils\ApplicationPreload.cs" />
     <Compile Include="Utils\AwsConfig.cs" />
+    <Compile Include="Utils\Functions.cs" />
     <Compile Include="Utils\HangfireBootstrapper.cs" />
     <Compile Include="Utils\Helper.cs" />
     <Compile Include="Utils\HttpRequest.cs" />
@@ -6386,6 +6394,18 @@
     <Content Include="Views\Manage\ListDetailPesananBarang.cshtml" />
     <Content Include="Views\Manage\PackingList82Cart.cshtml" />
     <Content Include="Views\Admin\TablePesananHangfireJob.cshtml" />
+    <Content Include="Views\Manage\ListDetailStokBarang.cshtml" />
+    <Content Include="Views\Manage\CetakLabelTokped.cshtml" />
+    <Content Include="Views\Manage\TableFakturForReturPopUp.cshtml" />
+    <Content Include="Views\Manage\ListFakturForReturPopUp.cshtml" />
+    <Content Include="Views\Manage\ListBrgForReturPopUp.cshtml" />
+    <Content Include="Views\Manage\TableBarangForReturPenj.cshtml" />
+    <Content Include="Views\Manage\ListBrgForReturInvPopUp.cshtml" />
+    <Content Include="Views\Manage\ListFakturForReturInvPopUp.cshtml" />
+    <Content Include="Views\Manage\TableBarangForReturInvPenj.cshtml" />
+    <Content Include="Views\Manage\TableFakturForReturInvPopUp.cshtml" />
+    <Content Include="Views\Manage\PromptAttribute82Cart.cshtml" />
+    <Content Include="Views\Manage\TablePromptAttribute82Cart.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
