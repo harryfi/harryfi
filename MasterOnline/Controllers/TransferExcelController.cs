@@ -1428,6 +1428,7 @@ namespace MasterOnline.Controllers
                                 string idRequest = Guid.NewGuid().ToString();
 
                                 int iProcess = 0;
+                                int success = 0;
 
                                 // start looping
                                 for (int i = Convert.ToInt32(prog[0]); i <= worksheet.Dimension.End.Row; i++)
@@ -1671,7 +1672,7 @@ namespace MasterOnline.Controllers
                                                                                                     ("Upload Excel Pesanan"),
                                                                                                     (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                     ("FAILED"),
-                                                                                                    (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                    (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                                     (username),
                                                                                                     (filename));
                                                                                                         var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -1776,7 +1777,7 @@ namespace MasterOnline.Controllers
                                                                                                     ("Upload Excel Pesanan"),
                                                                                                     (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                     ("FAILED"),
-                                                                                                    (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                    (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                                     (username),
                                                                                                     (filename));
                                                                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -1803,6 +1804,7 @@ namespace MasterOnline.Controllers
                                                                                             //    return Json(ret, JsonRequestBehavior.AllowGet);
                                                                                             //}
                                                                                             iProcess = iProcess + 1;
+                                                                                            success = success + 1;
                                                                                             Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
 
                                                                                         }
@@ -1827,7 +1829,7 @@ namespace MasterOnline.Controllers
                                                                                                 ("Upload Excel Pesanan"),
                                                                                                 (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                                 ("FAILED"),
-                                                                                                (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                                (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                                 (username),
                                                                                                 (filename));
                                                                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -1865,7 +1867,7 @@ namespace MasterOnline.Controllers
                                                                                             ("Upload Excel Pesanan"),
                                                                                             (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                             ("FAILED"),
-                                                                                            (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                            (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                             (username),
                                                                                             (filename));
                                                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -1903,7 +1905,7 @@ namespace MasterOnline.Controllers
                                                                                         ("Upload Excel Pesanan"),
                                                                                         (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                         ("FAILED"),
-                                                                                        (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                        (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                         (username),
                                                                                         (filename));
                                                                                         var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -1941,7 +1943,7 @@ namespace MasterOnline.Controllers
                                                                                      ("Upload Excel Pesanan"),
                                                                                      (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                      ("FAILED"),
-                                                                                     (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                     (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                      (username),
                                                                                      (filename));
                                                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -1980,7 +1982,7 @@ namespace MasterOnline.Controllers
                                                                                 ("Upload Excel Pesanan"),
                                                                                 (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                                 ("FAILED"),
-                                                                                (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                                (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                                 (username),
                                                                                 (filename));
                                                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2027,7 +2029,7 @@ namespace MasterOnline.Controllers
                                                                             ("Upload Excel Pesanan"),
                                                                             (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                             ("FAILED"),
-                                                                            (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                            (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                             (username),
                                                                             (filename));
                                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2065,7 +2067,7 @@ namespace MasterOnline.Controllers
                                                                         ("Upload Excel Pesanan"),
                                                                         (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                         ("FAILED"),
-                                                                        (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                        (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                         (username),
                                                                         (filename));
                                                                         var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2103,7 +2105,7 @@ namespace MasterOnline.Controllers
                                                                     ("Upload Excel Pesanan"),
                                                                     (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                     ("FAILED"),
-                                                                    (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                    (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                     (username),
                                                                     (filename));
                                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2141,7 +2143,7 @@ namespace MasterOnline.Controllers
                                                                 ("Upload Excel Pesanan"),
                                                                 (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                                 ("FAILED"),
-                                                                (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                                (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                                 (username),
                                                                 (filename));
                                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2179,7 +2181,7 @@ namespace MasterOnline.Controllers
                                                             ("Upload Excel Pesanan"),
                                                             (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                             ("FAILED"),
-                                                            (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                            (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                             (username),
                                                             (filename));
                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2219,7 +2221,7 @@ namespace MasterOnline.Controllers
                                                         ("Upload Excel Pesanan"),
                                                         (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                         ("FAILED"),
-                                                        (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                        (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                         (username),
                                                         (filename));
                                                         var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2257,7 +2259,7 @@ namespace MasterOnline.Controllers
                                                     ("Upload Excel Pesanan"),
                                                     (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                     ("FAILED"),
-                                                    (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                    (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                     (username),
                                                     (filename));
                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2285,7 +2287,7 @@ namespace MasterOnline.Controllers
                                                 ("Upload Excel Pesanan"),
                                                 (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                                 ("FAILED"),
-                                                (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                                 (username),
                                                 (filename));
                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2321,7 +2323,7 @@ namespace MasterOnline.Controllers
                                             ("Upload Excel Pesanan"),
                                             (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
                                             ("FAILED"),
-                                            (iProcess + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                            (success + " / " + Convert.ToInt32(ret.countAll - 1)),
                                             (username),
                                             (filename));
                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
@@ -2824,7 +2826,7 @@ namespace MasterOnline.Controllers
                     //add formula
                    
 
-                    for (int i = 0; i < 1000; i++)
+                    for (int i = 0; i < 5; i++)
                     {
                         //worksheet.Cells["X" + (5 + i)].Formula = "=S" + (5 + i) + "*R" + (5 + i) + "";
                         //worksheet.Cells["U" + (5 + i)].Formula = "=S" + (5 + i) + "*T" + (5 + i) + "/100";
@@ -2861,7 +2863,7 @@ namespace MasterOnline.Controllers
                         worksheet.Cells[5 + i, 22].Value = 0;//TOTAL
                     }
 
-                    ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 23];
+                    ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 22];
                     string tableName0 = "TablePesanan";
                     ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
 

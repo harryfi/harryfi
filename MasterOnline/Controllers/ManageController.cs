@@ -3730,17 +3730,17 @@ namespace MasterOnline.Controllers
             #region JD ID get Category
             else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "JD.ID").IdMarket.ToString()))
             {
-                if (!string.IsNullOrEmpty(customer.Customers.TOKEN) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U) && !string.IsNullOrEmpty(customer.Customers.API_KEY))
-                {
-                    var jdAPI = new JDIDController();
-                    JDIDAPIData dataJD = new JDIDAPIData
-                    {
-                        accessToken = customer.Customers.TOKEN,
-                        appKey = customer.Customers.API_KEY,
-                        appSecret = customer.Customers.API_CLIENT_U,
-                    };
-                    jdAPI.getCategory(dataJD);
-                }
+                //if (!string.IsNullOrEmpty(customer.Customers.TOKEN) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U) && !string.IsNullOrEmpty(customer.Customers.API_KEY))
+                //{
+                //    var jdAPI = new JDIDController();
+                //    JDIDAPIData dataJD = new JDIDAPIData
+                //    {
+                //        accessToken = customer.Customers.TOKEN,
+                //        appKey = customer.Customers.API_KEY,
+                //        appSecret = customer.Customers.API_CLIENT_U,
+                //    };
+                //    jdAPI.getCategory(dataJD);
+                //}
 
             }
 
@@ -29553,17 +29553,23 @@ namespace MasterOnline.Controllers
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = cust;
             ViewData["LastPage"] = page;
-            string sSQLSelect = "SELECT DISTINCT REQUEST_ID, CUST_ATTRIBUTE_1, RECNUM, REQUEST_DATETIME , REQUEST_EXCEPTION, REQUEST_RESULT ";
+            string sSQLSelect = "SELECT A.REQUEST_ID," +
+                "(SELECT TOP 1 ISNULL(B.CUST_ATTRIBUTE_1, 'Anonim') FROM API_LOG_MARKETPLACE B WHERE A.REQUEST_ID = B.REQUEST_ID) AS CUST_ATTRIBUTE_1, " +
+                "(SELECT TOP 1 B.REQUEST_DATETIME FROM API_LOG_MARKETPLACE B WHERE A.REQUEST_ID = B.REQUEST_ID ORDER BY B.REQUEST_DATETIME DESC) AS REQUEST_DATETIME, " +
+                "(SELECT TOP 1 ISNULL(B.REQUEST_RESULT, 'Kosong') FROM API_LOG_MARKETPLACE B WHERE A.REQUEST_ID = B.REQUEST_ID ORDER BY B.REQUEST_DATETIME DESC) AS REQUEST_RESULT, " +
+                "(SELECT TOP 1 ISNULL(B.REQUEST_EXCEPTION, 'Kosong') FROM API_LOG_MARKETPLACE B WHERE A.REQUEST_ID = B.REQUEST_ID ORDER BY B.REQUEST_DATETIME DESC) AS REQUEST_EXCEPTION " +
+                "FROM API_LOG_MARKETPLACE A WHERE A.REQUEST_ACTION like '%Upload Excel Pesanan%' " +
+                "GROUP BY A.REQUEST_ID ";
             string sSQLCount = "";
-            sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+            sSQLCount += "SELECT COUNT(DISTINCT(REQUEST_ID)) AS JUMLAH ";
             string sSQL2 = "";
             sSQL2 += "FROM API_LOG_MARKETPLACE ";
             //sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
-            if (cust != "")
-            {
-                //sSQL2 += "WHERE (A.CUST LIKE '%" + cust + "%' ) ";
-                sSQL2 += "WHERE (REQUEST_ACTION LIKE '%Upload Excel Pesanan%' ) ";
-            }
+            //if (cust != "")
+            //{
+            //sSQL2 += "WHERE (A.CUST LIKE '%" + cust + "%' ) ";
+            sSQL2 += "WHERE (REQUEST_ACTION LIKE '%Upload Excel Pesanan%' ) ";
+            //}
 
             var minimal_harus_ada_item_untuk_current_page = (page * 5) - 4;
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
@@ -29581,7 +29587,7 @@ namespace MasterOnline.Controllers
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 5) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 5 ROWS ONLY ";
 
-            var listPromosi = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_HANGFIRE>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var listPromosi = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_HANGFIRE>(sSQLSelect + sSQLSelect2).ToList();
             //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
             IPagedList<API_LOG_MARKETPLACE_HANGFIRE> pageOrders = new StaticPagedList<API_LOG_MARKETPLACE_HANGFIRE>(listPromosi, pagenumber + 1, 5, totalCount.JUMLAH);

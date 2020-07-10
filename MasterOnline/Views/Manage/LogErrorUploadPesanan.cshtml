@@ -34,12 +34,16 @@
             <tbody>
                 @foreach (var importLog in Model.ToList())
                 {
+                    DateTime dateReq = Convert.ToDateTime(@importLog.REQUEST_DATETIME);
+                    var waktuasli = dateReq.AddHours(7).ToString("dd MMMM yyyy HH:mm tt");
+
                 <tr data-log-recnum="log-@importLog.REQUEST_ID">
                     <td class="log-akun">
                         @importLog.CUST_ATTRIBUTE_1
                     </td>
                     <td class="log-tanggal">
-                        @importLog.REQUEST_DATETIME
+                        @*@importLog.REQUEST_DATETIME*@
+                        @waktuasli
                     </td>
                     <td class="log-akun">
                         @importLog.REQUEST_RESULT
