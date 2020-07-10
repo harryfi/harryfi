@@ -721,6 +721,7 @@
     <Compile Include="Models\TEMP_SALDOAWAL.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS_ITEM.cs" />
+    <Compile Include="Models\TEMP_UPLOADPESANAN.cs" />
     <Compile Include="Models\TEMP_UPLOAD_EXCEL_BAYAR.cs" />
     <Compile Include="Models\TABLE_LOG_DETAIL.cs" />
     <Compile Include="Models\ShopeeExcelBayarPiutang.cs" />
@@ -6406,6 +6407,7 @@
     <Content Include="Views\Manage\TableFakturForReturInvPopUp.cshtml" />
     <Content Include="Views\Manage\PromptAttribute82Cart.cshtml" />
     <Content Include="Views\Manage\TablePromptAttribute82Cart.cshtml" />
+    <Content Include="Views\Manage\LogErrorUploadPesanan.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
