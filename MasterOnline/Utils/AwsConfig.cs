@@ -15,5 +15,8 @@ namespace MasterOnline.Utils
 
         //for uploadfileservice.cs
         public static string _bucketFileName { get; set; } = "uploaded-file/";
+
+        //for upload excel pesanan
+        public static string _bucketFileName_Pesanan { get; set; } = "uploaded-file/upload_pesanan_batch/";
     }
 }
