@@ -29553,7 +29553,7 @@ namespace MasterOnline.Controllers
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = cust;
             ViewData["LastPage"] = page;
-            string sSQLSelect = "SELECT CUST_ATTRIBUTE_1, RECNUM, REQUEST_DATETIME , REQUEST_EXCEPTION, REQUEST_RESULT ";
+            string sSQLSelect = "SELECT DISTINCT REQUEST_ID, CUST_ATTRIBUTE_1, RECNUM, REQUEST_DATETIME , REQUEST_EXCEPTION, REQUEST_RESULT ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -29579,7 +29579,7 @@ namespace MasterOnline.Controllers
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY REQUEST_DATETIME DESC  ";
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 5) + " ROWS ";
-            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+            sSQLSelect2 += "FETCH NEXT 5 ROWS ONLY ";
 
             var listPromosi = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_HANGFIRE>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
