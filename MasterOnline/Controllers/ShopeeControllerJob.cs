@@ -5378,8 +5378,6 @@ namespace MasterOnline.Controllers
         }
         public async Task<GetVariationResult> CekVariationShopee( ShopeeAPIData iden, long item_id)
         {
-            var MOVariationNew = MOVariation.ToList();
-
             var ret = new GetVariationResult();
             SetupContext(iden);
 
@@ -5421,10 +5419,10 @@ namespace MasterOnline.Controllers
                     responseFromServer = reader.ReadToEnd();
                 }
             }
-            if (currentLog != null)
-            {
-                manageAPI_LOG_MARKETPLACE(api_status.RePending, ErasoftDbContext, iden, currentLog);
-            }
+            //if (currentLog != null)
+            //{
+            //    manageAPI_LOG_MARKETPLACE(api_status.RePending, ErasoftDbContext, iden, currentLog);
+            //}
             //}
             //catch (Exception ex)
             //{
@@ -5772,6 +5770,20 @@ namespace MasterOnline.Controllers
                 sSQL += "FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG ";
                 sSQL += "WHERE PART = '" + brg + "' AND IDMARKET = " + marketplace.RecNum;
                 var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
+                var dataBrg = await CekVariationShopee(iden, item_id);
+                if (dataBrg != null)
+                {
+                    if (dataBrg.variations != null)
+                    {
+                        if (dataBrg.variations.Length > 0)
+                        {
+                            foreach(var dataShopee in dataBrg.tier_variation)
+                            {
+
+                            }
+                        }
+                    }
+                }
                 foreach (var item in ListVariant.OrderBy(p => p.ID))
                 {
                     var stf02h = ListStf02hVariasi.Where(p => p.BRG.ToUpper() == item.BRG.ToUpper() && p.IDMARKET == marketplace.RecNum).FirstOrDefault();
