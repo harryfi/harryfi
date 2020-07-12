@@ -5773,27 +5773,105 @@ namespace MasterOnline.Controllers
                 var dataBrg = await CekVariationShopee(iden, item_id);
                 if (dataBrg != null)
                 {
-                    if (dataBrg.tier_variation != null)
+                    #region remark cek tier_variation
+                    //if (dataBrg.tier_variation != null)
+                    //{
+                    //    if (dataBrg.tier_variation.Length > 0)
+                    //    {
+                    //        var tempData = new List<STF02>();
+                    //        var newData = ListVariant;
+                    //        foreach (var opsiLv1 in dataBrg.tier_variation[0].options)
+                    //        {
+                    //            var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.MARKET == "SHOPEE" && p.MP_JUDUL_VAR.ToUpper() == dataBrg.tier_variation[0].name.ToUpper() && p.MP_VALUE_VAR.ToUpper() == opsiLv1.ToUpper()).FirstOrDefault();
+                    //            var filterLv1 = ListVariant.Where(p => (p.Sort8 ?? "") == getNamaVar.KODE_VAR).ToList();
+                    //            if(filterLv1.Count == 0)//varian lvl 1 kosong di MO
+                    //            {
+                    //                var filterLv2 = ListVariant.Where(p => (p.Sort9 ?? "") == getNamaVar.KODE_VAR).FirstOrDefault();
+                    //                if (filterLv2 != null)
+                    //                {
+                    //                    tempData.Add(filterLv2);
+                    //                    newData.Remove(filterLv2);
+                    //                }
+                    //            }
+                    //            else
+                    //            {
+                    //                var cekLvl2 = filterLv1.Where(p => (p.Sort9 ?? "") == getNamaVar.KODE_VAR).ToList();
+                    //                if(cekLvl2.Count == 0)// mo dan shopee memiliki 1 lvl varian
+                    //                {
+                    //                    var filterLv2 = filterLv1.Where(p => (p.Sort8 ?? "") == getNamaVar.KODE_VAR).FirstOrDefault();
+                    //                    if (filterLv2 != null)
+                    //                    {
+                    //                        tempData.Add(filterLv2);
+                    //                        newData.Remove(filterLv2);
+                    //                    }
+                    //                }
+                    //                else
+                    //                {
+                    //                    if (dataBrg.tier_variation.Length > 1)// mo dan shopee memiliki 2 lvl varian
+                    //                    {
+                    //                        foreach (var opsiLv2 in dataBrg.tier_variation[1].options)
+                    //                        {
+                    //                            var getNamaVar2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.MARKET == "SHOPEE" && p.MP_JUDUL_VAR.ToUpper() == dataBrg.tier_variation[1].name.ToUpper() && p.MP_VALUE_VAR.ToUpper() == opsiLv2.ToUpper()).FirstOrDefault();
+                    //                            var filterLv2 = filterLv1.Where(p => (p.Sort9 ?? "") == getNamaVar.KODE_VAR).FirstOrDefault();
+                    //                            if (filterLv2 != null)
+                    //                            {
+                    //                                tempData.Add(filterLv2);
+                    //                                newData.Remove(filterLv2);
+                    //                            }
+                    //                        }
+                    //                    }
+                    //                    else//mo 2 lvl varian. shopee 1 lvl
+                    //                    {
+                    //                        foreach (var lvl2MO in cekLvl2.OrderBy(p => p.ID))
+                    //                        {
+                    //                            tempData.Add(lvl2MO);
+                    //                            newData.Remove(lvl2MO);
+                    //                        }
+                    //                    }
+                    //                }
+
+                    //            }
+
+                    //        }
+                    //        ListVariant = tempData;
+                    //        ListVariant.AddRange(newData);
+                    //    }
+                    //}
+                    #endregion
+                    if(dataBrg.variations != null)
                     {
-                        if (dataBrg.tier_variation.Length > 0)
+                        if(dataBrg.variations.Length > 0)
                         {
                             var tempData = new List<STF02>();
                             var newData = ListVariant;
-                            foreach (var opsiLv1 in dataBrg.tier_variation[0].options)
+                            //var cekTier1 = dataBrg.variations.Where(p => p.tier_index[0] == 0).ToList();
+                            if(dataBrg.tier_variation.Length == 1)// shopee 1 tier
                             {
-                                var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.MARKET == "SHOPEE" && p.MP_JUDUL_VAR.ToUpper() == opsiLv1.ToUpper()).FirstOrDefault();
-                                var filterLv1 = ListVariant.Where(p => p.Sort8 == getNamaVar.KODE_VAR).ToList();
-                                if (dataBrg.tier_variation.Length > 1)
+                                foreach(var tier1_s in dataBrg.variations.OrderBy(p => p.tier_index[0]))
                                 {
-                                    foreach (var opsiLv2 in dataBrg.tier_variation[1].options)
+                                    var brgMPVar = dataBrg.item_id + ";" + tier1_s.variation_id;
+                                    var dStf02h = ListStf02hVariasi.Where(p => (p.BRG_MP ?? "") == brgMPVar).FirstOrDefault();
+                                    if(dStf02h != null)
                                     {
-                                        var getNamaVar2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.MARKET == "SHOPEE" && p.MP_JUDUL_VAR.ToUpper() == opsiLv2.ToUpper()).FirstOrDefault();
-                                        var filterLv2 = filterLv1.Where(p => p.Sort9 == getNamaVar.KODE_VAR).FirstOrDefault();
-                                        if(filterLv2 != null)
-                                        {
-                                            tempData.Add(filterLv2);
-                                            newData.Remove(filterLv2);
-                                        }
+                                        var currentBrg = dStf02h.BRG;
+                                        var sorted = ListVariant.Where(p => p.BRG == currentBrg).FirstOrDefault();
+                                        tempData.Add(sorted);
+                                        newData.Remove(sorted);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (var tier1_s in dataBrg.variations.OrderBy(p => p.tier_index[0]).ThenBy(p => p.tier_index[1]))
+                                {
+                                    var brgMPVar = dataBrg.item_id + ";" + tier1_s.variation_id;
+                                    var dStf02h = ListStf02hVariasi.Where(p => (p.BRG_MP ?? "") == brgMPVar).FirstOrDefault();
+                                    if (dStf02h != null)
+                                    {
+                                        var currentBrg = dStf02h.BRG;
+                                        var sorted = ListVariant.Where(p => p.BRG == currentBrg).FirstOrDefault();
+                                        tempData.Add(sorted);
+                                        newData.Remove(sorted);
                                     }
                                 }
                             }
