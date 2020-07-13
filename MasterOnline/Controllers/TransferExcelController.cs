@@ -1515,7 +1515,7 @@ namespace MasterOnline.Controllers
                                                                                     var dataToko = dataMasterARF01.Where(p => p.CUST == kodeCust).FirstOrDefault();
                                                                                     if (dataToko != null)
                                                                                     {
-                                                                                        if(dataToko.STATUS_API == "0")
+                                                                                        if(dataToko.STATUS_API == "0" || string.IsNullOrEmpty(dataToko.STATUS_API))
                                                                                         {
 
                                                                                         var KodeBRGMP = "";
