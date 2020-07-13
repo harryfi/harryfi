@@ -20,5 +20,6 @@ namespace MasterOnline
         public string MP_JUDUL_VAR { get; set; }
         public string MP_VALUE_VAR { get; set; }
         public string MARKET { get; set; }
+        public string MP_VALUE_FC_VAR { get; set; }//SIMPAN VALUE FAMILY COLOUR BLIBLI
     }
 }
