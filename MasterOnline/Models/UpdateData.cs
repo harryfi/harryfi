@@ -39,6 +39,9 @@ namespace MasterOnline.Models
 
         //Password
         public string Username { get; set; }
+        //add by fauzi tgl 13 Juli 2020
+        public string Email { get; set; }
+        //..end add
         public string OldPass { get; set; }
         public string NewPass { get; set; }
         public bool WrongOldPass { get; set; } = false;

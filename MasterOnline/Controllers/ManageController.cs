@@ -29321,11 +29321,13 @@ namespace MasterOnline.Controllers
 
         public ActionResult UbahPassword(UpdateData dataPassBaru)
         {
-            var accInDb = MoDbContext.Account.SingleOrDefault(a => a.Username == dataPassBaru.Username);
+            //var accInDb = MoDbContext.Account.SingleOrDefault(a => a.Username == dataPassBaru.Username); // remark by fauzi tgl 13 Juli 2020 for change password by email
+            var accInDb = MoDbContext.Account.SingleOrDefault(a => a.Email == dataPassBaru.Email);
 
             if (accInDb == null)
             {
-                var userInDb = MoDbContext.User.Single(u => u.Username == dataPassBaru.Username);
+                //var userInDb = MoDbContext.User.Single(u => u.Username == dataPassBaru.Username); // remark by fauzi tgl 13 Juli 2020 for change password by email
+                var userInDb = MoDbContext.User.Single(u => u.Email == dataPassBaru.Email);
 
                 if (userInDb.Password == dataPassBaru.OldPass)
                 {
