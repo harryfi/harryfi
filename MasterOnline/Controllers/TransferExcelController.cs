@@ -1510,8 +1510,9 @@ namespace MasterOnline.Controllers
                                                                                 var dataKurir = dataMasterKurir.Where(p => p.RecNum == checkKodeKurir).FirstOrDefault();
                                                                                 if (dataKurir != null)
                                                                                 {
+                                                                                    var kodeCust = no_cust[0];
                                                                                     //var dataToko = ErasoftDbContext.ARF01.Where(p => p.CUST == item.MARKETPLACE).FirstOrDefault();
-                                                                                    var dataToko = dataMasterARF01.Where(p => p.CUST == no_cust[0]).FirstOrDefault();
+                                                                                    var dataToko = dataMasterARF01.Where(p => p.CUST == kodeCust).FirstOrDefault();
                                                                                     if (dataToko != null)
                                                                                     {
                                                                                         if(dataToko.STATUS_API == "0")
@@ -1520,17 +1521,18 @@ namespace MasterOnline.Controllers
                                                                                         var KodeBRGMP = "";
                                                                                         //var dataBarang = ErasoftDbContext.STF02H.Where(p => p.BRG == item.KODE_BRG && p.IDMARKET == dataToko.RecNum).FirstOrDefault();
                                                                                         var dataBarang = dataMasterSTF02H.Where(p => p.BRG == kode_brg && p.IDMARKET == dataToko.RecNum).FirstOrDefault();
-                                                                                            if (dataBarang != null && dataBarang.BRG_MP != null)
+                                                                                            if (dataBarang != null)
                                                                                             {
-                                                                                                if (dataBarang.BRG_MP.Contains(';'))
-                                                                                                {
-                                                                                                    string[] brgMPOrderItemID = dataBarang.BRG_MP.Split(';');
-                                                                                                    KodeBRGMP = brgMPOrderItemID[0];
-                                                                                                }
-                                                                                                else
-                                                                                                {
-                                                                                                    KodeBRGMP = dataBarang.BRG_MP;
-                                                                                                }
+                                                                                                KodeBRGMP = "";
+                                                                                                //if (dataBarang.BRG_MP.Contains(';'))
+                                                                                                //{
+                                                                                                //    string[] brgMPOrderItemID = dataBarang.BRG_MP.Split(';');
+                                                                                                //    KodeBRGMP = brgMPOrderItemID[0];
+                                                                                                //}
+                                                                                                //else
+                                                                                                //{
+                                                                                                //    KodeBRGMP = dataBarang.BRG_MP;
+                                                                                                //}
 
                                                                                                 var kodePembeli = "";
                                                                                                 string address = "";
@@ -1738,7 +1740,7 @@ namespace MasterOnline.Controllers
                                                                                                     NILAI_DISC_3 = 0,
                                                                                                     NILAI_DISC_4 = 0,
                                                                                                     NILAI_DISC_5 = 0,
-                                                                                                    CATATAN = "ORDER NO : " + no_referensi + "_;_" + checkBarang.NAMA + " " + checkBarang.NAMA2 + " " + checkBarang.NAMA3 + "_;_" + dataBarang.BRG_MP,
+                                                                                                    CATATAN = "ORDER NO : " + no_referensi + "_;_" + checkBarang.NAMA + " " + checkBarang.NAMA2 + " " + checkBarang.NAMA3 + "_;_" + dataBarang.BRG,
                                                                                                     TRANS_NO_URUT = 0,
                                                                                                     SATUAN_N = 0,
                                                                                                     QTY_N = Convert.ToInt32(qty),
@@ -1862,7 +1864,7 @@ namespace MasterOnline.Controllers
 
                                                                                             int IDMarket = Convert.ToInt32(dataToko.NAMA);
                                                                                             var dataMP = MoDbContext.Marketplaces.Where(p => p.IdMarket == IDMarket).SingleOrDefault();
-                                                                                            messageErrorLog = "Kode Barang " + kode_brg + " tidak ditemukan di toko " + dataToko.PERSO + " (" + dataMP.NamaMarket.ToString() + ")";
+                                                                                            messageErrorLog = "Toko " + dataToko.PERSO + " saat ini link ke marketplaces (" + dataMP.NamaMarket.ToString() + ").";
                                                                                             tw.WriteLine(messageErrorLog);
                                                                                             var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                                                             if (cekLog == null)
