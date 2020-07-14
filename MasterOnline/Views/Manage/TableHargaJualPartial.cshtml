@@ -84,6 +84,8 @@
                 //var namaMarket = context.Marketplaces.FirstOrDefault(m => m.IdMarket == int_idmarket)?.NamaMarket;
                 //var namaDepanBarang = Model?.ListBarang?.FirstOrDefault(b => b.BRG == barangDijualPerMarket.BRG)?.NAMA;
                 //var namaBelakangBarang = Model?.ListBarang?.FirstOrDefault(b => b.BRG == barangDijualPerMarket.BRG)?.NAMA2;
+
+                var dataDetail = barangDijualPerMarket.BRG + "|" + barangDijualPerMarket.NAMA +  " " + barangDijualPerMarket.NAMA2;
                 <tr>
                     <td>@barangDijualPerMarket.BRG</td>
                     <td>
@@ -99,7 +101,17 @@
                     </td>
                     <td style="text-align:right">
                         @*@(Model?.ListHargaTerakhir?.OrderByDescending(b => b.TGL).FirstOrDefault(b => b.BRG == barangDijualPerMarket.BRG)?.HPOKOK)*@
-                        @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barangDijualPerMarket.HPOKOK)
+                        @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barangDijualPerMarket.HPOKOK)*@
+                        @if (barangDijualPerMarket.HPOKOK != 0)
+                        {
+                            <div data-tip="Lihat Detail">
+                                <a class="user-link" href="#" data-toggle="modal" data-target="#modalDetailHargaBeliTerakhir" onclick="LihatDetailHargaBeliTerakhir('@dataDetail')">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barangDijualPerMarket.HPOKOK)</a>
+                            </div>
+                        }
+                        else
+                        {
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barangDijualPerMarket.HPOKOK)
+                        }
                     </td>
                     <td class="edit-hapus-col">
                         @if (barangDijualPerMarket.NAMAMARKET.ToUpper() == "BLIBLI")

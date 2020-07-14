@@ -307,6 +307,85 @@
         </div>
     </div>
 </div>
+
+<!-- add by fauzi 14 Juli 2020 for detail harga beli terakhir -->
+<div class="modal fade" id="modalDetailHargaBeliTerakhir" style="margin:0;padding:0;" tabindex="-1" role="dialog" aria-labelledby="modalDetailHargaBeliTerakhirLabel">
+    <div class="modal-dialog" role="document" style="margin-left:350px;">
+        <div class="modal-content" style="width:700px;">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalDetailStokLabel">Detail Harga Beli Terakhir</h4>
+
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2">Kode Barang</label>
+                        <div class="col-md-3 col-sm-3">
+                            @Html.TextBox("kd-brg-hargabeliterakhir", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2">Nama Barang</label>
+                        <div class="col-md-10 col-sm-10">
+                            @Html.TextArea("nm-brg-hargabeliterakhir", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2">Average Harga Beli</label>
+                        <div class="col-md-10 col-sm-10">
+                            @Html.TextArea("nm-brg-hargabeliterakhir", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2">Periode 3 bulan terakhir</label>
+                        <div class="col-md-10 col-sm-10">
+                            @Html.TextArea("nm-brg-hargabeliterakhir", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2">Total Stok</label>
+                        <div class="col-md-10 col-sm-10">
+                            <label id="ttl-stok" class="control-label" disabled="disabled"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2">Total Gudang</label>
+                        <div class="col-md-10 col-sm-10">
+                            <label id="ttl-gd" class="control-label" disabled="disabled"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
+                        <div class="input-group">
+                            <input id="search_detail_stok" type="text" class="form-control" placeholder="Pencarian">
+                            <span class="input-group-btn">
+                                <button type="button" id="search_detail_stok_click" class="btn btn-primary">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="list-detail-stok"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="close-detail-stok" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end by fauzi 14 Juli 2020 -->
 @section scripts
 {
     <script src="~/Content/selectize.js" type="text/javascript"></script>
@@ -406,6 +485,48 @@
                 }
             });
 
+        }
+
+        function LihatDetailHargaBeliTerakhir($req_id_stok) {
+            if ($req_id_stok != null && $req_id_stok != undefined && $req_id_stok != "") {
+                var tempReqId = $req_id_stok.split('|');
+            tempBrgStok = tempReqId[0];
+            tempNamaStok = tempReqId[1];
+            tempStok = tempReqId[2];
+                $('#search_detail_stok').val('');
+                $('#txt_last_page_detail_stok').val('')
+        var $link = '@Html.Raw(Url.Action("LihatDetailStok", "Manage", new { brgId = "replaceID", page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceID", encodeURIComponent(tempBrgStok));
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_detail_stok').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_detail_stok').val()));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                $('#list-detail-stok').hide();
+                $('#loading_detail_stok_barang_tab').show();
+                $('#kd-brg-stok').val(tempBrgStok);
+                $('#nm-brg-stok').text(tempNamaStok);
+                $('#ttl-stok').text(": " + tempStok);
+            },
+            success: function (value) {
+                $('#list-detail-stok').html(value);
+                tempGd = qtyGd;
+                $('#ttl-gd').text(": " + tempGd);
+                $('#loading_detail_stok_barang_tab').hide();
+                $('#list-detail-stok').show();
+            },
+            error: function (xhr, status, error) {
+                $('#loading_detail_stok_barang_tab').hide();
+                alert(error);
+                console.log(error);
+            }
+            });
+        } else {
+                $('#loading_detail_stok_barang_tab').hide();
+            alert("Tidak ada detail stok.");
+        }
         }
 
         function base64ToArrayBuffer(base64) {
