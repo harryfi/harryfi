@@ -677,7 +677,7 @@
                                     var ANAME = item["ANAME_" + (a + 1)];
                                     var AOPTIONS = item["AOPTIONS_" + (a + 1)];
                                     //if (ATYPE == "DEFINING_ATTRIBUTE") {
-                                    if (ATYPE == "DEFINING_ATTRIBUTE" && !ANAME.toUpperCase().includes("FAMILY COLOUR")) {
+                                    if (ATYPE == "DEFINING_ATTRIBUTE" && ACODE != "FA-2000060") {
                                         if (ACODE != null && ACODE != "") {
                                             SelectList[counter] = {
                                                 id: ACODE,
@@ -686,12 +686,14 @@
                                             counter = counter + 1;
                                         }
                                     }
-                                    else if (ANAME.toUpperCase().includes("FAMILY COLOUR")) {
-                                        if (ACODE != null && ACODE != "") {
-                                            SelectListFC[0] = {
-                                                id: ACODE,
-                                                text: ANAME
-                                            };
+                                    else if (ACODE != null && ACODE != "") {
+                                        if (ACODE == "FA-2000060") {
+                                            if (ACODE != null && ACODE != "") {
+                                                SelectListFC[0] = {
+                                                    id: ACODE,
+                                                    text: ANAME
+                                                };
+                                            }
                                         }
                                     }
                                 }
@@ -2978,12 +2980,12 @@
                                                     <table class="table table-bordered" style="width:100%" role="grid">
                                                         <thead>
                                                             <tr>
-                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                                <th id="namaOpsiBlibli" colspan="3" width="100%" style="text-align:center">Nama Opsi</th>
                                                             </tr>
                                                             <tr>
-                                                                <th width="33%" style="border-right:none">Master Online</th>
-                                                                <th width="33%" style="border-right:none">Blibli</th>
-                                                                <th width="33%" style="border-right:none">Blibli Color Family</th>
+                                                                <th id="namaOpsiBlibli_mo" width="33%" style="border-right:none">Master Online</th>
+                                                                <th id="namaOpsiBlibli_b" width="33%" style="border-right:none">Blibli</th>
+                                                                <th id="namaOpsiBlibli_fc" width="33%" style="border-right:none">Blibli Color Family</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
