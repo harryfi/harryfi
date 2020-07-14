@@ -74,5 +74,9 @@ namespace MasterOnline.Models
         //add by nurul 7/7/2020
         public string NamaBuyer { get; set; }
         //end add by nurul 7/7/2020
+
+        //add by fauzi for add keterangan transaksi masuk dan keluar 14 Juli 2020
+        public string Ket { get; set; }
+        //end add by fauzi 14 Juli 2020
     }
 }
