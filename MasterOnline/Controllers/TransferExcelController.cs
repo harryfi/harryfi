@@ -1517,33 +1517,35 @@ namespace MasterOnline.Controllers
                                                                                 var dataKurir = dataMasterKurir.Where(p => p.RecNum == checkKodeKurir).FirstOrDefault();
                                                                                 if (dataKurir != null)
                                                                                 {
+                                                                                    var kodeCust = no_cust[0];
                                                                                     //var dataToko = ErasoftDbContext.ARF01.Where(p => p.CUST == item.MARKETPLACE).FirstOrDefault();
-                                                                                    var dataToko = dataMasterARF01.Where(p => p.CUST == no_cust[0]).FirstOrDefault();
+                                                                                    var dataToko = dataMasterARF01.Where(p => p.CUST == kodeCust).FirstOrDefault();
                                                                                     if (dataToko != null)
                                                                                     {
-                                                                                        if(dataToko.STATUS_API == "0")
+                                                                                        if(dataToko.STATUS_API == "0" || string.IsNullOrEmpty(dataToko.STATUS_API))
                                                                                         {
 
                                                                                         var KodeBRGMP = "";
                                                                                         //var dataBarang = ErasoftDbContext.STF02H.Where(p => p.BRG == item.KODE_BRG && p.IDMARKET == dataToko.RecNum).FirstOrDefault();
                                                                                         var dataBarang = dataMasterSTF02H.Where(p => p.BRG == kode_brg && p.IDMARKET == dataToko.RecNum).FirstOrDefault();
-                                                                                            if (dataBarang != null && dataBarang.BRG_MP != null)
+                                                                                            if (dataBarang != null)
                                                                                             {
-                                                                                                if (dataBarang.BRG_MP.Contains(';'))
-                                                                                                {
-                                                                                                    string[] brgMPOrderItemID = dataBarang.BRG_MP.Split(';');
-                                                                                                    KodeBRGMP = brgMPOrderItemID[0];
-                                                                                                }
-                                                                                                else
-                                                                                                {
-                                                                                                    KodeBRGMP = dataBarang.BRG_MP;
-                                                                                                }
+                                                                                                KodeBRGMP = "";
+                                                                                                //if (dataBarang.BRG_MP.Contains(';'))
+                                                                                                //{
+                                                                                                //    string[] brgMPOrderItemID = dataBarang.BRG_MP.Split(';');
+                                                                                                //    KodeBRGMP = brgMPOrderItemID[0];
+                                                                                                //}
+                                                                                                //else
+                                                                                                //{
+                                                                                                //    KodeBRGMP = dataBarang.BRG_MP;
+                                                                                                //}
 
                                                                                                 var kodePembeli = "";
                                                                                                 string address = "";
                                                                                                 var dataPembeli = eraDB.ARF01C.Where(p => p.NAMA == nama_pembeli && p.TLP == no_telpPembeli).FirstOrDefault();
-                                                                                                var alamatAutoSplit1 = alamat_kirim.Length > 40 ? alamat_kirim.Substring(0, 39) : alamat_kirim.ToString();
-                                                                                                var alamatAutoSplit2 = alamat_kirim.Length > 80 ? alamat_kirim.Substring(40, 79) : alamat_kirim.ToString();
+                                                                                                var alamatAutoSplit1 = alamat_kirim.Length > 30 ? alamat_kirim.Substring(0, 29) : alamat_kirim.ToString();
+                                                                                                var alamatAutoSplit2 = alamat_kirim.Length > 80 ? alamat_kirim.Substring(40, 79) : alamatAutoSplit1;
                                                                                                 //var alamatAutoSplit3 = alamat_kirim.Length > 120 ? alamat_kirim.Substring(80, 119) : alamat_kirim.ToString();
 
                                                                                                 if (dataPembeli == null)
@@ -1561,12 +1563,13 @@ namespace MasterOnline.Controllers
                                                                                                     nama_pembeli = nama_pembeli.Length > 30 ? nama_pembeli.Substring(0, 30) : nama_pembeli.ToString();
                                                                                                     address = alamatAutoSplit1;
 
+
                                                                                                     insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01', 1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                                                                                                         ((nama_pembeli ?? "").Replace("'", "`")),
-                                                                                                        ((address.Substring(0, 29) ?? "").Replace("'", "`")),
+                                                                                                        ((address ?? "").Replace("'", "`")),
                                                                                                          ((no_telpPembeli).Replace("'", "`")),
                                                                                                         (dataToko.PERSO.Replace(',', '.')),
-                                                                                                        ((address.Substring(0, 29) ?? "").Replace("'", "`")),
+                                                                                                        ((address ?? "").Replace("'", "`")),
                                                                                                         DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                                                                                                         (username),
                                                                                                         (("").Replace("'", "`")),
@@ -1581,7 +1584,7 @@ namespace MasterOnline.Controllers
                                                                                                 }
                                                                                                 else
                                                                                                 {
-                                                                                                    address = dataPembeli.AL.Length > 30 ? dataPembeli.AL.Substring(0, 30) : dataPembeli.AL;
+                                                                                                    address = dataPembeli.AL.Length > 30 ? dataPembeli.AL.Substring(0, 29) : dataPembeli.AL;
                                                                                                     kodePembeli = dataPembeli.BUYER_CODE;
                                                                                                 }
 
@@ -1594,9 +1597,9 @@ namespace MasterOnline.Controllers
 
                                                                                                     var sot01a = new SOT01A
                                                                                                     {
-                                                                                                        AL = alamatAutoSplit1.Substring(0, 39),
-                                                                                                        AL1 = alamatAutoSplit1.Substring(0, 39),
-                                                                                                        AL2 = alamatAutoSplit2.Substring(0, 39),
+                                                                                                        AL = alamatAutoSplit1,
+                                                                                                        AL1 = alamatAutoSplit1,
+                                                                                                        AL2 = alamatAutoSplit2,
                                                                                                         AL3 = "",
                                                                                                         ALAMAT_KIRIM = alamat_kirim,
                                                                                                         AL_CUST = "",
@@ -1745,7 +1748,7 @@ namespace MasterOnline.Controllers
                                                                                                     NILAI_DISC_3 = 0,
                                                                                                     NILAI_DISC_4 = 0,
                                                                                                     NILAI_DISC_5 = 0,
-                                                                                                    CATATAN = "ORDER NO : " + no_referensi + "_;_" + checkBarang.NAMA + " " + checkBarang.NAMA2 + " " + checkBarang.NAMA3 + "_;_" + dataBarang.BRG_MP,
+                                                                                                    CATATAN = "ORDER NO : " + no_referensi + "_;_" + checkBarang.NAMA + " " + checkBarang.NAMA2 + " " + checkBarang.NAMA3 + "_;_" + dataBarang.BRG,
                                                                                                     TRANS_NO_URUT = 0,
                                                                                                     SATUAN_N = 0,
                                                                                                     QTY_N = Convert.ToInt32(qty),
@@ -1766,9 +1769,9 @@ namespace MasterOnline.Controllers
                                                                                                     eraDB.SaveChanges();
                                                                                                     //transaction.Commit();
 
-                                                                                                    //string listAddBrg = "('" + kode_brg + "', '" + connID + "')";
-                                                                                                    //EDB.ExecuteSQL("Constring", CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + listAddBrg);
-                                                                                                    //new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                                    string listAddBrg = "('" + kode_brg + "', '" + connID + "')";
+                                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + listAddBrg);
+                                                                                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                                                                                 }
                                                                                                 catch (Exception ex)
                                                                                                 {
@@ -1869,7 +1872,7 @@ namespace MasterOnline.Controllers
 
                                                                                             int IDMarket = Convert.ToInt32(dataToko.NAMA);
                                                                                             var dataMP = MoDbContext.Marketplaces.Where(p => p.IdMarket == IDMarket).SingleOrDefault();
-                                                                                            messageErrorLog = "Kode Barang " + kode_brg + " tidak ditemukan di toko " + dataToko.PERSO + " (" + dataMP.NamaMarket.ToString() + ")";
+                                                                                            messageErrorLog = "Toko " + dataToko.PERSO + " saat ini link ke marketplaces (" + dataMP.NamaMarket.ToString() + ").";
                                                                                             tw.WriteLine(messageErrorLog);
                                                                                             var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                                                             if (cekLog == null)
