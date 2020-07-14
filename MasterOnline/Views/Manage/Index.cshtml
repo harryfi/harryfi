@@ -5962,7 +5962,7 @@
                         for (var i = 0; i < listPieFaktur.length; i++) {
                             akunMarketPlace.push(listPieFaktur[i].NamaMarket);
                             jumlahFakturPerMarket.push(listPieFaktur[i].JumlahFaktur);
-                            nilaiFakturPerMarket.push(convertToAngka(listPieFaktur[i].NilaiFaktur));
+                            nilaiFakturPerMarket.push(parseFloat(listPieFaktur[i].NilaiFaktur));
                         }
 
                         var ctxFaktur = document.getElementById("chart-faktur").getContext('2d');
