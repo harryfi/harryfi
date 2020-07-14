@@ -25244,6 +25244,10 @@ namespace MasterOnline.Controllers
             stokInDb.TglInput = DateTime.Today;
             //end add by nurul 27/11/2019, add tgl last edit
 
+            //add by fauzi 14 Juli 2020
+            stokInDb.Ket = dataUpdate.Ket;
+            //end add by fauzi 14 Juli 2020
+
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
@@ -27385,7 +27389,7 @@ namespace MasterOnline.Controllers
             return View(vm);
         }
 
-        public ActionResult SaveTransaksiMasuk(StokViewModel dataVm)
+        public ActionResult SaveTransaksiMasuk(StokViewModel dataVm, string keterangan)
         {
             if (!ModelState.IsValid)
             {
@@ -27434,6 +27438,10 @@ namespace MasterOnline.Controllers
                 //add by nurul 27/11/2019, add tgl last edit
                 dataVm.Stok.TglInput = DateTime.Today;
                 //end add by nurul 27/11/2019, add tgl last edit
+
+                //add by fauzi 14 Juli 2020
+                dataVm.Stok.Ket = keterangan;
+                //end add by fauzi 14 Juli 2020
 
 
                 //change by nurul 23/12/2019, perbaikan no_bukti
@@ -27494,6 +27502,10 @@ namespace MasterOnline.Controllers
                 //add by nurul 27/11/2019, add tgl last edit
                 stokInDb.TglInput = DateTime.Today;
                 //end add by nurul 27/11/2019, add tgl last edit
+
+                //add by fauzi 14 Juli 2020
+                stokInDb.Ket = keterangan;
+                //end add by fauzi 14 Juli 2020
 
                 if (dataVm.BarangStok.No == null)
                 {
@@ -27884,7 +27896,7 @@ namespace MasterOnline.Controllers
             return View(vm);
         }
 
-        public ActionResult SaveTransaksiKeluar(StokViewModel dataVm)
+        public ActionResult SaveTransaksiKeluar(StokViewModel dataVm, string keterangan)
         {
             if (!ModelState.IsValid)
             {
@@ -27951,6 +27963,10 @@ namespace MasterOnline.Controllers
                 //add by nurul 27/11/2019, add tgl last edit
                 dataVm.Stok.TglInput = DateTime.Today;
                 //end add by nurul 27/11/2019, add tgl last edit
+
+                //add by fauzi 14 Juli 2020
+                dataVm.Stok.Ket = keterangan;
+                //end add by fauzi 14 Juli 2020
 
 
                 //change by nurul 23/12/2019, perbaikan no_bukti
@@ -28029,6 +28045,10 @@ namespace MasterOnline.Controllers
                 //add by nurul 27/11/2019, add tgl last edit
                 stokInDb.TglInput = DateTime.Today;
                 //end add by nurul 27/11/2019, add tgl last edit
+
+                //add by fauzi 14 Juli 2020
+                stokInDb.Ket = keterangan;
+                //end add by fauzi 14 Juli 2020
 
                 if (dataVm.BarangStok.No == null)
                 {
