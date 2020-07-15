@@ -286,17 +286,12 @@ namespace MasterOnline
     //add by fauzi 14/07/2020
     public class mdlDetailHargaBeli
     {
-        //public string KodeBarang { get; set; }
-        //public string NamaBarang { get; set; }
-        //public double AverageHargaBeli  { get; set; }
-        //public double Periode { get; set; }
         public DateTime? Tanggal { get; set; }
         public string NoBukti { get; set; }
         public string Supplier { get; set; }
         public double Qty { get; set; }
         public double Harga { get; set; }
         public double JumlahGabung { get; set; }
-        public double JumlahAllIn { get; set; }
     }
     //end add by fauzi 14/07/2020
 }

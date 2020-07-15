@@ -5,6 +5,9 @@
 @{
     string currentFilter = ViewBag.CurrentFilter;
     string currentSort = ViewBag.CurrentSort;
+    int dataCount = Model.Count();
+    int pageCount = Model.PageCount;
+    int pageNumber = Model.PageNumber;
 }
 
 <style>
@@ -39,29 +42,25 @@
         <img src="~/Content/Images/spinner.gif" />
     </div>
 </div>
-@if (Model.Count() > 0)
+@if (dataCount > 0)
 {
-    double jumlahGabung = 0;
     <input id="txt_last_page_detail_hargabeliterakhir" type="hidden" class="form-control" value="@ViewData["LastPage"]">
     <div>
         <table id="datatable" class="table table-striped table-bordered table-hover" role="grid">
             <thead>
                 <tr role="row">
-                    @*<th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" width="150px">Kode Gudang</th>*@
                     <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1">Tanggal</th>
                     <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1">No Bukti</th>
                     <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1">Supplier</th>
                     <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1">Qty Beli</th>
                     <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1">Harga Beli</th>
-                    @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="max-width: 200px; width: 200px;">Link Ke Marketplace</th>*@
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
-                    jumlahGabung = jumlahGabung + item.JumlahGabung;
                     <tr>
-                        <td>@item.Tanggal</td>
+                        <td>@(item.Tanggal?.ToString("dd/MM/yyyy"))</td>
                         <td>@item.NoBukti</td>
                         <td>@item.Supplier</td>
                         <td style="text-align:center">@item.Qty</td>
@@ -71,26 +70,26 @@
             </tbody>
         </table>
     </div>
-    @*@if (Model.PageCount > 1)
-    {
-        <div id="tabeldetailpartialpager" class="pager">
-            @Html.PagedListPager(Model, page => Url.Action("LihatDetailHargaBeliTerakhir", new
-       {
-           page,
-           search = ViewData["searchParam"],
-           brgId = ViewData["tempBarang"]
-       }),
-            new PagedListRenderOptions
-            {
-                LinkToFirstPageFormat = "<<",
-                LinkToPreviousPageFormat = "prev",
-                LinkToNextPageFormat = "next",
-                LinkToLastPageFormat = ">>",
-                DisplayEllipsesWhenNotShowingAllPageNumbers = false
-            })
-            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
-        </div>
-    }*@
+    @*@if (pageCount > 1)
+        {*@
+    <div id="tabeldetailpartialpager" class="pager">
+        @Html.PagedListPager(Model, page => Url.Action("LihatDetailHargaBeliTerakhir", new
+   {
+       page,
+       search = ViewData["searchParam"],
+       kodebarang = ViewData["tempBarang"]
+   }),
+        new PagedListRenderOptions
+        {
+            LinkToFirstPageFormat = "<<",
+            LinkToPreviousPageFormat = "prev",
+            LinkToNextPageFormat = "next",
+            LinkToLastPageFormat = ">>",
+            DisplayEllipsesWhenNotShowingAllPageNumbers = false
+        })
+        Page @(pageCount < pageNumber ? 0 : pageNumber) of @pageCount
+    </div>
+    //}
 }
 else
 {
@@ -102,25 +101,17 @@ else
 }
 <script type="text/javascript">
     @{
-        double tes = 0;
+        double jumlah = 0;
         foreach (var dataItem in Model)
         {
-            tes = tes + dataItem.Harga;
+            jumlah = jumlah + dataItem.Harga;
         }
-
-        //tes = tes;
-
-
-
-        double hasil = (tes / 15);
-
+        double hasilakhir = (jumlah / 15);
     }
-    var vAverageHargaBeli = @hasil;
+    var vAverageHargaBeli = @hasilakhir;
     $(document).ready(function () {
-        //tempGd = qtyGd;
         var tes1 = vAverageHargaBeli;
         $('#ttl-average').text(": " + tes1);
-        $('#ttl-periode').text(": " + tes1);
     });
     $(function () {
         $('#tabeldetailpartialpager').on('click', 'a', function () {

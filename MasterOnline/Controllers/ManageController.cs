@@ -52489,8 +52489,8 @@ namespace MasterOnline.Controllers
                         }
 
 
-                        sSQLkodeINV += " INV like '%" + getkata[i] + "%' ";
-                        sSQLNama += " NAMA like '%" + getkata[i] + "%' ";
+                        sSQLkodeINV += " B.INV like '%" + getkata[i] + "%' ";
+                        sSQLNama += " A.NAMA like '%" + getkata[i] + "%' ";
 
                     }
                 }

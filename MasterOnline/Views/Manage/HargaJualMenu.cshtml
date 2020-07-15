@@ -174,7 +174,6 @@
         [data-tip]:hover:after {
             display: block;
         }
-
 </style>
 
 <div class="row" id="hargaJual-section">
@@ -191,7 +190,7 @@
                     </div>
                     <div class="col-lg-5 col-sm-6">
                         <input id="search_hargaJual" type="text" class="form-control" placeholder="Ketik Pencarian">
-                        </div>
+                    </div>
                     <div class="col-lg-1 col-sm-6">
                         <span class="input-group-btn">
                             <button type="button" id="search_hargaJual_click" class="btn btn-primary">
@@ -199,8 +198,8 @@
                             </button>
                         </span>
                     </div>
-                    </div>
                 </div>
+            </div>
             <div class="col-lg-4 col-sm-6">
                 <div class="pull-right">
                     @*<button type="button" class=" btn btn-default" data-style="expand-right">
@@ -343,11 +342,11 @@
                             </div>
                         </div>
                         @*<div class="row">
-                            <div class="col-m12">
-                                <b>Masukkan harga grosir yang baru:</b>
-                                <input type="text" id="HJUALPROMOSIBARU82Cart" name="HJUALPROMOSIBARU82Cart" class="form-control" style="margin-top: 10px;" />
-                            </div>
-                        </div>*@
+                                <div class="col-m12">
+                                    <b>Masukkan harga grosir yang baru:</b>
+                                    <input type="text" id="HJUALPROMOSIBARU82Cart" name="HJUALPROMOSIBARU82Cart" class="form-control" style="margin-top: 10px;" />
+                                </div>
+                            </div>*@
                     </div>
                 </div>
             </div>
@@ -365,7 +364,7 @@
 
 <!-- add by fauzi 14 Juli 2020 for detail harga beli terakhir -->
 <div class="modal fade" id="modalDetailHargaBeliTerakhir" style="margin:0;padding:0;" tabindex="-1" role="dialog" aria-labelledby="modalDetailHargaBeliTerakhirLabel">
-    <div class="modal-dialog" role="document" style="margin-left:350px;">
+    <div class="modal-dialog" role="document" style="margin-left:400px;">
         <div class="modal-content" style="width:700px;">
             <div class="modal-header">
                 <h4 class="modal-title" id="modalDetailStokLabel">Detail Harga Beli Terakhir</h4>
@@ -398,8 +397,8 @@
                     <div class="form-group" style="margin-top: 5px;">
                         <label class="control-label col-md-3 col-sm-3">Periode 3 bulan terakhir</label>
                         @*<div class="col-md-3 col-sm-3">
-                            <label id="ttl-periode" class="control-label" disabled="disabled"></label>
-                        </div>*@
+                                <label id="ttl-periode" class="control-label" disabled="disabled"></label>
+                            </div>*@
                     </div>
                 </div>
             </div>
@@ -419,7 +418,7 @@
                 <div id="list-detail-hargaterakhirbeli"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" id="close-detail-stok" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-danger" id="close-detail-hargabeli" data-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
@@ -434,6 +433,9 @@
         var $page = window.text;
         //end add by nurul 12/2/2019
         var $recNum = 0;
+
+        var tempBrg = "";
+        var tempNama = "";
 
         $(document).on('ready',
             function () {
@@ -450,7 +452,7 @@
                 //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
 
-                
+
 
                 $('#search_hargaJual').keypress(function (e) {
                     var key = e.which;
@@ -526,11 +528,57 @@
 
         }
 
+        $('#search_detail_hargabeliterakhir').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)// the enter key code
+            {
+                searchTableDetailHargaBeli();
+                return false;
+            }
+        });
+        $('#search_detail_hargabeliterakhir_click').click(function () {
+            searchTableDetailHargaBeli();
+        });
+
+        $('#close-detail-hargabeli').click(function () {
+            tempBrg = "";
+            tempNama = "";
+        });
+
+        function searchTableDetailHargaBeli() {
+            if (tempBrg != null && tempBrg != undefined && tempBrg != "") {
+            var link = '@Html.Raw(Url.Action("LihatDetailHargaBeliTerakhir", "Manage", new { kodebarang = "replaceID", search = "replaceSearch" }))';
+            link = link.replace("replaceID", encodeURIComponent(tempBrg));
+                link = link.replace("replaceSearch", encodeURIComponent($('#search_detail_hargabeliterakhir').val()));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#list-detail-hargaterakhirbeli').hide();
+                    $('#loading_hargaJual_tab').show();
+                },
+                success: function (response) {
+                    $('#list-detail-hargaterakhirbeli').html(response);
+                    $('#loading_hargaJual_tab').hide();
+                    $('#list-detail-hargaterakhirbeli').show();
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_hargaJual_tab').hide();
+                    console.log(error);
+                }
+                });
+            } else {
+                $('#loading_hargaJual_tab').hide();
+                alert("Tidak ada detail.");
+            }
+        }
+
         function LihatDetailHargaBeliTerakhir($req_id) {
             if ($req_id != null && $req_id != undefined && $req_id != "") {
                 var tempReqId = $req_id.split('|');
-                var tempBrg = tempReqId[0];
-                var tempNama = tempReqId[1];
+                tempBrg = tempReqId[0];
+                tempNama = tempReqId[1];
                 $('#search_detail_hargabeliterakhir').val('');
                 $('#txt_last_page_detail_hargabeliterakhir').val('');
 
