@@ -804,18 +804,18 @@
                             attributeSelect[0].selectize.load(function (callback) {
                                 callback(SelectListFC);
 
-                                if ($('#selectJudulVariantBlibliFCLv1').val() != "") {
+                                //if ($('#selectJudulVariantBlibliFCLv1').val() != "") {
                                     var FoundValue = "";
                                     for (var d = 0; d < 1; d++) {
                                         if (FoundValue == "") {
                                             var value = SelectListFC[d].id;
-                                            if ($('#selectJudulVariantBlibliFCLv1').val() == value) {
+                                            //if ($('#selectJudulVariantBlibliFCLv1').val() == value) {
                                                 FoundValue = SelectListFC[d].id;
                                                 attributeSelect[0].selectize.setValue(FoundValue, false);
-                                            }
+                                            //}
                                         }
                                     }
-                                }
+                                //}
                             });
                         }
                     },
