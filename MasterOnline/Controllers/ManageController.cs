@@ -8075,10 +8075,7 @@ namespace MasterOnline.Controllers
                     saveBarangElevenia(2, dataBarang, imgPath);
                     saveBarangShopee(2, dataBarang, updateHarga);
                     saveBarangShopify(2, dataBarang);
-                    //add by fauzi for 82Cart
-                    //saveBarang82Cart(2, dataBarang, false);
-                    saveBarang82CartVariant(2, dataBarang.BRG, false);
-                    //end add by fauzi for 82Cart
+                    
 
 
                     //get image
@@ -8093,6 +8090,11 @@ namespace MasterOnline.Controllers
                     //    }
                     //}
                     //end get image
+
+                    //add by fauzi for 82Cart
+                    //saveBarang82Cart(2, dataBarang, false);
+                    saveBarang82CartVariant(2, barang.BRG, false);
+                    //end add by fauzi for 82Cart
 
                     saveBarangTokpedVariant(2, barang.BRG, false);
 
