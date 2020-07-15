@@ -52522,6 +52522,12 @@ namespace MasterOnline.Controllers
 
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
 
+            //double jumlahAll = 0;
+            //foreach (var data in listOrderNew)
+            //{
+            //    jumlahAll += data.JumlahGabung;
+            //}
+
             IPagedList<mdlDetailHargaBeli> pageOrders = new StaticPagedList<mdlDetailHargaBeli>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("ListDetailHargaBeliTerakhir", pageOrders);
         }
