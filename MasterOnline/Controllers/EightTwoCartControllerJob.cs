@@ -205,10 +205,11 @@ namespace MasterOnline.Controllers
             if (qtyOnHand < 0)
             {
                 qtyOnHand = qty;
-            }else if(qtyOnHand == 0)
-            {
-                qtyOnHand = qty;
             }
+            //else if(qtyOnHand == 0)
+            //{
+            //    qtyOnHand = qty;
+            //}
 
             qty = Convert.ToInt32(qtyOnHand);
 
@@ -967,14 +968,6 @@ namespace MasterOnline.Controllers
         public async Task<string> E2Cart_UpdateAttributeProduct(E2CartAPIData iden, string kodeBarang, string brg_mp, string attributeIDProduct, string attributeItems, string weight, string price, int qty, string urlImage)
         {
             SetupContext(iden);
-
-            var qtyQOH = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(kodeBarang, "ALL");
-
-            if (qtyQOH > 0)
-            {
-                qty = Convert.ToInt32(qtyQOH);
-            }
-
             string[] brg_mp_split = brg_mp.Split(';');
             string urll = string.Format("{0}/api/v1/editProductAttribute", iden.API_url);
 
@@ -1051,14 +1044,6 @@ namespace MasterOnline.Controllers
         public async Task<string> E2Cart_AddAttributeProduct(E2CartAPIData iden, string kodeBarang, string brg_mp, string attributeGroup, string attributeItems, string weight, string price, int qty, string urlImage)
         {
             SetupContext(iden);
-            
-            var qtyQOH = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(kodeBarang, "ALL");
-
-            if (qtyQOH > 0)
-            {
-                qty = Convert.ToInt32(qtyQOH);
-            }
-
             string[] brg_mp_split = brg_mp.Split(';');
             string urll = string.Format("{0}/api/v1/addProductAttribute", iden.API_url);
 
