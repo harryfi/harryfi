@@ -711,6 +711,7 @@ namespace MasterOnline.Controllers
                 API_key = iden.API_key,
                 API_credential = iden.API_credential,
                 API_url = iden.API_url,
+                ID_MARKET = iden.ID_MARKET,
                 DatabasePathErasoft = iden.DatabasePathErasoft
             };
             EightTwoCartControllerJob c82CartController = new EightTwoCartControllerJob();
@@ -802,7 +803,7 @@ namespace MasterOnline.Controllers
                     stream.Write(data, 0, data.Length);
                 }
 
-                using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream2 = response.GetResponseStream())
                     {
@@ -827,16 +828,16 @@ namespace MasterOnline.Controllers
                                     #region variasi product
                                     var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
                                     var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "82CART").ToList().OrderBy(p => p.RECNUM);
-                                    var brgMP = "";
+                                    //var brgMP = "";
 
-                                    if(splitBrg[1] == "0")
-                                    {
-                                        brgMP = splitBrg[1];
-                                    }
-                                    else
-                                    {
-                                        brgMP = splitBrg[1];
-                                    }
+                                    //if(splitBrg[1] == "0")
+                                    //{
+                                    //    brgMP = splitBrg[1];
+                                    //}
+                                    //else
+                                    //{
+                                    //    brgMP = splitBrg[1];
+                                    //}
 
                                     foreach (var itemData in var_stf02)
                                     {
@@ -887,14 +888,27 @@ namespace MasterOnline.Controllers
                                         listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
                                         listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
 
-                                        if(brgMP != "0")
+                                        int idMarket = Convert.ToInt32(iden.ID_MARKET);
+
+                                        var var_stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == itemData.BRG && p.IDMARKET == idMarket).SingleOrDefault().BRG_MP;
+                                        if (!string.IsNullOrEmpty(var_stf02h))
                                         {
-                                            c82CartController.E2Cart_UpdateAttributeProduct(dataLocal, itemData.BRG, brgMP, listattributeIDGroup, listattributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
+                                            string[] splitBrgMP = var_stf02h.Split(';');
+
+                                            if (splitBrgMP[1] != "0")
+                                            {
+                                                c82CartController.E2Cart_UpdateAttributeProduct(dataLocal, itemData.BRG, var_stf02h, listattributeIDGroup, listattributeIDItems, weight.ToString(), "0", Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
+                                            }
+                                            else
+                                            {
+                                                c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, var_stf02h, listattributeIDGroup, listattributeIDItems, weight.ToString(), "0", Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
+                                            }
                                         }
                                         else
                                         {
-                                            c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, detailBrg.BRG_MP, listattributeIDGroup, listattributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
+                                            c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, detailBrg.BRG_MP, listattributeIDGroup, listattributeIDItems, weight.ToString(), "0", Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
                                         }
+
 
                                     }
 
@@ -953,6 +967,14 @@ namespace MasterOnline.Controllers
         public async Task<string> E2Cart_UpdateAttributeProduct(E2CartAPIData iden, string kodeBarang, string brg_mp, string attributeIDProduct, string attributeItems, string weight, string price, int qty, string urlImage)
         {
             SetupContext(iden);
+
+            var qtyQOH = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(kodeBarang, "ALL");
+
+            if (qtyQOH > 0)
+            {
+                qty = Convert.ToInt32(qtyQOH);
+            }
+
             string[] brg_mp_split = brg_mp.Split(';');
             string urll = string.Format("{0}/api/v1/editProductAttribute", iden.API_url);
 
@@ -961,11 +983,13 @@ namespace MasterOnline.Controllers
             //Required parameters, other parameters can be add
             var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
-            postData += "&id_product_attribute=" + Uri.EscapeDataString(brg_mp);
+            postData += "&id_product_attribute=" + Uri.EscapeDataString(brg_mp_split[1]);
             postData += "&id_attribute=" + Uri.EscapeDataString("[" + attributeItems + "]");
             postData += "&weight=" + Uri.EscapeDataString(weight);
             postData += "&price=" + Uri.EscapeDataString(price);
             postData += "&reference=" + Uri.EscapeDataString(kodeBarang);
+            postData += "&minimal_quantity=" + Uri.EscapeDataString("1");
+            postData += "&wholesale_price=" + Uri.EscapeDataString("0");
             if (!string.IsNullOrEmpty(urlImage))
             {
                 postData += "&image_url=" + Uri.EscapeDataString(urlImage);
@@ -1027,6 +1051,14 @@ namespace MasterOnline.Controllers
         public async Task<string> E2Cart_AddAttributeProduct(E2CartAPIData iden, string kodeBarang, string brg_mp, string attributeGroup, string attributeItems, string weight, string price, int qty, string urlImage)
         {
             SetupContext(iden);
+            
+            var qtyQOH = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(kodeBarang, "ALL");
+
+            if (qtyQOH > 0)
+            {
+                qty = Convert.ToInt32(qtyQOH);
+            }
+
             string[] brg_mp_split = brg_mp.Split(';');
             string urll = string.Format("{0}/api/v1/addProductAttribute", iden.API_url);
 
@@ -1045,7 +1077,6 @@ namespace MasterOnline.Controllers
             {
                 postData += "&image_url=" + Uri.EscapeDataString(urlImage);
             }
-
 
             var data = Encoding.ASCII.GetBytes(postData);
 
