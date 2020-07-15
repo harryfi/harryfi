@@ -55,6 +55,10 @@
         }
     }
 
+    .user-link {
+        text-decoration: underline;
+    }
+
 </style>
 <div id="loading_hargaJual_tab">
     <div id="loading_hargaJual_tab_image">
@@ -104,9 +108,7 @@
                         @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barangDijualPerMarket.HPOKOK)*@
                         @if (barangDijualPerMarket.HPOKOK != 0)
                         {
-                            <div data-tip="Lihat Detail">
-                                <a class="user-link" href="#" data-toggle="modal" data-target="#modalDetailHargaBeliTerakhir" onclick="LihatDetailHargaBeliTerakhir('@dataDetail')">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barangDijualPerMarket.HPOKOK)</a>
-                            </div>
+                            <a data-tip="Lihat Detail" class="user-link" href="#" data-toggle="modal" data-target="#modalDetailHargaBeliTerakhir" onclick="LihatDetailHargaBeliTerakhir('@dataDetail')">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barangDijualPerMarket.HPOKOK)</a>
                         }
                         else
                         {

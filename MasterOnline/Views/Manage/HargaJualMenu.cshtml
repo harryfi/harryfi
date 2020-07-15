@@ -120,6 +120,61 @@
         border-width: 30px;
         border-radius: 50%;
     }
+
+    [data-tip] {
+        position: relative;
+    }
+
+        [data-tip]:before {
+            content: '';
+            /* hides the tooltip when not hovered */
+            display: none;
+            content: '';
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid #1a1a1a;
+            position: absolute;
+            top: 30px;
+            /*left: 35px;*/
+            z-index: 8;
+            font-size: 0;
+            line-height: 0;
+            /*width: 0;
+                height: 0;*/
+            margin-left: 0px;
+            left: 50%;
+        }
+
+        [data-tip]:after {
+            display: none;
+            content: attr(data-tip);
+            position: absolute;
+            top: 35px;
+            /*left: 0px;*/
+            padding: 2px 5px;
+            background: #1a1a1a;
+            color: #fff;
+            z-index: 9;
+            font-size: 0.85em;
+            height: auto;
+            line-break: normal;
+            max-width: 300px;
+            line-height: 18px;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            border-radius: 3px;
+            white-space: normal;
+            word-wrap: normal;
+            left: 30px;
+            margin-left: -50px;
+            width: 68px;
+        }
+
+        [data-tip]:hover:before,
+        [data-tip]:hover:after {
+            display: block;
+        }
+
 </style>
 
 <div class="row" id="hargaJual-section">
@@ -317,7 +372,7 @@
 
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-2 col-sm-2">Kode Barang</label>
+                        <label class="control-label col-md-3 col-sm-3">Kode Barang</label>
                         <div class="col-md-3 col-sm-3">
                             @Html.TextBox("kd-brg-hargabeliterakhir", "", new { @class = "form-control", disabled = "disabled" })
                         </div>
@@ -325,42 +380,26 @@
                 </div>
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-2 col-sm-2">Nama Barang</label>
-                        <div class="col-md-10 col-sm-10">
+                        <label class="control-label col-md-3 col-sm-3">Nama Barang</label>
+                        <div class="col-md-8 col-sm-8">
                             @Html.TextArea("nm-brg-hargabeliterakhir", "", new { @class = "form-control", disabled = "disabled" })
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-2 col-sm-2">Average Harga Beli</label>
-                        <div class="col-md-10 col-sm-10">
-                            @Html.TextArea("nm-brg-hargabeliterakhir", "", new { @class = "form-control", disabled = "disabled" })
+                        <label class="control-label col-md-3 col-sm-3">Average Harga Beli</label>
+                        <div class="col-md-3 col-sm-3">
+                            <label id="ttl-average" class="control-label" disabled="disabled"></label>
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-2 col-sm-2">Periode 3 bulan terakhir</label>
-                        <div class="col-md-10 col-sm-10">
-                            @Html.TextArea("nm-brg-hargabeliterakhir", "", new { @class = "form-control", disabled = "disabled" })
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-2 col-sm-2">Total Stok</label>
-                        <div class="col-md-10 col-sm-10">
-                            <label id="ttl-stok" class="control-label" disabled="disabled"></label>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-2 col-sm-2">Total Gudang</label>
-                        <div class="col-md-10 col-sm-10">
-                            <label id="ttl-gd" class="control-label" disabled="disabled"></label>
-                        </div>
+                        <label class="control-label col-md-3 col-sm-3">Periode 3 bulan terakhir</label>
+                        @*<div class="col-md-3 col-sm-3">
+                            <label id="ttl-periode" class="control-label" disabled="disabled"></label>
+                        </div>*@
                     </div>
                 </div>
             </div>
@@ -368,16 +407,16 @@
                 <div class="row">
                     <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
                         <div class="input-group">
-                            <input id="search_detail_stok" type="text" class="form-control" placeholder="Pencarian">
+                            <input id="search_detail_hargabeliterakhir" type="text" class="form-control" placeholder="Pencarian">
                             <span class="input-group-btn">
-                                <button type="button" id="search_detail_stok_click" class="btn btn-primary">
+                                <button type="button" id="search_detail_hargabeliterakhir_click" class="btn btn-primary">
                                     <i class="fa fa-search"></i>
                                 </button>
                             </span>
                         </div>
                     </div>
                 </div>
-                <div id="list-detail-stok"></div>
+                <div id="list-detail-hargaterakhirbeli"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" id="close-detail-stok" data-dismiss="modal">Tutup</button>
@@ -487,45 +526,42 @@
 
         }
 
-        function LihatDetailHargaBeliTerakhir($req_id_stok) {
-            if ($req_id_stok != null && $req_id_stok != undefined && $req_id_stok != "") {
-                var tempReqId = $req_id_stok.split('|');
-            tempBrgStok = tempReqId[0];
-            tempNamaStok = tempReqId[1];
-            tempStok = tempReqId[2];
-                $('#search_detail_stok').val('');
-                $('#txt_last_page_detail_stok').val('')
-        var $link = '@Html.Raw(Url.Action("LihatDetailStok", "Manage", new { brgId = "replaceID", page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceID", encodeURIComponent(tempBrgStok));
-            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_detail_stok').val()));
-            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_detail_stok').val()));
+        function LihatDetailHargaBeliTerakhir($req_id) {
+            if ($req_id != null && $req_id != undefined && $req_id != "") {
+                var tempReqId = $req_id.split('|');
+                var tempBrg = tempReqId[0];
+                var tempNama = tempReqId[1];
+                $('#search_detail_hargabeliterakhir').val('');
+                $('#txt_last_page_detail_hargabeliterakhir').val('');
+
+                var $link = '@Html.Raw(Url.Action("LihatDetailHargaBeliTerakhir", "Manage", new { kodebarang = "replaceID", page = "replaceLastPage", search = "replaceSearch" }))';
+                $link = $link.replace("replaceID", encodeURIComponent(tempBrg));
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_detail_hargabeliterakhir').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_detail_hargabeliterakhir').val()));
 
         $.ajax({
             type: "GET",
             url: $link,
             beforeSend: function () {
-                $('#list-detail-stok').hide();
-                $('#loading_detail_stok_barang_tab').show();
-                $('#kd-brg-stok').val(tempBrgStok);
-                $('#nm-brg-stok').text(tempNamaStok);
-                $('#ttl-stok').text(": " + tempStok);
+                $('#list-detail-hargaterakhirbeli').hide();
+                $('#loading_hargaJual_tab').show();
+                $('#kd-brg-hargabeliterakhir').val(tempBrg);
+                $('#nm-brg-hargabeliterakhir').text(tempNama);
             },
             success: function (value) {
-                $('#list-detail-stok').html(value);
-                tempGd = qtyGd;
-                $('#ttl-gd').text(": " + tempGd);
-                $('#loading_detail_stok_barang_tab').hide();
-                $('#list-detail-stok').show();
+                $('#list-detail-hargaterakhirbeli').html(value);
+                $('#loading_hargaJual_tab').hide();
+                $('#list-detail-hargaterakhirbeli').show();
             },
             error: function (xhr, status, error) {
-                $('#loading_detail_stok_barang_tab').hide();
+                $('#loading_hargaJual_tab').hide();
                 alert(error);
                 console.log(error);
             }
             });
         } else {
-                $('#loading_detail_stok_barang_tab').hide();
-            alert("Tidak ada detail stok.");
+                $('#loading_hargaJual_tab').hide();
+            alert("Tidak ada detail Harga Beli Terakhir.");
         }
         }
 
