@@ -364,10 +364,10 @@
 
 <!-- add by fauzi 14 Juli 2020 for detail harga beli terakhir -->
 <div class="modal fade" id="modalDetailHargaBeliTerakhir" style="margin:0;padding:0;" tabindex="-1" role="dialog" aria-labelledby="modalDetailHargaBeliTerakhirLabel">
-    <div class="modal-dialog" role="document" style="margin-left:400px;">
+    <div class="modal-dialog" role="document" style="margin-left:410px;">
         <div class="modal-content" style="width:700px;">
             <div class="modal-header">
-                <h4 class="modal-title" id="modalDetailStokLabel">Detail Harga Beli Terakhir</h4>
+                <h4 class="modal-title" id="modalDetailHargaBeliTerakhirLabel">Detail Harga Beli (3 Bulan Terakhir)</h4>
 
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
@@ -393,14 +393,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                @*<div class="row">
                     <div class="form-group" style="margin-top: 5px;">
                         <label class="control-label col-md-3 col-sm-3">Periode 3 bulan terakhir</label>
-                        @*<div class="col-md-3 col-sm-3">
+                        <div class="col-md-3 col-sm-3">
                                 <label id="ttl-periode" class="control-label" disabled="disabled"></label>
-                            </div>*@
+                            </div>
                     </div>
-                </div>
+                </div>*@
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -415,7 +415,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="list-detail-hargaterakhirbeli"></div>
+                <div id="list-detail-hargabeliterakhir"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" id="close-detail-hargabeli" data-dismiss="modal">Tutup</button>
@@ -555,13 +555,13 @@
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#list-detail-hargaterakhirbeli').hide();
+                    $('#list-detail-hargabeliterakhir').hide();
                     $('#loading_hargaJual_tab').show();
                 },
                 success: function (response) {
-                    $('#list-detail-hargaterakhirbeli').html(response);
+                    $('#list-detail-hargabeliterakhir').html(response);
                     $('#loading_hargaJual_tab').hide();
-                    $('#list-detail-hargaterakhirbeli').show();
+                    $('#list-detail-hargabeliterakhir').show();
                 },
                 error: function (xhr, status, error) {
                     $('#loading_hargaJual_tab').hide();
@@ -591,15 +591,15 @@
             type: "GET",
             url: $link,
             beforeSend: function () {
-                $('#list-detail-hargaterakhirbeli').hide();
+                $('#list-detail-hargabeliterakhir').hide();
                 $('#loading_hargaJual_tab').show();
                 $('#kd-brg-hargabeliterakhir').val(tempBrg);
                 $('#nm-brg-hargabeliterakhir').text(tempNama);
             },
             success: function (value) {
-                $('#list-detail-hargaterakhirbeli').html(value);
+                $('#list-detail-hargabeliterakhir').html(value);
                 $('#loading_hargaJual_tab').hide();
-                $('#list-detail-hargaterakhirbeli').show();
+                $('#list-detail-hargabeliterakhir').show();
             },
             error: function (xhr, status, error) {
                 $('#loading_hargaJual_tab').hide();

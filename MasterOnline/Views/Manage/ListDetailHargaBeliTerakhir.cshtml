@@ -70,8 +70,8 @@
             </tbody>
         </table>
     </div>
-    @*@if (pageCount > 1)
-        {*@
+    if (pageCount > 1)
+    {
     <div id="tabeldetailpartialpager" class="pager">
         @Html.PagedListPager(Model, page => Url.Action("LihatDetailHargaBeliTerakhir", new
    {
@@ -88,8 +88,8 @@
             DisplayEllipsesWhenNotShowingAllPageNumbers = false
         })
         Page @(pageCount < pageNumber ? 0 : pageNumber) of @pageCount
-    </div>
-    //}
+    </div>     
+    }
 }
 else
 {
@@ -99,7 +99,7 @@ else
         </div>
     </div>
 }
-<script type="text/javascript">
+    <script type="text/javascript">
     @{
         double jumlah = 0;
         foreach (var dataItem in Model)
@@ -107,11 +107,17 @@ else
             jumlah = jumlah + dataItem.Harga;
         }
         double hasilakhir = (jumlah / 15);
+        //var limitDec = Convert.ToDecimal(hasilakhir).ToString("#,##0.00");
+        //var test = string.Format("{0:0,0.00}", hasilakhir);
+        //var tes1 = string.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", hasilakhir);
     }
-    var vAverageHargaBeli = @hasilakhir;
+        var vAverageHargaBeli = parseFloat(@hasilakhir).toFixed(2);
+        @*var te = @hasilakhir;
+        var has = te.toLocaleString('id:id', { style: 'currency', currency: 'IDR' });
+        var lihat = has;*@
     $(document).ready(function () {
-        var tes1 = vAverageHargaBeli;
-        $('#ttl-average').text(": " + tes1);
+        var result = vAverageHargaBeli;
+        $('#ttl-average').text(": " + result);
     });
     $(function () {
         $('#tabeldetailpartialpager').on('click', 'a', function () {
@@ -134,4 +140,4 @@ else
             }
         });
     });
-</script>
+    </script>
