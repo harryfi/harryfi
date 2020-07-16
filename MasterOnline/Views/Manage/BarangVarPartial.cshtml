@@ -651,12 +651,16 @@
             $('#namaOpsiBlibli_mo_' + level).css('width', '33%');
             $('#namaOpsiBlibli_b_' + level).css('width', '33%');
             $('#namaOpsiBlibli_fc_' + level).show();
-            $('#namaOpsiBlibli_1').attr('colspan', '3')
+            $('#namaOpsiBlibli_1').attr('colspan', '3');
+            //$(".selectVariantBlibliFCLv" + level + "_").show();
+            $('.td_opsiFC_' + level).show();
         } else {
             $('#namaOpsiBlibli_mo_' + level).css('width', '50%');
             $('#namaOpsiBlibli_b_' + level).css('width', '50%');
             $('#namaOpsiBlibli_fc_' + level).hide();
-            $('#namaOpsiBlibli_1').attr('colspan', '2')
+            $('#namaOpsiBlibli_1').attr('colspan', '2');
+            //$(".selectVariantBlibliFCLv" + level + "_").hide();
+            $('.td_opsiFC_' + level).hide();
 
         }
     }
@@ -3023,8 +3027,11 @@
                                                                 <td>
                                                                     <select id="selectJudulVariantBlibliLv1" placeholder="Nama Variasi" required="required"></select>
                                                                     @Html.Hidden("txtJudulVariantBlibliLv1", textJudulVar1)
+                                                                <div style="display:none">
                                                                     <select id="selectJudulVariantBlibliFCLv1" placeholder="Nama Variasi" required="required" style="display:none"></select>
                                                                     @Html.Hidden("txtJudulVariantBlibliFCLv1", "FAMILY COLOUR")
+                                                                </div>
+                                                                    
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -3066,9 +3073,9 @@
                                                                         @Html.Hidden("txtVariantBlibliLv1_" + VariantPerMpBlibliLv1[i].RECNUM, VariantPerMpBlibliLv1[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv1_" })
                                                                     </div>
                                                                 </td>
-                                                                <td>
+                                                                <td class="td_opsiFC_1" style="display:none">
                                                                     <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM">
-                                                                        <select id="selectVariantBlibliFCLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliFCLv1_" placeholder="Nama Variasi" required="required" style="display:none"></select>
+                                                                        <select id="selectVariantBlibliFCLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliFCLv1_" placeholder="Nama Variasi" required="required"></select>
                                                                         @Html.Hidden("txtVariantBlibliFCLv1_" + VariantPerMpBlibliLv1[i].RECNUM, VariantPerMpBlibliLv1[i].MP_VALUE_FC_VAR, new { @class = "txtVariantBlibliFCLv1_" })
                                                                     </div>
                                                                 </td>
