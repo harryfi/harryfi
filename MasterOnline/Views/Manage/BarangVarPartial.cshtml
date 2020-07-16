@@ -646,6 +646,21 @@
         });
     }
 
+    function ComboBoxColorFamilyBliBli(level, show) {
+        if (show) {
+            $('#namaOpsiBlibli_mo_' + level).css('width', '33%');
+            $('#namaOpsiBlibli_b_' + level).css('width', '33%');
+            $('#namaOpsiBlibli_fc_' + level).show();
+            $('#namaOpsiBlibli_1').attr('colspan', '3')
+        } else {
+            $('#namaOpsiBlibli_mo_' + level).css('width', '50%');
+            $('#namaOpsiBlibli_b_' + level).css('width', '50%');
+            $('#namaOpsiBlibli_fc_' + level).hide();
+            $('#namaOpsiBlibli_1').attr('colspan', '2')
+
+        }
+    }
+
     function InitSettingVariantBlibli() {
         if ($('#txtBlibliCategoryCodeFound').val() > -1) {
             var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtBlibliCategoryCodeFound').val() + '__CATEGORY_CODE';
@@ -708,6 +723,11 @@
                                 onChange: function (value) {
                                     $('#txtJudulVariantBlibliLv1').val(value);
                                     SearchOptVariantBlibli(1, value, data.attribute_opt);
+                                    if (value == "WA-0000002") {//warna
+                                        ComboBoxColorFamilyBliBli(1, true);
+                                    } else {
+                                        ComboBoxColorFamilyBliBli(1, false);
+                                    }
                                 }
                             });
                             attributeSelect[0].selectize.clearOptions();
@@ -737,6 +757,11 @@
                                 onChange: function (value) {
                                     $('#txtJudulVariantBlibliLv2').val(value);
                                     SearchOptVariantBlibli(2, value, data.attribute_opt);
+                                    if (value == "WA-0000002") {//warna
+                                        ComboBoxColorFamilyBliBli(2, true);
+                                    } else {
+                                        ComboBoxColorFamilyBliBli(2, false);
+                                    }
                                 }
                             });
                             attributeSelect[0].selectize.clearOptions();
@@ -815,6 +840,35 @@
                                             //}
                                         }
                                     }
+                                //}
+                            });
+                        }
+                        if ($('#selectJudulVariantBlibliFCLv2').length > 0) {
+                            var attributeSelect = $('#selectJudulVariantBlibliFCLv2').selectize({
+                                valueField: 'id',
+                                searchField: 'text',
+                                options: SelectListFC,
+                                onChange: function (value) {
+                                    $('#selectJudulVariantBlibliFCLv2').val(value);
+                                    SearchOptVariantBlibli(2, value, data.attribute_opt);
+                                }
+                            });
+                            attributeSelect[0].selectize.clearOptions();
+                            attributeSelect[0].selectize.renderCache = {};
+                            attributeSelect[0].selectize.load(function (callback) {
+                                callback(SelectListFC);
+
+                                //if ($('#selectJudulVariantBlibliFCLv1').val() != "") {
+                                var FoundValue = "";
+                                for (var d = 0; d < 1; d++) {
+                                    if (FoundValue == "") {
+                                        var value = SelectListFC[d].id;
+                                        //if ($('#selectJudulVariantBlibliFCLv1').val() == value) {
+                                        FoundValue = SelectListFC[d].id;
+                                        attributeSelect[0].selectize.setValue(FoundValue, false);
+                                        //}
+                                    }
+                                }
                                 //}
                             });
                         }
@@ -2969,7 +3023,7 @@
                                                                 <td>
                                                                     <select id="selectJudulVariantBlibliLv1" placeholder="Nama Variasi" required="required"></select>
                                                                     @Html.Hidden("txtJudulVariantBlibliLv1", textJudulVar1)
-                                                                    <select id="selectJudulVariantBlibliFCLv1" placeholder="Nama Variasi" required="required"></select>
+                                                                    <select id="selectJudulVariantBlibliFCLv1" placeholder="Nama Variasi" required="required" style="display:none"></select>
                                                                     @Html.Hidden("txtJudulVariantBlibliFCLv1", "FAMILY COLOUR")
                                                                 </td>
                                                             </tr>
@@ -2980,12 +3034,12 @@
                                                     <table class="table table-bordered" style="width:100%" role="grid">
                                                         <thead>
                                                             <tr>
-                                                                <th id="namaOpsiBlibli" colspan="3" width="100%" style="text-align:center">Nama Opsi</th>
+                                                                <th id="namaOpsiBlibli_1" colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
                                                             </tr>
                                                             <tr>
-                                                                <th id="namaOpsiBlibli_mo" width="33%" style="border-right:none">Master Online</th>
-                                                                <th id="namaOpsiBlibli_b" width="33%" style="border-right:none">Blibli</th>
-                                                                <th id="namaOpsiBlibli_fc" width="33%" style="border-right:none">Blibli Color Family</th>
+                                                                <th id="namaOpsiBlibli_mo_1" width="50%" style="border-right:none">Master Online</th>
+                                                                <th id="namaOpsiBlibli_b_1" width="50%" style="border-right:none">Blibli</th>
+                                                                <th id="namaOpsiBlibli_fc_1" width="33%" style="border-right:none;display:none">Blibli Color Family</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -3014,7 +3068,7 @@
                                                                 </td>
                                                                 <td>
                                                                     <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM">
-                                                                        <select id="selectVariantBlibliFCLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliFCLv1_" placeholder="Nama Variasi" required="required"></select>
+                                                                        <select id="selectVariantBlibliFCLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliFCLv1_" placeholder="Nama Variasi" required="required" style="display:none"></select>
                                                                         @Html.Hidden("txtVariantBlibliFCLv1_" + VariantPerMpBlibliLv1[i].RECNUM, VariantPerMpBlibliLv1[i].MP_VALUE_FC_VAR, new { @class = "txtVariantBlibliFCLv1_" })
                                                                     </div>
                                                                 </td>
@@ -3052,6 +3106,7 @@
                                                             <tr>
                                                                 <th width="50%" style="border-right:none">Master Online</th>
                                                                 <th width="50%" style="border-right:none">Blibli</th>
+
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -3067,6 +3122,8 @@
                                                                 <td>
                                                                     <select id="selectJudulVariantBlibliLv2" placeholder="Nama Variasi" required="required"></select>
                                                                     @Html.Hidden("txtJudulVariantBlibliLv2", textJudulVar2)
+                                                                    <select id="selectJudulVariantBlibliFCLv2" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariantBlibliFCLv2", "FAMILY COLOUR")
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -3076,11 +3133,12 @@
                                                     <table class="table table-bordered" style="width:100%" role="grid">
                                                         <thead>
                                                             <tr>
-                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                                <th id="namaOpsiBlibli_2" colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
                                                             </tr>
                                                             <tr>
-                                                                <th width="50%" style="border-right:none">Master Online</th>
-                                                                <th width="50%" style="border-right:none">Blibli</th>
+                                                                <th id="namaOpsiBlibli_mo_2" width="33%" style="border-right:none">Master Online</th>
+                                                                <th id="namaOpsiBlibli_b_2" width="33%" style="border-right:none">Blibli</th>
+                                                                <th id="namaOpsiBlibli_fc_2" width="33%" style="border-right:none">Blibli Color Family</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -3092,22 +3150,28 @@
                                                                 {
                                                                     textKetVar2 = KetVar2.KET_VAR;
                                                                 }
-                                                                <tr>
-                                                                    <td>
-                                                                        @Html.TextBox("txtOpsiMOBlibliLv2", textKetVar2, new
-                                                                   {
-                                                                       @class = "form-control",
-                                                                       disabled = "disabled",
-                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                                   })
-                                                                    </td>
-                                                                    <td>
-                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM">
-                                                                            <select id="selectVariantBlibliLv2_@(VariantPerMpBlibliLv2[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM" class="selectVariantBlibliLv2_" placeholder="Nama Variasi" required="required"></select>
-                                                                            @Html.Hidden("txtVariantBlibliLv2_" + VariantPerMpBlibliLv2[i].RECNUM, VariantPerMpBlibliLv2[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv2_" })
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtOpsiMOBlibliLv2", textKetVar2, new
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
+                                                                </td>
+                                                                <td>
+                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM">
+                                                                        <select id="selectVariantBlibliLv2_@(VariantPerMpBlibliLv2[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM" class="selectVariantBlibliLv2_" placeholder="Nama Variasi" required="required"></select>
+                                                                        @Html.Hidden("txtVariantBlibliLv2_" + VariantPerMpBlibliLv2[i].RECNUM, VariantPerMpBlibliLv2[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv2_" })
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM">
+                                                                        <select id="selectVariantBlibliFCLv2_@(VariantPerMpBlibliLv2[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM" class="selectVariantBlibliFCLv2_" placeholder="Nama Variasi" required="required"></select>
+                                                                        @Html.Hidden("txtVariantBlibliFCLv2_" + VariantPerMpBlibliLv2[i].RECNUM, VariantPerMpBlibliLv2[i].MP_VALUE_FC_VAR, new { @class = "txtVariantBlibliFCLv2_" })
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
                                                             }
                                                         </tbody>
                                                     </table>
