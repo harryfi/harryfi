@@ -1941,7 +1941,8 @@ namespace MasterOnline.Controllers
             string username = "";
             if (sessionData?.User != null)
             {
-                var accId = MoDbContext.User.Single(u => u.Username == sessionData.User.Username).AccountId;
+                //var accId = MoDbContext.User.Single(u => u.Username == sessionData.User.Username).AccountId; // remark by fauzi 17 Juli 2020
+                var accId = MoDbContext.User.Single(u => u.Email == sessionData.User.Email).AccountId;
                 username = MoDbContext.Account.Single(a => a.AccountId == accId).Username;
             }
             else
@@ -2222,7 +2223,8 @@ namespace MasterOnline.Controllers
             string username = "";
             if (sessionData?.User != null)
             {
-                var accId = MoDbContext.User.Single(u => u.Username == sessionData.User.Username).AccountId;
+                //var accId = MoDbContext.User.Single(u => u.Username == sessionData.User.Username).AccountId; // remark by fauzi 17 Juli 2020
+                var accId = MoDbContext.User.Single(u => u.Email == sessionData.User.Email).AccountId;
                 username = MoDbContext.Account.Single(a => a.AccountId == accId).Username;
             }
             else
