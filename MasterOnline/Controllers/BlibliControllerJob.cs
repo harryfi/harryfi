@@ -6786,7 +6786,8 @@ namespace MasterOnline.Controllers
                     idGambar = data.dataBarangInDb.Sort5;
                     urlGambar = data.dataBarangInDb.LINK_GAMBAR_1;
                 }
-                if (!string.IsNullOrWhiteSpace(idGambar))
+                //if (!string.IsNullOrWhiteSpace(idGambar))
+                if (!string.IsNullOrWhiteSpace(urlGambar))
                 {
                     //if (!uploadedImageID.Contains(idGambar))
                     //{
@@ -6845,7 +6846,8 @@ namespace MasterOnline.Controllers
                     idGambar = data.dataBarangInDb.Sort6;
                     urlGambar = data.dataBarangInDb.LINK_GAMBAR_2;
                 }
-                if (!string.IsNullOrWhiteSpace(idGambar))
+                //if (!string.IsNullOrWhiteSpace(idGambar))
+                if (!string.IsNullOrWhiteSpace(urlGambar))
                 {
                     //if (!uploadedImageID.Contains(idGambar))
                     //{
@@ -6906,7 +6908,8 @@ namespace MasterOnline.Controllers
                     idGambar = data.dataBarangInDb.Sort7;
                     urlGambar = data.dataBarangInDb.LINK_GAMBAR_3;
                 }
-                if (!string.IsNullOrWhiteSpace(idGambar))
+                if (!string.IsNullOrWhiteSpace(urlGambar))
+                //if (!string.IsNullOrWhiteSpace(idGambar))
                 {
                     //if (!uploadedImageID.Contains(idGambar))
                     //{
@@ -6968,7 +6971,8 @@ namespace MasterOnline.Controllers
                     idGambar = data.dataBarangInDb.SIZE_GAMBAR_4;
                     urlGambar = data.dataBarangInDb.LINK_GAMBAR_4;
                 }
-                if (!string.IsNullOrWhiteSpace(idGambar))
+                //if (!string.IsNullOrWhiteSpace(idGambar))
+                if (!string.IsNullOrWhiteSpace(urlGambar))
                 {
                     //if (!uploadedImageID.Contains(idGambar))
                     //{
@@ -7029,7 +7033,8 @@ namespace MasterOnline.Controllers
                     idGambar = data.dataBarangInDb.SIZE_GAMBAR_5;
                     urlGambar = data.dataBarangInDb.LINK_GAMBAR_5;
                 }
-                if (!string.IsNullOrWhiteSpace(idGambar))
+                //if (!string.IsNullOrWhiteSpace(idGambar))
+                if (!string.IsNullOrWhiteSpace(urlGambar))
                 {
                     //if (!uploadedImageID.Contains(idGambar))
                     //{
@@ -7122,10 +7127,10 @@ namespace MasterOnline.Controllers
 
                             if (!DefiningAttributes.ContainsKey(attribute_id))
                             {
-                                if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
+                                //if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
                                     DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
                             }
-                            if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
+                            //if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
                                 attributeMap.Add(attribute_id, value);
                         }
                     }
