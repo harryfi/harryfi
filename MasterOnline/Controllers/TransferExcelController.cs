@@ -570,10 +570,15 @@ namespace MasterOnline.Controllers
                     ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Harga Jual Barang");
 
                     string sSQL = "SELECT S.BRG, ";
+                    //sSQL += "replace(replace(S.NAMA, char(10), ''), char(13), '') + ISNULL(replace(replace(S.NAMA2, char(10), ''), char(13), ''), '') AS NAMA, ";
+                    //sSQL += "M.NAMAMARKET + '(' + replace(replace(A.PERSO, char(10), ''), char(13), '') + ')' AS AKUN,H.HJUAL, M.IDMARKET, ISNULL(STF10.HPOKOK, 0) AS HPOKOK ";
+                    //sSQL += "FROM STF02 S INNER JOIN STF02H H ON S.BRG = H.BRG INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM ";
+                    //sSQL += "INNER JOIN MO..MARKETPLACE M ON A.NAMA = M.IDMARKET LEFT JOIN STF10 ON S.BRG = STF10.BRG WHERE TYPE = '3' ORDER BY NAMA,M.IDMARKET";
                     sSQL += "replace(replace(S.NAMA, char(10), ''), char(13), '') + ISNULL(replace(replace(S.NAMA2, char(10), ''), char(13), ''), '') AS NAMA, ";
-                    sSQL += "M.NAMAMARKET + '(' + replace(replace(A.PERSO, char(10), ''), char(13), '') + ')' AS AKUN,H.HJUAL, M.IDMARKET, ISNULL(STF10.HPOKOK, 0) AS HPOKOK ";
+                    sSQL += "M.NAMAMARKET + '(' + replace(replace(A.PERSO, char(10), ''), char(13), '') + ')' AS AKUN,H.HJUAL, M.IDMARKET, ";
+                    sSQL += "ISNULL((SELECT TOP 1 ISNULL(E.HBELI,0) AS HBELI FROM PBT01A F LEFT JOIN PBT01B E ON F.INV = E.INV WHERE E.BRG = S.BRG ORDER BY F.TGL DESC, E.NO DESC), 0) AS HPOKOK ";
                     sSQL += "FROM STF02 S INNER JOIN STF02H H ON S.BRG = H.BRG INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM ";
-                    sSQL += "INNER JOIN MO..MARKETPLACE M ON A.NAMA = M.IDMARKET LEFT JOIN STF10 ON S.BRG = STF10.BRG WHERE TYPE = '3' ORDER BY NAMA,M.IDMARKET";
+                    sSQL += "INNER JOIN MO..MARKETPLACE M ON A.NAMA = M.IDMARKET WHERE TYPE = '3' ORDER BY NAMA,M.IDMARKET";
                     var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
 
                     if (dsBarang.Tables[0].Rows.Count > 0)
@@ -593,7 +598,9 @@ namespace MasterOnline.Controllers
                         table0.Columns[1].Name = "NAMA BARANG";
                         table0.Columns[2].Name = "AKUN MARKETPLACE";
                         table0.Columns[3].Name = "HARGA JUAL";
-                        table0.Columns[4].Name = "HARGA JUAL TERAKHIR";
+                        //table0.Columns[4].Name = "HARGA JUAL TERAKHIR";
+                        table0.Columns[4].Name = "HARGA BELI TERAKHIR";
+
                         table0.ShowHeader = true;
                         table0.ShowFilter = true;
                         table0.ShowRowStripes = false;
