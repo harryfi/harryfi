@@ -1925,7 +1925,8 @@ namespace MasterOnline.Controllers
                             token = tblCustomer.TOKEN,
                             mta_username_email_merchant = tblCustomer.EMAIL,
                             mta_password_password_merchant = tblCustomer.PASSWORD,
-                            idmarket = tblCustomer.RecNum.Value
+                            idmarket = tblCustomer.RecNum.Value,
+                            versiToken = tblCustomer.KD_ANALISA
                         };
 
                         await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
@@ -3451,7 +3452,8 @@ namespace MasterOnline.Controllers
                         mta_password_password_merchant = customer.PASSWORD,
                         merchant_code = customer.Sort1_Cust,
                         token = customer.TOKEN,
-                        idmarket = customer.RecNum.Value
+                        idmarket = customer.RecNum.Value,
+                        versiToken = customer.KD_ANALISA
                     };
                     await BliApi.GetCategoryTree(data);
                     //BliApi.GetCategoryTree(data);
@@ -3501,7 +3503,7 @@ namespace MasterOnline.Controllers
 
 
         [HttpPost]
-        public ActionResult SaveCustomer(CustomerViewModel customer)
+        public ActionResult SaveCustomer(CustomerViewModel customer, string api_client_username, string api_client_password)
         {
             if (!ModelState.IsValid)
             {
@@ -3516,6 +3518,7 @@ namespace MasterOnline.Controllers
             //}
             ////end add
             string kdCustomer = "";
+            var versiBlibli = customer.Customers.KD_ANALISA;
             if (customer.Customers.RecNum == null)
             {
                 var listCustomer = ErasoftDbContext.ARF01.ToList();
@@ -3591,6 +3594,15 @@ namespace MasterOnline.Controllers
                     }
                 }
                 //end 
+
+                if (getMP.ToUpper() == "BLIBLI")
+                {
+                    if (customer.Customers.KD_ANALISA == "2")
+                    {
+                        customer.Customers.API_CLIENT_P = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
+                        customer.Customers.API_CLIENT_U = "mta-api-pterasoftteknologiindonesia-40eb0";
+                    }
+                }
 
                 ErasoftDbContext.ARF01.Add(customer.Customers);
                 ErasoftDbContext.SaveChanges();
@@ -3668,6 +3680,8 @@ namespace MasterOnline.Controllers
                 }
                 //end 
 
+                
+
                 custInDb.TOP = customer.Customers.TOP;
                 custInDb.AL = customer.Customers.AL;
                 custInDb.KODEPROV = customer.Customers.KODEPROV;
@@ -3694,6 +3708,20 @@ namespace MasterOnline.Controllers
                 custInDb.API_CLIENT_P = customer.Customers.API_CLIENT_P;
                 if (!string.IsNullOrEmpty(customer.Customers.TOKEN))
                     custInDb.TOKEN = customer.Customers.TOKEN;
+
+                //add by nurul 16/7/2020
+                if (getMP.ToUpper() == "BLIBLI")
+                {
+                    custInDb.KD_ANALISA = customer.Customers.KD_ANALISA;
+                    if (customer.Customers.KD_ANALISA == "2")
+                    {
+                        custInDb.API_CLIENT_P = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
+                        custInDb.API_CLIENT_U = "mta-api-pterasoftteknologiindonesia-40eb0";
+                        customer.Customers.API_CLIENT_P = custInDb.API_CLIENT_P;
+                        customer.Customers.API_CLIENT_U = custInDb.API_CLIENT_U;
+                    }
+                }
+                //end add by nurul 16/7/2020
 
                 kdCustomer = custInDb.CUST;
 
@@ -3733,7 +3761,27 @@ namespace MasterOnline.Controllers
             #region BLIBLI get category dan attribute
             else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString()))
             {
-                if (!string.IsNullOrEmpty(customer.Customers.API_CLIENT_P) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U))
+                if (versiBlibli != "2")
+                {
+                    if (!string.IsNullOrEmpty(customer.Customers.API_CLIENT_P) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U))
+                    {
+                        var BliApi = new BlibliController();
+                        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                        {
+                            API_client_username = customer.Customers.API_CLIENT_U,
+                            API_client_password = customer.Customers.API_CLIENT_P,
+                            API_secret_key = customer.Customers.API_KEY,
+                            mta_username_email_merchant = customer.Customers.EMAIL,
+                            mta_password_password_merchant = customer.Customers.PASSWORD,
+                            merchant_code = customer.Customers.Sort1_Cust,
+                            idmarket = customer.Customers.RecNum.Value,
+                            versiToken = customer.Customers.KD_ANALISA
+                        };
+                        Task.Run(() => BliApi.GetToken(data, true, true).Wait());
+                        //BliApi.GetPickupPoint(data);
+                    }
+                }
+                else
                 {
                     var BliApi = new BlibliController();
                     BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
@@ -3744,10 +3792,10 @@ namespace MasterOnline.Controllers
                         mta_username_email_merchant = customer.Customers.EMAIL,
                         mta_password_password_merchant = customer.Customers.PASSWORD,
                         merchant_code = customer.Customers.Sort1_Cust,
-                        idmarket = customer.Customers.RecNum.Value
+                        idmarket = customer.Customers.RecNum.Value,
+                        versiToken = customer.Customers.KD_ANALISA
                     };
-                    Task.Run(() => BliApi.GetToken(data, true, true).Wait());
-                    //BliApi.GetPickupPoint(data);
+                    Task.Run(() => BliApi.GetCategoryPerUser(data));
                 }
             }
             #endregion
@@ -5867,7 +5915,8 @@ namespace MasterOnline.Controllers
                 token = tblCustomer.TOKEN,
                 mta_username_email_merchant = tblCustomer.EMAIL,
                 mta_password_password_merchant = tblCustomer.PASSWORD,
-                idmarket = tblCustomer.RecNum.Value
+                idmarket = tblCustomer.RecNum.Value,
+                versiToken = tblCustomer.KD_ANALISA
             };
 
             var listAttributeBlibli = await BliAPI.GetAttributeToList(data, CategoryBlibli);
@@ -5918,7 +5967,8 @@ namespace MasterOnline.Controllers
                 token = tblCustomer.TOKEN,
                 mta_username_email_merchant = tblCustomer.EMAIL,
                 mta_password_password_merchant = tblCustomer.PASSWORD,
-                idmarket = tblCustomer.RecNum.Value
+                idmarket = tblCustomer.RecNum.Value,
+                versiToken = tblCustomer.KD_ANALISA
             };
 
             var listAttributeBlibli = await BliAPI.GetAttributeToList(data, CategoryBlibli);
@@ -10222,11 +10272,11 @@ namespace MasterOnline.Controllers
                                                 clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0));
 #endif
                                                     //Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0)).Wait();
-                                                        //}
-                                                        //else if (brg_mp[1] != "")
-                                                        //{
-                                                        //    Task.Run(() => c82CartAPI.UpdateVariationPrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
-                                                        //}
+                                                    //}
+                                                    //else if (brg_mp[1] != "")
+                                                    //{
+                                                    //    Task.Run(() => c82CartAPI.UpdateVariationPrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
+                                                    //}
                                                     //}
                                                 }
                                             }
@@ -10509,12 +10559,15 @@ namespace MasterOnline.Controllers
                                                 API_client_password = tblCustomer.API_CLIENT_P,
                                                 API_client_username = tblCustomer.API_CLIENT_U,
                                                 API_secret_key = tblCustomer.API_KEY,
+                                                //API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
+                                                //API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
                                                 token = tblCustomer.TOKEN,
                                                 mta_username_email_merchant = tblCustomer.EMAIL,
                                                 mta_password_password_merchant = tblCustomer.PASSWORD,
                                                 idmarket = tblCustomer.RecNum.Value,
                                                 DatabasePathErasoft = dbPathEra,
-                                                username = usernameLogin
+                                                username = usernameLogin,
+                                                versiToken = tblCustomer.KD_ANALISA
                                             };
                                             //end change by calvin 9 juni 2019, ganti jadi pakai hangfire
 
@@ -10584,7 +10637,8 @@ namespace MasterOnline.Controllers
                                                     token = tblCustomer.TOKEN,
                                                     mta_username_email_merchant = tblCustomer.EMAIL,
                                                     mta_password_password_merchant = tblCustomer.PASSWORD,
-                                                    idmarket = tblCustomer.RecNum.Value
+                                                    idmarket = tblCustomer.RecNum.Value,
+                                                    versiToken = tblCustomer.KD_ANALISA
                                                 };
                                                 if (stf02h.BRG_MP == "PENDING")
                                                 {
@@ -10632,12 +10686,15 @@ namespace MasterOnline.Controllers
                                                         API_client_password = tblCustomer.API_CLIENT_P,
                                                         API_client_username = tblCustomer.API_CLIENT_U,
                                                         API_secret_key = tblCustomer.API_KEY,
+                                                        //API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
+                                                        //API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
                                                         token = tblCustomer.TOKEN,
                                                         mta_username_email_merchant = tblCustomer.EMAIL,
                                                         mta_password_password_merchant = tblCustomer.PASSWORD,
                                                         idmarket = tblCustomer.RecNum.Value,
                                                         DatabasePathErasoft = dbPathEra,
-                                                        username = usernameLogin
+                                                        username = usernameLogin,
+                                                        versiToken = tblCustomer.KD_ANALISA
                                                     };
                                                     //end change by calvin 9 juni 2019, ganti jadi pakai hangfire
                                                     //BlibliControllerJob.BlibliProductData data = new BlibliControllerJob.BlibliProductData
@@ -10733,12 +10790,15 @@ namespace MasterOnline.Controllers
                                                 API_client_password = tblCustomer.API_CLIENT_P,
                                                 API_client_username = tblCustomer.API_CLIENT_U,
                                                 API_secret_key = tblCustomer.API_KEY,
+                                                //API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
+                                                //API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
                                                 token = tblCustomer.TOKEN,
                                                 mta_username_email_merchant = tblCustomer.EMAIL,
                                                 mta_password_password_merchant = tblCustomer.PASSWORD,
                                                 idmarket = tblCustomer.RecNum.Value,
                                                 DatabasePathErasoft = dbPathEra,
-                                                username = usernameLogin
+                                                username = usernameLogin,
+                                                versiToken = tblCustomer.KD_ANALISA
                                             };
                                             //end change by calvin 9 juni 2019, ganti jadi pakai hangfire
                                             //                                            BlibliControllerJob.BlibliProductData data = new BlibliControllerJob.BlibliProductData
@@ -10804,7 +10864,8 @@ namespace MasterOnline.Controllers
                                                     token = tblCustomer.TOKEN,
                                                     mta_username_email_merchant = tblCustomer.EMAIL,
                                                     mta_password_password_merchant = tblCustomer.PASSWORD,
-                                                    idmarket = tblCustomer.RecNum.Value
+                                                    idmarket = tblCustomer.RecNum.Value,
+                                                    versiToken = tblCustomer.KD_ANALISA
                                                 };
                                                 if (stf02h.BRG_MP == "PENDING")
                                                 {
@@ -10864,12 +10925,15 @@ namespace MasterOnline.Controllers
                                                         API_client_password = tblCustomer.API_CLIENT_P,
                                                         API_client_username = tblCustomer.API_CLIENT_U,
                                                         API_secret_key = tblCustomer.API_KEY,
+                                                        //API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
+                                                        //API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
                                                         token = tblCustomer.TOKEN,
                                                         mta_username_email_merchant = tblCustomer.EMAIL,
                                                         mta_password_password_merchant = tblCustomer.PASSWORD,
                                                         idmarket = tblCustomer.RecNum.Value,
                                                         DatabasePathErasoft = dbPathEra,
-                                                        username = usernameLogin
+                                                        username = usernameLogin,
+                                                        versiToken = tblCustomer.KD_ANALISA
                                                     };
                                                     //end change by calvin 9 juni 2019, ganti jadi pakai hangfire
 
@@ -11440,7 +11504,8 @@ namespace MasterOnline.Controllers
                     token = marketPlace.TOKEN,
                     mta_username_email_merchant = marketPlace.EMAIL,
                     mta_password_password_merchant = marketPlace.PASSWORD,
-                    idmarket = marketPlace.RecNum.Value
+                    idmarket = marketPlace.RecNum.Value,
+                    versiToken = marketPlace.KD_ANALISA
                 };
 
                 long milis = CurrentTimeMillis();
@@ -11645,7 +11710,8 @@ namespace MasterOnline.Controllers
 
                                     if (item.attribute.Count() > 0)
                                     {
-                                        if (item.id_attribute_group == attribute) {
+                                        if (item.id_attribute_group == attribute)
+                                        {
                                             foreach (var detail in item.attribute)
                                             {
                                                 list_value.Add(new ATTRIBUTE_82CART_LIST()
@@ -16192,7 +16258,7 @@ namespace MasterOnline.Controllers
             }
 
             //sSQLWhere2 += ")A ";
-            
+
             if (filter == "status" && filtervalue != null && filtervalue != "Harap Pilih")
             {
                 if (sSQLEndSelect == "")
@@ -16211,7 +16277,7 @@ namespace MasterOnline.Controllers
             {
                 pagenumber = pagenumber - 1;
             }
-            
+
             string sSQLSelect2 = "";
             //sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
             //add by nurul 16/6/2020
@@ -19708,10 +19774,10 @@ namespace MasterOnline.Controllers
                         if (dataStf02h.BRG_MP != catatan_split[2])
                         {
                             var cust = ErasoftDbContext.ARF01.Where(m => m.CUST == pesananInDb.CUST).SingleOrDefault();
-                            if(cust.NAMA == "16")//blibli
+                            if (cust.NAMA == "16")//blibli
                             {
                                 var gdnSku = dataStf02h.BRG_MP.Split(';');
-                                if(gdnSku[0] != catatan_split[2])
+                                if (gdnSku[0] != catatan_split[2])
                                     return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
                             }
                             else
@@ -21289,7 +21355,8 @@ namespace MasterOnline.Controllers
                                             mta_password_password_merchant = marketPlace.PASSWORD,
                                             idmarket = marketPlace.RecNum.Value,
                                             DatabasePathErasoft = dbPathEra,
-                                            username = usernameLogin
+                                            username = usernameLogin,
+                                            versiToken = marketPlace.KD_ANALISA
                                         };
                                         clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", iden, pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, item.ORDER_ITEM_ID));
                                         //end change by calvin 10 april 2019, jadi pakai backgroundjob
@@ -25402,27 +25469,61 @@ namespace MasterOnline.Controllers
                         BlibliControllerJob.BlibliAPIData data = new BlibliControllerJob.BlibliAPIData()
                         {
                             API_client_username = tblCustomer.API_CLIENT_U,
-                            //API_client_password = tblCustomer.API_CLIENT_P,
-                            API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
-                            //API_secret_key = tblCustomer.API_KEY,
-                            API_secret_key= "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
+                            API_client_password = tblCustomer.API_CLIENT_P,
+                            //API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
+                            API_secret_key = tblCustomer.API_KEY,
+                            //API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
                             mta_username_email_merchant = tblCustomer.EMAIL,
                             mta_password_password_merchant = tblCustomer.PASSWORD,
                             merchant_code = tblCustomer.Sort1_Cust,
                             token = tblCustomer.TOKEN,
                             idmarket = tblCustomer.RecNum.Value,
                             DatabasePathErasoft = dbPathEra,
-                            username = "fixblibli"
+                            username = "fixblibli",
+                            versiToken = tblCustomer.KD_ANALISA
                         };
                         List<string> skuMerchant = new List<string>();
                         skuMerchant.Add("INDSALTED");
-                        await new BlibliControllerJob().CekProductActive(dbPathEra, "INDSALTED", tblCustomer.CUST, "", "", data, "", skuMerchant, tblCustomer.CUST, "", "");
-                        //await new BlibliControllerJob().GetQueueFeedDetail(data, null);
-                        //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-06-01 00:00:00", "2019-06-30 23:59:59");
-                        //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-07-01 00:00:00", "2019-07-31 23:59:59");
-                        //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-08-01 00:00:00", "2019-08-31 23:59:59");
-                        //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-09-01 00:00:00", "2019-09-30 23:59:59");
-                        //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-10-01 00:00:00", "2019-10-30 23:59:59");
+                        var orderItemIds = new List<string>();
+                        orderItemIds.Add("12072976365");
+                        //await new BlibliControllerJob().CekProductActive(dbPathEra, "INDSALTED", tblCustomer.CUST, "", "", data, "", skuMerchant, tblCustomer.CUST, "", "");
+                        //await new BlibliControllerJob().CekProductReject(dbPathEra, "INDSALTED", tblCustomer.CUST, "", "", data, "", skuMerchant, tblCustomer.CUST, "", "");
+                        //await new BlibliControllerJob().GetShippingLabel(dbPathEra, data, "12072976365");
+                        //await new BlibliControllerJob().createPackage(dbPathEra, data, orderItemIds);
+                        ////await new BlibliControllerJob().CreateProduct(dbPathEra, "INDSALTED", tblCustomer.CUST, "Barang", "Buat Produk", data, null, null);
+                        //await new BlibliControllerJob().FixOrderGetOrderDetail(data, "12050911633", "12072976365", tblCustomer.CUST, tblCustomer.PERSO);
+                        ////await new BlibliControllerJob().GetQueueFeedDetail(data, null);
+                        //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2020-06-19 00:00:00", "2020-06-20 23:59:59");
+                        ////await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-07-01 00:00:00", "2019-07-31 23:59:59");
+                        ////await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-08-01 00:00:00", "2019-08-31 23:59:59");
+                        ////await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-09-01 00:00:00", "2019-09-30 23:59:59");
+                        ////await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-10-01 00:00:00", "2019-10-30 23:59:59");
+                        //await new BlibliControllerJob().GetAttributeList(data);
+                        //var CategoryBlibli = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE == "JA-1000070").ToList();
+                        //await new BlibliControllerJob().GetAttributeToList(data, CategoryBlibli.FirstOrDefault());
+                        //await new BlibliControllerJob().UpdateAttributeList(data, CategoryBlibli);
+                        //await new BlibliControllerJob().GetCategoryTree(data);
+                        //await new BlibliControllerJob().GetCategoryPerUser(data);
+                        ////await new BlibliControllerJob().UpdateProdukQOH_Display_Job(dbPathEra, "INDSALTED", tblCustomer.CUST, "Price", "Update Price", dataJob.kode_mp, data, dataJob);
+                        //await new BlibliControllerJob().GetOrderList(data, BlibliControllerJob.StatusOrder.Paid, "nurul test", tblCustomer.CUST, tblCustomer.PERSO);
+                        //await new BlibliControllerJob().GetPickupPoint(data);
+                        //new BlibliControllerJob().fillOrderAWB(dbPathEra, "Dani .", tblCustomer.CUST, "Pesanan", "Ganti Status", data, "1568916029", "12050911633", "12072976365");
+                        BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                        {
+                            merchant_code = tblCustomer.Sort1_Cust,
+                            //API_client_password = tblCustomer.API_CLIENT_P,
+                            API_client_username = tblCustomer.API_CLIENT_U,
+                            //API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
+                            //API_secret_key = tblCustomer.API_KEY,
+                            //API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
+                            //API_secret_key = tblCustomer.API_KEY,
+                            token = tblCustomer.TOKEN,
+                            mta_username_email_merchant = tblCustomer.EMAIL,
+                            mta_password_password_merchant = tblCustomer.PASSWORD,
+                            idmarket = tblCustomer.RecNum.Value,
+                            versiToken = tblCustomer.KD_ANALISA
+                        };
+                        await new BlibliController().GetQueueFeedDetail(iden, null);
                     }
                 }
             }
@@ -32743,11 +32844,14 @@ namespace MasterOnline.Controllers
                         API_client_password = customer.API_CLIENT_P,
                         API_client_username = customer.API_CLIENT_U,
                         API_secret_key = customer.API_KEY,
+                        //API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
+                        //API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
                         token = customer.TOKEN,
                         mta_username_email_merchant = customer.EMAIL,
                         mta_password_password_merchant = customer.PASSWORD,
                         idmarket = customer.RecNum.Value,
-                        DatabasePathErasoft = dbPathEra
+                        DatabasePathErasoft = dbPathEra,
+                        versiToken = customer.KD_ANALISA
                     };
                     BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
                     {
@@ -32776,7 +32880,8 @@ namespace MasterOnline.Controllers
                         mta_username_email_merchant = customer.EMAIL,
                         mta_password_password_merchant = customer.PASSWORD,
                         idmarket = customer.RecNum.Value,
-                        DatabasePathErasoft = dbPathEra
+                        DatabasePathErasoft = dbPathEra,
+                        versiToken = customer.KD_ANALISA
                     };
                     BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
                     {
@@ -33107,7 +33212,8 @@ namespace MasterOnline.Controllers
                         mta_username_email_merchant = customer.EMAIL,
                         mta_password_password_merchant = customer.PASSWORD,
                         idmarket = customer.RecNum.Value,
-                        DatabasePathErasoft = dbPathEra
+                        DatabasePathErasoft = dbPathEra,
+                        versiToken = customer.KD_ANALISA
                     };
                     BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
                     {
@@ -33135,7 +33241,8 @@ namespace MasterOnline.Controllers
                         mta_username_email_merchant = customer.EMAIL,
                         mta_password_password_merchant = customer.PASSWORD,
                         idmarket = customer.RecNum.Value,
-                        DatabasePathErasoft = dbPathEra
+                        DatabasePathErasoft = dbPathEra,
+                        versiToken = customer.KD_ANALISA
                     };
                     BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
                     {
@@ -36803,7 +36910,8 @@ namespace MasterOnline.Controllers
                                             mta_password_password_merchant = arf01.PASSWORD,
                                             merchant_code = arf01.Sort1_Cust,
                                             token = arf01.TOKEN,
-                                            idmarket = arf01.RecNum.Value
+                                            idmarket = arf01.RecNum.Value,
+                                            versiToken = arf01.KD_ANALISA
                                         };
                                         var resultBli = BliApi.getProduct(data, "", page, arf01.CUST, recordCount, totalData);
                                         retBarang.exception = resultBli.exception;
@@ -38548,7 +38656,8 @@ namespace MasterOnline.Controllers
                                     mta_password_password_merchant = arf01.PASSWORD,
                                     merchant_code = arf01.Sort1_Cust,
                                     token = arf01.TOKEN,
-                                    idmarket = arf01.RecNum.Value
+                                    idmarket = arf01.RecNum.Value,
+                                    versiToken = arf01.KD_ANALISA
                                 };
                                 var resultBli = BliApi.getProduct(dataBL, "", Convert.ToInt32(apiLog.REQUEST_ATTRIBUTE_3), arf01.CUST, 0, 0);
                                 break;
@@ -41356,7 +41465,7 @@ namespace MasterOnline.Controllers
                                             //change by nurul 16/6/2020
                                             //Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job)).Wait();
                                             Task.Run(() => shoApi.InitLogisticPickup(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT)).Wait();
-                                                //end change by nurul 16/6/2020
+                                            //end change by nurul 16/6/2020
 #else
                                             clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT));
 #endif
@@ -41912,7 +42021,8 @@ namespace MasterOnline.Controllers
                             mta_password_password_merchant = tblCustomer.PASSWORD,
                             idmarket = tblCustomer.RecNum.Value,
                             DatabasePathErasoft = dbPathEra,
-                            username = usernameLogin
+                            username = usernameLogin,
+                            versiToken = tblCustomer.KD_ANALISA
                         };
                         var bliJob = new BlibliControllerJob();
                         var listErrors = new List<PackingListErrors>();
@@ -42063,7 +42173,8 @@ namespace MasterOnline.Controllers
                             mta_password_password_merchant = tblCustomer.PASSWORD,
                             idmarket = tblCustomer.RecNum.Value,
                             DatabasePathErasoft = dbPathEra,
-                            username = usernameLogin
+                            username = usernameLogin,
+                            versiToken = tblCustomer.KD_ANALISA
                         };
                         var bliJob = new BlibliControllerJob();
                         var listErrors = new List<PackingListErrors>();
@@ -42209,7 +42320,8 @@ namespace MasterOnline.Controllers
                             mta_password_password_merchant = tblCustomer.PASSWORD,
                             idmarket = tblCustomer.RecNum.Value,
                             DatabasePathErasoft = dbPathEra,
-                            username = usernameLogin
+                            username = usernameLogin,
+                            versiToken = tblCustomer.KD_ANALISA
                         };
 
                         var bliJob = new BlibliControllerJob();
@@ -44823,19 +44935,19 @@ namespace MasterOnline.Controllers
                         {
                             if (mpCust82Cart.Sort1_Cust != "" && !string.IsNullOrEmpty(mpCust82Cart.API_KEY) && !string.IsNullOrEmpty(mpCust82Cart.PERSO))
                             {
-                            var sqlStorage = new SqlServerStorage(EDBConnID);
-                            var clientJobServer = new BackgroundJobClient(sqlStorage);
-                            ShopifyControllerJob.ShopifyAPIData idenJob = new ShopifyControllerJob.ShopifyAPIData();
-                            idenJob.no_cust = mpCust82Cart.CUST;
-                            idenJob.username = usernameLogin;
-                            idenJob.DatabasePathErasoft = dbPathEra;
-                            idenJob.account_store = mpCust82Cart.PERSO;
-                            idenJob.API_key = mpCust82Cart.API_KEY;
-                            idenJob.API_password = mpCust82Cart.API_CLIENT_P;
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                ShopifyControllerJob.ShopifyAPIData idenJob = new ShopifyControllerJob.ShopifyAPIData();
+                                idenJob.no_cust = mpCust82Cart.CUST;
+                                idenJob.username = usernameLogin;
+                                idenJob.DatabasePathErasoft = dbPathEra;
+                                idenJob.account_store = mpCust82Cart.PERSO;
+                                idenJob.API_key = mpCust82Cart.API_KEY;
+                                idenJob.API_password = mpCust82Cart.API_CLIENT_P;
 
-                            //add by fauzi for update status TO PACKING
+                                //add by fauzi for update status TO PACKING
 #if (DEBUG || Debug_AWS)
-                            new ShopifyControllerJob().Shopify_SetOrderStatusFulfillment(dbPathEra, SOA_NOREF, mpCust82Cart.CUST, "Pesanan", "Shipped Order", idenJob);
+                                new ShopifyControllerJob().Shopify_SetOrderStatusFulfillment(dbPathEra, SOA_NOREF, mpCust82Cart.CUST, "Pesanan", "Shipped Order", idenJob);
 #else
                             clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusFulfillment(dbPathEra, SOA_NOREF, mpCust82Cart.CUST, "Pesanan", "Shipped Order", idenJob));
 #endif
@@ -46073,7 +46185,7 @@ namespace MasterOnline.Controllers
                                 if (recordsLazada.Count() != 0)
                                 {
                                     #region create induk
-                                    if (ret.statusLoop == false && ret.statusLoopTemp == false )
+                                    if (ret.statusLoop == false && ret.statusLoopTemp == false)
                                     {
                                         var art03a = new ART03A
                                         {
