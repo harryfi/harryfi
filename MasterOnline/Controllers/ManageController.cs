@@ -52547,12 +52547,19 @@ namespace MasterOnline.Controllers
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var listAverage = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2).ToList();
 
-            //double jumlahAll = 0;
-            //foreach (var data in listOrderNew)
-            //{
-            //    jumlahAll += data.JumlahGabung;
-            //}
+            double jumlahAll = 0;
+            double jumlahQTY = 0;
+            foreach (var data in listAverage)
+            {
+                jumlahAll += data.JumlahGabung;
+                jumlahQTY += data.Qty;
+            }
+
+            jumlahAll = jumlahAll / jumlahQTY;
+
+            ViewData["jumlahAverage"] = string.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", jumlahAll);
 
             IPagedList<mdlDetailHargaBeli> pageOrders = new StaticPagedList<mdlDetailHargaBeli>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("ListDetailHargaBeliTerakhir", pageOrders);
