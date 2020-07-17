@@ -52503,7 +52503,7 @@ namespace MasterOnline.Controllers
             string sSQL2 = "";
             sSQL2 += "FROM PBT01B B ";
             sSQL2 += "LEFT JOIN PBT01A A ON B.INV = A.INV ";
-            sSQL2 += "WHERE B.BRG = '" + kodebarang + "' AND B.INV LIKE 'PB%' AND B.JENISFORM = '1' ";
+            sSQL2 += "WHERE B.BRG = '" + kodebarang + "' AND B.INV LIKE 'PB%' AND B.JENISFORM = '1' AND B.TGLINPUT >= DATEADD(MONTH, -3, GETDATE()) ";
             if (search != "")
             {
                 sSQL2 += " AND ( (" + sSQLkodeINV + ") or (" + sSQLNama + ") ) ";
