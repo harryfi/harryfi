@@ -607,16 +607,16 @@
 </div>
 @*//add by nurul 29/4/2020*@
 <div class="modal fade" id="modalDetailPesanan" style="margin:0;padding:0;" tabindex="-1" role="dialog" aria-labelledby="modalDetailPesananLabel">
-    <div class="modal-dialog" role="document" style="margin-left:200px;">
-        <div class="modal-content" style="width:950px;">
+    <div class="modal-dialog" role="document" style="margin:auto;width:950px;margin-top:20px;">
+        <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="modalDetailPesananLabel">Detail Qty Pesanan</h4>
 
                 <div class="row" @*style="padding-left:15px"*@>
                     @*<span class="control-label col-md-2 col-sm-2">Kode Barang </span><span id="kd-brg" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
                     <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-2 col-sm-2">Kode Barang</label>
-                        <div class="col-md-3 col-sm-3">
+                        <label class="control-label col-md-2 col-sm-2" style="margin-right: 20px;">Kode Barang</label>
+                        <div class="col-md-2 col-sm-2">
                             @*<span id="kd-brg" class="control-label" disabled="disabled"></span>*@
                             @*<text id="kd-brg" class="control-label" disabled="disabled">Kode Barang</text>*@
                             @Html.TextBox("kd-brg", "", new { @class = "form-control", disabled = "disabled" })
@@ -626,8 +626,8 @@
                 <div class="row" @*style="padding-left:15px"*@>
                     @*<span class="control-label col-md-2 col-sm-2">Nama Barang </span><span id="nm-brg" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
                     <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-2 col-sm-2">Nama Barang</label>
-                        <div class="col-md-10 col-sm-10">
+                        <label class="control-label col-md-2 col-sm-2" style="margin-right: 20px;">Nama Barang</label>
+                        <div class="col-md-8 col-sm-8">
                             @*<span id="nm-brg" class="control-label" disabled="disabled"></span>*@
                             @*<text id="nm-brg" class="control-label" disabled="disabled">Kode Barang</text>*@
                             @Html.TextArea("nm-brg", "", new { @class = "form-control", disabled = "disabled" })
@@ -637,8 +637,8 @@
                 <div class="row" @*style="padding-left:15px"*@>
                     @*<span class="control-label col-md-2 col-sm-2">Total Qty Pesanan </span><span id="ttl-qty" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
                     <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-2 col-sm-2">Total Qty Pesanan</label>
-                        <div class="col-md-10 col-sm-10">
+                        <label class="control-label col-md-2 col-sm-2" style="margin-right: 20px;">Total Qty Pesanan</label>
+                        <div class="col-md-8 col-sm-8">
                             @*@Html.Label("ttl-qty", "", new { @class = "control-label", disabled = "disabled" })*@
                             @*<span id="ttl-qty" class="control-label" disabled="disabled"></span>*@
                             <label id="ttl-qty" class="control-label" disabled="disabled"></label>
@@ -648,8 +648,8 @@
                 <div class="row" @*style="padding-left:15px"*@>
                     @*<span class="control-label col-md-2 col-sm-2">Total Pesanan </span><span id="ttl-pesanan" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
                     <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-2 col-sm-2">Total Pesanan</label>
-                        <div class="col-md-10 col-sm-10">
+                        <label class="control-label col-md-2 col-sm-2" style="margin-right: 20px;">Total Pesanan</label>
+                        <div class="col-md-8 col-sm-8">
                             @*<span id="ttl-pesanan" class="control-label" disabled="disabled"></span>*@
                             <label id="ttl-pesanan" class="control-label" disabled="disabled"></label>
                             @*@Html.Label("ttl-pesanan", "", new { @class = "control-label", disabled = "disabled" })*@
@@ -659,7 +659,7 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
+                    <div class="col-lg-3 col-sm-6" style="margin-bottom:7px;">
                         <div class="input-group">
                             <input id="search_detail" type="text" class="form-control" placeholder="Pencarian">
                             <span class="input-group-btn">
@@ -681,14 +681,14 @@
 @*end add by nurul 29/4/2020*@
 @*//add by nurul 13/5/2020*@
 <div class="modal fade" id="modalDetailStok" style="margin:0;padding:0;" tabindex="-1" role="dialog" aria-labelledby="modalDetailStokLabel">
-    <div class="modal-dialog" role="document" style="margin-left:350px;">
-        <div class="modal-content" style="width:700px;">
+    <div class="modal-dialog" role="document" style="margin:auto;width:700px;margin-top:20px;">
+        <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="modalDetailStokLabel">Detail Stok</h4>
 
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-2 col-sm-2">Kode Barang</label>
+                        <label class="control-label col-md-3 col-sm-3">Kode Barang</label>
                         <div class="col-md-3 col-sm-3">
                             @Html.TextBox("kd-brg-stok", "", new { @class = "form-control", disabled = "disabled" })
                         </div>
@@ -696,24 +696,24 @@
                 </div>
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-2 col-sm-2">Nama Barang</label>
-                        <div class="col-md-10 col-sm-10">
+                        <label class="control-label col-md-3 col-sm-3">Nama Barang</label>
+                        <div class="col-md-8 col-sm-8">
                             @Html.TextArea("nm-brg-stok", "", new { @class = "form-control", disabled = "disabled" })
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-2 col-sm-2">Total Stok</label>
-                        <div class="col-md-10 col-sm-10">
+                        <label class="control-label col-md-3 col-sm-3">Total Stok</label>
+                        <div class="col-md-8 col-sm-8">
                             <label id="ttl-stok" class="control-label" disabled="disabled"></label>
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-2 col-sm-2">Total Gudang</label>
-                        <div class="col-md-10 col-sm-10">
+                        <label class="control-label col-md-3 col-sm-3">Total Gudang</label>
+                        <div class="col-md-8 col-sm-8">
                             <label id="ttl-gd" class="control-label" disabled="disabled"></label>
                         </div>
                     </div>

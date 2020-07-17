@@ -52488,6 +52488,75 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 13/5/2020
 
+
+        //add by fauzi 14/07/2020
+        public ActionResult LihatDetailHargaBeliTerakhir(string kodebarang, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["tempBarang"] = kodebarang;
+            string[] getkata = search.Split(' ');
+            string sSQLkodeINV = "";
+            string sSQLNama = "";
+
+            if (getkata.Length > 0)
+            {
+                if (search != "" && search != "undefined")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLkodeINV += " and ";
+                            sSQLNama += " and ";
+                        }
+
+
+                        sSQLkodeINV += " B.INV like '%" + getkata[i] + "%' ";
+                        sSQLNama += " A.NAMA like '%" + getkata[i] + "%' ";
+
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT B.TGLINPUT as Tanggal, B.INV as NoBukti, A.NAMA as Supplier, B.QTY as Qty, B.HBELI as Harga, (B.HBELI * B.QTY) AS JumlahGabung ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(B.INV) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM PBT01B B ";
+            sSQL2 += "LEFT JOIN PBT01A A ON B.INV = A.INV ";
+            sSQL2 += "WHERE B.BRG = '" + kodebarang + "' AND B.INV LIKE 'PB%' AND B.JENISFORM = '1' AND B.TGLINPUT >= DATEADD(MONTH, -3, GETDATE()) ";
+            if (search != "")
+            {
+                sSQL2 += " AND ( (" + sSQLkodeINV + ") or (" + sSQLNama + ") ) ";
+            }
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY B.TGLINPUT DESC  ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            //double jumlahAll = 0;
+            //foreach (var data in listOrderNew)
+            //{
+            //    jumlahAll += data.JumlahGabung;
+            //}
+
+            IPagedList<mdlDetailHargaBeli> pageOrders = new StaticPagedList<mdlDetailHargaBeli>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("ListDetailHargaBeliTerakhir", pageOrders);
+        }
+        //end add by fauzi 14/07/2020
+
         //add by nurul 2/6/2020
         public ActionResult CetakLabelTokped(List<tempLabelTokopedia> data)
         {

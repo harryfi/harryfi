@@ -6407,6 +6407,7 @@
     <Content Include="Views\Manage\PromptAttribute82Cart.cshtml" />
     <Content Include="Views\Manage\TablePromptAttribute82Cart.cshtml" />
     <Content Include="Views\Manage\LogErrorUploadPesanan.cshtml" />
+    <Content Include="Views\Manage\ListDetailHargaBeliTerakhir.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
