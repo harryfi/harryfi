@@ -1049,7 +1049,7 @@ namespace MasterOnline.Controllers
             //end add by nurul 13/7/2020
 
             //change by nurul 13/7/2020
-            if (iden.versiToken == "2")
+            if (iden.versiToken != "2")
             {
                 string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/inProcessProduct", iden.API_secret_key);
                 urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/inProcessProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&channelId=MasterOnline";
@@ -1791,7 +1791,7 @@ namespace MasterOnline.Controllers
                 //end add by nurul 13/7/2020
 
                 //change by nurul 13/7/2020
-                if (iden.versiToken == "2")
+                if (iden.versiToken != "2")
                 {
                     string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/updateProduct", iden.API_secret_key);
                     //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
@@ -2259,7 +2259,7 @@ namespace MasterOnline.Controllers
             //end add by nurul 13/7/2020
 
             //change by nurul 13/7/2020
-            if (iden.versiToken == "2")
+            if (iden.versiToken != "2")
             {
                 string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/getProductList", iden.API_secret_key);
                 urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/getProductList?requestId=" + Uri.EscapeDataString("MasterOnline-" + Convert.ToString(milis)) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&username=" + Uri.EscapeDataString(userMTA) + "&channelId=MasterOnline";
@@ -2280,11 +2280,11 @@ namespace MasterOnline.Controllers
                 string usernameMO = iden.API_client_username;
                 //string passMO = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
                 string passMO = iden.API_client_password;
-                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(Convert.ToString(milis)) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + (string.IsNullOrEmpty(productCode) ? "" : "&gdnSku=" + Uri.EscapeDataString(productCode));
-                urll += "&page=" + page + "&size=10";
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/getProductList?requestId=" + Uri.EscapeDataString("MasterOnline-" + Convert.ToString(milis)) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&username=" + Uri.EscapeDataString(userMTA) + "&channelId=MasterOnline";
+                //urll += "&page=" + page + "&size=10";
 
                 myReq = (HttpWebRequest)WebRequest.Create(urll);
-                myReq.Method = "GET";
+                myReq.Method = "POST";
                 myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
                 myReq.Accept = "application/json";
                 myReq.ContentType = "application/json";
@@ -2433,7 +2433,7 @@ namespace MasterOnline.Controllers
             //end add by nurul 13/7/2020
 
             //change by nurul 13/7/2020
-            if (iden.versiToken == "2")
+            if (iden.versiToken != "2")
             {
                 string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/detailProduct", iden.API_secret_key);
                 urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString(Convert.ToString(milis)) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(productCode) + "&username=" + iden.API_client_username + "&channelId=MasterOnline";
@@ -4738,7 +4738,7 @@ namespace MasterOnline.Controllers
             //end add by nurul 13/7/2020
 
             //change by nurul 13/7/2020
-            if (data.versiToken == "2")
+            if (data.versiToken != "2")
             {
                 string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/feed/detail", data.API_secret_key);
                 urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/feed/detail?requestId=" + Uri.EscapeDataString(requestId) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline";
@@ -5031,7 +5031,7 @@ namespace MasterOnline.Controllers
             //end add by nurul 13/7/2020
 
             //change by nurul 13/7/2020
-            if (data.versiToken == "2")
+            if (data.versiToken != "2")
             {
                 string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getCategory", data.API_secret_key);
                 urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategory?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline";
@@ -5549,7 +5549,7 @@ namespace MasterOnline.Controllers
             //end add by nurul 13/7/2020
 
             //change by nurul 13/7/2020
-            if (data.versiToken == "2")
+            if (data.versiToken != "2")
             {
                 string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
                 urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&categoryCode=" + Uri.EscapeDataString(categoryCode) + "&channelId=MasterOnline";
