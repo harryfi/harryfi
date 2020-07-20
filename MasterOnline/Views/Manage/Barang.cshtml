@@ -2735,7 +2735,7 @@
                                             var selectID = 'attribute_select_blibli_'+ listMarketRecNum +'_'+ (i + 1);
                                             SelectList.push(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
                                             //fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
-                                            if (AMANDATORY == "1") {
+                                            if (AMANDATORY == "1" || ACODE == "FA-2000060") {
                                                 fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                                             } else {
                                                 fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
