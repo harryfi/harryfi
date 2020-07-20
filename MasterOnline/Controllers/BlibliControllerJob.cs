@@ -7130,7 +7130,7 @@ namespace MasterOnline.Controllers
                                 //if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
                                     DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
                             }
-                            //if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
+                            if (aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
                                 attributeMap.Add(attribute_id, value);
                         }
                     }
