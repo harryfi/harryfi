@@ -11515,23 +11515,47 @@ namespace MasterOnline.Controllers
                 string userMTA = data.mta_username_email_merchant;//<-- email user merchant
                 string passMTA = data.mta_password_password_merchant;//<-- pass merchant
 
-                //string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getBrands", data.API_secret_key);
-
-                //string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getBrands?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brands=" + search + "&masterCategoryCode=" + category + "&page=" + pagenumber + "&size=10";
-                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/getBrands", data.API_secret_key);
-
-                string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/getBrands?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brandName=" + search + "&username=" + Uri.EscapeDataString(data.mta_username_email_merchant) + "&page=" + pagenumber + "&size=50&storeId=10001";
-
+                //add by nurul 13/7/2020
+                string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/getBrands";
                 System.Net.HttpWebRequest myReq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(urll);
-                myReq.Method = "GET";
-                myReq.Headers.Add("Authorization", ("bearer " + data.token));
-                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
-                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
-                myReq.Accept = "application/json";
-                myReq.ContentType = "application/json";
-                myReq.Headers.Add("requestId", milis.ToString());
-                myReq.Headers.Add("sessionId", milis.ToString());
-                myReq.Headers.Add("username", userMTA);
+                //end add by nurul 13/7/2020
+
+                //change by nurul 13/7/2020
+                if (data.versiToken != "2")
+                {
+                    //string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getBrands", data.API_secret_key);
+
+                    //string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getBrands?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brands=" + search + "&masterCategoryCode=" + category + "&page=" + pagenumber + "&size=10";
+                    string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/getBrands", data.API_secret_key);
+
+                    urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/getBrands?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brandName=" + search + "&username=" + Uri.EscapeDataString(data.mta_username_email_merchant) + "&page=" + pagenumber + "&size=50&storeId=10001";
+
+                    myReq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(urll);
+                    myReq.Method = "GET";
+                    myReq.Headers.Add("Authorization", ("bearer " + data.token));
+                    myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                    myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                    myReq.Accept = "application/json";
+                    myReq.ContentType = "application/json";
+                    myReq.Headers.Add("requestId", milis.ToString());
+                    myReq.Headers.Add("sessionId", milis.ToString());
+                    myReq.Headers.Add("username", userMTA);
+                }
+                else
+                {
+                    string usernameMO = data.API_client_username;
+                    //string passMO = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
+                    string passMO = data.API_client_password;
+                    urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/getBrands?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brandName=" + search + "&username=" + Uri.EscapeDataString(data.mta_username_email_merchant) + "&page=" + pagenumber + "&size=50&storeId=10001";
+
+                    myReq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(urll);
+                    myReq.Method = "GET";
+                    myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                    myReq.Accept = "application/json";
+                    myReq.ContentType = "application/json";
+                    myReq.Headers.Add("Api-Seller-Key", data.API_secret_key.ToString());
+                    myReq.Headers.Add("Signature-Time", milis.ToString());
+                }
                 string responseFromServer = "";
                 try
                 {
