@@ -12448,6 +12448,8 @@ namespace MasterOnline.Controllers
             public string[] lv_1 { get; set; }
             public string[] lv_2 { get; set; }
             public string[] lv_3 { get; set; }
+            public string[] fc_lv_1 { get; set; }
+            public string[] fc_lv_2 { get; set; }
         }
         protected STF02 CopyStf02(STF02 source)
         {
@@ -14513,6 +14515,13 @@ namespace MasterOnline.Controllers
                                     MP_VALUE_VAR = blibli.var_detail.lv_1[i],
                                     MP_CATEGORY_CODE = blibli.code
                                 };
+                                if(blibli.var_detail.fc_lv_1 != null)
+                                {
+                                    if(blibli.var_detail.fc_lv_1.Length > 0)
+                                    {
+                                        newdataBlibli.MP_VALUE_FC_VAR = blibli.var_detail.fc_lv_1[i];
+                                    }
+                                }
                                 listNewData.Add(newdataBlibli);
                             }
                             catch (Exception ex)
@@ -14544,6 +14553,13 @@ namespace MasterOnline.Controllers
                                     MP_CATEGORY_CODE = blibli.code
                                 };
                                 listNewData.Add(newdataBlibli);
+                                if (blibli.var_detail.fc_lv_2 != null)
+                                {
+                                    if (blibli.var_detail.fc_lv_2.Length > 0)
+                                    {
+                                        newdataBlibli.MP_VALUE_FC_VAR = blibli.var_detail.fc_lv_2[i];
+                                    }
+                                }
                             }
                             catch (Exception ex)
                             {
