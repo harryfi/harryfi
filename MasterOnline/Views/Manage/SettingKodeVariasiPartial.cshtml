@@ -63,7 +63,7 @@
                         </td>
                         <td>
                             <div class="form-group">
-                                @Html.TextBox("txtNamaUntukVariasi_" + Variasi.Key, "", new { @class = "form-control", required = "required", maxlength = "20", data_jenis = "kode_var", data_kode_barang = Variasi.Key })
+                                @Html.TextBox("txtNamaUntukVariasi_" + Variasi.Key, "", new { @class = "form-control", required = "required", maxlength = "20", data_jenis = "kode_var", data_kode_barang = Variasi.Key, @data_val_length_max = 20 })
                             </div>
                         </td>
                     </tr>

@@ -1831,6 +1831,9 @@
                 if ($(item).val().trim() == "") {
                     validasi = false;
                     addError($(item), "Kode harus diisi !");
+                } else if ($(item).val().length > 20) {
+                    validasi = false;
+                    addError($(item), "Kode maximal 20 karakter !");
                 }
                 else {
                     if (kodeVariant.length > 0) {

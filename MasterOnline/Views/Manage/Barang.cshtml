@@ -4432,19 +4432,21 @@
                 ret = false;
             }
 
+            //remark by nurul 20/7/2020
             //end add by nurul 11/2/2020
-                if ($("#cbxStf02Type").is(":checked") == true) {
-                    if ($("#Stf02_BRG").val().length > 11) {
-                        $("#Stf02_BRG").addClass('has-error');
-                        $("#Stf02_BRG").css('border', 'solid 1px #a94442');
-                        addError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.");
-                        alert('Kode barang induk lebih dari 11 karakter.');
-                        document.getElementById("Stf02_BRG").focus();
-                        ret = false;
-                    }
-                }
+                //if ($("#cbxStf02Type").is(":checked") == true) {
+                //    if ($("#Stf02_BRG").val().length > 11) {
+                //        $("#Stf02_BRG").addClass('has-error');
+                //        $("#Stf02_BRG").css('border', 'solid 1px #a94442');
+                //        addError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.");
+                //        alert('Kode barang induk lebih dari 11 karakter.');
+                //        document.getElementById("Stf02_BRG").focus();
+                //        ret = false;
+                //    }
+                //}
+            //end add by nurul 11/2/2020
+            //end remark by nurul 20/7/2020
 
-            //end add by nurul 11/2/2020
             if ($("#Stf02_BRG").val() == "") {
                 document.getElementById("Stf02_BRG").focus();
                 ret = false;
