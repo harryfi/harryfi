@@ -1574,14 +1574,33 @@ namespace MasterOnline.Controllers
             #region cek stok tertahan lazada
             string sSQL = "SELECT NO_REFERENSI FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI ";
             sSQL += "WHERE A.CUST = '"+log_CUST+"' AND A.TGL >= '"+DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "' ";
-            sSQL += "AND A.STATUS_TRANSAKSI IN ('0','01','02') AND ISNULL(KET_DETAIL, '') <> 'NO_COUNT_LZD' AND B.BRG = '"+stf02_brg+"'";
+            sSQL += "AND A.STATUS_TRANSAKSI IN ('0','01','02') AND ISNULL(KET_DETAIL, '') <> 'NO_COUNT_LZD' AND B.BRG = '"+stf02_brg+ "' AND ISNULL(NO_REFERENSI, '') <> ''";
             var dsPesanan = EDB.GetDataSet("CString", "SO", sSQL);
             if(dsPesanan.Tables[0].Rows.Count > 0)
             {
-                string listNoRef = "";
+                List<string> listID = new List<string>();
+                string listNoRef = "[";
                 for(int i = 0; i < dsPesanan.Tables[0].Rows.Count; i++)
                 {
+                    listNoRef += dsPesanan.Tables[0].Rows[i]["NO_REFERENSI"].ToString();
+                    if ((i + 1) % 100 == 0)
+                    {
+                        listNoRef += "]";
+                        listID.Add(listNoRef);
+                        listNoRef = "[";
+                    }
+                    else
+                    {
+                        listNoRef += ",";
+                    }
+                }
+                listNoRef = listNoRef.Substring(0, listNoRef.Length - 1) + "]";
+                listID.Add(listNoRef);
 
+                var resStok = getOrderStatusLazada(listID, token, kdBrg, stf02_brg, log_CUST, dbPathEra);
+                if(resStok.status == 1)
+                {
+                    qty += resStok.recordCount;
                 }
             }
             #endregion
@@ -1646,6 +1665,105 @@ namespace MasterOnline.Controllers
             node.InnerText = unescaped;
             return node.InnerXml;
         }
+        #region cek stok tertahan lazada
+        public BindingBase getOrderStatusLazada(List<string> listID, string accessToken, string sellerSku, string brg, string cust, string dbPathEra)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+
+            string urlLazada = "https://api.lazada.co.id/rest";
+            string eraAppKey = "101775";
+            string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
+
+            //var MoDbContext = new MoDbContext("");
+            var EDB = new DatabaseSQL(dbPathEra);
+            //string EraServerName = EDB.GetServerName("sConn");
+            //var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
+            try
+            {
+                foreach (var listOrderIds in listID)
+                {
+                    string listOrderItemID = "";
+                    ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+                    LazopRequest request = new LazopRequest();
+                    request.SetApiName("/orders/items/get");
+                    request.SetHttpMethod("GET");
+                    request.AddApiParameter("order_ids", listOrderIds);
+
+                    LazopResponse response = client.Execute(request, accessToken);
+
+                    var bindOrderItems = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaOrderItems)) as LazadaOrderItems;
+                    if (bindOrderItems != null)
+                    {
+                        if (bindOrderItems.code.Equals("0"))
+                        {
+                            if (bindOrderItems.data.Count > 0)
+                            {
+                                ret.status = 1;
+
+                                foreach (Datum order in bindOrderItems.data)
+                                {
+                                    if (order.order_items.Count() > 0)
+                                    {
+                                        //var connectionID = Guid.NewGuid().ToString();
+
+                                        foreach (Order_Items items in order.order_items)
+                                        {
+                                            if(items.sku == sellerSku)
+                                            {
+                                                if(items.status == "pending" || items.status == "unpaid")//stok tertahan
+                                                {
+                                                    ret.recordCount++;
+                                                }
+                                                else//sudah di proses
+                                                {
+                                                    ret.totalData++;
+                                                    listOrderItemID += "'" + items.order_item_id + "',";
+                                                }
+                                            }
+                                        }
+
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                ret.message = "no item";
+                            }
+                        }
+                        else
+                        {
+                            //currentLog.REQUEST_EXCEPTION = bindOrderItems.message;
+                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog); ret.message = "lazada api return error";
+                            if (!string.IsNullOrEmpty(bindOrderItems.message))
+                                ret.message += "\n" + bindOrderItems.message;
+                        }
+                    }
+                    else
+                    {
+                        ret.message = "failed to call lazada api";
+                    }
+                    if (!string.IsNullOrEmpty(listOrderItemID))//ada yg di update karena tidak perlu di cek lagi
+                    {
+                        listOrderItemID = listOrderItemID.Substring(1, listOrderItemID.Length - 1);
+                        var sSQL = "UPDATE B SET KET_DETAIL = 'NO_COUNT_LZD' ";
+                        sSQL += "FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI ";
+                        sSQL += "WHERE A.CUST = '" + cust + "' AND B.ORDER_ITEM_ID IN (" + listOrderItemID + ") AND B.BRG = '" + brg + "'";
+                        var result = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                ret.status = 0;
+            }          
+
+            return ret;
+        }
+
+        #endregion
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stok {obj} ke Elevenia gagal.")]
