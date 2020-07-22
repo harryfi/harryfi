@@ -25481,76 +25481,56 @@ namespace MasterOnline.Controllers
             //    }
             //}
 
-            var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16" && m.CUST == "001030").ToList();
-            if (listBLIShop.Count > 0)
-            {
-                //remark by calvin 1 april 2019
-                //var BliApi = new BlibliController();
-                foreach (ARF01 tblCustomer in listBLIShop)
-                {
-                    if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
-                    {
-                        BlibliControllerJob.BlibliAPIData data = new BlibliControllerJob.BlibliAPIData()
-                        {
-                            API_client_username = tblCustomer.API_CLIENT_U,
-                            API_client_password = tblCustomer.API_CLIENT_P,
-                            //API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
-                            API_secret_key = tblCustomer.API_KEY,
-                            //API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
-                            mta_username_email_merchant = tblCustomer.EMAIL,
-                            mta_password_password_merchant = tblCustomer.PASSWORD,
-                            merchant_code = tblCustomer.Sort1_Cust,
-                            token = tblCustomer.TOKEN,
-                            idmarket = tblCustomer.RecNum.Value,
-                            DatabasePathErasoft = dbPathEra,
-                            username = "fixblibli",
-                            versiToken = tblCustomer.KD_ANALISA
-                        };
-                        List<string> skuMerchant = new List<string>();
-                        skuMerchant.Add("INDSALTED");
-                        var orderItemIds = new List<string>();
-                        orderItemIds.Add("12072976365");
-                        //await new BlibliControllerJob().CekProductActive(dbPathEra, "INDSALTED", tblCustomer.CUST, "", "", data, "", skuMerchant, tblCustomer.CUST, "", "");
-                        //await new BlibliControllerJob().CekProductReject(dbPathEra, "INDSALTED", tblCustomer.CUST, "", "", data, "", skuMerchant, tblCustomer.CUST, "", "");
-                        //await new BlibliControllerJob().GetShippingLabel(dbPathEra, data, "12072976365");
-                        //await new BlibliControllerJob().createPackage(dbPathEra, data, orderItemIds);
-                        ////await new BlibliControllerJob().CreateProduct(dbPathEra, "INDSALTED", tblCustomer.CUST, "Barang", "Buat Produk", data, null, null);
-                        //await new BlibliControllerJob().FixOrderGetOrderDetail(data, "12050911633", "12072976365", tblCustomer.CUST, tblCustomer.PERSO);
-                        ////await new BlibliControllerJob().GetQueueFeedDetail(data, null);
-                        //await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2020-06-19 00:00:00", "2020-06-20 23:59:59");
-                        ////await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-07-01 00:00:00", "2019-07-31 23:59:59");
-                        ////await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-08-01 00:00:00", "2019-08-31 23:59:59");
-                        ////await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-09-01 00:00:00", "2019-09-30 23:59:59");
-                        ////await new BlibliControllerJob().FixOrderBlibli(data, tblCustomer.CUST, tblCustomer.NAMA, "2019-10-01 00:00:00", "2019-10-30 23:59:59");
-                        //await new BlibliControllerJob().GetAttributeList(data);
-                        //var CategoryBlibli = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE == "JA-1000070").ToList();
-                        //await new BlibliControllerJob().GetAttributeToList(data, CategoryBlibli.FirstOrDefault());
-                        //await new BlibliControllerJob().UpdateAttributeList(data, CategoryBlibli);
-                        //await new BlibliControllerJob().GetCategoryTree(data);
-                        //await new BlibliControllerJob().GetCategoryPerUser(data);
-                        ////await new BlibliControllerJob().UpdateProdukQOH_Display_Job(dbPathEra, "INDSALTED", tblCustomer.CUST, "Price", "Update Price", dataJob.kode_mp, data, dataJob);
-                        //await new BlibliControllerJob().GetOrderList(data, BlibliControllerJob.StatusOrder.Paid, "nurul test", tblCustomer.CUST, tblCustomer.PERSO);
-                        //await new BlibliControllerJob().GetPickupPoint(data);
-                        //new BlibliControllerJob().fillOrderAWB(dbPathEra, "Dani .", tblCustomer.CUST, "Pesanan", "Ganti Status", data, "1568916029", "12050911633", "12072976365");
-                        BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
-                        {
-                            merchant_code = tblCustomer.Sort1_Cust,
-                            //API_client_password = tblCustomer.API_CLIENT_P,
-                            API_client_username = tblCustomer.API_CLIENT_U,
-                            //API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
-                            //API_secret_key = tblCustomer.API_KEY,
-                            //API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
-                            //API_secret_key = tblCustomer.API_KEY,
-                            token = tblCustomer.TOKEN,
-                            mta_username_email_merchant = tblCustomer.EMAIL,
-                            mta_password_password_merchant = tblCustomer.PASSWORD,
-                            idmarket = tblCustomer.RecNum.Value,
-                            versiToken = tblCustomer.KD_ANALISA
-                        };
-                        await new BlibliController().GetQueueFeedDetail(iden, null);
-                    }
-                }
-            }
+            //var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16" && m.CUST == "001030").ToList();
+            //if (listBLIShop.Count > 0)
+            //{
+            //    //remark by calvin 1 april 2019
+            //    //var BliApi = new BlibliController();
+            //    foreach (ARF01 tblCustomer in listBLIShop)
+            //    {
+            //        if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
+            //        {
+            //            BlibliControllerJob.BlibliAPIData data = new BlibliControllerJob.BlibliAPIData()
+            //            {
+            //                API_client_username = tblCustomer.API_CLIENT_U,
+            //                API_client_password = tblCustomer.API_CLIENT_P,
+            //                //API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
+            //                API_secret_key = tblCustomer.API_KEY,
+            //                //API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
+            //                mta_username_email_merchant = tblCustomer.EMAIL,
+            //                mta_password_password_merchant = tblCustomer.PASSWORD,
+            //                merchant_code = tblCustomer.Sort1_Cust,
+            //                token = tblCustomer.TOKEN,
+            //                idmarket = tblCustomer.RecNum.Value,
+            //                DatabasePathErasoft = dbPathEra,
+            //                username = "fixblibli",
+            //                versiToken = tblCustomer.KD_ANALISA
+            //            };
+            //            List<string> skuMerchant = new List<string>();
+            //            skuMerchant.Add("INDSALTED");
+            //            var orderItemIds = new List<string>();
+            //            orderItemIds.Add("12072976365");
+            //            //await new BlibliControllerJob().CekProductActive(dbPathEra, "INDSALTED", tblCustomer.CUST, "", "", data, "", skuMerchant, tblCustomer.CUST, "", "");
+            //            //await new BlibliControllerJob().CekProductReject(dbPathEra, "INDSALTED", tblCustomer.CUST, "", "", data, "", skuMerchant, tblCustomer.CUST, "", "");
+            //            BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+            //            {
+            //                merchant_code = tblCustomer.Sort1_Cust,
+            //                //API_client_password = tblCustomer.API_CLIENT_P,
+            //                API_client_username = tblCustomer.API_CLIENT_U,
+            //                //API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
+            //                //API_secret_key = tblCustomer.API_KEY,
+            //                //API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
+            //                //API_secret_key = tblCustomer.API_KEY,
+            //                token = tblCustomer.TOKEN,
+            //                mta_username_email_merchant = tblCustomer.EMAIL,
+            //                mta_password_password_merchant = tblCustomer.PASSWORD,
+            //                idmarket = tblCustomer.RecNum.Value,
+            //                versiToken = tblCustomer.KD_ANALISA
+            //            };
+            //            await new BlibliController().GetQueueFeedDetail(iden, null);
+            //        }
+            //    }
+            //}
 
             //var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
             //var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
