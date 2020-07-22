@@ -30,7 +30,7 @@
         Initialize();
         RefreshSemuaPesananMP();
     });
-    
+
     function RefreshSemuaPesananMP() {
         RefreshPackingPesananTokped();
         RefreshPackingPesananLazada();
@@ -115,7 +115,7 @@
             }
         });
     }
-    
+
 </script>
 <div class="form-horizontal">
     <div class="row">
@@ -204,31 +204,40 @@
 <div class="row" style="margin-top: 15px;">
     <div class="x_content">
         <ul id="detail-packinglist-tabs" class="nav nav-tabs">
-            <li class="active"><a data-toggle="tab" id="pesanan_detail_tab_focus" href="#pesanan_detail_tab" aria-expanded="true">Pesanan</a></li>
+            @{
+                var totalPesanan = Model.listDetailPacking.Count();
+            }
+            <li class="active"><a data-toggle="tab" id="pesanan_detail_tab_focus" href="#pesanan_detail_tab" aria-expanded="true">Pesanan<span>(@totalPesanan)</span></a></li>
             @if (Model.listRekapBarang.Count > 0)
             {
-                <li><a data-toggle="tab" id="rekap_barang_tab_focus" href="#rekap_barang_tab" aria-expanded="false">Rekap Barang</a></li>
-                <li id="li_pesanan_tokped_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_tokped_tab_focus" href="#packing_pesanan_tokped" aria-expanded="false">Tokopedia</a></li>
-                <li id="li_pesanan_lazada_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_lazada_tab_focus" href="#packing_pesanan_lazada" aria-expanded="false">Lazada</a></li>
-                <li id="li_pesanan_shopee_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopee_tab_focus" href="#packing_pesanan_shopee" aria-expanded="false">Shopee</a></li>
-                <li id="li_pesanan_blibli_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_blibli_tab_focus" href="#packing_pesanan_blibli" aria-expanded="false">Blibli</a></li>
+                var totalRekap = Model.listRekapBarang.Count();
+                var totalTokopedia = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Tokopedia")).Count();
+                var totalLazada = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Lazada")).Count();
+                var totalShopee = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Shopee")).Count();
+                var totalBlibli = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Blibli")).Count();
+
+                <li><a data-toggle="tab" id="rekap_barang_tab_focus" href="#rekap_barang_tab" aria-expanded="false">Rekap Barang(<span>@totalRekap</span>)</a></li>
+                <li id="li_pesanan_tokped_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_tokped_tab_focus" href="#packing_pesanan_tokped" aria-expanded="false">Tokopedia(<span>@totalTokopedia</span>)</a></li>
+                <li id="li_pesanan_lazada_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_lazada_tab_focus" href="#packing_pesanan_lazada" aria-expanded="false">Lazada(<span>@totalLazada</span>)</a></li>
+                <li id="li_pesanan_shopee_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopee_tab_focus" href="#packing_pesanan_shopee" aria-expanded="false">Shopee(<span>@totalShopee</span>)</a></li>
+                <li id="li_pesanan_blibli_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_blibli_tab_focus" href="#packing_pesanan_blibli" aria-expanded="false">Blibli(<span>@totalBlibli</span>)</a></li>
             }
             else
             {
                 <li><a data-toggle="tab tooltip" id="rekap_barang_tab_focus" href="#rekap_barang_tab" aria-expanded="false" class="disabled-tab" title="Pilih pesanan yang akan masuk packing list terlebih dahulu">Rekap Barang</a></li>
             }
             @*@if (Model.listRekapBarang.Count > 0)
-            {
-                <li style="margin-left:650px;">
-                    <button id="btnPrint" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrint">Print</button>
-                </li>
-            }
-            else
-            {
-                <li style="margin-left:650px;">
-                    <button id="btnPrint" type="button" class="btn btn-primary" disabled data-toggle="modal" data-target="#modalPrint">Print</button>
-                </li>
-            }*@
+                {
+                    <li style="margin-left:650px;">
+                        <button id="btnPrint" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrint">Print</button>
+                    </li>
+                }
+                else
+                {
+                    <li style="margin-left:650px;">
+                        <button id="btnPrint" type="button" class="btn btn-primary" disabled data-toggle="modal" data-target="#modalPrint">Print</button>
+                    </li>
+                }*@
         </ul>
         <div class="tab-content">
             <div id="pesanan_detail_tab" class="tab-pane fade active in">
@@ -239,12 +248,15 @@
                                 <thead>
                                     <tr>
                                         <th width="70">No. Pesanan</th>
-                                        <th width="80">No. Resi</th>
-                                        <th width="80">Status Kirim</th>
+                                        <th width="100">No. Referensi</th>
                                         <th width="80">Tanggal Pesanan</th>
-                                        <th width="120">Pembeli</th>
                                         <th width="90">Marketplace</th>
-                                        <th width="45">Simpan</th>
+                                        <th width="120">Pembeli</th>
+                                        <th width="80">Status Kirim</th>
+                                        <th width="80">Status Print</th>
+                                        <th width="100">Scan Barcode</th>
+                                        @*<th width="80">No. Resi</th>*@
+                                        @*<th width="45">Simpan</th>*@
                                         @* <th width="45">Hapus</th> *@
                                     </tr>
                                 </thead>
@@ -252,7 +264,8 @@
                                     @foreach (var detPackinglist in Model?.listDetailPacking.Where(pb => pb.NO_BUKTI == Model?.packingList?.NO_BUKTI)?.ToList())
                                     {
                                         var status_kirim = "Dalam Proses";
-                                    
+                                        var status_print = "";
+
                                         switch (detPackinglist.SO_STATUS_KIRIM)
                                         {
                                             case "0":
@@ -268,30 +281,43 @@
                                                 status_kirim = "";
                                                 break;
                                         }
+                                        switch (detPackinglist.STATUS_PRINT)
+                                        {
+                                            case "1":
+                                                status_print = "Sudah";
+                                                break;
+                                            default:
+                                                status_print = "Belum";
+                                                break;
+                                        }
                                         <tr data-packing-id="brg-@detPackinglist.RecNum">
                                             <td>
                                                 @detPackinglist.NO_PESANAN
                                             </td>
-                                            <td>
-                                                @detPackinglist.SO_TRACKING_NUMBER
-                                            </td>
-                                            <td>
-                                                @status_kirim
-                                            </td>
+                                            <td>@detPackinglist.NO_REFERENSI</td>
                                             <td>
                                                 @detPackinglist.TGL_PESANAN.Value.ToString("dd/MM/yyyy")
                                             </td>
                                             <td>
-                                                @detPackinglist.PEMBELI
-                                            </td>
-                                            <td>
                                                 @detPackinglist.MARKETPLACE
                                             </td>
-                                            <td class="edit-hapus-col">
-                                                <button type="button" class="btn btn-primary" disabled="disabled">
-                                                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-                                                </button>
+                                            <td>
+                                                @detPackinglist.PEMBELI
                                             </td>
+                                            @*<td>
+                                                    @detPackinglist.SO_TRACKING_NUMBER
+                                                </td>*@
+                                            <td>
+                                                @status_kirim
+                                            </td>
+                                            <td>@status_print</td>
+                                            <td>@detPackinglist.BARCODE</td>
+
+                                            @*<td class="edit-hapus-col">
+                                                    <button type="button" class="btn btn-primary" disabled="disabled">
+                                                        <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                                    </button>
+                                                </td>*@
                                             @* <td class="edit-hapus-col"> *@
                                             @*     <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusPesanan" onclick="passKodeInDb('@detPackinglist.RecNum')"> *@
                                             @*         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> *@
@@ -350,6 +376,7 @@
                                 <thead>
                                     <tr>
                                         <th width="70">Kode Barang</th>
+                                        <th width="100">Kode Barcode</th>
                                         <th width="250">Nama Barang</th>
                                         <th width="50">QTY</th>
                                     </tr>
@@ -359,6 +386,7 @@
                                     {
                                         <tr>
                                             <td>@rekapPackinglist.BRG</td>
+                                            <td>@rekapPackinglist.BARCODE</td>
                                             <td>@rekapPackinglist.NAMA_BARANG</td>
                                             <td>@rekapPackinglist.QTY</td>
                                         </tr>

@@ -671,7 +671,8 @@
         <ul id="lazada_packing_cust_tabs" class="nav nav-tabs">
             @foreach (var item in distinctCust)
             {
-                <li><a data-toggle="tab" href="#lazada_tab_content__@(item.CUST)">@(item.NAMA_CUST)</a></li>
+                var countSOPerCust = Model.Where(a => a.CUST == item.CUST).Count();
+                <li><a data-toggle="tab" href="#lazada_tab_content__@(item.CUST)">@(item.NAMA_CUST)<span>(@countSOPerCust)</span></a></li>
             }
         </ul>
         <div class="tab-content">

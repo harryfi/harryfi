@@ -45,6 +45,10 @@ namespace MasterOnline
         //add by nurul 20/3/2020, job
         public string no_job { get; set; }
         //end add by nurul 20/3/2020
+
+        //add by nurul 22/7/2020
+        public string status_print { get; set; }
+        //end add by nurul 22/7/2020
     }
 
     public class tempBarcodeLazada

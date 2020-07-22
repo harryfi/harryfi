@@ -39726,12 +39726,20 @@ namespace MasterOnline.Controllers
                 {
                     isiDetailpacking.SO_STATUS_KIRIM = cariSO.status_kirim;
                     isiDetailpacking.SO_TRACKING_NUMBER = cariSO.TRACKING_SHIPMENT;
+                    //ADD BY NURUL 22/7/2020
+                    isiDetailpacking.NO_REFERENSI = cariSO.NO_REFERENSI;
+                    isiDetailpacking.STATUS_PRINT = cariSO.status_print;
+                    isiDetailpacking.BARCODE = Convert.ToString(cariSO.TIPE_KIRIM);
+                    //END ADD BY NURUL 22/7/2020
                 }
                 vm.listDetailPacking.Add(isiDetailpacking);
             }
 
             vm.listRekapBarang = new List<RekapBarang>();
-            var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
+            //CHANGE BY NURUL 22/7/2020
+            //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
+            var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(C.BRG_CUST,'') AS BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT01B C ON A.NO_PESANAN=C.NO_BUKTI AND A.BRG=C.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, C.BRG_CUST");
+            //END CHANGE BY NURUL 22/7/2020
             for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
             {
                 var newData = new RekapBarang
@@ -39739,6 +39747,9 @@ namespace MasterOnline.Controllers
                     BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
                     NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
                     QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
+                    //ADD BY NURUL 22/7/2020
+                    BARCODE = dsRekap.Tables[0].Rows[i]["BARCODE"].ToString(),
+                    //END ADD BY NURUL 22/7/2020
                 };
                 vm.listRekapBarang.Add(newData);
             }
@@ -40280,6 +40291,9 @@ namespace MasterOnline.Controllers
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.CUST,A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item, isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no, A.recnum as so_recnum ";
             sSQLSelect += ", A.NO_PO_CUST as no_job ";
+            //add by nurul 22/7/2020
+            sSQLSelect += " isnull(A.status_print,'') AS status_print";
+            //end add by nurul 22/7/2020
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
             string sSQL2 = "";
