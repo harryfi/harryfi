@@ -141,91 +141,94 @@ namespace MasterOnline.Controllers
                 }
                 if (TokenExpired || resetToken)
                 {
-                    //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
-                    string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
-                    string userMTA = data.mta_username_email_merchant;//<-- email user merchant
-                    string passMTA = data.mta_password_password_merchant;//<-- pass merchant
-                                                                         //apiId = "mta-api-sandbox:sandbox-secret-key";
-                                                                         //string urll = "https://apisandbox.blibli.com/v2/oauth/token?grant_type=client_credentials";
-                    string urll = "https://api.blibli.com/v2/oauth/token?channelId=MasterOnline";
-                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                    myReq.Method = "POST";
-                    myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(apiId))));
-                    myReq.ContentType = "application/x-www-form-urlencoded";
-                    myReq.Accept = "application/json";
-                    string myData = "grant_type=password&password=" + passMTA + "&username=" + userMTA + "";
-                    //Stream dataStream = myReq.GetRequestStream();
-                    //WebResponse response = myReq.GetResponse();
-                    //dataStream = response.GetResponseStream();
-                    //StreamReader reader = new StreamReader(dataStream);
-                    string responseFromServer = "";
-                    try
+                    if (data.versiToken != "2")
                     {
-                        myReq.ContentLength = myData.Length;
-                        using (var dataStream = myReq.GetRequestStream())
+                        //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
+                        string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+                        string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+                        string passMTA = data.mta_password_password_merchant;//<-- pass merchant
+                                                                             //apiId = "mta-api-sandbox:sandbox-secret-key";
+                                                                             //string urll = "https://apisandbox.blibli.com/v2/oauth/token?grant_type=client_credentials";
+                        string urll = "https://api.blibli.com/v2/oauth/token?channelId=MasterOnline";
+                        HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                        myReq.Method = "POST";
+                        myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(apiId))));
+                        myReq.ContentType = "application/x-www-form-urlencoded";
+                        myReq.Accept = "application/json";
+                        string myData = "grant_type=password&password=" + passMTA + "&username=" + userMTA + "";
+                        //Stream dataStream = myReq.GetRequestStream();
+                        //WebResponse response = myReq.GetResponse();
+                        //dataStream = response.GetResponseStream();
+                        //StreamReader reader = new StreamReader(dataStream);
+                        string responseFromServer = "";
+                        try
                         {
-                            dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-                        }
-                        using (WebResponse response = myReq.GetResponse())
-                        {
-                            using (Stream stream = response.GetResponseStream())
+                            myReq.ContentLength = myData.Length;
+                            using (var dataStream = myReq.GetRequestStream())
                             {
-                                StreamReader reader = new StreamReader(stream);
-                                responseFromServer = reader.ReadToEnd();
+                                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                            }
+                            using (WebResponse response = myReq.GetResponse())
+                            {
+                                using (Stream stream = response.GetResponseStream())
+                                {
+                                    StreamReader reader = new StreamReader(stream);
+                                    responseFromServer = reader.ReadToEnd();
+                                }
                             }
                         }
-                    }
-                    catch (WebException e)
-                    {
-                        string err = "";
-                        //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                        //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                        if (e.Status == WebExceptionStatus.ProtocolError)
+                        catch (WebException e)
                         {
-                            WebResponse resp = e.Response;
-                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            string err = "";
+                            //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                            //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                            if (e.Status == WebExceptionStatus.ProtocolError)
                             {
-                                err = sr.ReadToEnd();
+                                WebResponse resp = e.Response;
+                                using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                                {
+                                    err = sr.ReadToEnd();
+                                }
                             }
                         }
-                    }
-                    //dataStream.Close();
-                    //response.Close();
-                    // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
-                    //cek refreshToken
-                    if (responseFromServer != "")
-                    {
-                        ret = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BliBliToken)) as BliBliToken;
-                        if (ret.error == null)
+                        //dataStream.Close();
+                        //response.Close();
+                        // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
+                        //cek refreshToken
+                        if (responseFromServer != "")
                         {
-                            //var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username)).SingleOrDefault();
-                            //if (arf01inDB != null)
-                            //{
-                            arf01inDB.TOKEN = ret.access_token;
-                            arf01inDB.REFRESH_TOKEN = ret.refresh_token + ";" + Convert.ToString(ret.expires_in) + ";" + Convert.ToString(currentTimeRequest);
-
-                            //ADD BY TRI, SET STATUS_API
-                            arf01inDB.STATUS_API = "1";
-                            //END ADD BY TRI, SET STATUS_API
-
-                            ErasoftDbContext.SaveChanges();
-                            if (syncData)
+                            ret = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BliBliToken)) as BliBliToken;
+                            if (ret.error == null)
                             {
-                                data.merchant_code = arf01inDB.Sort1_Cust;
-                                data.token = ret.access_token;
-                                //GetProdukInReviewList(data);
-                                GetPickupPoint(data); // untuk prompt pickup point saat insert barang
-                                GetCategoryPerUser(data); // untuk category code yg muncul saat insert barang
-                            }
-                            //}
-                        }
-                        else
-                        {
-                            //ADD BY TRI, SET STATUS_API
-                            arf01inDB.STATUS_API = "0";
-                            //END ADD BY TRI, SET STATUS_API
+                                //var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username)).SingleOrDefault();
+                                //if (arf01inDB != null)
+                                //{
+                                arf01inDB.TOKEN = ret.access_token;
+                                arf01inDB.REFRESH_TOKEN = ret.refresh_token + ";" + Convert.ToString(ret.expires_in) + ";" + Convert.ToString(currentTimeRequest);
 
-                            ErasoftDbContext.SaveChanges();
+                                //ADD BY TRI, SET STATUS_API
+                                arf01inDB.STATUS_API = "1";
+                                //END ADD BY TRI, SET STATUS_API
+
+                                ErasoftDbContext.SaveChanges();
+                                if (syncData)
+                                {
+                                    data.merchant_code = arf01inDB.Sort1_Cust;
+                                    data.token = ret.access_token;
+                                    //GetProdukInReviewList(data);
+                                    GetPickupPoint(data); // untuk prompt pickup point saat insert barang
+                                    GetCategoryPerUser(data); // untuk category code yg muncul saat insert barang
+                                }
+                                //}
+                            }
+                            else
+                            {
+                                //ADD BY TRI, SET STATUS_API
+                                arf01inDB.STATUS_API = "0";
+                                //END ADD BY TRI, SET STATUS_API
+
+                                ErasoftDbContext.SaveChanges();
+                            }
                         }
                     }
                 }
@@ -4968,7 +4971,7 @@ namespace MasterOnline.Controllers
                                     if (cekCust.KD_ANALISA == "2")
                                     {
                                         cekCust.STATUS_API = "1";
-                                        ErasoftDbContext.SaveChanges();
+                                        ErasoftDbContext.SaveChanges();                                        
                                     }
                                 }
                                 try
@@ -4990,6 +4993,10 @@ namespace MasterOnline.Controllers
                                 catch (Exception ex)
                                 {
                                     //oTransaction.Rollback();
+                                }
+                                if(cekCust.KD_ANALISA == "2")
+                                {
+                                    GetPickupPoint(data);
                                 }
                             }
                             //}

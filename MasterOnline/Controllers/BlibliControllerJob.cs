@@ -99,7 +99,7 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                if (TokenExpired)
+                if (TokenExpired && data.versiToken != "2")
                 {
                     string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
                     string userMTA = data.mta_username_email_merchant;//<-- email user merchant
