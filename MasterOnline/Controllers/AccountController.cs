@@ -948,7 +948,8 @@ namespace MasterOnline.Controllers
                             token = tblCustomer.TOKEN,
                             idmarket = tblCustomer.RecNum.Value,
                             DatabasePathErasoft = dbPathEra,
-                            username = username
+                            username = username,
+                            versiToken = tblCustomer.KD_ANALISA
                         };
 
                         client.Enqueue<BlibliControllerJob>(x => x.GetToken(data, true, false));

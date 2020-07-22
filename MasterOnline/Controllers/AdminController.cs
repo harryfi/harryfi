@@ -3342,7 +3342,7 @@ namespace MasterOnline.Controllers
 
                                     if (splitArguments.Length > 0)
                                     {
-                                        var no_custBlibli = splitArguments[12].ToString();
+                                        var no_custBlibli = splitArguments[13].ToString();
                                         string[] tokenBlibli = splitArguments[6].ToString().Split(':');
                                         string[] usernameBlibli = splitArguments[9].ToString().Split(':');
                                         string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE TOKEN = '" + tokenBlibli[1] + "' AND CUST = '" + no_custBlibli + "'; ";
