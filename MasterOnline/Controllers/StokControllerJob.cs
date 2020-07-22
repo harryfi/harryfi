@@ -1557,20 +1557,34 @@ namespace MasterOnline.Controllers
             //add 12-04-2019, cek qty on lazada
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
-            request.SetApiName("/product/item/get");
-            request.SetHttpMethod("GET");
-            request.AddApiParameter("seller_sku", kdBrg);
-            LazopResponse response = client.Execute(request, token);
-            dynamic resStok = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body);
-            if (resStok.code == "0")
-            {
-                int stok = Convert.ToInt32(resStok.data.skus[0].quantity);
-                int stokAvaliable = Convert.ToInt32(resStok.data.skus[0].Available);
-                qty = (Convert.ToInt32(qty) + (stok - stokAvaliable)).ToString();
-            }
-
+            //remark 22 juli 2020, ubah cara cek stok tertahan lazada
+            //request.SetApiName("/product/item/get");
+            //request.SetHttpMethod("GET");
+            //request.AddApiParameter("seller_sku", kdBrg);
+            //LazopResponse response = client.Execute(request, token);
+            //dynamic resStok = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body);
+            //if (resStok.code == "0")
+            //{
+            //    int stok = Convert.ToInt32(resStok.data.skus[0].quantity);
+            //    int stokAvaliable = Convert.ToInt32(resStok.data.skus[0].Available);
+            //    qty = (Convert.ToInt32(qty) + (stok - stokAvaliable)).ToString();
+            //}
+            //end remark 22 juli 2020, ubah cara cek stok tertahan lazada
             //end add 12-04-2019, cek qty on lazada
+            #region cek stok tertahan lazada
+            string sSQL = "SELECT NO_REFERENSI FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI ";
+            sSQL += "WHERE A.CUST = '"+log_CUST+"' AND A.TGL >= '"+DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "' ";
+            sSQL += "AND A.STATUS_TRANSAKSI IN ('0','01','02') AND ISNULL(KET_DETAIL, '') <> 'NO_COUNT_LZD' AND B.BRG = '"+stf02_brg+"'";
+            var dsPesanan = EDB.GetDataSet("CString", "SO", sSQL);
+            if(dsPesanan.Tables[0].Rows.Count > 0)
+            {
+                string listNoRef = "";
+                for(int i = 0; i < dsPesanan.Tables[0].Rows.Count; i++)
+                {
 
+                }
+            }
+            #endregion
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
             //change 16 apr 2020
             //xmlString += "<Skus><Sku><SellerSku>" + kdBrg + "</SellerSku>";
@@ -1589,7 +1603,7 @@ namespace MasterOnline.Controllers
             request.SetHttpMethod("POST");
             try
             {
-                response = client.Execute(request, token);
+                LazopResponse response = client.Execute(request, token);
                 var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
                 if (res.code.Equals("0"))
                 {
