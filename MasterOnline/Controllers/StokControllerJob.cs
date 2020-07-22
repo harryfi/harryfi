@@ -2064,7 +2064,7 @@ namespace MasterOnline.Controllers
                                 urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct?channelId=MasterOnline";
 
                                 myReq = (HttpWebRequest)WebRequest.Create(urll);
-                                myReq.Method = "GET";
+                                myReq.Method = "POST";
                                 myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
                                 myReq.Accept = "application/json";
                                 myReq.ContentType = "application/json";
