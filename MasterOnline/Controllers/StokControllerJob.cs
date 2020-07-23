@@ -1572,9 +1572,9 @@ namespace MasterOnline.Controllers
             //end remark 22 juli 2020, ubah cara cek stok tertahan lazada
             //end add 12-04-2019, cek qty on lazada
             #region cek stok tertahan lazada
-            string sSQL = "SELECT NO_REFERENSI FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI ";
+            string sSQL = "SELECT DISTINCT NO_REFERENSI FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI ";
             sSQL += "WHERE A.CUST = '"+log_CUST+"' AND A.TGL >= '"+DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "' ";
-            sSQL += "AND A.STATUS_TRANSAKSI IN ('0','01','02') AND ISNULL(KET_DETAIL, '') <> 'NO_COUNT_LZD' AND B.BRG = '"+stf02_brg+ "' AND ISNULL(NO_REFERENSI, '') <> ''";
+            sSQL += "AND A.STATUS_TRANSAKSI IN ('0','01','02') AND ISNULL(convert(nvarchar(max),KET_DETAIL), '') <> 'NO_COUNT_LZD' AND B.BRG = '" + stf02_brg+ "' AND ISNULL(NO_REFERENSI, '') <> ''";
             var dsPesanan = EDB.GetDataSet("CString", "SO", sSQL);
             if(dsPesanan.Tables[0].Rows.Count > 0)
             {
@@ -1600,7 +1600,7 @@ namespace MasterOnline.Controllers
                 var resStok = getOrderStatusLazada(listID, token, kdBrg, stf02_brg, log_CUST, dbPathEra);
                 if(resStok.status == 1)
                 {
-                    qty += resStok.recordCount;
+                    qty = Convert.ToString(Convert.ToInt32(qty) + resStok.recordCount);
                 }
             }
             #endregion
