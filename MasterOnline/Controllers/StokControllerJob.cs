@@ -1745,7 +1745,7 @@ namespace MasterOnline.Controllers
                     }
                     if (!string.IsNullOrEmpty(listOrderItemID))//ada yg di update karena tidak perlu di cek lagi
                     {
-                        listOrderItemID = listOrderItemID.Substring(1, listOrderItemID.Length - 1);
+                        listOrderItemID = listOrderItemID.Substring(0, listOrderItemID.Length - 1);
                         var sSQL = "UPDATE B SET KET_DETAIL = 'NO_COUNT_LZD' ";
                         sSQL += "FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI ";
                         sSQL += "WHERE A.CUST = '" + cust + "' AND B.ORDER_ITEM_ID IN (" + listOrderItemID + ") AND B.BRG = '" + brg + "'";
