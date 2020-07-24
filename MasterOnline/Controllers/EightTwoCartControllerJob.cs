@@ -204,8 +204,12 @@ namespace MasterOnline.Controllers
             var qtyOnHand = new StokControllerJob(DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
             if (qtyOnHand < 0)
             {
-                qtyOnHand = 0;
+                qtyOnHand = qty;
             }
+            //else if(qtyOnHand == 0)
+            //{
+            //    qtyOnHand = qty;
+            //}
 
             qty = Convert.ToInt32(qtyOnHand);
 
@@ -305,9 +309,10 @@ namespace MasterOnline.Controllers
             var categoryID = "";
             var attributeIDGroup = "";
             var attributeIDItems = "";
-            var attributeIDItemsLV1 = "";
-            var attributeIDItemsLV2 = "";
-            var attributeIDItemsLV3 = "";
+
+            var listattributeIDGroup = "";
+            var listattributeIDItems = "";
+
 
             if (detailBrg != null)
             {
@@ -341,6 +346,7 @@ namespace MasterOnline.Controllers
             categoryID = categoryID.Substring(0, categoryID.Length - 1);
             string[] splitCat = categoryID.Split(',');
             var finalCategory = splitCat.Last();
+            var weight = Convert.ToDouble(brgInDb.BERAT / 1000);
 
             string urll = string.Format("{0}/api/v1/addProduct", iden.API_url);
 
@@ -364,9 +370,9 @@ namespace MasterOnline.Controllers
             postData += "&width=" + Uri.EscapeDataString(brgInDb.LEBAR.ToString());
             postData += "&height=" + Uri.EscapeDataString(brgInDb.TINGGI.ToString());
             postData += "&depth=" + Uri.EscapeDataString("0");
-            postData += "&weight=" + Uri.EscapeDataString(brgInDb.BERAT.ToString());
+            postData += "&weight=" + Uri.EscapeDataString(weight.ToString());
             postData += "&additional_shipping_cost=" + Uri.EscapeDataString("0");
-            postData += "&minimal_quantity=" + Uri.EscapeDataString("1");
+            postData += "&minimal_quantity=" + Uri.EscapeDataString(brgInDb.MINI.ToString());
             postData += "&out_of_stock=" + Uri.EscapeDataString("0");
             postData += "&id_category_default=" + Uri.EscapeDataString(finalCategory.ToString());
             postData += "&category=" + Uri.EscapeDataString("[" + categoryID.ToString() + "]");
@@ -390,27 +396,27 @@ namespace MasterOnline.Controllers
             vDescription = new StokControllerJob().RemoveSpecialCharacters(vDescription);
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
-            vDescription = vDescription.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
+            //vDescription = vDescription.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
             vDescription = vDescription.Replace("<li>", "- ").Replace("</li>", "\r\n");
             vDescription = vDescription.Replace("<ul>", "").Replace("</ul>", "\r\n");
             vDescription = vDescription.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
             vDescription = vDescription.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
-            vDescription = vDescription.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
+            //vDescription = vDescription.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
             //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
 
             //add by calvin 10 september 2019
             vDescription = vDescription.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
             vDescription = vDescription.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
             vDescription = vDescription.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
-            vDescription = vDescription.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
+            //vDescription = vDescription.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
             //HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
             //HttpBody.description = HttpBody.description.Replace("&nbsp;", "");
 
-            vDescription = System.Text.RegularExpressions.Regex.Replace(vDescription, "<.*?>", String.Empty);
+            //vDescription = System.Text.RegularExpressions.Regex.Replace(vDescription, "<.*?>", String.Empty);
             //end add by calvin 10 september 2019
 
             postData += "&short_description=" + Uri.EscapeDataString(vDescription);
-            postData += "&description=" + Uri.EscapeDataString(vDescription);
+            //postData += "&description=" + Uri.EscapeDataString(vDescription);
             //end handle description
 
             //handle image
@@ -440,11 +446,15 @@ namespace MasterOnline.Controllers
 
             //start handle stock
             double qty_stock = 1;
-            qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(kodeProduk, "ALL");
-            if (qty_stock > 0)
-            {
-                //postData += "&quantity=" + Uri.EscapeDataString(qty_stock.ToString());
-            }
+            //qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(kodeProduk, "ALL");
+            //if (qty_stock > 0)
+            //{
+            //    //postData += "&quantity=" + Uri.EscapeDataString(qty_stock.ToString());
+            //}
+            //else
+            //{
+                qty_stock = brgInDb.ISI;
+            //}
             //end handle stock
 
             var data = Encoding.ASCII.GetBytes(postData);
@@ -498,47 +508,59 @@ namespace MasterOnline.Controllers
                                     var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
                                     var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "82CART").ToList().OrderBy(p => p.RECNUM);
 
-                                    #region varian LV1
-                                    if (var_strukturVar.Where(p => p.LEVEL_VAR == 1).Count() > 0)
+                                    foreach (var itemData in var_stf02)
                                     {
-                                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR;
-                                        var variant_id_items = var_strukturVar.Where(p => p.LEVEL_VAR == 1).ToList();
-                                        foreach (var itemVar in variant_id_items)
+                                        #region varian LV1
+                                        if (!string.IsNullOrEmpty(itemData.Sort8))
                                         {
-                                            var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
-                                            c82CartController.E2Cart_AddAttributeProduct(dataLocal, dataBRGItem.BRG, item.BRG_MP, variant_id_group, itemVar.MP_VALUE_VAR, brgInDb.BERAT.ToString(), dataBRGItem.LINK_GAMBAR_1.ToString());
+                                            var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == itemData.Sort8).FirstOrDefault();
+                                            listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ",";
+                                            listattributeIDItems = variant_id_group.MP_VALUE_VAR + ",";
+                                            //foreach (var itemVar in variant_id_items)
+                                            //{
+                                                //var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
+                                                //c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, attributeIDGroup, attributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), dataBRGItem.LINK_GAMBAR_1.ToString());
 
+                                            //}
                                         }
-                                    }
-                                    #endregion
+                                        #endregion
 
-                                    #region varian LV2
-                                    if (var_strukturVar.Where(p => p.LEVEL_VAR == 2).Count() > 0)
-                                    {
-                                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR;
-                                        var variant_id_items = var_strukturVar.Where(p => p.LEVEL_VAR == 2).ToList();
-                                        foreach (var itemVar in variant_id_items)
+                                        #region varian LV2
+                                        if (!string.IsNullOrEmpty(itemData.Sort9))
                                         {
-                                            var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
-                                            c82CartController.E2Cart_AddAttributeProduct(dataLocal, dataBRGItem.BRG, item.BRG_MP, variant_id_group, itemVar.MP_VALUE_VAR, brgInDb.BERAT.ToString(), dataBRGItem.LINK_GAMBAR_1.ToString());
+                                            var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == itemData.Sort9).FirstOrDefault();
+                                            listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
+                                            listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                                            //foreach (var itemVar in variant_id_items)
+                                            //{
+                                            //var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
+                                            //c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, attributeIDGroup, attributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), dataBRGItem.LINK_GAMBAR_1.ToString());
 
+                                            //}
                                         }
-                                    }
-                                    #endregion
+                                        #endregion
 
-                                    #region varian LV3
-                                    if (var_strukturVar.Where(p => p.LEVEL_VAR == 3).Count() > 0)
-                                    {
-                                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 3).FirstOrDefault().MP_JUDUL_VAR;
-                                        var variant_id_items = var_strukturVar.Where(p => p.LEVEL_VAR == 3).ToList();
-                                        foreach (var itemVar in variant_id_items)
+                                        #region varian LV3
+                                        if (!string.IsNullOrEmpty(itemData.Sort10))
                                         {
-                                            var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
-                                            c82CartController.E2Cart_AddAttributeProduct(dataLocal, dataBRGItem.BRG, item.BRG_MP, variant_id_group, itemVar.MP_VALUE_VAR, brgInDb.BERAT.ToString(), dataBRGItem.LINK_GAMBAR_1.ToString());
-
+                                            var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
+                                            listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
+                                            listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                                            //foreach (var itemVar in variant_id_items)
+                                            //{
+                                            //var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
+                                            //c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, attributeIDGroup, attributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), dataBRGItem.LINK_GAMBAR_1.ToString());
+                                            //}
                                         }
+                                        #endregion
+
+                                        listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
+                                        listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
+
+                                        c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, listattributeIDGroup, listattributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
+
                                     }
-                                    #endregion
+
 
 
                                     #endregion
@@ -611,6 +633,9 @@ namespace MasterOnline.Controllers
             var attributeIDGroup = "";
             var attributeIDItems = "";
 
+            var listattributeIDGroup = "";
+            var listattributeIDItems = "";
+
             if (detailBrg != null)
             {
                 if (detailBrg.ACODE_1 != null)
@@ -640,9 +665,11 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            categoryID = categoryID.Substring(0, categoryID.Length - 1);
+            categoryID = categoryID.Length > 0 ? categoryID.Substring(0, categoryID.Length - 1) : "2,3";
             string[] splitCat = categoryID.Split(',');
             var finalCategory = splitCat.Last();
+
+            var weight = Convert.ToDouble(brgInDb.BERAT / 1000);
 
             string urll = string.Format("{0}/api/v1/editProduct", iden.API_url);
 
@@ -655,7 +682,7 @@ namespace MasterOnline.Controllers
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
             postData += "&id_product=" + Uri.EscapeDataString(splitBrg[0]);
             postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA);
-            postData += "&reference=" + Uri.EscapeDataString(brgInDb.BRG);
+            postData += "&reference=" + Uri.EscapeDataString(brgInDb.BRG.Replace(";", ""));
             postData += "&active=" + Uri.EscapeDataString("1");
             postData += "&visibility=" + Uri.EscapeDataString("both");
             postData += "&available_for_order=" + Uri.EscapeDataString("1");
@@ -669,9 +696,9 @@ namespace MasterOnline.Controllers
             postData += "&width=" + Uri.EscapeDataString(brgInDb.LEBAR.ToString());
             postData += "&height=" + Uri.EscapeDataString(brgInDb.TINGGI.ToString());
             postData += "&depth=" + Uri.EscapeDataString("0");
-            postData += "&weight=" + Uri.EscapeDataString(brgInDb.BERAT.ToString());
+            postData += "&weight=" + Uri.EscapeDataString(weight.ToString());
             postData += "&additional_shipping_cost=" + Uri.EscapeDataString("0");
-            postData += "&minimal_quantity=" + Uri.EscapeDataString("1");
+            postData += "&minimal_quantity=" + Uri.EscapeDataString(brgInDb.MINI.ToString());
             postData += "&out_of_stock=" + Uri.EscapeDataString("0");
             postData += "&id_category_default=" + Uri.EscapeDataString(finalCategory.ToString());
             postData += "&category=" + Uri.EscapeDataString("[" + categoryID.ToString() + "]");
@@ -685,6 +712,7 @@ namespace MasterOnline.Controllers
                 API_key = iden.API_key,
                 API_credential = iden.API_credential,
                 API_url = iden.API_url,
+                ID_MARKET = iden.ID_MARKET,
                 DatabasePathErasoft = iden.DatabasePathErasoft
             };
             EightTwoCartControllerJob c82CartController = new EightTwoCartControllerJob();
@@ -694,27 +722,27 @@ namespace MasterOnline.Controllers
             vDescription = new StokControllerJob().RemoveSpecialCharacters(vDescription);
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
-            vDescription = vDescription.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
+            //vDescription = vDescription.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
             vDescription = vDescription.Replace("<li>", "- ").Replace("</li>", "\r\n");
             vDescription = vDescription.Replace("<ul>", "").Replace("</ul>", "\r\n");
             vDescription = vDescription.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
             vDescription = vDescription.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
-            vDescription = vDescription.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
+            //vDescription = vDescription.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
             //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
 
             //add by calvin 10 september 2019
             vDescription = vDescription.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
             vDescription = vDescription.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
             vDescription = vDescription.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
-            vDescription = vDescription.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
+            //vDescription = vDescription.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
             //HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
             //HttpBody.description = HttpBody.description.Replace("&nbsp;", "");
 
-            vDescription = System.Text.RegularExpressions.Regex.Replace(vDescription, "<.*?>", String.Empty);
+            //vDescription = System.Text.RegularExpressions.Regex.Replace(vDescription, "<.*?>", String.Empty);
             //end add by calvin 10 september 2019
 
             postData += "&short_description=" + Uri.EscapeDataString(vDescription);
-            postData += "&description=" + Uri.EscapeDataString(vDescription);
+            //postData += "&description=" + Uri.EscapeDataString(vDescription);
             //end handle description
 
             //handle image
@@ -750,11 +778,15 @@ namespace MasterOnline.Controllers
 
             //start handle stock
             double qty_stock = 1;
-            qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(kodeProduk, "ALL");
-            if (qty_stock > 0)
-            {
-                //postData += "&quantity=" + Uri.EscapeDataString(qty_stock.ToString());
-            }
+            //qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(kodeProduk, "ALL");
+            //if (qty_stock > 0)
+            //{
+            //    //postData += "&quantity=" + Uri.EscapeDataString(qty_stock.ToString());
+            //}
+            //else
+            //{
+            qty_stock = brgInDb.ISI;
+            //}
             //end handle stock
 
             var data = Encoding.ASCII.GetBytes(postData);
@@ -772,7 +804,7 @@ namespace MasterOnline.Controllers
                     stream.Write(data, 0, data.Length);
                 }
 
-                using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream2 = response.GetResponseStream())
                     {
@@ -791,6 +823,99 @@ namespace MasterOnline.Controllers
                         {
                             if (resultAPI.data != null)
                             {
+                                if (brgInDb.TYPE == "4") // punya variasi
+                                {
+                                    //handle variasi product
+                                    #region variasi product
+                                    var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
+                                    var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "82CART").ToList().OrderBy(p => p.RECNUM);
+                                    //var brgMP = "";
+
+                                    //if(splitBrg[1] == "0")
+                                    //{
+                                    //    brgMP = splitBrg[1];
+                                    //}
+                                    //else
+                                    //{
+                                    //    brgMP = splitBrg[1];
+                                    //}
+
+                                    foreach (var itemData in var_stf02)
+                                    {
+                                        #region varian LV1
+                                        if (!string.IsNullOrEmpty(itemData.Sort8))
+                                        {
+                                            var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == itemData.Sort8).FirstOrDefault();
+                                            listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ",";
+                                            listattributeIDItems = variant_id_group.MP_VALUE_VAR + ",";
+                                            //foreach (var itemVar in variant_id_items)
+                                            //{
+                                            //var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
+                                            //c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, attributeIDGroup, attributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), dataBRGItem.LINK_GAMBAR_1.ToString());
+
+                                            //}
+                                        }
+                                        #endregion
+
+                                        #region varian LV2
+                                        if (!string.IsNullOrEmpty(itemData.Sort9))
+                                        {
+                                            var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == itemData.Sort9).FirstOrDefault();
+                                            listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
+                                            listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                                            //foreach (var itemVar in variant_id_items)
+                                            //{
+                                            //var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
+                                            //c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, attributeIDGroup, attributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), dataBRGItem.LINK_GAMBAR_1.ToString());
+
+                                            //}
+                                        }
+                                        #endregion
+
+                                        #region varian LV3
+                                        if (!string.IsNullOrEmpty(itemData.Sort10))
+                                        {
+                                            var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
+                                            listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
+                                            listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                                            //foreach (var itemVar in variant_id_items)
+                                            //{
+                                            //var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
+                                            //c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, attributeIDGroup, attributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), dataBRGItem.LINK_GAMBAR_1.ToString());
+                                            //}
+                                        }
+                                        #endregion
+
+                                        listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
+                                        listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
+
+                                        int idMarket = Convert.ToInt32(iden.ID_MARKET);
+
+                                        var var_stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == itemData.BRG && p.IDMARKET == idMarket).SingleOrDefault().BRG_MP;
+                                        if (!string.IsNullOrEmpty(var_stf02h))
+                                        {
+                                            string[] splitBrgMP = var_stf02h.Split(';');
+
+                                            if (splitBrgMP[1] != "0")
+                                            {
+                                                c82CartController.E2Cart_UpdateAttributeProduct(dataLocal, itemData.BRG, var_stf02h, listattributeIDGroup, listattributeIDItems, weight.ToString(), "0", Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
+                                            }
+                                            else
+                                            {
+                                                c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, var_stf02h, listattributeIDGroup, listattributeIDItems, weight.ToString(), "0", Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
+                                            }
+                                        }
+                                        else
+                                        {
+                                            c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, detailBrg.BRG_MP, listattributeIDGroup, listattributeIDItems, weight.ToString(), "0", Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
+                                        }
+
+
+                                    }
+
+                                    #endregion
+                                    //end handle variasi product
+                                }
                                 //handle attribute product
                                 //c82CartController.E2Cart_AddAttributeProduct(dataLocal, detailBrg.BRG_MP, attributeIDGroup, attributeIDItems, brgInDb.BERAT.ToString());
                                 //Task.Run(() => 
@@ -839,8 +964,84 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        //Add Product Image.
-        public async Task<string> E2Cart_AddAttributeProduct(E2CartAPIData iden, string kodeBarang, string brg_mp, string attributeGroup, string attributeItems, string weight, string urlImage)
+        //Update Product Attribute & Image.
+        public async Task<string> E2Cart_UpdateAttributeProduct(E2CartAPIData iden, string kodeBarang, string brg_mp, string attributeIDProduct, string attributeItems, string weight, string price, int qty, string urlImage)
+        {
+            SetupContext(iden);
+            string[] brg_mp_split = brg_mp.Split(';');
+            string urll = string.Format("{0}/api/v1/editProductAttribute", iden.API_url);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+
+            //Required parameters, other parameters can be add
+            var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
+            postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
+            postData += "&id_product_attribute=" + Uri.EscapeDataString(brg_mp_split[1]);
+            postData += "&id_attribute=" + Uri.EscapeDataString("[" + attributeItems + "]");
+            postData += "&weight=" + Uri.EscapeDataString(weight);
+            postData += "&price=" + Uri.EscapeDataString(price);
+            postData += "&reference=" + Uri.EscapeDataString(kodeBarang);
+            postData += "&minimal_quantity=" + Uri.EscapeDataString("1");
+            postData += "&wholesale_price=" + Uri.EscapeDataString("0");
+            if (!string.IsNullOrEmpty(urlImage))
+            {
+                postData += "&image_url=" + Uri.EscapeDataString(urlImage);
+            }
+
+
+            var data = Encoding.ASCII.GetBytes(postData);
+
+            myReq.Method = "POST";
+            myReq.ContentType = "application/x-www-form-urlencoded";
+            myReq.ContentLength = data.Length;
+
+            using (var stream = myReq.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+            }
+
+            var response = (HttpWebResponse)myReq.GetResponse();
+
+            var responseServer = new StreamReader(response.GetResponseStream()).ReadToEnd();
+
+            if (!string.IsNullOrEmpty(responseServer))
+            {
+                //var resServer = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer);
+                var resultAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(ResultAddAttribute)) as ResultAddAttribute;
+
+                if (resultAPI != null)
+                {
+                    if (resultAPI.error == "none" && resultAPI.results == "success")
+                    {
+                        if (resultAPI.data != null)
+                        {
+                            var idAttribute = resultAPI.data.id;
+                            string Link_Error = "0;Update Produk;;";
+                            var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(brg_mp_split[0] + ";" + idAttribute) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(kodeBarang) + "' AND IDMARKET = '" + Convert.ToString(iden.ID_MARKET) + "'");
+                            //var e2CartController = new EightTwoCartControllerJob();
+                            //E2Cart_AddImageProduct_varian(iden, brg_mp_split[0], Convert.ToString(idAttribute), urlImage);
+
+#if (DEBUG || Debug_AWS)
+                            Task.Run(() => E2Cart_UpdateStock_82Cart(iden.DatabasePathErasoft, kodeBarang, iden.no_cust, "Stock", "Update Stok", iden, Convert.ToString(brg_mp_split[0] + ";" + idAttribute), Convert.ToInt32(qty), iden.username)).Wait();
+#else
+                            var EDB2 = new DatabaseSQL(iden.DatabasePathErasoft);
+                            string EDBConnID = EDB2.GetConnectionString("ConnId");
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var client = new BackgroundJobClient(sqlStorage);
+                            client.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdateStock_82Cart(iden.DatabasePathErasoft, kodeBarang, iden.no_cust, "Stock", "Update Stok", iden, Convert.ToString(brg_mp_split[0] + ";" + idAttribute), Convert.ToInt32(qty), iden.username));
+                            //end handle update stock for default product
+#endif
+                        }
+                    }
+                }
+                //ViewBag.response = resServer;
+            }
+
+            return "";
+        }
+
+        //Add Product Attribute & Image.
+        public async Task<string> E2Cart_AddAttributeProduct(E2CartAPIData iden, string kodeBarang, string brg_mp, string attributeGroup, string attributeItems, string weight, string price, int qty, string urlImage)
         {
             SetupContext(iden);
             string[] brg_mp_split = brg_mp.Split(';');
@@ -855,9 +1056,12 @@ namespace MasterOnline.Controllers
             postData += "&id_attribute_group=" + Uri.EscapeDataString(attributeGroup);
             postData += "&id_attribute=" + Uri.EscapeDataString("[" + attributeItems + "]");
             postData += "&weight=" + Uri.EscapeDataString(weight);
+            postData += "&price=" + Uri.EscapeDataString(price);
             postData += "&reference=" + Uri.EscapeDataString(kodeBarang);
-            postData += "&image_url=" + Uri.EscapeDataString(urlImage);
-
+            if (!string.IsNullOrEmpty(urlImage))
+            {
+                postData += "&image_url=" + Uri.EscapeDataString(urlImage);
+            }
 
             var data = Encoding.ASCII.GetBytes(postData);
 
@@ -890,6 +1094,17 @@ namespace MasterOnline.Controllers
                             var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(brg_mp_split[0] + ";" + idAttribute) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(kodeBarang) + "' AND IDMARKET = '" + Convert.ToString(iden.ID_MARKET) + "'");
                             //var e2CartController = new EightTwoCartControllerJob();
                             //E2Cart_AddImageProduct_varian(iden, brg_mp_split[0], Convert.ToString(idAttribute), urlImage);
+
+#if (DEBUG || Debug_AWS)
+                            Task.Run(() => E2Cart_UpdateStock_82Cart(iden.DatabasePathErasoft, kodeBarang, iden.no_cust, "Stock", "Update Stok", iden, Convert.ToString(brg_mp_split[0] + ";" + idAttribute), Convert.ToInt32(qty), iden.username)).Wait();
+#else
+                                var EDB2 = new DatabaseSQL(iden.DatabasePathErasoft);
+                                string EDBConnID = EDB2.GetConnectionString("ConnId");
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var client = new BackgroundJobClient(sqlStorage);
+                                client.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdateStock_82Cart(iden.DatabasePathErasoft, kodeBarang, iden.no_cust, "Stock", "Update Stok", iden, Convert.ToString(brg_mp_split[0] + ";" + idAttribute), Convert.ToInt32(qty), iden.username));
+                                //end handle update stock for default product
+#endif
                         }
                     }
                 }

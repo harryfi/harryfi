@@ -7,7 +7,8 @@
     var context = new MoDbContext("");
     if (dataSession?.User != null)
     {
-        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        //var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        var accId = context.User.Single(u => u.UserId == dataSession.User.UserId).AccountId;
         username = context.Account.Single(a => a.AccountId == accId).Username;
         //remark by calvin 3 desember 2018
         //context.Dispose();
@@ -188,45 +189,47 @@
         //end add by nurul 10/9/2019, buat preview nama barang
 
         //add by nurul 11/2/2020
-        $('#cbxStf02Type').on('click', function () {
-            if ($("#cbxStf02Type").is(":checked") == true) {
-                if ($("#Stf02_BRG").val().length > 11) {
-                    $("#Stf02_BRG").addClass('has-error');
-                    $("#Stf02_BRG").css('border', 'solid 1px #a94442');
-                    addError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.");
-                    alert('Kode barang induk lebih dari 11 karakter.');
-                    document.getElementById("Stf02_BRG").focus();
-                } else if ($("#Stf02_BRG").val().length <= 11) {
-                    $("#Stf02_BRG").removeClass('has-error');
-                    $("#Stf02_BRG").css('border', 'solid 1px #cccccc');
-                    RemoveError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.", "span-error");
-                }
-            }
-            else if ($("#cbxStf02Type").is(":checked") == false) {
-                $("#Stf02_BRG").removeClass('has-error');
-                $("#Stf02_BRG").css('border', 'solid 1px #cccccc');
-                RemoveError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.", "span-error");
-            }
-        });
-        $('#Stf02_BRG').change(function () {
-            if ($("#cbxStf02Type").is(":checked") == true) {
-                if ($("#Stf02_BRG").val().length <= 11) {
-                    $("#Stf02_BRG").removeClass('has-error');
-                    $("#Stf02_BRG").css('border', 'solid 1px #cccccc');
-                    RemoveError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.", "span-error");
-                } else if ($("#Stf02_BRG").val().length > 11) {
-                    $("#Stf02_BRG").addClass('has-error');
-                    $("#Stf02_BRG").css('border', 'solid 1px #a94442');
-                    addError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.");
-                    alert('Kode barang induk lebih dari 11 karakter.');
-                    document.getElementById("Stf02_BRG").focus();
-                }
-            } else if ($("#cbxStf02Type").is(":checked") == false) {
-                $("#Stf02_BRG").removeClass('has-error');
-                $("#Stf02_BRG").css('border', 'solid 1px #cccccc');
-                RemoveError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.", "span-error");
-            }
-        });
+        //remark by nurul 21/7/2020
+        //$('#cbxStf02Type').on('click', function () {
+        //    if ($("#cbxStf02Type").is(":checked") == true) {
+        //        if ($("#Stf02_BRG").val().length > 11) {
+        //            $("#Stf02_BRG").addClass('has-error');
+        //            $("#Stf02_BRG").css('border', 'solid 1px #a94442');
+        //            addError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.");
+        //            alert('Kode barang induk lebih dari 11 karakter.');
+        //            document.getElementById("Stf02_BRG").focus();
+        //        } else if ($("#Stf02_BRG").val().length <= 11) {
+        //            $("#Stf02_BRG").removeClass('has-error');
+        //            $("#Stf02_BRG").css('border', 'solid 1px #cccccc');
+        //            RemoveError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.", "span-error");
+        //        }
+        //    }
+        //    else if ($("#cbxStf02Type").is(":checked") == false) {
+        //        $("#Stf02_BRG").removeClass('has-error');
+        //        $("#Stf02_BRG").css('border', 'solid 1px #cccccc');
+        //        RemoveError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.", "span-error");
+        //    }
+        //});
+        //$('#Stf02_BRG').change(function () {
+        //    if ($("#cbxStf02Type").is(":checked") == true) {
+        //        if ($("#Stf02_BRG").val().length <= 11) {
+        //            $("#Stf02_BRG").removeClass('has-error');
+        //            $("#Stf02_BRG").css('border', 'solid 1px #cccccc');
+        //            RemoveError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.", "span-error");
+        //        } else if ($("#Stf02_BRG").val().length > 11) {
+        //            $("#Stf02_BRG").addClass('has-error');
+        //            $("#Stf02_BRG").css('border', 'solid 1px #a94442');
+        //            addError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.");
+        //            alert('Kode barang induk lebih dari 11 karakter.');
+        //            document.getElementById("Stf02_BRG").focus();
+        //        }
+        //    } else if ($("#cbxStf02Type").is(":checked") == false) {
+        //        $("#Stf02_BRG").removeClass('has-error');
+        //        $("#Stf02_BRG").css('border', 'solid 1px #cccccc');
+        //        RemoveError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.", "span-error");
+        //    }
+        //});
+        //end remark by nurul 21/7/2020
         $('#Stf02_HJUAL').change(function () {
         if (convertToAngka($("#Stf02_HJUAL").val()) > 0) {
             RemoveError($("#Stf02_HJUAL").parent().parent(), "Harga Jual harus lebih dari 0.", "span-error");
@@ -1489,7 +1492,7 @@
                                                                                     <button type="button" onclick="ClearCategory82Cart('category_82Cart_pertama_' + @recnumArf01, 'category_82Cart_selanjutnya_' + @recnumArf01, @i, false);">Clear</button>
                                                                                 </div>
                                                                             </div>
-                                                                            <div class="row">
+                                                                            @*<div class="row">
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                     @Html.Label("Attribute *", new { @class = "control-label" })
                                                                                 </div>
@@ -1500,7 +1503,7 @@
                                                                                 <div id="attribute_82Cart_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
                                                                                 </div>
                                                                                 <div id="attribute_82Cart_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
-                                                                                    @*@Html.TextBox("Attribute" + i + "82Cart", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_11 })*@
+                                                                                    @Html.TextBox("Attribute" + i + "82Cart", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_11 })
                                                                                 </div>
                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.ACODE_1 != null)
@@ -1509,7 +1512,7 @@
                                                                                     }
                                                                                     <button type="button" onclick="ClearAttribute82Cart('attribute_82Cart_pertama_' + @recnumArf01, 'attribute_82Cart_selanjutnya_' + @recnumArf01, @i, false, @recnumArf01);">Clear</button>
                                                                                 </div>
-                                                                            </div>
+                                                                            </div>*@
                                                                             <div class="row">
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                     @Html.Label("Brand *", new { @class = "control-label" })

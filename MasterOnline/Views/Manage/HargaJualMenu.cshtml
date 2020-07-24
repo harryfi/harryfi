@@ -120,6 +120,60 @@
         border-width: 30px;
         border-radius: 50%;
     }
+
+    [data-tip] {
+        position: relative;
+    }
+
+        [data-tip]:before {
+            content: '';
+            /* hides the tooltip when not hovered */
+            display: none;
+            content: '';
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid #1a1a1a;
+            position: absolute;
+            top: 30px;
+            /*left: 35px;*/
+            z-index: 8;
+            font-size: 0;
+            line-height: 0;
+            /*width: 0;
+                height: 0;*/
+            margin-left: 0px;
+            left: 50%;
+        }
+
+        [data-tip]:after {
+            display: none;
+            content: attr(data-tip);
+            position: absolute;
+            top: 35px;
+            /*left: 0px;*/
+            padding: 2px 5px;
+            background: #1a1a1a;
+            color: #fff;
+            z-index: 9;
+            font-size: 0.85em;
+            height: auto;
+            line-break: normal;
+            max-width: 300px;
+            line-height: 18px;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            border-radius: 3px;
+            white-space: normal;
+            word-wrap: normal;
+            left: 30px;
+            margin-left: -50px;
+            width: 68px;
+        }
+
+        [data-tip]:hover:before,
+        [data-tip]:hover:after {
+            display: block;
+        }
 </style>
 
 <div class="row" id="hargaJual-section">
@@ -136,7 +190,7 @@
                     </div>
                     <div class="col-lg-5 col-sm-6">
                         <input id="search_hargaJual" type="text" class="form-control" placeholder="Ketik Pencarian">
-                        </div>
+                    </div>
                     <div class="col-lg-1 col-sm-6">
                         <span class="input-group-btn">
                             <button type="button" id="search_hargaJual_click" class="btn btn-primary">
@@ -144,8 +198,8 @@
                             </button>
                         </span>
                     </div>
-                    </div>
                 </div>
+            </div>
             <div class="col-lg-4 col-sm-6">
                 <div class="pull-right">
                     @*<button type="button" class=" btn btn-default" data-style="expand-right">
@@ -288,11 +342,11 @@
                             </div>
                         </div>
                         @*<div class="row">
-                            <div class="col-m12">
-                                <b>Masukkan harga grosir yang baru:</b>
-                                <input type="text" id="HJUALPROMOSIBARU82Cart" name="HJUALPROMOSIBARU82Cart" class="form-control" style="margin-top: 10px;" />
-                            </div>
-                        </div>*@
+                                <div class="col-m12">
+                                    <b>Masukkan harga grosir yang baru:</b>
+                                    <input type="text" id="HJUALPROMOSIBARU82Cart" name="HJUALPROMOSIBARU82Cart" class="form-control" style="margin-top: 10px;" />
+                                </div>
+                            </div>*@
                     </div>
                 </div>
             </div>
@@ -307,6 +361,69 @@
         </div>
     </div>
 </div>
+
+<!-- add by fauzi 14 Juli 2020 for detail harga beli terakhir -->
+<div class="modal fade" id="modalDetailHargaBeliTerakhir" style="margin:0;padding:0;" tabindex="-1" role="dialog" aria-labelledby="modalDetailHargaBeliTerakhirLabel">
+    <div class="modal-dialog" role="document" style="margin:auto;width:700px;margin-top:20px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalDetailHargaBeliTerakhirLabel">Detail Harga Beli (3 Bulan Terakhir)</h4>
+
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Kode Barang</label>
+                        <div class="col-md-3 col-sm-3">
+                            @Html.TextBox("kd-brg-hargabeliterakhir", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Nama Barang</label>
+                        <div class="col-md-8 col-sm-8">
+                            @Html.TextArea("nm-brg-hargabeliterakhir", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Average Harga Beli</label>
+                        <div class="col-md-3 col-sm-3">
+                            <label id="ttl-average" class="control-label" disabled="disabled"></label>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Periode 3 bulan terakhir</label>
+                        <div class="col-md-3 col-sm-3">
+                                <label id="ttl-periode" class="control-label" disabled="disabled"></label>
+                            </div>
+                    </div>
+                </div>*@
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
+                        <div class="input-group">
+                            <input id="search_detail_hargabeliterakhir" type="text" class="form-control" placeholder="Pencarian">
+                            <span class="input-group-btn">
+                                <button type="button" id="search_detail_hargabeliterakhir_click" class="btn btn-primary">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="list-detail-hargabeliterakhir"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="close-detail-hargabeli" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end by fauzi 14 Juli 2020 -->
 @section scripts
 {
     <script src="~/Content/selectize.js" type="text/javascript"></script>
@@ -316,6 +433,9 @@
         var $page = window.text;
         //end add by nurul 12/2/2019
         var $recNum = 0;
+
+        var tempBrg = "";
+        var tempNama = "";
 
         $(document).on('ready',
             function () {
@@ -332,7 +452,7 @@
                 //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
 
-                
+
 
                 $('#search_hargaJual').keypress(function (e) {
                     var key = e.which;
@@ -406,6 +526,91 @@
                 }
             });
 
+        }
+
+        $('#search_detail_hargabeliterakhir').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)// the enter key code
+            {
+                searchTableDetailHargaBeli();
+                return false;
+            }
+        });
+        $('#search_detail_hargabeliterakhir_click').click(function () {
+            searchTableDetailHargaBeli();
+        });
+
+        $('#close-detail-hargabeli').click(function () {
+            tempBrg = "";
+            tempNama = "";
+        });
+
+        function searchTableDetailHargaBeli() {
+            if (tempBrg != null && tempBrg != undefined && tempBrg != "") {
+            var link = '@Html.Raw(Url.Action("LihatDetailHargaBeliTerakhir", "Manage", new { kodebarang = "replaceID", search = "replaceSearch" }))';
+            link = link.replace("replaceID", encodeURIComponent(tempBrg));
+                link = link.replace("replaceSearch", encodeURIComponent($('#search_detail_hargabeliterakhir').val()));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#list-detail-hargabeliterakhir').hide();
+                    $('#loading_hargaJual_tab').show();
+                },
+                success: function (response) {
+                    $('#list-detail-hargabeliterakhir').html(response);
+                    $('#loading_hargaJual_tab').hide();
+                    $('#list-detail-hargabeliterakhir').show();
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_hargaJual_tab').hide();
+                    console.log(error);
+                }
+                });
+            } else {
+                $('#loading_hargaJual_tab').hide();
+                alert("Tidak ada detail.");
+            }
+        }
+
+        function LihatDetailHargaBeliTerakhir($req_id) {
+            if ($req_id != null && $req_id != undefined && $req_id != "") {
+                var tempReqId = $req_id.split('|');
+                tempBrg = tempReqId[0];
+                tempNama = tempReqId[1];
+                $('#search_detail_hargabeliterakhir').val('');
+                $('#txt_last_page_detail_hargabeliterakhir').val('');
+
+                var $link = '@Html.Raw(Url.Action("LihatDetailHargaBeliTerakhir", "Manage", new { kodebarang = "replaceID", page = "replaceLastPage", search = "replaceSearch" }))';
+                $link = $link.replace("replaceID", encodeURIComponent(tempBrg));
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_detail_hargabeliterakhir').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_detail_hargabeliterakhir').val()));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                $('#list-detail-hargabeliterakhir').hide();
+                $('#loading_hargaJual_tab').show();
+                $('#kd-brg-hargabeliterakhir').val(tempBrg);
+                $('#nm-brg-hargabeliterakhir').text(tempNama);
+            },
+            success: function (value) {
+                $('#list-detail-hargabeliterakhir').html(value);
+                $('#loading_hargaJual_tab').hide();
+                $('#list-detail-hargabeliterakhir').show();
+            },
+            error: function (xhr, status, error) {
+                $('#loading_hargaJual_tab').hide();
+                alert(error);
+                console.log(error);
+            }
+            });
+        } else {
+                $('#loading_hargaJual_tab').hide();
+            alert("Tidak ada detail Harga Beli Terakhir.");
+        }
         }
 
         function base64ToArrayBuffer(base64) {

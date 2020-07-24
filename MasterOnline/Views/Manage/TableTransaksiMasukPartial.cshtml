@@ -66,6 +66,7 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Posting</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 80px;">Terakhir Edit</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 80px;">Keterangan</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Edit / Lihat</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>
             </tr>
@@ -74,6 +75,14 @@
             @*@foreach (var stok in Model.ListStok.Where(s => s.STATUS_LOADING == "0" && s.MK == "M"))*@
             @foreach (var stok in Model)
             {
+                //add by fauzi 14 juli 2020 add keterangan
+                string keterangan = stok.Ket;
+                if (string.IsNullOrEmpty(keterangan))
+                {
+                    keterangan = "-";
+                }
+                keterangan = keterangan.Length > 30 ? keterangan.Substring(0, 30) + "..." : keterangan.ToString();
+                //end add
                 <tr>
                     <td>@stok.Nobuk</td>
                     <td>@(stok.Tgl?.ToString("dd/MM/yyyy"))</td>
@@ -90,6 +99,7 @@
                         </td>
                     }
                     <td>@(stok.TglInput?.ToString("dd/MM/yyyy"))</td>
+                    <td>@keterangan</td>
                     <td class="edit-hapus-col">
                         @if (Convert.ToString(stok.ST_Posting) == "Y" || stok.Nobuk.Substring(0, 2) == "OM")
                         {

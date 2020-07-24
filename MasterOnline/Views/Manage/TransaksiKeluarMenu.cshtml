@@ -681,6 +681,10 @@
                 $('#Stok_Tgl').val($('#Stok_Tgl').val().split(' ')[0]);
             }
 
+            $('#Keterangan').change(function () {
+                $('#btn-simpan-perubahan-row').show();
+            });
+
             $("input.num-only").on('keydown',
                 function (e) {
                     // Allow: backspace, delete, tab, escape, enter and .
@@ -707,12 +711,15 @@
                         //change by nurul 25/9/2018
                         //NoBuktiStok: "@(Model?.Stok?.Nobuk)",
                         NoBuktiStok: $('#Stok_Nobuk').val(),
-                        TglInput: $('#Stok_Tgl').val()
+                        TglInput: $('#Stok_Tgl').val(),
+                        //add by fauzi 14 Juli 2020
+                        Ket: $('#Keterangan').val()
+                        //end add fauzi
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
                     success: function () {
-                        alert('Data stok berhasil di-update');
+                        alert('Data berhasil di-update');
                         //change by nurul 26/11/2018
                         //$this.hide();
                         $('#btn-simpan-perubahan-row').hide();
@@ -1329,9 +1336,13 @@
 
             if ($id == 'brg-0') {
                 if ($('#Stok_Tgl').val() != "") {
+                    var link = '@Url.Action("SaveTransaksiKeluar", "Manage", new { keterangan = "replaceKet" })';
+                    link = link.replace("replaceKet", encodeURIComponent($('#Keterangan').val()));
+
                     $.ajax({
                         type: "POST",
-                        url: '@Url.Action("SaveTransaksiKeluar", "Manage")',
+                        //url: Url.Action("SaveTransaksiKeluar", "Manage")',
+                        url: link,
                         data: $('#form-stok').serialize(),
                         beforeSend: function () {
                             $('#loading_spinner').show();

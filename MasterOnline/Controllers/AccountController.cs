@@ -955,7 +955,10 @@ namespace MasterOnline.Controllers
                         client.Enqueue<BlibliControllerJob>(x => x.GetToken(data, true, false));
 
                         string connId_JobId = dbPathEra + "_blibli_get_queue_feed_detail_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetQueueFeedDetail(data, null)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+                        //change 17 july 2020, ubah jd 30mnit
+                        //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetQueueFeedDetail(data, null)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetQueueFeedDetail(data, null)), Cron.MinuteInterval(30), recurJobOpt);
+                        //end change 17 july 2020, ubah jd 30mnit
 
                         //add by fauzi 25 November 2019
                         if (tblCustomer.TIDAK_HIT_UANG_R == true)

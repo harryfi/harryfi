@@ -2137,7 +2137,7 @@
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script type="text/javascript">
         var $tempQty = "";
-        var $statusAPI = window.text
+        var $statusAPI = window.text;
         //add by nurul 11/2/2019
         var $jumlahPesanan = true;
         //end add by nurul 11/2/2019
@@ -3702,7 +3702,7 @@
             });
 
             $('#btn-simpan-perubahan').click(function () {
-                var $this = $(this);
+                //var $this = $(this);
                 $.ajax({
                     type: "POST",
                     url: '@Url.Action("UpdateFaktur", "Manage")',
@@ -3720,7 +3720,8 @@
                         NamaKurir: $('#Faktur_NAMAPENGIRIM').val(),
                         Noref: $('#Faktur_NO_REF').val(),
                         OngkosKirim: convertToAngka($('#Faktur_MATERAI').val()),
-                        Bruto: convertToAngka($('#Faktur_BRUTO').val())
+                        Bruto: convertToAngka($('#Faktur_BRUTO').val()),
+                        NamaBuyer: $('#Faktur_NAMAPEMESAN').val()
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
@@ -5365,8 +5366,14 @@
         //add by calvin 4 maret 2019
         function afterPromptPembeli(kd) {
             if (promptPembeli == "1") {
+                var tempPembeli = $('#Faktur_PEMESAN').val();
                 $('#Faktur_PEMESAN').val(kd);
                 getBuyerPrompt(kd);
+                if ($modeEdit == 1) {
+                    if (tempPembeli != kd) {
+                        $('#btn-simpan-perubahan-row').show();
+                    }
+                }
             }
             promptPembeli = "";
         }

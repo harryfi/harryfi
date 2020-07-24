@@ -1,0 +1,133 @@
+﻿@using System.Globalization
+@using PagedList.Mvc
+@using MasterOnline.ViewModels
+@model PagedList.IPagedList<mdlDetailHargaBeli>
+@{
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
+    int dataCount = Model.Count();
+    int pageCount = Model.PageCount;
+    int pageNumber = Model.PageNumber;
+}
+
+<style>
+    #loading_detail {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0);
+    }
+
+    #loading_detail_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+</style>
+
+<div id="loading_detail" class="text-center">
+    <div id="loading_detail_image">
+        <img src="~/Content/Images/spinner.gif" />
+    </div>
+</div>
+@if (dataCount > 0)
+{
+    <input id="txt_last_page_detail_hargabeliterakhir" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+    <input id="jumlahAverageTxt" type="hidden" class="form-control" value="@ViewData["jumlahAverage"]">
+    <div>
+        <table id="datatable" class="table table-striped table-bordered table-hover" role="grid">
+            <thead>
+                <tr role="row">
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1">Tanggal</th>
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1">No Bukti</th>
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1">Supplier</th>
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1">Qty Beli</th>
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1">Harga Beli</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@(item.Tanggal?.ToString("dd/MM/yyyy"))</td>
+                        <td>@item.NoBukti</td>
+                        <td>@item.Supplier</td>
+                        <td style="text-align:center">@item.Qty</td>
+                        <td style="text-align:right">@string.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", item.Harga)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    if (pageCount > 1)
+    {
+        <div id="tabeldetailpartialpager" class="pager">
+            @Html.PagedListPager(Model, page => Url.Action("LihatDetailHargaBeliTerakhir", new
+       {
+           page,
+           search = ViewData["searchParam"],
+           kodebarang = ViewData["tempBarang"]
+       }),
+            new PagedListRenderOptions
+            {
+                LinkToFirstPageFormat = "<<",
+                LinkToPreviousPageFormat = "prev",
+                LinkToNextPageFormat = "next",
+                LinkToLastPageFormat = ">>",
+                DisplayEllipsesWhenNotShowingAllPageNumbers = false
+            })
+            Page @(pageCount < pageNumber ? 0 : pageNumber) of @pageCount
+        </div>
+    }
+}
+else
+{
+    <div class="row">
+        <div class="form-group" style="margin-top: 5px;">
+            <label class="control-label col-md-12 col-sm-12">Tidak ada detail.</label>
+        </div>
+    </div>
+}
+<script type="text/javascript">
+    var vAverageHargaBeli = $('#jumlahAverageTxt').val();
+        @*var te = @hasilakhir;
+        var has = te.toLocaleString('id:id', { style: 'currency', currency: 'IDR' });
+        var lihat = has;*@
+    $(document).ready(function () {
+        var result = vAverageHargaBeli;
+        $('#ttl-average').text(": " + result);
+    });
+    $(function () {
+        $('#tabeldetailpartialpager').on('click', 'a', function () {
+            if (this.href != "") {
+                $.ajax({
+                    url: this.href,
+                    type: 'GET',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#list-detail-hargabeliterakhir').hide();
+                        $('#loading_detail').show();
+                    },
+                    success: function (response) {
+                        $('#list-detail-hargabeliterakhir').html(response);
+                        $('#loading_detail').hide();
+                        $('#list-detail-hargabeliterakhir').show();
+                    }
+                });
+                return false;
+            }
+        });
+    });
+</script>

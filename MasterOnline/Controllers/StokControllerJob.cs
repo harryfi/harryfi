@@ -2580,7 +2580,8 @@ namespace MasterOnline.Controllers
                         {
                             try
                             {
-                                if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069" || dbPathEra.ToUpper() == "ERASOFT_1000390")
+                                //if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069" || dbPathEra.ToUpper() == "ERASOFT_1000390")
+                                if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToUpper() == "ERASOFT_1310644" || dbPathEra.ToUpper() == "ERASOFT_1000390")
                                 {
                                     var a = await TokpedCheckUpdateStock(iden, product_id);
                                     if (a < stok || a > stok)
@@ -2973,7 +2974,8 @@ namespace MasterOnline.Controllers
                         //add by calvin 28 oktober 2019
                         try
                         {
-                            if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069" || dbPathEra.ToUpper() == "ERASOFT_1000390")
+                            //if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069" || dbPathEra.ToUpper() == "ERASOFT_1000390")
+                            if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToUpper() == "ERASOFT_1310644" || dbPathEra.ToUpper() == "ERASOFT_1000390")
                             {
                                 string EDBConnID = EDB.GetConnectionString("ConnId");
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -3120,7 +3122,8 @@ namespace MasterOnline.Controllers
                         //add by calvin 28 oktober 2019
                         try
                         {
-                            if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069" || dbPathEra.ToUpper() == "ERASOFT_1000390")
+                            //if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069" || dbPathEra.ToUpper() == "ERASOFT_1000390")
+                            if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToUpper() == "ERASOFT_1310644" || dbPathEra.ToUpper() == "ERASOFT_1000390")
                             {
                                 string EDBConnID = EDB.GetConnectionString("ConnId");
                                 var sqlStorage = new SqlServerStorage(EDBConnID);

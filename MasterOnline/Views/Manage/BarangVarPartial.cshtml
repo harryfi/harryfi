@@ -646,6 +646,48 @@
         });
     }
 
+    function ComboBoxColorFamilyBliBli(level, show) {
+        if (show) {
+            $('#namaOpsiBlibli_mo_' + level).css('width', '33%');
+            $('#namaOpsiBlibli_b_' + level).css('width', '33%');
+            $('#namaOpsiBlibli_fc_' + level).show();
+            $('#namaOpsiBlibli_' + level).attr('colspan', '3');
+            //$(".selectVariantBlibliFCLv" + level + "_").show();
+            $('.td_opsiFC_' + level).show();
+            //if ($('#selectJudulVariantBlibliFCLv' + level).val() == "") {
+            //    var attributeOptSelect = $('#selectJudulVariantBlibliFCLv' + level).selectize;
+            //    attributeOptSelect[0].selectize.setValue("FA-2000060", true);
+
+            //    //$('#selectJudulVariantBlibliFCLv' + level).val("FA-2000060");
+            //}
+        } else {
+            $('#namaOpsiBlibli_mo_' + level).css('width', '50%');
+            $('#namaOpsiBlibli_b_' + level).css('width', '50%');
+            $('#namaOpsiBlibli_fc_' + level).hide();
+            $('#namaOpsiBlibli_1' + level).attr('colspan', '2');
+            //$(".selectVariantBlibliFCLv" + level + "_").hide();
+            $('.td_opsiFC_' + level).hide();
+
+             $(".selectVariantBlibliFCLv" + level + "_").each(function (i, item) {
+                 var attributeOptSelect = $(item).selectize;
+                 if (attributeOptSelect[0] != undefined) {
+                     attributeOptSelect[0].selectize.clear();
+                 }
+            //     //attributeOptSelect[0].val('');
+            //     attributeOptSelect[0].selectize.setValue("", false);
+                 SearchOptVariantBlibli(level, "FA-2000060", fcOpt)
+            });
+            //$(".selectVariantBlibliFCLv" + level + "_").find('option').attr("selected", false);
+            //var attributeOptSelect = $('#selectJudulVariantBlibliFCLv' + level).selectize;
+            //attributeOptSelect[0].selectize.setValue("", true);
+            //$('#selectJudulVariantBlibliFCLv' + level).val("");
+        }
+        //$(".selectVariantBlibliFCLv" + level + "_").each(function (i, item) {
+        //    var attributeOptSelect = $(item).selectize;
+        //    attributeOptSelect[0].selectize.clearOptions();
+        //});
+    }
+        var fcOpt;
     function InitSettingVariantBlibli() {
         if ($('#txtBlibliCategoryCodeFound').val() > -1) {
             var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtBlibliCategoryCodeFound').val() + '__CATEGORY_CODE';
@@ -667,15 +709,17 @@
                     cache: false,
                     success: function (data) {
                         var SelectList = [];
+                        var SelectListFC = [];
                         var counter = 0;
                         $.each(data.attributes,
                             function (i, item) {
-                                for (var a = 0; a < 30; a++) {
+                                for (var a = 0; a < 35; a++) {
                                     var ACODE = item["ACODE_" + (a + 1)];
                                     var ATYPE = item["ATYPE_" + (a + 1)];
                                     var ANAME = item["ANAME_" + (a + 1)];
                                     var AOPTIONS = item["AOPTIONS_" + (a + 1)];
-                                    if (ATYPE == "DEFINING_ATTRIBUTE") {
+                                    //if (ATYPE == "DEFINING_ATTRIBUTE") {
+                                    if (ATYPE == "DEFINING_ATTRIBUTE" && ACODE != "FA-2000060") {
                                         if (ACODE != null && ACODE != "") {
                                             SelectList[counter] = {
                                                 id: ACODE,
@@ -684,9 +728,19 @@
                                             counter = counter + 1;
                                         }
                                     }
+                                    else if (ACODE != null && ACODE != "") {
+                                        if (ACODE == "FA-2000060") {
+                                            if (ACODE != null && ACODE != "") {
+                                                SelectListFC[0] = {
+                                                    id: ACODE,
+                                                    text: ANAME
+                                                };
+                                            }
+                                        }
+                                    }
                                 }
                             });
-
+                        fcOpt = data.attribute_opt;
                         var len = SelectList.length;
                         if ($('#selectJudulVariantBlibliLv1').length > 0) {
                             var attributeSelect = $('#selectJudulVariantBlibliLv1').selectize({
@@ -696,6 +750,11 @@
                                 onChange: function (value) {
                                     $('#txtJudulVariantBlibliLv1').val(value);
                                     SearchOptVariantBlibli(1, value, data.attribute_opt);
+                                    if (value == "WA-0000002") {//warna
+                                        ComboBoxColorFamilyBliBli(1, true);
+                                    } else {
+                                        ComboBoxColorFamilyBliBli(1, false);
+                                    }
                                 }
                             });
                             attributeSelect[0].selectize.clearOptions();
@@ -725,6 +784,11 @@
                                 onChange: function (value) {
                                     $('#txtJudulVariantBlibliLv2').val(value);
                                     SearchOptVariantBlibli(2, value, data.attribute_opt);
+                                    if (value == "WA-0000002") {//warna
+                                        ComboBoxColorFamilyBliBli(2, true);
+                                    } else {
+                                        ComboBoxColorFamilyBliBli(2, false);
+                                    }
                                 }
                             });
                             attributeSelect[0].selectize.clearOptions();
@@ -776,6 +840,67 @@
                                 }
                             });
                         }
+
+                        if ($('#selectJudulVariantBlibliFCLv1').length > 0) {
+                            var attributeSelect = $('#selectJudulVariantBlibliFCLv1').selectize({
+                                valueField: 'id',
+                                searchField: 'text',
+                                options: SelectListFC,
+                                onChange: function (value) {
+                                    $('#selectJudulVariantBlibliFCLv1').val(value);
+                                    SearchOptVariantBlibli(1, value, data.attribute_opt);
+                                }
+                            });
+                            attributeSelect[0].selectize.clearOptions();
+                            attributeSelect[0].selectize.renderCache = {};
+                            attributeSelect[0].selectize.load(function (callback) {
+                                callback(SelectListFC);
+
+                                //if ($('#selectJudulVariantBlibliLv1').val() != "") {
+                                //    if ($('#selectJudulVariantBlibliLv1').val() == "WA-0000002") {
+                                        var FoundValue = "";
+                                        for (var d = 0; d < 1; d++) {
+                                            if (FoundValue == "") {
+                                                var value = SelectListFC[d].id;
+                                                //if ($('#selectJudulVariantBlibliFCLv1').val() == value) {
+                                                FoundValue = SelectListFC[d].id;
+                                                attributeSelect[0].selectize.setValue(FoundValue, false);
+                                                //}
+                                            }
+                                        }
+                                //    }                                    
+                                //}
+                            });
+                        }
+                        if ($('#selectJudulVariantBlibliFCLv2').length > 0) {
+                            var attributeSelect = $('#selectJudulVariantBlibliFCLv2').selectize({
+                                valueField: 'id',
+                                searchField: 'text',
+                                options: SelectListFC,
+                                onChange: function (value) {
+                                    $('#selectJudulVariantBlibliFCLv2').val(value);
+                                    SearchOptVariantBlibli(2, value, data.attribute_opt);
+                                }
+                            });
+                            attributeSelect[0].selectize.clearOptions();
+                            attributeSelect[0].selectize.renderCache = {};
+                            attributeSelect[0].selectize.load(function (callback) {
+                                callback(SelectListFC);
+
+                                //if ($('#selectJudulVariantBlibliFCLv1').val() != "") {
+                                var FoundValue = "";
+                                for (var d = 0; d < 1; d++) {
+                                    if (FoundValue == "") {
+                                        var value = SelectListFC[d].id;
+                                        //if ($('#selectJudulVariantBlibliFCLv1').val() == value) {
+                                        FoundValue = SelectListFC[d].id;
+                                        attributeSelect[0].selectize.setValue(FoundValue, false);
+                                        //}
+                                    }
+                                }
+                                //}
+                            });
+                        }
                     },
                     error: function (xhr) {
                         console.log(xhr);
@@ -804,43 +929,82 @@
                     text: item.OPTION_VALUE
                 };
             });
+        if (variant_id == "FA-2000060") {//family color
+            $(".selectVariantBlibliFCLv" + level + "_").each(function (i, item) {
+                //var data_recnum = $(item).attr("data-recnum");
+                var data_recnum = $($(item).closest('.tampungdatarecnum')).attr('data-recnum');
+                var len = SelectList.length;
 
-        $(".selectVariantBlibliLv" + level + "_").each(function (i, item) {
-            //var data_recnum = $(item).attr("data-recnum");
-            var data_recnum = $($(item).closest('.tampungdatarecnum')).attr('data-recnum');
-            var len = SelectList.length;
+                var attributeOptSelect = $(item).selectize({
+                    maxItems: 1,
+                    valueField: 'id',
+                    searchField: 'text',
+                    options: SelectList,
+                    onChange: function (value) {
+                        $('#save_map_var_blibli').removeAttr('disabled');
+                        var input_data_recnum = $($(this.$input).closest('.tampungdatarecnum')).attr('data-recnum');
+                        $('#txtVariantBlibliFCLv' + level + '_' + input_data_recnum).val(value);
+                    }
+                });
 
-            var attributeOptSelect = $(item).selectize({
-                maxItems: 1,
-                valueField: 'id',
-                searchField: 'text',
-                options: SelectList,
-                onChange: function (value) {
-                    $('#save_map_var_blibli').removeAttr('disabled');
-                    var input_data_recnum = $($(this.$input).closest('.tampungdatarecnum')).attr('data-recnum');
-                    $('#txtVariantBlibliLv' + level + '_' + input_data_recnum).val(value);
-                }
-            });
+                attributeOptSelect[0].selectize.clearOptions();
+                //attributeOptSelect[0].selectize.renderCache = {};
+                attributeOptSelect[0].selectize.load(function (callback) {
+                    callback(SelectList);
 
-            attributeOptSelect[0].selectize.clearOptions();
-            //attributeOptSelect[0].selectize.renderCache = {};
-            attributeOptSelect[0].selectize.load(function (callback) {
-                callback(SelectList);
-
-                if ($('#txtVariantBlibliLv' + level + '_' + data_recnum).val() != "") {
-                    var FoundValue = "";
-                    for (var d = 0; d < len; d++) {
-                        if (FoundValue == "") {
-                            var value = SelectList[d].id;
-                            if ($('#txtVariantBlibliLv' + level + '_' + data_recnum).val() == value) {
-                                FoundValue = SelectList[d].id;
-                                attributeOptSelect[0].selectize.setValue(FoundValue, true);//silent = true, agar tidak set button save_map_var_blibli enable
+                    if ($('#txtVariantBlibliFCLv' + level + '_' + data_recnum).val() != "") {
+                        var FoundValue = "";
+                        for (var d = 0; d < len; d++) {
+                            if (FoundValue == "") {
+                                var value = SelectList[d].id;
+                                if ($('#txtVariantBlibliFCLv' + level + '_' + data_recnum).val() == value) {
+                                    FoundValue = SelectList[d].id;
+                                    attributeOptSelect[0].selectize.setValue(FoundValue, true);//silent = true, agar tidak set button save_map_var_blibli enable
+                                }
                             }
                         }
                     }
-                }
+                });
             });
-        });
+        } else {
+            $(".selectVariantBlibliLv" + level + "_").each(function (i, item) {
+                //var data_recnum = $(item).attr("data-recnum");
+                var data_recnum = $($(item).closest('.tampungdatarecnum')).attr('data-recnum');
+                var len = SelectList.length;
+
+                var attributeOptSelect = $(item).selectize({
+                    maxItems: 1,
+                    valueField: 'id',
+                    searchField: 'text',
+                    options: SelectList,
+                    onChange: function (value) {
+                        $('#save_map_var_blibli').removeAttr('disabled');
+                        var input_data_recnum = $($(this.$input).closest('.tampungdatarecnum')).attr('data-recnum');
+                        $('#txtVariantBlibliLv' + level + '_' + input_data_recnum).val(value);                        
+                    }
+                });
+
+                attributeOptSelect[0].selectize.clearOptions();
+                //attributeOptSelect[0].selectize.renderCache = {};
+                attributeOptSelect[0].selectize.load(function (callback) {
+                    callback(SelectList);
+
+                    if ($('#txtVariantBlibliLv' + level + '_' + data_recnum).val() != "") {
+                        var FoundValue = "";
+                        for (var d = 0; d < len; d++) {
+                            if (FoundValue == "") {
+                                var value = SelectList[d].id;
+                                if ($('#txtVariantBlibliLv' + level + '_' + data_recnum).val() == value) {
+                                    FoundValue = SelectList[d].id;
+                                    attributeOptSelect[0].selectize.setValue(FoundValue, true);//silent = true, agar tidak set button save_map_var_blibli enable
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+        }
+        
         //    },
         //    error: function (xhr) {
         //        console.log(xhr);
@@ -1831,6 +1995,9 @@
                 if ($(item).val().trim() == "") {
                     validasi = false;
                     addError($(item), "Kode harus diisi !");
+                } else if ($(item).val().length > 20) {
+                    validasi = false;
+                    addError($(item), "Kode maximal 20 karakter !");
                 }
                 else {
                     if (kodeVariant.length > 0) {
@@ -2277,6 +2444,8 @@
             var listVariantBlibliLv1 = [];
             var listVariantBlibliLv2 = [];
             var listVariantBlibliLv3 = [];
+            var listVariantBlibliFCLv1 = [];
+            var listVariantBlibliFCLv2 = [];
 
             $(".txtVariantBlibliLv1_").each(function (i, item) {
                 listVariantBlibliLv1[i] = $(item).val();
@@ -2286,6 +2455,12 @@
             });
             $(".txtVariantBlibliLv3_").each(function (i, item) {
                 listVariantBlibliLv3[i] = $(item).val();
+            });
+            $(".txtVariantBlibliFCLv1_").each(function (i, item) {
+                listVariantBlibliFCLv1[i] = $(item).val();
+            });
+            $(".txtVariantBlibliFCLv2_").each(function (i, item) {
+                listVariantBlibliFCLv2[i] = $(item).val();
             });
 
             var post_data = {
@@ -2304,7 +2479,10 @@
                     var_detail: {
                         lv_1: listVariantBlibliLv1,
                         lv_2: listVariantBlibliLv2,
-                        lv_3: listVariantBlibliLv3
+                        lv_3: listVariantBlibliLv3,
+                        fc_lv_1: listVariantBlibliFCLv1,
+                        fc_lv_2: listVariantBlibliFCLv2
+                        
                     }
                 }
             }
@@ -2888,6 +3066,11 @@
                                                                 <td>
                                                                     <select id="selectJudulVariantBlibliLv1" placeholder="Nama Variasi" required="required"></select>
                                                                     @Html.Hidden("txtJudulVariantBlibliLv1", textJudulVar1)
+                                                                <div style="display:none">
+                                                                    <select id="selectJudulVariantBlibliFCLv1" placeholder="Nama Variasi" required="required" style="display:none"></select>
+                                                                    @Html.Hidden("txtJudulVariantBlibliFCLv1", "FAMILY COLOUR")
+                                                                </div>
+                                                                    
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -2897,11 +3080,12 @@
                                                     <table class="table table-bordered" style="width:100%" role="grid">
                                                         <thead>
                                                             <tr>
-                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                                <th id="namaOpsiBlibli_1" colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
                                                             </tr>
                                                             <tr>
-                                                                <th width="50%" style="border-right:none">Master Online</th>
-                                                                <th width="50%" style="border-right:none">Blibli</th>
+                                                                <th id="namaOpsiBlibli_mo_1" width="50%" style="border-right:none">Master Online</th>
+                                                                <th id="namaOpsiBlibli_b_1" width="50%" style="border-right:none">Blibli</th>
+                                                                <th id="namaOpsiBlibli_fc_1" width="33%" style="border-right:none;display:none">Blibli Color Family</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -2913,22 +3097,28 @@
                                                                 {
                                                                     textKetVar1 = KetVar1.KET_VAR;
                                                                 }
-                                                                <tr>
-                                                                    <td>
-                                                                        @Html.TextBox("txtOpsiMOBlibliLv1", textKetVar1, new
-                                                                   {
-                                                                       @class = "form-control",
-                                                                       disabled = "disabled",
-                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                                   })
-                                                                    </td>
-                                                                    <td>
-                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM">
-                                                                            <select id="selectVariantBlibliLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliLv1_" placeholder="Nama Variasi" required="required"></select>
-                                                                            @Html.Hidden("txtVariantBlibliLv1_" + VariantPerMpBlibliLv1[i].RECNUM, VariantPerMpBlibliLv1[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv1_" })
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtOpsiMOBlibliLv1", textKetVar1, new
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
+                                                                </td>
+                                                                <td>
+                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM">
+                                                                        <select id="selectVariantBlibliLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliLv1_" placeholder="Nama Variasi" required="required"></select>
+                                                                        @Html.Hidden("txtVariantBlibliLv1_" + VariantPerMpBlibliLv1[i].RECNUM, VariantPerMpBlibliLv1[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv1_" })
+                                                                    </div>
+                                                                </td>
+                                                                <td class="td_opsiFC_1" style="display:none">
+                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM">
+                                                                        <select id="selectVariantBlibliFCLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliFCLv1_" placeholder="Nama Variasi" required="required"></select>
+                                                                        @Html.Hidden("txtVariantBlibliFCLv1_" + VariantPerMpBlibliLv1[i].RECNUM, VariantPerMpBlibliLv1[i].MP_VALUE_FC_VAR, new { @class = "txtVariantBlibliFCLv1_" })
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
                                                             }
                                                         </tbody>
                                                     </table>
@@ -2962,6 +3152,7 @@
                                                             <tr>
                                                                 <th width="50%" style="border-right:none">Master Online</th>
                                                                 <th width="50%" style="border-right:none">Blibli</th>
+
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -2977,6 +3168,10 @@
                                                                 <td>
                                                                     <select id="selectJudulVariantBlibliLv2" placeholder="Nama Variasi" required="required"></select>
                                                                     @Html.Hidden("txtJudulVariantBlibliLv2", textJudulVar2)
+                                                                <div style="display:none">
+                                                                    <select id="selectJudulVariantBlibliFCLv2" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariantBlibliFCLv2", "FAMILY COLOUR")
+                                                                </div>
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -2986,11 +3181,12 @@
                                                     <table class="table table-bordered" style="width:100%" role="grid">
                                                         <thead>
                                                             <tr>
-                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                                <th id="namaOpsiBlibli_2" colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
                                                             </tr>
                                                             <tr>
-                                                                <th width="50%" style="border-right:none">Master Online</th>
-                                                                <th width="50%" style="border-right:none">Blibli</th>
+                                                                <th id="namaOpsiBlibli_mo_2" width="33%" style="border-right:none">Master Online</th>
+                                                                <th id="namaOpsiBlibli_b_2" width="33%" style="border-right:none">Blibli</th>
+                                                                <th id="namaOpsiBlibli_fc_2" width="33%" style="border-right:none">Blibli Color Family</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -3002,22 +3198,28 @@
                                                                 {
                                                                     textKetVar2 = KetVar2.KET_VAR;
                                                                 }
-                                                                <tr>
-                                                                    <td>
-                                                                        @Html.TextBox("txtOpsiMOBlibliLv2", textKetVar2, new
-                                                                   {
-                                                                       @class = "form-control",
-                                                                       disabled = "disabled",
-                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                                   })
-                                                                    </td>
-                                                                    <td>
-                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM">
-                                                                            <select id="selectVariantBlibliLv2_@(VariantPerMpBlibliLv2[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM" class="selectVariantBlibliLv2_" placeholder="Nama Variasi" required="required"></select>
-                                                                            @Html.Hidden("txtVariantBlibliLv2_" + VariantPerMpBlibliLv2[i].RECNUM, VariantPerMpBlibliLv2[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv2_" })
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtOpsiMOBlibliLv2", textKetVar2, new
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
+                                                                </td>
+                                                                <td>
+                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM">
+                                                                        <select id="selectVariantBlibliLv2_@(VariantPerMpBlibliLv2[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM" class="selectVariantBlibliLv2_" placeholder="Nama Variasi" required="required"></select>
+                                                                        @Html.Hidden("txtVariantBlibliLv2_" + VariantPerMpBlibliLv2[i].RECNUM, VariantPerMpBlibliLv2[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv2_" })
+                                                                    </div>
+                                                                </td>
+                                                                <td class="td_opsiFC_2" style="display:none">
+                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM">
+                                                                        <select id="selectVariantBlibliFCLv2_@(VariantPerMpBlibliLv2[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM" class="selectVariantBlibliFCLv2_" placeholder="Nama Variasi" required="required"></select>
+                                                                        @Html.Hidden("txtVariantBlibliFCLv2_" + VariantPerMpBlibliLv2[i].RECNUM, VariantPerMpBlibliLv2[i].MP_VALUE_FC_VAR, new { @class = "txtVariantBlibliFCLv2_" })
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
                                                             }
                                                         </tbody>
                                                     </table>

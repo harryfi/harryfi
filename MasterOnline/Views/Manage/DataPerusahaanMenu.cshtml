@@ -31,6 +31,7 @@
 @section styles
 {
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
 
     <style>
         #data-usaha-section > div {
@@ -48,17 +49,17 @@
             padding: 0 10px 10px 10px;
         }
 
-        .logo_perusahaan_section > .box_upload {
-            width: 200px;
-            height: 200px;
-            border: dashed 1.5px #bbb;
-            border-radius: 10px;
-            background-color: #f7f7f7;
-            background-image: url('');
-            text-align: center;
-            display: table;
-            cursor: pointer;
-        }
+            .logo_perusahaan_section > .box_upload {
+                width: 200px;
+                height: 200px;
+                border: dashed 1.5px #bbb;
+                border-radius: 10px;
+                background-color: #f7f7f7;
+                background-image: url('');
+                text-align: center;
+                display: table;
+                cursor: pointer;
+            }
 
         .box_upload > .box_upload_placeholder {
             color: #ccc;
@@ -72,6 +73,7 @@
             bottom: 25px;
             left: 20px;
         }
+
     </style>
 }
 
@@ -81,6 +83,9 @@
             <div class="page-editor">
                 <h2 class="editor-title">Profil Saya</h2>
                 <span class="title-accent"></span>
+                <button id="close-editor" type="button" class="pull-right page-close">
+                    <span class="close-btn thick"></span>
+                </button>
                 <div class="form-horizontal">
                     <div class="row">
                         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -127,7 +132,7 @@
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.DataUsaha.NPWP, "NPWP", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsaha.NPWP, new { @class = "form-control limited_number_textbox", type = "number"}) : Html.TextBoxFor(m => m.DataUsaha.NPWP, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "" }))
+                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsaha.NPWP, new { @class = "form-control limited_number_textbox", type = "number" }) : Html.TextBoxFor(m => m.DataUsaha.NPWP, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "" }))
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -135,23 +140,23 @@
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @{
                                                     var listMetoda = new List<MetodaHpp>()
-                                                            {
-                                                                new MetodaHpp()
-                                                                {
-                                                                    KODE = "1",
-                                                                    KET = "FIFO"
-                                                                },
-                                                                new MetodaHpp()
-                                                                {
-                                                                    KODE = "2",
-                                                                    KET = "Rata-rata Perusahaan"
-                                                                },
-                                                                new MetodaHpp()
-                                                                {
-                                                                    KODE = "3",
-                                                                    KET = "Rata-rata Gudang"
-                                                                }
-                                                            };
+                                                                                                                                                                                                            {
+                                                                                                                                                                                                                new MetodaHpp()
+                                                                                                                                                                                                                {
+                                                                                                                                                                                                                    KODE = "1",
+                                                                                                                                                                                                                    KET = "FIFO"
+                                                                                                                                                                                                                },
+                                                                                                                                                                                                                new MetodaHpp()
+                                                                                                                                                                                                                {
+                                                                                                                                                                                                                    KODE = "2",
+                                                                                                                                                                                                                    KET = "Rata-rata Perusahaan"
+                                                                                                                                                                                                                },
+                                                                                                                                                                                                                new MetodaHpp()
+                                                                                                                                                                                                                {
+                                                                                                                                                                                                                    KODE = "3",
+                                                                                                                                                                                                                    KET = "Rata-rata Gudang"
+                                                                                                                                                                                                                }
+                                                                                                                                                                                                            };
                                                 }
                                                 @Html.HiddenFor(m => m.DataUsaha.METODA_NO)
                                                 <select class="form-control" id="DataUsaha_Metoda" name="DataUsaha.Metoda" required="required">
@@ -201,102 +206,106 @@
                                             @Html.Label("Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 5 })
-                                                            : Html.TextBoxFor(m => m.DataUsahaTambahan.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "", maxlength = 5 }))
+                                                                                            : Html.TextBoxFor(m => m.DataUsahaTambahan.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "", maxlength = 5 }))
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.DataUsahaTambahan.PERSON, "Contact Person *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.PERSON, new { @class = "form-control", required = "required" })
-                                                            : Html.TextBoxFor(m => m.DataUsahaTambahan.PERSON, new { @class = "form-control", required = "required", Value = "" }))
+                                                                                            : Html.TextBoxFor(m => m.DataUsahaTambahan.PERSON, new { @class = "form-control", required = "required", Value = "" }))
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.DataUsahaTambahan.EMAIL, "Email CP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", type = "email" })
-                                                            : Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", Value = "", type = "email" }))
+                                                                                            : Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", Value = "", type = "email" }))
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.DataUsahaTambahan.TELEPON, "Telepon CP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.TELEPON, new { @class = "form-control limited_number_textbox", type = "number", required = "required" })
-                                                      : Html.TextBoxFor(m => m.DataUsahaTambahan.TELEPON, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "" }))
+                                                                                      : Html.TextBoxFor(m => m.DataUsahaTambahan.TELEPON, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "" }))
                                             </div>
                                         </div>
                                         //add by nurul 11/3/2019
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.DataUsaha.GUDANG, "Default Gudang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsaha.GUDANG, new { @class = "form-control", required = "required" }) : Html.TextBoxFor(m => m.DataUsaha.GUDANG, new { @class = "form-control", required = "required", Value = "" }))
+                                                @*@(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsaha.GUDANG, new { @class = "form-control", required = "required" }) : Html.TextBoxFor(m => m.DataUsaha.GUDANG, new { @class = "form-control", required = "required", Value = "" }))*@
+                                                @Html.HiddenFor(m => m.DataUsaha.GUDANG)
+                                                @*<div id="gudang-select" style="display: none;">*@
+                                                <div id="GUDANG" class="selectivity-input" tabindex="0" required="required"></div>
+                                            @*</div>*@
                                             </div>
                                         </div>
                                         //end add by nurul 11/3/2019
                                         //remark by nurul 10/4/2019
                                         @*<div class="form-group">
-                                            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
-                                                <select class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
-                                                    @if (Model?.DataUsaha != null)
-                                                    {
-                                                        if (Model.DataUsaha.JTRAN_RETUR == "1")
+                                                @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
+                                                    <select class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
+                                                        @if (Model?.DataUsaha != null)
                                                         {
-                                                            <option value="1" selected>Aktif</option>
-                                                            <option value="0">Tidak Aktif</option>
+                                                            if (Model.DataUsaha.JTRAN_RETUR == "1")
+                                                            {
+                                                                <option value="1" selected>Aktif</option>
+                                                                <option value="0">Tidak Aktif</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="1">Aktif</option>
+                                                                <option value="0" selected>Tidak Aktif</option>
+                                                            }
                                                         }
                                                         else
                                                         {
                                                             <option value="1">Aktif</option>
                                                             <option value="0" selected>Tidak Aktif</option>
                                                         }
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="1">Aktif</option>
-                                                        <option value="0" selected>Tidak Aktif</option>
-                                                    }
-                                                </select>
-                                            </div>
-                                        </div>*@
+                                                    </select>
+                                                </div>
+                                            </div>*@
                                         //end remark by nurul 10/4/2019
                                         @*--REMARK BY NURUL 24/8/2018--
-                                        <div class="form-group">
-                                            @Html.LabelFor(m => m.DataUsaha.BCA_API_KEY, "BCA API KEY", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsaha.BCA_API_KEY, new { @class = "form-control" }) : Html.TextBoxFor(m => m.DataUsaha.BCA_API_KEY, new { @class = "form-control", Value = "" }))
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.DataUsaha.BCA_API_KEY, "BCA API KEY", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsaha.BCA_API_KEY, new { @class = "form-control" }) : Html.TextBoxFor(m => m.DataUsaha.BCA_API_KEY, new { @class = "form-control", Value = "" }))
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group">
-                                            @Html.LabelFor(m => m.DataUsaha.BCA_API_SECRET, "BCA API SECRET", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsaha.BCA_API_SECRET, new { @class = "form-control" }) : Html.TextBoxFor(m => m.DataUsaha.BCA_API_SECRET, new { @class = "form-control", Value = "" }))
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.DataUsaha.BCA_API_SECRET, "BCA API SECRET", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsaha.BCA_API_SECRET, new { @class = "form-control" }) : Html.TextBoxFor(m => m.DataUsaha.BCA_API_SECRET, new { @class = "form-control", Value = "" }))
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group">
-                                            @Html.LabelFor(m => m.DataUsaha.BCA_CLIENT_ID, "BCA CLIENT ID", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsaha.BCA_CLIENT_ID, new { @class = "form-control" }) : Html.TextBoxFor(m => m.DataUsaha.BCA_CLIENT_ID, new { @class = "form-control", Value = "" }))
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.DataUsaha.BCA_CLIENT_ID, "BCA CLIENT ID", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsaha.BCA_CLIENT_ID, new { @class = "form-control" }) : Html.TextBoxFor(m => m.DataUsaha.BCA_CLIENT_ID, new { @class = "form-control", Value = "" }))
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group">
-                                            @Html.LabelFor(m => m.DataUsaha.BCA_CLIENT_SECRET, "BCA CLIENT SECRET", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsaha.BCA_CLIENT_SECRET, new { @class = "form-control" }) : Html.TextBoxFor(m => m.DataUsaha.BCA_CLIENT_SECRET, new { @class = "form-control", Value = "" }))
-                                            </div>
-                                        </div>*@
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.DataUsaha.BCA_CLIENT_SECRET, "BCA CLIENT SECRET", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsaha.BCA_CLIENT_SECRET, new { @class = "form-control" }) : Html.TextBoxFor(m => m.DataUsaha.BCA_CLIENT_SECRET, new { @class = "form-control", Value = "" }))
+                                                </div>
+                                            </div>*@
                                         <div class="form-group">
                                             @Html.Label("Logo Toko *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-4 logo_perusahaan_section">
                                                 <button type="button" class="btn btn-danger btn-small btn_hapus_logo" id="btn_hapus_logo">Hapus</button>
                                                 <div class="box_upload" id="box_upload_logo">
-                                                    <span class="box_upload_placeholder">300 x 300 <br/> (.JPG / .JPEG)</span>
-                                                    <input type='file' id='logo_perusahaan' name="logo_perusahaan" accept=".jpg"/>
+                                                    <span class="box_upload_placeholder">300 x 300 <br /> (.JPG / .JPEG)</span>
+                                                    <input type='file' id='logo_perusahaan' name="logo_perusahaan" accept=".jpg" />
                                                 </div>
                                             </div>
                                         </div>
-                                        <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanDataUsaha(this);"/>
+                                        <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanDataUsaha(this);" />
                                     }
                                 </div>
                             </div>
@@ -311,13 +320,20 @@
 @section scripts
 {
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script>
         $(document).on('ready',
             function () {
                 Initialize();
+
+                $('#close-editor').on('click', function () {
+                    location.href = "Bantuan";
+                });
             });
 
         function Initialize() {
+            getGudang();
+            //$('#gudang-select').show();
             getKabKot();
             resetKabKot();
             getDataPengusaha();
@@ -329,7 +345,7 @@
             $('#DataUsaha_JtranRetur').change(function () {
                 $('#DataUsaha_JTRAN_RETUR').val($(this).val());
             });
-            
+
             $("input[type=file]").on("click",
                 function (e) {
                     e.stopPropagation();
@@ -551,5 +567,52 @@
                 }
             });
         }
+
+        //ADD BY NURUL 20/7/2020
+        function getGudang() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetGudang", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listGudang = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listGudang[i] = {
+                                id: item.Kode_Gudang,
+                                text: item.Nama_Gudang
+                            };
+                        });
+
+                    //var gudangSelect = $('#GUDANG').selectize({
+                    //    valueField: 'id',
+                    //    searchField: 'text',
+                    //    options: listGudang,
+                    //    onChange: function (value) {
+                    //        $('#DataUsaha_GUDANG').val(value);
+                    //    }
+                    //});
+
+                    //gudangSelect[0].selectize.setValue($('#DataUsaha_GUDANG').val());
+
+                    $('#GUDANG').selectivity({
+                        allowClear: true,
+                        items: listGudang,
+                        placeholder: 'Harap pilih'
+                    }).change(function () {
+                        var $val = $(this).selectivity('value');
+                        $('#DataUsaha_GUDANG').val($val);
+                    });;
+
+                    $('#GUDANG').selectivity('value', $('#DataUsaha_GUDANG').val());
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        //END ADD BY NURUL 20/7/2020
     </script>
 }

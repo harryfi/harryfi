@@ -6156,7 +6156,7 @@ namespace MasterOnline.Controllers
                 {
                     if (result.value.attributes.Count() > 0)
                     {
-                        ATTRIBUTE_BLIBLI returnData = new ATTRIBUTE_BLIBLI();
+                        ATTRIBUTE_BLIBLI_NEW returnData = new ATTRIBUTE_BLIBLI_NEW();
                         int i = 0;
                         string a = "";
                         foreach (var attribs in result.value.attributes)
@@ -7251,7 +7251,8 @@ namespace MasterOnline.Controllers
             List<string> dsFeature = new List<string>();
             List<string> dsVariasi = new List<string>();
             var attribute = listAttributeBlibli.attributes.FirstOrDefault();
-            for (int i = 1; i <= 30; i++)
+            //for (int i = 1; i <= 30; i++)
+            for (int i = 1; i <= 35; i++)
             {
                 string attribute_id = Convert.ToString(attribute["ACODE_" + i.ToString()]);
                 string attribute_type = Convert.ToString(attribute["ATYPE_" + i.ToString()]);
@@ -7278,7 +7279,10 @@ namespace MasterOnline.Controllers
             //    }
             //}
 
-            for (int i = 1; i <= 30; i++)
+            //change 9 juli 2020, ambil 35 attribute
+            //for (int i = 1; i <= 30; i++)
+            for (int i = 1; i <= 35; i++)
+            //end change 9 juli 2020, ambil 35 attribute
             {
                 string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
                 string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
@@ -7313,7 +7317,8 @@ namespace MasterOnline.Controllers
                     idGambar = data.dataBarangInDb.Sort5;
                     urlGambar = data.dataBarangInDb.LINK_GAMBAR_1;
                 }
-                if (!string.IsNullOrWhiteSpace(idGambar))
+                //if (!string.IsNullOrWhiteSpace(idGambar))
+                if (!string.IsNullOrWhiteSpace(urlGambar))
                 {
                     //if (!uploadedImageID.Contains(idGambar))
                     //{
@@ -7372,7 +7377,8 @@ namespace MasterOnline.Controllers
                     idGambar = data.dataBarangInDb.Sort6;
                     urlGambar = data.dataBarangInDb.LINK_GAMBAR_2;
                 }
-                if (!string.IsNullOrWhiteSpace(idGambar))
+                //if (!string.IsNullOrWhiteSpace(idGambar))
+                if (!string.IsNullOrWhiteSpace(urlGambar))
                 {
                     //if (!uploadedImageID.Contains(idGambar))
                     //{
@@ -7433,7 +7439,8 @@ namespace MasterOnline.Controllers
                     idGambar = data.dataBarangInDb.Sort7;
                     urlGambar = data.dataBarangInDb.LINK_GAMBAR_3;
                 }
-                if (!string.IsNullOrWhiteSpace(idGambar))
+                if (!string.IsNullOrWhiteSpace(urlGambar))
+                //if (!string.IsNullOrWhiteSpace(idGambar))
                 {
                     //if (!uploadedImageID.Contains(idGambar))
                     //{
@@ -7495,7 +7502,8 @@ namespace MasterOnline.Controllers
                     idGambar = data.dataBarangInDb.SIZE_GAMBAR_4;
                     urlGambar = data.dataBarangInDb.LINK_GAMBAR_4;
                 }
-                if (!string.IsNullOrWhiteSpace(idGambar))
+                //if (!string.IsNullOrWhiteSpace(idGambar))
+                if (!string.IsNullOrWhiteSpace(urlGambar))
                 {
                     //if (!uploadedImageID.Contains(idGambar))
                     //{
@@ -7556,7 +7564,8 @@ namespace MasterOnline.Controllers
                     idGambar = data.dataBarangInDb.SIZE_GAMBAR_5;
                     urlGambar = data.dataBarangInDb.LINK_GAMBAR_5;
                 }
-                if (!string.IsNullOrWhiteSpace(idGambar))
+                //if (!string.IsNullOrWhiteSpace(idGambar))
+                if (!string.IsNullOrWhiteSpace(urlGambar))
                 {
                     //if (!uploadedImageID.Contains(idGambar))
                     //{
@@ -7629,8 +7638,10 @@ namespace MasterOnline.Controllers
 
                 //    attributeMap.Add(A_CODE, A_VALUE);
                 //}
-
-                for (int i = 1; i <= 30; i++)
+                //change 9 juli 2020, ambil 35 attribute
+                //for (int i = 1; i <= 30; i++)
+                for (int i = 1; i <= 35; i++)
+                //end change 9 juli 2020, ambil 35 attribute
                 {
                     string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
                     string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
@@ -7647,10 +7658,10 @@ namespace MasterOnline.Controllers
 
                             if (!DefiningAttributes.ContainsKey(attribute_id))
                             {
-                                if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
+                                //if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
                                     DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
                             }
-                            if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
+                            if (aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
                                 attributeMap.Add(attribute_id, value);
                         }
                     }
@@ -7729,8 +7740,11 @@ namespace MasterOnline.Controllers
                 //        DefiningAttributes.Add(A_CODE, dsVariasiValues.ToArray());
                 //    }
                 //}
-
-                for (int i = 1; i <= 30; i++)
+                //change 9 juli 2020, ambil 35 attribute
+                //for (int i = 1; i <= 30; i++)
+                List<string> dsVariasiFCValues = new List<string>();//untuk menampung family color
+                for (int i = 1; i <= 35; i++)
+                //end change 9 juli 2020, ambil 35 attribute
                 {
                     string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
                     string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
@@ -7746,6 +7760,10 @@ namespace MasterOnline.Controllers
                                 if (!dsVariasiValues.Contains(v.MP_VALUE_VAR))
                                 {
                                     dsVariasiValues.Add(v.MP_VALUE_VAR);
+                                    if(v.MP_JUDUL_VAR == "WA-0000002")//add family color jika ada attribute warna
+                                    {
+                                        dsVariasiFCValues.Add(v.MP_VALUE_FC_VAR);
+                                    }
                                 }
                             }
 
@@ -7774,6 +7792,10 @@ namespace MasterOnline.Controllers
                     }
                 }
 
+                if(dsVariasiFCValues.Count > 0)//masukan attribute family color kalau ada isinya
+                {
+                    DefiningAttributes.Add("FA-2000060", dsVariasiFCValues.ToArray());
+                }
 
                 newData.productDefiningAttributes = DefiningAttributes;
 
@@ -7787,17 +7809,23 @@ namespace MasterOnline.Controllers
                     {
                         image_id = var_item.Sort5;
                     }
-                    if (!string.IsNullOrWhiteSpace(image_id))
+                    string url = var_stf02h_item.AVALUE_50;
+                    if (string.IsNullOrWhiteSpace(url))
+                    {
+                        url = var_item.LINK_GAMBAR_1;
+                    }
+                    //if (!string.IsNullOrWhiteSpace(image_id))
+                    if (!string.IsNullOrWhiteSpace(url))
                     {
                         //if (!uploadedImageID.Contains(image_id))
                         //{
                         using (var client = new HttpClient())
                         {
-                            string url = var_stf02h_item.AVALUE_50;
-                            if (string.IsNullOrWhiteSpace(url))
-                            {
-                                url = var_item.LINK_GAMBAR_1;
-                            }
+                            //string url = var_stf02h_item.AVALUE_50;
+                            //if (string.IsNullOrWhiteSpace(url))
+                            //{
+                            //    url = var_item.LINK_GAMBAR_1;
+                            //}
                             //var bytes = await client.GetByteArrayAsync(var_item.LINK_GAMBAR_1);
                             var bytes = await client.GetByteArrayAsync(url);
 
