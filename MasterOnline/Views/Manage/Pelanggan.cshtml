@@ -1061,7 +1061,7 @@
                                             }
                                         }
                                         <br>
-                                        @using (Html.BeginForm("SaveCustomer", "Manage", FormMethod.Post, new { @autocomplete = "off", enctype = "multipart/form-data" }))
+                                        @using (Html.BeginForm("SaveCustomer", "Manage", FormMethod.Post, new { @autocomplete = "off", enctype = "multipart/form-data", id = "form-customer" }))
                                         {
                                             @Html.HiddenFor(m => m.Customers.USERNAME, new { Value = username })
                                             @Html.HiddenFor(m => m.Customers.KLINK, new { Value = "1" })
@@ -1092,9 +1092,18 @@
                                                 @Html.LabelFor(m => m.Customers.NAMA, "Nama Marketplace *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.HiddenFor(m => m.Customers.NAMA)
-                                                    <select id="MARKET" placeholder="Harap pilih" required="required"></select>
+                                                    <select id="MARKET" placeholder="Harap pilih" required="required" ></select>
                                                 </div>
                                             </div>
+                                            //add by nurul 15/7/2020
+                                            <div class="form-group" id="versi-blibli" hidden="hidden">
+                                                @Html.LabelFor(m => m.Customers.KD_ANALISA, "Versi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Customers.KD_ANALISA)
+                                                    <select style="display:none" single class="selectize-dropdown single" id="Customers_KD_ANALISA" placeholder="Harap pilih" ></select>
+                                                </div>
+                                            </div>
+                                            //add by nurul 15/7/2020
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Customers.PERSO, "Nama Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", id = "id-nama-akun" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
@@ -1107,70 +1116,75 @@
                                                     @Html.TextBoxFor(m => m.Customers.EMAIL, new { @class = "form-control", @autocomplete = "off", type = "email", required = "required" })
                                                 </div>
                                             </div>
+                                            <div id="BlibliSellerID" class="form-group"></div>
                                             <div class="form-group" id="password-akun">
                                                 @Html.LabelFor(m => m.Customers.PASSWORD, "Password Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.TextBoxFor(m => m.Customers.PASSWORD, new { @class = "form-control", @autocomplete = "off", type = "password", required = "required" })
                                                 </div>
                                             </div>
+                                            //add by nurul 16/7/2020
+                                            <div id="blibliAPIKey" class="form-group">
+                                            </div>
+                                            //end add by nurul 16/7/2020
                                             // add by fauzi, add selection untuk setting status sync pesanan stok marketplace 25 November 2019
-                                            <div class="form-group">
+                                            <div class="form-group" id="status-sync">
                                                 @Html.LabelFor(m => m.Customers.TIDAK_HIT_UANG_R, "Status Sync Pesanan & Stok", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.HiddenFor(m => m.Customers.TIDAK_HIT_UANG_R)
-                                                        <select style="display:none" single class="selectize-dropdown single" id="Customers_TIDAK_HIT_UANG_R" placeholder="Harap pilih" required="disabled"></select>
+                                                    <select style="display:none" single class="selectize-dropdown single" id="Customers_TIDAK_HIT_UANG_R" placeholder="Harap pilih" required="disabled"></select>
                                                 </div>
                                             </div>
                                             // end add by fauzi, add selection untuk setting status sync pesanan stok marketplace 25 November 2019
 
                                             @*<div class="form-group">
-                @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                    @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
-                </div>
-            </div>*@
+                                                    @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
+                                                    </div>
+                                                </div>*@
                                             @*<div class="form-group">
-                @Html.LabelFor(m => m.Customers.TOP, "Term Of Payment (TOP) *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                <div class="col-md-6 col-sm-6 col-xs-6">
-                    @Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 3, min = 0, max = 999 })
-                </div>
-                <div class="col-md-2 col-sm-2 col-xs-6">
-                    <h5>Hari</h5>
-                </div>
-            </div>*@
+                                                    @Html.LabelFor(m => m.Customers.TOP, "Term Of Payment (TOP) *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-6">
+                                                        @Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 3, min = 0, max = 999 })
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-2 col-xs-6">
+                                                        <h5>Hari</h5>
+                                                    </div>
+                                                </div>*@
                                             @*<div class="form-group">
-                @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                    @Html.HiddenFor(m => m.Customers.KODEPROV)
-                    <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
-                </div>
-            </div>
-            <div class="form-group">
-                @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                    @Html.HiddenFor(m => m.Customers.KODEKABKOT)
-                    <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
-                </div>
-            </div>
-            <div class="form-group">
-                @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                    @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
-                </div>
-            </div>
-            <div class="form-group">
-                @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                    @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
-                </div>
-            </div>*@
+                                                    @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        @Html.HiddenFor(m => m.Customers.KODEPROV)
+                                                        <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        @Html.HiddenFor(m => m.Customers.KODEKABKOT)
+                                                        <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
+                                                    </div>
+                                                </div>*@
                                             @*<div class="form-group">
-                @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
-                <div class="col-md-6 col-sm-6 col-xs-6">
-                    @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
-                </div>
-                <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
-            </div>*@
+                                                    @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-6">
+                                                        @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
+                                                </div>*@
                                             <div class="form-group">
                                                 <div id="divAPIKey"></div>
                                                 <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
@@ -1396,6 +1410,31 @@
         </div>
     </div>
 </div>
+@*//add by nurul 16/7/2020*@
+<div class="modal fade" id="modalBlibliAPIKeyNonToken" tabindex="-1" role="dialog" aria-labelledby="blibliDescNonTokenLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Blibli API Secret Key</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-left">
+                    <h4>1. Login akun Blibli anda sebagai seller di web : https://merchant.blibli.com/MTA/login </h4>
+                    <h4>2. Klik Email anda di kanan atas, kemudian pilih menu Seller API Manager.</h4>
+                    <h4>3. Klik Generate di API Seller Key pada menu Manage API Key.</h4>
+                    <h4>4. Dapatkan API Client Id melalui CS MasterOnline, masukkan dan klik Bind di API Client Id pada menu Bind API Client di Blibli.</h4>
+                    <h4>5. Setelah sukses, copy data API Seller Key ke Master Online.</h4>
+                    <h4>6. Untuk mendapatkan Seller ID, buka halaman Info Toko anda (Store Info).</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*//end add by nurul 16/7/2020*@
 @section scripts
 {
     <script src="~/Content/selectize.js" type="text/javascript"></script>
@@ -1405,6 +1444,9 @@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script type="text/javascript">
+        var $Sort1_Cust = "";
+        var $API_CLIENT_U = "";
+        var $API_CLIENT_P = "";
         var $customerId = "";
         var $jumlahMarketplace = 0;
         var $jumlahMarketplaceMax = 0;
@@ -1466,22 +1508,27 @@
                 });
 
                 $('#close-editor').on('click', function () {
-                $('.customer_table_section').show();
-                //add by nurul 16/7/2019
-                refreshTableCustomer();
-                //end add by nurul 16/7/2019
-                $('.customer_editor_section').hide();
-                $('#Customers_KODEPOS, #Customers_NAMA, #Customers_EMAIL, #Customers_AL, #Customers_RecNum, ' +
-                    '#Customers_CUST, #Customers_TLP, #Customers_KODEPROV, #Customers_KODEKABKOT, #Customers_PERSO, #Customers_API_KEY').val('');
-                $('#CUSTNUMBER').val('[AUTO]');
-                $('#Customers_USERNAME').val('@(username)');
-                $('#Customers_TGL_INPUT').val('@(DateTime.Now.ToString("dd/MM/yyyy"))');
-                $('#KODEPROV, #KODEKABKOT').selectivity('value', null);
-                var namaMarket = $('#MARKET').selectize();
-                namaMarket[0].selectize.setValue(null, true);
-                resetError();
+                    $('.customer_table_section').show();
+                    //add by nurul 16/7/2019
+                    refreshTableCustomer();
+                    //end add by nurul 16/7/2019
+                    $('.customer_editor_section').hide();
+                    $('#Customers_KODEPOS, #Customers_NAMA, #Customers_EMAIL, #Customers_AL, #Customers_RecNum, ' +
+                        '#Customers_CUST, #Customers_TLP, #Customers_KODEPROV, #Customers_KODEKABKOT, #Customers_PERSO, #Customers_API_KEY').val('');
+                    $('#CUSTNUMBER').val('[AUTO]');
+                    $('#Customers_USERNAME').val('@(username)');
+                    $('#Customers_TGL_INPUT').val('@(DateTime.Now.ToString("dd/MM/yyyy"))');
+                    $('#KODEPROV, #KODEKABKOT').selectivity('value', null);
+                    var namaMarket = $('#MARKET').selectize();
+                    namaMarket[0].selectize.setValue(null, true);
+                    resetError();
+                    $Sort1_Cust = "";
+                    $API_CLIENT_P = "";
+                    $API_CLIENT_U = "";
+                    $('#versi-blibli').hide();
+                    $('#MARKET')[0].selectize.enable();
                 });
-
+                $('#MARKET')[0].selectize.enable();
             });
 
         //add by fauzi 06/12/2019
@@ -1585,6 +1632,8 @@
                             //Customers_API_CLIENT_U.value = '';
                             //Customers_API_CLIENT_P.value = '';
                             //Customers_API_KEY.value = '';
+                            $('#versi-blibli').hide();
+                            $('#MARKET')[0].selectize.enable();
                         });
                     }
                 },
@@ -1688,7 +1737,7 @@
                                 showSubsMenu(1);
                             } else {
                                 $("#Customers_NAMA").val(value);
-
+                                $('#versi-blibli').hide();
                                 @{
                                     var v82cart = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("82Cart"))?.IdMarket.ToString();
                                     var bklapak = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("BUKALAPAK"))?.IdMarket.ToString();
@@ -1706,9 +1755,14 @@
                                 if (@bklapak == value ||  @blibli == value ) {
                                     $('#password-akun').show();
                                     $('#Customers_PASSWORD').attr('required', 'checked');
+                                    if (@blibli == value) {
+                                        $('#versi-blibli').show();
+                                        getVersiBlibli($('#Customers_KD_ANALISA').val());                                        
+                                    }
                                 } else {
                                     $('#password-akun').hide();
                                     $('#Customers_PASSWORD').removeAttr('required');
+                                    $('#versi-blibli').hide();
                                 }
                                 //add by Tri, remove/append api_key
                                 $('#lbl_Customers_API_KEY').remove();
@@ -1720,7 +1774,7 @@
                                 }*@
 
                                 showHideShopifyForm(false);
-                                
+
 
                                 if (@bklapak != value && @tokped != value && @shopee != value && @others != value) {
                                 @*if (@bklapak != value && @shopee != value) {*@
@@ -1731,7 +1785,11 @@
                                     } else {
                                         txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" required="required" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" maxlength="100"></div>';
                                     }
-                                    $('#divAPIKey').append(labelAPI_Key + txtAPI_Key);
+                                    if (@blibli == value && $('#Customers_KD_ANALISA').val() == "2") {
+                                        $('#blibliAPIKey').append(labelAPI_Key + txtAPI_Key);
+                                    } else {
+                                        $('#divAPIKey').append(labelAPI_Key + txtAPI_Key);
+                                    }
 
                                     //var lblDescAPIKey = '<div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-12"></div>';
                                     //lblDescAPIKey += '<div id="txtDescAPIKey" class="col-md-6 col-sm-6 col-xs-6" onclick=(openModalDesc(' + value;
@@ -1784,11 +1842,32 @@
                                 }
 
                                 if (@blibli == value) {
+                                                                       
                                     showHideBlibliForm(true);
                                     //add by fauzi 23 Januari 2020
-                                    $('#BlibliMerchantID').show();
-                                    $('#BlibliClient').show();
-                                    $('#BlibliClientPass').show();
+                                    //change by nurul 15/7/2020
+                                    //$('#BlibliMerchantID').show();
+                                    //$('#BlibliClient').show();
+                                    //$('#BlibliClientPass').show();
+                                    if ($('#Customers_KD_ANALISA').val() == "2") {
+                                        $('#BlibliSellerID').show();
+                                        $('#BlibliMerchantID').hide();
+                                        $('#BlibliClient').hide();
+                                        $('#BlibliClientPass').hide();
+                                        $('#password-akun').hide()
+                                        $('#blibliAPIKey').show();
+                                        $('#divAPIKey').hide();
+                                    } else {
+                                        $('#BlibliSellerID').hide();
+                                        $('#BlibliMerchantID').show();
+                                        $('#BlibliClient').show();
+                                        $('#BlibliClientPass').show();
+                                        $('#password-akun').show()
+                                        $('#blibliAPIKey').hide();
+                                        $('#divAPIKey').show();
+                                    }
+                                    getVersiBlibli($('#Customers_KD_ANALISA').val()); 
+                                    //end change by nurul 15/7/2020
                                     // end
                                 }
                                 else {
@@ -1869,7 +1948,7 @@
                     });
 
                     namaMarket[0].selectize.setValue($('#Customers_NAMA').val(), true);
-
+                    
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -1893,7 +1972,11 @@
             else*@
 
             if (codeMarketplace == @kdBlibli) {
-                $('#modalBlibliAPIKey').modal('show');
+                if ($('#Customers_KD_ANALISA').val() == "2") {
+                    $('#modalBlibliAPIKeyNonToken').modal('show');
+                } else {
+                    $('#modalBlibliAPIKey').modal('show');
+                }
             }
             else if (codeMarketplace == @kdElevenia){
                 $('#modalEleveniaAPIKey').modal('show');
@@ -1936,11 +2019,15 @@
 
                     } else {
                         var $form = $(btnClicked).parents('form');
-
+                        var $link = '@Url.Action("SaveCustomer", "Manage", new { api_client_username = "replaceClientU", api_client_password = "replaceClientP" })';
+                        $link = $link.replace("replaceClientU", $API_CLIENT_U);
+                        $link = $link.replace("replaceClientP", $API_CLIENT_P);
                         $.ajax({
                             type: "POST",
-                            url: $form.attr('action'),
-                            data: $form.serialize(),
+                            //url: $form.attr('action'),
+                            url: $link,
+                            //data: $form.serialize(),
+                            data: $('#form-customer').serialize(),
                             beforeSend: function () {
                                 $('#loading_spinner').show();
                             },
@@ -2080,35 +2167,55 @@
             //$('#labelKetTokped1').remove();
             //$('#labelKetTokped2').remove();
             if (show) {
-                var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">Merchant ID *</label>';
+                if ($('#Customers_KD_ANALISA').val() == "2") {
+                    var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">Seller ID *</label>';
 
-                var valuetxtSort1_Cust = "";
-                if ($('#Customers_Sort1_Cust').val() != null) {
-                    valuetxtSort1_Cust = $('#Customers_Sort1_Cust').val();
+                    var valuetxtSort1_Cust = "";
+                    if ($('#Customers_Sort1_Cust').val() != null && $('#Customers_Sort1_Cust').val() != undefined && $('#Customers_Sort1_Cust').val() != "") {
+                        valuetxtSort1_Cust = $('#Customers_Sort1_Cust').val();
+                    } else {
+                        valuetxtSort1_Cust = $Sort1_Cust;
+                    }
+                    var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Seller ID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="' + valuetxtSort1_Cust + '" maxlength="10"></div>';
+                    $('#BlibliSellerID').append(labelSort1_Cust + txtSort1_Cust);
+                    $('#lbl_Customers_API_KEY').html("API Seller Key *");
+                } else {
+                    var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">Merchant ID *</label>';
+
+                    var valuetxtSort1_Cust = "";
+                    if ($('#Customers_Sort1_Cust').val() != null && $('#Customers_Sort1_Cust').val() != undefined && $('#Customers_Sort1_Cust').val() != "") {
+                        valuetxtSort1_Cust = $('#Customers_Sort1_Cust').val();
+                    } else {
+                        valuetxtSort1_Cust = $Sort1_Cust;
+                    }
+                    var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Merchant ID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="' + valuetxtSort1_Cust + '" maxlength="10"></div>';
+
+                    var labelAPI_CLIENT_U = '<label id="labelAPI_CLIENT_U" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">API client *</label>';
+
+                    var valuetxtAPI_CLIENT_U = "";
+                    if ($('#Customers_API_CLIENT_U').val() != null && $('#Customers_API_CLIENT_U').val() != undefined && $('#Customers_API_CLIENT_U').val() != "") {
+                        valuetxtAPI_CLIENT_U = $('#Customers_API_CLIENT_U').val();
+                    } else {
+                        valuetxtAPI_CLIENT_U = $API_CLIENT_U;
+                    }
+                    var txtAPI_CLIENT_U = '<div id="txtAPI_CLIENT_U" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_CLIENT_U must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="' + valuetxtAPI_CLIENT_U + '" maxlength="50"></div>';
+
+                    var labelAPI_CLIENT_P = '<label id="labelAPI_CLIENT_P" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_P">API client password *</label>';
+                    var valuetxtAPI_CLIENT_P = "";
+                    if ($('#Customers_API_CLIENT_P').val() != null && $('#Customers_API_CLIENT_P').val() != undefined && $('#Customers_API_CLIENT_P').val() != "") {
+                        valuetxtAPI_CLIENT_P = $('#Customers_API_CLIENT_P').val();
+                    } else {
+                        valuetxtAPI_CLIENT_P = $API_CLIENT_P;
+                    }
+                    var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" required="required" type="text" value="' + valuetxtAPI_CLIENT_P + '"></div>';
+
+                    $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
+                    $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
+                    $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
+
+                    $('#lbl_Customers_API_KEY').html("API Secret Key *");
+                    $('#labelAPI_CLIENT_U').html("API client username *");
                 }
-                var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Merchant ID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="'+ valuetxtSort1_Cust +'" maxlength="10"></div>';
-
-                var labelAPI_CLIENT_U = '<label id="labelAPI_CLIENT_U" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">API client *</label>';
-
-                var valuetxtAPI_CLIENT_U = "";
-                if ($('#Customers_API_CLIENT_U').val() != null) {
-                    valuetxtAPI_CLIENT_U = $('#Customers_API_CLIENT_U').val();
-                }
-                var txtAPI_CLIENT_U = '<div id="txtAPI_CLIENT_U" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_CLIENT_U must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="'+ valuetxtAPI_CLIENT_U +'" maxlength="50"></div>';
-
-                var labelAPI_CLIENT_P = '<label id="labelAPI_CLIENT_P" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_P">API client password *</label>';
-                var valuetxtAPI_CLIENT_P = "";
-                if ($('#Customers_API_CLIENT_P').val() != null) {
-                    valuetxtAPI_CLIENT_P = $('#Customers_API_CLIENT_P').val();
-                }
-                var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" required="required" type="text" value="'+ valuetxtAPI_CLIENT_P +'"></div>';
-
-                $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
-                $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
-                $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
-
-                $('#lbl_Customers_API_KEY').html("API Secret Key *");
-                $('#labelAPI_CLIENT_U').html("API client username *");
             }
         }
 
@@ -2218,7 +2325,7 @@
                 //end add by nurul 25/3/2019
                 //$('#descAPIKey').hide();
                 //$('#descAPIKey2').hide();
-                
+
                 $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
                 $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
                 $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
@@ -2256,6 +2363,7 @@
                         validateInput($(this), 'TOP');
                     });
                 //END ADD
+                $('#versi-blibli').hide();
             });
 
 
@@ -2277,6 +2385,12 @@
             //add by nurul 26 nov 2018, setelah di close, search lg
             table.search($('#search_customer').val()).draw();
             //end add by nurul 26 nov 2018, setelah di close, search lg
+
+            $Sort1_Cust = "";
+            $API_CLIENT_U = "";
+            $API_CLIENT_P = "";
+
+            $('#versi-blibli').hide();
         }
 
         function resetKabKot() {
@@ -2372,7 +2486,17 @@
                     $('#Customers_KODEKABKOT').val(response.Customers.KODEKABKOT);
                     $('#Customers_TLP').val(response.Customers.TLP);
                     $('#Customers_TOP').val(response.Customers.TOP);
-                   
+                    //add by nurul 16/7/2020
+                    $('#Customers_CUST').attr('disabled', 'disabled');
+                    //$('#MARKET').attr('disabled', 'disabled');
+                    $('#MARKET')[0].selectize.disable();
+                    //$('select').each(function (i) {
+                    //    if ($('select')[i].id == "MARKET") {
+                    //        //$(this).selectize.disable();
+                    //    }
+                    //});
+                    //end add by nurul 16/7/2020
+
                     //add by fauzi 06/12/2019 function for onchange selectize and change db arf01 TIDAK_HIT_UANG_R (sync_pesanan_dan_stok)
                     getStatusSyncMarketplace(response.Customers.TIDAK_HIT_UANG_R);
 
@@ -2381,8 +2505,8 @@
                     $('#divAPIKey').show();
                     $('#JDAppSecret').show();
                     $('#JDAccessToken').show();
-                    
 
+                    
                     //$('#Customers_API_KEY').val(response.Customers.API_KEY);
                     //end add by Tri 11 Maret 2019
                     $('#form_input').show();
@@ -2396,6 +2520,8 @@
                     if (@bklapak == response.Customers.NAMA ||  @blibli == response.Customers.NAMA ) {
                         $('#password-akun').show();
                         $('#Customers_PASSWORD').attr('required', 'checked');
+                        
+                        
                     } else {
                         $('#password-akun').hide();
                         $('#Customers_PASSWORD').removeAttr('required');
@@ -2413,7 +2539,11 @@
                             var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" disabled value="' + valuetxtAPI_Key + '" id="Customers_API_KEY" name="Customers.API_KEY" type="text"></div>';
                         }
 
-                        $('#divAPIKey').append(labelAPI_Key + txtAPI_Key);
+                        if (@blibli == response.Customers.NAMA && response.Customers.KD_ANALISA == "2") {
+                            $('#blibliAPIKey').append(labelAPI_Key + txtAPI_Key);
+                        } else {
+                            $('#divAPIKey').append(labelAPI_Key + txtAPI_Key);
+                        }
 
                         //var lblDescAPIKey = '<div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-12"></div>';
                         //lblDescAPIKey += '<div id="txtDescAPIKey" class="col-md-6 col-sm-6 col-xs-6" onclick=(openModalDesc(' + value;
@@ -2424,7 +2554,7 @@
                         lblDesc3.style.visibility = 'visible';
                         lblDesc4.style.visibility = 'visible';
                         if (@lzd == response.Customers.NAMA) {
-                            lblDesc2.innerText = ' Silahkan anda save & lengkapi langkah selanjutnya'
+                            lblDesc2.innerText = ' Silahkan anda save & lengkapi langkah selanjutnya';
                             lblDesc3.style.visibility = 'hidden';
                             lblDesc4.style.visibility = 'hidden';
                             lblPopUp.style.visibility = 'hidden';
@@ -2435,7 +2565,7 @@
                             lblDesc4.innerText = '';
                             lblPopUp.style.visibility = 'hidden';*@
                         }else {
-                            lblDesc2.innerText = ' Untuk mendapatkan API silahkan lihat petunjuk '
+                            lblDesc2.innerText = ' Untuk mendapatkan API silahkan lihat petunjuk ';
                             lblPopUp.style.visibility = 'visible';
                             lblDesc3.style.visibility = 'hidden';
                             lblDesc4.style.visibility = 'hidden';
@@ -2505,41 +2635,92 @@
                         var blibliCode = context.Marketplaces.SingleOrDefault(m => m.NamaMarket.Equals("BLIBLI")).IdMarket.ToString();
                     }
                     if (@blibliCode == response.Customers.NAMA) {
+                        $('#versi-blibli').show();
+                        $Sort1_Cust = response.Customers.Sort1_Cust;
+                        $API_CLIENT_P = response.Customers.API_CLIENT_P;
+                        $API_CLIENT_U = response.Customers.API_CLIENT_U;
+                        $('#Customers_KD_ANALISA').change(function () {
+                            getVersiBlibli($('#Customers_KD_ANALISA').val());
+                        });
+                        $('#Customers_KD_ANALISA').val(response.Customers.KD_ANALISA);
+                        if ($('#Customers_KD_ANALISA').val() == "2") {
+                            $('#password-akun').hide();
+                            $('#Customers_KD_ANALISA').val(response.Customers.KD_ANALISA);
+                            getVersiBlibli($('#Customers_KD_ANALISA').val());
+                            showHideBlibliForm(true);
+                            $('#BlibliSellerID').show();
+                            $('#BlibliMerchantID').hide();
+                            $('#BlibliClient').hide();
+                            $('#BlibliClientPass').hide();
+                            $('#blibliAPIKey').show();
+                            $('#divAPIKey').hide();
 
-                        $('#lbl_Customers_API_KEY').html("API Secret Key *");
-                        var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">Merchant ID *</label>';
 
-                        var valuetxtSort1_Cust = "";
-                        if (response.Customers.Sort1_Cust != null) {
-                            valuetxtSort1_Cust = response.Customers.Sort1_Cust;
+                            //var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">Seller ID *</label>';
+
+                            //var valuetxtSort1_Cust = "";
+                            //$('#Customers_Sort1_Cust').val(response.Customers.Sort1_Cust);
+                            //if ($('#Customers_Sort1_Cust').val() != null) {
+                            //    valuetxtSort1_Cust = $('#Customers_Sort1_Cust').val();
+                            //}
+                            //var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Seller ID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="' + valuetxtSort1_Cust + '" maxlength="10"></div>';
+                            //$('#BlibliSellerID').append(labelSort1_Cust + txtSort1_Cust);
+                            //$('#lbl_Customers_API_KEY').html("Kata Sandi API *");
+                            //$('#divAPIKey').show();
+                            //$('#BlibliSellerID').show();
+                            //$('#BlibliMerchantID').hide();
+                            //$('#BlibliClient').hide();
+                            //$('#BlibliClientPass').hide();
+                        } else {
+                            $('#versi-blibli').show();
+                            $('#Customers_KD_ANALISA').val("1");
+                            getVersiBlibli($('#Customers_KD_ANALISA').val());
+                            showHideBlibliForm(true);
+                            $('#BlibliSellerID').hide();
+                            $('#BlibliMerchantID').show();
+                            $('#BlibliClient').show();
+                            $('#BlibliClientPass').show();
+                            $('#password-akun').show();
+                            $('#blibliAPIKey').hide();
+                            $('#divAPIKey').show();
+
+                            //$('#lbl_Customers_API_KEY').html("API Secret Key *");
+                            //var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">Merchant ID *</label>';
+
+                            //var valuetxtSort1_Cust = "";
+                            //$('#Customers_Sort1_Cust').val(response.Customers.Sort1_Cust);
+                            //if (response.Customers.Sort1_Cust != null) {
+                            //    valuetxtSort1_Cust = response.Customers.Sort1_Cust;
+                            //}
+                            //var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Merchant ID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="' + valuetxtSort1_Cust + '" maxlength="10"></div>';
+
+                            //var labelAPI_CLIENT_U = '<label id="labelAPI_CLIENT_U" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">API client *</label>';
+
+                            //var valuetxtAPI_CLIENT_U = "";
+                            //if (response.Customers.API_CLIENT_U != null) {
+                            //    valuetxtAPI_CLIENT_U = response.Customers.API_CLIENT_U;
+                            //}
+                            //var txtAPI_CLIENT_U = '<div id="txtAPI_CLIENT_U" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_CLIENT_U must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="' + valuetxtAPI_CLIENT_U + '" maxlength="50"></div>';
+
+                            //var labelAPI_CLIENT_P = '<label id="labelAPI_CLIENT_P" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_P">API client password *</label>';
+                            //var valuetxtAPI_CLIENT_P = "";
+                            //if (response.Customers.API_CLIENT_P != null) {
+                            //    valuetxtAPI_CLIENT_P = response.Customers.API_CLIENT_P;
+                            //}
+                            //var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" required="required" type="text" value="' + valuetxtAPI_CLIENT_P + '"></div>';
+
+                            //$('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
+                            //$('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
+                            //$('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
+                            ////add by fauzi 23 Januari 2020
+                            //$('#divAPIKey').show();
+                            //$('#BlibliMerchantID').show();
+                            //$('#BlibliClient').show();
+                            //$('#BlibliClientPass').show();
+                            ////end add
+                            //$('#labelAPI_CLIENT_U').html("API client username *");
                         }
-                        var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Merchant ID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="'+ valuetxtSort1_Cust +'" maxlength="10"></div>';
-
-                        var labelAPI_CLIENT_U = '<label id="labelAPI_CLIENT_U" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">API client *</label>';
-
-                        var valuetxtAPI_CLIENT_U = "";
-                        if (response.Customers.API_CLIENT_U != null) {
-                            valuetxtAPI_CLIENT_U = response.Customers.API_CLIENT_U;
-                        }
-                        var txtAPI_CLIENT_U = '<div id="txtAPI_CLIENT_U" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_CLIENT_U must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="'+ valuetxtAPI_CLIENT_U +'" maxlength="50"></div>';
-
-                        var labelAPI_CLIENT_P = '<label id="labelAPI_CLIENT_P" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_P">API client password *</label>';
-                        var valuetxtAPI_CLIENT_P = "";
-                        if (response.Customers.API_CLIENT_P != null) {
-                            valuetxtAPI_CLIENT_P = response.Customers.API_CLIENT_P;
-                        }
-                        var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" required="required" type="text" value="'+ valuetxtAPI_CLIENT_P +'"></div>';
-
-                        $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
-                        $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
-                        $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
-                        //add by fauzi 23 Januari 2020
-                        $('#divAPIKey').show();
-                        $('#BlibliMerchantID').show();
-                        $('#BlibliClient').show();
-                        $('#BlibliClientPass').show();
-                        //end add
-                        $('#labelAPI_CLIENT_U').html("API client username *");
+                        
                     }
                     if (@tokped == response.Customers.NAMA) {
                         var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">FSID</label>';
@@ -2630,14 +2811,14 @@
 
                     if (@shopify == response.Customers.NAMA) {
                         $('#lbl_Customers_API_KEY').html("API Key *");
-                        
+
                         var labelAPI_CLIENT_P = '<label id="labelAPI_CLIENT_P" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_P">API password *</label>';
                         var valuetxtAPI_CLIENT_P = "";
                         if (response.Customers.API_CLIENT_P != null) {
                             valuetxtAPI_CLIENT_P = response.Customers.API_CLIENT_P;
                         }
                         var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" required="required" type="text" value="' + valuetxtAPI_CLIENT_P + '"></div>';
-                        
+
                         $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
                         $('#divAPIKey').show();
                         $('#BlibliMerchantID').hide();
@@ -2692,7 +2873,7 @@
             } else if (response == false) {
                 resp = "false02"
             }
-            
+
             var statusSyncMarketplace = $('#Customers_TIDAK_HIT_UANG_R').selectize({
                 create: true,
                 maxItems: 1,
@@ -3211,5 +3392,63 @@
             });
         }
         //END ADD BY NURUL 16/7/2019, PAGING
+
+        //add by nurul 15/7/2020
+        function getVersiBlibli(response) {
+            var resp = false;
+            //var resultStatus = false;
+            if (response == "2") {
+                resp = "2";
+            } else {
+                resp = "1";
+            }
+
+            var versiBlibli = $('#Customers_KD_ANALISA').selectize({
+                create: true,
+                maxItems: 1,
+                multiple: false,
+                addOption: false,
+                sortField: 'text',
+                valueField: 'value',
+                labelField: 'text',
+                searchField: ['text'],
+                options: [
+                    { value: "1", text: "Token", selected: true },
+                    { value: "2", text: "Non Token", selected: true },
+                ],
+                selectedField: "selected",
+                //onInitialize: function () {
+                //this.trigger('change', resp);
+                //},
+                onChange: function (value) {
+                    if (value == "2") {
+                        $('#Customers_KD_ANALISA').val("2");
+                        versiBlibli[0].selectize.setValue(value, true);
+                        showHideBlibliForm(true);
+                        $('#BlibliSellerID').show();
+                        $('#BlibliMerchantID').hide();
+                        $('#BlibliClient').hide();
+                        $('#BlibliClientPass').hide();
+                        $('#password-akun').hide();
+
+                        
+                    }
+                    else  {
+                        $('#Customers_KD_ANALISA').val("1");
+                        versiBlibli[0].selectize.setValue(value, true);
+                        showHideBlibliForm(true);
+                        $('#BlibliSellerID').hide();
+
+                        $('#password-akun').show();
+                        $('#BlibliMerchantID').show();
+                        $('#BlibliClient').show();
+                        $('#BlibliClientPass').show();
+                    }
+                }
+            });
+            //versiBlibli[0].selectize.trigger('change', resp);
+            versiBlibli[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
+        }
+        //end add by nurul 15/7/2020
     </script>
 }

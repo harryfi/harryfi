@@ -431,7 +431,7 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                if (TokenExpired)
+                if (TokenExpired && data.versiToken != "2")
                 {
                     string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
                     string userMTA = data.mta_username_email_merchant;//<-- email user merchant
@@ -842,7 +842,10 @@ namespace MasterOnline.Controllers
                                     token = marketPlace.TOKEN,
                                     mta_username_email_merchant = marketPlace.EMAIL,
                                     mta_password_password_merchant = marketPlace.PASSWORD,
-                                    idmarket = marketPlace.RecNum.Value
+                                    idmarket = marketPlace.RecNum.Value,
+                                    //add by nurul 22/7/2020
+                                    versiToken = marketPlace.KD_ANALISA
+                                    //end add by nurul 22/7/2020
                                 };
                                 BlibliProductData data = new BlibliProductData
                                 {
@@ -1211,7 +1214,10 @@ namespace MasterOnline.Controllers
                                     token = marketPlace.TOKEN,
                                     mta_username_email_merchant = marketPlace.EMAIL,
                                     mta_password_password_merchant = marketPlace.PASSWORD,
-                                    idmarket = marketPlace.RecNum.Value
+                                    idmarket = marketPlace.RecNum.Value,
+                                    //add by nurul 22/7/2020
+                                    versiToken = marketPlace.KD_ANALISA
+                                    //end add by nurul 22/7/2020
                                 };
                                 BlibliProductData data = new BlibliProductData
                                 {
@@ -1824,18 +1830,42 @@ namespace MasterOnline.Controllers
             string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
 
-            string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(skuUpdate) + "&channelId=MasterOnline";
-
+            //add by nurul 13/7/2020
+            string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?";
             HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
-            myReq_1.Method = "GET";
-            myReq_1.Headers.Add("Authorization", ("bearer " + iden.token));
-            myReq_1.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature_1));
-            myReq_1.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
-            myReq_1.Accept = "application/json";
-            myReq_1.ContentType = "application/json";
-            myReq_1.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
-            myReq_1.Headers.Add("sessionId", milis.ToString());
-            myReq_1.Headers.Add("username", userMTA);
+            //end add by nurul 13/7/2020
+
+            //change by nurul 13/7/2020
+            if (iden.versiToken != "2")
+            {
+                urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(skuUpdate) + "&channelId=MasterOnline";
+
+                myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
+                myReq_1.Method = "GET";
+                myReq_1.Headers.Add("Authorization", ("bearer " + iden.token));
+                myReq_1.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature_1));
+                myReq_1.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq_1.Accept = "application/json";
+                myReq_1.ContentType = "application/json";
+                myReq_1.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
+                myReq_1.Headers.Add("sessionId", milis.ToString());
+                myReq_1.Headers.Add("username", userMTA);
+            }
+            else
+            {
+                string usernameMO = iden.API_client_username;
+                string passMO = iden.API_client_password;
+                urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(skuUpdate) + "&channelId=MasterOnline";
+
+                myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
+                myReq_1.Method = "GET";
+                myReq_1.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                myReq_1.Accept = "application/json";
+                myReq_1.ContentType = "application/json";
+                myReq_1.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+                myReq_1.Headers.Add("Signature-Time", milis.ToString());
+            }
+            //end change by nurul 13/7/2020
             string responseFromServer_1 = "";
 
             using (WebResponse response = await myReq_1.GetResponseAsync())
@@ -1913,18 +1943,42 @@ namespace MasterOnline.Controllers
 
             if (allowUpdate)
             {
-                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(skuUpdate) + "&channelId=MasterOnline";
-
+                //add by nurul 13/7/2020
+                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?";
                 HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
-                myReq_1.Method = "GET";
-                myReq_1.Headers.Add("Authorization", ("bearer " + iden.token));
-                myReq_1.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature_1));
-                myReq_1.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
-                myReq_1.Accept = "application/json";
-                myReq_1.ContentType = "application/json";
-                myReq_1.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
-                myReq_1.Headers.Add("sessionId", milis.ToString());
-                myReq_1.Headers.Add("username", userMTA);
+                //end add by nurul 13/7/2020
+
+                //change by nurul 13/7/2020
+                if (iden.versiToken != "2")
+                {
+                    urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(skuUpdate) + "&channelId=MasterOnline";
+
+                    myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
+                    myReq_1.Method = "GET";
+                    myReq_1.Headers.Add("Authorization", ("bearer " + iden.token));
+                    myReq_1.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature_1));
+                    myReq_1.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                    myReq_1.Accept = "application/json";
+                    myReq_1.ContentType = "application/json";
+                    myReq_1.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
+                    myReq_1.Headers.Add("sessionId", milis.ToString());
+                    myReq_1.Headers.Add("username", userMTA);
+                }
+                else
+                {
+                    string usernameMO = iden.API_client_username;
+                    string passMO = iden.API_client_password;
+                    urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(skuUpdate) + "&channelId=MasterOnline";
+
+                    myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
+                    myReq_1.Method = "GET";
+                    myReq_1.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                    myReq_1.Accept = "application/json";
+                    myReq_1.ContentType = "application/json";
+                    myReq_1.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+                    myReq_1.Headers.Add("Signature-Time", milis.ToString());
+                }
+                //end change by nurul 13/7/2020
                 string responseFromServer_1 = "";
 
                 using (WebResponse response = await myReq_1.GetResponseAsync())
@@ -1981,19 +2035,43 @@ namespace MasterOnline.Controllers
                             myData += "]";
                             myData += "}";
 
-                            string signature = CreateTokenBlibli("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/updateProduct", iden.API_secret_key);
-                            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct?channelId=MasterOnline";
-
+                            //add by nurul 13/7/2020
+                            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct?";
                             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                            myReq.Method = "POST";
-                            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
-                            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
-                            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
-                            myReq.Accept = "application/json";
-                            myReq.ContentType = "application/json";
-                            myReq.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
-                            myReq.Headers.Add("sessionId", milis.ToString());
-                            myReq.Headers.Add("username", userMTA);
+                            //end add by nurul 13/7/2020
+
+                            //change by nurul 13/7/2020
+                            if (iden.versiToken != "2")
+                            {
+                                string signature = CreateTokenBlibli("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/updateProduct", iden.API_secret_key);
+                                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct?channelId=MasterOnline";
+
+                                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                                myReq.Method = "POST";
+                                myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+                                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                                myReq.Accept = "application/json";
+                                myReq.ContentType = "application/json";
+                                myReq.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
+                                myReq.Headers.Add("sessionId", milis.ToString());
+                                myReq.Headers.Add("username", userMTA);
+                            }
+                            else
+                            {
+                                string usernameMO = iden.API_client_username;
+                                string passMO = iden.API_client_password;
+                                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct?channelId=MasterOnline";
+
+                                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                                myReq.Method = "POST";
+                                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                                myReq.Accept = "application/json";
+                                myReq.ContentType = "application/json";
+                                myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+                                myReq.Headers.Add("Signature-Time", milis.ToString());
+                            }
+                            //end change by nurul 13/7/2020
                             string responseFromServer = "";
 
                             myReq.ContentLength = myData.Length;
@@ -2114,18 +2192,42 @@ namespace MasterOnline.Controllers
 
             if (allowUpdate)
             {
-                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(skuUpdate) + "&channelId=MasterOnline";
-
+                //add by nurul 13/7/2020
+                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?";
                 HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
-                myReq_1.Method = "GET";
-                myReq_1.Headers.Add("Authorization", ("bearer " + iden.token));
-                myReq_1.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature_1));
-                myReq_1.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
-                myReq_1.Accept = "application/json";
-                myReq_1.ContentType = "application/json";
-                myReq_1.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
-                myReq_1.Headers.Add("sessionId", milis.ToString());
-                myReq_1.Headers.Add("username", userMTA);
+                //end add by nurul 13/7/2020
+
+                //change by nurul 13/7/2020
+                if (iden.versiToken != "2")
+                {
+                    urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(skuUpdate) + "&channelId=MasterOnline";
+
+                    myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
+                    myReq_1.Method = "GET";
+                    myReq_1.Headers.Add("Authorization", ("bearer " + iden.token));
+                    myReq_1.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature_1));
+                    myReq_1.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                    myReq_1.Accept = "application/json";
+                    myReq_1.ContentType = "application/json";
+                    myReq_1.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
+                    myReq_1.Headers.Add("sessionId", milis.ToString());
+                    myReq_1.Headers.Add("username", userMTA);
+                }
+                else
+                {
+                    string usernameMO = iden.API_client_username;
+                    string passMO = iden.API_client_password;
+                    urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(skuUpdate) + "&channelId=MasterOnline";
+
+                    myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
+                    myReq_1.Method = "GET";
+                    myReq_1.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                    myReq_1.Accept = "application/json";
+                    myReq_1.ContentType = "application/json";
+                    myReq_1.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+                    myReq_1.Headers.Add("Signature-Time", milis.ToString());
+                }
+                //end change by nurul 13/7/2020
                 string responseFromServer_1 = "";
 
                 using (WebResponse response = myReq_1.GetResponse())
@@ -3469,6 +3571,9 @@ namespace MasterOnline.Controllers
             public int idmarket { get; set; }
             public string DatabasePathErasoft { get; set; }
             public string username { get; set; }
+            //add by nurul 16/7/2020
+            public string versiToken { get; set; }
+            //end add by nurul 16/7/2020
         }
 
         public class BlibliProductData
