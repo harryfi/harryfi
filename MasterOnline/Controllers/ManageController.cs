@@ -38568,15 +38568,20 @@ namespace MasterOnline.Controllers
         {
             var sqlStorage = new SqlServerStorage(EDBConnID);
             var clientJobServer = new BackgroundJobClient(sqlStorage);
+            //var QueryHangfireLog = (from a in ErasoftDbContext.API_LOG_MARKETPLACE
+            //                        where a.REQUEST_ATTRIBUTE_5 == "HANGFIRE"
+            //                        && a.REQUEST_STATUS == "FAILED"
+            //                        orderby a.REQUEST_DATETIME descending
+            //                        select a.REQUEST_ID).ToList();
             var QueryHangfireLog = (from a in ErasoftDbContext.API_LOG_MARKETPLACE
                                     where a.REQUEST_ATTRIBUTE_5 == "HANGFIRE"
                                     && a.REQUEST_STATUS == "FAILED"
                                     orderby a.REQUEST_DATETIME descending
-                                    select a.REQUEST_ID).ToList();
+                                    select new { REQUEST_ID = a.REQUEST_ID, MARKETPLACE = a.MARKETPLACE, REQUEST_ACTION = a.REQUEST_ACTION }).ToList();
             string listJobID = "";
             foreach (var item in QueryHangfireLog)
             {
-                listJobID += "'" + item + "',";
+                listJobID += "'" + item.REQUEST_ID + "',";
             }
             listJobID = listJobID.Substring(0, listJobID.Length - 1);
 
@@ -38586,7 +38591,14 @@ namespace MasterOnline.Controllers
 
             foreach (var item in QueryHangfireLog)
             {
-                clientJobServer.Requeue(item);
+                //if(item.REQUEST_ACTION.ToLower() == "update stok" && item.MARKETPLACE.ToLower() == "tokopedia")//update stok tokped di delay agar tidak kena limit
+                //{
+                //    clientJobServer.Requeue(item.REQUEST_ID, TimeSpan.FromSeconds(1));
+                //}
+                //else
+                {
+                    clientJobServer.Requeue(item.REQUEST_ID);
+                }
             }
             return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
