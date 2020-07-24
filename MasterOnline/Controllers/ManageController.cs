@@ -3783,19 +3783,22 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var BliApi = new BlibliController();
-                    BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                    if (!string.IsNullOrEmpty(customer.Customers.API_CLIENT_P) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U))
                     {
-                        API_client_username = customer.Customers.API_CLIENT_U,
-                        API_client_password = customer.Customers.API_CLIENT_P,
-                        API_secret_key = customer.Customers.API_KEY,
-                        mta_username_email_merchant = customer.Customers.EMAIL,
-                        mta_password_password_merchant = customer.Customers.PASSWORD,
-                        merchant_code = customer.Customers.Sort1_Cust,
-                        idmarket = customer.Customers.RecNum.Value,
-                        versiToken = customer.Customers.KD_ANALISA
-                    };
-                    Task.Run(() => BliApi.GetCategoryPerUser(data));
+                        var BliApi = new BlibliController();
+                        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                        {
+                            API_client_username = customer.Customers.API_CLIENT_U,
+                            API_client_password = customer.Customers.API_CLIENT_P,
+                            API_secret_key = customer.Customers.API_KEY,
+                            mta_username_email_merchant = customer.Customers.EMAIL,
+                            mta_password_password_merchant = customer.Customers.PASSWORD,
+                            merchant_code = customer.Customers.Sort1_Cust,
+                            idmarket = customer.Customers.RecNum.Value,
+                            versiToken = customer.Customers.KD_ANALISA
+                        };
+                        Task.Run(() => BliApi.GetCategoryPerUser(data));
+                    }
                 }
             }
             #endregion
@@ -11366,6 +11369,32 @@ namespace MasterOnline.Controllers
             try
             {
                 var PromptModel = ErasoftDbContext.PICKUP_POINT_BLIBLI.Where(a => a.MERCHANT_CODE.ToString() == merchant_code).ToList();
+                //add by nurul 24/7/2020
+                if (PromptModel.Count() == 0)
+                {
+                    var tblcustomer = ErasoftDbContext.ARF01.Where(a => a.Sort1_Cust == merchant_code).FirstOrDefault();
+                    if (tblcustomer != null)
+                    {
+                        if (!string.IsNullOrEmpty(tblcustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblcustomer.API_CLIENT_U))
+                        {
+                            var BliApi = new BlibliController();
+                            BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                            {
+                                API_client_username = tblcustomer.API_CLIENT_U,
+                                API_client_password = tblcustomer.API_CLIENT_P,
+                                API_secret_key = tblcustomer.API_KEY,
+                                mta_username_email_merchant = tblcustomer.EMAIL,
+                                mta_password_password_merchant = tblcustomer.PASSWORD,
+                                merchant_code = tblcustomer.Sort1_Cust,
+                                idmarket = tblcustomer.RecNum.Value,
+                                versiToken = tblcustomer.KD_ANALISA
+                            };
+                            Task.Run(() => BliApi.GetPickupPoint(data));
+                            PromptModel = ErasoftDbContext.PICKUP_POINT_BLIBLI.Where(a => a.MERCHANT_CODE.ToString() == merchant_code).ToList();
+                        }
+                    }
+                }
+                //end add by nurul 24/7/2020
                 return View("PromptPickupPointBlibli", PromptModel);
             }
             catch (Exception ex)
