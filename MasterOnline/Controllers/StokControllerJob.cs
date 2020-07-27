@@ -1594,9 +1594,11 @@ namespace MasterOnline.Controllers
                         listNoRef += ",";
                     }
                 }
-                listNoRef = listNoRef.Substring(0, listNoRef.Length - 1) + "]";
-                listID.Add(listNoRef);
-
+                if (!string.IsNullOrEmpty(listNoRef))
+                {
+                    listNoRef = listNoRef.Substring(0, listNoRef.Length - 1) + "]";
+                    listID.Add(listNoRef);
+                }
                 var resStok = getOrderStatusLazada(listID, token, kdBrg, stf02_brg, log_CUST, dbPathEra);
                 if(resStok.status == 1)
                 {
