@@ -3491,9 +3491,9 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="modalPackingPengiriman" tabindex="-1" role="dialog" aria-labelledby="PackingMulti">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-        <div class="modal-content">
+<div class="modal fade" id="modalPackingPengiriman" tabindex="-1" role="dialog" aria-labelledby="PackingMulti" >
+    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document" style="width: 1100px; margin:auto">
+        <div class="modal-content" >
             <div class="modal-header">
                 <h4 class="modal-title" id="PackingMulti">Pengiriman</h4>
             </div>
@@ -3504,7 +3504,8 @@
                     <h4 id="modalPackingPengiriman_packingTitle">Nomor Bukti Packing List : </h4>
                 </div>
                 <div class="row" style="margin-top: 15px;">
-                    <div class="x_content">
+                    <div id="show_packing_list"></div>
+                    @*<div class="x_content">
                         <ul id="detail-packinglist-tabs" class="nav nav-tabs">
                             <li id="li_pesanan_tokped_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_tokped_tab_focus" href="#packing_pesanan_tokped" aria-expanded="false">Tokopedia</a></li>
                             <li id="li_pesanan_lazada_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_lazada_tab_focus" href="#packing_pesanan_lazada" aria-expanded="false">Lazada</a></li>
@@ -3545,7 +3546,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>*@
                 </div>
             </div>
             <br />
@@ -10103,8 +10104,8 @@
                 backdrop: 'static',
                 keyboard: false
             });
-
-            RefreshSemuaPesananMP();
+            refreshShowPackingList();
+            //RefreshSemuaPesananMP();
         }
         var packingstatussinglerecnum = 0;
         function packingStatusSingleRecord(recnum){
@@ -11244,6 +11245,39 @@
             return false;
         }
         //end add by nurul 10/4/2019
+
+    //add by nurul 27/7/2020
+    function refreshShowPackingList() {
+        //$('#packingList_NO_BUKTI').val();
+        var $link = '@Html.Raw(Url.Action("EditPackinglist", "Manage", new { nobuk = "replaceBuktiPacking" }))';
+            $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#modalUbahStatusMultiPacking_packingNo').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#loading_barang_tab').show();
+                    //refreshingPackingBlibli = true;
+                },
+                complete: function () {
+                    //refreshingPackingBlibli = false;
+                    //onRefreshSemuaPesananMPComplete();
+                },
+                success: function (response) {
+                    $('#show_packing_list').html(response);
+                    $('#show_packing_list').show();
+                    $('#detail-packing').show();
+                    $('#pesanan_detail_tab_focus').click();
+                    $('#header-packing').hide();
+
+                    //$('#loading_barang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+    }
+    //end add by nurul 27/7/2020
 </script>
     <script>
         //Disable Enter Key Submit Form

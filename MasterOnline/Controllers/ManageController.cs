@@ -39729,7 +39729,7 @@ namespace MasterOnline.Controllers
                     //ADD BY NURUL 22/7/2020
                     isiDetailpacking.NO_REFERENSI = cariSO.NO_REFERENSI;
                     isiDetailpacking.STATUS_PRINT = cariSO.status_print;
-                    isiDetailpacking.BARCODE = Convert.ToString(cariSO.TIPE_KIRIM);
+                    isiDetailpacking.BARCODE = cariSO.TIPE_KIRIM;
                     //END ADD BY NURUL 22/7/2020
                 }
                 vm.listDetailPacking.Add(isiDetailpacking);
@@ -39738,7 +39738,7 @@ namespace MasterOnline.Controllers
             vm.listRekapBarang = new List<RekapBarang>();
             //CHANGE BY NURUL 22/7/2020
             //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
-            var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(C.BRG_CUST,'') AS BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT01B C ON A.NO_PESANAN=C.NO_BUKTI AND A.BRG=C.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, C.BRG_CUST");
+            var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(A.QTY) QTY, ISNULL(C.BRG_CUST,'') AS BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT01B C ON A.NO_PESANAN=C.NO_BUKTI AND A.BRG=C.BRG WHERE A.NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, C.BRG_CUST");
             //END CHANGE BY NURUL 22/7/2020
             for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
             {
@@ -40035,7 +40035,8 @@ namespace MasterOnline.Controllers
             retData.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
             if (mode == "1")
             {
-                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.NO_PESANAN, A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, QTY, PEMBELI, MARKETPLACE FROM SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT03B C ON A.NO_BUKTI = C.NO_BUKTI AND A.NO_PESANAN = C.NO_PESANAN WHERE A.NO_BUKTI = '" + nobuk + "' ORDER BY A.NO_PESANAN, NAMA_BARANG");
+                //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.NO_PESANAN, A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, QTY, PEMBELI, MARKETPLACE FROM SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT03B C ON A.NO_BUKTI = C.NO_BUKTI AND A.NO_PESANAN = C.NO_PESANAN WHERE A.NO_BUKTI = '" + nobuk + "' ORDER BY A.NO_PESANAN, NAMA_BARANG");
+                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.NO_PESANAN, A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, QTY, PEMBELI, MARKETPLACE, ISNULL(D.NO_REFERENSI,'') AS NO_REFERENSI FROM SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT03B C ON A.NO_BUKTI = C.NO_BUKTI AND A.NO_PESANAN = C.NO_PESANAN INNER JOIN SOT01A D ON A.NO_PESANAN = D.NO_BUKTI WHERE A.NO_BUKTI = '" + nobuk + "' ORDER BY A.NO_PESANAN, NAMA_BARANG");
                 var retRekap = new List<RekapBarang>();
                 if (dsRekap.Tables[0].Rows.Count > 0)
                 {
@@ -40044,6 +40045,7 @@ namespace MasterOnline.Controllers
                         var newData = new RekapBarang
                         {
                             NO_PESANAN = dsRekap.Tables[0].Rows[i]["NO_PESANAN"].ToString(),
+                            NO_REFERENSI = dsRekap.Tables[0].Rows[i]["NO_REFERENSI"].ToString(),
                             BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
                             NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
                             PEMBELI = dsRekap.Tables[0].Rows[i]["PEMBELI"].ToString(),
@@ -40292,7 +40294,7 @@ namespace MasterOnline.Controllers
             sSQLSelect += "SELECT A.CUST,A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item, isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no, A.recnum as so_recnum ";
             sSQLSelect += ", A.NO_PO_CUST as no_job ";
             //add by nurul 22/7/2020
-            sSQLSelect += " isnull(A.status_print,'') AS status_print";
+            sSQLSelect += ", isnull(A.status_print,'') AS status_print ";
             //end add by nurul 22/7/2020
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
@@ -53341,6 +53343,226 @@ namespace MasterOnline.Controllers
             }
         }
         //end add by nurul 8/6/2020
+
+        //add by nurul 24/7/2020
+        public ActionResult refreshTablePackingListPerAkun(string bukti, string cust, string marketplace, string search = "", string filter = "", string filtervalue = "")
+        {
+            var listData = new tempListPacking() {
+                BUKTI = bukti,
+                CUST = cust
+            };
+            string viewName = "";
+            switch (marketplace)
+            {
+                case "LAZADA":
+                    viewName = "ListDetailPackingListLazada";
+                    break;
+                //case "BUKALAPAK":
+                //    viewName = "PackingListBukalapak";
+                //    break;
+                //case "ELEVENIA":
+                //    viewName = "PackingListElevenia";
+                //    break;
+                case "TOKOPEDIA":
+                    viewName = "ListDetailPackingListTokped";
+                    break;
+                case "BLIBLI":
+                    viewName = "ListDetailPackingListBlibli";
+                    break;
+                case "SHOPEE":
+                    viewName = "ListDetailPackingListShopee";
+                    break;
+                //case "20":
+                //    viewName = "PackingList82Cart";
+                //    break;
+                //case "21":
+                //    viewName = "PackingListShopify";
+                //    break;
+                default:
+                    viewName = "";
+                    break;
+            }
+            if (bukti != null && cust != null)
+            {
+                string[] getkata = search.Split(' ');
+                string sSQLkode = "";
+                string sSQLkdbooking = "";
+                string sSQLresi = "";
+                string sSQLpembeli = "";
+                string sSQLkurir = "";
+                string sSQLreferensi = "";
+                string sSQLjob = "";
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
+                    {
+                        for (int i = 0; i < getkata.Length; i++)
+                        {
+                            if (i > 0)
+                            {
+                                sSQLkode += " and ";
+                                sSQLkdbooking += " and ";
+                                sSQLpembeli += " and ";
+                                sSQLresi += " and ";
+                                sSQLkurir += " and ";
+                                sSQLreferensi += " and ";
+                                if (marketplace == "TOKOPEDIA" || marketplace == "SHOPEE")
+                                {
+                                    sSQLjob += " and ";
+                                }
+                            }
+
+                            sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
+                            sSQLkdbooking += "  isnull(A.NO_PO_CUST,'') like '%" + getkata[i] + "%' ";
+                            sSQLpembeli += " B.PEMBELI like '%" + getkata[i] + "%' ";
+                            sSQLresi += "  isnull(A.TRACKING_SHIPMENT,'') like '%" + getkata[i] + "%' ";
+                            sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
+                            sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
+                            if (marketplace == "TOKOPEDIA" || marketplace == "SHOPEE")
+                            {
+                                sSQLjob += " A.NO_PO_CUST like '%" + getkata[i] + "%' ";
+                            }
+                        }
+                    }
+                }
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST,A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item, isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no, A.recnum as so_recnum ";
+                sSQLSelect += ", A.NO_PO_CUST as no_job, isnull(A.status_print,'') AS status_print ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
+                string sSQL2 = "";
+                sSQLSelect += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+                string sSQLTemp = "";
+                switch (filter)
+                {
+                    case "kirim":
+                        {
+                            sSQLTemp = "WHERE ISNULL(STATUS_KIRIM,'') = '" + filtervalue + "' ";
+                        }
+                        break;
+                    case "print":
+                        {
+                            sSQLTemp = "WHERE ISNULL(STATUS_PRINT,'0') = '" + filtervalue + "' ";
+                        }
+                        break;
+                    default:
+                        {
+                            sSQLTemp += "";
+                        }
+                        break;
+                }
+                if (search != "")
+                {
+                    if (sSQLTemp != "")
+                    {
+                        if (marketplace == "TOKOPEDIA" || marketplace == "SHOPEE")
+                        {
+                            sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLjob + ") ) ";
+                        }
+                        else
+                        {
+                            sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                        }
+                    }
+                    else
+                    {
+                        if (marketplace == "TOKOPEDIA" || marketplace == "SHOPEE")
+                        {
+                            sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLjob + ") ) ";
+                        }
+                        else
+                        {
+                            sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                        }
+                    }
+                }
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                var listOrder = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLTemp + sSQLSelect2).ToList();
+                listData.listPacking.AddRange(listOrder);
+            }
+            return PartialView(viewName, listData);
+        }
+
+        public ActionResult refreshTablePackingTabPesanan(string bukti, string search = "", string filter = "", string filtervalue = "")
+        {
+            var listData = new templistDetailPacking()
+            {
+                nobuk = bukti
+            };
+            if (bukti != null)
+            {
+                string[] getkata = search.Split(' ');
+                string sSQLkode = "";
+                string sSQLmarket = "";
+                string sSQLresi = "";
+                string sSQLpembeli = "";
+                string sSQLreferensi = "";
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
+                    {
+                        for (int i = 0; i < getkata.Length; i++)
+                        {
+                            if (i > 0)
+                            {
+                                sSQLkode += " and ";
+                                sSQLpembeli += " and ";
+                                //sSQLresi += " and ";
+                                sSQLreferensi += " and ";
+                                sSQLmarket += " and ";
+                            }
+
+                            sSQLkode += " A.NO_PESANAN like '%" + getkata[i] + "%' ";
+                            sSQLpembeli += " a.PEMBELI like '%" + getkata[i] + "%' ";
+                            //sSQLresi += "  isnull(b.TRACKING_SHIPMENT,'') like '%" + getkata[i] + "%' ";
+                            sSQLreferensi += "  b.NO_REFERENSI like '%" + getkata[i] + "%' ";
+                            sSQLmarket += "  a.MARKETPLACE like '%" + getkata[i] + "%' ";
+                        }
+                    }
+                }
+
+                string sSQLSelect = "";
+                sSQLSelect += "select a.RecNum, a.NO_BUKTI, a.PEMBELI, a.TGL_INPUT, a.USERNAME, a.NO_PESANAN, a.TGL_PESANAN, a.MARKETPLACE, ";
+                sSQLSelect += "ISNULL(b.STATUS_KIRIM,'0') AS SO_STATUS_KIRIM, ISNULL(b.TRACKING_SHIPMENT,'') AS SO_TRACKING_NUMBER, ISNULL(b.NO_REFERENSI,'') AS NO_REFERENSI, ISNULL(b.STATUS_PRINT,'0') AS STATUS_PRINT, ISNULL(b.TIPE_KIRIM,0) AS BARCODE  ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
+                string sSQL2 = "";
+                sSQLSelect += "from sot03b a left join sot01a b on a.no_pesanan=b.no_bukti where a.no_bukti = '" + bukti + "' ";
+                string sSQLTemp = "";
+                switch (filter)
+                {
+                    case "kirim":
+                        {
+                            sSQLTemp = "AND ISNULL(b.STATUS_KIRIM,'0') = '" + filtervalue + "' ";
+                        }
+                        break;
+                    case "print":
+                        {
+                            sSQLTemp = "AND ISNULL(b.STATUS_PRINT,'0') = '" + filtervalue + "' ";
+                        }
+                        break;
+                    default:
+                        {
+                            sSQLTemp += "";
+                        }
+                        break;
+                }
+                if (search != "")
+                {
+                    sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLpembeli + ") or (" + sSQLmarket + ") or (" + sSQLreferensi + ") ) ";
+                }
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.RecNum asc ";
+
+                var listOrder = ErasoftDbContext.Database.SqlQuery<SOT03BDetailPacking>(sSQLSelect + sSQL2 + sSQLTemp + sSQLSelect2).ToList();
+                listData.listDetail.AddRange(listOrder);
+            }
+            return PartialView("ListDetailPackingList", listData);
+        }
+        //end add by nurul 24/7/2020
     }
     public class smolSTF02
     {

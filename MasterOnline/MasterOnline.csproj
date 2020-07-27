@@ -6408,6 +6408,11 @@
     <Content Include="Views\Manage\TablePromptAttribute82Cart.cshtml" />
     <Content Include="Views\Manage\LogErrorUploadPesanan.cshtml" />
     <Content Include="Views\Manage\ListDetailHargaBeliTerakhir.cshtml" />
+    <Content Include="Views\Manage\ListDetailPackingListTokped.cshtml" />
+    <Content Include="Views\Manage\ListDetailPackingListLazada.cshtml" />
+    <Content Include="Views\Manage\ListDetailPackingListShopee.cshtml" />
+    <Content Include="Views\Manage\ListDetailPackingListBlibli.cshtml" />
+    <Content Include="Views\Manage\ListDetailPackingList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
