@@ -3613,6 +3613,153 @@ namespace MasterOnline.Controllers
         }
         //end by Indra 16 apr 2020, upload stokopname
 
+        //ADD BY NURUL 23/7/2020
+        public ActionResult ListPackingListtoExcel(string noPackingList, string mode, string tgl)
+        {
+            var ret = new BindDownloadExcel
+            {
+                Errors = new List<string>()
+            };
+
+            try
+            {
+                using(var package = new OfficeOpenXml.ExcelPackage())
+                {
+                    if (noPackingList != null && noPackingList != "undefined" && noPackingList != "")
+                    {
+                        if (mode == "1")
+                        {
+                            ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Packing List");
+                            string sSQL = "SELECT A.NO_PESANAN, A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, QTY, PEMBELI, MARKETPLACE, ISNULL(D.NO_REFERENSI,'') AS NO_REFERENSI " +
+                                "FROM SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG " +
+                                "INNER JOIN SOT03B C ON A.NO_BUKTI = C.NO_BUKTI AND A.NO_PESANAN = C.NO_PESANAN " +
+                                "INNER JOIN SOT01A D ON A.NO_PESANAN = D.NO_BUKTI  " +
+                                "WHERE A.NO_BUKTI = '" + noPackingList + "' ORDER BY A.NO_PESANAN, NAMA_BARANG ";
+                            var lsPacking = EDB.GetDataSet("CString", "SO", sSQL);
+                            if (lsPacking.Tables[0].Rows.Count > 0)
+                            {
+                                worksheet.Cells["A1"].Value = "PACKING LIST";
+                                worksheet.Cells["A2"].Value = "NO. BUKTI    : " + noPackingList;
+                                worksheet.Cells["A3"].Value = "Tanggal      : " + tgl;
+                                for (int i = 0; i < lsPacking.Tables[0].Rows.Count; i++)
+                                {
+                                    worksheet.Cells[6 + i, 1].Value = lsPacking.Tables[0].Rows[i]["NO_PESANAN"];
+                                    worksheet.Cells[6 + i, 2].Value = lsPacking.Tables[0].Rows[i]["NO_REFERENSI"];
+                                    worksheet.Cells[6 + i, 3].Value = lsPacking.Tables[0].Rows[i]["BRG"];
+                                    worksheet.Cells[6 + i, 4].Value = lsPacking.Tables[0].Rows[i]["NAMA_BARANG"];
+                                    worksheet.Cells[6 + i, 5].Value = lsPacking.Tables[0].Rows[i]["QTY"];
+                                    worksheet.Cells[6 + i, 6].Value = lsPacking.Tables[0].Rows[i]["PEMBELI"];
+                                    worksheet.Cells[6 + i, 7].Value = lsPacking.Tables[0].Rows[i]["MARKETPLACE"];
+
+                                }
+                                    ExcelRange rg0 = worksheet.Cells[5, 1, worksheet.Dimension.End.Row, 7];
+                                    string tableName0 = "TablePackingList";
+                                    ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+
+                                    table0.Columns[0].Name = "NO PESANAN";
+                                    table0.Columns[1].Name = "NO REFERENSI";
+                                    table0.Columns[2].Name = "KODE BARANG";
+                                    table0.Columns[3].Name = "NAMA BARANG";
+                                    table0.Columns[4].Name = "QTY";
+                                    table0.Columns[5].Name = "PEMBELI";
+                                    table0.Columns[6].Name = "MARKETPLACE";
+
+                                    using (var range = worksheet.Cells[5, 1, 5, 7])
+                                    {
+                                        range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                                        range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                                        range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                                        range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                                    }
+
+                                    table0.ShowHeader = true;
+                                    table0.ShowFilter = true;
+                                    table0.ShowRowStripes = false;
+                                    worksheet.Cells.AutoFitColumns(0);
+
+                                    ret.byteExcel = package.GetAsByteArray();
+                                    ret.namaFile = username + "_PackingList_" + noPackingList + ".xlsx";
+                                
+                            }
+                            else
+                            {
+                                ret.Errors.Add("Tidak ada data packing list");
+                            }
+                        }
+                        else
+                        {
+                            ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Picking List");
+                            string sSQL = "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY " +
+                                "from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG " +
+                                "WHERE NO_BUKTI = '" + noPackingList + "' GROUP BY A.BRG, B.NAMA, B.NAMA2 ";
+                            var lsPicking = EDB.GetDataSet("CString", "SO", sSQL);
+                            if (lsPicking.Tables[0].Rows.Count > 0)
+                            {
+                                worksheet.Cells["A1"].Value = "PICKING LIST";
+                                worksheet.Cells["A2"].Value = "NO. BUKTI    : " + noPackingList;
+                                worksheet.Cells["A3"].Value = "Tanggal      : " + tgl;
+                                for (int i = 0; i < lsPicking.Tables[0].Rows.Count; i++)
+                                {
+                                    worksheet.Cells[6 + i, 1].Value = lsPicking.Tables[0].Rows[i]["BRG"];
+                                    worksheet.Cells[6 + i, 2].Value = lsPicking.Tables[0].Rows[i]["NAMA_BARANG"];
+                                    worksheet.Cells[6 + i, 3].Value = lsPicking.Tables[0].Rows[i]["QTY"];
+                                }
+                                    ExcelRange rg0 = worksheet.Cells[5, 1, worksheet.Dimension.End.Row, 3];
+                                    string tableName0 = "TablePackingList";
+                                    ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+
+                                    table0.Columns[0].Name = "KODE BARANG";
+                                    table0.Columns[1].Name = "NAMA BARANG";
+                                    table0.Columns[2].Name = "QTY";
+
+                                    using (var range = worksheet.Cells[5, 1, 5, 3])
+                                    {
+                                        range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                                        range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                                        range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                                        range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                                    }
+
+                                    table0.ShowHeader = true;
+                                    table0.ShowFilter = true;
+                                    table0.ShowRowStripes = false;
+                                    worksheet.Cells.AutoFitColumns(0);
+
+                                    ret.byteExcel = package.GetAsByteArray();
+                                    ret.namaFile = username + "_PickingList_" + noPackingList + ".xlsx";
+                                
+                            }
+                            else
+                            {
+                                ret.Errors.Add("Tidak ada data picking list");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ret.Errors.Add("Tidak ada no bukti packing list");
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+            }
+
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+
+            return result;
+
+        }
+        //END ADD BY NURUL 23/7/2020
     }
 
 
