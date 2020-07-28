@@ -973,7 +973,7 @@
                         var str = $('#hidden_url_gambar_1').val();
                         var n = str.lastIndexOf('/');
                         var keyNameFile = str.substring(n + 1);
-
+                        image_size_1 = 0;
                         deleteObjectByFileName(keyNameFile);
 
                         $('#foto_produk_1').val(null);
@@ -1000,7 +1000,7 @@
                         var str = $('#hidden_url_gambar_2').val();
                         var n = str.lastIndexOf('/');
                         var keyNameFile = str.substring(n + 1);
-
+                        image_size_2 = 0;
                         deleteObjectByFileName(keyNameFile);
 
                         $('#foto_produk_2').val(null);
@@ -1027,7 +1027,7 @@
                         var str = $('#hidden_url_gambar_3').val();
                         var n = str.lastIndexOf('/');
                         var keyNameFile = str.substring(n + 1);
-
+                        image_size_3 = 0;
                         deleteObjectByFileName(keyNameFile);
 
                         $('#foto_produk_3').val(null);
@@ -1055,7 +1055,7 @@
                         var str = $('#hidden_url_gambar_2').val();
                         var n = str.lastIndexOf('/');
                         var keyNameFile = str.substring(n + 1);
-
+                        image_size_4 = 0;
                         deleteObjectByFileName(keyNameFile);
 
                         $('#foto_produk_4').val(null);
@@ -1082,7 +1082,7 @@
                         var str = $('#hidden_url_gambar_5').val();
                         var n = str.lastIndexOf('/');
                         var keyNameFile = str.substring(n + 1);
-
+                        image_size_5 = 0;
                         deleteObjectByFileName(keyNameFile);
 
                         $('#foto_produk_5').val(null);
@@ -1107,7 +1107,9 @@
                     alert('Hanya boleh file berformat .jpg!');
                     return false;
                 }
-                var fileSize = file["size"];
+                image_size_1 = file["size"];
+                //var fileSize = file["size"];
+                var fileSize = image_size_1 + image_size_2 + image_size_3 + image_size_4 + image_size_5;
                 if (fileSize > 4000000) {
                     alert('Maximal size 4MB');
                     $('#btn_hapus_1').click();
@@ -1132,7 +1134,9 @@
                     alert('Hanya boleh file berformat .jpg!');
                     return false;
                 }
-                var fileSize = file["size"];
+                image_size_2 = file["size"];
+                //var fileSize = file["size"];
+                var fileSize = image_size_1 + image_size_2 + image_size_3 + image_size_4 + image_size_5;
                 if (fileSize > 4000000) {
                     alert('Maximal size 4MB');
                     $('#btn_hapus_2').click();
@@ -1157,7 +1161,9 @@
                     alert('Hanya boleh file berformat .jpg!');
                     return false;
                 }
-                var fileSize = file["size"];
+                image_size_3 = file["size"];
+                //var fileSize = file["size"];
+                var fileSize = image_size_1 + image_size_2 + image_size_3 + image_size_4 + image_size_5;
                 if (fileSize > 4000000) {
                     alert('Maximal size 4MB');
                     $('#btn_hapus_3').click();
@@ -1183,7 +1189,9 @@
                     alert('Hanya boleh file berformat .jpg!');
                     return false;
                 }
-                var fileSize = file["size"];
+                image_size_4 = file["size"];
+                //var fileSize = file["size"];
+                var fileSize = image_size_1 + image_size_2 + image_size_3 + image_size_4 + image_size_5;
                 if (fileSize > 4000000) {
                     alert('Maximal size 4MB');
                     $('#btn_hapus_4').click();
@@ -1208,7 +1216,9 @@
                     alert('Hanya boleh file berformat .jpg!');
                     return false;
                 }
-                var fileSize = file["size"];
+                image_size_5 = file["size"];
+                //var fileSize = file["size"];
+                var fileSize = image_size_1 + image_size_2 + image_size_3 + image_size_4 + image_size_5;
                 if (fileSize > 4000000) {
                     alert('Maximal size 4MB');
                     $('#btn_hapus_5').click();
@@ -1307,6 +1317,13 @@
             //end remark by calvin 23 april 2019
             CekTabVariant();
         }
+        //add 28 jul 2020, validasi image size
+        var image_size_1 = 0;
+        var image_size_2 = 0;
+        var image_size_3 = 0;
+        var image_size_4 = 0;
+        var image_size_5 = 0;
+        //end add 28 jul 2020, validasi image size
         function ClearCategoryLazada(divIDpertama, divIDselanjutnya, divIDattribute, i, undoing) {
             var fieldCategoryCode = '#ListHargaJualPermarket_' + i + '__CATEGORY_CODE';
             var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
@@ -5237,7 +5254,7 @@
 
         function showPromptAttribute82CartTextBoxWindow(valueAttribute, no_cust) {
             var $link = '@Html.Raw(Url.Action("PromptAttribute82Cart", "Manage", new { cust = "replaceNoCust", attribute = "replaceAtt" }))';
-            
+
             $link = $link.replace("replaceNoCust", no_cust);
             $link = $link.replace("replaceAtt", valueAttribute);
             window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
