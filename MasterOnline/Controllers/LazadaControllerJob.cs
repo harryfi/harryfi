@@ -3460,7 +3460,8 @@ namespace MasterOnline.Controllers
             var username = uname;
             //var dmin2 = DateTime.Today.AddDays(-2);
             //var dmin2 = DateTime.Now.AddDays(-1);
-            var dmin2 = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            //var dmin2 = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            var dmin2 = DateTime.UtcNow.AddHours(7).AddHours(-3);
 
             var brgCancelled = new List<TEMP_ALL_MP_ORDER_ITEM>();
             var connIDStok = Guid.NewGuid().ToString();
