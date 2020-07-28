@@ -754,14 +754,19 @@
 
     //add by nurul 24/7/2020
     function refreshTablePackingListPerAkunShopee(cust) {
-
+        //$('#search_table_packing_pesanan_shopee__' + cust).val('');
+        //$('#filter_packing_field_shopee__' + cust).val('Harap Pilih').change();
         var $link = '@Html.Raw(Url.Action("refreshTablePackingListPerAkun", "Manage", new { bukti = "replacebukti", cust = "replacecust", marketplace = "replacemarket", search = "replacesearch", filter = "replacefilter", filtervalue = "replacefiltervalue" }))';
         $link = $link.replace("replacebukti", encodeURIComponent($('#packingList_NO_BUKTI').val()));
         $link = $link.replace("replacecust", encodeURIComponent(cust));
         $link = $link.replace("replacemarket", encodeURIComponent("SHOPEE"));
         $link = $link.replace("replacesearch", encodeURIComponent($('#search_table_packing_pesanan_shopee__' + cust).val()));
-        $link = $link.replace("replacefilter", encodeURIComponent(null));
-        $link = $link.replace("replacefiltervalue", encodeURIComponent(null));
+        //$link = $link.replace("replacefilter", encodeURIComponent(null));
+        //$link = $link.replace("replacefiltervalue", encodeURIComponent(null));
+        var filterbyShopee = get_shopee_filterby(cust);
+        var filtervalueShopee = get_shopee_filtervalue(filterbyShopee, cust);
+        $link = $link.replace("replacefilter", encodeURIComponent(filterbyShopee));
+        $link = $link.replace("replacefiltervalue", encodeURIComponent(filtervalueShopee));
 
         $.ajax({
             type: "GET",
@@ -776,34 +781,34 @@
                 $('#table_packing_shopee__' + cust).show();
 
                 //add by nurul 23/7/2020
-                $('#filter_packing_field_shopee').change(function () {
+                $('#filter_packing_field_shopee__' + cust).change(function () {
                     var filterBy = $(this).val();
                     switch (filterBy) {
                         case "kirim":
-                            $('#filter_packing_kirim_field_option_div_shopee').show();
-                            $('#filter_packing_print_field_option_div_shopee').hide();
-                            $('#filter_packing_kirim_shopee').val('Harap Pilih');
+                            $('#filter_packing_kirim_field_option_div_shopee__' + cust).show();
+                            $('#filter_packing_print_field_option_div_shopee__' + cust).hide();
+                            $('#filter_packing_kirim_shopee__' + cust).val('Harap Pilih');
                             break;
                         case "print":
-                            $('#filter_packing_kirim_field_option_div_shopee').hide();
-                            $('#filter_packing_print_field_option_div_shopee').show();
-                            $('#filter_packing_print_shopee').val('Harap Pilih');
+                            $('#filter_packing_kirim_field_option_div_shopee__' + cust).hide();
+                            $('#filter_packing_print_field_option_div_shopee__' + cust).show();
+                            $('#filter_packing_print_shopee__' + cust).val('Harap Pilih');
                             break;
                         default:
-                            $('#filter_packing_kirim_field_option_div_shopee').hide();
-                            $('#filter_packing_print_field_option_div_shopee').hide();
+                            $('#filter_packing_kirim_field_option_div_shopee__' + cust).hide();
+                            $('#filter_packing_print_field_option_div_shopee__' + cust).hide();
                             break;
                     }
 
                 });
-                $('#filter_packing_kirim_shopee').change(function () {
-                    if ($('#filter_packing_kirim_shopee').val() != "Harap Pilih" && $('#filter_packing_field_shopee').val() != "Harap Pilih") {
-                        SearchTablePackingListPerAkunShopee();
+                $('#filter_packing_kirim_shopee__' + cust).change(function () {
+                    if ($('#filter_packing_kirim_shopee__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_shopee__' + cust).val() != "Harap Pilih") {
+                        SearchTablePackingListPerAkunShopee(cust);
                     }
                 });
-                $('#filter_packing_print_shopee').change(function () {
-                    if ($('#filter_packing_print_shopee').val() != "Harap Pilih" && $('#filter_packing_field_shopee').val() != "Harap Pilih") {
-                        SearchTablePackingListPerAkunShopee();
+                $('#filter_packing_print_shopee__' + cust).change(function () {
+                    if ($('#filter_packing_print_shopee__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_shopee__' + cust).val() != "Harap Pilih") {
+                        SearchTablePackingListPerAkunShopee(cust);
                     }
                 });
 
@@ -811,12 +816,12 @@
                     var key = e.which;
                     if (key == 13)// the enter key code
                     {
-                        SearchTablePackingListPerAkunShopee();
+                        SearchTablePackingListPerAkunShopee(cust);
                         return false;
                     }
                 });
                 $('#search_table_packing_pesanan_shopee__').click(function () {
-                    SearchTablePackingListPerAkunShopee();
+                    SearchTablePackingListPerAkunShopee(cust);
                 });
                 //end add by nurul 23/7/2020
             },
@@ -826,22 +831,22 @@
         });
     }
 
-    function get_faktur_filterby() {
-        return $('#filter_packing_field_shopee').val();
+    function get_shopee_filterby(cust) {
+        return $('#filter_packing_field_shopee__' + cust).val();
     }
-    function get_faktur_filtervalue(filterby) {
-        var filtervalue = "";
-        switch (filterby) {
+    function get_shopee_filtervalue(filterbyShopee, cust) {
+        var filtervalueShopee = "";
+        switch (filterbyShopee) {
             case "kirim":
-                filtervalue = $('#filter_packing_kirim_shopee').val();
+                filtervalueShopee = $('#filter_packing_kirim_shopee__' + cust).val();
                 break;
             case "print":
-                filtervalue = $('#filter_packing_print_shopee').val();
+                filtervalue = $('#filter_packing_print_shopee__' + cust).val();
                 break;
             default:
                 break;
         }
-        return filtervalue;
+        return filtervalueShopee;
     }
     function SearchTablePackingListPerAkunShopee(cust) {
         $custTokped = cust;
@@ -850,10 +855,10 @@
         $link = $link.replace("replacecust", encodeURIComponent(cust));
         $link = $link.replace("replacemarket", encodeURIComponent("SHOPEE"));
         $link = $link.replace("replacesearch", encodeURIComponent($('#search_table_packing_pesanan_shopee__' + cust).val()));
-        var filterby = get_faktur_filterby();
-        var filtervalue = get_faktur_filtervalue(filterby);
-        $link = $link.replace("replacefilter", encodeURIComponent(filterby));
-        $link = $link.replace("replacefiltervalue", encodeURIComponent(filtervalue));
+        var filterbyShopee = get_shopee_filterby(cust);
+        var filtervalueShopee = get_shopee_filtervalue(filterbyShopee, cust);
+        $link = $link.replace("replacefilter", encodeURIComponent(filterbyShopee));
+        $link = $link.replace("replacefiltervalue", encodeURIComponent(filtervalueShopee));
 
         $.ajax({
             type: "GET",
@@ -877,7 +882,7 @@
 
     function RefreshPackingShopee(cust) {
         $('#search_table_packing_pesanan_shopee__' + cust).val('');
-        $('#filter_packing_field_shopee').val('Harap Pilih').change();
+        $('#filter_packing_field_shopee__' + cust).val('Harap Pilih').change();
         var $link = '@Html.Raw(Url.Action("refreshTablePackingListPerAkun", "Manage", new { bukti = "replacebukti", cust = "replacecust", marketplace = "replacemarket", search = "replacesearch", filter = "replacefilter", filtervalue = "replacefiltervalue" }))';
         $link = $link.replace("replacebukti", encodeURIComponent($('#packingList_NO_BUKTI').val()));
         $link = $link.replace("replacecust", encodeURIComponent(cust));
@@ -1100,9 +1105,9 @@
                     </div>
                     <div class="col-md-4">
                         @*<input id="txtShipment__@(item.CUST)" disabled="disabled" required="required" class="form-control" maxlength="30" data_val_length_max="30">
-            <button id="btnShipment__@(item.CUST)" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvShopee('@(item.CUST)')">
-                <span class="glyphicon glyphicon-option-horizontal"></span>
-            </button>*@
+                <button id="btnShipment__@(item.CUST)" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvShopee('@(item.CUST)')">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>*@
                         <div class="form-group">
                             <div id="shopee-resi-pickup-address-@(item.CUST)">
                                 <select id="select-shopee-resi-pickup-address-@(item.CUST)" class="selectShopeeResiPickupAddress" data-kodecust="@(item.CUST)" placeholder="Pickup Address" required="required"></select>
@@ -1112,15 +1117,15 @@
                     </div>
                     <div class="col-md-1"></div>
                     <div class="col-md-1 pull-left">
-                        <button id="btnRefreshShopee_@(item.CUST)" type="button" class="btn btn-primary" onclick="RefreshPackingShopee('@(item.CUST)')" style="width:75px">Refresh</button>
+                        <button id="btnRefreshShopee_@(item.CUST)" type="button" class="btn btn-default" onclick="RefreshPackingShopee('@(item.CUST)')" style="width:75px">Refresh</button>
                     </div>
                     <div class="col-md-2 pull-right" style="text-align:right">
                         @*<button id="btnProsesJOBShopee__@(item.CUST)" type="button" class="btn btn-primary pull-left" onclick="RequestJOBPackingShopee('@(item.CUST)')" style="width:50px; text-align:center;">JOB</button>*@
                         @*<button id="btnProsesPickupShopee__@(item.CUST)" type="button" class="btn btn-primary " onclick="RequestPickupPackingShopee('@(item.CUST)')" @*style="width:121px; text-align:center;">Request Pickup</button>
-            <button id="btnProsesDropoffShopee__@(item.CUST)" type="button" class="btn btn-primary " onclick="RequestDropoffPackingShopee('@(item.CUST)')" @*style="width:75px; text-align:center;">Drop Off</button>*@
-                        <div class="col-md-6 pull-left" style="text-align:right">
-                            <div class=" btn-group pull-right" role="group" style="vertical-align: top;">
-                                <button id="pl_shopee_btnGroup1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @*style="width:73px;"*@>
+                <button id="btnProsesDropoffShopee__@(item.CUST)" type="button" class="btn btn-primary " onclick="RequestDropoffPackingShopee('@(item.CUST)')" @*style="width:75px; text-align:center;">Drop Off</button>*@
+                        <div class="col-md-6" style="text-align:right">
+                            <div class=" btn-group pull-right" role="group">
+                                <button id="pl_shopee_btnGroup1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:75px">
                                     Proses <span class="caret"></span>
                                 </button>
                                 <div class="dropdown-menu">
@@ -1139,7 +1144,7 @@
                         <div class=" col-md-6 pull-right" style="text-align:right">
                             @*<button id="btnProsesJOBShopee__@(item.CUST)" type="button" class="btn btn-primary " onclick="RequestJOBPackingShopee('@(item.CUST)')" @*style="width:50px; text-align:center;">JOB</button>*@
                             <div class=" btn-group pull-right" role="group" style="vertical-align: top;">
-                                <button id="pl_shopee_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @*style="width:73px;"*@>
+                                <button id="pl_shopee_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:75px">
                                     Print <span class="caret"></span>
                                 </button>
                                 <div class="dropdown-menu">
@@ -1155,18 +1160,18 @@
                         @*//change by nurul 11/12/2019*@
                         @*<button id="btnPrintShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="ShopeeGetLabelPerPacking('@(item.CUST)')">Print</button>*@
                         @*<div class=" btn-group pull-right" role="group" style="vertical-align: top;">
-                <button id="pl_shopee_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:73px;">
-                    Print <span class="caret"></span>
-                </button>
-                <div class="dropdown-menu">
-                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintShopee__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="ShopeeGetLabelPerPacking('@(item.CUST)','1')">
-                        <span aria-hidden="true"> Label Marketplace</span>
+                    <button id="pl_shopee_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:73px;">
+                        Print <span class="caret"></span>
                     </button>
-                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOShopee__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="ShopeeGetLabelPerPacking('@(item.CUST)','2')">
-                        <span aria-hidden="true"> Label MasterOnline</span>
-                    </button>
-                </div>
-            </div>*@
+                    <div class="dropdown-menu">
+                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintShopee__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="ShopeeGetLabelPerPacking('@(item.CUST)','1')">
+                            <span aria-hidden="true"> Label Marketplace</span>
+                        </button>
+                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOShopee__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="ShopeeGetLabelPerPacking('@(item.CUST)','2')">
+                            <span aria-hidden="true"> Label MasterOnline</span>
+                        </button>
+                    </div>
+                </div>*@
                         @*//end change by nurul 11/12/2019*@
                     </div>
                 </div>
@@ -1192,23 +1197,23 @@
                 <div class="row">
                     <label class="col-lg-1 col-sm-6 col-md-1" style="margin-top:10px;">Filter</label>
                     <div class="col-lg-2 col-sm-6 col-md-2">
-                        <select class="form-control" id="filter_packing_field_shopee" required="required">
+                        <select class="form-control" id="filter_packing_field_shopee__@(item.CUST)" required="required">
                             <option>Harap Pilih</option>
                             <option value="kirim">Status Kirim</option>
                             <option value="print">Status Print</option>
                         </select>
                     </div>
                     <div class="col-lg-2 col-sm-6 col-md-2">
-                        <div class="col-12" id="filter_packing_kirim_field_option_div_shopee" style="display:none">
-                            <select class="form-control" id="filter_packing_kirim_shopee" required="required">
+                        <div class="col-12" id="filter_packing_kirim_field_option_div_shopee__@(item.CUST)" style="display:none">
+                            <select class="form-control" id="filter_packing_kirim_shopee__@(item.CUST)" required="required">
                                 <option>Harap Pilih</option>
                                 <option value="0">Dalam Proses</option>
                                 <option value="1">Gagal Proses</option>
                                 <option value="2">Siap Kirim</option>
                             </select>
                         </div>
-                        <div class="col-12" id="filter_packing_print_field_option_div_shopee" style="display:none">
-                            <select class="form-control" id="filter_packing_print_shopee" required="required">
+                        <div class="col-12" id="filter_packing_print_field_option_div_shopee__@(item.CUST)" style="display:none">
+                            <select class="form-control" id="filter_packing_print_shopee__@(item.CUST)" required="required">
                                 <option>Harap Pilih</option>
                                 <option value="1">Sudah</option>
                                 <option value="0">Belum</option>
@@ -1216,6 +1221,7 @@
                         </div>
                     </div>
                 </div>
+                <br />
                 <div @*class="hscroll table-responsive"*@ id="table_packing_shopee__@(item.CUST)">
                     @*<table class="table table-striped table-bordered table-hover">
                 <thead>

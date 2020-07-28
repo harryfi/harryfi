@@ -7,14 +7,14 @@
     <table id="table_tambah_packinglist" class="table table-bordered" role="grid">
         <thead>
             <tr>
-                <th width="70">No. Pesanan</th>
+                <th width="40">No. Pesanan</th>
                 <th width="100">No. Referensi</th>
                 <th width="80">Tanggal Pesanan</th>
                 <th width="90">Marketplace</th>
                 <th width="120">Pembeli</th>
                 <th width="80">Status Kirim</th>
                 <th width="80">Status Print</th>
-                <th width="100">Scan Barcode</th>
+                <th width="70">Scan Barcode</th>
                 @*<th width="80">No. Resi</th>*@
                 @*<th width="45">Simpan</th>*@
                 @* <th width="45">Hapus</th> *@
@@ -50,13 +50,18 @@
                         status_print = "Belum";
                         break;
                 }
+                var tempCode = "";
+                if(detPackinglist.BARCODE != 0)
+                {
+                    tempCode = Convert.ToString(detPackinglist.BARCODE);
+                }
                 <tr data-packing-id="brg-@detPackinglist.RecNum">
                     <td>
                         @detPackinglist.NO_PESANAN
                     </td>
                     <td>@detPackinglist.NO_REFERENSI</td>
                     <td>
-                        @detPackinglist.TGL_PESANAN.Value.ToString("dd/MM/yyyy")
+                        @(detPackinglist.TGL_PESANAN?.ToString("dd/MM/yyyy"))  @(detPackinglist.TGL_PESANAN?.ToString("HH:mm"))
                     </td>
                     <td>
                         @detPackinglist.MARKETPLACE
@@ -71,7 +76,7 @@
                         @status_kirim
                     </td>
                     <td>@status_print</td>
-                    <td>@detPackinglist.BARCODE</td>
+                    <td>@tempCode</td>
 
                     @*<td class="edit-hapus-col">
                             <button type="button" class="btn btn-primary" disabled="disabled">

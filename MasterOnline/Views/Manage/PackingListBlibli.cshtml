@@ -228,14 +228,19 @@
 
     //add by nurul 24/7/2020
     function refreshTablePackingListPerAkunBlibli(cust) {
-
+        //$('#search_table_packing_pesanan_blibli__' + cust).val('');
+        //$('#filter_packing_field_blibli__' + cust).val('Harap Pilih').change();
         var $link = '@Html.Raw(Url.Action("refreshTablePackingListPerAkun", "Manage", new { bukti = "replacebukti", cust = "replacecust", marketplace = "replacemarket", search = "replacesearch", filter = "replacefilter", filtervalue = "replacefiltervalue" }))';
         $link = $link.replace("replacebukti", encodeURIComponent($('#packingList_NO_BUKTI').val()));
         $link = $link.replace("replacecust", encodeURIComponent(cust));
         $link = $link.replace("replacemarket", encodeURIComponent("BLIBLI"));
         $link = $link.replace("replacesearch", encodeURIComponent($('#search_table_packing_pesanan_blibli__' + cust).val()));
-        $link = $link.replace("replacefilter", encodeURIComponent(null));
-        $link = $link.replace("replacefiltervalue", encodeURIComponent(null));
+        //$link = $link.replace("replacefilter", encodeURIComponent(null));
+        //$link = $link.replace("replacefiltervalue", encodeURIComponent(null));
+        var filterbyBlibli = get_blibli_filterby(cust);
+        var filtervalueBlibli = get_blibli_filtervalue(filterbyBlibli, cust);
+        $link = $link.replace("replacefilter", encodeURIComponent(filterbyBlibli));
+        $link = $link.replace("replacefiltervalue", encodeURIComponent(filtervalueBlibli));
 
         $.ajax({
             type: "GET",
@@ -250,34 +255,34 @@
                 $('#table_packing_Blibli__' + cust).show();
 
                 //add by nurul 23/7/2020
-                $('#filter_packing_field_blibli').change(function () {
+                $('#filter_packing_field_blibli__' + cust).change(function () {
                     var filterBy = $(this).val();
                     switch (filterBy) {
                         case "kirim":
-                            $('#filter_packing_kirim_field_option_div_blibli').show();
-                            $('#filter_packing_print_field_option_div_blibli').hide();
-                            $('#filter_packing_kirim_blibli').val('Harap Pilih');
+                            $('#filter_packing_kirim_field_option_div_blibli__' + cust).show();
+                            $('#filter_packing_print_field_option_div_blibli__' + cust).hide();
+                            $('#filter_packing_kirim_blibli__' + cust).val('Harap Pilih');
                             break;
                         case "print":
-                            $('#filter_packing_kirim_field_option_div_blibli').hide();
-                            $('#filter_packing_print_field_option_div_blibli').show();
-                            $('#filter_packing_print_blibli').val('Harap Pilih');
+                            $('#filter_packing_kirim_field_option_div_blibli__' + cust).hide();
+                            $('#filter_packing_print_field_option_div_blibli__' + cust).show();
+                            $('#filter_packing_print_blibli__' + cust).val('Harap Pilih');
                             break;
                         default:
-                            $('#filter_packing_kirim_field_option_div_blibli').hide();
-                            $('#filter_packing_print_field_option_div_blibli').hide();
+                            $('#filter_packing_kirim_field_option_div_blibli__' + cust).hide();
+                            $('#filter_packing_print_field_option_div_blibli__' + cust).hide();
                             break;
                     }
 
                 });
-                $('#filter_packing_kirim_blibli').change(function () {
-                    if ($('#filter_packing_kirim_blibli').val() != "Harap Pilih" && $('#filter_packing_field_blibli').val() != "Harap Pilih") {
-                        SearchTablePackingListPerAkunBlibli();
+                $('#filter_packing_kirim_blibli__' + cust).change(function () {
+                    if ($('#filter_packing_kirim_blibli__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_blibli').val() != "Harap Pilih") {
+                        SearchTablePackingListPerAkunBlibli(cust);
                     }
                 });
-                $('#filter_packing_print_blibli').change(function () {
-                    if ($('#filter_packing_print_blibli').val() != "Harap Pilih" && $('#filter_packing_field_blibli').val() != "Harap Pilih") {
-                        SearchTablePackingListPerAkunBlibli();
+                $('#filter_packing_print_blibli__' + cust).change(function () {
+                    if ($('#filter_packing_print_blibli__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_blibli').val() != "Harap Pilih") {
+                        SearchTablePackingListPerAkunBlibli(cust);
                     }
                 });
 
@@ -285,12 +290,12 @@
                     var key = e.which;
                     if (key == 13)// the enter key code
                     {
-                        SearchTablePackingListPerAkunBlibli();
+                        SearchTablePackingListPerAkunBlibli(cust);
                         return false;
                     }
                 });
                 $('#search_table_packing_pesanan_blibli__').click(function () {
-                    SearchTablePackingListPerAkunBlibli();
+                    SearchTablePackingListPerAkunBlibli(cust);
                 });
                 //end add by nurul 23/7/2020
             },
@@ -300,22 +305,22 @@
         });
     }
 
-    function get_faktur_filterby() {
-        return $('#filter_packing_field_blibli').val();
+    function get_blibli_filterby(cust) {
+        return $('#filter_packing_field_blibli__' + cust).val();
     }
-    function get_faktur_filtervalue(filterby) {
-        var filtervalue = "";
-        switch (filterby) {
+    function get_blibli_filtervalue(filterbyBlibli, cust) {
+        var filtervalueBlibli = "";
+        switch (filterbyBlibli) {
             case "kirim":
-                filtervalue = $('#filter_packing_kirim_blibli').val();
+                filtervalueBlibli = $('#filter_packing_kirim_blibli__' + cust).val();
                 break;
             case "print":
-                filtervalue = $('#filter_packing_print_blibli').val();
+                filtervalueBlibli = $('#filter_packing_print_blibli__' + cust).val();
                 break;
             default:
                 break;
         }
-        return filtervalue;
+        return filtervalueBlibli;
     }
     function SearchTablePackingListPerAkunBlibli(cust) {
         $custTokped = cust;
@@ -324,10 +329,10 @@
         $link = $link.replace("replacecust", encodeURIComponent(cust));
         $link = $link.replace("replacemarket", encodeURIComponent("BLIBLI"));
         $link = $link.replace("replacesearch", encodeURIComponent($('#search_table_packing_pesanan_blibli__' + cust).val()));
-        var filterby = get_faktur_filterby();
-        var filtervalue = get_faktur_filtervalue(filterby);
-        $link = $link.replace("replacefilter", encodeURIComponent(filterby));
-        $link = $link.replace("replacefiltervalue", encodeURIComponent(filtervalue));
+        var filterbyBlibli = get_blibli_filterby(cust);
+        var filtervalueBlibli = get_blibli_filtervalue(filterbyBlibli, cust);
+        $link = $link.replace("replacefilter", encodeURIComponent(filterbyBlibli));
+        $link = $link.replace("replacefiltervalue", encodeURIComponent(filtervalueBlibli));
 
         $.ajax({
             type: "GET",
@@ -351,7 +356,7 @@
 
     function RefreshPackingBlibli(cust) {
         $('#search_table_packing_pesanan_blibli__' + cust).val('');
-        $('#filter_packing_field_blibli').val('Harap Pilih').change();
+        $('#filter_packing_field_blibli__' + cust).val('Harap Pilih').change();
         var $link = '@Html.Raw(Url.Action("refreshTablePackingListPerAkun", "Manage", new { bukti = "replacebukti", cust = "replacecust", marketplace = "replacemarket", search = "replacesearch", filter = "replacefilter", filtervalue = "replacefiltervalue" }))';
         $link = $link.replace("replacebukti", encodeURIComponent($('#packingList_NO_BUKTI').val()));
         $link = $link.replace("replacecust", encodeURIComponent(cust));
@@ -400,127 +405,157 @@
             @Html.TextBox("PackingListBlibliFound", PackingListBlibliFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
             @foreach (var item in distinctCust)
             {
-                <div id="blibli_tab_content__@(item.CUST)" class="tab-pane fade in">
-                    <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
-                    <div class="modal fade" id="modalPrintBlibli__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintBlibli__label__@(item.CUST)">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    @* <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> *@
-                                    <h4 class="modal-title" id="modalPrintBlibli__label__@(item.CUST)">Print Pesanan Blibli</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row">
-                                        <div class="col-md-12" id="modalPrintBlibli__textarea__@(item.CUST)">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-danger" onclick="$('#modalPrintBlibli__@(item.CUST)').modal('hide');">Tutup</button>
-                                    @*<button type="button" class="btn btn-success" onclick="printRekap();">Print</button>*@
-                                </div>
+            <div id="blibli_tab_content__@(item.CUST)" class="tab-pane fade in">
+                <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+                <div class="modal fade" id="modalPrintBlibli__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintBlibli__label__@(item.CUST)">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                @* <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> *@
+                                <h4 class="modal-title" id="modalPrintBlibli__label__@(item.CUST)">Print Pesanan Blibli</h4>
                             </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <input id="search_table_packing_pesanan_blibli__@(item.CUST)" type="text" class="form-control" placeholder="Pencarian">
-                                <span class="input-group-btn">
-                                    <button type="button" id="search_table_packing_pesanan_blibli_button__@(item.CUST)" class="btn btn-primary">
-                                        <i class="fa fa-search"></i>
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-5"></div>
-                        <div class="col-md-1 pull-left">
-                            <button id="btnRefreshBlibli_@(item.CUST)" type="button" class="btn btn-primary" onclick="RefreshPackingBlibli('@(item.CUST)')" style="width:75px">Refresh</button>
-                        </div>
-                        <div class="col-md-2" style="text-align:right">
-                            @*<button id="btnProsesGetResi__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestResiPackingBlibli('@(item.CUST)')">Ambil Resi</button>*@
-                            <div class="col-md-6 pull-left" style="text-align:right">
-                                <div class="btn-group pull-right" role="group">
-                                    <button id="pl_Blibli_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Proses <span class="caret"></span>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnProsesGetResi__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="RequestResiPackingBlibli('@(item.CUST)')">
-                                            <span aria-hidden="true"> Ambil Resi</span>
-                                        </button>
-                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnProsesDropoffBlibli__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="RequestDropoffPackingBlibli('@(item.CUST)')">
-                                            <span aria-hidden="true"> Proses Kirim</span>
-                                        </button>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12" id="modalPrintBlibli__textarea__@(item.CUST)">
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 pull-right">
-                                <button id="btnPrintBlibli__@(item.CUST)" type="button" class="btn btn-primary" onclick="BlibliGetLabelPerPacking('@(item.CUST)')" style="width:70px">Print</button>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" onclick="$('#modalPrintBlibli__@(item.CUST)').modal('hide');">Tutup</button>
+                                @*<button type="button" class="btn btn-success" onclick="printRekap();">Print</button>*@
                             </div>
-                            @*<button id="btnProsesDropoffBlibli__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestDropoffPackingBlibli('@(item.CUST)')">Proses Kirim</button>*@
                         </div>
-                    </div>
-                    <div @*class="hscroll table-responsive"*@ id="table_packing_Blibli__@(item.CUST)">
-                        @*<table class="table table-striped table-bordered table-hover">
-                            <thead>
-                                <tr role="row">
-                                    <th class="sorting text-center center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; align-self:flex-start"><input type="checkbox" onclick="allcheckboxpackingbliblionclick('@item.CUST');" class="dt-checkboxes-select-all center" id="all_checkbox_packing_blibli__@item.CUST" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
-                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 20%;">No. Pesanan</th>
-                                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 20%;">No Referensi</th>
-                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">No. Resi</th>
-                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 35%;">Pembeli</th>
-                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Status Kirim</th>
-                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Status Print</th>
-                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Kurir</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var order in Model.Where(p => p.CUST == item.CUST).ToList())
-                                {
-                                    var status_kirim = "Dalam Proses";
-
-                                    switch (order.status_kirim)
-                                    {
-                                        case "0":
-                                            status_kirim = "Dalam Proses";
-                                            break;
-                                        case "1":
-                                            status_kirim = "Gagal Proses";
-                                            break;
-                                        case "2":
-                                            status_kirim = "Siap Kirim";
-                                            break;
-                                        default:
-                                            status_kirim = "";
-                                            break;
-                                    }
-                                    var st_print = "";
-                                    switch (order.status_print)
-                                    {
-                                        case "1":
-                                            st_print = "Sudah";
-                                            break;
-                                        default:
-                                            st_print = "Belum";
-                                            break;
-                                    }
-                                    <tr>
-                                        <td style="text-align:center">
-                                            <input type="checkbox" class="dt-checkboxes center checkbox_packing_blibli" data-cust="@order.CUST" data-recnum="@order.so_recnum" style="align-self:flex-start; width:30px; height:28px;" />
-                                        </td>
-                                        <td>@order.no_bukti</td>
-                                        <td>@order.no_referensi</td>
-                                        <td>@order.tracking_no</td>
-                                        <td>@order.nama_pemesan</td>
-                                        <td>@status_kirim</td>
-                                        <td>@st_print</td>
-                                        <td>@order.kurir</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>*@
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <input id="search_table_packing_pesanan_blibli__@(item.CUST)" type="text" class="form-control" placeholder="Pencarian">
+                            <span class="input-group-btn">
+                                <button type="button" id="search_table_packing_pesanan_blibli_button__@(item.CUST)" class="btn btn-primary">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-5"></div>
+                    <div class="col-md-1 pull-left">
+                        <button id="btnRefreshBlibli_@(item.CUST)" type="button" class="btn btn-default" onclick="RefreshPackingBlibli('@(item.CUST)')" style="width:75px">Refresh</button>
+                    </div>
+                    <div class="col-md-2" style="text-align:right">
+                        @*<button id="btnProsesGetResi__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestResiPackingBlibli('@(item.CUST)')">Ambil Resi</button>*@
+                        <div class="col-md-6" style="text-align:right">
+                            <div class="btn-group pull-right" role="group">
+                                <button id="pl_Blibli_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:75px">
+                                    Proses <span class="caret"></span>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnProsesGetResi__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="RequestResiPackingBlibli('@(item.CUST)')">
+                                        <span aria-hidden="true"> Ambil Resi</span>
+                                    </button>
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnProsesDropoffBlibli__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="RequestDropoffPackingBlibli('@(item.CUST)')">
+                                        <span aria-hidden="true"> Proses Kirim</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 pull-right">
+                            <div class="btn-group pull-right" role="group">
+                                <button id="btnPrintBlibli__@(item.CUST)" type="button" class="btn btn-primary" onclick="BlibliGetLabelPerPacking('@(item.CUST)')" aria-expanded="false" style="width:75px">Print</button>
+                            </div>
+                        </div>
+                        @*<button id="btnProsesDropoffBlibli__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestDropoffPackingBlibli('@(item.CUST)')">Proses Kirim</button>*@
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-lg-1 col-sm-6 col-md-1" style="margin-top:10px;">Filter</label>
+                    <div class="col-lg-2 col-sm-6 col-md-2">
+                        <select class="form-control" id="filter_packing_field_blibli__@(item.CUST)" required="required">
+                            <option>Harap Pilih</option>
+                            <option value="kirim">Status Kirim</option>
+                            <option value="print">Status Print</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-sm-6 col-md-2">
+                        <div class="col-12" id="filter_packing_kirim_field_option_div_blibli__@(item.CUST)" style="display:none">
+                            <select class="form-control" id="filter_packing_kirim_blibli__@(item.CUST)" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="0">Dalam Proses</option>
+                                <option value="1">Gagal Proses</option>
+                                <option value="2">Siap Kirim</option>
+                            </select>
+                        </div>
+                        <div class="col-12" id="filter_packing_print_field_option_div_blibli__@(item.CUST)" style="display:none">
+                            <select class="form-control" id="filter_packing_print_blibli__@(item.CUST)" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="1">Sudah</option>
+                                <option value="0">Belum</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div @*class="hscroll table-responsive"*@ id="table_packing_Blibli__@(item.CUST)">
+                    @*<table class="table table-striped table-bordered table-hover">
+                <thead>
+                    <tr role="row">
+                        <th class="sorting text-center center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; align-self:flex-start"><input type="checkbox" onclick="allcheckboxpackingbliblionclick('@item.CUST');" class="dt-checkboxes-select-all center" id="all_checkbox_packing_blibli__@item.CUST" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
+                        <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 20%;">No. Pesanan</th>
+                        <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 20%;">No Referensi</th>
+                        <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">No. Resi</th>
+                        <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 35%;">Pembeli</th>
+                        <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Status Kirim</th>
+                        <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Status Print</th>
+                        <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Kurir</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.Where(p => p.CUST == item.CUST).ToList())
+                    {
+                        var status_kirim = "Dalam Proses";
+
+                        switch (order.status_kirim)
+                        {
+                            case "0":
+                                status_kirim = "Dalam Proses";
+                                break;
+                            case "1":
+                                status_kirim = "Gagal Proses";
+                                break;
+                            case "2":
+                                status_kirim = "Siap Kirim";
+                                break;
+                            default:
+                                status_kirim = "";
+                                break;
+                        }
+                        var st_print = "";
+                        switch (order.status_print)
+                        {
+                            case "1":
+                                st_print = "Sudah";
+                                break;
+                            default:
+                                st_print = "Belum";
+                                break;
+                        }
+                        <tr>
+                            <td style="text-align:center">
+                                <input type="checkbox" class="dt-checkboxes center checkbox_packing_blibli" data-cust="@order.CUST" data-recnum="@order.so_recnum" style="align-self:flex-start; width:30px; height:28px;" />
+                            </td>
+                            <td>@order.no_bukti</td>
+                            <td>@order.no_referensi</td>
+                            <td>@order.tracking_no</td>
+                            <td>@order.nama_pemesan</td>
+                            <td>@status_kirim</td>
+                            <td>@st_print</td>
+                            <td>@order.kurir</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>*@
+                </div>
+            </div>
             }
         </div>
     </div>

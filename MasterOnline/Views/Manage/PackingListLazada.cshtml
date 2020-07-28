@@ -667,14 +667,19 @@
 
     //add by nurul 24/7/2020
     function refreshTablePackingListPerAkunLazada(cust) {
-
+        //$('#search_table_packing_pesanan_lazada__' + cust).val('');
+        //$('#filter_packing_field_lazada__' + cust).val('Harap Pilih').change();
         var $link = '@Html.Raw(Url.Action("refreshTablePackingListPerAkun", "Manage", new { bukti = "replacebukti", cust = "replacecust", marketplace = "replacemarket", search = "replacesearch", filter = "replacefilter", filtervalue = "replacefiltervalue" }))';
         $link = $link.replace("replacebukti", encodeURIComponent($('#packingList_NO_BUKTI').val()));
         $link = $link.replace("replacecust", encodeURIComponent(cust));
         $link = $link.replace("replacemarket", encodeURIComponent("LAZADA"));
         $link = $link.replace("replacesearch", encodeURIComponent($('#search_table_packing_pesanan_lazada__' + cust).val()));
-        $link = $link.replace("replacefilter", encodeURIComponent(null));
-        $link = $link.replace("replacefiltervalue", encodeURIComponent(null));
+        //$link = $link.replace("replacefilter", encodeURIComponent(null));
+        //$link = $link.replace("replacefiltervalue", encodeURIComponent(null));
+        var filterbyLazada = get_lazada_filterby(cust);
+        var filtervalueLazada = get_lazada_filtervalue(filterbyLazada, cust);
+        $link = $link.replace("replacefilter", encodeURIComponent(filterbyLazada));
+        $link = $link.replace("replacefiltervalue", encodeURIComponent(filtervalueLazada));
 
         $.ajax({
             type: "GET",
@@ -689,47 +694,47 @@
                 $('#table_packing_lazada__' + cust).show();
 
                 //add by nurul 23/7/2020
-                $('#filter_packing_field_lazada').change(function () {
+                $('#filter_packing_field_lazada__' + cust).change(function () {
                     var filterBy = $(this).val();
                     switch (filterBy) {
                         case "kirim":
-                            $('#filter_packing_kirim_field_option_div_lazada').show();
-                            $('#filter_packing_print_field_option_div_lazada').hide();
-                            $('#filter_packing_kirim_lazada').val('Harap Pilih');
+                            $('#filter_packing_kirim_field_option_div_lazada__' + cust).show();
+                            $('#filter_packing_print_field_option_div_lazada__' + cust).hide();
+                            $('#filter_packing_kirim_lazada__' + cust).val('Harap Pilih');
                             break;
                         case "print":
-                            $('#filter_packing_kirim_field_option_div_lazada').hide();
-                            $('#filter_packing_print_field_option_div_lazada').show();
-                            $('#filter_packing_print_lazada').val('Harap Pilih');
+                            $('#filter_packing_kirim_field_option_div_lazada__' + cust).hide();
+                            $('#filter_packing_print_field_option_div_lazada__' + cust).show();
+                            $('#filter_packing_print_lazada__' + cust).val('Harap Pilih');
                             break;
                         default:
-                            $('#filter_packing_kirim_field_option_div_lazada').hide();
-                            $('#filter_packing_print_field_option_div_lazada').hide();
+                            $('#filter_packing_kirim_field_option_div_lazada__' + cust).hide();
+                            $('#filter_packing_print_field_option_div_lazada__' + cust).hide();
                             break;
                     }
 
                 });
-                $('#filter_packing_kirim_lazada').change(function () {
-                    if ($('#filter_packing_kirim_lazada').val() != "Harap Pilih" && $('#filter_packing_field_lazada').val() != "Harap Pilih") {
-                        SearchTablePackingListPerAkunLazada();
+                $('#filter_packing_kirim_lazada__' + cust).change(function () {
+                    if ($('#filter_packing_kirim_lazada__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_lazada__' + cust).val() != "Harap Pilih") {
+                        SearchTablePackingListPerAkunLazada(cust);
                     }
                 });
                 $('#filter_packing_print_lazada').change(function () {
-                    if ($('#filter_packing_print_lazada').val() != "Harap Pilih" && $('#filter_packing_field_lazada').val() != "Harap Pilih") {
-                        SearchTablePackingListPerAkunLazada();
+                    if ($('#filter_packing_print_lazada__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_lazada__' + cust).val() != "Harap Pilih") {
+                        SearchTablePackingListPerAkunLazada(cust);
                     }
                 });
 
-                $('#search_table_packing_pesanan_lazada__').keypress(function (e) {
+                $('#search_table_packing_pesanan_lazada__' + cust).keypress(function (e) {
                     var key = e.which;
                     if (key == 13)// the enter key code
                     {
-                        SearchTablePackingListPerAkunLazada();
+                        SearchTablePackingListPerAkunLazada(cust);
                         return false;
                     }
                 });
-                $('#search_table_packing_pesanan_lazada__').click(function () {
-                    SearchTablePackingListPerAkunLazada();
+                $('#search_table_packing_pesanan_lazada__' + cust).click(function () {
+                    SearchTablePackingListPerAkunLazada(cust);
                 });
         //end add by nurul 23/7/2020
             },
@@ -739,22 +744,22 @@
         });
     }
 
-    function get_faktur_filterby() {
-        return $('#filter_packing_field_lazada').val();
+    function get_lazada_filterby(cust) {
+        return $('#filter_packing_field_lazada__' + cust).val();
     }
-    function get_faktur_filtervalue(filterby) {
-        var filtervalue = "";
-        switch (filterby) {
+    function get_lazada_filtervalue(filterbyLazada, cust) {
+        var filtervalueLazada = "";
+        switch (filterbyLazada) {
             case "kirim":
-                filtervalue = $('#filter_packing_kirim_lazada').val();
+                filtervalueLazada = $('#filter_packing_kirim_lazada__' + cust).val();
                 break;
             case "print":
-                filtervalue = $('#filter_packing_print_lazada').val();
+                filtervalueLazada = $('#filter_packing_print_lazada__' + cust).val();
                 break;
             default:
                 break;
         }
-        return filtervalue;
+        return filtervalueLazada;
     }
     function SearchTablePackingListPerAkunLazada(cust) {
         $custTokped = cust;
@@ -763,10 +768,10 @@
         $link = $link.replace("replacecust", encodeURIComponent(cust));
         $link = $link.replace("replacemarket", encodeURIComponent("LAZADA"));
         $link = $link.replace("replacesearch", encodeURIComponent($('#search_table_packing_pesanan_lazada__' + cust).val()));
-        var filterby = get_faktur_filterby();
-        var filtervalue = get_faktur_filtervalue(filterby);
-        $link = $link.replace("replacefilter", encodeURIComponent(filterby));
-        $link = $link.replace("replacefiltervalue", encodeURIComponent(filtervalue));
+        var filterbyLazada = get_lazada_filterby(cust);
+        var filtervalueLazada = get_lazada_filtervalue(filterbyLazada, cust);
+        $link = $link.replace("replacefilter", encodeURIComponent(filterbyLazada));
+        $link = $link.replace("replacefiltervalue", encodeURIComponent(filtervalueLazada));
 
         $.ajax({
             type: "GET",
@@ -790,7 +795,7 @@
 
     function RefreshPackingLazada(cust) {
         $('#search_table_packing_pesanan_lazada__' + cust).val('');
-        $('#filter_packing_field_lazada').val('Harap Pilih').change();
+        $('#filter_packing_field_lazada__' + cust).val('Harap Pilih').change();
         var $link = '@Html.Raw(Url.Action("refreshTablePackingListPerAkun", "Manage", new { bukti = "replacebukti", cust = "replacecust", marketplace = "replacemarket", search = "replacesearch", filter = "replacefilter", filtervalue = "replacefiltervalue" }))';
         $link = $link.replace("replacebukti", encodeURIComponent($('#packingList_NO_BUKTI').val()));
         $link = $link.replace("replacecust", encodeURIComponent(cust));
@@ -1035,7 +1040,7 @@
                     </div>
                     <div class="col-md-1"></div>
                     <div class="col-md-1 pull-left">
-                        <button id="btnRefreshLazada_@(item.CUST)" type="button" class="btn btn-primary" onclick="RefreshPackingLazada('@(item.CUST)')" style="width:75px">Refresh</button>
+                        <button id="btnRefreshLazada_@(item.CUST)" type="button" class="btn btn-default" onclick="RefreshPackingLazada('@(item.CUST)')" style="width:75px">Refresh</button>
                     </div>
                     <div class="col-md-2 pull-right" style="text-align:right">
                         @*<button id="btnProsesPackingLazada__@(item.CUST)" type="button" class="btn btn-primary " onclick="cekValidasiPackingLazada('@(item.CUST)')">Ambil Resi</button>
@@ -1046,10 +1051,10 @@
                                     Proses <span class="caret"></span>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:left;" id="btnProsesPackingLazada__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiPackingLazada('@(item.CUST)')">
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnProsesPackingLazada__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiPackingLazada('@(item.CUST)')">
                                         <span aria-hidden="true"> Ambil Resi</span>
                                     </button>
-                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:left;" id="btnProsesLazada__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiRTSLazada('@(item.CUST)')">
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnProsesLazada__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="cekValidasiRTSLazada('@(item.CUST)')">
                                         <span aria-hidden="true"> Ready To Ship</span>
                                     </button>
                                 </div>
@@ -1061,10 +1066,10 @@
                                     Print <span class="caret"></span>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:left;" id="btnPrintLazada__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="LazadaGetLabelPerPacking('@(item.CUST)','1')">
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintLazada__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="LazadaGetLabelPerPacking('@(item.CUST)','1')">
                                         <span aria-hidden="true"> Label Marketplace</span>
                                     </button>
-                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:left;" id="btnPrintMOLazada__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="LazadaGetLabelPerPacking('@(item.CUST)','2')">
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btnPrintMOLazada__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="LazadaGetLabelPerPacking('@(item.CUST)','2')">
                                         <span aria-hidden="true"> Label MasterOnline</span>
                                     </button>
                                 </div>
@@ -1100,23 +1105,23 @@
                 <div class="row">
                     <label class="col-lg-1 col-sm-6 col-md-1" style="margin-top:10px;">Filter</label>
                     <div class="col-lg-2 col-sm-6 col-md-2">
-                        <select class="form-control" id="filter_packing_field_lazada" required="required">
+                        <select class="form-control" id="filter_packing_field_lazada__@(item.CUST)" required="required">
                             <option>Harap Pilih</option>
                             <option value="kirim">Status Kirim</option>
                             <option value="print">Status Print</option>
                         </select>
                     </div>
                     <div class="col-lg-2 col-sm-6 col-md-2">
-                        <div class="col-12" id="filter_packing_kirim_field_option_div_lazada" style="display:none">
-                            <select class="form-control" id="filter_packing_kirim_lazada" required="required">
+                        <div class="col-12" id="filter_packing_kirim_field_option_div_lazada__@(item.CUST)" style="display:none">
+                            <select class="form-control" id="filter_packing_kirim_lazada__@(item.CUST)" required="required">
                                 <option>Harap Pilih</option>
                                 <option value="0">Dalam Proses</option>
                                 <option value="1">Gagal Proses</option>
                                 <option value="2">Siap Kirim</option>
                             </select>
                         </div>
-                        <div class="col-12" id="filter_packing_print_field_option_div_lazada" style="display:none">
-                            <select class="form-control" id="filter_packing_print_lazada" required="required">
+                        <div class="col-12" id="filter_packing_print_field_option_div_lazada__@(item.CUST)" style="display:none">
+                            <select class="form-control" id="filter_packing_print_lazada__@(item.CUST)" required="required">
                                 <option>Harap Pilih</option>
                                 <option value="1">Sudah</option>
                                 <option value="0">Belum</option>
@@ -1124,6 +1129,7 @@
                         </div>
                     </div>
                 </div>
+                <br />
                 <div id="table_packing_lazada__@(item.CUST)" @*class="hscroll table-responsive tbljurnal"*@>
                     @*<table class="table table-striped table-bordered table-hover">
                 <thead>
