@@ -8389,6 +8389,81 @@ namespace MasterOnline.Controllers
             return "";
         }
 
+        public async Task<string> cekProductQC(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, string requestID, string ProductCode, string gdnSku, string api_log_requestId)
+        {
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            var token = SetupContext(iden);
+            iden.token = token;
+
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderDetail";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+            if (iden.versiToken != "2")
+            {
+                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/orderDetail", iden.API_secret_key);
+                urll = "https://api.blibli.com/proxy/seller/v1/product-submissions/filter?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&storeCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&channelId=MasterOnline";
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "POST";
+                myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("requestId", milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
+                myReq.Headers.Add("username", userMTA);
+            }
+            else
+            {
+                string usernameMO = iden.API_client_username;
+                string passMO = iden.API_client_password;
+                urll = "https://api.blibli.com/proxy/seller/v1/product-submissions/filter?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&storeCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&channelId=MasterOnline";
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "POST";
+                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+                myReq.Headers.Add("Signature-Time", milis.ToString());
+            }
+            string myData = "{";
+            myData += "\"paging\": {";
+            myData += "\"page\": 0, ";
+            myData += "\"size\": 100 } ";
+            myData += "}";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+            return "";
+        }
         public class BlibliCekProductActive
         {
             public string[] merchantSkus { get; set; }
