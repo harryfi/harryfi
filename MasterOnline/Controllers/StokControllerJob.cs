@@ -3655,7 +3655,9 @@ namespace MasterOnline.Controllers
                     var cekSI = ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == nobukSI && p.JENIS_FORM == "2").FirstOrDefault();
                     if (cekSI != null)
                     {
-                        cekSI.BRUTO = bruto;
+                        //cekSI.BRUTO = bruto;
+                        string sSQL = "update sit01a set BRUTO = '" + bruto + "' where NO_BUKTI = '" + nobukSI + "' and JENIS_FORM ='2'";
+                        ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
                         ErasoftDbContext.SaveChanges();
                     }
                     else
