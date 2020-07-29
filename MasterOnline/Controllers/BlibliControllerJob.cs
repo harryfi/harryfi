@@ -8397,8 +8397,9 @@ namespace MasterOnline.Controllers
 
             var token = SetupContext(iden);
             iden.token = token;
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
 
-            var urll = "https://api.blibli.com/proxy/seller/v1/product-submissions/filter?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&storeCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&channelId=MasterOnline";
+            var urll = "https://api.blibli.com/v2/proxy/seller/v1/product-submissions/filter?requestId=MasterOnline-" + Uri.EscapeDataString(milis.ToString()) + "&username=" + Uri.EscapeDataString(userMTA) + "&storeCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&channelId=MasterOnline";
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
           
                 string usernameMO = iden.API_client_username;
