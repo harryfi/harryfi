@@ -286,7 +286,7 @@
                     }
                 });
 
-                $('#search_table_packing_pesanan_blibli__').keypress(function (e) {
+                $('#search_table_packing_pesanan_blibli__' + cust).keypress(function (e) {
                     var key = e.which;
                     if (key == 13)// the enter key code
                     {
@@ -294,7 +294,7 @@
                         return false;
                     }
                 });
-                $('#search_table_packing_pesanan_blibli__').click(function () {
+                $('#search_table_packing_pesanan_blibli__' + cust).click(function () {
                     SearchTablePackingListPerAkunBlibli(cust);
                 });
                 //end add by nurul 23/7/2020
