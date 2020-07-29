@@ -3633,6 +3633,60 @@ namespace MasterOnline.Controllers
             return "";
         }
 
+        
+
+        //add by nurul 29/7/2020
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_manage_pesanan")]
+        public async Task<string> updateBrutoSit01a(string connId, string DatabasePathErasoft, string uname, string nobukSI, double? bruto)
+        {
+            string ret = "";
+            try
+            {
+                SetupContext(DatabasePathErasoft, uname);
+                var MoDbContext = new MoDbContext("");
+                var EDB = new DatabaseSQL(DatabasePathErasoft);
+                string EraServerName = EDB.GetServerName("sConn");
+                var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
+
+                //ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == nobukSI && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = bruto });
+                if (nobukSI != null)
+                {
+                    var cekSI = ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == nobukSI && p.JENIS_FORM == "2").FirstOrDefault();
+                    if (cekSI != null)
+                    {
+                        //cekSI.BRUTO = bruto;
+                        string sSQL = "update sit01a set BRUTO = '" + bruto + "' where NO_BUKTI = '" + nobukSI + "' and JENIS_FORM ='2'";
+                        ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                        ErasoftDbContext.SaveChanges();
+                    }
+                    else
+                    {
+                        throw new Exception("Faktur Tidak Ditemukan.");
+                    }
+                }
+                else {
+                    throw new Exception("Faktur Tidak Ditemukan.");
+                }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+                throw new Exception(err);
+            }
+
+            return ret;
+        }
+        //end add by nurul 29/7/2020
+
         [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
         [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
         public partial class ClientMessage

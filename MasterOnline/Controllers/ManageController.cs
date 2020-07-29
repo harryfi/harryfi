@@ -45124,7 +45124,14 @@ namespace MasterOnline.Controllers
                                 var tokpedApi = new TokopediaControllerJob();
                                 //#if (DEBUG || Debug_AWS)
                                 //Task.Run(() => tokpedApi.JOBCOD(data, Nobuk, SOA_NOREF).Wait());
+#if (DEBUG || Debug_AWS)
                                 Task.Run(() => tokpedApi.JOBCOD(data, Nobuk, dsSORow.SOA_NOREF).Wait());
+#else                            
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(data, Nobuk, dsSORow.SOA_NOREF));
+#endif
+                                //Task.Run(() => tokpedApi.JOBCOD(data, Nobuk, dsSORow.SOA_NOREF).Wait());
                                 //var kodeBookingTokped = tokpedApi.JOBCOD(data, Nobuk, SOA_NOREF);
                                 //if (kodeBookingTokped.Result.ToString() == "")
                                 //{
@@ -45769,7 +45776,14 @@ namespace MasterOnline.Controllers
                                     context.SaveChanges();
 
                                     //add by nurul 6/2/2020, tambah update sit01a untuk trigger create art01d
-                                    context.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = newSIT01A.BRUTO });
+                                    //context.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = newSIT01A.BRUTO });
+#if (DEBUG || Debug_AWS)
+                                Task.Run(() => new StokControllerJob().updateBrutoSit01a("", dbPathEra, usernameLogin, noOrder, newSIT01A.BRUTO).Wait());
+#else                            
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                clientJobServer.Enqueue<StokControllerJob>(x => x.updateBrutoSit01a("", dbPathEra, usernameLogin, noOrder, newSIT01A.BRUTO));
+#endif
                                     //end add by nurul 6/2/2020, tambah update sit01a untuk trigger create art01d
                                 }
                                 context.SOT03B.AddRange(newpackingdetail);
