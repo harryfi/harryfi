@@ -710,7 +710,7 @@ namespace MasterOnline.Controllers
                 }
 
                 // tunning untuk tidak duplicate
-                    var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + connId + "%' and invocationdata like '%blibli%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + connId + "%' and invocationdata like '%blibli%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%'");
                 // end tunning untuk tidak duplicate
             }
 
@@ -1281,7 +1281,7 @@ namespace MasterOnline.Controllers
                                 oCommand.Parameters["@startOperationalTime"].Value = result.value.startOperationalTime ?? 0;
 
                                 oCommand.Parameters["@endOperationalTime"].Value = result.value.endOperationalTime ?? 0;
-                                oCommand.Parameters["@issuer"].Value = issuer ;
+                                oCommand.Parameters["@issuer"].Value = issuer;
                                 oCommand.Parameters["@refundResolution"].Value = refundResolution;
                                 oCommand.Parameters["@unFullFillReason"].Value = !string.IsNullOrEmpty(result.value.unFullFillReason) ? result.value.unFullFillReason.Replace("'", "`") : "";
                                 oCommand.Parameters["@unFullFillQuantity"].Value = result.value.unFullFillQuantity != null ? result.value.unFullFillQuantity : 0;
@@ -1293,7 +1293,7 @@ namespace MasterOnline.Controllers
                                 oCommand.Parameters["@logisticsProductCode"].Value = logisticsProductCode;
 
                                 oCommand.Parameters["@logisticsProductName"].Value = logisticsProductName;
-                                oCommand.Parameters["@logisticsOptionCode"].Value = logisticsOptionCode ;
+                                oCommand.Parameters["@logisticsOptionCode"].Value = logisticsOptionCode;
                                 oCommand.Parameters["@logisticsOptionName"].Value = logisticsOptionName;
                                 oCommand.Parameters["@destinationLongitude"].Value = result.value.destinationLongitude ?? 0;
                                 oCommand.Parameters["@destinationLatitude"].Value = result.value.destinationLatitude ?? 0;
@@ -7659,7 +7659,7 @@ namespace MasterOnline.Controllers
                             if (!DefiningAttributes.ContainsKey(attribute_id))
                             {
                                 //if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
-                                    DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
+                                DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
                             }
                             if (aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
                                 attributeMap.Add(attribute_id, value);
@@ -7760,7 +7760,7 @@ namespace MasterOnline.Controllers
                                 if (!dsVariasiValues.Contains(v.MP_VALUE_VAR))
                                 {
                                     dsVariasiValues.Add(v.MP_VALUE_VAR);
-                                    if(v.MP_JUDUL_VAR == "WA-0000002")//add family color jika ada attribute warna
+                                    if (v.MP_JUDUL_VAR == "WA-0000002")//add family color jika ada attribute warna
                                     {
                                         dsVariasiFCValues.Add(v.MP_VALUE_FC_VAR);
                                     }
@@ -7785,14 +7785,14 @@ namespace MasterOnline.Controllers
 
                             if (!DefiningAttributes.ContainsKey(attribute_id))
                             {
-                                if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
+                                if (aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
                                     DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
                             }
                         }
                     }
                 }
 
-                if(dsVariasiFCValues.Count > 0)//masukan attribute family color kalau ada isinya
+                if (dsVariasiFCValues.Count > 0)//masukan attribute family color kalau ada isinya
                 {
                     DefiningAttributes.Add("FA-2000060", dsVariasiFCValues.ToArray());
                 }
@@ -8389,37 +8389,38 @@ namespace MasterOnline.Controllers
             return "";
         }
 
-        public async Task<string> cekProductQC(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, string requestID, string ProductCode, string gdnSku, string api_log_requestId)
+        public BindingBase cekProductQC(string kodeProduk, BlibliAPIData iden, int idMarket)
         {
 
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
-
+            var ret = new BindingBase();
             var token = SetupContext(iden);
             iden.token = token;
             string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
 
             var urll = "https://api.blibli.com/v2/proxy/seller/v1/product-submissions/filter?requestId=MasterOnline-" + Uri.EscapeDataString(milis.ToString()) + "&username=" + Uri.EscapeDataString(userMTA) + "&storeCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&channelId=MasterOnline";
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-          
-                string usernameMO = iden.API_client_username;
-                string passMO = iden.API_client_password;
 
-                myReq.Method = "POST";
-                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
-                myReq.Accept = "application/json";
-                myReq.ContentType = "application/json";
-                myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
-                myReq.Headers.Add("Signature-Time", milis.ToString());
-            
-            string myData = "{";
+            string usernameMO = iden.API_client_username;
+            string passMO = iden.API_client_password;
+
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+            myReq.Headers.Add("Signature-Time", milis.ToString());
+
+            string myData = "{ \"filter\" : { \"sellerSku\": \""+kodeProduk+"\",";
+            myData += "\"state\": \"NEED_CORRECTION\"},";
             myData += "\"paging\": {";
             myData += "\"page\": 0, ";
             myData += "\"size\": 100 } ";
             myData += "}";
             string responseFromServer = "";
-            try
-            {
+            //try
+            //{
                 myReq.ContentLength = myData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
@@ -8433,17 +8434,110 @@ namespace MasterOnline.Controllers
                         responseFromServer = reader.ReadToEnd();
                     }
                 }
-            }
-            catch (Exception ex)
+            //}
+            //catch (Exception ex)
+            //{
+            //    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
+            if (!string.IsNullOrEmpty(responseFromServer))
             {
-                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                
+                var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(Blibli_ProductSubmissionList_Response)) as Blibli_ProductSubmissionList_Response;
+                if(listBrg != null)
+                {
+                    if (!string.IsNullOrEmpty(listBrg.errorCode))
+                    {
+                        throw new Exception(listBrg.errorCode + " : " + listBrg.errorMessage);
+                    }
+                    else
+                    {
+                        if(listBrg.content.Length > 0)//ada di need correction
+                        {
+                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE STF02H SET BRG_MP = 'NEED_CORRECTION;"+listBrg.content[0].product.code+"' WHERE BRG = '"+kodeProduk+"' AND IDMARKET = " + idMarket);
+                            ret.status = 1;
+                        }                      
+                    }
+                }
+
             }
-            return "";
+            return ret;
         }
         public class BlibliCekProductActive
         {
             public string[] merchantSkus { get; set; }
+        }
+
+        public class Blibli_ProductSubmissionList_Response
+        {
+            public string requestId { get; set; }
+            public ProductSubmissionList_Content[] content { get; set; }
+            public Paging paging { get; set; }
+            public string errorMessage { get; set; }
+            public string errorCode { get; set; }
+        }
+
+        public class Paging
+        {
+            public int pageSize { get; set; }
+            public int pageNumber { get; set; }
+            public int totalPage { get; set; }
+            public int totalRecord { get; set; }
+        }
+
+        public class ProductSubmissionList_Content
+        {
+            public Product product { get; set; }
+            public Brand brand { get; set; }
+            public Dimension dimension { get; set; }
+            public Category category { get; set; }
+            public Image[] images { get; set; }
+            public Productitem[] productItems { get; set; }
+        }
+
+        public class Product
+        {
+            public string code { get; set; }
+            public string sku { get; set; }
+            public string name { get; set; }
+            public string videoUrl { get; set; }
+            public string uniqueSellingPoint { get; set; }
+            public string description { get; set; }
+        }
+
+        public class Brand
+        {
+            public string name { get; set; }
+            public string state { get; set; }
+        }
+
+        public class Dimension
+        {
+            public int length { get; set; }
+            public int width { get; set; }
+            public float weight { get; set; }
+            public int height { get; set; }
+            public int shippingWeight { get; set; }
+        }
+
+        public class Category
+        {
+            public string code { get; set; }
+            public string name { get; set; }
+        }
+
+        public class Image
+        {
+            public string path { get; set; }
+            public int sequence { get; set; }
+            public bool main { get; set; }
+        }
+
+        public class Productitem
+        {
+            public string name { get; set; }
+            public string code { get; set; }
+            public string upcCode { get; set; }
         }
 
         public class BlibliCekProductActiveResult
@@ -8491,7 +8585,7 @@ namespace MasterOnline.Controllers
             public bool promoBundling { get; set; }
             public bool isArchived { get; set; }
         }
-                
+
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Blibli Berhasil. Cek Active Gagal.")]
@@ -8549,7 +8643,7 @@ namespace MasterOnline.Controllers
             {
                 //add by nurul 10/7/2020
                 string usernameMO = iden.API_client_username;
-                string passMO = iden.API_client_password;             
+                string passMO = iden.API_client_password;
                 //string passMO = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
                 //end add by nurul 10/7/2020
                 string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
@@ -8802,7 +8896,7 @@ namespace MasterOnline.Controllers
                 string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
                 string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
                 string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
-                
+
                 urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/createPackage?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&storeId=10001" + "&channelId=MasterOnline&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code);
 
                 myReq = (HttpWebRequest)WebRequest.Create(urll);
