@@ -10651,6 +10651,35 @@ namespace MasterOnline.Controllers
                                                 {
                                                     Task.Run(() => BliApi.GetQueueFeedDetail(iden, null).Wait());
                                                 }
+                                                else if (stf02h.BRG_MP.Contains("NEED_CORRECTION"))
+                                                {
+                                                    BlibliControllerJob.BlibliAPIData idenJob = new BlibliControllerJob.BlibliAPIData
+                                                    {
+                                                        merchant_code = tblCustomer.Sort1_Cust,
+                                                        API_client_password = tblCustomer.API_CLIENT_P,
+                                                        API_client_username = tblCustomer.API_CLIENT_U,
+                                                        API_secret_key = tblCustomer.API_KEY,
+                                                        //API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
+                                                        //API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
+                                                        token = tblCustomer.TOKEN,
+                                                        mta_username_email_merchant = tblCustomer.EMAIL,
+                                                        mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                        idmarket = tblCustomer.RecNum.Value,
+                                                        DatabasePathErasoft = dbPathEra,
+                                                        username = usernameLogin,
+                                                        versiToken = tblCustomer.KD_ANALISA
+                                                    };
+                                                    string data_kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG;
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data_kode + "'";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+#if (DEBUG || Debug_AWS)
+                                                    Task.Run(() => new BlibliControllerJob().ReviseProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", idenJob, null, null).Wait());
+#else
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.ReviseProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", idenJob, null, null));
+#endif
+                                                }
                                                 else
                                                 {
                                                     #region update
@@ -10877,6 +10906,35 @@ namespace MasterOnline.Controllers
                                                 if (stf02h.BRG_MP == "PENDING")
                                                 {
                                                     Task.Run(() => BliApi.GetQueueFeedDetail(iden, null).Wait());
+                                                }
+                                                else if (stf02h.BRG_MP.Contains("NEED_CORRECTION"))
+                                                {
+                                                    BlibliControllerJob.BlibliAPIData idenJob = new BlibliControllerJob.BlibliAPIData
+                                                    {
+                                                        merchant_code = tblCustomer.Sort1_Cust,
+                                                        API_client_password = tblCustomer.API_CLIENT_P,
+                                                        API_client_username = tblCustomer.API_CLIENT_U,
+                                                        API_secret_key = tblCustomer.API_KEY,
+                                                        //API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
+                                                        //API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
+                                                        token = tblCustomer.TOKEN,
+                                                        mta_username_email_merchant = tblCustomer.EMAIL,
+                                                        mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                        idmarket = tblCustomer.RecNum.Value,
+                                                        DatabasePathErasoft = dbPathEra,
+                                                        username = usernameLogin,
+                                                        versiToken = tblCustomer.KD_ANALISA
+                                                    };
+                                                    string data_kode = string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG;
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data_kode + "'";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+#if (DEBUG || Debug_AWS)
+                                                    Task.Run(() => new BlibliControllerJob().ReviseProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", idenJob, null, null).Wait());
+#else
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.ReviseProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", idenJob, null, null));
+#endif
                                                 }
                                                 else
                                                 {
