@@ -8615,6 +8615,12 @@ namespace MasterOnline.Controllers
                                 //end change by Tri 23 agustus 2019, validasi harga 1 function
                                 i++;
                                 //end add validasi harga per marketplace
+
+                                //add by Tri 4 aug 2020, update display varian
+                                string updateDisplaySQL = "UPDATE STF02H SET DISPLAY = " + dataBaru.DISPLAY;
+                                updateDisplaySQL += " WHERE BRG IN (SELECT BRG FROM STF02 WHERE PART = '"+ barangInDb.BRG + "') AND IDMARKET = " + dataBaru.IDMARKET;
+                                EDB.ExecuteSQL("CString", CommandType.Text, updateDisplaySQL);
+                                //end add by Tri 4 aug 2020, update display varian
                             }
                             if (validPrice)
                             {
