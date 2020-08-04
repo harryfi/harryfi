@@ -8617,7 +8617,7 @@ namespace MasterOnline.Controllers
                                 //end add validasi harga per marketplace
 
                                 //add by Tri 4 aug 2020, update display varian
-                                string updateDisplaySQL = "UPDATE STF02H SET DISPLAY = " + dataBaru.DISPLAY;
+                                string updateDisplaySQL = "UPDATE STF02H SET DISPLAY = " + (dataBaru.DISPLAY ? 1 : 0);
                                 updateDisplaySQL += " WHERE BRG IN (SELECT BRG FROM STF02 WHERE PART = '"+ barangInDb.BRG + "') AND IDMARKET = " + dataBaru.IDMARKET;
                                 EDB.ExecuteSQL("CString", CommandType.Text, updateDisplaySQL);
                                 //end add by Tri 4 aug 2020, update display varian
