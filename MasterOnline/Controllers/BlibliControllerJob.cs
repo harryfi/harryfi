@@ -8297,6 +8297,29 @@ namespace MasterOnline.Controllers
                     return "";
                 }
             }
+
+            string productCodeBlibli = "";
+            try
+            {
+                var aProductCode = JsonConvert.DeserializeObject(ProductCode, typeof(BlibliGetQueueProductCode)) as BlibliGetQueueProductCode;
+                if(aProductCode != null)
+                {
+                    if (!string.IsNullOrEmpty(aProductCode.productCode))
+                    {
+                        productCodeBlibli = aProductCode.productCode;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (!string.IsNullOrEmpty(productCodeBlibli))
+            {
+
+            }
             //remark 19 Des 2019
             //DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
@@ -8409,7 +8432,69 @@ namespace MasterOnline.Controllers
             //end remark 19 Des 2019
             return "";
         }
+        public async Task<BindingBase> cekProdukInProcess(BlibliAPIData iden, string kodeProduk, int page)
+        {
+            var ret = new BindingBase
+            {
+                status = 0,
+            };
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v3/product/inProcessProduct", iden.API_secret_key);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v3/product/inProcessProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&size=50&channelId=MasterOnline";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (responseFromServer != "")
+            {
+                //perlu tes item tanpa varian
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ProductInReviewListResult)) as ProductInReviewListResult;
+                if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
+                {
+                    foreach (var item in result.content) //cek semua item in review
+                    {
+                        if(item.productCode == kodeProduk)
+                        {
+                            ret.status = 1;
+                            return ret;
+                        }
+                    }
+                    if(result.content.Length >= 50)
+                    {
+                        var recur = await cekProdukInProcess(iden, kodeProduk, page +1);
+                        if(recur.status == 1)
+                        {
+                            ret.status = 1;
+                            return ret;
+                        }
+                    }
+                }
+            }
+
+            return ret;
+        }
         public BindingBase cekProductQC(string kodeProduk, BlibliAPIData iden, int idMarket)
         {
 
@@ -8433,7 +8518,7 @@ namespace MasterOnline.Controllers
             myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
             myReq.Headers.Add("Signature-Time", milis.ToString());
 
-            string myData = "{ \"filter\" : { \"sellerSku\": \""+kodeProduk+"\",";
+            string myData = "{ \"filter\" : { \"sellerSku\": \"" + kodeProduk + "\",";
             myData += "\"state\": \"NEED_CORRECTION\"},";
             myData += "\"paging\": {";
             myData += "\"page\": 0, ";
@@ -8442,19 +8527,19 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-                myReq.ContentLength = myData.Length;
-                using (var dataStream = myReq.GetRequestStream())
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = myReq.GetResponse())
+            {
+                using (Stream stream = response.GetResponseStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
                 }
-                using (WebResponse response = myReq.GetResponse())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                    }
-                }
+            }
             //}
             //catch (Exception ex)
             //{
@@ -8463,9 +8548,9 @@ namespace MasterOnline.Controllers
             //}
             if (!string.IsNullOrEmpty(responseFromServer))
             {
-                
+
                 var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(Blibli_ProductSubmissionList_Response)) as Blibli_ProductSubmissionList_Response;
-                if(listBrg != null)
+                if (listBrg != null)
                 {
                     if (!string.IsNullOrEmpty(listBrg.errorCode))
                     {
@@ -8473,11 +8558,11 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        if(listBrg.content.Length > 0)//ada di need correction
+                        if (listBrg.content.Length > 0)//ada di need correction
                         {
-                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE STF02H SET BRG_MP = 'NEED_CORRECTION;"+listBrg.content[0].product.code+"' WHERE BRG = '"+kodeProduk+"' AND IDMARKET = " + idMarket);
+                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE STF02H SET BRG_MP = 'NEED_CORRECTION;" + listBrg.content[0].product.code + "' WHERE BRG = '" + kodeProduk + "' AND IDMARKET = " + idMarket);
                             ret.status = 1;
-                        }                      
+                        }
                     }
                 }
 
@@ -9364,12 +9449,12 @@ namespace MasterOnline.Controllers
             //myData = myData.Replace("\\r\\n", "\\n").Replace("–", "-").Replace("\\\"\\\"", "").Replace("×", "x");
             var prdCode = stf02h.BRG_MP.Split(';');
             string product_code = "";
-            if(prdCode.Length == 2)
+            if (prdCode.Length == 2)
             {
                 product_code = prdCode[1];
             }
-            urll = "https://api.blibli.com/v2//proxy/seller/v1/product-submissions/" +product_code+ "?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&username=" + Uri.EscapeDataString(userMTA) + "&storeCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&channelId=MasterOnline";
-            
+            urll = "https://api.blibli.com/v2//proxy/seller/v1/product-submissions/" + product_code + "?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&username=" + Uri.EscapeDataString(userMTA) + "&storeCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&channelId=MasterOnline";
+
 #if (DEBUG || Debug_AWS)
             string jobId = "";
 #else
@@ -9389,14 +9474,14 @@ namespace MasterOnline.Controllers
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
 
             myReq = (HttpWebRequest)WebRequest.Create(urll);
-                string usernameMO = iden.API_client_username;
-                string passMO = iden.API_client_password;
-                myReq.Method = "POST";
-                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
-                myReq.Accept = "application/json";
-                myReq.ContentType = "application/json";
-                myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
-                myReq.Headers.Add("Signature-Time", milis.ToString());            
+            string usernameMO = iden.API_client_username;
+            string passMO = iden.API_client_password;
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+            myReq.Headers.Add("Signature-Time", milis.ToString());
 
             string responseFromServer = "";
             //try
@@ -9454,6 +9539,13 @@ namespace MasterOnline.Controllers
         public class BlibliCekProductActive
         {
             public string[] merchantSkus { get; set; }
+        }
+
+        public class BlibliGetQueueProductCode
+        {
+            public string productCode { get; set; }
+            public string productName { get; set; }
+            public string[] merchantSkuList { get; set; }
         }
 
         public class Blibli_ProductSubmissionList_Response
