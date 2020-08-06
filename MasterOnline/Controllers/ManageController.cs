@@ -10649,7 +10649,44 @@ namespace MasterOnline.Controllers
                                                 };
                                                 if (stf02h.BRG_MP == "PENDING")
                                                 {
-                                                    Task.Run(() => BliApi.GetQueueFeedDetail(iden, null).Wait());
+                                                    var BliApiJob = new BlibliControllerJob();
+                                                    BlibliControllerJob.BlibliAPIData iden2 = new BlibliControllerJob.BlibliAPIData
+                                                    {
+                                                        merchant_code = tblCustomer.Sort1_Cust,
+                                                        API_client_password = tblCustomer.API_CLIENT_P,
+                                                        API_client_username = tblCustomer.API_CLIENT_U,
+                                                        API_secret_key = tblCustomer.API_KEY,
+                                                        token = tblCustomer.TOKEN,
+                                                        mta_username_email_merchant = tblCustomer.EMAIL,
+                                                        mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                        idmarket = tblCustomer.RecNum.Value,
+                                                        versiToken = tblCustomer.KD_ANALISA
+                                                    };
+                                                    var listLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(m => m.REQUEST_ACTION == "Create Product" && m.MARKETPLACE.ToUpper() == "BLIBLI" && m.REQUEST_STATUS.ToLower() == "pending").FirstOrDefault();
+                                                    if (listLog != null)
+                                                    {
+                                                        var queBlibli = EDB.GetDataSet("CString", "QUEUE_FEED_BLIBLI", "SELECT * FROM QUEUE_FEED_BLIBLI WHERE LOG_REQUEST_ID = '" + listLog.REQUEST_ID + "' AND MERCHANT_CODE='" + iden2.merchant_code + " AND STATUS = '1'");
+                                                        if (queBlibli.Tables[0].Rows.Count > 0)
+                                                        {
+                                                            var queData = new BlibliControllerJob.BlibliQueueFeedData
+                                                            {
+                                                                log_request_id = queBlibli.Tables[0].Rows[0]["LOG_REQUEST_ID"].ToString(),
+                                                                request_id = queBlibli.Tables[0].Rows[0]["REQUEST_ID"].ToString()
+                                                            };
+                                                            string data_kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG;
+                                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND (REQUEST_ACTION = 'Buat Produk' OR REQUEST_ACTION = 'Cek Status Review') AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data_kode + "'";
+                                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+#if (DEBUG || Debug_AWS)
+                                                            Task.Run(() => BliApiJob.GetQueueFeedDetail(iden2, queData).Wait());
+#else
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.GetQueueFeedDetail(iden2, queData));
+#endif
+                                                        }
+
+                                                    }
+                                                    //Task.Run(() => BliApi.GetQueueFeedDetail(iden, null).Wait());
                                                 }
                                                 else if (stf02h.BRG_MP.Contains("NEED_CORRECTION"))
                                                 {
@@ -10905,7 +10942,44 @@ namespace MasterOnline.Controllers
                                                 };
                                                 if (stf02h.BRG_MP == "PENDING")
                                                 {
-                                                    Task.Run(() => BliApi.GetQueueFeedDetail(iden, null).Wait());
+                                                    var BliApiJob = new BlibliControllerJob();
+                                                    BlibliControllerJob.BlibliAPIData iden2 = new BlibliControllerJob.BlibliAPIData
+                                                    {
+                                                        merchant_code = tblCustomer.Sort1_Cust,
+                                                        API_client_password = tblCustomer.API_CLIENT_P,
+                                                        API_client_username = tblCustomer.API_CLIENT_U,
+                                                        API_secret_key = tblCustomer.API_KEY,
+                                                        token = tblCustomer.TOKEN,
+                                                        mta_username_email_merchant = tblCustomer.EMAIL,
+                                                        mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                        idmarket = tblCustomer.RecNum.Value,
+                                                        versiToken = tblCustomer.KD_ANALISA
+                                                    };
+                                                    var listLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(m => m.REQUEST_ACTION == "Create Product" && m.MARKETPLACE.ToUpper() == "BLIBLI" && m.REQUEST_STATUS.ToLower() == "pending").FirstOrDefault();
+                                                    if (listLog != null)
+                                                    {
+                                                        var queBlibli = EDB.GetDataSet("CString", "QUEUE_FEED_BLIBLI", "SELECT * FROM QUEUE_FEED_BLIBLI WHERE LOG_REQUEST_ID = '" + listLog.REQUEST_ID + "' AND MERCHANT_CODE='" + iden2.merchant_code + " AND STATUS = '1'");
+                                                        if (queBlibli.Tables[0].Rows.Count > 0)
+                                                        {
+                                                            var queData = new BlibliControllerJob.BlibliQueueFeedData
+                                                            {
+                                                                log_request_id = queBlibli.Tables[0].Rows[0]["LOG_REQUEST_ID"].ToString(),
+                                                                request_id = queBlibli.Tables[0].Rows[0]["REQUEST_ID"].ToString()
+                                                            };
+                                                            string data_kode = string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG;
+                                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND (REQUEST_ACTION = 'Buat Produk' OR REQUEST_ACTION = 'Cek Status Review') AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data_kode + "'";
+                                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+#if (DEBUG || Debug_AWS)
+                                                            Task.Run(() => BliApiJob.GetQueueFeedDetail(iden2, queData).Wait());
+#else
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.GetQueueFeedDetail(iden2, queData));
+#endif
+                                                        }
+
+                                                    }
+                                                    //Task.Run(() => BliApi.GetQueueFeedDetail(iden, null).Wait());
                                                 }
                                                 else if (stf02h.BRG_MP.Contains("NEED_CORRECTION"))
                                                 {
