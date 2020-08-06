@@ -8294,9 +8294,10 @@ namespace MasterOnline.Controllers
                             oCommand.ExecuteNonQuery();
                         }
                     }
-                    return "";
+                    throw new Exception("Data Produk ada yang perlu diperbaiki. Silahkan edit di Master Barang.");
                 }
             }
+
 
             string productCodeBlibli = "";
             try
@@ -8319,6 +8320,11 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(productCodeBlibli))
             {
 
+                var productInProcess = await cekProdukInProcess(iden, productCodeBlibli, 0);
+                if (productInProcess.status == 1)//product masih di qc
+                {
+                    return "";
+                }
             }
             //remark 19 Des 2019
             //DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -8450,14 +8456,25 @@ namespace MasterOnline.Controllers
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
-            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
-            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
-            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
-            myReq.Accept = "application/json";
-            myReq.ContentType = "application/json";
-            myReq.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
-            myReq.Headers.Add("sessionId", milis.ToString());
-            myReq.Headers.Add("username", userMTA);
+            if (iden.versiToken != "2")
+            {
+                myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
+                myReq.Headers.Add("username", userMTA);
+            }
+            else
+            {
+                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(iden.API_client_username + ":" + iden.API_client_password))));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+                myReq.Headers.Add("Signature-Time", milis.ToString());
+            }
             string responseFromServer = "";
             using (WebResponse response = await myReq.GetResponseAsync())
             {
