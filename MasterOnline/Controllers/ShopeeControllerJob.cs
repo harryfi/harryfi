@@ -6428,6 +6428,75 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public async Task<string> UpdateProductDisplay(ShopeeAPIData iden, string brg, string cust)
+        {
+            var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+            var stf02h_brg = ErasoftDbContext.STF02H.Where(m => m.BRG == brg && m.IDMARKET == customer.RecNum).FirstOrDefault();
+            string urll = "https://partner.shopeemobile.com/api/v1/items/unlist";
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string itemId = "";
+            if (!string.IsNullOrEmpty(stf02h_brg.BRG_MP))
+            {
+                var splitCode = stf02h_brg.BRG_MP.Split(';');
+                if(splitCode[0] != "0")
+                {
+                    itemId = splitCode[0];
+                }
+            }
+
+            if (!string.IsNullOrEmpty(itemId))
+            {
+                string myData = "{ \"shopid\":" + iden.merchant_code + ",\"partner_id\":" + MOPartnerID + ",\"timestamp\":" + seconds + ",";
+                myData += "\"items\": [{\"item_id\":" + itemId + ", \"unlist\":" + (stf02h_brg.DISPLAY ? "False" : "True") + " }] }";
+
+                string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "POST";
+                myReq.Headers.Add("Authorization", signature);
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                string responseFromServer = "";
+
+                //try
+                //{
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+                //}
+                //catch (Exception ex)
+                //{
+                //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //}
+
+                if (responseFromServer != "")
+                {
+                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreateProdResponse)) as ShopeeCreateProdResponse;
+                    if (resServer != null)
+                    {
+                        
+                    }
+                  
+                }
+            }
+
+                return "";
+        }
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke Shopee gagal.")]
