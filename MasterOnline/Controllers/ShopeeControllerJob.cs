@@ -2274,7 +2274,7 @@ namespace MasterOnline.Controllers
                 foreach (var order in result.orders)
                 {
                     var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.NO_REFERENSI == order.ordersn);
-                    
+
                     if (order.tracking_no != null && order.tracking_no != "")
                     {
                         ret = order.tracking_no;
@@ -2290,9 +2290,9 @@ namespace MasterOnline.Controllers
                         //contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee gagal.");
                         //List<string> list_ordersn = new List<string>();
                         //list_ordersn.Add(ordersn);
-                        
-                        var cekRetry = retry;      
-                        if (cekRetry >= 0 &&  cekRetry < 2)
+
+                        var cekRetry = retry;
+                        if (cekRetry >= 0 && cekRetry < 2)
                         {
                             cekRetry = retry + 1;
                             string EDBConnID = EDB.GetConnectionString("ConnId");
@@ -2518,7 +2518,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                //end add by nurul 16/6/2020
+                    //end add by nurul 16/6/2020
 
                     var ordersn_list = list_ordersn.ToArray();
 
@@ -2823,7 +2823,7 @@ namespace MasterOnline.Controllers
                         ((order.recipient_address.full_address ?? "").Replace("'", "`")),
                         (tlp),
                         //(NAMA_CUST.Replace(',', '.')),
-                        (NAMA_CUST.Length > 30? NAMA_CUST.Substring(0, 30) : NAMA_CUST),
+                        (NAMA_CUST.Length > 30 ? NAMA_CUST.Substring(0, 30) : NAMA_CUST),
                         (AL_KIRIM1),
                         DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                         (username),
@@ -2929,8 +2929,8 @@ namespace MasterOnline.Controllers
                         {
                             dropshipper = dropshipper.Substring(0, 300);
                         }
-                        string buyer_username = !string.IsNullOrEmpty(order.buyer_username) ? order.buyer_username.Replace('\'','`') : "";
-                        if(buyer_username.Length > 300)
+                        string buyer_username = !string.IsNullOrEmpty(order.buyer_username) ? order.buyer_username.Replace('\'', '`') : "";
+                        if (buyer_username.Length > 300)
                         {
                             buyer_username = buyer_username.Substring(0, 300);
                         }
@@ -2981,7 +2981,7 @@ namespace MasterOnline.Controllers
                             NAMA_CUST = NAMA_CUST
                         };
                         var ShippingFeeData = await GetShippingFee(iden, order.ordersn);
-                        if(ShippingFeeData != null)
+                        if (ShippingFeeData != null)
                         {
                             newOrder.estimated_shipping_fee = (ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee).ToString();
                         }
@@ -3101,7 +3101,7 @@ namespace MasterOnline.Controllers
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            var ret =  new GetShippingFeeResult();
+            var ret = new GetShippingFeeResult();
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -3145,7 +3145,7 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(responseFromServer))
             {
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetShippingFeeResult)) as GetShippingFeeResult;
-                if(result != null)
+                if (result != null)
                 {
                     if (string.IsNullOrEmpty(result.error))
                     {
@@ -3818,7 +3818,7 @@ namespace MasterOnline.Controllers
             {
                 //try
                 //{
-                
+
 
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
                 if ((result.error == null ? "" : result.error) == "")
@@ -3987,7 +3987,7 @@ namespace MasterOnline.Controllers
                         }
 
 
-                        
+
                     }
                     else
                     {
@@ -4084,7 +4084,7 @@ namespace MasterOnline.Controllers
                         pesananInDb.status_kirim = "1";
                         ErasoftDbContext.SaveChanges();
                     }
-                        throw new Exception(result.msg);
+                    throw new Exception(result.msg);
 
                     //currentLog.REQUEST_EXCEPTION = result.msg;
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
@@ -5049,7 +5049,7 @@ namespace MasterOnline.Controllers
                                 value = value.Trim()
                             });
                         }
-                            
+
                     }
                 }
 
@@ -5394,7 +5394,7 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public async Task<GetVariationResult> CekVariationShopee( ShopeeAPIData iden, long item_id)
+        public async Task<GetVariationResult> CekVariationShopee(ShopeeAPIData iden, long item_id)
         {
             var ret = new GetVariationResult();
             SetupContext(iden);
@@ -5452,7 +5452,7 @@ namespace MasterOnline.Controllers
             if (responseFromServer != "")
             {
                 ret = JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariationResult)) as GetVariationResult;
-                
+
             }
 
             return ret;
@@ -5856,20 +5856,20 @@ namespace MasterOnline.Controllers
                     //    }
                     //}
                     #endregion
-                    if(dataBrg.variations != null)
+                    if (dataBrg.variations != null)
                     {
-                        if(dataBrg.variations.Length > 0)
+                        if (dataBrg.variations.Length > 0)
                         {
                             var tempData = new List<STF02>();
                             var newData = ListVariant;
                             //var cekTier1 = dataBrg.variations.Where(p => p.tier_index[0] == 0).ToList();
-                            if(dataBrg.tier_variation.Length == 1)// shopee 1 tier
+                            if (dataBrg.tier_variation.Length == 1)// shopee 1 tier
                             {
-                                foreach(var tier1_s in dataBrg.variations.OrderBy(p => p.tier_index[0]))
+                                foreach (var tier1_s in dataBrg.variations.OrderBy(p => p.tier_index[0]))
                                 {
                                     var brgMPVar = dataBrg.item_id + ";" + tier1_s.variation_id;
                                     var dStf02h = ListStf02hVariasi.Where(p => (p.BRG_MP ?? "") == brgMPVar).FirstOrDefault();
-                                    if(dStf02h != null)
+                                    if (dStf02h != null)
                                     {
                                         var currentBrg = dStf02h.BRG;
                                         var sorted = ListVariant.Where(p => p.BRG == currentBrg).FirstOrDefault();
@@ -6037,7 +6037,7 @@ namespace MasterOnline.Controllers
             }
             HttpBody.variation = variation.ToArray();
             HttpBody.tier_variation = tier_variation.ToArray();
-           
+
             string myData = JsonConvert.SerializeObject(HttpBody);
             myData = myData.Replace(",\"images_url\":null", " ");//remove images_url from tier 2
 
@@ -6360,6 +6360,7 @@ namespace MasterOnline.Controllers
                 {
                     if (string.IsNullOrEmpty(resServer.error))
                     {
+                        await UpdateProductDisplay(iden, brg, cust);//add by Tri 6 aug 2020, update display product
                         var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
                         if (item != null)
                         {
@@ -6430,6 +6431,8 @@ namespace MasterOnline.Controllers
 
         public async Task<string> UpdateProductDisplay(ShopeeAPIData iden, string brg, string cust)
         {
+            SetupContext(iden);
+
             var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
             var stf02h_brg = ErasoftDbContext.STF02H.Where(m => m.BRG == brg && m.IDMARKET == customer.RecNum).FirstOrDefault();
             string urll = "https://partner.shopeemobile.com/api/v1/items/unlist";
@@ -6441,7 +6444,7 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(stf02h_brg.BRG_MP))
             {
                 var splitCode = stf02h_brg.BRG_MP.Split(';');
-                if(splitCode[0] != "0")
+                if (splitCode[0] != "0")
                 {
                     itemId = splitCode[0];
                 }
@@ -6450,7 +6453,7 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(itemId))
             {
                 string myData = "{ \"shopid\":" + iden.merchant_code + ",\"partner_id\":" + MOPartnerID + ",\"timestamp\":" + seconds + ",";
-                myData += "\"items\": [{\"item_id\":" + itemId + ", \"unlist\":" + (stf02h_brg.DISPLAY ? "False" : "True") + " }] }";
+                myData += "\"items\": [{\"item_id\":" + itemId + ", \"unlist\":" + (stf02h_brg.DISPLAY ? "false" : "true") + " }] }";
 
                 string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
 
@@ -6486,16 +6489,24 @@ namespace MasterOnline.Controllers
 
                 if (responseFromServer != "")
                 {
-                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreateProdResponse)) as ShopeeCreateProdResponse;
+                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUnlistProductResponse)) as ShopeeUnlistProductResponse;
                     if (resServer != null)
                     {
-                        
+                        if(resServer.failed != null)
+                        {
+                            string errMsg = "Error Unlist Product : ";
+                            foreach(var er in resServer.failed)
+                            {
+                                errMsg += er.item_id + " : " + er.error_description + "\n";
+                            }
+                            throw new Exception(errMsg);
+                        }
                     }
-                  
+
                 }
             }
 
-                return "";
+            return "";
         }
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
@@ -8570,6 +8581,25 @@ namespace MasterOnline.Controllers
             //public long size_id { get; set; }//If specify logistic fee_type is SIZE_SELECTION size_id is required
             public bool is_free { get; set; }
 
+        }
+
+        public class ShopeeUnlistProductResponse
+        {
+            public ShopeeUnlistProductFailed[] failed { get; set; }
+            public ShopeeUnlistProductSuccess[] success { get; set; }
+            public string request_id { get; set; }
+        }
+
+        public class ShopeeUnlistProductFailed
+        {
+            public long item_id { get; set; }
+            public string error_description { get; set; }
+        }
+
+        public class ShopeeUnlistProductSuccess
+        {
+            public long item_id { get; set; }
+            public bool unlist { get; set; }
         }
 
         public class ShopeeCreateProdResponse : ShopeeError
