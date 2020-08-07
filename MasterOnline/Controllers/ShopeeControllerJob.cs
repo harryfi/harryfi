@@ -5370,7 +5370,7 @@ namespace MasterOnline.Controllers
                                 if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                 {
                                     //add 6 aug 2020, hapus error log lama sebelum panggil update produk
-                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Update Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Update Produk' AND CUST = '" + customer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + brg + "'";
                                     EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                     //end add 6 aug 2020, hapus error log lama sebelum panggil update produk
 
