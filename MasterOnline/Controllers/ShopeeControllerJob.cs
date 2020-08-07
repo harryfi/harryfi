@@ -6499,12 +6499,16 @@ namespace MasterOnline.Controllers
                     {
                         if(resServer.failed != null)
                         {
-                            string errMsg = "Error Unlist Product : ";
-                            foreach(var er in resServer.failed)
+                            if(resServer.failed.Length > 0)
                             {
-                                errMsg += er.item_id + " : " + er.error_description + "\n";
+                                string errMsg = "Error Unlist Product : ";
+                                foreach (var er in resServer.failed)
+                                {
+                                    errMsg += er.item_id + " : " + er.error_description + "\n";
+                                }
+                                throw new Exception(errMsg);
                             }
-                            throw new Exception(errMsg);
+                            
                         }
                     }
 
