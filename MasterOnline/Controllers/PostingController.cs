@@ -77,5 +77,47 @@ namespace MasterOnline.Controllers
 #endif
 
         }
-	}
+
+        //add by nurul 4/8/2020
+        public class lastPosting
+        {
+            public string no_bukti { get; set; }
+            public DateTime tanggal { get; set; }
+            public string tgl { get; set; }
+            public string bulan { get; set; }
+            public string tahun { get; set; }
+        }
+        public ActionResult getLastTglPosting()
+        {
+            var sSQL = "select top 1 * from ( ";
+            sSQL += "SELECT top 1 no_bukti,tgl as tanggal FROM sit01a where ISNULL(st_POSTING,'') <> 'Y' AND STATUS NOT IN ('2','3') ";
+            sSQL += "union ";
+            sSQL += "SELECT top 1 inv as no_bukti,tgl as tanggal FROM pbt01a where ISNULL(POSTING,'') <> 'Y' AND STATUS NOT IN ('2','3') ";
+            sSQL += "union ";
+            sSQL += "SELECT top 1 nobuk as no_bukti,tgl as tanggal FROM stt01a where ISNULL(st_POSTING,'') <> 'Y' ";
+            sSQL += "union ";
+            sSQL += "SELECT top 1 faktur as no_bukti,tgl as tanggal FROM art01a where ISNULL(POST,'') <> 'Y' ";
+            sSQL += "union ";
+            sSQL += "SELECT top 1 inv as no_bukti,tgl as tanggal FROM apt01a where ISNULL(POSTING,'') <> 'Y' order by tgl asc ";
+            sSQL += ")a order by tanggal asc ";
+            var tempLastPosting = ErasoftDbContext.Database.SqlQuery<lastPosting>(sSQL).SingleOrDefault();
+
+            var Vm = new lastPosting()
+            {
+            };
+            if (tempLastPosting != null)
+            {
+                Vm.no_bukti = tempLastPosting.no_bukti;
+                Vm.tanggal = tempLastPosting.tanggal;
+                Vm.tgl = tempLastPosting.tanggal.Day.ToString();
+                System.Globalization.DateTimeFormatInfo mfi = new System.Globalization.DateTimeFormatInfo();
+                Vm.bulan = mfi.GetMonthName(tempLastPosting.tanggal.Month).ToString();
+                //Vm.bulan = tempLastPosting.tanggal.Month.ToString();
+                Vm.tahun = tempLastPosting.tanggal.Year.ToString();
+            }
+
+            return Json(Vm, JsonRequestBehavior.AllowGet);
+        }
+        //end add by nurul 4/8/2020
+    }
 }
