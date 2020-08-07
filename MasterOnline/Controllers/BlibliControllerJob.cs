@@ -10423,7 +10423,76 @@ namespace MasterOnline.Controllers
 
             return destImage;
         }
+        public class ReviseProductBlibliData
+        {
+            public ReviseProduct product { get; set; }
+            public RevisepickupPoint pickupPoint { get; set; }
+            public ReviseCategoryCode category { get; set; }
+            public ReviseBrand brand { get; set; }
+            //public string url { get; set; }
+            public ReviseDimension dimension { get; set; }
+            public string productStory { get; set; }
+            public Dictionary<string, string> productNonDefiningAttributes { get; set; }
+            public Dictionary<string, string[]> productDefiningAttributes { get; set; }
+            public List<ReviseProductitem> productItems { get; set; }
+            public ReviseImageMap[] imageMap { get; set; }
+        }
+        public class ReviseProductitem
+        {
+            public string upcCode { get; set; }
+            public string sellerSku { get; set; }
+            public int price { get; set; }
+            //public int salePrice { get; set; }
+            public int stock { get; set; }
+            public int minimumStock { get; set; }
+            public bool displayable { get; set; }
+            public bool buyable { get; set; }
+            public string[] images { get; set; }
+            //public int dangerousGoodsLevel { get; set; }
+            public Dictionary<string, string> attributesMap { get; set; }
+        }
+        public class ReviseProductPrice
+        {
+            public int regular { get; set; }
+            public int sale { get; set; }
 
+        }
+        public class ReviseDimension
+        {
+            public int length { get; set; }
+            public int width { get; set; }
+            public int height { get; set; }
+            public int weight { get; set; }
+
+        }
+        public class ReviseBrand
+        {
+            public string code { get; set; }
+
+        }
+        public class ReviseCategoryCode
+        {
+            public string code { get; set; }
+
+        }
+        public class RevisepickupPoint
+        {
+            public string code { get; set; }
+
+        }
+        public class ReviseImageMap
+        {
+            public string data { get; set; }
+            public string name { get; set; }
+            public string path { get; set; }
+        }
+        public class ReviseProduct
+        {
+            public string name { get; set; }
+            public string description { get; set; }
+            public int productType { get; set; }
+            public string uniqueSellingPoint { get; set; }
+        }
         public class CreateProductBlibliData
         {
             public string name { get; set; }
