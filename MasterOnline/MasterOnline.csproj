@@ -6413,6 +6413,7 @@
     <Content Include="Views\Manage\ListDetailPackingListShopee.cshtml" />
     <Content Include="Views\Manage\ListDetailPackingListBlibli.cshtml" />
     <Content Include="Views\Manage\ListDetailPackingList.cshtml" />
+    <Content Include="Views\Manage\PostingView.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
