@@ -172,17 +172,18 @@
                     link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
 
                     $.ajax({
-                        url: this.href,
+                        //url: this.href,
+                        url: link,
                         type: 'GET',
                         cache: false,
                         beforeSend: function () {
-                            //$('#table-barang-1-partial').hide();
+                            $('#table-barang-1-partial').hide();
                             $('#loading_barang_tab').show();
                         },
                         success: function (response) {
                             $('#table-barang-1-partial').html(response);
                             $('#loading_barang_tab').hide();
-                            //$('#table-barang-1-partial').show();
+                            $('#table-barang-1-partial').show();
                         }
                     });
                     return false;
