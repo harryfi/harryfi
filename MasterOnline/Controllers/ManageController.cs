@@ -9975,6 +9975,11 @@ namespace MasterOnline.Controllers
                                                 };
                                                 //end add by nurul 29/1/2020
 
+                                                //add 6 aug 2020, hapus error log lama sebelum panggil update produk
+                                                string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Update Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + barangInDb.BRG + "'";
+                                                EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                                                //end add 6 aug 2020, hapus error log lama sebelum panggil update produk
+
                                                 //remark by calvin 26 februari 2019, ini untuk update deskripsi dll
                                                 //unremark by nurul 15/1/2020, biar bisa update deskripsi, tapi panjang lebar dan tinggi harus <= 40 cm
                                                 var temp_brg = (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG);
@@ -10108,6 +10113,10 @@ namespace MasterOnline.Controllers
                                         {
                                             if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                             {
+                                                //add 6 aug 2020, hapus error log lama sebelum panggil init tier
+                                                string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                                EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                                                //end add 6 aug 2020, hapus error log lama sebelum panggil init tier
                                                 //ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
                                                 //{
                                                 //    merchant_code = tblCustomer.Sort1_Cust,
