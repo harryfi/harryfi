@@ -73,6 +73,10 @@ namespace MasterOnline
         public string CancelReason { get; set; }
         //end add by Tri 2/12/2019
 
+        //add by nurul 7/8/2020
+        public string catatanPembeli { get; set; }
+        //end add by nurul 7/8/2020
+
         //[Key]
         //[StringLength(15)]
         //public string NO_BUKTI { get; set; }

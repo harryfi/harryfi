@@ -69,6 +69,7 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Marketplace</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 90px;">Pembeli</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 100px;">Kurir</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 100px;">Keterangan</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
                 @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px; max-width: 50px;">Siap Kirim</th>*@
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px; border-right:hidden;">Ubah Status</th>
@@ -111,6 +112,13 @@
                 //{
                 //    NamaMarket = market.NamaMarket;
                 //}
+
+                string keterangan = pesanan.catatanPembeli;
+                if (string.IsNullOrEmpty(keterangan))
+                {
+                    keterangan = "-";
+                }
+                keterangan = keterangan.Length > 30 ? keterangan.Substring(0, 30) + "..." : keterangan.ToString();
                 <tr>
                     <td>@pesanan.NOSO</td>
                     <td>@pesanan.REFERENSI</td>
@@ -134,6 +142,19 @@
                         @pesanan.PEMBELI
                     </td>
                     <td>@pesanan.SHIPMENT</td>
+                    <td>
+                        @if (keterangan != "-")
+                        {
+                            <div data-tip="@pesanan.catatanPembeli">
+                                @keterangan
+                                @*<a class="user-link" href="#" data-toggle="modal" data-target="#modalCatatanPembeli" onclick="LihatCatatanPembeli('@forDetailStok')">@barang.QOH</a>*@
+                            </div>
+                        }
+                        else
+                        {
+                            @keterangan
+                        }
+                    </td>
                     <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
                     <td class="edit-hapus-col" style="border-right:hidden; width: 50px; max-width: 50px;">
                         @if (pesanan.MARKET != "")

@@ -20118,6 +20118,10 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
+            //ADD BY NURUL 7/8/2020
+            //sSQLSelect += ", ISNULL(CONVERT(VARCHAR,KET),'') AS catatanPembeli ";
+            sSQLSelect += ", ISNULL(A.KET,'') AS catatanPembeli ";
+            //END ADD BY NURUL 7/8/2020
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -20183,6 +20187,25 @@ namespace MasterOnline.Controllers
             sSQLSelect2 += "FETCH NEXT " + take + " ROWS ONLY ";
 
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLTemp + sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            //add by nurul 7/8/2020
+            var cekTokped = listOrderNew.Where(a => a.MARKET.Contains("Tokopedia")).ToList();
+            if (cekTokped.Count() > 0)
+            {
+                foreach (var getKetTokped in cekTokped)
+                {
+                    var tempKet = "";
+                    var getKet = ErasoftDbContext.SOT01B.Where(a => a.NO_BUKTI == getKetTokped.NOSO).ToList();
+                    foreach (var detail in getKet)
+                    {
+                        if (detail.KET_DETAIL != null && detail.KET_DETAIL != "" && detail.KET_DETAIL != "-")
+                        {
+                            tempKet = tempKet + detail.BRG + " - " + detail.KET_DETAIL + Environment.NewLine;
+                        }
+                    }
+                    getKetTokped.catatanPembeli = tempKet;
+                }
+            }
+            //end add by nurul 7/8/2020
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQL2).Single();
 
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
@@ -20457,6 +20480,10 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
+            //ADD BY NURUL 7/8/2020
+            //sSQLSelect += ", ISNULL(CONVERT(VARCHAR,KET),'') AS catatanPembeli ";
+            sSQLSelect += ", ISNULL(A.KET,'') AS catatanPembeli ";
+            //END ADD BY NURUL 7/8/2020
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -20522,6 +20549,25 @@ namespace MasterOnline.Controllers
             sSQLSelect2 += "FETCH NEXT " + take + " ROWS ONLY ";
 
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLTemp + sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            //add by nurul 7/8/2020
+            var cekTokped = listOrderNew.Where(a => a.MARKET.Contains("Tokopedia")).ToList();
+            if (cekTokped.Count() > 0)
+            {
+                foreach(var getKetTokped in cekTokped)
+                {
+                    var tempKet = "";
+                    var getKet = ErasoftDbContext.SOT01B.Where(a => a.NO_BUKTI == getKetTokped.NOSO).ToList();
+                    foreach(var detail in getKet)
+                    {
+                        if (detail.KET_DETAIL != null && detail.KET_DETAIL != "" && detail.KET_DETAIL != "-")
+                        {
+                            tempKet = tempKet + detail.BRG + " - " + detail.KET_DETAIL + Environment.NewLine;
+                        }
+                    }
+                    getKetTokped.catatanPembeli = tempKet;
+                }
+            }
+            //end add by nurul 7/8/2020
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQL2).Single();
 
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
