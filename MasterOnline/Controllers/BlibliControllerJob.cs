@@ -8451,8 +8451,8 @@ namespace MasterOnline.Controllers
             string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
 
-            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v3/product/inProcessProduct", iden.API_secret_key);
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v3/product/inProcessProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&size=50&channelId=MasterOnline";
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/inProcessProduct", iden.API_secret_key);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/inProcessProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&size=50&channelId=MasterOnline";
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -10425,7 +10425,7 @@ namespace MasterOnline.Controllers
         }
         public class ReviseProductBlibliData
         {
-            public ReviseProduct product { get; set; }
+            public ReviseProductData product { get; set; }
             public RevisepickupPoint pickupPoint { get; set; }
             public ReviseCategoryCode category { get; set; }
             public ReviseBrand brand { get; set; }
@@ -10486,7 +10486,7 @@ namespace MasterOnline.Controllers
             public string name { get; set; }
             public string path { get; set; }
         }
-        public class ReviseProduct
+        public class ReviseProductData
         {
             public string name { get; set; }
             public string description { get; set; }

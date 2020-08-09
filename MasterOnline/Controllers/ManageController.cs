@@ -10660,20 +10660,21 @@ namespace MasterOnline.Controllers
                                                         mta_username_email_merchant = tblCustomer.EMAIL,
                                                         mta_password_password_merchant = tblCustomer.PASSWORD,
                                                         idmarket = tblCustomer.RecNum.Value,
+                                                        DatabasePathErasoft = dbPathEra,
                                                         versiToken = tblCustomer.KD_ANALISA
                                                     };
-                                                    var listLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(m => m.REQUEST_ACTION == "Create Product" && m.MARKETPLACE.ToUpper() == "BLIBLI" && m.REQUEST_STATUS.ToLower() == "pending").FirstOrDefault();
+                                                    string data_kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG;
+                                                    var listLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(m => m.REQUEST_ACTION == "Create Product" && m.MARKETPLACE.ToUpper() == "BLIBLI" && m.REQUEST_STATUS.ToLower() == "pending" && m.REQUEST_ATTRIBUTE_1 == data_kode).FirstOrDefault();
                                                     if (listLog != null)
                                                     {
-                                                        var queBlibli = EDB.GetDataSet("CString", "QUEUE_FEED_BLIBLI", "SELECT * FROM QUEUE_FEED_BLIBLI WHERE LOG_REQUEST_ID = '" + listLog.REQUEST_ID + "' AND MERCHANT_CODE='" + iden2.merchant_code + " AND STATUS = '1'");
+                                                        var queBlibli = EDB.GetDataSet("CString", "QUEUE_FEED_BLIBLI", "SELECT * FROM QUEUE_FEED_BLIBLI WHERE LOG_REQUEST_ID = '" + listLog.REQUEST_ID + "' AND MERCHANT_CODE='" + iden2.merchant_code + "' AND STATUS = '1'");
                                                         if (queBlibli.Tables[0].Rows.Count > 0)
                                                         {
                                                             var queData = new BlibliControllerJob.BlibliQueueFeedData
                                                             {
                                                                 log_request_id = queBlibli.Tables[0].Rows[0]["LOG_REQUEST_ID"].ToString(),
-                                                                request_id = queBlibli.Tables[0].Rows[0]["REQUEST_ID"].ToString()
+                                                                request_id = queBlibli.Tables[0].Rows[0]["REQUESTID"].ToString()
                                                             };
-                                                            string data_kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG;
                                                             string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND (REQUEST_ACTION = 'Buat Produk' OR REQUEST_ACTION = 'Cek Status Review') AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data_kode + "'";
                                                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
@@ -10953,20 +10954,21 @@ namespace MasterOnline.Controllers
                                                         mta_username_email_merchant = tblCustomer.EMAIL,
                                                         mta_password_password_merchant = tblCustomer.PASSWORD,
                                                         idmarket = tblCustomer.RecNum.Value,
+                                                        DatabasePathErasoft = dbPathEra,
                                                         versiToken = tblCustomer.KD_ANALISA
                                                     };
-                                                    var listLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(m => m.REQUEST_ACTION == "Create Product" && m.MARKETPLACE.ToUpper() == "BLIBLI" && m.REQUEST_STATUS.ToLower() == "pending").FirstOrDefault();
+                                                    string data_kode = string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG;
+                                                    var listLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(m => m.REQUEST_ACTION == "Create Product" && m.MARKETPLACE.ToUpper() == "BLIBLI" && m.REQUEST_STATUS.ToLower() == "pending" && m.REQUEST_ATTRIBUTE_1 == data_kode).FirstOrDefault();
                                                     if (listLog != null)
                                                     {
-                                                        var queBlibli = EDB.GetDataSet("CString", "QUEUE_FEED_BLIBLI", "SELECT * FROM QUEUE_FEED_BLIBLI WHERE LOG_REQUEST_ID = '" + listLog.REQUEST_ID + "' AND MERCHANT_CODE='" + iden2.merchant_code + " AND STATUS = '1'");
+                                                        var queBlibli = EDB.GetDataSet("CString", "QUEUE_FEED_BLIBLI", "SELECT * FROM QUEUE_FEED_BLIBLI WHERE LOG_REQUEST_ID = '" + listLog.REQUEST_ID + "' AND MERCHANT_CODE='" + iden2.merchant_code + "' AND STATUS = '1'");
                                                         if (queBlibli.Tables[0].Rows.Count > 0)
                                                         {
                                                             var queData = new BlibliControllerJob.BlibliQueueFeedData
                                                             {
                                                                 log_request_id = queBlibli.Tables[0].Rows[0]["LOG_REQUEST_ID"].ToString(),
-                                                                request_id = queBlibli.Tables[0].Rows[0]["REQUEST_ID"].ToString()
+                                                                request_id = queBlibli.Tables[0].Rows[0]["REQUESTID"].ToString()
                                                             };
-                                                            string data_kode = string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG;
                                                             string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND (REQUEST_ACTION = 'Buat Produk' OR REQUEST_ACTION = 'Cek Status Review') AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data_kode + "'";
                                                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
