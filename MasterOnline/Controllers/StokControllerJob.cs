@@ -1584,39 +1584,41 @@ namespace MasterOnline.Controllers
             //end remark 22 juli 2020, ubah cara cek stok tertahan lazada
             //end add 12-04-2019, cek qty on lazada
             #region cek stok tertahan lazada
-            string sSQL = "SELECT DISTINCT NO_REFERENSI FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI ";
-            sSQL += "WHERE A.CUST = '"+log_CUST+"' AND A.TGL >= '"+DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "' ";
-            sSQL += "AND A.STATUS_TRANSAKSI IN ('0','01','02') AND ISNULL(convert(nvarchar(max),KET_DETAIL), '') <> 'NO_COUNT_LZD' AND B.BRG = '" + stf02_brg+ "' AND ISNULL(NO_REFERENSI, '') <> ''";
-            var dsPesanan = EDB.GetDataSet("CString", "SO", sSQL);
-            if(dsPesanan.Tables[0].Rows.Count > 0)
-            {
-                List<string> listID = new List<string>();
-                string listNoRef = "[";
-                for(int i = 0; i < dsPesanan.Tables[0].Rows.Count; i++)
-                {
-                    listNoRef += dsPesanan.Tables[0].Rows[i]["NO_REFERENSI"].ToString();
-                    if ((i + 1) % 100 == 0)
-                    {
-                        listNoRef += "]";
-                        listID.Add(listNoRef);
-                        listNoRef = "[";
-                    }
-                    else
-                    {
-                        listNoRef += ",";
-                    }
-                }
-                if (!string.IsNullOrEmpty(listNoRef))
-                {
-                    listNoRef = listNoRef.Substring(0, listNoRef.Length - 1) + "]";
-                    listID.Add(listNoRef);
-                }
-                var resStok = getOrderStatusLazada(listID, token, kdBrg, stf02_brg, log_CUST, dbPathEra);
-                if(resStok.status == 1)
-                {
-                    qty = Convert.ToString(Convert.ToInt32(qty) + resStok.recordCount);
-                }
-            }
+            //remark 10 Aug 2020, perhitungan stok tertahan dan terpakai di seller center lazada tidak stabil
+            //string sSQL = "SELECT DISTINCT NO_REFERENSI FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI ";
+            //sSQL += "WHERE A.CUST = '"+log_CUST+"' AND A.TGL >= '"+DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss") + "' ";
+            //sSQL += "AND A.STATUS_TRANSAKSI IN ('0','01','02') AND ISNULL(convert(nvarchar(max),KET_DETAIL), '') <> 'NO_COUNT_LZD' AND B.BRG = '" + stf02_brg+ "' AND ISNULL(NO_REFERENSI, '') <> ''";
+            //var dsPesanan = EDB.GetDataSet("CString", "SO", sSQL);
+            //if(dsPesanan.Tables[0].Rows.Count > 0)
+            //{
+            //    List<string> listID = new List<string>();
+            //    string listNoRef = "[";
+            //    for(int i = 0; i < dsPesanan.Tables[0].Rows.Count; i++)
+            //    {
+            //        listNoRef += dsPesanan.Tables[0].Rows[i]["NO_REFERENSI"].ToString();
+            //        if ((i + 1) % 100 == 0)
+            //        {
+            //            listNoRef += "]";
+            //            listID.Add(listNoRef);
+            //            listNoRef = "[";
+            //        }
+            //        else
+            //        {
+            //            listNoRef += ",";
+            //        }
+            //    }
+            //    if (!string.IsNullOrEmpty(listNoRef))
+            //    {
+            //        listNoRef = listNoRef.Substring(0, listNoRef.Length - 1) + "]";
+            //        listID.Add(listNoRef);
+            //    }
+            //    var resStok = getOrderStatusLazada(listID, token, kdBrg, stf02_brg, log_CUST, dbPathEra);
+            //    if(resStok.status == 1)
+            //    {
+            //        qty = Convert.ToString(Convert.ToInt32(qty) + resStok.recordCount);
+            //    }
+            //}
+            //end remark 10 Aug 2020, perhitungan stok tertahan dan terpakai di seller center lazada tidak stabil
             #endregion
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
             //change 16 apr 2020
