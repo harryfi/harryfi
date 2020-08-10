@@ -173,21 +173,21 @@
         var $last = "";
         var firstOfThisMonth = new Date();
         var lastOfThisMonth = new Date();
-        firstOfThisMonth.setDate(1);
-        var a = new Date();
-        a.setDate(1);
-        lastOfThisMonth = a.addMonths(1).addDays(-1);
+        //firstOfThisMonth.setDate(1);
+        //var a = new Date();
+        //a.setDate(1);
+        //lastOfThisMonth = a.addMonths(1).addDays(-1);
 
-        var optionsDr = "";
-        for (var DrTgl = 1; DrTgl <= lastOfThisMonth.getDate(); DrTgl++) {
-            optionsDr += "<option>" + DrTgl + "</option>";
-        }
-        document.getElementById("DrTgl").innerHTML = optionsDr;
-        var optionsSd = "";
-        for (var SdTgl = 1; SdTgl <= lastOfThisMonth.getDate(); SdTgl++) {
-            optionsSd += "<option>" + SdTgl + "</option>";
-        }
-        document.getElementById("SdTgl").innerHTML = optionsSd;
+        //var optionsDr = "";
+        //for (var DrTgl = 1; DrTgl <= lastOfThisMonth.getDate(); DrTgl++) {
+        //    optionsDr += "<option>" + DrTgl + "</option>";
+        //}
+        //document.getElementById("DrTgl").innerHTML = optionsDr;
+        //var optionsSd = "";
+        //for (var SdTgl = 1; SdTgl <= lastOfThisMonth.getDate(); SdTgl++) {
+        //    optionsSd += "<option>" + SdTgl + "</option>";
+        //}
+        //document.getElementById("SdTgl").innerHTML = optionsSd;
 
         $(document).ready(function () {
             var d = new Date();
@@ -438,6 +438,26 @@
                     $('#DrTgl').val(data.tgl);
                     $('#Bulan').val(data.bulan);
                     $('#Tahun').val(data.tahun);
+
+                    var b = new Date(data.bulan + ' ' + 2018);
+                    var c = b.getMonth() + 1;
+                    var a = new Date(data.tahun, c - 1, data.tgl);
+                    firstOfThisMonth = a;
+                    firstOfThisMonth.setDate(1);
+                    var a = firstOfThisMonth;
+                    a.setDate(1);
+                    lastOfThisMonth = a.addMonths(1).addDays(-1);
+
+                    var optionsDr = "";
+                    for (var DrTgl = 1; DrTgl <= lastOfThisMonth.getDate(); DrTgl++) {
+                        optionsDr += "<option>" + DrTgl + "</option>";
+                    }
+                    document.getElementById("DrTgl").innerHTML = optionsDr;
+                    var optionsSd = "";
+                    for (var SdTgl = 1; SdTgl <= lastOfThisMonth.getDate(); SdTgl++) {
+                        optionsSd += "<option>" + SdTgl + "</option>";
+                    }
+                    document.getElementById("SdTgl").innerHTML = optionsSd;
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

@@ -90,16 +90,16 @@ namespace MasterOnline.Controllers
         public ActionResult getLastTglPosting()
         {
             var sSQL = "select top 1 * from ( ";
-            sSQL += "SELECT top 1 no_bukti,tgl as tanggal FROM sit01a where ISNULL(st_POSTING,'') <> 'Y' AND STATUS NOT IN ('2','3') ";
+            sSQL += "select * from (SELECT top 1 no_bukti,tgl as tanggal FROM sit01a where ISNULL(st_POSTING,'') <> 'Y' AND STATUS NOT IN ('2','3')  order by tanggal asc )a ";
             sSQL += "union ";
-            sSQL += "SELECT top 1 inv as no_bukti,tgl as tanggal FROM pbt01a where ISNULL(POSTING,'') <> 'Y' AND STATUS NOT IN ('2','3') ";
+            sSQL += "select * from (SELECT top 1 inv as no_bukti,tgl as tanggal FROM pbt01a where ISNULL(POSTING,'') <> 'Y' AND STATUS NOT IN ('2','3')  order by tanggal asc )a ";
             sSQL += "union ";
-            sSQL += "SELECT top 1 nobuk as no_bukti,tgl as tanggal FROM stt01a where ISNULL(st_POSTING,'') <> 'Y' ";
+            sSQL += "select * from (SELECT top 1 nobuk as no_bukti,tgl as tanggal FROM stt01a where ISNULL(st_POSTING,'') <> 'Y'  order by tanggal asc )a ";
             sSQL += "union ";
-            sSQL += "SELECT top 1 faktur as no_bukti,tgl as tanggal FROM art01a where ISNULL(POST,'') <> 'Y' ";
+            sSQL += "select * from (SELECT top 1 faktur as no_bukti,tgl as tanggal FROM art01a where ISNULL(POST,'') <> 'Y'  order by tanggal asc )a ";
             sSQL += "union ";
-            sSQL += "SELECT top 1 inv as no_bukti,tgl as tanggal FROM apt01a where ISNULL(POSTING,'') <> 'Y' order by tgl asc ";
-            sSQL += ")a order by tanggal asc ";
+            sSQL += "select * from (SELECT top 1 inv as no_bukti,tgl as tanggal FROM apt01a where ISNULL(POSTING,'') <> 'Y' order by tanggal asc )a ";
+            sSQL += ")b order by tanggal asc ";
             var tempLastPosting = ErasoftDbContext.Database.SqlQuery<lastPosting>(sSQL).SingleOrDefault();
 
             var Vm = new lastPosting()
