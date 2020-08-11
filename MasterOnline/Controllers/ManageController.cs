@@ -7203,8 +7203,11 @@ namespace MasterOnline.Controllers
                             List<int> protectDuplicateIdMarket = new List<int>();
                             foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
                             {
-                                if (!protectDuplicateIdMarket.Contains(hargaPerMarket.IDMARKET))
+                                var stf02hInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == dataBarang.Stf02.BRG).FirstOrDefault();
+                                if(stf02hInDB == null)
                                 {
+                                    if (!protectDuplicateIdMarket.Contains(hargaPerMarket.IDMARKET))
+                                    {
                                     protectDuplicateIdMarket.Add(hargaPerMarket.IDMARKET);
                                     hargaPerMarket.BRG = dataBarang.Stf02.BRG;
 
@@ -7249,6 +7252,15 @@ namespace MasterOnline.Controllers
                                     }
                                     //end add by calvin 1 maret 2019
                                     ErasoftDbContext.STF02H.Add(hargaPerMarket);
+                                    }
+
+                                }
+                                else
+                                {
+                                    List<string> listError2 = new List<string>();
+                                    listError2.Add("Data barang ada yang terduplikat, Silahkan hubungi Support MO.");
+                                    dataBarang.Errors = listError2;
+                                    return Json(dataBarang, JsonRequestBehavior.AllowGet);
                                 }
 
                             }
@@ -8403,11 +8415,21 @@ namespace MasterOnline.Controllers
                             List<int> protectDuplicateIdMarket = new List<int>();
                             foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
                             {
-                                if (!protectDuplicateIdMarket.Contains(hargaPerMarket.IDMARKET))
+                                var stf02hInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == dataBarang.Stf02.BRG).FirstOrDefault();
+                                if(stf02hInDB == null) { 
+                                    if (!protectDuplicateIdMarket.Contains(hargaPerMarket.IDMARKET))
+                                    {
+                                        protectDuplicateIdMarket.Add(hargaPerMarket.IDMARKET);
+                                        hargaPerMarket.BRG = dataBarang.Stf02.BRG;
+                                        ErasoftDbContext.STF02H.Add(hargaPerMarket);
+                                    }
+                                }
+                                else
                                 {
-                                    protectDuplicateIdMarket.Add(hargaPerMarket.IDMARKET);
-                                    hargaPerMarket.BRG = dataBarang.Stf02.BRG;
-                                    ErasoftDbContext.STF02H.Add(hargaPerMarket);
+                                    List<string> listError2 = new List<string>();
+                                    listError2.Add("Data barang ada yang terduplikat, Silahkan hubungi Support MO.");
+                                    dataBarang.Errors = listError2;
+                                    return Json(dataBarang, JsonRequestBehavior.AllowGet);
                                 }
                             }
                         }

@@ -281,7 +281,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        [AutomaticRetry(Attempts = 2)]
+        //[AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Lazada Gagal.")]
         public BindingBase CreateProduct(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, BrgViewModel data)

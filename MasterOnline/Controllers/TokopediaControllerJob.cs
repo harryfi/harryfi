@@ -1226,7 +1226,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        [AutomaticRetry(Attempts = 2)]
+        //[AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Tokopedia Gagal.")]
         public async Task<string> CreateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg)
