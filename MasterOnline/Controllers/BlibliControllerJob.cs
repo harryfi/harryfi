@@ -7286,7 +7286,8 @@ namespace MasterOnline.Controllers
             {
                 string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
                 string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
-                if (!string.IsNullOrWhiteSpace(attribute_id))
+                //if (!string.IsNullOrWhiteSpace(attribute_id))
+                if (!string.IsNullOrWhiteSpace(attribute_id) && (attribute_id ?? "null") != "null")
                 {
                     if (dsFeature.Contains(attribute_id))
                     {
@@ -7743,6 +7744,7 @@ namespace MasterOnline.Controllers
                 //change 9 juli 2020, ambil 35 attribute
                 //for (int i = 1; i <= 30; i++)
                 List<string> dsVariasiFCValues = new List<string>();//untuk menampung family color
+                List<string> dsVariasiFCValuesInduk = new List<string>();//untuk menampung family color
                 for (int i = 1; i <= 35; i++)
                 //end change 9 juli 2020, ambil 35 attribute
                 {
@@ -7788,6 +7790,11 @@ namespace MasterOnline.Controllers
                                 if (aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
                                     DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
                             }
+
+                            if(attribute_id == "FA-2000060")
+                            {
+                                dsVariasiFCValuesInduk.Add(value);
+                            }
                         }
                     }
                 }
@@ -7797,6 +7804,11 @@ namespace MasterOnline.Controllers
                     DefiningAttributes.Add("FA-2000060", dsVariasiFCValues.ToArray());
                 }
 
+                if (!DefiningAttributes.ContainsKey("FA-2000060") && DefiningAttributes.ContainsKey("WA-0000002"))//ada warna tapi tidak ada color family
+                {
+                    DefiningAttributes.Add("FA-2000060", dsVariasiFCValuesInduk.ToArray());
+
+                }
                 newData.productDefiningAttributes = DefiningAttributes;
 
                 foreach (var var_item in var_stf02)

@@ -2696,7 +2696,8 @@
                                 if (ACODE != null) {
                                     //change by calvin 15 maret 2019, munculkan semua attribute, tetapi untuk defining attribute hanya bisa select 1, jika mau select bnyk, hari tipe variasi
                                     //if (ACODE != "" && (!(ATYPE == "DEFINING_ATTRIBUTE" && $('#Stf02_TYPE').val() == "4") || ACODE == "WA-0000002")) {
-                                    if (ACODE != "" && (!$('#cbxStf02Type').is(':checked') || ACODE != "FA-2000060")) {
+                                    //if (ACODE != "" && (!$('#cbxStf02Type').is(':checked') || ACODE != "FA-2000060")) {
+                                    if (ACODE != "") {
                                         //end change by calvin 15 maret 2019
 
                                         var label = '<label class="control-label">'+ ANAME +'</label>';
@@ -5237,7 +5238,7 @@
 
         function showPromptAttribute82CartTextBoxWindow(valueAttribute, no_cust) {
             var $link = '@Html.Raw(Url.Action("PromptAttribute82Cart", "Manage", new { cust = "replaceNoCust", attribute = "replaceAtt" }))';
-            
+
             $link = $link.replace("replaceNoCust", no_cust);
             $link = $link.replace("replaceAtt", valueAttribute);
             window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
