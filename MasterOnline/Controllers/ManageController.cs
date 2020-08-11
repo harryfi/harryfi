@@ -29375,137 +29375,149 @@ namespace MasterOnline.Controllers
             List<STT01B> newSTT01B = new List<STT01B>();
 
             var stokOpDb = ErasoftDbContext.STT04A.Where(a => a.ID == stokOpId).Single();
-            var stokDetailOpDb = ErasoftDbContext.STT04B.Where(b => b.NOBUK == stokOpDb.NOBUK).ToList();
-
-            var lastBuktiOM = GenerateAutoNumber(ErasoftDbContext, "OM", "STT01A", "Nobuk");
-            var noStokOM = "OM" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiOM) + 1).PadLeft(6, '0');
-            var lastBuktiOK = GenerateAutoNumber(ErasoftDbContext, "OK", "STT01A", "Nobuk");
-            var noStokOK = "OK" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiOK) + 1).PadLeft(6, '0');
-
-
-            int jmRowOM = 0; int jmRowOK = 0;
-            foreach (var item in stokDetailOpDb)
+            //add by nurul 11/8/2020
+            var ssql1 = "";
+            ssql1 += "select count(bukti) from stf09a where tgl > '" + stokOpDb.TGL + "'";
+            var cekSTF09A = ErasoftDbContext.Database.SqlQuery<int>(ssql1).Single();
+            if (cekSTF09A > 0)
             {
-                //Cek Stok Fisik
-                string sSQL = "SELECT ISNULL(SUM(QAwal+QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12) - SUM(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12), 0)  AS STOK_FISIK " +
-                    "FROM STF08A WHERE Tahun = YEAR(GETDATE()) ";
-                sSQL += "AND BRG='" + item.Brg + "' AND GD = '" + item.Gud + "'";
-                var stok = ErasoftDbContext.Database.SqlQuery<getStokFisik>(sSQL).Single();
-
-                STT01A stokOpnameA = new STT01A
-                {
-                    Jenis_Form = 1,
-                    STATUS_LOADING = "0",
-                    Tgl = stokOpDb.TGL,
-                    Satuan = "",
-                    Ket = "",
-                    ST_Cetak = "",
-                    ST_Posting = "",
-                    JRef = "6",
-                    Ref = stokOpDb.NOBUK,
-                    UserName = stokOpDb.USERNAME,
-                    TglInput = DateTime.Now,
-                    Retur_Penuh = false,
-                    Terima_Penuh = false,
-                    VALUTA = "IDR",
-                    TUKAR = 1,
-                    TERIMA_PENUH_PO_QC = false,
-                    JLH_KARYAWAN = 0,
-                    NILAI_ANGKUTAN = 0,
-                    KOLI = 0,
-                    BERAT = 0,
-                    VOLUME = 0
-                };
-
-                STT01B stokOpnameB = new STT01B
-                {
-                    Jenis_Form = 1,
-                    Kobar = item.Brg,
-                    Satuan = "2",
-                    Harsat = 0,
-                    Harga = 0,
-                    UserName = stokOpDb.USERNAME,
-                    TglInput = DateTime.Now,
-                    Qty_Retur = 0,
-                    Qty_Berat = 0,
-                    TOTAL_LOT = 0,
-                    TOTAL_QTY = 0,
-                    QTY_TERIMA = 0,
-                    QTY_CLAIM = 0,
-                    NO_URUT_PO = 0,
-                    NO_URUT_SJ = 0,
-                    QTY_TERIMA_PO_QC = 0,
-                };
-
-                if (stok.STOK_FISIK < item.Qty)
-                {
-                    // Stok Masuk
-                    double selisihOM = item.Qty - stok.STOK_FISIK;
-
-                    stokOpnameB.Nobuk = noStokOM;
-                    stokOpnameB.Ke_Gd = item.Gud;
-                    stokOpnameB.Dr_Gd = "";
-                    stokOpnameB.Qty = selisihOM;
-
-                    jmRowOM++;
-
-                    if (jmRowOM == 1)
-                    {
-                        stokOpnameA.Nobuk = noStokOM;
-                        stokOpnameA.JTran = "M";
-                        stokOpnameA.MK = "M";
-                        newSTT01A.Add(stokOpnameA);
-                        ErasoftDbContext.STT01A.AddRange(newSTT01A);
-                    }
-
-                    newSTT01B.Add(stokOpnameB);
-                    ErasoftDbContext.STT01B.AddRange(newSTT01B);
-                }
-
-                if (stok.STOK_FISIK > item.Qty)
-                {
-                    //Stok Keluar
-                    double selisihOK = stok.STOK_FISIK - item.Qty;
-
-                    stokOpnameB.Nobuk = noStokOK;
-                    stokOpnameB.Ke_Gd = "";
-                    stokOpnameB.Dr_Gd = item.Gud;
-                    stokOpnameB.Qty = selisihOK;
-
-                    jmRowOK++;
-
-
-                    if (jmRowOK == 1)
-                    {
-                        stokOpnameA.Nobuk = noStokOK;
-                        stokOpnameA.JTran = "K";
-                        stokOpnameA.MK = "K";
-                        newSTT01A.Add(stokOpnameA);
-                        ErasoftDbContext.STT01A.AddRange(newSTT01A);
-                    }
-
-                    newSTT01B.Add(stokOpnameB);
-                    ErasoftDbContext.STT01B.AddRange(newSTT01B);
-                }
-
+                ret.Errors.Add("Transaksi stok opname tidak dapat diproses karena sudah ada transaksi di atas tanggal " + stokOpDb.TGL?.ToString("dd/MM/yyyy") + ".");
             }
-
-            using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+            else
             {
-                try
+                //end add by nurul 11/8/2020
+                var stokDetailOpDb = ErasoftDbContext.STT04B.Where(b => b.NOBUK == stokOpDb.NOBUK).ToList();
+
+                var lastBuktiOM = GenerateAutoNumber(ErasoftDbContext, "OM", "STT01A", "Nobuk");
+                var noStokOM = "OM" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiOM) + 1).PadLeft(6, '0');
+                var lastBuktiOK = GenerateAutoNumber(ErasoftDbContext, "OK", "STT01A", "Nobuk");
+                var noStokOK = "OK" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiOK) + 1).PadLeft(6, '0');
+
+
+                int jmRowOM = 0; int jmRowOK = 0;
+                foreach (var item in stokDetailOpDb)
                 {
-                    ErasoftDbContext.STT04A.Where(p => p.NOBUK == stokOpDb.NOBUK).Update(p => new STT04A() { POSTING = "1" });
+                    //Cek Stok Fisik
+                    string sSQL = "SELECT ISNULL(SUM(QAwal+QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12) - SUM(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12), 0)  AS STOK_FISIK " +
+                        "FROM STF08A WHERE Tahun = YEAR(GETDATE()) ";
+                    sSQL += "AND BRG='" + item.Brg + "' AND GD = '" + item.Gud + "'";
+                    var stok = ErasoftDbContext.Database.SqlQuery<getStokFisik>(sSQL).Single();
 
-                    ErasoftDbContext.SaveChanges();
+                    STT01A stokOpnameA = new STT01A
+                    {
+                        Jenis_Form = 1,
+                        STATUS_LOADING = "0",
+                        Tgl = stokOpDb.TGL,
+                        Satuan = "",
+                        Ket = "",
+                        ST_Cetak = "",
+                        ST_Posting = "-",
+                        JRef = "6",
+                        Ref = stokOpDb.NOBUK,
+                        UserName = stokOpDb.USERNAME,
+                        TglInput = DateTime.Now,
+                        Retur_Penuh = false,
+                        Terima_Penuh = false,
+                        VALUTA = "IDR",
+                        TUKAR = 1,
+                        TERIMA_PENUH_PO_QC = false,
+                        JLH_KARYAWAN = 0,
+                        NILAI_ANGKUTAN = 0,
+                        KOLI = 0,
+                        BERAT = 0,
+                        VOLUME = 0
+                    };
 
-                    Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, stokOpDb.USERNAME));
+                    STT01B stokOpnameB = new STT01B
+                    {
+                        Jenis_Form = 1,
+                        Kobar = item.Brg,
+                        Satuan = "2",
+                        Harsat = 0,
+                        Harga = 0,
+                        UserName = stokOpDb.USERNAME,
+                        TglInput = DateTime.Now,
+                        Qty_Retur = 0,
+                        Qty_Berat = 0,
+                        TOTAL_LOT = 0,
+                        TOTAL_QTY = 0,
+                        QTY_TERIMA = 0,
+                        QTY_CLAIM = 0,
+                        NO_URUT_PO = 0,
+                        NO_URUT_SJ = 0,
+                        QTY_TERIMA_PO_QC = 0,
+                    };
 
-                    transaction.Commit();
+                    if (stok.STOK_FISIK < item.Qty)
+                    {
+                        // Stok Masuk
+                        double selisihOM = item.Qty - stok.STOK_FISIK;
+
+                        stokOpnameB.Nobuk = noStokOM;
+                        stokOpnameB.Ke_Gd = item.Gud;
+                        stokOpnameB.Dr_Gd = "";
+                        stokOpnameB.Qty = selisihOM;
+
+                        jmRowOM++;
+
+                        if (jmRowOM == 1)
+                        {
+                            stokOpnameA.Nobuk = noStokOM;
+                            stokOpnameA.JTran = "M";
+                            stokOpnameA.MK = "M";
+                            newSTT01A.Add(stokOpnameA);
+                            ErasoftDbContext.STT01A.AddRange(newSTT01A);
+                        }
+
+                        newSTT01B.Add(stokOpnameB);
+                        ErasoftDbContext.STT01B.AddRange(newSTT01B);
+                    }
+
+                    if (stok.STOK_FISIK > item.Qty)
+                    {
+                        //Stok Keluar
+                        double selisihOK = stok.STOK_FISIK - item.Qty;
+
+                        stokOpnameB.Nobuk = noStokOK;
+                        stokOpnameB.Ke_Gd = "";
+                        stokOpnameB.Dr_Gd = item.Gud;
+                        stokOpnameB.Qty = selisihOK;
+
+                        jmRowOK++;
+
+
+                        if (jmRowOK == 1)
+                        {
+                            stokOpnameA.Nobuk = noStokOK;
+                            stokOpnameA.JTran = "K";
+                            stokOpnameA.MK = "K";
+                            newSTT01A.Add(stokOpnameA);
+                            ErasoftDbContext.STT01A.AddRange(newSTT01A);
+                        }
+
+                        newSTT01B.Add(stokOpnameB);
+                        ErasoftDbContext.STT01B.AddRange(newSTT01B);
+                    }
+
                 }
-                catch (Exception ex)
+
+                using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
                 {
-                    transaction.Rollback();
-                    ret.Errors.Add(ex.InnerException == null ? ex.Message : "Data tidak berhasil diproses, " + ex.InnerException.Message);
+                    try
+                    {
+                        ErasoftDbContext.STT04A.Where(p => p.NOBUK == stokOpDb.NOBUK).Update(p => new STT04A() { POSTING = "1" });
+
+                        ErasoftDbContext.SaveChanges();
+
+                        Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, stokOpDb.USERNAME));
+
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        ret.Errors.Add(ex.InnerException == null ? ex.Message : "Data tidak berhasil diproses, " + ex.InnerException.Message);
+                    }
                 }
             }
 
