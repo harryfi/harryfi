@@ -33,7 +33,7 @@ namespace MasterOnline.Models
                     //bitmap.Save(context.HttpContext.Response.OutputStream, ImageFormat.Jpeg);
                     try
                     {
-                        Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 250, 60));
+                        Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 300, 60));
                         context.HttpContext.Response.ContentType = "image/jpg";
                         bitmap.Save(context.HttpContext.Response.OutputStream, ImageFormat.Jpeg);
                     }
