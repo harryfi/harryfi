@@ -817,7 +817,7 @@
             //link = link.replace("replaceHargaGrosirBaru", encodeURIComponent($('#HJUALPROMOSIBARU82Cart').val()));
             //link = link.replace("replaceHargaGrosirBaru", encodeURIComponent($('#HJUALBARU82Cart').val())); //remark by fauzi
             var hargaDampak = $('#HJUALBARU82CartDampak').val();
-            link = link.replace("replaceHargaDampakBaru", encodeURIComponent(hargaDampak));
+            link = link.replace("replaceHargaDampakBaru", encodeURIComponent(hargaDampak.replace("+", "")));
             var filterBy = encodeURIComponent($('#filter_pencarian_field').val());
             //var filterBy = "";
 
