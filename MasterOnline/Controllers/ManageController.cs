@@ -45091,6 +45091,10 @@ namespace MasterOnline.Controllers
             int successCount = 0;
             string packingNo = "";
 
+            //add by nurul 12/8/2020
+            List<string> brgTidakProses = new List<string>();
+            //end add by nurul 12/8/2020
+
             try
             {
 
@@ -45143,6 +45147,7 @@ namespace MasterOnline.Controllers
                 var getlistSO = ErasoftDbContext.Database.SqlQuery<listProsesUbahStatusPackingTransaction>(sSql1).ToList();
                 if (getlistSO.Count() > 0)
                 {
+                    
                     var lastNobuk = "";
                     var lastNobukRecnum = "";
                     var validNobuk = true;
@@ -45268,12 +45273,12 @@ namespace MasterOnline.Controllers
                         {
                             if (validNobuk & lastNobuk != "")
                             {
-                                var doUpdateSOB = "SELECT 0 NO_URUT, LOKASI INTO #TEMP_SOT01B FROM SOT01B WHERE 0=1; " + Environment.NewLine;
-                                doUpdateSOB += "INSERT INTO #TEMP_SOT01B (NO_URUT,LOKASI) VALUES " + Environment.NewLine;
-                                stringUpdateSOB = stringUpdateSOB.Substring(0, stringUpdateSOB.Length - 1) + ";" + Environment.NewLine;
-                                stringUpdateSOB += "UPDATE B SET LOKASI = TEMP.LOKASI, QTY_N = QTY FROM SOT01B B INNER JOIN #TEMP_SOT01B TEMP ON B.NO_URUT = TEMP.NO_URUT;";
+                                //var doUpdateSOB = "SELECT 0 NO_URUT, LOKASI INTO #TEMP_SOT01B FROM SOT01B WHERE 0=1; " + Environment.NewLine;
+                                //doUpdateSOB += "INSERT INTO #TEMP_SOT01B (NO_URUT,LOKASI) VALUES " + Environment.NewLine;
+                                //stringUpdateSOB = stringUpdateSOB.Substring(0, stringUpdateSOB.Length - 1) + ";" + Environment.NewLine;
+                                //stringUpdateSOB += "UPDATE B SET LOKASI = TEMP.LOKASI, QTY_N = QTY FROM SOT01B B INNER JOIN #TEMP_SOT01B TEMP ON B.NO_URUT = TEMP.NO_URUT;";
 
-                                EDB.ExecuteSQL("sConn", CommandType.Text, doUpdateSOB + stringUpdateSOB);
+                                //EDB.ExecuteSQL("sConn", CommandType.Text, doUpdateSOB + stringUpdateSOB);
 
                                 listSuccessRecnum.Add(Convert.ToInt32(lastNobukRecnum));
                                 listSuccess.Add(lastNobuk);
@@ -45298,6 +45303,7 @@ namespace MasterOnline.Controllers
                         var qtyOnHand = GetQOHSTF08A(dsSORow.BRG, gudang);
                         if (qtyOnHand + (dsSORow.QTY_N > 0 ? (dsSORow.LOKASI == gudang ? dsSORow.QTY_N : 0) : 0) - dsSORow.QTY < 0)
                         {
+                            brgTidakProses.Add(dsSORow.SOB_RECNUM.ToString());
                             validNobuk = false;
                             var inListError = listError.Where(p => p.no_bukti_so == Nobuk).FirstOrDefault();
                             if (inListError == null)
@@ -45323,16 +45329,39 @@ namespace MasterOnline.Controllers
                     }
                     if (validNobuk)
                     {
-                        var doUpdateSOB = "SELECT 0 NO_URUT, LOKASI INTO #TEMP_SOT01B FROM SOT01B WHERE 0=1; " + Environment.NewLine;
-                        doUpdateSOB += "INSERT INTO #TEMP_SOT01B (NO_URUT,LOKASI) VALUES " + Environment.NewLine;
-                        stringUpdateSOB = stringUpdateSOB.Substring(0, stringUpdateSOB.Length - 1) + ";" + Environment.NewLine;
-                        stringUpdateSOB += "UPDATE B SET LOKASI = TEMP.LOKASI, QTY_N = QTY FROM SOT01B B INNER JOIN #TEMP_SOT01B TEMP ON B.NO_URUT = TEMP.NO_URUT;";
+                        //var doUpdateSOB = "SELECT 0 NO_URUT, LOKASI INTO #TEMP_SOT01B FROM SOT01B WHERE 0=1; " + Environment.NewLine;
+                        //doUpdateSOB += "INSERT INTO #TEMP_SOT01B (NO_URUT,LOKASI) VALUES " + Environment.NewLine;
+                        //stringUpdateSOB = stringUpdateSOB.Substring(0, stringUpdateSOB.Length - 1) + ";" + Environment.NewLine;
+                        //stringUpdateSOB += "UPDATE B SET LOKASI = TEMP.LOKASI, QTY_N = QTY FROM SOT01B B INNER JOIN #TEMP_SOT01B TEMP ON B.NO_URUT = TEMP.NO_URUT;";
 
-                        EDB.ExecuteSQL("sConn", CommandType.Text, doUpdateSOB + stringUpdateSOB);
-
+                        //EDB.ExecuteSQL("sConn", CommandType.Text, doUpdateSOB + stringUpdateSOB);
                         listSuccessRecnum.Add(Convert.ToInt32(lastNobukRecnum));
                         listSuccess.Add(lastNobuk);
                     }
+
+                    //add by nurul 12/8/2020
+                    if (brgTidakProses.Count() < getlistSO.Count())
+                    {
+                        var stringListRecnumSOB = "";
+                        for (int i = 0; i < getlistSO.Count(); i++)
+                        {
+                            if (!string.IsNullOrWhiteSpace(getlistSO[i].SOB_RECNUM.ToString()))
+                            {
+                                if (!getlistSO[i].SOB_RECNUM.ToString().Contains(brgTidakProses.ToString()))
+                                {
+                                    if (stringListRecnumSOB != "")
+                                    {
+                                        stringListRecnumSOB += ",";
+                                    }
+
+                                    stringListRecnumSOB += "'" + getlistSO[i].SOB_RECNUM.ToString().Trim() + "'";
+                                }
+                            }
+                        }
+                        var sSQL4 = "update sot01b set lokasi = '" + default_gudang + "' , qty_n = qty where isnull(lokasi,'')='' and no_urut in (" + stringListRecnumSOB + ")";
+                        ErasoftDbContext.Database.ExecuteSqlCommand(sSQL4);
+                    }
+                    //end add by nurul 12/8/2020
                 }
 
                 successCount = listSuccess.Count();
