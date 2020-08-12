@@ -45347,7 +45347,8 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(getlistSO[i].SOB_RECNUM.ToString()))
                             {
-                                if (!getlistSO[i].SOB_RECNUM.ToString().Contains(brgTidakProses.ToString()))
+                                var a = getlistSO[i].SOB_RECNUM.ToString();
+                                if (!brgTidakProses.Contains(a))
                                 {
                                     if (stringListRecnumSOB != "")
                                     {
