@@ -7255,10 +7255,11 @@ namespace MasterOnline.Controllers
             for (int i = 1; i <= 35; i++)
             {
                 string attribute_id = Convert.ToString(attribute["ACODE_" + i.ToString()]);
+                string attribute_name = Convert.ToString(attribute["ANAME_" + i.ToString()]);
                 string attribute_type = Convert.ToString(attribute["ATYPE_" + i.ToString()]);
                 if (!string.IsNullOrWhiteSpace(attribute_id))
                 {
-                    if (attribute_type == "DEFINING_ATTRIBUTE")
+                    if (attribute_type == "DEFINING_ATTRIBUTE" || attribute_name == "Warna")
                     {
                         dsVariasi.Add(attribute_id);
                     }
@@ -7744,7 +7745,7 @@ namespace MasterOnline.Controllers
                 //change 9 juli 2020, ambil 35 attribute
                 //for (int i = 1; i <= 30; i++)
                 List<string> dsVariasiFCValues = new List<string>();//untuk menampung family color
-                List<string> dsVariasiFCValuesInduk = new List<string>();//untuk menampung family color
+                List<string> dsVariasiFCValuesInduk = new List<string>();//untuk menampung family color induk
                 for (int i = 1; i <= 35; i++)
                 //end change 9 juli 2020, ambil 35 attribute
                 {
@@ -7804,7 +7805,7 @@ namespace MasterOnline.Controllers
                     DefiningAttributes.Add("FA-2000060", dsVariasiFCValues.ToArray());
                 }
 
-                if (!DefiningAttributes.ContainsKey("FA-2000060") && DefiningAttributes.ContainsKey("WA-0000002"))//ada warna tapi tidak ada color family
+                if (!DefiningAttributes.ContainsKey("FA-2000060") && dsVariasiFCValuesInduk.Count > 0)//belum ada familu color dan attr ada di brg induk
                 {
                     DefiningAttributes.Add("FA-2000060", dsVariasiFCValuesInduk.ToArray());
 
