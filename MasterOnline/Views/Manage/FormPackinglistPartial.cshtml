@@ -36,6 +36,7 @@
         RefreshPackingPesananLazada();
         RefreshPackingPesananShopee();
         RefreshPackingPesananBlibli();
+        RefreshPackingPesananJDID();
     }
 
     function RefreshPackingPesananTokped() {
@@ -108,6 +109,25 @@
             },
             success: function (response) {
                 $('#packing_pesanan_blibli_content').html(response);
+                //$('#loading_barang_tab').hide();
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+    function RefreshPackingPesananJDID() {
+        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "19", bukti = "replaceBuktiPacking" }))';
+        $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                //$('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                $('#packing_pesanan_jdid_content').html(response);
                 //$('#loading_barang_tab').hide();
             },
             error: function (xhr, status, error) {
@@ -212,23 +232,24 @@
                 <li id="li_pesanan_lazada_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_lazada_tab_focus" href="#packing_pesanan_lazada" aria-expanded="false">Lazada</a></li>
                 <li id="li_pesanan_shopee_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopee_tab_focus" href="#packing_pesanan_shopee" aria-expanded="false">Shopee</a></li>
                 <li id="li_pesanan_blibli_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_blibli_tab_focus" href="#packing_pesanan_blibli" aria-expanded="false">Blibli</a></li>
+                <li id="li_pesanan_jdid_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_jdid_tab_focus" href="#packing_pesanan_jdid" aria-expanded="false">JD.ID</a></li>
             }
             else
             {
                 <li><a data-toggle="tab tooltip" id="rekap_barang_tab_focus" href="#rekap_barang_tab" aria-expanded="false" class="disabled-tab" title="Pilih pesanan yang akan masuk packing list terlebih dahulu">Rekap Barang</a></li>
             }
             @*@if (Model.listRekapBarang.Count > 0)
-            {
-                <li style="margin-left:650px;">
-                    <button id="btnPrint" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrint">Print</button>
-                </li>
-            }
-            else
-            {
-                <li style="margin-left:650px;">
-                    <button id="btnPrint" type="button" class="btn btn-primary" disabled data-toggle="modal" data-target="#modalPrint">Print</button>
-                </li>
-            }*@
+        {
+            <li style="margin-left:650px;">
+                <button id="btnPrint" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrint">Print</button>
+            </li>
+        }
+        else
+        {
+            <li style="margin-left:650px;">
+                <button id="btnPrint" type="button" class="btn btn-primary" disabled data-toggle="modal" data-target="#modalPrint">Print</button>
+            </li>
+        }*@
         </ul>
         <div class="tab-content">
             <div id="pesanan_detail_tab" class="tab-pane fade active in">
@@ -252,7 +273,7 @@
                                     @foreach (var detPackinglist in Model?.listDetailPacking.Where(pb => pb.NO_BUKTI == Model?.packingList?.NO_BUKTI)?.ToList())
                                     {
                                         var status_kirim = "Dalam Proses";
-                                    
+
                                         switch (detPackinglist.SO_STATUS_KIRIM)
                                         {
                                             case "0":
@@ -386,6 +407,11 @@
             </div>
             <div id="packing_pesanan_blibli" class="tab-pane fade in">
                 <div class="col-lg-12" id="packing_pesanan_blibli_content">
+
+                </div>
+            </div>
+            <div id="packing_pesanan_jdid" class="tab-pane fade in">
+                <div class="col-lg-12" id="packing_pesanan_jdid_content">
 
                 </div>
             </div>

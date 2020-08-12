@@ -716,6 +716,7 @@
     <Compile Include="Models\ATTRIBUTE_OPT_SHOPEE.cs" />
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
+    <Compile Include="Models\BRAND_JDID.cs" />
     <Compile Include="Models\CATEGORY_82CART.cs" />
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
     <Compile Include="Models\TEMP_SALDOAWAL.cs" />
@@ -6407,6 +6408,9 @@
     <Content Include="Views\Manage\PromptAttribute82Cart.cshtml" />
     <Content Include="Views\Manage\TablePromptAttribute82Cart.cshtml" />
     <Content Include="Views\Manage\LogErrorUploadPesanan.cshtml" />
+    <Content Include="Views\Manage\TablePromptBrandJDID.cshtml" />
+    <Content Include="Views\Manage\PromptBrandJDID.cshtml" />
+    <Content Include="Views\Manage\PackingListJDID.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

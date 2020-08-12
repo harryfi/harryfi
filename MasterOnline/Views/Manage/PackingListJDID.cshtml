@@ -1,0 +1,1028 @@
+﻿@using System.Globalization
+@*@using MasterOnline.ViewModels*@
+@using PagedList.Mvc
+@model PagedList.IPagedList<PackingPerMP>
+@{
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
+
+}
+<style>
+    .cetak_label {
+        color: orange;
+        font-weight: bold;
+    }
+
+    .dropdown-hover:hover {
+        background-color: gainsboro !important;
+    }
+
+    #modal-print-option {
+        margin: auto;
+    }
+
+        #modal-print-option .modal-content .modal-header {
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            border: none;
+            background-color: white;
+        }
+
+        #modal-print-option .modal-content .modal-body {
+            height: 125px;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            background-color: white;
+        }
+
+    .checkbox-container {
+        display: block;
+        position: relative;
+        /*padding-left: 35px;*/
+        margin-top: 4px;
+        cursor: pointer;
+        font-size: 11px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+        /* Hide the browser's default checkbox */
+        .checkbox-container input {
+            position: relative;
+            opacity: 100;
+            cursor: pointer;
+            display: none;
+        }
+
+    /* Create a custom checkbox */
+    .checkmark {
+        position: absolute;
+        top: 0;
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*left: 18px;*/
+        /*end remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        height: 25px;
+        width: 25px;
+        background-color: #eee;
+        border: solid 1px #ccc;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .checkbox-container:hover input ~ .checkmark {
+        background-color: #ccc;
+    }
+
+    /* When the checkbox is checked, add a blue background */
+    .checkbox-container input:checked ~ .checkmark {
+        background-color: #2196F3;
+    }
+
+    /* Create the checkmark/indicator (hidden when not checked) */
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    /* Show the checkmark when checked */
+    .checkbox-container input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    /* Style the checkmark/indicator */
+    .checkbox-container .checkmark:after {
+        left: 9px;
+        top: 5px;
+        width: 6px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 3px 3px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }
+
+    @@media only screen and (max-width: 767px) {
+        #modal-print-option {
+            margin-top: 21px;
+            /* margin: auto; */
+            margin-left: -49px;
+            width: 40%;
+        }
+
+        .modal-dialog {
+            width: 52%;
+            margin: 0;
+        }
+
+        .modal-content {
+            width: 75%;
+        }
+    }
+
+    @@media only screen and (max-width: 440px) {
+        .snip1404 .plan {
+            width: 100%;
+        }
+
+        .modal-dialog {
+            width: 52%;
+            margin: 0;
+        }
+    }
+</style>
+<style type="text/css">
+    .modal-dialog {
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*width: 75%;*/
+        height: 75%;
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*margin: 0 auto;*/
+        padding: 0;
+    }
+
+    .modal-content {
+        margin-top: 35px;
+        height: auto;
+        min-height: 100%;
+        border-radius: 0;
+    }
+</style>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ($('#PackingListJDIDFound')) {
+            if (parseInt($('#PackingListJDIDFound').val()) > 0) {
+                $('#li_pesanan_jdid_tab_focus').show().on('click', function () {
+                    $('#jdid_packing_cust_tabs li:first').find('a').click();
+                });
+            }
+            else{
+                $('#li_pesanan_jdid_tab_focus').hide();
+            }
+        }
+
+
+        $('.selectJDIDResiPickupAddress').each(function (i, item) {
+
+            var cust = $(item).attr("data-kodecust");
+
+            var link = '@Html.Raw(Url.Action("GetJDIDPickupAddressByCust", "Manage", new { cust = "replaceCode" }))';
+            link = link.replace("replaceCode", encodeURIComponent(cust));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listAddress = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listAddress[i] = {
+                                id: item.address_id,
+                                text: item.address
+                            };
+                        });
+
+                    var Select = $('#select-jdid-resi-pickup-address-' + cust).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAddress,
+                        onChange: function (value) {
+
+                        }
+                    });
+
+                    //Select[0].selectize.setValue(valueTRACKING_SHIPMENT[1]);
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        });
+
+    });
+
+    function allcheckboxpackingjdidonclick(cust){
+        $('.checkbox_packing_jdid').each( function() {
+            if($(this).attr("data-cust") == cust){
+                $(this).prop('checked', $('#all_checkbox_packing_jdid__' + cust).prop('checked'));
+            }
+        });
+    }
+    function ReadyToShipPackingJDID(cust) {
+        $('#btnProsesPickupJDID__' + cust).attr("disabled", true);
+
+        //if ($('#select-jdid-resi-pickup-address-' + cust).val()) {
+            $('#modalPrintJDID__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+            $('#modalPrintJDID__label__' + cust).html('Proses Ready to Ship Pesanan JDID');
+            $('#modalPrintJDID__' + cust).modal({
+                show: true,
+                backdrop: 'static',
+                keyboard: false
+            });
+
+            var $link = '@Url.Action("ReadyToShipJDIDPerPacking", "Manage")';
+
+            var rows_selected = [];
+            $('.checkbox_packing_jdid').each( function() {
+                if($(this).attr("data-cust") == cust && $(this).is(":checked")){
+                    rows_selected.push($(this).attr("data-recnum"));
+                }
+            });
+
+            $postdata = {
+                cust : cust,
+                bukti : $('#packingList_NO_BUKTI').val(),
+                alamat : $('#select-jdid-resi-pickup-address-' + cust).val(),
+                rows_selected : rows_selected
+            };
+
+            $.ajax({
+                type: "POST",
+                url: $link,
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                data: JSON.stringify($postdata),
+                beforeSend: function () {
+                    // $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    // $('#loading_spinner').hide();
+                    if (!response.mo_error) {
+                        var textareaValue = "";
+
+                        textareaValue += "Jumlah pesanan berhasil diproses : "+ response.successCount +"</br>";
+
+                        var adaError = false;
+                        var errorValue = "";
+                        response.listErrors.forEach(function (item) {
+                            adaError = true;
+                            errorValue += item.keyname + " : " + item.errorMessage + "</br>";
+                        });
+                        if (adaError) {
+                            textareaValue += "</br>";
+                            textareaValue += "Pesanan gagal diproses :</br>";
+                            textareaValue += errorValue;
+                        }
+                        $('#modalPrintJDID__textarea__' + cust).show();
+                        $('#modalPrintJDID__textarea__' + cust).html(textareaValue);
+
+                        // if(response.successCount > 0){
+                        //     refreshTableSudahDibayar();
+                        // }
+                    } else {
+                        $('#modalPrintJDID__textarea__' + cust).show();
+                        $('#modalPrintJDID__textarea__' + cust).html(response.mo_error);
+                    }
+                },
+                complete: function () {
+                    $('#btnProsesPickupJDID__' + cust).attr("disabled", false);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        //}
+        //else {
+        //    alert('Silahkan pilih alamat Pickup terlebih dahulu.');
+        //    $('#btnProsesPickupJDID__' + cust).attr("disabled", false);
+        //}
+    }
+    function RequestDropoffPackingJDID(cust) {
+        $('#btnProsesDropoffJDID__' + cust).attr("disabled", true);
+        $('#modalPrintJDID__textarea__' + cust).html('Sedang diproses. mohon menunggu');
+        $('#modalPrintJDID__label__' + cust).html('Proses Dropoff Pesanan JDID');
+        $('#modalPrintJDID__' + cust).modal({
+            show: true,
+            backdrop: 'static',
+            keyboard: false
+        });
+
+        var $link = '@Url.Action("RequestDropoffJDIDPerPacking", "Manage")';
+
+        var rows_selected = [];
+        $('.checkbox_packing_jdid').each( function() {
+            if($(this).attr("data-cust") == cust && $(this).is(":checked")){
+                rows_selected.push($(this).attr("data-recnum"));
+            }
+        });
+
+        $postdata = {
+            cust : cust,
+            bukti : $('#packingList_NO_BUKTI').val(),
+            rows_selected: rows_selected,
+            job: "0",
+        };
+
+        $.ajax({
+            type: "POST",
+            url: $link,
+            contentType: "application/json; charset=UTF-8",
+            cache: false,
+            data: JSON.stringify($postdata),
+            beforeSend: function () {
+                //$('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                //$('#loading_barang_tab').hide();
+                if (!response.mo_error) {
+                    var textareaValue = "";
+
+                    textareaValue += "Jumlah pesanan berhasil diproses : "+ response.successCount +"</br>";
+
+                    var adaError = false;
+                    var errorValue = "";
+                    response.listErrors.forEach(function (item) {
+                        adaError = true;
+                        errorValue += item.keyname + " : " + item.errorMessage + "</br>";
+                    });
+                    if (adaError) {
+                        textareaValue += "</br>";
+                        textareaValue += "Pesanan gagal diproses :</br>";
+                        textareaValue += errorValue;
+                    }
+                    $('#modalPrintJDID__textarea__' + cust).show();
+                    $('#modalPrintJDID__textarea__' + cust).html(textareaValue);
+
+                    // if(response.successCount > 0){
+                    //     refreshTableSudahDibayar();
+                    // }
+                } else {
+                    $('#modalPrintJDID__textarea__' + cust).show();
+                    $('#modalPrintJDID__textarea__' + cust).html(response.mo_error);
+                }
+            },
+            complete: function () {
+                $('#btnProsesDropoffJDID__' + cust).attr("disabled", false);
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function RequestJOBPackingJDID(cust) {
+        $('#btnProsesJOBJDID__' + cust).attr("disabled", true);
+        $('#modalPrintJDID__textarea__' + cust).html('Sedang diproses. mohon menunggu');
+        $('#modalPrintJDID__label__' + cust).html('Proses Dropoff Pesanan JDID');
+        $('#modalPrintJDID__' + cust).modal({
+            show: true,
+            backdrop: 'static',
+            keyboard: false
+        });
+
+        var $link = '@Url.Action("RequestDropoffJDIDPerPacking", "Manage")';
+
+        var rows_selected = [];
+        $('.checkbox_packing_jdid').each( function() {
+            if($(this).attr("data-cust") == cust && $(this).is(":checked")){
+                rows_selected.push($(this).attr("data-recnum"));
+            }
+        });
+
+        $postdata = {
+            cust : cust,
+            bukti : $('#packingList_NO_BUKTI').val(),
+            rows_selected: rows_selected,
+            job: "1",
+        };
+
+        $.ajax({
+            type: "POST",
+            url: $link,
+            contentType: "application/json; charset=UTF-8",
+            cache: false,
+            data: JSON.stringify($postdata),
+            beforeSend: function () {
+                //$('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                //$('#loading_barang_tab').hide();
+                if (!response.mo_error) {
+                    var textareaValue = "";
+
+                    textareaValue += "Jumlah pesanan berhasil diproses : "+ response.successCount +"</br>";
+
+                    var adaError = false;
+                    var errorValue = "";
+                    response.listErrors.forEach(function (item) {
+                        adaError = true;
+                        errorValue += item.keyname + " : " + item.errorMessage + "</br>";
+                    });
+                    if (adaError) {
+                        textareaValue += "</br>";
+                        textareaValue += "Pesanan gagal diproses :</br>";
+                        textareaValue += errorValue;
+                    }
+                    $('#modalPrintJDID__textarea__' + cust).show();
+                    $('#modalPrintJDID__textarea__' + cust).html(textareaValue);
+
+                    // if(response.successCount > 0){
+                    //     refreshTableSudahDibayar();
+                    // }
+                } else {
+                    $('#modalPrintJDID__textarea__' + cust).show();
+                    $('#modalPrintJDID__textarea__' + cust).html(response.mo_error);
+                }
+            },
+            complete: function () {
+                $('#btnProsesJOBJDID__' + cust).attr("disabled", false);
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function JDIDGetLabelPerPacking(cust,label) {
+
+
+        var rows_selected = [];
+        var row_bukti = [];
+        $('.checkbox_packing_jdid').each( function() {
+            if($(this).attr("data-cust") == cust && $(this).is(":checked")){
+                rows_selected.push($(this).attr("data-recnum"));
+                //row_bukti.push($(this).attr("data-bukti"));
+                var bukti = $(this).attr("data-bukti") + " ";
+                row_bukti.push(bukti);
+            }
+        });
+
+
+
+        if (rows_selected.length <= 0) {
+            alert("Mohon pilih pesanan yang mau diproses.");
+        } else {
+            $postdata = {
+                cust: cust,
+                bukti: $('#packingList_NO_BUKTI').val(),
+                rows_selected: rows_selected,
+                label: label
+            };
+            if (label == "1") {
+
+
+                $('#modalPrintJDID__label__' + cust).html('Print Pesanan JDID');
+                $('#modalPrintJDID__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+                $('#modalPrintJDID__' + cust).modal({
+                    show: true,
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+                var $link = '@Url.Action("JDIDLabelPerPacking", "Manage")';
+
+                $.ajax({
+                    type: "POST",
+                    url: $link,
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    data: JSON.stringify($postdata),
+                    success: function (response) {
+                        if (response.mo_error != undefined) {
+                            $('#modalPrintJDID__textarea__' + cust).html(response.mo_error);
+                        }
+                        else {
+                            var textareaValue = "";
+
+                            var adaUrl = false;
+                            var urlValue = "";
+                            var countUrl = 0;
+                            response.ret.batch_result.airway_bills.forEach(function (item) {
+                                adaUrl = true;
+                                //urlValue += item + " \n";
+                                countUrl++;
+                                //$("<iframe id='iframe_" + countUrl + "_" + cust + "'>")                             // create a new iframe element
+                                //    .hide()                               // make it invisible
+                                //    .attr("src", item) // point the iframe to the page you want to print
+                                //    .appendTo("body");
+
+                                var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + item + "'>Print</a> </br>";
+                                urlValue += buttonHtml;
+                            });
+                            if (adaUrl) {
+                                textareaValue += "Url AWB :</br>";
+                                textareaValue += urlValue;
+                            }
+
+                            var adaError = false;
+                            var errorValue = "";
+                            response.ret.batch_result.errors.forEach(function (item) {
+                                adaError = true;
+                                errorValue += item.ordersn + " : " + item.error_description + ". </br>";
+                            });
+                            if (adaError) {
+                                textareaValue += "</br>";
+                                textareaValue += "Error Orders :</br>";
+                                textareaValue += errorValue;
+                            }
+                            $('#modalPrintJDID__textarea__' + cust).html(textareaValue);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+
+                //function shopeePrint(url) {
+                //    //var divToPrint = document.getElementById("iframe_" + countUrl + "_" + cust + "");
+                //    var newWin = window.open(url, 'Print-Window');
+                //    newWin.document.open();
+                //    newWin.document.write('<html><body onload="window.print()">' + divToPrint.innerHTML + '</body></html>');
+                //    newWin.document.close();
+                //    setTimeout(function () {
+                //        newWin.close();
+                //    }, 10);
+                //}
+            } else if (label == "2") {
+                if (row_bukti.length > 0) {
+
+                    $('#modalPrintLabelOption__' + cust).modal({
+                        show: true,
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                    $('#cetak_label__' + cust).text(row_bukti);
+                    $('#ctk_alamat__' + cust).attr('checked', true);
+                    $('#ctk_tlp__' + cust).attr('checked', true);
+                    $('#ctk_mp__' + cust).attr('checked', true);
+                    $('#ctk_nobuk__' + cust).attr('checked', true);
+                    $('#ctk_total__' + cust).attr('checked', true);
+                    $('#ctk_nama__' + cust).attr('checked', true);
+                    $('#nama_toko__' + cust).val("");
+                    $('#tlp_toko__' + cust).val("");
+                    $('#ctk_ket__' + cust).attr('checked', true);
+
+                    $('#btn-print-faktur__' + cust).off('click').on('click', function () {
+                    var toko = $('#nama_toko__' + cust).val();
+                    var $toko = '&toko=' + encodeURIComponent(toko);
+                    var tlpToko = $('#tlp_toko__' + cust).val();
+                    var $tlpToko = '&tlpToko=' + encodeURIComponent(tlpToko);
+                        var alamat = "0";
+                        var tlp = "0";
+                        var mp = "0";
+                        var nobuk = "0";
+                        var total = "0";
+                        var nama = "0";
+                        var ket = "0";
+
+                    if ($("#ctk_alamat__" + cust).is(":checked") == true) {
+                        alamat = "1";
+                    } else if ($("#ctk_alamat__" + cust).is(":checked") == false) {
+                        alamat = "0";
+                    }
+                    if ($('#ctk_tlp__' + cust).is(":checked") == true) {
+                        tlp = "1";
+                    } else if ($('#ctk_tlp__' + cust).is(":checked") == false) {
+                        tlp = "0";
+                        }
+
+                        if ($("#ctk_mp__" + cust).is(":checked") == true) {
+                            mp = "1";
+                        } else if ($("#ctk_mp__" + cust).is(":checked") == false) {
+                            mp = "0";
+                        }
+                        if ($('#ctk_nobuk__' + cust).is(":checked") == true) {
+                            nobuk = "1";
+                        } else if ($('#ctk_nobuk__' + cust).is(":checked") == false) {
+                            nobuk = "0";
+                        }
+                        if ($('#ctk_total__' + cust).is(":checked") == true) {
+                            total = "1";
+                        } else if ($('#ctk_total__' + cust).is(":checked") == false) {
+                            total = "0";
+                        }
+                        if ($('#ctk_nama__' + cust).is(":checked") == true) {
+                            nama = "1";
+                        } else if ($('#ctk_nama__' + cust).is(":checked") == false) {
+                            nama = "0";
+                        }
+                        if ($('#ctk_ket__' + cust).is(":checked") == true) {
+                            ket = "1";
+                        } else if ($('#ctk_ket__' + cust).is(":checked") == false) {
+                            ket = "0";
+                        }
+
+                    var $alamat = '&alamat=' + alamat;
+                        var $tlp = '&tlp=' + tlp;
+                        var $mp = '&mp=' + mp;
+                        var $nobuk = '&nobuk=' + nobuk;
+                        var $total = '&total=' + total;
+
+                    @*var $link = '@Html.Raw(Url.Action("CetakLabelMo", "Manage", new { cust = "replaceCust", bukti = "replaceBukti", rows_selected = "replaceSelect", toko = "replaceToko", tlptoko = "replaceTlpToko" }))';
+                        $link = $link.replace("replaceCust", encodeURIComponent(cust));
+                        $link = $link.replace("replaceBukti", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+                        $link = $link.replace("replaceSelect", rows_selected);
+                        $link = $link.replace("replaceToko", toko);
+                        $link = $link.replace("replaceTlpToko", tlpToko);
+
+                        var win = encodeURIComponent(window.open($link += $alamat += $tlp += $mp += $nobuk += $total , '_blank'));
+                        $('#modalPrintLabelOption__' + cust).modal({
+                            show: false,
+                        });
+                        if (win) {
+                            win.focus();
+                        } else {
+                            alert('Please allow popups for this website');
+                        }*@
+
+                        $postdata2 = {
+                            cust: cust,
+                            bukti: $('#packingList_NO_BUKTI').val(),
+                            rows_selected: rows_selected,
+                            toko: toko,
+                            tlptoko: tlpToko,
+                            ctkLabel: "1",
+                            alLink: alamat,
+                            noLink: tlp,
+                            namaLink: nama,
+                            mpLink: mp,
+                            nobukLink: nobuk,
+                            totalLink: total,
+                            ketLink: ket,
+                        };
+
+                        $('#modalPrintJDID__label__' + cust).html('Print Pesanan JDID');
+                        $('#modalPrintJDID__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+                        $('#modalPrintJDID__' + cust).modal({
+                            show: true,
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+
+                        @*$.ajax({
+                            type: "POST",
+                            url: '@Url.Action("CetakLabelMo", "Manage")',
+                            contentType: "application/json; charset=UTF-8",
+                            cache: false,
+                            data: JSON.stringify($postdata),
+                            success: function (response) {
+                                if (response != null) {
+                                    if (response.mo_error == null) {
+                                        $('#modalPrintLabelOption__' + cust).modal('hide');
+                                        $('#modalPrintShopee__' + cust).modal('hide');
+                                        var w = window.open('about:blank');
+                                        w.document.open();
+                                        w.document.write(response);
+                                        w.document.close();
+
+                                    } else {
+                                        $('#modalPrintLabelOption__' + cust).modal('hide');
+                                        $('#modalPrintShopee__textarea__' + cust).html(response.mo_error);
+                                        alert(response.mo_error);
+                                    }
+                                }
+
+                            },
+                            error: function (xhr, status, error) {
+                                $('#modalPrintLabelOption__' + cust).modal('hide');
+                                console.log(error);
+                            }
+                        });*@
+
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("JDIDLabelPerPacking", "Manage")',
+                            contentType: "application/json; charset=UTF-8",
+                            cache: false,
+                            data: JSON.stringify($postdata),
+                            success: function (response) {
+                                if (response.mo_error != undefined) {
+                                    $('#modalPrintJDID__textarea__' + cust).html(response.mo_error);
+                                }
+                                else {
+                                    var textareaValue = "";
+                                    var adaError = false;
+                                    var errorValue = "";
+                                    response.ret.batch_result.errors.forEach(function (item) {
+                                        adaError = true;
+                                        errorValue += item.ordersn + " : " + item.error_description + ". </br>";
+                                    });
+                                    if (adaError) {
+                                        textareaValue += "</br>";
+                                        textareaValue += "Error Orders :</br>";
+                                        textareaValue += errorValue;
+                                        $('#modalPrintLabelOption__' + cust).modal('hide');
+                                    } else {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: '@Url.Action("CetakLabelMo", "Manage")',
+                                            contentType: "application/json; charset=UTF-8",
+                                            cache: false,
+                                            data: JSON.stringify($postdata2),
+                                            success: function (response) {
+                                                if (response != null) {
+                                                    if (response.mo_error == null) {
+                                                        $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                        $('#modalPrintJDID__' + cust).modal('hide');
+                                                        var w = window.open('about:blank');
+                                                        w.document.open();
+                                                        w.document.write(response);
+                                                        w.document.close();
+                                                    } else {
+                                                        $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                        $('#modalPrintJDID__textarea__' + cust).html(response.mo_error);
+                                                        alert(response.mo_error);
+                                                    }
+                                                }
+                                            },
+                                            error: function (xhr, status, error) {
+                                                $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                console.log(error);
+                                            }
+                                        });
+                                    }
+                                    $('#modalPrintJDID__textarea__' + cust).html(textareaValue);
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.log(error);
+                            }
+                        });
+
+                    });
+                } else {
+                    alert("Mohon pilih pesanan yang mau diproses.");
+                }
+            }
+        }
+    }
+</script>
+@{
+    var distinctCust = Model.Select(p => new { p.CUST, p.NAMA_CUST }).Distinct().ToList();
+}
+<div class="row">
+    <div class="col-12">
+        <ul id="jdid_packing_cust_tabs" class="nav nav-tabs">
+            @foreach (var item in distinctCust)
+            {
+                <li><a data-toggle="tab" href="#jdid_tab_content__@(item.CUST)">@(item.NAMA_CUST)</a></li>
+            }
+        </ul>
+        <div class="tab-content">
+            @{
+                var PackingListJDIDFound = distinctCust.Count();
+            }
+            @Html.TextBox("PackingListJDIDFound", PackingListJDIDFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+            @foreach (var item in distinctCust)
+            {
+                <div id="jdid_tab_content__@(item.CUST)" class="tab-pane fade in jdid_packing_tab_content">
+                    <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+                    <div class="modal fade" id="modalPrintLabelOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel__@(item.CUST)">
+                        <div class="modal-dialog" id="modal-print-option" role="document">
+                            <div class="modal-content " style="margin:auto;height:470px;width:650px;overflow-y:auto">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="printOptionLabel__@(item.CUST)">Cetak Label</h4>
+                                    <hr />
+                                    <div>
+                                        <h5>Apakah Anda yakin ingin mencetak label <span class="cetak_label" id="cetak_label__@(item.CUST)"></span>?</h5>
+                                    </div>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-4" style="text-align:left">
+                                            <label>Nama Toko(Dropship) </label>
+                                        </div>
+                                        <div class="col-md-6" style="text-align:left">
+                                            <input id="nama_toko__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                        </div>
+                                        <div class="col-md-2"></div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-4" style="text-align:left">
+                                            <label>No Telepon Toko(Dropship) </label>
+                                        </div>
+                                        <div class="col-md-6" style="text-align:left">
+                                            <input id="tlp_toko__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                        </div>
+                                        <div class="col-md-2"></div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-4" style="text-align:left">
+                                            <label>Pilihan Cetak : </label>
+                                        </div>
+                                        <div class="col-md-8"></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_mp__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                                <span id="ctk_mp__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Nama Marketplace
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_alamat__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                                <span id="ctk_alamat__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Alamat Toko
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top:5px">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_tlp__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_tlp__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Telepon Toko
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_nama__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_nama__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Nama Toko
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top:5px">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_nobuk__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                                <span id="ctk_nobuk__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            No Bukti Pesanan
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_total__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_total__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Total Harga
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top:5px">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_ket__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_ket__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-4" style="padding-top: 7px;">
+                                            Catatan Pembeli
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-10" style="padding-top:10px">
+                                            <button id="btn-print-faktur__@(item.CUST)" type="button" class="btn btn-success btn-block">Cetak</button>
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="modalPrintJDID__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintJDID__label__@(item.CUST)">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    @* <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> *@
+                                    <h4 class="modal-title" id="modalPrintJDID__label__@(item.CUST)">Print Pesanan JDID</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-12" id="modalPrintJDID__textarea__@(item.CUST)">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger" onclick="$('#modalPrintJDID__@(item.CUST)').modal('hide');">Tutup</button>
+                                    @*<button type="button" class="btn btn-success" onclick="printRekap();">Print</button>*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input id="search_table_packing_pesanan_jdid__@(item.CUST)" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_table_packing_pesanan_jdid_button__@(item.CUST)" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                        </div>
+                        <div class="col-md-4 pull-right" style="text-align:right">
+                            @*<button id="btnProsesJOBJDID__@(item.CUST)" type="button" class="btn btn-primary pull-left" onclick="RequestJOBPackingJDID('@(item.CUST)')" style="width:50px; text-align:center;">JOB</button>*@
+                            <button id="btnProsesPickupJDID__@(item.CUST)" type="button" class="btn btn-primary " onclick="ReadyToShipPackingJDID('@(item.CUST)')" @*style="width:121px; text-align:center;"*@>Ready to Ship</button>
+                            
+                        </div>
+                    </div>
+                    @*<div class="row">
+                        <div class="col-md-9"></div>
+                        <div class="col-md-3 pull-right" style="text-align:right">
+                            <button id="btnProsesJOBJDID__@(item.CUST)" type="button" class="btn btn-primary " onclick="RequestJOBPackingJDID('@(item.CUST)')">JOB</button>
+                            <div class=" btn-group pull-right" role="group" style="vertical-align: top;">
+                                <button id="pl_jdid_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Print <span class="caret"></span>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintJDID__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="JDIDGetLabelPerPacking('@(item.CUST)','1')">
+                                        <span aria-hidden="true"> Label Marketplace</span>
+                                    </button>
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOJDID__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="JDIDGetLabelPerPacking('@(item.CUST)','2')">
+                                        <span aria-hidden="true"> Label MasterOnline</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+                    <div class="hscroll table-responsive">
+                        <table class="table table-striped table-bordered table-hover">
+                            <thead>
+                                <tr role="row">
+                                    <th class="sorting text-center center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; align-self:flex-start"><input type="checkbox" onclick="allcheckboxpackingjdidonclick('@item.CUST');" class="dt-checkboxes-select-all center" id="all_checkbox_packing_jdid__@item.CUST" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 15%;">No. Pesanan</th>
+                                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 20%;">No. Referensi</th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">No. Resi</th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Status Kirim</th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 35%;">Nama Pemesan</th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Kurir</th>
+                                    @*<th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 10%;">Jumlah</th>*@
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model.Where(p => p.CUST == item.CUST).ToList())
+                                {
+                                    var status_kirim = "Dalam Proses";
+
+                                    switch (order.status_kirim)
+                                    {
+                                        case "0":
+                                            status_kirim = "Dalam Proses";
+                                            break;
+                                        case "1":
+                                            status_kirim = "Gagal Proses";
+                                            break;
+                                        case "2":
+                                            status_kirim = "Siap Kirim";
+                                            break;
+                                        default:
+                                            status_kirim = "";
+                                            break;
+                                    }
+                                    <tr>
+                                        <td style="text-align:center">
+                                            <input type="checkbox" class="dt-checkboxes center checkbox_packing_jdid" data-cust="@order.CUST" data-recnum="@order.so_recnum" data-bukti="@order.no_bukti" style="align-self:flex-start; width:30px; height:28px;" />
+                                        </td>
+                                        <td>@order.no_bukti</td>
+                                        <td>@order.no_referensi</td>
+                                        <td>@order.tracking_no</td>
+                                        <td>@status_kirim</td>
+                                        <td>@order.nama_pemesan</td>
+                                        <td>@order.kurir</td>
+                                        @*<td>@order.jumlah_item</td>*@
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+

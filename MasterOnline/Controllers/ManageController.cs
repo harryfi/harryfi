@@ -3754,17 +3754,21 @@ namespace MasterOnline.Controllers
             #region JD ID get Category
             else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "JD.ID").IdMarket.ToString()))
             {
-                //if (!string.IsNullOrEmpty(customer.Customers.TOKEN) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U) && !string.IsNullOrEmpty(customer.Customers.API_KEY))
-                //{
-                //    var jdAPI = new JDIDController();
-                //    JDIDAPIData dataJD = new JDIDAPIData
-                //    {
-                //        accessToken = customer.Customers.TOKEN,
-                //        appKey = customer.Customers.API_KEY,
-                //        appSecret = customer.Customers.API_CLIENT_U,
-                //    };
-                //    jdAPI.getCategory(dataJD);
-                //}
+                if (!string.IsNullOrEmpty(customer.Customers.TOKEN) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U) && !string.IsNullOrEmpty(customer.Customers.API_KEY))
+                {
+                    var jdAPI = new JDIDController();
+                    JDIDAPIData dataJD = new JDIDAPIData
+                    {
+                        no_cust = kdCustomer,
+                        email = customer.Customers.EMAIL,
+                        accessToken = customer.Customers.TOKEN,
+                        appKey = customer.Customers.API_KEY,
+                        appSecret = customer.Customers.API_CLIENT_U,
+                        DatabasePathErasoft = dbPathEra,
+                    };
+                    //Task.Run(() => jdAPI.checkAPICustomerShop(dataJD)).Wait();
+                    jdAPI.JDID_checkAPICustomerShop(dataJD);
+                }
 
             }
 
@@ -6169,7 +6173,7 @@ namespace MasterOnline.Controllers
                     var data = new JDIDAPIData
                     {
                         accessToken = customer.TOKEN,
-                        appKey = customer.API_CLIENT_P,
+                        appKey = customer.API_KEY,
                         appSecret = customer.API_CLIENT_U
                     };
                     var jdApi = new JDIDController();
@@ -11385,6 +11389,20 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public ActionResult PromptBrandJDID(string merchant_code, string category)
+        {
+            try
+            {
+                ViewData["cust"] = merchant_code;
+                ViewData["category"] = category;
+                return View("PromptBrandJDID");
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+
         public ActionResult PromptAttribute82Cart(string cust, string attribute)
         {
             try
@@ -11517,6 +11535,39 @@ namespace MasterOnline.Controllers
             }
 
             return PartialView("TablePromptBrandBlibli");
+        }
+
+        public async Task<ActionResult> RefreshBrandJDID(string category, string cust, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["cust"] = cust;
+            ViewData["category"] = category;
+            if (string.IsNullOrEmpty(search))
+                search = "a";
+            var marketPlace = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).SingleOrDefault();
+            if (marketPlace != null)
+            {
+                var brandJDID = MoDbContext.BrandJDID.OrderBy(p => p.brandName).ToList();
+                //var list_value = new List<BRAND_JDID>();
+                //foreach (var item in ret.content)
+                //{
+                //    if (item.brandApprovalStatus == "APPROVED")
+                //    {
+                //        list_value.Add(new BRAND_BLIBLI()
+                //        {
+                //            brand_id = item.brandName,
+                //            name = item.brandName
+                //        });
+                //    }
+
+                //}
+                IPagedList<BRAND_JDID> pageOrders = new StaticPagedList<BRAND_JDID>(brandJDID, pagenumber + 1, 10, 10);
+                return PartialView("TablePromptBrandJDID", pageOrders);
+            }
+
+            return PartialView("TablePromptBrandJDID");
         }
 
         public async Task<ActionResult> RefreshBrand82Cart(string category, string cust, int? page, string search = "")
@@ -32693,6 +32744,8 @@ namespace MasterOnline.Controllers
             var kdShopee = "17";
             var kdShopify = "21";
             var kd82Cart = "20";
+            var kdJD = "19";
+
             var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.RecNum == hJualInDb.IDMARKET);
             if (customer != null)
             {
@@ -33080,6 +33133,36 @@ namespace MasterOnline.Controllers
                 clientJobServer.Enqueue<TokopediaControllerJob>(x => x.UpdatePrice_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", Convert.ToInt32(hJualInDb.BRG_MP), iden, (int)hargaJualBaru));
                                     
 #endif
+                    }
+                }
+                else if (customer.NAMA.Equals(kdJD))
+                {
+                    if (!string.IsNullOrWhiteSpace(customer.API_KEY))
+                    {
+                        var JDIDApi = new JDIDControllerJob();
+
+                        JDIDControllerJob.JDIDAPIDataJob data = new JDIDControllerJob.JDIDAPIDataJob()
+                        {
+                            no_cust = customer.CUST,
+                            accessToken = customer.TOKEN,
+                            appKey = customer.API_KEY,
+                            appSecret = customer.API_CLIENT_U,
+                            username = customer.USERNAME,
+                            email = customer.EMAIL,
+                            DatabasePathErasoft = dbPathEra
+                        };
+                        if (hJualInDb.BRG_MP != "")
+                        {
+
+#if Debug_AWS || DEBUG
+                            Task.Run(() => JDIDApi.JD_updatePrice(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualBaru, customer.USERNAME)).Wait();
+#else
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                            clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_updatePrice(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualBaru, customer.USERNAME));
+                                    
+#endif
+                        }
                     }
                 }
                 //end add by calvin 18 desember 2018
@@ -37052,9 +37135,12 @@ namespace MasterOnline.Controllers
                                     {
                                         JDIDAPIData data = new JDIDAPIData()
                                         {
+                                            no_cust = arf01.CUST,
                                             accessToken = arf01.TOKEN,
                                             appKey = arf01.API_KEY,
                                             appSecret = arf01.API_CLIENT_U,
+                                            email = arf01.EMAIL,
+                                            DatabasePathErasoft = dbPathEra
                                         };
                                         var resultJD = JDApi.getListProduct(data, page, cust, recordCount, totalData);
                                         retBarang.exception = resultJD.exception;
@@ -40194,6 +40280,9 @@ namespace MasterOnline.Controllers
                 case "17":
                     viewName = "PackingListShopee";
                     break;
+                case "19":
+                    viewName = "PackingListJDID";
+                    break;
                 //case "20":
                 //    viewName = "PackingList82Cart";
                 //    break;
@@ -41349,6 +41438,182 @@ namespace MasterOnline.Controllers
                 return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             return JsonErrorMessage("This Function is for Lazada only");
+        }
+
+        public async Task<ActionResult> ReadyToShipJDIDPerPacking(string cust, string bukti, string alamat, List<string> rows_selected)
+        {
+            try
+            {
+                //                var listErrors = new List<PackingListErrors>();
+                //                var listSuccess = new List<listSuccessPrintLabel>();
+
+                //                if (rows_selected != null)
+                //                {
+                //                    if (rows_selected.Count() == 0)
+                //                    {
+                //                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                //                    }
+                //                }
+                //                else
+                //                {
+                //                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                //                }
+
+                //                var string_recnum = "";
+                //                foreach (var so_recnum in rows_selected)
+                //                {
+                //                    if (string_recnum != "")
+                //                    {
+                //                        string_recnum += ",";
+                //                    }
+
+                //                    string_recnum += "'" + so_recnum + "'";
+                //                }
+
+                //                string sSQLSelect = "";
+                //                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                //                string sSQL2 = "";
+                //                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+
+                //                string sSQLSelect2 = "";
+                //                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                //                var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+                //                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+
+                //                foreach (var so in ListStt01a)
+                //                {
+                //                    if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
+                //                    {
+                //                        if (marketPlace.STATUS_API == "1")
+                //                        {
+                //                            var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == so.no_bukti).FirstOrDefault();
+                //                            if (pesananInDb != null)
+                //                            {
+                //                                if (!string.IsNullOrWhiteSpace(pesananInDb.NO_REFERENSI))
+                //                                {
+                //                                    if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                //                                    {
+                //                                        var paramsInit = await GetParameterInitLogisticShopee(pesananInDb, marketPlace.Sort1_Cust);
+                //                                        var splitParamsInit = paramsInit[5].Split(';');
+                //                                        if (splitParamsInit.Contains("PICKUP"))
+                //                                        {
+                //                                            string pAddress = "";
+                //                                            string pTime = "";
+                //                                            ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
+                //                                            {
+                //                                                merchant_code = marketPlace.Sort1_Cust,
+                //                                                DatabasePathErasoft = dbPathEra,
+                //                                                username = usernameLogin
+                //                                            };
+                //                                            if (splitParamsInit.Contains("ADDRESS_ID"))
+                //                                            {
+                //                                                pAddress = alamat;
+                //                                                if (splitParamsInit.Contains("PICKUP_TIME"))
+                //                                                {
+                //                                                    var firstpickuptime = await GetShopeeFirstPickupTime(pesananInDb, Convert.ToInt64(alamat), marketPlace.Sort1_Cust);
+                //                                                    pTime = firstpickuptime.pickup_time_id;
+                //                                                }
+                //                                            }
+
+                //                                            ShopeeControllerJob.ShopeeInitLogisticPickupDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticPickupDetailData()
+                //                                            {
+                //                                                address_id = 0,
+                //                                                pickup_time_id = ""
+                //                                            };
+                //                                            if (pAddress != "")
+                //                                            {
+                //                                                detail.address_id = Convert.ToInt64(pAddress);
+                //                                            }
+                //                                            if (pTime != "")
+                //                                            {
+                //                                                detail.pickup_time_id = pTime;
+                //                                            }
+                //                                            //change by calvin 10 april 2019, jadi pakai backgroundjob
+                //                                            //await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
+                //                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                //                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+
+                //                                            string nilaiTRACKING_SHIPMENT = "P[;]" + pAddress + "[;]" + pTime;
+                //                                            //change by nurul 16/6/2020
+                //                                            //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT));
+                //#if (DEBUG || Debug_AWS)
+                //                                            var shoApi = new ShopeeControllerJob();
+                //                                            //change by nurul 16/6/2020
+                //                                            //Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job)).Wait();
+                //                                            Task.Run(() => shoApi.InitLogisticPickup(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT)).Wait();
+                //                                            //end change by nurul 16/6/2020
+                //#else
+                //                                            clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT));
+                //#endif
+                //                                            //end change by nurul 16/6/2020
+                //                                            listSuccess.Add(new listSuccessPrintLabel
+                //                                            {
+                //                                                no_referensi = so.no_referensi
+                //                                            });
+                //                                        }
+                //                                        else
+                //                                        {
+                //                                            listErrors.Add(new PackingListErrors
+                //                                            {
+                //                                                keyname = so.no_referensi,
+                //                                                errorMessage = "Pesanan tidak bisa diproses Pickup."
+                //                                            });
+                //                                        }
+                //                                    }
+                //                                    else
+                //                                    {
+                //                                        listErrors.Add(new PackingListErrors
+                //                                        {
+                //                                            keyname = so.no_referensi,
+                //                                            errorMessage = "Pesanan sudah pernah diproses."
+                //                                        });
+                //                                    }
+                //                                }
+                //                                else
+                //                                {
+                //                                    listErrors.Add(new PackingListErrors
+                //                                    {
+                //                                        keyname = so.no_bukti,
+                //                                        errorMessage = "Pesanan tidak memiliki nomor referensi."
+                //                                    });
+                //                                }
+                //                            }
+                //                            else
+                //                            {
+                //                                listErrors.Add(new PackingListErrors
+                //                                {
+                //                                    keyname = so.no_bukti,
+                //                                    errorMessage = "Pesanan tidak ditemukan."
+                //                                });
+                //                            }
+                //                        }
+                //                        else
+                //                        {
+                //                            listErrors.Add(new PackingListErrors
+                //                            {
+                //                                keyname = so.no_bukti,
+                //                                errorMessage = "Status Link ke Marketplace tidak aktif."
+                //                            });
+                //                        }
+                //                    }
+                //                    else
+                //                    {
+                //                        listErrors.Add(new PackingListErrors
+                //                        {
+                //                            keyname = so.no_bukti,
+                //                            errorMessage = "Status Link ke Marketplace tidak aktif."
+                //                        });
+                //                    }
+                //                }
+
+                //                var successCount = listSuccess.Count();
+                return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
         }
 
         public async Task<ActionResult> RequestPickupShopeePerPacking(string cust, string bukti, string alamat, List<string> rows_selected)

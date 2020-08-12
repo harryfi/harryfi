@@ -202,6 +202,22 @@ namespace MasterOnline.Controllers
         //private DatabaseSQL EDB;
         private string username;
         private string dbPathEra;
+
+        //add by fauzi for JD.ID 21 Juli 2020
+        public string ServerUrl_JDID = "https://open.jd.id/api";
+        public string AccessToken_JDID = "";
+        public string AppKey_JDID = "";
+        public string AppSecret_JDID = "";
+        public string Version_JDID = "1.0";
+        public string Format_JDID = "json";
+        public string SignMethod_JDID = "md5";
+        private string Charset_utf8_JDID = "UTF-8";
+        public string Method_JDID;
+        public string ParamJson_JDID;
+        public string ParamFile_JDID;
+        //end add by fauzi for JD.ID
+
+
         public StokControllerJob()
         {
             //Catatan by calvin :
@@ -270,6 +286,176 @@ namespace MasterOnline.Controllers
             dbPathEra = DatabasePathErasoft;
             username = uname;
         }
+
+        #region jdid tools
+        private string getCurrentTimeFormatted()
+        {
+            var dt = System.DateTime.Now.ToLocalTime();
+            return dt.ToString("yyyy-MM-dd HH:mm:ss.fff") + dt.ToString("zzzz").Replace(":", "");
+        }
+
+        public string Call(string sappKey, string saccessToken, string sappSecret, string sMethod, string sParamJson)
+        {
+            //construct system parameters
+            var sysParams = new Dictionary<string, string>();
+            //sysParams.Add("app_key", this.AppKey);
+            sysParams.Add("app_key", sappKey);
+            sysParams.Add("v", this.Version_JDID);
+            sysParams.Add("format", this.Format_JDID);
+            sysParams.Add("sign_method", this.SignMethod_JDID);
+            //sysParams.Add("method", this.Method);
+            sysParams.Add("method", sMethod);
+            sysParams.Add("timestamp", this.getCurrentTimeFormatted());
+            //sysParams.Add("access_token", this.AccessToken);
+            sysParams.Add("access_token", saccessToken);
+
+            //get business parameters
+            if (sParamJson != null && sParamJson.Length > 0)
+            {
+                sysParams.Add("param_json", sParamJson);
+            }
+            else
+            {
+                sysParams.Add("param_json", "{}");
+            }
+            //sign
+            sysParams.Add("sign", this.generateSign(sysParams, sappSecret));
+
+            //send http post request
+            var content = this.curl(this.ServerUrl_JDID, null, sysParams);
+            return content;
+        }
+
+        public string curl(string url, string[] files, Dictionary<string, string> formFields = null)
+        {
+            string boundary = "----------------------------" + DateTime.Now.Ticks.ToString("x");
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.ContentType = "multipart/form-data; boundary=" +
+                                    boundary;
+            request.Method = "POST";
+            request.KeepAlive = true;
+
+            Stream memStream = new System.IO.MemoryStream();
+
+            var boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" +
+                                                                    boundary + "\r\n");
+            var endBoundaryBytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" +
+                                                                        boundary + "--");
+
+
+            string formdataTemplate = "\r\n--" + boundary +
+                                        "\r\nContent-Disposition: form-data; name=\"{0}\";\r\n\r\n{1}";
+            try
+            {
+                if (formFields != null)
+                {
+                    foreach (string key in formFields.Keys)
+                    {
+                        string formitem = string.Format(formdataTemplate, key, formFields[key]);
+                        byte[] formitembytes = System.Text.Encoding.UTF8.GetBytes(formitem);
+                        memStream.Write(formitembytes, 0, formitembytes.Length);
+                    }
+                }
+
+
+                //file
+                if (files != null)
+                {
+                    string headerTemplate =
+                        "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\n" +
+                        "Content-Type: application/octet-stream\r\n\r\n";
+                    for (int i = 0; i < files.Length; i++)
+                    {
+                        memStream.Write(boundarybytes, 0, boundarybytes.Length);
+                        var header = string.Format(headerTemplate, "param_file", files[i]);
+                        var headerbytes = System.Text.Encoding.UTF8.GetBytes(header);
+
+                        memStream.Write(headerbytes, 0, headerbytes.Length);
+
+                        using (var fileStream = new FileStream(files[i], FileMode.Open, FileAccess.Read))
+                        {
+                            var buffer = new byte[1024];
+                            var bytesRead = 0;
+                            while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
+                            {
+                                memStream.Write(buffer, 0, bytesRead);
+                            }
+                        }
+                    }
+                }
+                //~:end file
+
+
+                memStream.Write(endBoundaryBytes, 0, endBoundaryBytes.Length);
+                request.ContentLength = memStream.Length;
+
+                using (Stream requestStream = request.GetRequestStream())
+                {
+                    memStream.Position = 0;
+                    byte[] tempBuffer = new byte[memStream.Length];
+                    memStream.Read(tempBuffer, 0, tempBuffer.Length);
+                    memStream.Close();
+                    requestStream.Write(tempBuffer, 0, tempBuffer.Length);
+                }
+
+                using (var response = request.GetResponse())
+                {
+                    Stream stream2 = response.GetResponseStream();
+                    StreamReader reader2 = new StreamReader(stream2);
+                    return reader2.ReadToEnd();
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            }
+
+        }
+
+        private string generateSign(Dictionary<string, string> sysDataDictionary, string sappSecret)
+        {
+            var dic = sysDataDictionary.OrderBy(key => key.Key).ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value);
+            var sb = new System.Text.StringBuilder();
+            foreach (var item in dic)
+            {
+                if (!"".Equals(item.Key) && !"".Equals(item.Value))
+                {
+                    sb.Append(item.Key).Append(item.Value);
+                }
+
+            }
+            //prepend and append appsecret   
+            //sb.Insert(0, this.AppSecret);
+            //sb.Append(this.AppSecret);
+            sb.Insert(0, sappSecret);
+            sb.Append(sappSecret);
+            var signValue = this.calculateMD5Hash(sb.ToString());
+            //Console.WriteLine("raw string=" + sb.ToString());
+            //Console.WriteLine("signValue=" + signValue);
+            return signValue;
+        }
+
+
+        private string calculateMD5Hash(string input)
+        {
+            // step 1, calculate MD5 hash from input
+            MD5 md5 = System.Security.Cryptography.MD5.Create();
+            byte[] inputBytes = System.Text.Encoding.UTF8.GetBytes(input);
+            byte[] hash = md5.ComputeHash(inputBytes);
+
+            // step 2, convert byte array to hex string
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < hash.Length; i++)
+            {
+                sb.Append(hash[i].ToString("X2"));
+            }
+
+            return sb.ToString();
+
+        }
+        #endregion
+
 
         public int PesananBatal(string ordersn)
         {
@@ -1346,16 +1532,20 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-                    //add by Tri 11 April 2019
+                    //add by Fauzi 21 Juli 2020
                     else if (marketPlace.NAMA.Equals(kdJD.ToString()))
                     {
                         if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
                             JDIDAPIData data = new JDIDAPIData()
                             {
+                                no_cust = marketPlace.CUST,
                                 accessToken = marketPlace.TOKEN,
                                 appKey = marketPlace.API_KEY,
                                 appSecret = marketPlace.API_CLIENT_U,
+                                username = marketPlace.USERNAME,
+                                email = marketPlace.EMAIL,
+                                DatabasePathErasoft = dbPathEra
                             };
                             if (stf02h.BRG_MP != "")
                             {
@@ -1367,7 +1557,7 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-                    //end add by Tri 11 April 2019
+                    //end add by Fauzi 21 Juli 2020
                     //add by fauzi for 82 Cart
                     else if (marketPlace.NAMA.Equals(kd82Cart.ToString()))
                     {
@@ -3339,15 +3529,18 @@ namespace MasterOnline.Controllers
             //end add by calvin 17 juni 2019
             stok = Convert.ToInt32(qtyOnHand);
 
-            var mgrApiManager = new JDIDController();
+            //var mgrApiManager = new JDIDControllerJob();
 
-            mgrApiManager.AppKey = data.appKey;
-            mgrApiManager.AppSecret = data.appSecret;
-            mgrApiManager.AccessToken = data.accessToken;
-            mgrApiManager.Method = "epi.ware.openapi.warestock.updateWareStock";
-            mgrApiManager.ParamJson = "{\"jsonStr\":[{\"skuId\":" + id + ", \"realNum\": " + stok + "}]}";
+            //mgrApiManager.AppKey = data.appKey;
+            //mgrApiManager.AppSecret = data.appSecret;
+            //mgrApiManager.AccessToken = data.accessToken;
+            //mgrApiManager.Method = "epi.ware.openapi.warestock.updateWareStock";
+            //mgrApiManager.ParamJson = "{\"jsonStr\":[{\"skuId\":" + id + ", \"realNum\": " + stok + "}]}";
 
-            var response = mgrApiManager.Call();
+            string sMethod = "epi.ware.openapi.warestock.updateWareStock";
+            string sParamJson = "{\"jsonStr\":[{\"skuId\":" + id + ", \"realNum\": " + stok + "}]}";
+
+            var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
             var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
             if (ret != null)
             {
