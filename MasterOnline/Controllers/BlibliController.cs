@@ -6033,8 +6033,8 @@ namespace MasterOnline.Controllers
                             returnData["ACODE_" + a] = Convert.ToString(attribs.attributeCode);
                             returnData["ATYPE_" + a] = Convert.ToString(attribs.attributeType);
                             returnData["ANAME_" + a] = Convert.ToString(attribs.name);
-                            //returnData["AOPTIONS_" + a] = attribs.options.Count > 0 ? "1" : "0";
-                            returnData["AOPTIONS_" + a] = attribs.attributeType != "DESCRIPTIVE_ATTRIBUTE" ? "1" : "0";
+                            returnData["AOPTIONS_" + a] = attribs.options.Count > 0 ? "1" : "0";
+                            //returnData["AOPTIONS_" + a] = attribs.attributeType != "DESCRIPTIVE_ATTRIBUTE" ? "1" : "0";
                             returnData["AMANDATORY_" + a] = attribs.mandatory ? "1" : "0";
 
                             if (attribs.options.Count() > 0)

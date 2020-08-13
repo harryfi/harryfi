@@ -7288,7 +7288,7 @@ namespace MasterOnline.Controllers
                 string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
                 string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
                 //if (!string.IsNullOrWhiteSpace(attribute_id))
-                if (!string.IsNullOrWhiteSpace(attribute_id) && (attribute_id ?? "null") != "null")
+                if (!string.IsNullOrWhiteSpace(attribute_id) && (value ?? "null") != "null")
                 {
                     if (dsFeature.Contains(attribute_id))
                     {
@@ -7763,7 +7763,8 @@ namespace MasterOnline.Controllers
                                 if (!dsVariasiValues.Contains(v.MP_VALUE_VAR))
                                 {
                                     dsVariasiValues.Add(v.MP_VALUE_VAR);
-                                    if (v.MP_JUDUL_VAR == "WA-0000002")//add family color jika ada attribute warna
+                                    //if (v.MP_JUDUL_VAR == "WA-0000002")//add family color jika ada attribute warna
+                                    if (aname == "Warna")//add family color jika ada attribute warna
                                     {
                                         dsVariasiFCValues.Add(v.MP_VALUE_FC_VAR);
                                     }
@@ -8660,24 +8661,48 @@ namespace MasterOnline.Controllers
             //BOPIS : is (Buy Online Pickup In merchant Store).Customer that bought must came to merchant store to pick their product.
             //The ID number for BOPIS type = 3.
 
-            CreateProductBlibliData newData = new CreateProductBlibliData()
+            ReviseProductBlibliData newData = new ReviseProductBlibliData()
+            {
+                //name = data.nama,
+                //brand = data.Brand,
+                //url = "",
+                //categoryCode = data.CategoryCode,
+                //productType = 1,
+                //pickupPointCode = data.PickupPoint,
+                //length = Convert.ToInt32(Convert.ToDouble(data.Length)),
+                //width = Convert.ToInt32(Convert.ToDouble(data.Width)),
+                //height = Convert.ToInt32(Convert.ToDouble(data.Height)),
+                //weight = Convert.ToInt32(Convert.ToDouble(data.berat)),
+                //description = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+                ////uniqueSellingPoint = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+                ////diisi dengan AVALUE_39
+                //productStory = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+            };
+            newData.product = new ReviseProductData
             {
                 name = data.nama,
-                brand = data.Brand,
-                url = "",
-                categoryCode = data.CategoryCode,
-                productType = 1,
-                pickupPointCode = data.PickupPoint,
+                description = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+                productType = 1,                
+            };
+            newData.dimension = new ReviseDimension
+            {
                 length = Convert.ToInt32(Convert.ToDouble(data.Length)),
                 width = Convert.ToInt32(Convert.ToDouble(data.Width)),
                 height = Convert.ToInt32(Convert.ToDouble(data.Height)),
                 weight = Convert.ToInt32(Convert.ToDouble(data.berat)),
-                description = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
-                //uniqueSellingPoint = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
-                //diisi dengan AVALUE_39
-                productStory = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
             };
-
+            newData.pickupPoint = new RevisepickupPoint
+            {
+                code = data.PickupPoint
+            };
+            newData.category = new ReviseCategoryCode
+            {
+                code = data.CategoryCode
+            };
+            newData.brand = new ReviseBrand
+            {
+                code = data.Brand
+            };
             //string sSQL = "SELECT * FROM (";
             //for (int i = 1; i <= 30; i++)
             //{
@@ -8701,10 +8726,11 @@ namespace MasterOnline.Controllers
             for (int i = 1; i <= 35; i++)
             {
                 string attribute_id = Convert.ToString(attribute["ACODE_" + i.ToString()]);
+                string attribute_name = Convert.ToString(attribute["ANAME_" + i.ToString()]);
                 string attribute_type = Convert.ToString(attribute["ATYPE_" + i.ToString()]);
                 if (!string.IsNullOrWhiteSpace(attribute_id))
                 {
-                    if (attribute_type == "DEFINING_ATTRIBUTE")
+                    if (attribute_type == "DEFINING_ATTRIBUTE" || attribute_name == "Warna")
                     {
                         dsVariasi.Add(attribute_id);
                     }
@@ -8732,7 +8758,7 @@ namespace MasterOnline.Controllers
             {
                 string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
                 string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
-                if (!string.IsNullOrWhiteSpace(attribute_id))
+                if (!string.IsNullOrWhiteSpace(attribute_id) && (attribute_id ?? "null") != "null")
                 {
                     if (dsFeature.Contains(attribute_id))
                     {
@@ -8744,11 +8770,13 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            newData.productNonDefiningAttributes = nonDefiningAttributes;
+            newData.nonDefiningAttributes = nonDefiningAttributes;
 
-            Dictionary<string, string> images = new Dictionary<string, string>();
+            //Dictionary<string, string> images = new Dictionary<string, string>();
+            var images = new List<ReviseImageMap>();
+            var sImages = new ReviseImageMap();
             //List<string> uploadedImageID = new List<string>();
-            List<Productitem> productItems = new List<Productitem>();
+            List<ReviseProductitem> productItems = new List<ReviseProductitem>();
             #region bukan barang variasi
             if (data.type == "3")
             {
@@ -8809,7 +8837,10 @@ namespace MasterOnline.Controllers
                             //if (!uploadedImageID.Contains(idGambar))
                             //{
                             //    uploadedImageID.Add(idGambar);
-                            images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            //images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            sImages.data = Convert.ToBase64String(resizedByteArr);
+                            sImages.name = idGambar;
+                            images.Add(sImages);
                             images_pervar.Add(idGambar);
                             //}
                         }
@@ -8870,7 +8901,10 @@ namespace MasterOnline.Controllers
                             //if (!uploadedImageID.Contains(idGambar))
                             //{
                             //    uploadedImageID.Add(idGambar);
-                            images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            //images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            sImages.data = Convert.ToBase64String(resizedByteArr);
+                            sImages.name = idGambar;
+                            images.Add(sImages);
                             images_pervar.Add(idGambar);
                             //}
                         }
@@ -8932,7 +8966,10 @@ namespace MasterOnline.Controllers
                             //if (!uploadedImageID.Contains(idGambar))
                             //{
                             //    uploadedImageID.Add(idGambar);
-                            images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            //images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            sImages.data = Convert.ToBase64String(resizedByteArr);
+                            sImages.name = idGambar;
+                            images.Add(sImages);
                             images_pervar.Add(idGambar);
                             //}
                         }
@@ -8995,7 +9032,10 @@ namespace MasterOnline.Controllers
                             //if (!uploadedImageID.Contains(idGambar))
                             //{
                             //    uploadedImageID.Add(idGambar);
-                            images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            //images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            sImages.data = Convert.ToBase64String(resizedByteArr);
+                            sImages.name = idGambar;
+                            images.Add(sImages);
                             images_pervar.Add(idGambar);
                             //}
                         }
@@ -9057,7 +9097,10 @@ namespace MasterOnline.Controllers
                             //if (!uploadedImageID.Contains(idGambar))
                             //{
                             //    uploadedImageID.Add(idGambar);
-                            images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            //images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            sImages.data = Convert.ToBase64String(resizedByteArr);
+                            sImages.name = idGambar;
+                            images.Add(sImages);
                             images_pervar.Add(idGambar);
                             //}
                         }
@@ -9113,24 +9156,28 @@ namespace MasterOnline.Controllers
                     }
                 }
 
-                Productitem newVarItem = new Productitem()
+                ReviseProductitem newVarItem = new ReviseProductitem()
                 {
                     //change sementara, perubahan ketentuan UPC di blibli
                     //upcCode = data.dataBarangInDb.BRG,
                     upcCode = "",
                     //end change sementara, perubahan ketentuan UPC di blibli
-                    merchantSku = data.dataBarangInDb.BRG,
-                    price = Convert.ToInt32(Convert.ToDouble(data.Price)),
-                    salePrice = Convert.ToInt32(stf02h.HJUAL),
+                    sellerSku = data.dataBarangInDb.BRG,
+                    //price = Convert.ToInt32(Convert.ToDouble(data.Price)),
+                    //salePrice = Convert.ToInt32(stf02h.HJUAL),
                     minimumStock = Convert.ToInt32(data.dataBarangInDb.MINI),
                     stock = Convert.ToInt32(data.dataBarangInDb.MINI),
                     buyable = true,
                     displayable = true,
-                    dangerousGoodsLevel = 0,
+                    //dangerousGoodsLevel = 0,
                     images = images_pervar.ToArray(),
                     attributesMap = attributeMap
                 };
-
+                newVarItem.price = new ReviseProductPrice
+                {
+                    regular = Convert.ToInt32(Convert.ToDouble(data.Price)),
+                    sale = Convert.ToInt32(stf02h.HJUAL),
+                };
                 //add by calvin 15 agustus 2019
                 var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
                 if (qty_stock > 0)
@@ -9140,7 +9187,7 @@ namespace MasterOnline.Controllers
                 //end add by calvin 15 agustus 2019
 
                 productItems.Add(newVarItem);
-                newData.productDefiningAttributes = DefiningAttributes;
+                newData.definingAttributes = DefiningAttributes;
             }
             #endregion
             #region Barang Variasi
@@ -9189,6 +9236,7 @@ namespace MasterOnline.Controllers
                 //change 9 juli 2020, ambil 35 attribute
                 //for (int i = 1; i <= 30; i++)
                 List<string> dsVariasiFCValues = new List<string>();//untuk menampung family color
+                List<string> dsVariasiFCValuesInduk = new List<string>();//untuk menampung family color induk
                 for (int i = 1; i <= 35; i++)
                 //end change 9 juli 2020, ambil 35 attribute
                 {
@@ -9206,7 +9254,8 @@ namespace MasterOnline.Controllers
                                 if (!dsVariasiValues.Contains(v.MP_VALUE_VAR))
                                 {
                                     dsVariasiValues.Add(v.MP_VALUE_VAR);
-                                    if (v.MP_JUDUL_VAR == "WA-0000002")//add family color jika ada attribute warna
+                                    //if (v.MP_JUDUL_VAR == "WA-0000002")//add family color jika ada attribute warna
+                                    if (aname == "Warna")//add family color jika ada attribute warna
                                     {
                                         dsVariasiFCValues.Add(v.MP_VALUE_FC_VAR);
                                     }
@@ -9234,6 +9283,11 @@ namespace MasterOnline.Controllers
                                 if (aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
                                     DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
                             }
+
+                            if (attribute_id == "FA-2000060")
+                            {
+                                dsVariasiFCValuesInduk.Add(value);
+                            }
                         }
                     }
                 }
@@ -9243,7 +9297,13 @@ namespace MasterOnline.Controllers
                     DefiningAttributes.Add("FA-2000060", dsVariasiFCValues.ToArray());
                 }
 
-                newData.productDefiningAttributes = DefiningAttributes;
+                if (!DefiningAttributes.ContainsKey("FA-2000060") && dsVariasiFCValuesInduk.Count > 0)//belum ada familu color dan attr ada di brg induk
+                {
+                    DefiningAttributes.Add("FA-2000060", dsVariasiFCValuesInduk.ToArray());
+
+                }
+
+                newData.definingAttributes = DefiningAttributes;
 
                 foreach (var var_item in var_stf02)
                 {
@@ -9314,7 +9374,10 @@ namespace MasterOnline.Controllers
                                 //if (!uploadedImageID.Contains(image_id))
                                 //{
                                 //    uploadedImageID.Add(image_id);
-                                images.Add(var_item.BRG + image_id, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                //images.Add(var_item.BRG + image_id, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                sImages.data = Convert.ToBase64String(resizedByteArr);
+                                sImages.name = var_item.BRG + image_id;
+                                images.Add(sImages);
                                 images_pervar.Add(var_item.BRG + image_id); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                                                                             //}
                             }
@@ -9440,24 +9503,29 @@ namespace MasterOnline.Controllers
                         }
                     }
 
-                    Productitem newVarItem = new Productitem()
+                    ReviseProductitem newVarItem = new ReviseProductitem()
                     {
                         //change sementara, perubahan ketentuan UPC di blibli
                         //upcCode = var_item.BRG,
                         upcCode = "",
                         //change sementara, perubahan ketentuan UPC di blibli
-                        merchantSku = var_item.BRG,
-                        price = Convert.ToInt32(var_item.HJUAL),
-                        salePrice = Convert.ToInt32(var_stf02h_item.HJUAL),
+                        sellerSku = var_item.BRG,
+                        //price = Convert.ToInt32(var_item.HJUAL),
+                        //salePrice = Convert.ToInt32(var_stf02h_item.HJUAL),
                         minimumStock = Convert.ToInt32(var_item.MINI),
                         stock = Convert.ToInt32(var_item.MINI),
                         buyable = true,
                         displayable = true,
-                        dangerousGoodsLevel = 0,
+                        //dangerousGoodsLevel = 0,
                         images = images_pervar.ToArray(),
                         attributesMap = attributeMap
                     };
 
+                    newVarItem.price = new ReviseProductPrice
+                    {
+                        regular = Convert.ToInt32(Convert.ToDouble(var_item.HJUAL)),
+                        sale = Convert.ToInt32(var_stf02h_item.HJUAL),
+                    };
                     //add by calvin 15 agustus 2019
                     var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
                     if (qty_stock > 0)
@@ -9471,8 +9539,8 @@ namespace MasterOnline.Controllers
             #endregion
 
             newData.productItems = (productItems);
-            newData.imageMap = images;
-            newData.uniqueSellingPoint = Convert.ToBase64String(Encoding.ASCII.GetBytes(Convert.ToString(stf02h["AVALUE_39"])));
+            newData.imageMap = images.ToArray();
+            newData.product.uniqueSellingPoint = Convert.ToBase64String(Encoding.ASCII.GetBytes(Convert.ToString(stf02h["AVALUE_39"])));
 
             string myData = JsonConvert.SerializeObject(newData);
 
@@ -10444,9 +10512,9 @@ namespace MasterOnline.Controllers
             public ReviseBrand brand { get; set; }
             //public string url { get; set; }
             public ReviseDimension dimension { get; set; }
-            public string productStory { get; set; }
-            public Dictionary<string, string> productNonDefiningAttributes { get; set; }
-            public Dictionary<string, string[]> productDefiningAttributes { get; set; }
+            //public string productStory { get; set; }
+            public Dictionary<string, string> nonDefiningAttributes { get; set; }
+            public Dictionary<string, string[]> definingAttributes { get; set; }
             public List<ReviseProductitem> productItems { get; set; }
             public ReviseImageMap[] imageMap { get; set; }
         }
@@ -10454,7 +10522,7 @@ namespace MasterOnline.Controllers
         {
             public string upcCode { get; set; }
             public string sellerSku { get; set; }
-            public int price { get; set; }
+            public ReviseProductPrice price { get; set; }
             //public int salePrice { get; set; }
             public int stock { get; set; }
             public int minimumStock { get; set; }
