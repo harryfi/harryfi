@@ -999,7 +999,7 @@
                     searchTableBarang();
                 }
             });
-            //end add by nurul 15/5/2020        
+            //end add by nurul 15/5/2020
 
             $('#close-detail-stok').click(function () {
                 tempBrgStok = "";
@@ -1487,5 +1487,34 @@
             }
         }
         //end add by nurul 13/5/2020
+
+        //add by Tri 13 Aug 2020, refresh stok per brg
+
+        function UpdateStokPerBarang(idBarang) {
+            var link = '@Html.Raw(Url.Action("UpdateStokPerBarang", "Manage", new { brg = "replaceBrg"}))';
+            link = link.replace("replaceBrg", encodeURIComponent(idBarang));
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        //$('#list-detail-stok').hide();
+                        //$('#loading_detail_stok_barang_tab').show();
+                    },
+                    success: function (response) {
+                        //$('#list-detail-stok').html(response);
+                        //$('#loading_detail_stok_barang_tab').hide();
+                        //$('#list-detail-stok').show();
+                        alert('Barang ini akan di-update stok ke semua marketplace');
+                    },
+                    error: function (xhr, status, error) {
+                        //$('#loading_detail_stok_barang_tab').hide();
+                        console.log(error);
+                    }
+                });
+        }
+
+        //end add by Tri, refresh stok per brg
+
     </script>
 }

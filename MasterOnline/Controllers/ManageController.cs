@@ -53802,6 +53802,19 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 24/7/2020
 
+        //add by Tri 13 Aug 2020, refresh stok per brg
+        public ActionResult UpdateStokPerBarang(string brg)
+        {
+            List<string> listBrg = new List<string>();
+
+            listBrg.Add(brg);
+
+            updateStockMarketPlace(listBrg, "[UP_STOK]["+DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss")+"]");
+
+            return JsonErrorMessage("");
+        }
+        //end add by Tri 13 Aug 2020, refresh stok per brg
+
         //add by nurul 5/8/2020
         public ActionResult ShowErrorLogPosting(string logErr)
         {
