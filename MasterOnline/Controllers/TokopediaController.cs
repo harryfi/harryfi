@@ -1623,21 +1623,21 @@ namespace MasterOnline.Controllers
                 //}
                 try
                 {
-                    if (result.header != null)
-                    {
-                        if (result.header.error_code != 0)
-                        {
-                            adaError = true;
-                            //foreach (var err in result.error_message)
-                            //{
-                            //ret.message += err.ToString() + "_;_";
-                            //}
-                            //ret.message += result.header.reason;
-                            ret.message += (result.header.reason ?? result.header.messages);
-                            //currentLog.REQUEST_EXCEPTION = ret.message;
-                            //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                        }
-                    }
+                    //if (result.header != null)
+                    //{
+                    //    if (result.header.error_code != 0)
+                    //    {
+                    //        adaError = true;
+                    //        //foreach (var err in result.error_message)
+                    //        //{
+                    //        //ret.message += err.ToString() + "_;_";
+                    //        //}
+                    //        //ret.message += result.header.reason;
+                    //        ret.message += (result.header.reason ?? result.header.messages);
+                    //        //currentLog.REQUEST_EXCEPTION = ret.message;
+                    //        //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    //    }
+                    //}
                     if (result.data != null)
                         if (!adaError)
                         {
@@ -2058,26 +2058,26 @@ namespace MasterOnline.Controllers
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedGetItemDetail)) as TokpedGetItemDetail;
                 bool adaError = false;
-                if (result.header != null)
-                {
-                    //if (result.data.Count() == 0)
-                    //{
-                    //    adaError = true;
-                    //}
-                    if (result.header.error_code != 0)
-                    {
-                        adaError = true;
-                        //foreach (var err in result.error_message)
-                        //{
-                        //ret.message += err.ToString() + "_;_";
-                        //}
-                        //ret.message += result.header.reason;
-                        ret.message += (result.header.reason ?? result.header.messages);
-                        //currentLog.REQUEST_EXCEPTION = ret.message;
-                        //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                    }
+                //if (result.header != null)
+                //{
+                //    //if (result.data.Count() == 0)
+                //    //{
+                //    //    adaError = true;
+                //    //}
+                //    if (result.header.error_code != 0)
+                //    {
+                //        adaError = true;
+                //        //foreach (var err in result.error_message)
+                //        //{
+                //        //ret.message += err.ToString() + "_;_";
+                //        //}
+                //        //ret.message += result.header.reason;
+                //        ret.message += (result.header.reason ?? result.header.messages);
+                //        //currentLog.REQUEST_EXCEPTION = ret.message;
+                //        //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //    }
 
-                }
+                //}
                 if (result.data != null)
                     if (!adaError)
                     {
@@ -4423,7 +4423,7 @@ namespace MasterOnline.Controllers
             public float process_time { get; set; }
             public string messages { get; set; }
             public string reason { get; set; }
-            public int error_code { get; set; }
+            //public int error_code { get; set; }
         }
 
         public class TokpedGetListItemV2
