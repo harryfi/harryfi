@@ -45192,7 +45192,7 @@ namespace MasterOnline.Controllers
                                 //#if (DEBUG || Debug_AWS)
                                 //Task.Run(() => tokpedApi.JOBCOD(data, Nobuk, SOA_NOREF).Wait());
 #if (DEBUG || Debug_AWS)
-                                Task.Run(() => tokpedApi.JOBCOD(data, Nobuk, dsSORow.SOA_NOREF).Wait());
+                                Task.Run(() => tokpedApi.JOBCOD1(data, Nobuk, dsSORow.SOA_NOREF).Wait());
 #else                            
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var clientJobServer = new BackgroundJobClient(sqlStorage);

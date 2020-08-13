@@ -2569,6 +2569,55 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        public async Task<string> JOBCOD1(TokopediaAPIData iden, string ordNo, string noref)
+        {
+            string ret = "";
+            //string connId = Guid.NewGuid().ToString();
+            var token = SetupContext(iden);
+            iden.token = token;
+            string[] splitNoRef = noref.Split(';');
+            string urll = "https://fs.tokopedia.net/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/fulfillment_order?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&order_id=" + Uri.EscapeDataString(splitNoRef[0]);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+
+
+            string responseFromServer = "";
+            //try
+            //{
+
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer != null)
+            {
+                JOBCODResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(JOBCODResult)) as JOBCODResult;
+                var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
+                if (pesananIndb != null)
+                {
+                    ret = result.data.order_data.Where(a => a.order.invoice_number == splitNoRef.Last()).Select(a => a.booking_data.booking_code).FirstOrDefault();
+                    if (ret != "" && ret != null)
+                    {
+                        pesananIndb.status_kirim = "2";
+                        pesananIndb.NO_PO_CUST = ret;
+                        ErasoftDbContext.SaveChanges();
+                    }
+                }
+            }
+            return ret;
+        }
         //end add by nurul 19/3/2020, untuk get kode booking 
         //add by nurul 1/4/2020
         public async Task<string> PrintLabel(TokopediaAPIData iden, string ordNo, string noref)
