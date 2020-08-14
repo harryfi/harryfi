@@ -332,6 +332,7 @@
                         <p id="namaBarang82Cart">-</p>
                         <p id="labelAkunMp82Cart">-</p>
                         <p>Harga Jual awal: Rp <span id="hJualAwal82Cart"></span></p>
+                        <p>Harga Jual Barang Induk: Rp <span id="hJualInduk82Cart"></span></p>
                         @*<p>Harga Grosir awal: Rp <span id="hJualGrosirAwal82Cart"></span></p>*@
                     </div>
                     <div class="col-md-6">
@@ -753,6 +754,31 @@
         }
 
         function pass82Cart(recNum, kdBrg, nmBrg, nmMp, hjual, hjualasli) {
+            var link = '@Html.Raw(Url.Action("GetHargaInduk82Cart", "Manage", new { kodebrg = "replaceKodeBarang" }))';
+            link = link.replace("replaceKodeBarang", encodeURIComponent(kdBrg));
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    //$('#loading_spinner_btn82Cart').show();
+                },
+                success: function (res) {
+                    if (res.success) {
+                        $('#hJualInduk82Cart').text(res.hargaInduk);
+                        $('#HJUALBARU82CartTemp').val(res.hargaInduk);
+                    } else {
+                        alert("Gagal ambil data harga Induk.");
+                    }
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+
+
             $recNum = recNum;
             $('#kodeBarang82Cart').text(kdBrg);
             $('#namaBarang82Cart').text(nmBrg);
@@ -764,7 +790,6 @@
             $('#HJUALPROMOSIBARU82Cart').val('');
 
             //add by fauzi for edit harga jual barang 82Cart
-            $('#HJUALBARU82CartTemp').val(hjualasli);
             $('#HJUALBARU82CartDampak').val('');
             //end add
         }

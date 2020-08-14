@@ -33611,6 +33611,24 @@ namespace MasterOnline.Controllers
             return new EmptyResult();
         }
 
+        [HttpGet]
+        public ActionResult GetHargaInduk82Cart(string kodebrg)
+        {
+            var brgSTF02Check = ErasoftDbContext.STF02.SingleOrDefault(h => h.BRG == kodebrg);
+            var brgSTF02 = ErasoftDbContext.STF02.Where(a => a.TYPE == "4").SingleOrDefault(b => b.BRG == brgSTF02Check.PART);
+
+            if (brgSTF02 == null)
+            {
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            else
+            {
+                var hargaInduk = brgSTF02.HJUAL;
+                return new JsonResult { Data = new { success = true, hargaInduk = hargaInduk }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            
+        }
+
         public class ReturnJson
         {
             public string message { get; set; }
