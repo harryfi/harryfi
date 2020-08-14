@@ -45196,7 +45196,7 @@ namespace MasterOnline.Controllers
 #else                            
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(data, Nobuk, dsSORow.SOA_NOREF));
+                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.JOBCOD1(data, Nobuk, dsSORow.SOA_NOREF));
 #endif
                                 //Task.Run(() => tokpedApi.JOBCOD(data, Nobuk, dsSORow.SOA_NOREF).Wait());
                                 //var kodeBookingTokped = tokpedApi.JOBCOD(data, Nobuk, SOA_NOREF);
