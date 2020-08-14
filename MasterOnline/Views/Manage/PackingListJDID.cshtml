@@ -438,6 +438,90 @@
         });
     }
 
+    function editNoResi($idPesanan) {
+
+            var $tr = 'tr[data-barang-id="' + $idPesanan + '"]';
+            var $noresiInitialSpan = $($tr + ' .noresi-initial');
+            var $noresiInputBox = $($tr + ' .noresi-input-box');
+            var $btnEdit = $($tr + ' .icon-btn-edit');
+            var $noresiAwal = $noresiInitialSpan.text();
+
+            if ($btnEdit.hasClass('glyphicon-pencil')) {
+
+                alert('MASUK PENCIL' + $noresiInputBox.val());
+                //$totalAwal = convertToAngka($('#Faktur_BRUTO').val());
+                //$totalAwalBarang = parseInt(convertToAngka($($tr + ' .netto-barang').text()));
+                $btnEdit.parent().removeClass('btn-primary').addClass('btn-success');
+                $btnEdit.removeClass('glyphicon-pencil').addClass('glyphicon-floppy-disk');
+                $noresiInitialSpan.hide();
+                $noresiInputBox.val($noresiAwal).show();
+            } else {
+                if ($noresiInputBox.val() != '') {
+
+                    alert('MASUK SIMPAN' + $noresiInputBox.val());
+                    var noresiInitialBeforeValidation = $noresiInitialSpan.val();
+                    $noresiInitialSpan.text($noresiInputBox.val());//.show();
+                    simpanNoResiPesanan($idPesanan, $noresiInputBox, $btnEdit, $noresiInitialSpan, noresiInitialBeforeValidation);
+                } else {
+                    alert('Field No Resi Harus diisi!');
+                    $noresiInputBox.focus();
+                }
+        }
+    }
+
+    function simpanNoResiPesanan($idPesanan, $noresiInputBox, $btnEdit, $noresiInitialSpan, noresiInitialBeforeValidation) {
+            //if (!validateForm()) return false;
+        
+                $postdata = {
+                    idpesanan: $idPesanan,
+                    noresi : $noresiInputBox.val()
+                };
+
+
+                alert('MASUK SIMPAN no resi' + $noresiInputBox);
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json; charset=UTF-8",
+                    url: '@Url.Action("SaveNoResiPesananJDID", "Manage")',
+                    data: JSON.stringify($postdata),
+                    cache: false,
+                    beforeSend: function() {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+
+                        alert('MASUK respon');
+                        if (response.Errors == null) {
+                            $modeEdit = 1; // 0 new, 1 edit
+                            $btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
+                            $btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
+                            $noresiInitialSpan.show();
+                            $noresiInputBox.hide();
+
+                            //$('#form-partial').html(response);
+                            //$nettoSebelumnya = parseInt(convertToAngka($('#Faktur_NETTO').val()));
+                            //refreshInputan();
+
+                            ////change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
+                            //$('#btn-simpan-perubahan-row').hide();
+                            //$('#btn-autoload-row').hide();
+                            //$('tr[data-faktur-id="0"]').hide();
+                            $('#loading_spinner').hide();
+                        } else {
+                            //add by calvin 8 nov 2018, kembalikan value initial ke semula ( karena gagal save )
+                            $noresiInitialSpan.text(noresiInitialBeforeValidation);
+                            //end add by calvin 8 nov 2018
+                            console.log(response.Errors);
+                            alert(response.Errors);
+                            $('#loading_spinner').hide();
+                        }
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+        }
+
     function JDIDGetLabelPerPacking(cust,label) {
 
 
@@ -945,9 +1029,17 @@
                         <div class="col-md-4">
                         </div>
                         <div class="col-md-4 pull-right" style="text-align:right">
-                            @*<button id="btnProsesJOBJDID__@(item.CUST)" type="button" class="btn btn-primary pull-left" onclick="RequestJOBPackingJDID('@(item.CUST)')" style="width:50px; text-align:center;">JOB</button>*@
                             <button id="btnProsesPickupJDID__@(item.CUST)" type="button" class="btn btn-primary " onclick="ReadyToShipPackingJDID('@(item.CUST)')" @*style="width:121px; text-align:center;"*@>Ready to Ship</button>
-                            
+                            <div class=" btn-group pull-right" role="group" style="vertical-align: top;">
+                                <button id="pl_jdid_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Print <span class="caret"></span>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintJDID__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="JDIDGetLabelPerPacking('@(item.CUST)','1')">
+                                        <span aria-hidden="true"> Label Marketplace</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     @*<div class="row">
@@ -975,11 +1067,12 @@
                                 <tr role="row">
                                     <th class="sorting text-center center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; align-self:flex-start"><input type="checkbox" onclick="allcheckboxpackingjdidonclick('@item.CUST');" class="dt-checkboxes-select-all center" id="all_checkbox_packing_jdid__@item.CUST" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
                                     <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 15%;">No. Pesanan</th>
-                                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 20%;">No. Referensi</th>
+                                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 15%;">No. Referensi</th>
                                     <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">No. Resi</th>
-                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Status Kirim</th>
-                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 35%;">Nama Pemesan</th>
-                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Kurir</th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 10%;">Status Kirim</th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 30%;">Nama Pemesan</th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" style="width: 20%;">Kurir</th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" style="width: 15%;">Manage</th>
                                     @*<th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 10%;">Jumlah</th>*@
                                 </tr>
                             </thead>
@@ -1003,18 +1096,26 @@
                                             status_kirim = "";
                                             break;
                                     }
-                                    <tr>
-                                        <td style="text-align:center">
-                                            <input type="checkbox" class="dt-checkboxes center checkbox_packing_jdid" data-cust="@order.CUST" data-recnum="@order.so_recnum" data-bukti="@order.no_bukti" style="align-self:flex-start; width:30px; height:28px;" />
-                                        </td>
-                                        <td>@order.no_bukti</td>
-                                        <td>@order.no_referensi</td>
-                                        <td>@order.tracking_no</td>
-                                        <td>@status_kirim</td>
-                                        <td>@order.nama_pemesan</td>
-                                        <td>@order.kurir</td>
-                                        @*<td>@order.jumlah_item</td>*@
-                                    </tr>
+                                <tr data-barang-id="@order.no_bukti">
+                                    <td style="text-align:center">
+                                        <input type="checkbox" class="dt-checkboxes center checkbox_packing_jdid" data-cust="@order.CUST" data-recnum="@order.so_recnum" data-bukti="@order.no_bukti" style="align-self:flex-start; width:30px; height:28px;" />
+                                    </td>
+                                    <td>@order.no_bukti</td>
+                                    <td>@order.no_referensi</td>
+                                    <td>
+                                        <input type="text" class="noresi-input-box" style="display: none; width: 150px;" />
+                                        <span class="noresi-initial">@order.tracking_no</span>
+                                    </td>
+                                    <td>@status_kirim</td>
+                                    <td>@order.nama_pemesan</td>
+                                    <td>@order.kurir</td>
+                                    <td class="edit-hapus-col">
+                                        <button type="button" class="btn btn-primary" onclick="editNoResi('@order.no_bukti')">
+                                            <span class="icon-btn-edit glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                    @*<td>@order.jumlah_item</td>*@
+                                </tr>
                                 }
                             </tbody>
                         </table>

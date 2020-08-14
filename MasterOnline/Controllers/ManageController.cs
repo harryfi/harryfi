@@ -40380,6 +40380,29 @@ namespace MasterOnline.Controllers
             return PartialView(viewName, pageOrders);
         }
 
+        public ActionResult SaveNoResiPesananJDID(string idpesanan, string noresi)
+        {
+            try
+            {
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
+
+                if(noresi != null && idpesanan != null)
+                {
+                    var dataPesanan = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == idpesanan).SingleOrDefault();
+                    dataPesanan.TRACKING_SHIPMENT = noresi.ToString();
+                    ErasoftDbContext.SaveChanges();
+                    var successCount = listSuccess.Count();
+                    return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "No Resi Kosong." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses tambah no resi. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
         public ActionResult RequestPickupTokpedPerPacking(string cust, string bukti, List<string> rows_selected)
         {
             try
@@ -41444,8 +41467,8 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                //                var listErrors = new List<PackingListErrors>();
-                //                var listSuccess = new List<listSuccessPrintLabel>();
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
 
                 //                if (rows_selected != null)
                 //                {
@@ -41607,7 +41630,7 @@ namespace MasterOnline.Controllers
                 //                    }
                 //                }
 
-                //                var successCount = listSuccess.Count();
+                var successCount = listSuccess.Count();
                 return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
@@ -51992,6 +52015,259 @@ namespace MasterOnline.Controllers
             return ret;
         }
         //end add by nurul 23/12/2019
+
+        //add by fauzi
+        public ActionResult JDIDLabelPerPacking(string cust, string bukti, List<string> rows_selected, string label)
+        {
+            try
+            {
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                string sSQL2 = "";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+
+                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+
+                List<string> orderItemIds = new List<string>();
+                List<string> temp_htmlString = new List<string>();
+                List<string> temp_base64String = new List<string>();
+                List<string> temp_strmsg = new List<string>();
+                List<string> temp_strmsg_label = new List<string>();
+
+                //add by nurul 16/12/2019
+                bool gakketemulagi = false;
+                var tempLblTokped = new List<tempLabelTokopedia>();
+
+                var lastIndexHeader = 0;
+                var lastIndexResi = 0;
+                var lastIndexInvoice = 0;
+                var lastIndexInsurance = 0;
+                var lastIndexAddress = 0;
+                var lastIndexProduct = 0;
+
+                //end add by nurul 16/12/2019
+
+                var listNobuk = "";
+                var Valid = false;
+                //ADD BY NURUL 24/2/2020
+                if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
+                {
+                    if (marketPlace.STATUS_API == "1")
+                    {
+                        Valid = true;
+                    }
+                    else
+                    {
+                        return new JsonResult { Data = new { mo_error = "Account link status is expired." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                var string_detailSO = "";
+                foreach (var nobuk in ListStt01a)
+                {
+                    if (string_detailSO != "")
+                    {
+                        string_detailSO += ",";
+                    }
+
+                    string_detailSO += "'" + nobuk.no_bukti + "'";
+                }
+                string ssql = "SELECT ORDER_ITEM_ID,NO_BUKTI FROM SOT01B WHERE NO_BUKTI IN (" + string_detailSO + ") ";
+                var listDetailSo = ErasoftDbContext.Database.SqlQuery<ORDERITEMSO>(ssql).ToList();
+                var hitungDetail = listDetailSo.Count();
+
+                JDIDControllerJob.JDIDAPIDataJob data = new JDIDControllerJob.JDIDAPIDataJob
+                {
+                    no_cust = marketPlace.CUST,
+                    accessToken = marketPlace.TOKEN,
+                    appKey = marketPlace.API_KEY,
+                    appSecret = marketPlace.API_CLIENT_U,
+                    username = marketPlace.USERNAME,
+                    email = marketPlace.EMAIL,
+                    DatabasePathErasoft = dbPathEra
+                };
+                foreach (var so in ListStt01a)
+                {
+                    if (listNobuk != "")
+                    {
+                        listNobuk += ",";
+                    }
+                    listNobuk += "'" + so.no_bukti + "'";
+                    if (Valid)
+                    {
+                        var jdidjob = new JDIDControllerJob();
+                        var retApi = jdidjob.JD_printLabelJDID(data, so.no_referensi);
+                        if (retApi.Result.ToString().Contains("Error:"))
+                        {
+                            var strmsg = "No Bukti " + so.no_bukti + " " + retApi.ToString();
+                            temp_strmsg.Add(strmsg);
+                        }
+                        else if (retApi.Result.ToString().Contains("Halaman Tidak Ditemukan"))
+                        {
+                            var strmsg = "No Bukti " + so.no_bukti + " tidak ditemukan labelnya.";
+                            temp_strmsg.Add(strmsg);
+                        }
+                        else
+                        {
+                            var htmlString = retApi.Result;
+                            //EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + so.no_bukti + ")");
+                            var sql = "update SOT01A set status_print = '1' where no_bukti in ('" + so.no_bukti + "')";
+                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
+
+                            temp_base64String.Add(htmlString);
+                        }
+                    }
+                }
+
+                var htmlString_new = "";
+                for (int i = 0; i < temp_htmlString.Count; i++)
+                {
+                    htmlString_new += temp_htmlString[i];
+                }
+
+                while (!gakketemulagi)
+                {
+                    var idxHeader = htmlString_new.IndexOf("<table class=\"header\"", lastIndexHeader);
+
+                    if (idxHeader < 0) { gakketemulagi = true; break; }
+
+                    var idxEndHeader = htmlString_new.IndexOf("</table>", idxHeader);
+                    var getHeader = htmlString_new.Substring((idxHeader), (idxEndHeader - (idxHeader)));
+                    var header = getHeader + "</table>";
+
+                    lastIndexResi = idxEndHeader;
+                    var idxResi = htmlString_new.IndexOf("<img id=\"barcode-printout-1\"", lastIndexResi);
+                    var getResi = "";
+                    var idxEndResi = idxEndHeader;
+                    if (idxResi < (idxEndHeader + 3000) && idxResi > 0)
+                    {
+                        var idxResi2 = htmlString_new.IndexOf("alt=\"", idxResi);
+                        idxEndResi = htmlString_new.IndexOf("\" />", idxResi2);
+                        getResi = htmlString_new.Substring((idxResi2 + 5), (idxEndResi - (idxResi2 + 5)));
+                    }
+
+                    lastIndexInvoice = idxEndHeader;
+                    var idxInvoice = htmlString_new.IndexOf("<table class=\"meta\" cellspacing=\"0\" cellpadding=\"0\">", lastIndexInvoice);
+                    var Invoice = "";
+                    var idxEndInvoice = idxEndHeader;
+                    if (getResi == "")
+                    {
+                        idxEndInvoice = htmlString_new.IndexOf("</table>", idxInvoice);
+                        var getInvoice = htmlString_new.Substring((idxInvoice), (idxEndInvoice - (idxInvoice)));
+                        Invoice = getInvoice + "</table>";
+                    }
+                    else
+                    {
+                        var idxInvoice2 = htmlString_new.IndexOf("<img", idxInvoice);
+                        var getInvoice1 = htmlString_new.Substring((idxInvoice), (idxInvoice2 - (idxInvoice)));
+                        var idxInvoice3 = htmlString_new.IndexOf("<div", idxInvoice2);
+                        idxEndInvoice = htmlString_new.IndexOf("</table>", idxInvoice3);
+                        var getInvoice = htmlString_new.Substring((idxInvoice3), (idxEndInvoice - (idxInvoice3)));
+                        Invoice = getInvoice1 + getInvoice + "</table>";
+                    }
+
+                    lastIndexInsurance = idxEndInvoice;
+                    var idxInsurance = htmlString_new.IndexOf("<table class=\"insurance\"", lastIndexInsurance);
+                    var Insurance = "";
+                    var idxEndInsurance = idxEndInvoice;
+                    if (idxInsurance < (idxEndInvoice + 2000) && idxInsurance > 0)
+                    {
+                        idxEndInsurance = htmlString_new.IndexOf("</table>", idxInsurance);
+                        var getInsurance = htmlString_new.Substring((idxInsurance), (idxEndInsurance - (idxInsurance)));
+                        Insurance = getInsurance + "</table>";
+                    }
+
+                    lastIndexAddress = idxEndInsurance;
+                    var idxAddress = htmlString_new.IndexOf("<table class=\"shipment-address\"", lastIndexAddress);
+                    var idxEndAddress = htmlString_new.IndexOf("</table>", idxAddress);
+                    var getAddress = htmlString_new.Substring((idxAddress), (idxEndAddress - (idxAddress)));
+                    var Address = getAddress + "</table>";
+
+                    lastIndexProduct = idxEndAddress;
+                    var idxProduct = htmlString_new.IndexOf("<table class=\"products\"", lastIndexProduct);
+                    var idxEndProduct = htmlString_new.IndexOf("</table>", idxProduct);
+                    var getProduct = htmlString_new.Substring((idxProduct), (idxEndProduct - (idxProduct)));
+                    var Product = getProduct + "</table>";
+
+                    lastIndexHeader = idxEndHeader;
+                    lastIndexResi = idxEndResi;
+                    lastIndexInvoice = idxEndInvoice;
+                    lastIndexInsurance = idxEndInsurance;
+                    lastIndexAddress = idxEndAddress;
+                    lastIndexProduct = idxEndProduct;
+
+                    tempLblTokped.Add(new tempLabelTokopedia()
+                    {
+                        Header = header,
+                        Resi = getResi,
+                        Invoice = Invoice,
+                        Insurance = Insurance,
+                        Address = Address,
+                        Product = Product
+                    });
+                }
+
+
+                if (temp_strmsg.Count() > 0 && temp_htmlString.Count > 0)
+                {
+                    //return new JsonResult { Data = new { mo_error = temp_strmsg, mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    return new JsonResult { Data = new { mo_error = temp_strmsg, mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else if (temp_strmsg.Count() > 0)
+                {
+                    return new JsonResult { Data = new { mo_error = temp_strmsg }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    if (label == "1")
+                    {
+                        //return new JsonResult { Data = new { mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        //return Json(temp_htmlString, JsonRequestBehavior.AllowGet);
+                        return new JsonResult { Data = new { mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                    else if (label == "2")
+                    {
+                        return new JsonResult { Data = new { mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        //return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            return JsonErrorMessage("This Function is for Lazada only");
+        }
+        //end by fauzi
 
         //add by nurul 11/12/2019, cetak label pesanan
         public ActionResult CetakLabelMo(string cust, string bukti, string[] rows_selected, string toko, string tlpToko, string ctkLabel, string alLink, string noLink, string namaLink, string mpLink, string nobukLink, string totalLink, string portLink, string refLink, List<tempBarcodeLazada> data, string ketLink)

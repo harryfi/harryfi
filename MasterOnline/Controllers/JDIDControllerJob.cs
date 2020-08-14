@@ -1499,6 +1499,35 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public async Task<string> JD_printLabelJDID(JDIDAPIDataJob data, string noref)
+        {
+
+            string ret = "";
+
+            try
+            {
+                string sMethod = "epi.pop.order.print.uat1";
+                string sParamJson = "1027577635,1,1,\"PDF\""; //orderId, printType, packageNum, imageType //example: "1027577635,1,1,\"PDF\""
+
+                var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
+                var result = JsonConvert.DeserializeObject(response, typeof(JDID_RESJob)) as JDID_RESJob;
+                if (result != null)
+                {
+                    if (result.openapi_msg.ToLower() == "success")
+                    {
+                        //var test = result;
+                        ret = "tes";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return ret;
+        }
+
         public void UpdateStock(JDIDAPIDataJob data, string id, int stok)
         {
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
