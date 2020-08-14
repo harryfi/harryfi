@@ -75,6 +75,7 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Qty Pesanan</th>
                 @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Sisa Qty</th>*@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Qty Siap Jual</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 45px;">Refresh Stok</th>
                 @*end add by nurul*@
                 @* remark by nurul 28/8/2018 -- <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 45px;">Edit</th>
         <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 45px;">Hapus</th>*@
@@ -122,7 +123,17 @@
                     }
                 </td>
                 <td>@(barang.QOH - barang.QOO)</td>
-
+                <td class="edit-hapus-col">
+                    <div id="btnRefresh_@barang.ID">
+                        <button class="btn" onclick="UpdateStokPerBarang('@barang.BRG.Replace("\\","\\\\").Replace("'","\\'")', '@barang.ID')">
+                            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                   
+                    <div id="loading_@barang.ID" style="display:none;">
+                        <img src="~/Content/Images/spinner.gif" style="width:25px;height:25px;"/>
+                    </div>
+                </td>
                 @*end add by nurul*@
                 @* remark by nurul 28/8/2018 -- <td class="edit-hapus-col">
             <button class="btn btn-primary" onclick="editBarang('@barang.BRG')">
