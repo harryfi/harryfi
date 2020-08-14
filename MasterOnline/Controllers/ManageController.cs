@@ -29377,7 +29377,7 @@ namespace MasterOnline.Controllers
             var stokOpDb = ErasoftDbContext.STT04A.Where(a => a.ID == stokOpId).Single();
             //add by nurul 11/8/2020
             var ssql1 = "";
-            ssql1 += "select count(bukti) from stf09a where tgl > '" + stokOpDb.TGL + "'";
+            ssql1 += "select count(bukti) from stf09a where tgl > '" + stokOpDb.TGL?.ToString("yyyy-MM-dd") + "'";
             var cekSTF09A = ErasoftDbContext.Database.SqlQuery<int>(ssql1).Single();
             if (cekSTF09A > 0)
             {
@@ -29482,6 +29482,9 @@ namespace MasterOnline.Controllers
                         stokOpnameB.Ke_Gd = "";
                         stokOpnameB.Dr_Gd = item.Gud;
                         stokOpnameB.Qty = selisihOK;
+                        //add by nurul 14/8/2020, jenis form u/ OK d set jd 0 biar berhasil k posting 
+                        stokOpnameB.Jenis_Form = 0;
+                        //end add by nurul 14/8/2020, jenis form u/ OK d set jd 0 biar berhasil k posting 
 
                         jmRowOK++;
 
@@ -29491,6 +29494,9 @@ namespace MasterOnline.Controllers
                             stokOpnameA.Nobuk = noStokOK;
                             stokOpnameA.JTran = "K";
                             stokOpnameA.MK = "K";
+                            //add by nurul 14/8/2020, jenis form u/ OK d set jd 0 biar berhasil k posting 
+                            stokOpnameA.Jenis_Form = 0;
+                            //end add by nurul 14/8/2020, jenis form u/ OK d set jd 0 biar berhasil k posting 
                             newSTT01A.Add(stokOpnameA);
                             ErasoftDbContext.STT01A.AddRange(newSTT01A);
                         }
