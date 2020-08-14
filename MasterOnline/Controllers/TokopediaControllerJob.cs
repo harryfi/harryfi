@@ -220,7 +220,7 @@ namespace MasterOnline.Controllers
             if (responseFromServer != "")
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CreateProductGetStatusResult)) as CreateProductGetStatusResult;
-                if (result.header.error_code == 0)
+                //if (result.header.error_code == "")
                 {
                     //if (result.data.upload_data.Count() > 0)
                     if (result.data != null)
@@ -270,13 +270,13 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                else
-                {
-                    currentLog.REQUEST_RESULT = result.header.reason;
-                    currentLog.REQUEST_EXCEPTION = result.header.messages;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                    throw new Exception(result.header.messages + ";" + result.header.reason);
-                }
+                //else
+                //{
+                //    currentLog.REQUEST_RESULT = result.header.reason;
+                //    currentLog.REQUEST_EXCEPTION = result.header.messages;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                //    throw new Exception(result.header.messages + ";" + result.header.reason);
+                //}
             }
 
             return ret;
@@ -334,14 +334,18 @@ namespace MasterOnline.Controllers
                         throw new Exception(err);//add by Tri 23 apr 2020
                     }
                 }
-                throw new Exception(e.Message);//add by Tri 23 apr 2020
+                else
+                {
+                    throw e;
+                }
+                //throw new Exception(e.Message);//add by Tri 23 apr 2020
             }
 
             if (responseFromServer != "")
             {
 
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CreateProductGetStatusResult)) as CreateProductGetStatusResult;
-                if (result.header.error_code == 0)
+                //if (result.header.error_code == "")
                 {
                     //if (result.data.upload_data.Count() > 0)
                     if (result.data != null)
@@ -391,13 +395,13 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                else
-                {
-                    currentLog.REQUEST_RESULT = result.header.reason;
-                    currentLog.REQUEST_EXCEPTION = result.header.messages;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                    throw new Exception(result.header.messages + ";" + result.header.reason);
-                }
+                //else
+                //{
+                //    currentLog.REQUEST_RESULT = result.header.reason;
+                //    currentLog.REQUEST_EXCEPTION = result.header.messages;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                //    throw new Exception(result.header.messages + ";" + result.header.reason);
+                //}
             }
 
             return ret;
@@ -414,7 +418,7 @@ namespace MasterOnline.Controllers
             public float process_time { get; set; }
             public string messages { get; set; }
             public string reason { get; set; }
-            public int error_code { get; set; }
+            //public int error_code { get; set; }
         }
 
         public class CreateProductGetStatusResultData
@@ -1080,42 +1084,53 @@ namespace MasterOnline.Controllers
                 //HttpResponseMessage response;
                 //response = await client.SendAsync(request);
                 //responseFromServer = await response.Content.ReadAsStringAsync();
-                //try
-                //{
-
-                client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
-                var content = new StringContent(myData, Encoding.UTF8, "application/json");
-                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-                HttpResponseMessage clientResponse = await client.PostAsync(
-                    urll, content);
-
-                using (HttpContent responseContent = clientResponse.Content)
+                try
                 {
-                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+
+                    //    client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
+                    //var content = new StringContent(myData, Encoding.UTF8, "application/json");
+                    //content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+                    //HttpResponseMessage clientResponse = await client.PostAsync(
+                    //    urll, content);
+
+                    //using (HttpContent responseContent = clientResponse.Content)
+                    //{
+                    //    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                    //    {
+                    //        responseFromServer = await reader.ReadToEndAsync();
+                    //    }
+                    //};
+                    var request = new HttpRequestMessage(new HttpMethod("PATCH"), urll);
+                    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", iden.token);
+                    request.Content = new StringContent(myData, System.Text.Encoding.UTF8, "application/json");
+                    HttpResponseMessage response;
+                    response = await client.SendAsync(request);
+                    responseFromServer = await response.Content.ReadAsStringAsync();
+                }
+                catch (WebException e)
+                {
+                    string err = "";
+                    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    if (e.Status == WebExceptionStatus.ProtocolError)
                     {
-                        responseFromServer = await reader.ReadToEndAsync();
+                        WebResponse resp = e.Response;
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            err = sr.ReadToEnd();
+                        }
+                        throw new Exception(err);
                     }
-                };
-                //}
-                //catch (WebException e)
-                //{
-                //    string err = "";
-                //    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                //    if (e.Status == WebExceptionStatus.ProtocolError)
-                //    {
-                //        WebResponse resp = e.Response;
-                //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-                //        {
-                //            err = sr.ReadToEnd();
-                //        }
-                //    }
-                //}
+                    else
+                    {
+                        throw e;
+                    }
+                }
 
                 if (responseFromServer != "")
                 {
                     var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedCreateProductResult)) as TokpedCreateProductResult;
-                    if (result.header.error_code == 0)
+                    //if (result.header.error_code == "")
                     {
                         //change by calvin 9 juni 2019
                         //await EditProductGetStatus(iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id);
@@ -1130,13 +1145,13 @@ namespace MasterOnline.Controllers
 #endif
                         //end change by calvin 9 juni 2019
                     }
-                    else
-                    {
-                        currentLog.REQUEST_RESULT = result.header.reason;
-                        currentLog.REQUEST_EXCEPTION = result.header.messages;
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                        throw new Exception(result.header.messages + ";" + result.header.reason);
-                    }
+                    //else
+                    //{
+                    //    currentLog.REQUEST_RESULT = result.header.reason;
+                    //    currentLog.REQUEST_EXCEPTION = result.header.messages;
+                    //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    //    throw new Exception(result.header.messages + ";" + result.header.reason);
+                    //}
                 }
                 //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                 //myReq.Method = "POST";
@@ -1198,25 +1213,38 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            catch (Exception ex)
+            catch (WebException e)
             {
+                string err = e.Message;
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                    throw new Exception(err);
+                }
+                throw e;
             }
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaController.TokpedGetItemDetail)) as TokopediaController.TokpedGetItemDetail;
                 bool adaError = false;
-                if (result.header != null)
-                {
-                    //if (result.data.Count() == 0)
-                    //{
-                    //    adaError = true;
-                    //}
-                    if (result.header.error_code != 0)
-                    {
-                        adaError = true;
-                    }
+                //if (result.header != null)
+                //{
+                //    //if (result.data.Count() == 0)
+                //    //{
+                //    //    adaError = true;
+                //    //}
+                //    if (!string.IsNullOrEmpty(result.header.error_code))
+                //    {
+                //        adaError = true;
+                //    }
 
-                }
+                //}
                 if (result.data != null)
                     if (!adaError)
                     {
@@ -1754,9 +1782,9 @@ namespace MasterOnline.Controllers
                     REQUEST_STATUS = "Pending",
                 };
                 manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-                //try
-                //{
-                var client = new HttpClient();
+                try
+                {
+                    var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
                 var content = new StringContent(myData, Encoding.UTF8, "application/json");
                 content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
@@ -1769,27 +1797,29 @@ namespace MasterOnline.Controllers
                     {
                         responseFromServer = await reader.ReadToEndAsync();
                     }
-                };
-                //}
-                //catch (WebException e)
-                //{
-                //    string err = "";
-                //    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                //    if (e.Status == WebExceptionStatus.ProtocolError)
-                //    {
-                //        WebResponse resp = e.Response;
-                //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-                //        {
-                //            err = sr.ReadToEnd();
-                //        }
-                //    }
-                //}
+                    };
+                }
+                catch (WebException e)
+                {
+                    string err = "";
+                    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    if (e.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        WebResponse resp = e.Response;
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            err = sr.ReadToEnd();
+                        }
+                        throw new Exception(err);
+                    }
+                    throw e;
+                }
 
                 if (responseFromServer != "")
                 {
                     var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedCreateProductResult)) as TokpedCreateProductResult;
-                    if (result.header.error_code == 0)
+                    //if (result.header.error_code == 0)
                     {
                         //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
                         //change by calvin 9 juni 2019
@@ -1805,13 +1835,13 @@ namespace MasterOnline.Controllers
                         //end change by calvin 9 juni 2019
 #endif
                     }
-                    else
-                    {
-                        currentLog.REQUEST_RESULT = result.header.reason;
-                        currentLog.REQUEST_EXCEPTION = result.header.messages;
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                        throw new Exception(result.header.messages + ";" + result.header.reason);
-                    }
+                    //else
+                    //{
+                    //    currentLog.REQUEST_RESULT = result.header.reason;
+                    //    currentLog.REQUEST_EXCEPTION = result.header.messages;
+                    //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    //    throw new Exception(result.header.messages + ";" + result.header.reason);
+                    //}
                 }
                 //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                 //myReq.Method = "POST";
@@ -2395,7 +2425,7 @@ namespace MasterOnline.Controllers
                     if (responseFromServer != null)
                     {
                         TokpedSingleOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedSingleOrderResult)) as TokpedSingleOrderResult;
-                        if (result.header.error_code == 0)
+                        //if (result.header.error_code == "")
                         {
                             var tempAWB = result.data.order_info.shipping_info.awb;
                             if (tempAWB != null && tempAWB != "")
@@ -2474,7 +2504,7 @@ namespace MasterOnline.Controllers
                 if (responseFromServer != null)
                 {
                     TokpedSingleOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedSingleOrderResult)) as TokpedSingleOrderResult;
-                    if (result.header.error_code == 0)
+                    //if (result.header.error_code == "")
                     {
                         var tempAWB = result.data.order_info.shipping_info.awb;
                         if (tempAWB != null && tempAWB != "")
@@ -3764,7 +3794,7 @@ namespace MasterOnline.Controllers
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaSingleOrder)) as TokopediaSingleOrder;
                 if (result != null)
                 {
-                    if (result.header.error_code == 0)
+                    //if (result.header.error_code == 0)
                     {
                         if (result.data.cancel_request_info != null)
                         {
@@ -4162,27 +4192,46 @@ namespace MasterOnline.Controllers
                 {
                     dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 }
-                using (WebResponse response = await myReq.GetResponseAsync())
+                try
                 {
-                    using (Stream stream = response.GetResponseStream())
+                    using (WebResponse response = await myReq.GetResponseAsync())
                     {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                        //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        }
                     }
+                }
+                catch (WebException e)
+                {
+                    string err = "";
+                    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    if (e.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        WebResponse resp = e.Response;
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            err = sr.ReadToEnd();
+                        }
+                        throw new Exception(err);
+                    }
+                    throw e;
                 }
                 if (responseFromServer != "")
                 {
                     var result = JsonConvert.DeserializeObject(responseFromServer, typeof(UpdatePriceResponse)) as UpdatePriceResponse;
                     if (result != null)
                     {
-                        if (result.header.error_code != 0)
-                        {
-                            currentLog.REQUEST_EXCEPTION = (result.header.reason ?? result.header.messages);
-                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                            throw new Exception(currentLog.REQUEST_EXCEPTION);
-                        }
-                        else
+                        //if (result.header.error_code != 0)
+                        //{
+                        //    currentLog.REQUEST_EXCEPTION = (result.header.reason ?? result.header.messages);
+                        //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        //    throw new Exception(currentLog.REQUEST_EXCEPTION);
+                        //}
+                        //else
                         {
                             if (result.data != null)
                             {
@@ -4273,20 +4322,41 @@ namespace MasterOnline.Controllers
                 client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
                 HttpResponseMessage clientResponse = await client.GetAsync(
                     urll + queryParam);
-
-                using (HttpContent responseContent = clientResponse.Content)
+                try
                 {
-                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                    using (HttpContent responseContent = clientResponse.Content)
                     {
-                        responseFromServer = await reader.ReadToEndAsync();
+                        using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                        {
+                            responseFromServer = await reader.ReadToEndAsync();
+                        }
+                    };
+                }
+                catch (WebException e)
+                {
+                    string err = e.Message;
+                    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    if (e.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        WebResponse resp = e.Response;
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            err = sr.ReadToEnd();
+                        }
                     }
-                };
+                    else
+                    {
+                        throw e;
+                    }
+                    throw new Exception(err);
+                }
 
                 if (!string.IsNullOrWhiteSpace(responseFromServer))
                 {
                     //var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductListResult)) as ActiveProductListResult;
                     var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaController.TokpedGetListItemV2)) as TokopediaController.TokpedGetListItemV2;
-                    if (result.header.error_code == 0)
+                    //if (result.header.error_code == 0)
                     {
                         foreach (var item in result.data)
                         {
@@ -4651,9 +4721,9 @@ namespace MasterOnline.Controllers
             myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
             myReq.Accept = "application/x-www-form-urlencoded";
             myReq.ContentType = "application/json";
-            //try
-            //{
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
             {
                 using (Stream stream = response.GetResponseStream())
                 {
@@ -4661,17 +4731,31 @@ namespace MasterOnline.Controllers
                     responseFromServer = reader.ReadToEnd();
                 }
             }
-            //}
-            //catch (Exception ex)
-            //{
-            //    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-            //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-            //}
+            }
+            catch (WebException e)
+            {
+                string err = e.Message;
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+                else
+                {
+                    throw e;
+                }
+                throw new Exception(err);
+            }
 
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductVariantResult)) as ActiveProductVariantResult;
-                if (result.header.error_code == 0)
+                //if (result.header.error_code == 0)
                 {
                     var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                     var createBrg = true;
@@ -4812,16 +4896,30 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            catch (Exception ex)
+            catch (WebException e)
             {
+                string err = e.Message;
                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+                else
+                {
+                    throw e;
+                }
+                throw new Exception(err);
             }
 
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductVariantResult)) as ActiveProductVariantResult;
-                if (result.header.error_code == 0)
+                //if (result.header.error_code == 0)
                 {
                     List<TEMP_BRG_MP> listNewData = new List<TEMP_BRG_MP>();
 
@@ -5356,7 +5454,7 @@ namespace MasterOnline.Controllers
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariantResult)) as GetVariantResult;
                 //if (string.IsNullOrEmpty(result.header.reason))
-                if (result.header.error_code == 0)
+                //if (result.header.error_code == 0)
                 {
                     try
                     {
@@ -5867,7 +5965,7 @@ namespace MasterOnline.Controllers
             public float process_time { get; set; }
             public string messages { get; set; }
             public string reason { get; set; }
-            public int error_code { get; set; }
+            //public int error_code { get; set; }
         }
 
         public class categoryAPIResultData
@@ -5976,7 +6074,7 @@ namespace MasterOnline.Controllers
             public float process_time { get; set; }
             public string messages { get; set; }
             public string reason { get; set; }
-            public int error_code { get; set; }
+            //public int error_code { get; set; }
         }
 
         public class ActiveProductVariantResultData
@@ -6192,7 +6290,7 @@ namespace MasterOnline.Controllers
             public float process_time { get; set; }
             public string messages { get; set; }
             public string reason { get; set; }
-            public int error_code { get; set; }
+            //public int error_code { get; set; }
         }
 
         public class GetVariantResultData
@@ -6436,7 +6534,7 @@ namespace MasterOnline.Controllers
             public float process_time { get; set; }
             public string messages { get; set; }
             public string reason { get; set; }
-            public int error_code { get; set; }
+            //public int error_code { get; set; }
         }
 
         public class TokpedCreateProductResultData
@@ -6456,7 +6554,7 @@ namespace MasterOnline.Controllers
             public float process_time { get; set; }
             public string messages { get; set; }
             public string reason { get; set; }
-            public int error_code { get; set; }
+            //public int error_code { get; set; }
         }
 
         public class TokopediaSingleOrderData
@@ -7124,7 +7222,7 @@ namespace MasterOnline.Controllers
             //public float process_time { get; set; }
             public string messages { get; set; }
             public string reason { get; set; }
-            public int error_code { get; set; }
+            //public int error_code { get; set; }
         }
 
         public class UpdatePriceResponseData

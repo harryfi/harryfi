@@ -2426,12 +2426,12 @@ namespace MasterOnline.Controllers
                 //change by Tri 15 apr 2020, message ada isi nya saat sukses
                 //if (!string.IsNullOrWhiteSpace(result.header.messages))
                 if(result != null)
-                if(result.header.error_code != 0)
-                //end change by Tri 15 apr 2020, message ada isi nya saat sukses
-                    {
+                //if(result.header.error_code != 0)
+                ////end change by Tri 15 apr 2020, message ada isi nya saat sukses
+                //    {
 
-                    }
-                else
+                //    }
+                //else
                 {
                     var a = result.data.FirstOrDefault();
                     if (a != null)
@@ -2455,7 +2455,7 @@ namespace MasterOnline.Controllers
             public float process_time { get; set; }
             public string messages { get; set; }
             public string reason { get; set; }
-            public int error_code { get; set; }
+            //public int error_code { get; set; }
         }
 
         public class Tokped_updateStockResultData
@@ -2488,7 +2488,7 @@ namespace MasterOnline.Controllers
             public float process_time { get; set; }
             public string messages { get; set; }
             public string reason { get; set; }
-            public int error_code { get; set; }
+            //public int error_code { get; set; }
         }
 
         public class TokpedGetProductInfoDatum
