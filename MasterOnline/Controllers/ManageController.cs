@@ -16373,6 +16373,10 @@ namespace MasterOnline.Controllers
             {
                 sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_FAKTUR ASC ";
             }
+            else if(search != "")
+            {
+                sSQLSelect2 += "ORDER BY A.NO_FAKTUR DESC ";
+            }
             else
             {
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_FAKTUR DESC ";
