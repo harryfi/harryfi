@@ -718,8 +718,9 @@
                                     var ATYPE = item["ATYPE_" + (a + 1)];
                                     var ANAME = item["ANAME_" + (a + 1)];
                                     var AOPTIONS = item["AOPTIONS_" + (a + 1)];
+                                    var AVARCREATE = item["AVARCREATE_" + (a + 1)];
                                     //if (ATYPE == "DEFINING_ATTRIBUTE") {
-                                    if (ATYPE == "DEFINING_ATTRIBUTE" && ACODE != "FA-2000060") {
+                                    if ((ATYPE == "DEFINING_ATTRIBUTE" && ACODE != "FA-2000060") || AVARCREATE == "1") {
                                         if (ACODE != null && ACODE != "") {
                                             SelectList[counter] = {
                                                 id: ACODE,
@@ -750,7 +751,7 @@
                                 onChange: function (value) {
                                     $('#txtJudulVariantBlibliLv1').val(value);
                                     SearchOptVariantBlibli(1, value, data.attribute_opt);
-                                    if (value == "WA-0000002") {//warna
+                                    if (value.includes("WA-")) {//warna
                                         ComboBoxColorFamilyBliBli(1, true);
                                     } else {
                                         ComboBoxColorFamilyBliBli(1, false);
@@ -784,7 +785,7 @@
                                 onChange: function (value) {
                                     $('#txtJudulVariantBlibliLv2').val(value);
                                     SearchOptVariantBlibli(2, value, data.attribute_opt);
-                                    if (value == "WA-0000002") {//warna
+                                    if (value.includes("WA-")) {//warna
                                         ComboBoxColorFamilyBliBli(2, true);
                                     } else {
                                         ComboBoxColorFamilyBliBli(2, false);

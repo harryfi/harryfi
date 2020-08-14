@@ -6059,6 +6059,7 @@ namespace MasterOnline.Controllers
             public string attributeType { get; set; }
             public string name { get; set; }
             public List<string> options { get; set; }
+            public bool variantCreation { get; set; }
         }
 
 
@@ -6174,6 +6175,7 @@ namespace MasterOnline.Controllers
                             returnData["ATYPE_" + a] = Convert.ToString(attribs.attributeType);
                             returnData["ANAME_" + a] = Convert.ToString(attribs.name);
                             returnData["AOPTIONS_" + a] = attribs.options.Count > 0 ? "1" : "0";
+                            returnData["AVARCREATE_" + a] = attribs.variantCreation ? "1" : "0";
 
                             if (attribs.options.Count() > 0)
                             {
@@ -7257,9 +7259,10 @@ namespace MasterOnline.Controllers
                 string attribute_id = Convert.ToString(attribute["ACODE_" + i.ToString()]);
                 string attribute_name = Convert.ToString(attribute["ANAME_" + i.ToString()]);
                 string attribute_type = Convert.ToString(attribute["ATYPE_" + i.ToString()]);
+                string attribute_vc = Convert.ToString(attribute["AVARCREATE_" + i.ToString()]);
                 if (!string.IsNullOrWhiteSpace(attribute_id))
                 {
-                    if (attribute_type == "DEFINING_ATTRIBUTE" || attribute_name == "Warna")
+                    if (attribute_type == "DEFINING_ATTRIBUTE" || attribute_vc == "1")
                     {
                         dsVariasi.Add(attribute_id);
                     }
