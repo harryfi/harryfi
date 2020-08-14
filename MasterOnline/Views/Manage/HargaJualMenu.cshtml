@@ -337,16 +337,23 @@
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-m12">
-                                <b>Masukkan harga jual yang baru:</b>
-                                <input type="text" id="HJUALBARU82Cart" name="HJUALBARU82Cart" class="form-control" style="margin-top: 10px;" />
+                                <b>Masukkan harga jual baru:</b>
+                                <input type="text" id="HJUALBARU82Cart" name="HJUALBARU82Cart" value="27000"  class="form-control" style="margin-top: 10px;" />
+                                <input type="hidden" id="HJUALBARU82CartTemp" name="HJUALBARU82CartTemp" disabled="disabled" class="form-control" style="margin-top: 10px;" />
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 10px;">
+                            <div class="col-m12">
+                                <b>Dampak (+/-) harga jual baru dengan lama :</b>
+                                <input type="text" id="HJUALBARU82CartDampak" name="HJUALBARU82CartDampak" disabled="disabled" class="form-control" style="margin-top: 10px;" />
                             </div>
                         </div>
                         @*<div class="row">
-                                <div class="col-m12">
-                                    <b>Masukkan harga grosir yang baru:</b>
-                                    <input type="text" id="HJUALPROMOSIBARU82Cart" name="HJUALPROMOSIBARU82Cart" class="form-control" style="margin-top: 10px;" />
-                                </div>
-                            </div>*@
+            <div class="col-m12">
+                <b>Masukkan harga grosir yang baru:</b>
+                <input type="text" id="HJUALPROMOSIBARU82Cart" name="HJUALPROMOSIBARU82Cart" class="form-control" style="margin-top: 10px;" />
+            </div>
+        </div>*@
                     </div>
                 </div>
             </div>
@@ -484,6 +491,36 @@
 
                 });
 
+
+                $('#HJUALBARU82Cart').change(function () {
+                    var hargaInput = parseInt($(this).val());
+                    var hargaAwal = parseInt($('#HJUALBARU82CartTemp').val());
+                    var hargaAkhir = "";
+                    var kondisi = (hargaInput > hargaAwal) ? true : false;
+                    if (kondisi) {
+                        hargaAkhir = (hargaInput - hargaAwal);
+                        var adaMin = " " + hargaAkhir;
+                        adaMin = adaMin.substr(0, 2);
+                        if (adaMin == " -") {
+                            hargaAkhir = hargaAkhir;
+                        } else {
+                            hargaAkhir = "+" + hargaAkhir;
+                        }
+                    } else {
+                        hargaAkhir = (hargaAwal - hargaInput);
+                        var adaMin2 = " " + hargaAkhir;
+                        adaMin2 = adaMin2.substr(0, 2);
+                        if (adaMin2 == " -") {
+                            hargaAkhir = hargaAkhir;
+                        } else {
+                            hargaAkhir = "-" + hargaAkhir;
+                        }
+                    }
+
+                    $('#HJUALBARU82CartDampak').val(hargaAkhir);
+
+                });
+                
             });
         //add by Tri, 27 Mei 2019
         function exportExcel() {
@@ -715,16 +752,21 @@
             $('#HJUALPROMOSIBARUBlibli').val('');
         }
 
-        function pass82Cart(recNum, kdBrg, nmBrg, nmMp, hjual, hpromosi) {
+        function pass82Cart(recNum, kdBrg, nmBrg, nmMp, hjual, hjualasli) {
             $recNum = recNum;
             $('#kodeBarang82Cart').text(kdBrg);
             $('#namaBarang82Cart').text(nmBrg);
             $('#labelAkunMp82Cart').text(nmMp);
             $('#hJualAwal82Cart').text(hjual);
-            $('#hJualGrosirAwal82Cart').text(hpromosi);
+            $('#hJualGrosirAwal82Cart').text(hjualasli);
 
             $('#HJUALBARU82Cart').val('');
             $('#HJUALPROMOSIBARU82Cart').val('');
+
+            //add by fauzi for edit harga jual barang 82Cart
+            $('#HJUALBARU82CartTemp').val(hjualasli);
+            $('#HJUALBARU82CartDampak').val('');
+            //end add
         }
 
         function saveHargaJualBaruBlibli() {
@@ -768,12 +810,14 @@
         }
 
         function saveHargaJualBaru82Cart() {
-            var link = '@Html.Raw(Url.Action("UbahHargaJual82Cart", "Manage", new { recNum = "replaceRecNum", hargaJualGrosirBaru = "replaceHargaGrosirBaru", hargaJualIndukBaru = "replaceHargaBaru" }))';
+            var link = '@Html.Raw(Url.Action("UbahHargaJual82Cart", "Manage", new { recNum = "replaceRecNum", hargaJualDampakBaru = "replaceHargaDampakBaru", hargaJualIndukBaru = "replaceHargaBaru"}))';
             link = link.replace("replaceRecNum", encodeURIComponent($recNum));
             link = link.replace("replaceHargaBaru", encodeURIComponent($('#HJUALBARU82Cart').val()));
             //diremark karena untuk mengubah price dasar saja
             //link = link.replace("replaceHargaGrosirBaru", encodeURIComponent($('#HJUALPROMOSIBARU82Cart').val()));
-            link = link.replace("replaceHargaGrosirBaru", encodeURIComponent($('#HJUALBARU82Cart').val()));
+            //link = link.replace("replaceHargaGrosirBaru", encodeURIComponent($('#HJUALBARU82Cart').val())); //remark by fauzi
+            var hargaDampak = $('#HJUALBARU82CartDampak').val();
+            link = link.replace("replaceHargaDampakBaru", encodeURIComponent(hargaDampak.replace("+", "")));
             var filterBy = encodeURIComponent($('#filter_pencarian_field').val());
             //var filterBy = "";
 

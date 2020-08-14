@@ -10311,9 +10311,9 @@ namespace MasterOnline.Controllers
                                                     //    if (brg_mp[1] == "0")
                                                     //    {
 #if (Debug_AWS || DEBUG)
-                                                    Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0)).Wait();
+                                                    Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, "0")).Wait();
 #else
-                                                clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0));
+                                                clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, "0"));
 #endif
                                                     //Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0)).Wait();
                                                     //}
@@ -10492,9 +10492,9 @@ namespace MasterOnline.Controllers
                                                     //    if (brg_mp[1] == "0")
                                                     //    {
 #if (Debug_AWS || DEBUG)
-                                                    Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0)).Wait();
+                                                    Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, "0")).Wait();
 #else
-                                                    clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0));
+                                                    clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, "0"));
 #endif
                                                     //Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0)).Wait();
                                                     //}
@@ -33541,7 +33541,7 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
-        public ActionResult UbahHargaJual82Cart(int? recNum, double hargaJualGrosirBaru, double hargaJualIndukBaru)
+        public ActionResult UbahHargaJual82Cart(int? recNum, string hargaJualDampakBaru, double hargaJualIndukBaru)
         {
             var ret = new ReturnJson();
             var hJualInDb = ErasoftDbContext.STF02H.SingleOrDefault(h => h.RecNum == recNum);
@@ -33556,20 +33556,20 @@ namespace MasterOnline.Controllers
             var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.RecNum == hJualInDb.IDMARKET);
             if (customer.NAMA.Equals(kd82Cart))
             {
-                if (hargaJualIndukBaru < 0)
-                {
-                    ret.message = "Harga Jual minimal 0.";
-                    return Json(ret, JsonRequestBehavior.AllowGet);
-                }
-                if (hargaJualGrosirBaru < 0)
-                {
-                    ret.message = "Harga Jual Grosir minimal 0.";
-                    return Json(ret, JsonRequestBehavior.AllowGet);
-                }
+                //if (hargaJualIndukBaru < 0)
+                //{
+                //    ret.message = "Harga Jual minimal 0.";
+                //    return Json(ret, JsonRequestBehavior.AllowGet);
+                //}
+                //if (hargaJualGrosirBaru < 0)
+                //{
+                //    ret.message = "Harga Jual Grosir minimal 0.";
+                //    return Json(ret, JsonRequestBehavior.AllowGet);
+                //}
             }
             brg.HJUAL = hargaJualIndukBaru;
             brg.Tgl_Input = DateTime.Today;
-            hJualInDb.HJUAL = hargaJualGrosirBaru;
+            hJualInDb.HJUAL = hargaJualIndukBaru;
             ErasoftDbContext.SaveChanges();
 
             if (!string.IsNullOrEmpty(hJualInDb.BRG_MP))//add by Tri, 24-06-2019
@@ -33597,11 +33597,11 @@ namespace MasterOnline.Controllers
                         else
                         {
 #if (DEBUG || Debug_AWS)
-                            Task.Run(() => v82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, (int)hargaJualGrosirBaru)).Wait();
+                            Task.Run(() => v82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, hargaJualDampakBaru)).Wait();
 #else
                             var sqlStorage = new SqlServerStorage(EDBConnID);
                         var clientJobServer = new BackgroundJobClient(sqlStorage);
-                        clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, (int)hargaJualGrosirBaru));
+                        clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, hargaJualDampakBaru));
 #endif
                         }
                     }
