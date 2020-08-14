@@ -37127,7 +37127,7 @@ namespace MasterOnline.Controllers
                                     }
                                 case "BLIBLI":
                                     var BliApi = new BlibliController();
-                                    if (string.IsNullOrEmpty(arf01.TOKEN))
+                                    if (string.IsNullOrEmpty(arf01.TOKEN) && arf01.KD_ANALISA != "2")
                                     {
                                         return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
                                     }
