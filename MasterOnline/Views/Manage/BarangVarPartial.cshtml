@@ -749,6 +749,9 @@
                                 searchField: 'text',
                                 options: SelectList,
                                 onChange: function (value) {
+                                    if ($('#txtJudulVariantBlibliLv1').val() != '' && $('#txtJudulVariantBlibliLv1').val() != value) {
+                                        $('.txtVariantBlibliLv1_').val('');
+                                    }
                                     $('#txtJudulVariantBlibliLv1').val(value);
                                     SearchOptVariantBlibli(1, value, data.attribute_opt);
                                     if (value.includes("WA-")) {//warna
@@ -783,6 +786,9 @@
                                 searchField: 'text',
                                 options: SelectList,
                                 onChange: function (value) {
+                                    if ($('#txtJudulVariantBlibliLv2').val() != '' && $('#txtJudulVariantBlibliLv2').val() != value) {
+                                        $('.txtVariantBlibliLv2_').val('');
+                                    }
                                     $('#txtJudulVariantBlibliLv2').val(value);
                                     SearchOptVariantBlibli(2, value, data.attribute_opt);
                                     if (value.includes("WA-")) {//warna
@@ -869,7 +875,7 @@
                                                 //}
                                             }
                                         }
-                                //    }                                    
+                                //    }
                                 //}
                             });
                         }
@@ -968,44 +974,66 @@
                 });
             });
         } else {
+            $('.selectVariantBlibliLv' + level + '_').show();
             $(".selectVariantBlibliLv" + level + "_").each(function (i, item) {
                 //var data_recnum = $(item).attr("data-recnum");
                 var data_recnum = $($(item).closest('.tampungdatarecnum')).attr('data-recnum');
                 var len = SelectList.length;
 
-                var attributeOptSelect = $(item).selectize({
-                    maxItems: 1,
-                    valueField: 'id',
-                    searchField: 'text',
-                    options: SelectList,
-                    onChange: function (value) {
-                        $('#save_map_var_blibli').removeAttr('disabled');
-                        var input_data_recnum = $($(this.$input).closest('.tampungdatarecnum')).attr('data-recnum');
-                        $('#txtVariantBlibliLv' + level + '_' + input_data_recnum).val(value);                        
-                    }
-                });
+                if (len > 0) {
+                    $('#txtVariantBlibliLv' + level + '_' + data_recnum).attr('type', 'hidden');
+                    $('#txtVariantBlibliLv' + level + '_' + data_recnum).removeClass('form-control');
+                    $('#selectVariantBlibliLv' + level + '_' + data_recnum).hide();
+                    
+                    var attributeOptSelect = $(item).selectize({
+                        maxItems: 1,
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: SelectList,
+                        onChange: function (value) {
+                            $('#save_map_var_blibli').removeAttr('disabled');
+                            var input_data_recnum = $($(this.$input).closest('.tampungdatarecnum')).attr('data-recnum');
+                            $('#txtVariantBlibliLv' + level + '_' + input_data_recnum).val(value);
+                        }
+                    });
 
-                attributeOptSelect[0].selectize.clearOptions();
-                //attributeOptSelect[0].selectize.renderCache = {};
-                attributeOptSelect[0].selectize.load(function (callback) {
-                    callback(SelectList);
 
-                    if ($('#txtVariantBlibliLv' + level + '_' + data_recnum).val() != "") {
-                        var FoundValue = "";
-                        for (var d = 0; d < len; d++) {
-                            if (FoundValue == "") {
-                                var value = SelectList[d].id;
-                                if ($('#txtVariantBlibliLv' + level + '_' + data_recnum).val() == value) {
-                                    FoundValue = SelectList[d].id;
-                                    attributeOptSelect[0].selectize.setValue(FoundValue, true);//silent = true, agar tidak set button save_map_var_blibli enable
+                    attributeOptSelect[0].selectize.clearOptions();
+                    //attributeOptSelect[0].selectize.renderCache = {};
+                    attributeOptSelect[0].selectize.load(function (callback) {
+                        callback(SelectList);
+
+                        if ($('#txtVariantBlibliLv' + level + '_' + data_recnum).val() != "") {
+                            var FoundValue = "";
+                            for (var d = 0; d < len; d++) {
+                                if (FoundValue == "") {
+                                    var value = SelectList[d].id;
+                                    if ($('#txtVariantBlibliLv' + level + '_' + data_recnum).val() == value) {
+                                        FoundValue = SelectList[d].id;
+                                        attributeOptSelect[0].selectize.setValue(FoundValue, true);//silent = true, agar tidak set button save_map_var_blibli enable
+                                    }
                                 }
                             }
                         }
-                    }
-                });
+                    });
+                }
+                else
+                {
+                    $('#txtVariantBlibliLv' + level + '_' + data_recnum).attr('type', 'text');
+                    $('#txtVariantBlibliLv' + level + '_' + data_recnum).addClass('form-control');
+                    $('.selectVariantBlibliLv' + level + '_').hide();
+                    
+                }
             });
+            //if (showCombo == 1) {
+            //    //$('.selectVariantBlibliLv' + level + '_').show();
+            //    $('.selectize-control.selectVariantBlibliLv' + level + '_').css('display', 'block')
+            //} else {
+            //    $('.selectVariantBlibliLv' + level + '_').hide();
+
+            //}
         }
-        
+
         //    },
         //    error: function (xhr) {
         //        console.log(xhr);
@@ -2483,7 +2511,7 @@
                         lv_3: listVariantBlibliLv3,
                         fc_lv_1: listVariantBlibliFCLv1,
                         fc_lv_2: listVariantBlibliFCLv2
-                        
+
                     }
                 }
             }
