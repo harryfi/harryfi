@@ -4902,66 +4902,66 @@ namespace MasterOnline.Controllers
             //end add by calvin 1 mei 2019
             int jmlPic = 0;
             //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
-            List<string> byteGambarUploaded = new List<string>();
+            //List<string> byteGambarUploaded = new List<string>();
             //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
 
             if (jmlPic < 9)
             {
-                if (!byteGambarUploaded.Contains(brgInDb.Sort5))
+                //if (!byteGambarUploaded.Contains(brgInDb.Sort5))
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
                     {
                         HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_1 });
                         jmlPic++;
-                        byteGambarUploaded.Add(brgInDb.Sort5);
+                        //byteGambarUploaded.Add(brgInDb.Sort5);
                     }
                 }
             }
             if (jmlPic < 9)
             {
-                if (!byteGambarUploaded.Contains(brgInDb.Sort6))
+                //if (!byteGambarUploaded.Contains(brgInDb.Sort6))
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
                     {
                         HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_2 });
                         jmlPic++;
-                        byteGambarUploaded.Add(brgInDb.Sort6);
+                        //byteGambarUploaded.Add(brgInDb.Sort6);
                     }
                 }
             }
             if (jmlPic < 9)
             {
-                if (!byteGambarUploaded.Contains(brgInDb.Sort7))
+                //if (!byteGambarUploaded.Contains(brgInDb.Sort7))
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
                     {
                         HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_3 });
                         jmlPic++;
-                        byteGambarUploaded.Add(brgInDb.Sort7);
+                        //byteGambarUploaded.Add(brgInDb.Sort7);
                     }
                 }
             }
             if (jmlPic < 9)
             {
-                if (!byteGambarUploaded.Contains(brgInDb.SIZE_GAMBAR_4))
+                //if (!byteGambarUploaded.Contains(brgInDb.SIZE_GAMBAR_4))
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
                     {
                         HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_4 });
                         jmlPic++;
-                        byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_4);
+                        //byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_4);
                     }
                 }
             }
             if (jmlPic < 9)
             {
-                if (!byteGambarUploaded.Contains(brgInDb.SIZE_GAMBAR_5))
+                //if (!byteGambarUploaded.Contains(brgInDb.SIZE_GAMBAR_5))
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
                     {
                         HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_5 });
                         jmlPic++;
-                        byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_5);
+                        //byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_5);
                     }
                 }
             }
