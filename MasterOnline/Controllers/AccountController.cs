@@ -1456,6 +1456,7 @@ namespace MasterOnline.Controllers
                         iden.appKey = tblCustomer.API_KEY;
                         iden.appSecret = tblCustomer.API_CLIENT_U;
                         iden.username = username;
+                        iden.nama_cust = tblCustomer.PERSO;
                         iden.email = tblCustomer.EMAIL;
                         iden.DatabasePathErasoft = dbPathEra;
 
@@ -1477,7 +1478,8 @@ namespace MasterOnline.Controllers
                         iden.accessToken = tblCustomer.TOKEN;
                         iden.appKey = tblCustomer.API_KEY;
                         iden.appSecret = tblCustomer.API_CLIENT_U;
-                        iden.username = username;
+                        iden.username = username;                        
+                        iden.nama_cust = tblCustomer.PERSO;
                         iden.email = tblCustomer.EMAIL;
                         iden.DatabasePathErasoft = dbPathEra;
                         
