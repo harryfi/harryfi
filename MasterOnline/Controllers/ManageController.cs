@@ -52120,7 +52120,7 @@ namespace MasterOnline.Controllers
                         if (!retApi.Result.ToString().ToLower().Contains("error"))
                         {
                             hitungSuccess += 1;
-                            var sql = "update SOT01A set status_print = '1', status_kirim = '1' where no_bukti in ('" + so.no_bukti + "')";
+                            var sql = "update SOT01A set status_kirim = '2' where no_bukti in ('" + so.no_bukti + "')";
                             ErasoftDbContext.Database.ExecuteSqlCommand(sql);
                         }
                         else
