@@ -1171,6 +1171,17 @@ namespace MasterOnline.Controllers
 
                 if (namaBrg.Length > 30)
                 {
+                    //string[] ssplitNama = namaBrg.Substring(0, 30).Split(' ');
+                    //var jumlahLength = ssplitNama.Length - 2;
+                    //if(ssplitNama.Length >= 2)
+                    //{
+                    //    nama = ssplitNama[0] + " " + ssplitNama[1] + " " + ssplitNama[2];
+                    //    nama2 = namaBrg.in(ssplitNama[3], );
+                    //}
+                    //else
+                    //{
+                    //    nama = ssplitNama[0] + " " + ssplitNama[1];
+                    //}
                     nama = namaBrg.Substring(0, 30);
                     if (namaBrg.Length > 285)
                     {

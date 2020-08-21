@@ -6411,6 +6411,7 @@
     <Content Include="Views\Manage\TablePromptBrandJDID.cshtml" />
     <Content Include="Views\Manage\PromptBrandJDID.cshtml" />
     <Content Include="Views\Manage\PackingListJDID.cshtml" />
+    <Content Include="Views\Manage\ListDetailPackingListJDID.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

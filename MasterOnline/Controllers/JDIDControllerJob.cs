@@ -40,7 +40,7 @@ namespace MasterOnline.Controllers
         public string ParamFile;
         protected List<long> listCategory = new List<long>();
         public List<Model_BrandJob> listBrand = new List<Model_BrandJob>();
-        
+
         private MoDbContext MoDbContext { get; set; }
         private ErasoftContext ErasoftDbContext { get; set; }
         private DatabaseSQL EDB;
@@ -95,7 +95,7 @@ namespace MasterOnline.Controllers
             sysParams.Add("access_token", saccessToken);
 
             //get business parameters
-            if (sParamJson != null  && sParamJson.Length > 0)
+            if (sParamJson != null && sParamJson.Length > 0)
             {
                 sysParams.Add("param_json", sParamJson);
             }
@@ -383,7 +383,7 @@ namespace MasterOnline.Controllers
             //postData += "&id_category_default=" + Uri.EscapeDataString(finalCategory.ToString());
             //postData += "&category=" + Uri.EscapeDataString("[" + categoryID.ToString() + "]");
             //postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38.ToString());
-            
+
 
             //Start handle description
             var vDescription = brgInDb.Deskripsi;
@@ -455,8 +455,8 @@ namespace MasterOnline.Controllers
             //
 
             string sMethod = "epi.ware.openapi.SpuApi.publishWare";
-            string sParamJson = "{\"spuInfo\":{\"appDescription\":\""+ vDescription +"\", \"brandId\":30830, \"catId\":"+ finalCategory + ", \"commonAttributeIds\":\"9192:2258575;9233:2262793;9191:2262808;9180:2259386;9175:2259395;9223:2262814;9514:2262804;9193:2262797\", " +
-                "\"description\":\""+ vDescription + "\", \"isQuality\":1, \"isSequenceNumber\":1, \"keywords\":\"kew1,ke2\", \"packageInfo\":\"pack\", \"productArea\":\"xinjiang\", " +
+            string sParamJson = "{\"spuInfo\":{\"appDescription\":\"" + vDescription + "\", \"brandId\":30830, \"catId\":" + finalCategory + ", \"commonAttributeIds\":\"9192:2258575;9233:2262793;9191:2262808;9180:2259386;9175:2259395;9223:2262814;9514:2262804;9193:2262797\", " +
+                "\"description\":\"" + vDescription + "\", \"isQuality\":1, \"isSequenceNumber\":1, \"keywords\":\"kew1,ke2\", \"packageInfo\":\"pack\", \"productArea\":\"xinjiang\", " +
                 "\"qualityDays\":12, \"spuName\":\"test spu name for api 4\", \"subtitle\":\"sub\", \"subtitleHref\":\"http://xxxx.com\", \"subtitleHrefM\":\"http://xxxxm.com\", \"transportId\":42, " +
                 "\"warrantyPeriod\":3, \"whetherCod\":0,  \"weight\":\"1\",  \"netWeight\":\"1.5\",   \"packHeight\":\"1\",   \"packLong\":\"1\",   \"packWide\":\"1\",   \"piece\":1}, " +
                 "\"skuList\":[ {\"costPrice\":1000, \"imgFlag\":\"https://indomedia.com.au/wp-content/uploads/2019/02/vvip-warpan.jpg\", \"jdPrice\":1000, \"sellerSkuId\":\"sellerSkuId 0\", " +
@@ -476,123 +476,123 @@ namespace MasterOnline.Controllers
                         {
                             try
                             {
-//                                if (!string.IsNullOrEmpty(responseFromServer))
-//                                {
-//                                    var resultAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ResultCreateProduct82Cart)) as ResultCreateProduct82Cart;
+                                //                                if (!string.IsNullOrEmpty(responseFromServer))
+                                //                                {
+                                //                                    var resultAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ResultCreateProduct82Cart)) as ResultCreateProduct82Cart;
 
-//                                    if (resultAPI != null)
-//                                    {
-//                                        if (resultAPI.error == "none" && resultAPI.results == "success")
-//                                        {
-//                                            if (resultAPI.data.data[0].id_product != null)
-//                                            {
-//                                                var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
-//                                                if (item != null)
-//                                                {
-//                                                    item.BRG_MP = Convert.ToString(resultAPI.data.data[0].id_product) + ";0";
-//                                                    item.LINK_STATUS = "Buat Produk Berhasil";
-//                                                    item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
-//                                                    item.LINK_ERROR = "0;Buat Produk;;";
-//                                                    ErasoftDbContext.SaveChanges();
-//                                                }
+                                //                                    if (resultAPI != null)
+                                //                                    {
+                                //                                        if (resultAPI.error == "none" && resultAPI.results == "success")
+                                //                                        {
+                                //                                            if (resultAPI.data.data[0].id_product != null)
+                                //                                            {
+                                //                                                var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+                                //                                                if (item != null)
+                                //                                                {
+                                //                                                    item.BRG_MP = Convert.ToString(resultAPI.data.data[0].id_product) + ";0";
+                                //                                                    item.LINK_STATUS = "Buat Produk Berhasil";
+                                //                                                    item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                //                                                    item.LINK_ERROR = "0;Buat Produk;;";
+                                //                                                    ErasoftDbContext.SaveChanges();
+                                //                                                }
 
-//                                                if (brgInDb.TYPE == "4") // punya variasi
-//                                                {
-//                                                    //handle variasi product
-//                                                    #region variasi product
-//                                                    var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
-//                                                    var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "82CART").ToList().OrderBy(p => p.RECNUM);
+                                //                                                if (brgInDb.TYPE == "4") // punya variasi
+                                //                                                {
+                                //                                                    //handle variasi product
+                                //                                                    #region variasi product
+                                //                                                    var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
+                                //                                                    var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "82CART").ToList().OrderBy(p => p.RECNUM);
 
-//                                                    foreach (var itemData in var_stf02)
-//                                                    {
-//                                                        #region varian LV1
-//                                                        if (!string.IsNullOrEmpty(itemData.Sort8))
-//                                                        {
-//                                                            var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == itemData.Sort8).FirstOrDefault();
-//                                                            listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ",";
-//                                                            listattributeIDItems = variant_id_group.MP_VALUE_VAR + ",";
-//                                                            //foreach (var itemVar in variant_id_items)
-//                                                            //{
-//                                                            //var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
-//                                                            //c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, attributeIDGroup, attributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), dataBRGItem.LINK_GAMBAR_1.ToString());
+                                //                                                    foreach (var itemData in var_stf02)
+                                //                                                    {
+                                //                                                        #region varian LV1
+                                //                                                        if (!string.IsNullOrEmpty(itemData.Sort8))
+                                //                                                        {
+                                //                                                            var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == itemData.Sort8).FirstOrDefault();
+                                //                                                            listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ",";
+                                //                                                            listattributeIDItems = variant_id_group.MP_VALUE_VAR + ",";
+                                //                                                            //foreach (var itemVar in variant_id_items)
+                                //                                                            //{
+                                //                                                            //var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
+                                //                                                            //c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, attributeIDGroup, attributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), dataBRGItem.LINK_GAMBAR_1.ToString());
 
-//                                                            //}
-//                                                        }
-//                                                        #endregion
+                                //                                                            //}
+                                //                                                        }
+                                //                                                        #endregion
 
-//                                                        #region varian LV2
-//                                                        if (!string.IsNullOrEmpty(itemData.Sort9))
-//                                                        {
-//                                                            var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == itemData.Sort9).FirstOrDefault();
-//                                                            listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
-//                                                            listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
-//                                                            //foreach (var itemVar in variant_id_items)
-//                                                            //{
-//                                                            //var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
-//                                                            //c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, attributeIDGroup, attributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), dataBRGItem.LINK_GAMBAR_1.ToString());
+                                //                                                        #region varian LV2
+                                //                                                        if (!string.IsNullOrEmpty(itemData.Sort9))
+                                //                                                        {
+                                //                                                            var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == itemData.Sort9).FirstOrDefault();
+                                //                                                            listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
+                                //                                                            listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                                //                                                            //foreach (var itemVar in variant_id_items)
+                                //                                                            //{
+                                //                                                            //var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
+                                //                                                            //c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, attributeIDGroup, attributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), dataBRGItem.LINK_GAMBAR_1.ToString());
 
-//                                                            //}
-//                                                        }
-//                                                        #endregion
+                                //                                                            //}
+                                //                                                        }
+                                //                                                        #endregion
 
-//                                                        #region varian LV3
-//                                                        if (!string.IsNullOrEmpty(itemData.Sort10))
-//                                                        {
-//                                                            var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
-//                                                            listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
-//                                                            listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
-//                                                            //foreach (var itemVar in variant_id_items)
-//                                                            //{
-//                                                            //var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
-//                                                            //c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, attributeIDGroup, attributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), dataBRGItem.LINK_GAMBAR_1.ToString());
-//                                                            //}
-//                                                        }
-//                                                        #endregion
+                                //                                                        #region varian LV3
+                                //                                                        if (!string.IsNullOrEmpty(itemData.Sort10))
+                                //                                                        {
+                                //                                                            var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
+                                //                                                            listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
+                                //                                                            listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                                //                                                            //foreach (var itemVar in variant_id_items)
+                                //                                                            //{
+                                //                                                            //var dataBRGItem = var_stf02.Where(p => p.Sort8 == itemVar.KODE_VAR).FirstOrDefault();
+                                //                                                            //c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, attributeIDGroup, attributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), dataBRGItem.LINK_GAMBAR_1.ToString());
+                                //                                                            //}
+                                //                                                        }
+                                //                                                        #endregion
 
-//                                                        listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
-//                                                        listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
+                                //                                                        listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
+                                //                                                        listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
 
-//                                                        c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, listattributeIDGroup, listattributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
+                                //                                                        c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, listattributeIDGroup, listattributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
 
-//                                                    }
+                                //                                                    }
 
 
 
-//                                                    #endregion
-//                                                    //end handle variasi product
-//                                                }
+                                //                                                    #endregion
+                                //                                                    //end handle variasi product
+                                //                                                }
 
-//                                                //handle all image was uploaded
-//                                                foreach (var images in lGambarUploaded)
-//                                                {
-//                                                    Task.Run(() => c82CartController.E2Cart_AddImageProduct(dataLocal, item.BRG_MP, images)).Wait();
-//                                                }
-//                                                //end handle all image was uploaded
+                                //                                                //handle all image was uploaded
+                                //                                                foreach (var images in lGambarUploaded)
+                                //                                                {
+                                //                                                    Task.Run(() => c82CartController.E2Cart_AddImageProduct(dataLocal, item.BRG_MP, images)).Wait();
+                                //                                                }
+                                //                                                //end handle all image was uploaded
 
-//                                                //start handle update stock for default product
+                                //                                                //start handle update stock for default product
 
-//#if (DEBUG || Debug_AWS)
-//                                                Task.Run(() => c82CartController.E2Cart_UpdateStock_82Cart(dbPathEra, item.BRG, iden.no_cust, "Stock", "Update Stok", dataLocal, item.BRG_MP, Convert.ToInt32(qty_stock), iden.username)).Wait();
-//#else
-//                                var EDB = new DatabaseSQL(dbPathEra);
-//                                string EDBConnID = EDB.GetConnectionString("ConnId");
-//                                var sqlStorage = new SqlServerStorage(EDBConnID);
-//                                var client = new BackgroundJobClient(sqlStorage);
-//                                client.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdateStock_82Cart(dbPathEra, item.BRG, iden.no_cust, "Stock", "Update Stok", dataLocal, item.BRG_MP, Convert.ToInt32(qty_stock), iden.username));
-//                                //end handle update stock for default product
-//#endif
-//                                                //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-//                                            }
-//                                        }
-//                                        else
-//                                        {
-//                                            if (resultAPI.error != null && resultAPI.error != "none")
-//                                            {
+                                //#if (DEBUG || Debug_AWS)
+                                //                                                Task.Run(() => c82CartController.E2Cart_UpdateStock_82Cart(dbPathEra, item.BRG, iden.no_cust, "Stock", "Update Stok", dataLocal, item.BRG_MP, Convert.ToInt32(qty_stock), iden.username)).Wait();
+                                //#else
+                                //                                var EDB = new DatabaseSQL(dbPathEra);
+                                //                                string EDBConnID = EDB.GetConnectionString("ConnId");
+                                //                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                //                                var client = new BackgroundJobClient(sqlStorage);
+                                //                                client.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdateStock_82Cart(dbPathEra, item.BRG, iden.no_cust, "Stock", "Update Stok", dataLocal, item.BRG_MP, Convert.ToInt32(qty_stock), iden.username));
+                                //                                //end handle update stock for default product
+                                //#endif
+                                //                                                //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                                //                                            }
+                                //                                        }
+                                //                                        else
+                                //                                        {
+                                //                                            if (resultAPI.error != null && resultAPI.error != "none")
+                                //                                            {
 
-//                                            }
-//                                        }
-//                                    }
-//                                }
+                                //                                            }
+                                //                                        }
+                                //                                    }
+                                //                                }
                             }
                             catch (Exception ex)
                             {
@@ -624,7 +624,7 @@ namespace MasterOnline.Controllers
                 //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
             }
 
-            
+
 
             return "";
         }
@@ -1507,7 +1507,7 @@ namespace MasterOnline.Controllers
             try
             {
                 string sMethod = "epi.pop.order.print.uat1";
-                string sParamJson = "1027577635,1,1,\"PDF\""; //orderId, printType, packageNum, imageType //example: "1027577635,1,1,\"PDF\""
+                string sParamJson = noref + ",1,1,\"PDF\""; //orderId, printType, packageNum, imageType //example: "1027577635,1,1,\"PDF\""
 
                 var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
                 var result = JsonConvert.DeserializeObject(response, typeof(JDID_RESJob)) as JDID_RESJob;
@@ -1515,8 +1515,59 @@ namespace MasterOnline.Controllers
                 {
                     if (result.openapi_msg.ToLower() == "success")
                     {
+                        var listPrintLabel = JsonConvert.DeserializeObject(result.openapi_data, typeof(Data_PrintLabel)) as Data_PrintLabel;
+                        var str = "{\"data\":" + listPrintLabel.model + "}";
+                        foreach(var dataDetail in listPrintLabel.model.data)
+                        {
+                            ret = dataDetail.PDF.ToString();
+                        }
+                        //var listDetails = JsonConvert.DeserializeObject(str, typeof(ModelOrderJob)) as ModelOrderJob;
+
                         //var test = result;
-                        ret = "tes";
+                    }
+                    else
+                    {
+                        ret = "error";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return ret;
+        }
+
+        public async Task<string> JD_sendGoodJDID(JDIDAPIDataJob data, string noref, string noresi)
+        {
+
+            string ret = "";
+
+            try
+            {
+                string sMethod = "epi.popOrder.sendGoods.uat";
+                string sParamJson = "{\"orderId\":"+ noref + ", \"expressNo\":\""+ noresi +"\"}";
+
+                var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
+                var result = JsonConvert.DeserializeObject(response, typeof(JDID_RESJob)) as JDID_RESJob;
+                if (result != null)
+                {
+                    if (result.openapi_msg.ToLower() == "success")
+                    {
+                        var listRTS = JsonConvert.DeserializeObject(result.openapi_data, typeof(Data_ReadyToShip)) as Data_ReadyToShip;
+                        if(listRTS.success == true)
+                        {
+                            ret = listRTS.message.ToString();
+                        }
+                        else
+                        {
+                            ret = listRTS.message.ToString();
+                        }
+                    }
+                    else
+                    {
+                        ret = "error";
                     }
                 }
             }
@@ -1610,11 +1661,11 @@ namespace MasterOnline.Controllers
 
             //while (daysFrom > -3)
             //{
-                await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, -3, 0);
+            await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, -3, 0);
             //    daysFrom -= 3;
             //    daysTo -= 3;
             //}
-            
+
             // tunning untuk tidak duplicate
             //var queryStatus = "";
             //if (stat == StatusOrder.PAID)
@@ -1638,7 +1689,7 @@ namespace MasterOnline.Controllers
 
             var listOrderId = new List<long>();
             listOrderId.AddRange(GetOrderList(iden, "1", 0, daysFrom));
-            
+
             string connectionID = Guid.NewGuid().ToString();
             var connIdARF01C = Guid.NewGuid().ToString();
 
@@ -1856,7 +1907,7 @@ namespace MasterOnline.Controllers
 
             //while (daysFrom > -13)
             //{
-                await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, -3, 0);
+            await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, -3, 0);
             //    daysFrom -= 3;
             //    daysTo -= 3;
             //}
@@ -1987,7 +2038,7 @@ namespace MasterOnline.Controllers
 
             //while (daysFrom > -3)
             //{
-                await JD_GetOrderByStatusCompleteList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, -10, 0);
+            await JD_GetOrderByStatusCompleteList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, -10, 0);
             //    daysFrom -= 3;
             //    daysTo -= 3;
             //}
@@ -2390,18 +2441,20 @@ namespace MasterOnline.Controllers
                                     var messageCustomer = order.buyerMessage ?? "";
 
                                     //insertQ += "('" + order.address.Replace('\'', '`') + "','" + order.area.Replace('\'', '`') + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + order.city.Replace('\'', '`') + "'," + order.couponAmount + ",'" + order.customerName + "','";
-                                    insertQ += "('" + vOrderAddress + "','" + vArea + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + vCity + "'," + order.couponAmount + ",'" + nama + "','";
-                                    insertQ += vDeliveryAddress + "'," + order.deliveryType + ",'" + order.email + "'," + order.freightAmount + "," + order.fullCutAmount + "," + order.installmentFee + ",'" + DateTimeOffset.FromUnixTimeSeconds(order.orderCompleteTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','";
-                                    insertQ += order.orderId + "'," + order.orderSkuNum + "," + statusEra + "," + order.orderType + "," + order.paySubtotal + "," + order.paymentType + ",'" + order.phone + "','" + order.postCode + "'," + order.promotionAmount + ",'";
-                                    insertQ += order.sendPay + "','" + vState + "'," + order.totalPrice + ",'" + order.userPin + "','" + data.no_cust + "','" + username + "','" + conn_id_order + "', '" + messageCustomer + "', '" + order.carrierCode + "', '" + order.carrierCompany + "', '" + order.expressNo + "', '" + data.nama_cust + "') ,";
+                                    var insertQValue = "('" + vOrderAddress + "','" + vArea + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + vCity + "'," + order.couponAmount + ",'" + nama + "','";
+                                    insertQValue += vDeliveryAddress + "'," + order.deliveryType + ",'" + order.email + "'," + order.freightAmount + "," + order.fullCutAmount + "," + order.installmentFee + ",'" + DateTimeOffset.FromUnixTimeSeconds(order.orderCompleteTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','";
+                                    insertQValue += order.orderId + "'," + order.orderSkuNum + "," + statusEra + "," + order.orderType + "," + order.paySubtotal + "," + order.paymentType + ",'" + order.phone + "','" + order.postCode + "'," + order.promotionAmount + ",'";
+                                    insertQValue += order.sendPay + "','" + vState + "'," + order.totalPrice + ",'" + order.userPin + "','" + data.no_cust + "','" + username + "','" + conn_id_order + "', '" + messageCustomer + "', '" + order.carrierCode + "', '" + order.carrierCompany + "', '" + order.expressNo + "', '" + data.nama_cust + "') ,";
+
+                                    var insertOrderItemsValue = "";
 
                                     if (order.orderSkuinfos != null)
                                     {
                                         foreach (var ordItem in order.orderSkuinfos)
                                         {
-                                            insertOrderItems += "('" + order.orderId + "'," + ordItem.commission + "," + ordItem.costPrice + "," + ordItem.couponAmount + "," + ordItem.fullCutAmount + ",";
-                                            insertOrderItems += ordItem.hasPromo + "," + ordItem.jdPrice + "," + ordItem.promotionAmount + ",'" + ordItem.skuId + "','" + ordItem.skuName + "',";
-                                            insertOrderItems += ordItem.skuNumber + ",'" + ordItem.spuId + "'," + ordItem.weight + ",'" + username + "','" + conn_id_order + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + data.no_cust + "','" + data.nama_cust + "') ,";
+                                            insertOrderItemsValue += "('" + order.orderId + "'," + ordItem.commission + "," + ordItem.costPrice + "," + ordItem.couponAmount + "," + ordItem.fullCutAmount + ",";
+                                            insertOrderItemsValue += ordItem.hasPromo + "," + ordItem.jdPrice + "," + ordItem.promotionAmount + ",'" + ordItem.skuId + "','" + ordItem.skuName + "',";
+                                            insertOrderItemsValue += ordItem.skuNumber + ",'" + ordItem.spuId + "'," + ordItem.weight + ",'" + username + "','" + conn_id_order + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + data.no_cust + "','" + data.nama_cust + "') ,";
                                         }
                                     }
 
@@ -2422,23 +2475,23 @@ namespace MasterOnline.Controllers
                                     var vPostCode = order.postCode != null ? order.postCode.Replace('\'', '`') : "";
 
                                     //insertPembeli += "('" + order.customerName.Replace('\'', '`') + "','" + order.address.Replace('\'', '`') + "','" + order.phone + "','" + order.email.Replace('\'', '`') + "',0,0,'0','01',";
-                                    insertPembeli += "('" + nama + "','" + order.address.Replace('\'', '`') + "','" + order.phone + "','" + nama + "',0,0,'0','01',";
-                                    insertPembeli += "1, 'IDR', '01', '" + order.address.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
-                                    insertPembeli += "'FP', '" + dtNow + "', '" + username + "', '" + order.postCode.Replace('\'', '`') + "', '" + order.email.Replace('\'', '`') + "', '" + kabKot + "', '" + prov + "', '" + order.city.Replace('\'', '`') + "', '" + order.state.Replace('\'', '`') + "', '" + conn_id + "') ,";
+                                    var insertPembeliValue = "('" + nama + "','" + vAddress + "','" + order.phone + "','" + nama + "',0,0,'0','01',";
+                                    insertPembeliValue += "1, 'IDR', '01', '" + vAddress + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                    insertPembeliValue += "'FP', '" + dtNow + "', '" + username + "', '" + vPostCode + "', '" + vEmail + "', '" + kabKot + "', '" + prov + "', '" + vCity + "', '" + vState + "', '" + conn_id_arf01c + "') ,";
 
                                     if (!OrderNoInDb.Contains(Convert.ToString(order.orderId)))
                                     {
                                         jmlhNewOrder++;
-                                        insertQ = insertQ.Substring(0, insertQ.Length - 2);
-                                        EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+                                        insertQValue = insertQValue.Substring(0, insertQValue.Length - 2);
+                                        EDB.ExecuteSQL(username, CommandType.Text, insertQ + insertQValue);
 
 
-                                        insertOrderItems = insertOrderItems.Substring(0, insertOrderItems.Length - 2);
-                                        EDB.ExecuteSQL(username, CommandType.Text, insertOrderItems);
+                                        insertOrderItemsValue = insertOrderItemsValue.Substring(0, insertOrderItemsValue.Length - 2);
+                                        EDB.ExecuteSQL(username, CommandType.Text, insertOrderItems + insertOrderItemsValue);
 
 
-                                        insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 2);
-                                        EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
+                                        insertPembeliValue = insertPembeliValue.Substring(0, insertPembeliValue.Length - 2);
+                                        EDB.ExecuteSQL(username, CommandType.Text, insertPembeli + insertPembeliValue);
 
                                         using (SqlCommand CommandSQL = new SqlCommand())
                                         {
@@ -2503,7 +2556,7 @@ namespace MasterOnline.Controllers
                             {
                                 idOrderComplete = idOrderComplete.Substring(0, idOrderComplete.Length - 1);
                                 var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + idOrderComplete + ") AND STATUS_TRANSAKSI = '03'");
-                                
+
                                 if (jmlhOrderCompleted > 0)
                                 {
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
@@ -2642,6 +2695,33 @@ namespace MasterOnline.Controllers
             public bool success { get; set; }
         }
 
+        public class Data_ReadyToShip
+        {
+            public int code { get; set; }
+            public bool success { get; set; }
+            public string message { get; set; }
+        }
+
+        public class Data_PrintLabel
+        {
+            public int code { get; set; }
+            public bool success { get; set; }
+            public Model_PrintLabel model { get; set; }
+        }
+
+        public class Model_PrintLabel
+        {
+            public Data_DetailPrintLabel[] data { get; set; }
+            public int templateId { get; set; }
+        }
+
+        public class Data_DetailPrintLabel
+        {
+            public string PDF { get; set; }
+            public int orderId { get; set; }
+        }
+
+
         public class ModelOrderJob
         {
             public List<DetailOrder_JDJob> data { get; set; }
@@ -2681,6 +2761,13 @@ namespace MasterOnline.Controllers
             public string carrierCompany { get; set; }
             public string expressNo { get; set; }
         }
+
+        public class ModelPrintLabel
+        {
+            //public List<DetailPrintLabel_JD> data { get; set; }
+        }
+
+
 
         public class OrderskuinfoJob
         {
