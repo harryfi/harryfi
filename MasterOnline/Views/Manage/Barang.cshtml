@@ -1723,6 +1723,33 @@
             });
         }
         //jd.id
+        var PromptBrandJDIDTextBox = "";
+        function PromptBrandJDID(i, r) {
+            PromptBrandJDIDTextBox = i;
+            //debugger;
+            var getCategory = $('#ListHargaJualPermarket_' + i + '__CATEGORY_CODE');
+            if ($(getCategory).val() != "" && $(getCategory).val() != null && $(getCategory).val() != undefined) {
+                var ValueCategory = $(getCategory).val();
+                showPromptBrandJDIDTextBoxWindow(ValueCategory, r);
+            }
+            else {
+                alert('Silahkan pilih kategori JDID terlebih dahulu.');
+            }
+        }
+
+        function showPromptBrandJDIDTextBoxWindow(valueCategory, val) {
+            var $link = '@Html.Raw(Url.Action("PromptBrandJDID", "Manage", new { merchant_code = "replaceKodeMerchant", category = "replaceCategory" }))';
+
+            $link = $link.replace("replaceCategory", valueCategory);
+            $link = $link.replace("replaceKodeMerchant", val);
+            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+        }
+        function afterPromptBrandJDID(val,name) {
+            $('#Brand' + PromptBrandJDIDTextBox + 'JDID').val(name);
+            $('#ListHargaJualPermarket_' + PromptBrandJDIDTextBox + '__AVALUE_38').val(val);
+            $('#ListHargaJualPermarket_' + PromptBrandJDIDTextBox + '__ANAME_38').val(name);
+        }
+
         function ClearCategoryJD(divIDpertama, divIDselanjutnya, divIDattribute, i, undoing) {
             var fieldCategoryCode = '#ListHargaJualPermarket_' + i + '__CATEGORY_CODE';
             var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
@@ -1985,6 +2012,7 @@
                                         //fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                                         //if (AMANDATORY == "1") {
                                         fieldAVALUE += '<div id="parent_' + selectID + '"><div id="div_' + selectID + '" class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div></div>';
+                                        //fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                                         //}
                                         //else {
                                         //    fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';

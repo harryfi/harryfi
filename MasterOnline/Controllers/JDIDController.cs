@@ -14,6 +14,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web.Http;
+using System.Threading.Tasks;
 
 namespace MasterOnline.Controllers
 {
@@ -77,17 +78,19 @@ namespace MasterOnline.Controllers
             return dt.ToString("yyyy-MM-dd HH:mm:ss.fff") + dt.ToString("zzzz").Replace(":", "");
         }
 
-        public string Call()
+        public string Call(string sappKey, string saccessToken, string sappSecret)
         {
             //construct system parameters
             var sysParams = new Dictionary<string, string>();
-            sysParams.Add("app_key", this.AppKey);
+            //sysParams.Add("app_key", this.AppKey);
+            sysParams.Add("app_key", sappKey);
             sysParams.Add("v", this.Version);
             sysParams.Add("format", this.Format);
             sysParams.Add("sign_method", this.SignMethod);
             sysParams.Add("method", this.Method);
             sysParams.Add("timestamp", this.getCurrentTimeFormatted());
-            sysParams.Add("access_token", this.AccessToken);
+            //sysParams.Add("access_token", this.AccessToken);
+            sysParams.Add("access_token", saccessToken);
 
             //get business parameters
             if (null != this.ParamJson && this.ParamJson.Length > 0)
@@ -99,14 +102,14 @@ namespace MasterOnline.Controllers
                 sysParams.Add("param_json", "{}");
             }
             //sign
-            sysParams.Add("sign", this.generateSign(sysParams));
+            sysParams.Add("sign", this.generateSign(sysParams, sappSecret));
 
             //send http post request
             var content = this.curl(this.ServerUrl, null, sysParams);
             return content;
         }
 
-        public string Call4BigData()
+        public string Call4BigData(string sappSecret)
         {
             //construct system parameters
             var sysParams = new Dictionary<string, string>();
@@ -139,7 +142,7 @@ namespace MasterOnline.Controllers
             }
 
             //sign
-            sysParams.Add("sign", this.generateSign(sysParams));
+            sysParams.Add("sign", this.generateSign(sysParams, sappSecret));
 
             //send http post request
             var postDatas = new NameValueCollection();
@@ -249,7 +252,7 @@ namespace MasterOnline.Controllers
 
         }
 
-        private string generateSign(Dictionary<string, string> sysDataDictionary)
+        private string generateSign(Dictionary<string, string> sysDataDictionary, string sappSecret)
         {
             var dic = sysDataDictionary.OrderBy(key => key.Key).ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value);
             var sb = new System.Text.StringBuilder();
@@ -262,8 +265,10 @@ namespace MasterOnline.Controllers
 
             }
             //prepend and append appsecret   
-            sb.Insert(0, this.AppSecret);
-            sb.Append(this.AppSecret);
+            //sb.Insert(0, this.AppSecret);
+            //sb.Append(this.AppSecret);
+            sb.Insert(0, sappSecret);
+            sb.Append(sappSecret);
             var signValue = this.calculateMD5Hash(sb.ToString());
             //Console.WriteLine("raw string=" + sb.ToString());
             //Console.WriteLine("signValue=" + signValue);
@@ -290,19 +295,173 @@ namespace MasterOnline.Controllers
         }
         #endregion
 
+        //Check Data Shop
+        public async Task<string> JDID_checkAPICustomerShop(JDIDAPIData data)
+        {
+            getShopBrand(data);
+            string retr = "";
+            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+
+            DatabaseSQL EDB = new DatabaseSQL(data.DatabasePathErasoft);
+            var resultExecDefault = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + data.no_cust + "'");
+            
+            var mgrApiManager = new JDIDController();
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
+            mgrApiManager.Method = "epi.ware.openapi.CategoryApi.getAllCategoryTree";
+            mgrApiManager.ParamJson = "";
+
+            try
+            {
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
+                var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (ret != null)
+                {
+                    if (ret.openapi_code == 0)
+                    {
+                        var listKategori = JsonConvert.DeserializeObject(ret.openapi_data, typeof(DATA_CAT)) as DATA_CAT;
+                        if (listKategori != null)
+                        {
+                            if (listKategori.success)
+                            {
+                                contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Akun marketplace " + data.email.ToString() + " (JD.ID) berhasil aktif", true);
+                                EDB.ExecuteSQL("CString", CommandType.Text, "Update ARF01 SET STATUS_API = '1' WHERE TOKEN = '" + data.accessToken + "' AND API_KEY = '" + data.appKey + "'");
+                                string dbPath = "";
+                                var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                                if (sessionData?.Account != null)
+                                {
+                                    dbPath = sessionData.Account.DatabasePathErasoft;
+                                }
+                                else
+                                {
+                                    if (sessionData?.User != null)
+                                    {
+                                        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                                        dbPath = accFromUser.DatabasePathErasoft;
+                                    }
+                                }
+                                var listKtg = ErasoftDbContext.CATEGORY_JDID.ToList();
+                                if (listKtg.Count > 0)
+                                {
+                                    EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM CATEGORY_JDID");
+                                }
+//                                #region connstring
+//#if AWS
+//                    string con = "Data Source=" + dbPath + ";Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
+//#elif Debug_AWS
+//                                string con = "Data Source=13.250.232.74;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
+//#else
+//                                string con = "Data Source=13.251.222.53;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
+//#endif
+//                                #endregion
+
+                                string con = EDB.ConnectionStrings.FirstOrDefault().Value.ToString();
+
+                                using (SqlConnection oConnection = new SqlConnection(con))
+                                {
+                                    oConnection.Open();
+                                    //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                                    //{
+                                    using (SqlCommand oCommand = oConnection.CreateCommand())
+                                    {
+                                        //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
+                                        //oCommand.ExecuteNonQuery();
+                                        //oCommand.Transaction = oTransaction;
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.CommandText = "INSERT INTO [CATEGORY_JDID] ([CATEGORY_CODE], [CATEGORY_NAME], [CATE_STATE], [TYPE], [LEAF], [PARENT_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @CATE_STATE, @TYPE, @LEAF, @PARENT_CODE)";
+                                        //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                        oCommand.Parameters.Add(new SqlParameter("@CATE_STATE", SqlDbType.NVarChar, 3));
+                                        oCommand.Parameters.Add(new SqlParameter("@TYPE", SqlDbType.NVarChar, 3));
+                                        oCommand.Parameters.Add(new SqlParameter("@LEAF", SqlDbType.NVarChar, 1));
+                                        oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
+
+                                        //try
+                                        //{
+                                        foreach (var item in listKategori.model) //foreach parent level top
+                                        {
+                                            oCommand.Parameters[0].Value = item.cateId;
+                                            oCommand.Parameters[1].Value = item.cateName;
+                                            oCommand.Parameters[2].Value = item.cateState;
+                                            oCommand.Parameters[3].Value = item.type;
+                                            oCommand.Parameters[4].Value = "1";
+                                            if (item.parentCateVo != null)
+                                            {
+                                                oCommand.Parameters[5].Value = item.parentCateVo.cateId;
+                                            }
+                                            else
+                                            {
+                                                oCommand.Parameters[5].Value = "";
+                                            }
+                                            if (oCommand.ExecuteNonQuery() > 0)
+                                            {
+                                                listCategory.Add(item.cateId);
+                                                if (item.parentCateVo != null)
+                                                {
+                                                    if (!listCategory.Contains(item.parentCateVo.cateId))
+                                                    {
+                                                        RecursiveInsertCategory(oCommand, item.parentCateVo);
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+
+                                            }
+                                        }
+                                        //oTransaction.Commit();
+                                        //}
+                                        //catch (Exception ex)
+                                        //{
+                                        //    //oTransaction.Rollback();
+                                        //}
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                            }
+                        }
+                        else
+                        {
+                            contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                        }
+                    }
+                    else
+                    {
+                        contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                    }
+                }
+                else
+                {
+                    contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+            }
+
+            return retr;
+        }
+
         [System.Web.Mvc.HttpGet]
         public void getCategory(JDIDAPIData data)
         {
 
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Get Category",
-                REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = data.accessToken,
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data, currentLog);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+            //    REQUEST_ACTION = "Get Category",
+            //    REQUEST_DATETIME = DateTime.Now,
+            //    REQUEST_ATTRIBUTE_1 = data.accessToken,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data, currentLog);
 
             var mgrApiManager = new JDIDController();
             mgrApiManager.AppKey = data.appKey;
@@ -313,7 +472,7 @@ namespace MasterOnline.Controllers
 
             try
             {
-                var response = mgrApiManager.Call();
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
                 var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
                 if (ret != null)
                 {
@@ -417,27 +576,27 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                currentLog.REQUEST_EXCEPTION = ret.openapi_data;
-                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                                //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
+                                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                             }
                         }
                         else
                         {
-                            currentLog.REQUEST_EXCEPTION = ret.openapi_data;
-                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                            //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
+                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                         }
                     }
                 }
                 else
                 {
-                    currentLog.REQUEST_EXCEPTION = response;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                    //currentLog.REQUEST_EXCEPTION = response;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                 }
             }
             catch (Exception ex)
             {
-                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
             }
 
 
@@ -492,7 +651,7 @@ namespace MasterOnline.Controllers
             mgrApiManager.Method = "epi.ware.openapi.WareAttributeApi.getAttributesByCatId";
             mgrApiManager.ParamJson = "{ \"catId\":\"" + catId + "\"}";
 
-            var response = mgrApiManager.Call();
+            var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
             var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
             if (ret != null)
             {
@@ -543,7 +702,7 @@ namespace MasterOnline.Controllers
             mgrApiManager.Method = "epi.ware.openapi.WareAttributeApi.getAttrValuesByCatIdAndAttrId";
             mgrApiManager.ParamJson = "{ \"catId\":\"" + catId + "\", \"attrId\":\"" + attrId + "\", \"currentPage\":" + page + ", \"pageSize\":20}";
 
-            var response = mgrApiManager.Call();
+            var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
             var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
             if (ret != null)
             {
@@ -621,7 +780,7 @@ namespace MasterOnline.Controllers
                 mgrApiManager.Method = "com.jd.eptid.warecenter.api.ware.WarePlusClient.getWareTinyInfoListByVenderId";
                 mgrApiManager.ParamJson = (page + 1) + ",10";
 
-                var response = mgrApiManager.Call();
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
                 var retData = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
                 if (retData != null)
                 {
@@ -730,7 +889,7 @@ namespace MasterOnline.Controllers
                 mgrApiManager.Method = "com.jd.eptid.warecenter.api.ware.WarePlusClient.getSkuInfoBySpuId";
                 mgrApiManager.ParamJson = "[" + itemFromList.spuId + "]";
 
-                var response = mgrApiManager.Call();
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
                 var retProd = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
                 if (retProd != null)
                 {
@@ -877,7 +1036,7 @@ namespace MasterOnline.Controllers
 
                 //if (!string.IsNullOrEmpty(kdBrgInduk))
                 //{
-                var response = mgrApiManager.Call();
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
                 var retProd = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
                 if (retProd != null)
                 {
@@ -987,8 +1146,8 @@ namespace MasterOnline.Controllers
                 if (typeBrg != 1)
                 {
                     //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
-                    //sSQL_Value += " ( '" + skuId + "' , '" + skuId + "' , '";
-                    sSQL_Value += " ( '" + skuId + "' , '' , '";
+                    sSQL_Value += " ( '" + skuId + "' , '" + skuId + "' , '";
+                    //sSQL_Value += " ( '" + skuId + "' , '' , '";
                     //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
                 else
@@ -1012,6 +1171,17 @@ namespace MasterOnline.Controllers
 
                 if (namaBrg.Length > 30)
                 {
+                    //string[] ssplitNama = namaBrg.Substring(0, 30).Split(' ');
+                    //var jumlahLength = ssplitNama.Length - 2;
+                    //if(ssplitNama.Length >= 2)
+                    //{
+                    //    nama = ssplitNama[0] + " " + ssplitNama[1] + " " + ssplitNama[2];
+                    //    nama2 = namaBrg.in(ssplitNama[3], );
+                    //}
+                    //else
+                    //{
+                    //    nama = ssplitNama[0] + " " + ssplitNama[1];
+                    //}
                     nama = namaBrg.Substring(0, 30);
                     if (namaBrg.Length > 285)
                     {
@@ -1111,7 +1281,7 @@ namespace MasterOnline.Controllers
                 mgrApiManager.AccessToken = data.accessToken;
                 mgrApiManager.Method = "epi.popShop.getShopBrandList";
 
-                var response = mgrApiManager.Call();
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
                 var retBrand = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
                 if (retBrand != null)
                 {
@@ -1152,7 +1322,7 @@ namespace MasterOnline.Controllers
             mgrApiManager.ParamJson = "{\"jsonStr\":[{\"skuId\":" + id + ", \"realNum\": " + stok + "}]}";
             try
             {
-                var response = mgrApiManager.Call();
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
                 var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
                 if (ret != null)
                 {
@@ -1291,7 +1461,7 @@ namespace MasterOnline.Controllers
 
             try
             {
-                var response = mgrApiManager.Call();
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
                 var retData = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
                 if (retData.openapi_code == 0)
                 {
@@ -1330,7 +1500,7 @@ namespace MasterOnline.Controllers
             var jmlhNewOrder = 0;
             try
             {
-                var response = mgrApiManager.Call();
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
                 var retData = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
                 if (retData.openapi_code == 0)
                 {
@@ -1496,7 +1666,7 @@ namespace MasterOnline.Controllers
                 mgrApiManager.ParamJson += "\"operator\":\"" + username + "\", \"childType\":1,";
                 mgrApiManager.ParamJson += "\"promoChannel\":\"1,4,5\", \"sourceFrom\":0} }";
 
-                var response = mgrApiManager.Call();
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
                 var retPromo = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
                 if (retPromo != null)
                 {
@@ -1714,10 +1884,22 @@ namespace MasterOnline.Controllers
         public string appKey { get; set; }
         public string appSecret { get; set; }
         public string accessToken { get; set; }
+        public string no_cust { get; set; }
+        public string username { get; set; }
+        public string email { get; set; }
+        public string DatabasePathErasoft { get; set; }
     }
 
 
     public class Data_UpStok
+    {
+        public int code { get; set; }
+        public string message { get; set; }
+        public dynamic model { get; set; }
+        public bool success { get; set; }
+    }
+
+    public class Data_UpPrice
     {
         public int code { get; set; }
         public string message { get; set; }
