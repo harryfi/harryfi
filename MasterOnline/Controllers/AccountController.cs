@@ -1434,7 +1434,90 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-#endregion
+            #endregion
+
+            #region JDID
+            var kdJDID = 19;
+
+            var vJDIDShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdJDID.ToString());
+            if (id_single_account.HasValue)
+            {
+                vJDIDShop = vJDIDShop.Where(m => m.RecNum.Value == id_single_account.Value);
+            }
+            var listJDIDShop = vJDIDShop.ToList();
+            if (listJDIDShop.Count > 0)
+            {
+                foreach (ARF01 tblCustomer in listJDIDShop)
+                {
+
+                    string connId_JobId = "";
+                    //add by fauzi 22 Juli 2020
+                    if (tblCustomer.TIDAK_HIT_UANG_R == true)
+                    {
+#if (AWS || DEV)
+                        JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob();
+                        iden.no_cust = tblCustomer.CUST;
+                        iden.accessToken = tblCustomer.TOKEN;
+                        iden.appKey = tblCustomer.API_KEY;
+                        iden.appSecret = tblCustomer.API_CLIENT_U;
+                        iden.username = username;
+                        iden.nama_cust = tblCustomer.PERSO;
+                        iden.email = tblCustomer.EMAIL;
+                        iden.DatabasePathErasoft = dbPathEra;
+
+                        connId_JobId = dbPathEra + "_JDID_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<JDIDControllerJob>(x => x.JD_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+
+                        connId_JobId = dbPathEra + "_JDID_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<JDIDControllerJob>(x => x.JD_GetOrderByStatusRTS(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+
+                        connId_JobId = dbPathEra + "_JDID_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<JDIDControllerJob>(x => x.JD_GetOrderByStatusComplete(iden, JDIDControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(30), recurJobOpt);
+
+                        connId_JobId = dbPathEra + "_JDID_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<JDIDControllerJob>(x => x.JD_GetOrderByStatusCancel(iden, JDIDControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+
+#else
+                        JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob();
+                        iden.no_cust = tblCustomer.CUST;
+                        iden.accessToken = tblCustomer.TOKEN;
+                        iden.appKey = tblCustomer.API_KEY;
+                        iden.appSecret = tblCustomer.API_CLIENT_U;
+                        iden.username = username;                        
+                        iden.nama_cust = tblCustomer.PERSO;
+                        iden.email = tblCustomer.EMAIL;
+                        iden.DatabasePathErasoft = dbPathEra;
+                        
+                        await new JDIDControllerJob().JD_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+
+                        await new JDIDControllerJob().JD_GetOrderByStatusRTS(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+
+                        await new JDIDControllerJob().JD_GetOrderByStatusComplete(iden, JDIDControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+
+                        await new JDIDControllerJob().JD_GetOrderByStatusCancel(iden, JDIDControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                        
+#endif
+
+
+
+                    }
+                    else
+                    {
+                        connId_JobId = dbPathEra + "_JDID_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
+                        connId_JobId = dbPathEra + "_JDID_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
+                        connId_JobId = dbPathEra + "_JDID_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
+                        connId_JobId = dbPathEra + "_JDID_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+                    }
+                }
+            }
+            #endregion
 
             return "";
         }

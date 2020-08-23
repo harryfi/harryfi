@@ -3807,17 +3807,21 @@ namespace MasterOnline.Controllers
             #region JD ID get Category
             else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "JD.ID").IdMarket.ToString()))
             {
-                //if (!string.IsNullOrEmpty(customer.Customers.TOKEN) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U) && !string.IsNullOrEmpty(customer.Customers.API_KEY))
-                //{
-                //    var jdAPI = new JDIDController();
-                //    JDIDAPIData dataJD = new JDIDAPIData
-                //    {
-                //        accessToken = customer.Customers.TOKEN,
-                //        appKey = customer.Customers.API_KEY,
-                //        appSecret = customer.Customers.API_CLIENT_U,
-                //    };
-                //    jdAPI.getCategory(dataJD);
-                //}
+                if (!string.IsNullOrEmpty(customer.Customers.TOKEN) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U) && !string.IsNullOrEmpty(customer.Customers.API_KEY))
+                {
+                    var jdAPI = new JDIDController();
+                    JDIDAPIData dataJD = new JDIDAPIData
+                    {
+                        no_cust = kdCustomer,
+                        email = customer.Customers.EMAIL,
+                        accessToken = customer.Customers.TOKEN,
+                        appKey = customer.Customers.API_KEY,
+                        appSecret = customer.Customers.API_CLIENT_U,
+                        DatabasePathErasoft = dbPathEra,
+                    };
+                    //Task.Run(() => jdAPI.checkAPICustomerShop(dataJD)).Wait();
+                    jdAPI.JDID_checkAPICustomerShop(dataJD);
+                }
 
             }
 
@@ -6224,7 +6228,7 @@ namespace MasterOnline.Controllers
                     var data = new JDIDAPIData
                     {
                         accessToken = customer.TOKEN,
-                        appKey = customer.API_CLIENT_P,
+                        appKey = customer.API_KEY,
                         appSecret = customer.API_CLIENT_U
                     };
                     var jdApi = new JDIDController();
@@ -11517,6 +11521,20 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public ActionResult PromptBrandJDID(string merchant_code, string category)
+        {
+            try
+            {
+                ViewData["cust"] = merchant_code;
+                ViewData["category"] = category;
+                return View("PromptBrandJDID");
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+
         public ActionResult PromptAttribute82Cart(string cust, string attribute)
         {
             try
@@ -11674,6 +11692,39 @@ namespace MasterOnline.Controllers
             }
 
             return PartialView("TablePromptBrandBlibli");
+        }
+
+        public async Task<ActionResult> RefreshBrandJDID(string category, string cust, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["cust"] = cust;
+            ViewData["category"] = category;
+            if (string.IsNullOrEmpty(search))
+                search = "a";
+            var marketPlace = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).SingleOrDefault();
+            if (marketPlace != null)
+            {
+                var brandJDID = MoDbContext.BrandJDID.OrderBy(p => p.brandName).ToList();
+                //var list_value = new List<BRAND_JDID>();
+                //foreach (var item in ret.content)
+                //{
+                //    if (item.brandApprovalStatus == "APPROVED")
+                //    {
+                //        list_value.Add(new BRAND_BLIBLI()
+                //        {
+                //            brand_id = item.brandName,
+                //            name = item.brandName
+                //        });
+                //    }
+
+                //}
+                IPagedList<BRAND_JDID> pageOrders = new StaticPagedList<BRAND_JDID>(brandJDID, pagenumber + 1, 10, 10);
+                return PartialView("TablePromptBrandJDID", pageOrders);
+            }
+
+            return PartialView("TablePromptBrandJDID");
         }
 
         public async Task<ActionResult> RefreshBrand82Cart(string category, string cust, int? page, string search = "")
@@ -30045,6 +30096,13 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
+        public FileResult JD_Download_PrintLabel(string path)
+        {
+            byte[] fileBytes = System.IO.File.ReadAllBytes(path);
+            return File(fileBytes, "application/pdf");
+        }
+
+        [HttpGet]
         public ActionResult ListImportFaktur(string cust)
         {
             //var partialVm = new FakturViewModel()
@@ -32955,6 +33013,8 @@ namespace MasterOnline.Controllers
             var kdShopee = "17";
             var kdShopify = "21";
             var kd82Cart = "20";
+            var kdJD = "19";
+
             var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.RecNum == hJualInDb.IDMARKET);
             if (customer != null)
             {
@@ -33346,6 +33406,36 @@ namespace MasterOnline.Controllers
                 clientJobServer.Enqueue<TokopediaControllerJob>(x => x.UpdatePrice_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", Convert.ToInt32(hJualInDb.BRG_MP), iden, (int)hargaJualBaru));
                                     
 #endif
+                    }
+                }
+                else if (customer.NAMA.Equals(kdJD))
+                {
+                    if (!string.IsNullOrWhiteSpace(customer.API_KEY))
+                    {
+                        var JDIDApi = new JDIDControllerJob();
+
+                        JDIDControllerJob.JDIDAPIDataJob data = new JDIDControllerJob.JDIDAPIDataJob()
+                        {
+                            no_cust = customer.CUST,
+                            accessToken = customer.TOKEN,
+                            appKey = customer.API_KEY,
+                            appSecret = customer.API_CLIENT_U,
+                            username = customer.USERNAME,
+                            email = customer.EMAIL,
+                            DatabasePathErasoft = dbPathEra
+                        };
+                        if (hJualInDb.BRG_MP != "")
+                        {
+
+#if Debug_AWS || DEBUG
+                            Task.Run(() => JDIDApi.JD_updatePrice(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualBaru, customer.USERNAME)).Wait();
+#else
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                            clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_updatePrice(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualBaru, customer.USERNAME));
+                                    
+#endif
+                        }
                     }
                 }
                 //end add by calvin 18 desember 2018
@@ -37339,9 +37429,12 @@ namespace MasterOnline.Controllers
                                     {
                                         JDIDAPIData data = new JDIDAPIData()
                                         {
+                                            no_cust = arf01.CUST,
                                             accessToken = arf01.TOKEN,
                                             appKey = arf01.API_KEY,
                                             appSecret = arf01.API_CLIENT_U,
+                                            email = arf01.EMAIL,
+                                            DatabasePathErasoft = dbPathEra
                                         };
                                         var resultJD = JDApi.getListProduct(data, page, cust, recordCount, totalData);
                                         retBarang.exception = resultJD.exception;
@@ -40508,6 +40601,9 @@ namespace MasterOnline.Controllers
                 case "17":
                     viewName = "PackingListShopee";
                     break;
+                case "19":
+                    viewName = "PackingListJDID";
+                    break;
                 //case "20":
                 //    viewName = "PackingList82Cart";
                 //    break;
@@ -40606,6 +40702,30 @@ namespace MasterOnline.Controllers
 
             IPagedList<PackingPerMP> pageOrders = new StaticPagedList<PackingPerMP>(pageContent, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView(viewName, pageOrders);
+        }
+
+        public ActionResult SaveNoResiPesananJDID(string idpesanan, string noresi)
+        {
+            try
+            {
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
+
+                if(noresi != null && idpesanan != null)
+                {
+
+                    var dataPesanan = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == idpesanan).SingleOrDefault();
+                    dataPesanan.TRACKING_SHIPMENT = noresi.ToString();
+                    ErasoftDbContext.SaveChanges();
+                    var successCount = listSuccess.Count();
+                    return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "No Resi Kosong." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses tambah no resi. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
         }
 
         public ActionResult RequestPickupTokpedPerPacking(string cust, string bukti, List<string> rows_selected)
@@ -52091,6 +52211,310 @@ namespace MasterOnline.Controllers
             return ret;
         }
         //end add by nurul 23/12/2019
+
+        //add by fauzi
+        public ActionResult JDIDLabelPerPacking(string cust, string bukti, List<string> rows_selected, string label)
+        {
+            try
+            {
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                string sSQL2 = "";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+
+                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+
+                //List<string> orderItemIds = new List<string>();
+                List<string> temp_htmlString = new List<string>();
+                List<string> temp_base64String = new List<string>();
+                List<string> temp_strmsg = new List<string>();
+                List<string> temp_strmsg_label = new List<string>();
+                
+                List<string> temp_printLabel = new List<string>();
+
+                //add by nurul 16/12/2019
+                //bool gakketemulagi = false;
+                var tempLblTokped = new List<tempLabelTokopedia>();
+
+                //var lastIndexHeader = 0;
+                //var lastIndexResi = 0;
+                //var lastIndexInvoice = 0;
+                //var lastIndexInsurance = 0;
+                //var lastIndexAddress = 0;
+                //var lastIndexProduct = 0;
+
+                //end add by nurul 16/12/2019
+
+                var listNobuk = "";
+                var Valid = false;
+                //ADD BY NURUL 24/2/2020
+                if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
+                {
+                    if (marketPlace.STATUS_API == "1")
+                    {
+                        Valid = true;
+                    }
+                    else
+                    {
+                        return new JsonResult { Data = new { mo_error = "Account link status is expired." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                var string_detailSO = "";
+                foreach (var nobuk in ListStt01a)
+                {
+                    if (string_detailSO != "")
+                    {
+                        string_detailSO += ",";
+                    }
+
+                    string_detailSO += "'" + nobuk.no_bukti + "'";
+                }
+                string ssql = "SELECT ORDER_ITEM_ID,NO_BUKTI FROM SOT01B WHERE NO_BUKTI IN (" + string_detailSO + ") ";
+                var listDetailSo = ErasoftDbContext.Database.SqlQuery<ORDERITEMSO>(ssql).ToList();
+                var hitungDetail = listDetailSo.Count();
+
+                JDIDControllerJob.JDIDAPIDataJob data = new JDIDControllerJob.JDIDAPIDataJob
+                {
+                    no_cust = marketPlace.CUST,
+                    accessToken = marketPlace.TOKEN,
+                    appKey = marketPlace.API_KEY,
+                    appSecret = marketPlace.API_CLIENT_U,
+                    username = marketPlace.USERNAME,
+                    email = marketPlace.EMAIL,
+                    DatabasePathErasoft = dbPathEra
+                };
+                foreach (var so in ListStt01a)
+                {
+                    if (listNobuk != "")
+                    {
+                        listNobuk += ",";
+                    }
+                    listNobuk += "'" + so.no_bukti + "'";
+                    if (Valid)
+                    {
+                        var jdidjob = new JDIDControllerJob();
+
+                        var retApi = jdidjob.JD_printLabelJDID(data, so.no_referensi);
+                        if (!retApi.Result.ToString().Contains("error"))
+                        {
+                            
+                            #region initial folder
+                            string messageErrorLog = "";
+                            string filename = "JDID_print_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                            #endregion
+
+                            if (!System.IO.File.Exists(path))
+                            {
+                                System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                                FileStream stream = System.IO.File.Create(path);
+                                byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
+                                stream.Write(byteArray, 0, byteArray.Length);
+                                stream.Close();
+                                temp_printLabel.Add(path);
+                            }
+
+                            var sql = "update SOT01A set status_print = '1', status_kirim = '1' where no_bukti in ('" + so.no_bukti + "')";
+                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
+                        }
+                        else
+                        {
+                            temp_strmsg_label.Add(retApi.Result.ToString());
+                        }
+                    }
+                }
+                
+                if (temp_printLabel.Count() > 0)
+                {
+                    return new JsonResult { Data = new { mo_label = temp_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    if (label == "1")
+                    {
+                        //return new JsonResult { Data = new { mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        //return Json(temp_htmlString, JsonRequestBehavior.AllowGet);
+                        return new JsonResult { Data = new { mo_label = temp_strmsg_label }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                    else if (label == "2")
+                    {
+                        return new JsonResult { Data = new { mo_label = temp_strmsg_label }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        //return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            return JsonErrorMessage("This Function is for JD.ID only");
+        }
+        //end by fauzi
+
+        //add by fauzi
+        public ActionResult ReadyToShipJDIDPerPacking(string cust, string bukti, List<string> rows_selected, string label)
+        {
+            try
+            {
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir,A.TRACKING_SHIPMENT as tracking_no, 0 as jumlah_item ";
+                string sSQL2 = "";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+
+                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                
+                List<string> temp_base64String = new List<string>();
+                List<string> temp_strmsg = new List<string>();
+                List<string> temp_strmsg_label = new List<string>();
+
+                List<string> temp_printLabel = new List<string>();
+
+                var listErrors = new List<PackingListErrors>();
+
+                var listNobuk = "";
+                var Valid = false;
+                //ADD BY NURUL 24/2/2020
+                if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
+                {
+                    if (marketPlace.STATUS_API == "1")
+                    {
+                        Valid = true;
+                    }
+                    else
+                    {
+                        return new JsonResult { Data = new { mo_error = "Account link status is expired." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                var string_detailSO = "";
+                foreach (var nobuk in ListStt01a)
+                {
+                    if (string_detailSO != "")
+                    {
+                        string_detailSO += ",";
+                    }
+
+                    string_detailSO += "'" + nobuk.no_bukti + "'";
+                }
+                string ssql = "SELECT ORDER_ITEM_ID,NO_BUKTI FROM SOT01B WHERE NO_BUKTI IN (" + string_detailSO + ") ";
+                var listDetailSo = ErasoftDbContext.Database.SqlQuery<ORDERITEMSO>(ssql).ToList();
+                var hitungDetail = listDetailSo.Count();
+                var hitungSuccess = 0;
+
+                JDIDControllerJob.JDIDAPIDataJob data = new JDIDControllerJob.JDIDAPIDataJob
+                {
+                    no_cust = marketPlace.CUST,
+                    accessToken = marketPlace.TOKEN,
+                    appKey = marketPlace.API_KEY,
+                    appSecret = marketPlace.API_CLIENT_U,
+                    username = marketPlace.USERNAME,
+                    email = marketPlace.EMAIL,
+                    DatabasePathErasoft = dbPathEra
+                };
+                foreach (var so in ListStt01a)
+                {
+                    if (listNobuk != "")
+                    {
+                        listNobuk += ",";
+                    }
+                    listNobuk += "'" + so.no_bukti + "'";
+                    if (Valid)
+                    {
+                        var jdidjob = new JDIDControllerJob();
+
+                        var retApi = jdidjob.JD_sendGoodJDID(data, so.no_referensi, so.tracking_no);
+                        if (!retApi.Result.ToString().ToLower().Contains("error"))
+                        {
+                            hitungSuccess += 1;
+                            var sql = "update SOT01A set status_kirim = '2' where no_bukti in ('" + so.no_bukti + "')";
+                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
+                        }
+                        else
+                        {
+                            listErrors.Add(new PackingListErrors
+                            {
+                                keyname = so.no_bukti,
+                                errorMessage = retApi.Result.ToString()
+                            });
+                            temp_strmsg_label.Add(retApi.Result.ToString());
+                        }
+                    }
+                }
+
+                if (temp_printLabel.Count() > 0)
+                {
+                    return new JsonResult { Data = new { result = temp_printLabel, successCount = hitungSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    return new JsonResult { Data = new { listErrors, result = temp_strmsg_label, successCount = hitungSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            return JsonErrorMessage("This Function is for JD.ID only");
+        }
+        //end by fauzi
 
         //add by nurul 11/12/2019, cetak label pesanan
         public ActionResult CetakLabelMo(string cust, string bukti, string[] rows_selected, string toko, string tlpToko, string ctkLabel, string alLink, string noLink, string namaLink, string mpLink, string nobukLink, string totalLink, string portLink, string refLink, List<tempBarcodeLazada> data, string ketLink)
