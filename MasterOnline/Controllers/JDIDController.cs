@@ -1146,7 +1146,14 @@ namespace MasterOnline.Controllers
                 if (typeBrg != 1)
                 {
                     //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
-                    sSQL_Value += " ( '" + skuId + "' , '" + skuId + "' , '";
+                    if (!string.IsNullOrEmpty(detItem.sellerSkuId.ToString()))
+                    {
+                        sSQL_Value += " ( '" + skuId + "' , '" + detItem.sellerSkuId.ToString() + "' , '";
+                    }
+                    else
+                    {
+                        sSQL_Value += " ( '" + skuId + "' , '" + skuId + "' , '";
+                    }
                     //sSQL_Value += " ( '" + skuId + "' , '' , '";
                     //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
@@ -1212,7 +1219,7 @@ namespace MasterOnline.Controllers
                 //}
                 //else
                 //{
-                attrVal = detItem.saleAttributeIds.Split(';');
+                
                 foreach (Newtonsoft.Json.Linq.JProperty property in detItem.saleAttributeNameMap)
                 {
                     brgAttribute.Add(property.Name, property.Value.ToString());
@@ -1236,25 +1243,38 @@ namespace MasterOnline.Controllers
                 sSQL_Value += statusBrg + " , '" + categoryCode[categoryCode.Length - 1] + "' , '" + categoryName[categoryName.Length - 1] + "' , '";
                 sSQL_Value += brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
                 int i;
-                for (i = 0; i < attrVal.Length; i++)
+                if (!string.IsNullOrEmpty(detItem.saleAttributeIds) && detItem.saleAttributeIds != "null")
                 {
-                    var attr = attrVal[i].Split(':');
-                    if (attr.Length == 2)
+                    attrVal = detItem.saleAttributeIds.Split(';');
+                    for (i = 0; i < attrVal.Length; i++)
                     {
-                        var attrName = (brgAttribute.TryGetValue(attrVal[i], out value) ? value : "").Split(':');
+                        var attr = attrVal[i].Split(':');
+                        if (attr.Length == 2)
+                        {
+                            var attrName = (brgAttribute.TryGetValue(attrVal[i], out value) ? value : "").Split(':');
 
-                        sSQL_Value += ",'" + attr[0] + "','" + attrName[0] + "','" + attr[1] + "'";
+                            sSQL_Value += ",'" + attr[0] + "','" + attrName[0] + "','" + attr[1] + "'";
+                        }
+                        else
+                        {
+                            sSQL_Value += ",'','',''";
+                        }
                     }
-                    else
+
+                    for (int j = i; j < 20; j++)
                     {
                         sSQL_Value += ",'','',''";
                     }
                 }
-
-                for (int j = i; j < 20; j++)
+                else
                 {
                     sSQL_Value += ",'','',''";
+                    for (int j = 2; j < 20; j++)
+                    {
+                        sSQL_Value += ",'','',''";
+                    }
                 }
+                                
 
                 sSQL_Value += "),";
                 //if (typeBrg == 1)

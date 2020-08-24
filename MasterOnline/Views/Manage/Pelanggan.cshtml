@@ -1368,7 +1368,7 @@
                 <h4 class="modal-title">JD ID API Key</h4>
             </div>
             <div class="modal-body">
-                <div class="row text-left">
+                @*<div class="row text-left">
                     <h4>1. Login akun JD.ID anda di web : http://api.jd.id/ctrlCenter/appList </h4>
                     <h4>2. Klik +New App.</h4>
                     <h4>3. Isi Nama aplikasi : Master Online, dan isi email anda. Kemudian Save</h4>
@@ -1376,6 +1376,16 @@
                     <h4>5. Pilih Category : Seller to JD, pastikan di bagian Waiting to auth semua sudah tercentang. Kemudian Save.</h4>
                     <h4>6. Setelah kembali ke list App, klik view dibagian Key dan Token.</h4>
                     <h4>7. Isi field di Master Online sesuai data yang tampil.</h4>
+                </div>*@
+                <div class="row text-left">
+                    <h4>1. Login akun JD.ID anda di web : http://api.jd.id/ctrlCenter/appList.</h4>
+                    <h4>2. Klik +New App.</h4>
+                    <h4>3. Isi Nama Aplikasi : Master Online, dan isi email anda. Kemudian Save.</h4>
+                    <h4>4. Aplikasi Master Online yang anda buat akan muncul pada App List, Klik Manage.</h4>
+                    <h4>5. Pilih Category: Seller to JD, pada kolom Not Apply silahkan centang All untuk menghubungkan all API JD.ID dengan Master Online. Kemudian Save.</h4>
+                    <h4>6. Setelah kembali ke App List, klik view dibagian Key&Token.</h4>
+                    <h4>7. Isi data di Master Online sesuai dengan data yang tampil.</h4>
+                    <h4>8. Integrasi JD.ID dan Master Online sudah aktif saat kolom Already own pada halaman JD.ID Open Platform anda sudah terisi.</h4>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1908,8 +1918,11 @@
                                     showHideJDForm(true);
                                     $('#JDAppSecret').show();
                                     $('#JDAccessToken').show();
+                                    $('#divAPIKey').show();
+                                    lblDesc.innerText = "APP key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
                                 } else {
                                     showHideJDForm(false);
+                                    lblDesc.innerText = "API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
                                 }
                                 //end unremark by nurul 25/3/2019
 
@@ -2798,7 +2811,12 @@
                         $('#JDAppSecret').append(labelAPP_SECRET + txtAPI_CLIENT_U);
                         $('#JDAccessToken').append(labelTOKEN + txtToken);
                         $('#lbl_Customers_API_KEY').html("APP Key *");
-                    }
+                        //add by fauzi 24 Agustus 2020
+                        $('#divAPIKey').show();
+                        lblDesc.innerText = "APP key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
+                    } else {
+                        lblDesc.innerText = "API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
+                    }//end add
                     if (@shopee == response.Customers.NAMA) {
                             lblDesc.style.visibility = 'hidden';
                         lblDesc2.style.visibility = 'hidden';
