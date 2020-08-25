@@ -1129,6 +1129,7 @@ namespace MasterOnline.Controllers
                 var brgAttribute = new Dictionary<string, string>();
                 string namaBrg = item.skuName;
                 string nama, nama2, urlImage, urlImage2, urlImage3, urlImage4, urlImage5;
+                var namaTemp = "";
                 urlImage = "";
                 urlImage2 = "";
                 urlImage3 = "";
@@ -1293,9 +1294,16 @@ namespace MasterOnline.Controllers
 
                 if (namaBrg.Length > 30)
                 {
-                    //string[] ssplitNama = namaBrg.Substring(0, 30).Split(' ');
-                    //var jumlahLength = ssplitNama.Length - 2;
-                    //if(ssplitNama.Length >= 2)
+                    string[] ssplitNama = namaBrg.Split(' ');
+                    nama = ssplitNama[0];
+
+                    int c;
+                    for (c = 1; c < ssplitNama.Length; c++)
+                    {
+                        namaTemp = namaTemp + ssplitNama[c] + " ";
+                    }
+
+                    //if (ssplitNama.Length >= 2)
                     //{
                     //    nama = ssplitNama[0] + " " + ssplitNama[1] + " " + ssplitNama[2];
                     //    nama2 = namaBrg.in(ssplitNama[3], );
@@ -1304,15 +1312,17 @@ namespace MasterOnline.Controllers
                     //{
                     //    nama = ssplitNama[0] + " " + ssplitNama[1];
                     //}
-                    nama = namaBrg.Substring(0, 30);
-                    if (namaBrg.Length > 285)
-                    {
-                        nama2 = namaBrg.Substring(30, 255);
-                    }
-                    else
-                    {
-                        nama2 = namaBrg.Substring(30);
-                    }
+
+                    //nama = namaBrg.Substring(0, 30);
+                    //if (namaBrg.Length > 285)
+                    //{
+                    //    nama2 = namaBrg.Substring(30, 255);
+                    //}
+                    //else
+                    //{
+                    //    nama2 = namaBrg.Substring(30);
+                    //}
+                    nama2 = namaTemp;
                 }
                 else
                 {

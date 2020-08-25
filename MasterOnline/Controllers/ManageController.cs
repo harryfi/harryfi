@@ -36778,6 +36778,7 @@ namespace MasterOnline.Controllers
             {
                 //ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST == cust).ToList(),
                 ListMarket = ErasoftDbContext.ARF01.ToList(),
+                TempArf01 = ErasoftDbContext.ARF01.Where(t => t.CUST == cust).FirstOrDefault(),
                 Stf02 = new STF02(),
                 TempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp.ToUpper()) && t.CUST == cust).FirstOrDefault(),
                 ListKategoriMerk = ErasoftDbContext.STF02E.Where(m => m.LEVEL.Equals("2")).OrderBy(m => m.KET).ToList(),
