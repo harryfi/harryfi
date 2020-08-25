@@ -2352,6 +2352,7 @@ namespace MasterOnline.Controllers
                                     {
                                         doInsert = false;
                                         idOrderCancel = idOrderCancel + "'" + order.orderId + "',";
+                                        jmlhOrderCancel++;
                                         //tidak ubah status menjadi selesai jika belum diisi faktur
                                         var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.orderId + "'");
                                         if (dsSIT01A.Tables[0].Rows.Count == 0)
@@ -2370,7 +2371,7 @@ namespace MasterOnline.Controllers
                                     if (OrderNoInDb.Contains(Convert.ToString(order.orderId)))
                                     {
                                         idOrderComplete = idOrderComplete + "'" + order.orderId + "',";
-                                        jmlhOrderCompleted++;
+                                        //jmlhOrderCompleted++;
                                         doInsert = false;
                                     }
                                 }
@@ -2379,7 +2380,7 @@ namespace MasterOnline.Controllers
                                     if (OrderNoInDb.Contains(Convert.ToString(order.orderId)))
                                     {
                                         idOrderRTS = idOrderRTS + "'" + order.orderId + "',";
-                                        jmlhOrderReadytoShip++;
+                                        //jmlhOrderReadytoShip++;
                                         doInsert = false;
                                     }
                                     else
@@ -2556,7 +2557,7 @@ namespace MasterOnline.Controllers
                             {
                                 idOrderComplete = idOrderComplete.Substring(0, idOrderComplete.Length - 1);
                                 var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + idOrderComplete + ") AND STATUS_TRANSAKSI = '03'");
-
+                                jmlhOrderCompleted = jmlhOrderCompleted + rowAffected;
                                 if (jmlhOrderCompleted > 0)
                                 {
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
@@ -2566,13 +2567,13 @@ namespace MasterOnline.Controllers
 
                             if (!string.IsNullOrEmpty(idOrderRTS))
                             {
-                                idOrderComplete = idOrderComplete.Substring(0, idOrderRTS.Length - 1);
-                                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + idOrderRTS + ") AND STATUS_TRANSAKSI = '03'");
-
-                                if (jmlhOrderCompleted > 0)
+                                idOrderRTS = idOrderRTS.Substring(0, idOrderRTS.Length - 1);
+                                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + idOrderRTS + ") AND STATUS_TRANSAKSI = '0'");
+                                jmlhOrderReadytoShip = jmlhOrderReadytoShip + rowAffected;
+                                if (jmlhOrderReadytoShip > 0)
                                 {
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                    contextNotif.Clients.Group(data.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderCompleted) + " Pesanan dari JD.ID sudah selesai.");
+                                    contextNotif.Clients.Group(data.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderReadytoShip) + " Pesanan dari JD.ID Ready To Ship.");
                                 }
                             }
                         }
