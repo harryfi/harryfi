@@ -10664,26 +10664,31 @@ namespace MasterOnline.Controllers
                                                         versiToken = tblCustomer.KD_ANALISA
                                                     };
                                                     string data_kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG;
-                                                    var listLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(m => m.REQUEST_ACTION == "Create Product" && m.MARKETPLACE.ToUpper() == "BLIBLI" && m.REQUEST_STATUS.ToLower() == "pending" && m.REQUEST_ATTRIBUTE_1 == data_kode).FirstOrDefault();
-                                                    if (listLog != null)
+                                                    var listLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(m => m.REQUEST_ACTION == "Create Product" && m.MARKETPLACE.ToUpper() == "BLIBLI" && m.REQUEST_STATUS.ToLower() == "pending" && m.REQUEST_ATTRIBUTE_1 == data_kode).OrderByDescending(m => m.REQUEST_DATETIME).ToList();
+                                                    if (listLog.Count > 0)
                                                     {
-                                                        var queBlibli = EDB.GetDataSet("CString", "QUEUE_FEED_BLIBLI", "SELECT * FROM QUEUE_FEED_BLIBLI WHERE LOG_REQUEST_ID = '" + listLog.REQUEST_ID + "' AND MERCHANT_CODE='" + iden2.merchant_code + "' AND STATUS = '1'");
-                                                        if (queBlibli.Tables[0].Rows.Count > 0)
+                                                        foreach(var insertLog in listLog)
                                                         {
-                                                            var queData = new BlibliControllerJob.BlibliQueueFeedData
+
+                                                            var queBlibli = EDB.GetDataSet("CString", "QUEUE_FEED_BLIBLI", "SELECT * FROM QUEUE_FEED_BLIBLI WHERE LOG_REQUEST_ID = '" + insertLog.REQUEST_ID + "' AND MERCHANT_CODE='" + iden2.merchant_code + "' AND STATUS = '1'");
+                                                            if (queBlibli.Tables[0].Rows.Count > 0)
                                                             {
-                                                                log_request_id = queBlibli.Tables[0].Rows[0]["LOG_REQUEST_ID"].ToString(),
-                                                                request_id = queBlibli.Tables[0].Rows[0]["REQUESTID"].ToString()
-                                                            };
-                                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND (REQUEST_ACTION = 'Buat Produk' OR REQUEST_ACTION = 'Cek Status Review') AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data_kode + "'";
-                                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
-#if (DEBUG || Debug_AWS)
-                                                            Task.Run(() => BliApiJob.GetQueueFeedDetail(iden2, queData).Wait());
-#else
-                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
-                                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.GetQueueFeedDetail(iden2, queData));
-#endif
+                                                                var queData = new BlibliControllerJob.BlibliQueueFeedData
+                                                                {
+                                                                    log_request_id = queBlibli.Tables[0].Rows[0]["LOG_REQUEST_ID"].ToString(),
+                                                                    request_id = queBlibli.Tables[0].Rows[0]["REQUESTID"].ToString()
+                                                                };
+                                                                string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND (REQUEST_ACTION = 'Buat Produk' OR REQUEST_ACTION = 'Cek Status Review') AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data_kode + "'";
+                                                                EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+    #if (DEBUG || Debug_AWS)
+                                                                Task.Run(() => BliApiJob.GetQueueFeedDetail(iden2, queData).Wait());
+    #else
+                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                        var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.GetQueueFeedDetail(iden2, queData));
+    #endif
+                                                                    break;
+                                                            }
                                                         }
 
                                                     }
@@ -10958,28 +10963,30 @@ namespace MasterOnline.Controllers
                                                         versiToken = tblCustomer.KD_ANALISA
                                                     };
                                                     string data_kode = string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG;
-                                                    var listLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(m => m.REQUEST_ACTION == "Create Product" && m.MARKETPLACE.ToUpper() == "BLIBLI" && m.REQUEST_STATUS.ToLower() == "pending" && m.REQUEST_ATTRIBUTE_1 == data_kode).FirstOrDefault();
+                                                    var listLog = ErasoftDbContext.API_LOG_MARKETPLACE.Where(m => m.REQUEST_ACTION == "Create Product" && m.MARKETPLACE.ToUpper() == "BLIBLI" && m.REQUEST_STATUS.ToLower() == "pending" && m.REQUEST_ATTRIBUTE_1 == data_kode).OrderByDescending(m => m.REQUEST_DATETIME).ToList();
                                                     if (listLog != null)
                                                     {
-                                                        var queBlibli = EDB.GetDataSet("CString", "QUEUE_FEED_BLIBLI", "SELECT * FROM QUEUE_FEED_BLIBLI WHERE LOG_REQUEST_ID = '" + listLog.REQUEST_ID + "' AND MERCHANT_CODE='" + iden2.merchant_code + "' AND STATUS = '1'");
-                                                        if (queBlibli.Tables[0].Rows.Count > 0)
+                                                        foreach (var insertLog in listLog)
                                                         {
-                                                            var queData = new BlibliControllerJob.BlibliQueueFeedData
+                                                            var queBlibli = EDB.GetDataSet("CString", "QUEUE_FEED_BLIBLI", "SELECT * FROM QUEUE_FEED_BLIBLI WHERE LOG_REQUEST_ID = '" + insertLog.REQUEST_ID + "' AND MERCHANT_CODE='" + iden2.merchant_code + "' AND STATUS = '1'");
+                                                            if (queBlibli.Tables[0].Rows.Count > 0)
                                                             {
-                                                                log_request_id = queBlibli.Tables[0].Rows[0]["LOG_REQUEST_ID"].ToString(),
-                                                                request_id = queBlibli.Tables[0].Rows[0]["REQUESTID"].ToString()
-                                                            };
-                                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND (REQUEST_ACTION = 'Buat Produk' OR REQUEST_ACTION = 'Cek Status Review') AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data_kode + "'";
-                                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                                                                var queData = new BlibliControllerJob.BlibliQueueFeedData
+                                                                {
+                                                                    log_request_id = queBlibli.Tables[0].Rows[0]["LOG_REQUEST_ID"].ToString(),
+                                                                    request_id = queBlibli.Tables[0].Rows[0]["REQUESTID"].ToString()
+                                                                };
+                                                                string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND (REQUEST_ACTION = 'Buat Produk' OR REQUEST_ACTION = 'Cek Status Review') AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data_kode + "'";
+                                                                EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
-                                                            Task.Run(() => BliApiJob.GetQueueFeedDetail(iden2, queData).Wait());
+                                                                Task.Run(() => BliApiJob.GetQueueFeedDetail(iden2, queData).Wait());
 #else
                                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                     clientJobServer.Enqueue<BlibliControllerJob>(x => x.GetQueueFeedDetail(iden2, queData));
 #endif
+                                                            }
                                                         }
-
                                                     }
                                                     //Task.Run(() => BliApi.GetQueueFeedDetail(iden, null).Wait());
                                                 }
@@ -11011,6 +11018,7 @@ namespace MasterOnline.Controllers
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
                                             clientJobServer.Enqueue<BlibliControllerJob>(x => x.ReviseProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", idenJob, null, null));
 #endif
+                                                    break;
                                                 }
                                                 else
                                                 {
