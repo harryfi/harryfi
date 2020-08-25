@@ -1143,6 +1143,121 @@ namespace MasterOnline.Controllers
                 //var display = statusBrg.Equals("active") ? 1 : 0;
                 string deskripsi = itemFromList.description;
 
+                var afterSaleCode = "";
+                var afterSaleDesc = "";
+                if (!string.IsNullOrEmpty(Convert.ToString(itemFromList.afterSale)))
+                {
+                    afterSaleCode = Convert.ToString(itemFromList.afterSale);
+                    switch (afterSaleCode)
+                    {
+                        case "1":
+                            afterSaleDesc = "Only Support 7 Days Refund";
+                            break;
+                        case "2":
+                            afterSaleDesc = "Not Support 7 Days Refund And 15 Days Exchange";
+                            break;
+                        case "3":
+                            afterSaleDesc = "Support 7 Days Refund And 15 Days Exchange";
+                            break;
+                        case "4":
+                            afterSaleDesc = "Only Support 15 Days Exchange";
+                            break;
+                        default:
+                            afterSaleDesc = "";
+                            break;
+                    }
+                }
+
+                var warrantyCode = "";
+                var warrantyDesc = "";
+                if (!string.IsNullOrEmpty(Convert.ToString(itemFromList.warrantyPeriod)))
+                {
+                    warrantyCode = Convert.ToString(itemFromList.warrantyPeriod);
+                    switch (warrantyCode)
+                    {
+                        case "1":
+                            warrantyDesc = "No warranty";
+                            break;
+                        case "50":
+                            warrantyDesc = "6 months official warranty";
+                            break;
+                        case "51":
+                            warrantyDesc = "8 months official warranty";
+                            break;
+                        case "52":
+                            warrantyDesc = "18 months official warranty";
+                            break;
+                        case "2":
+                            warrantyDesc = "1 year official warranty";
+                            break;
+                        case "3":
+                            warrantyDesc = "2 year official warranty";
+                            break;
+                        case "4":
+                            warrantyDesc = "3 year official warranty";
+                            break;
+                        case "11":
+                            warrantyDesc = "4 year official warranty";
+                            break;
+                        case "12":
+                            warrantyDesc = "5 year official warranty";
+                            break;
+                        case "5":
+                            warrantyDesc = "1 year shop warranty";
+                            break;
+                        case "6":
+                            warrantyDesc = "2 year shop warranty";
+                            break;
+                        case "7":
+                            warrantyDesc = "3 year shop warranty";
+                            break;
+                        case "21":
+                            warrantyDesc = "4 year shop warranty";
+                            break;
+                        case "22":
+                            warrantyDesc = "5 year shop warranty";
+                            break;
+                        case "31":
+                            warrantyDesc = "1 year compressor warranty";
+                            break;
+                        case "32":
+                            warrantyDesc = "2 year compressor warranty";
+                            break;
+                        case "33":
+                            warrantyDesc = "3 year compressor warranty";
+                            break;
+                        case "35":
+                            warrantyDesc = "5 year compressor warranty";
+                            break;
+                        case "30":
+                            warrantyDesc = "10 year compressor warranty";
+                            break;
+                        case "41":
+                            warrantyDesc = "1 year motor warranty";
+                            break;
+                        case "42":
+                            warrantyDesc = "2 year motor warranty";
+                            break;
+                        case "43":
+                            warrantyDesc = "3 year motor warranty";
+                            break;
+                        case "45":
+                            warrantyDesc = "5 year motor warranty";
+                            break;
+                        case "40":
+                            warrantyDesc = "10 year motor warranty";
+                            break;
+                        case "8":
+                            warrantyDesc = "Lifetime warranty";
+                            break;
+                        default:
+                            warrantyDesc = "";
+                            break;
+                    }
+                }
+
+
+
                 if (typeBrg != 1)
                 {
                     //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
@@ -1271,15 +1386,45 @@ namespace MasterOnline.Controllers
 
                     for (int j = i; j < 20; j++)
                     {
-                        sSQL_Value += ",'','',''";
+                        if(j == 18)
+                        {
+                            //ACODE_20, ANAME_20, AVALUE_20 for aftersale
+                            if(typeBrg != 2)
+                            sSQL_Value += ",'" + afterSaleCode + "','aftersale','" + afterSaleDesc + "'";
+                        }
+                        else if(j == 19)
+                        {
+                            //ACODE_20, ANAME_20, AVALUE_20 for warranty
+                            if(typeBrg != 2)
+                            sSQL_Value += ",'" + warrantyCode + "','warranty','" + warrantyDesc + "'";
+                        }
+                        else
+                        {
+                            sSQL_Value += ",'','',''";
+                        }
                     }
                 }
                 else
                 {
                     sSQL_Value += ",'','',''";
-                    for (int j = 2; j < 20; j++)
+                    for (int j = 1; j < 20; j++)
                     {
-                        sSQL_Value += ",'','',''";
+                        if (j == 18)
+                        {
+                            //ACODE_20, ANAME_20, AVALUE_20 for aftersale
+                            if(typeBrg != 2)
+                            sSQL_Value += ",'" + afterSaleCode + "','aftersale','" + afterSaleDesc + "'";
+                        }
+                        else if (j == 19)
+                        {
+                            //ACODE_20, ANAME_20, AVALUE_20 for warranty
+                            if(typeBrg != 2)
+                            sSQL_Value += ",'" + warrantyCode + "','warranty','" + warrantyDesc + "'";
+                        }
+                        else
+                        {
+                            sSQL_Value += ",'','',''";
+                        }
                     }
                 }
                                 
@@ -2054,7 +2199,7 @@ namespace MasterOnline.Controllers
         public long warrantyPeriod { get; set; }
         public string description { get; set; }
         public long shopId { get; set; }
-        //public int afterSale { get; set; }
+        public int afterSale { get; set; }
         public string spuName { get; set; }
         //public string appDescription { get; set; }
         public int wareStatus { get; set; }
