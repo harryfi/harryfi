@@ -48483,7 +48483,40 @@ namespace MasterOnline.Controllers
                                             {
                                                 if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 2].Value)))
                                                 {
-                                                    if (Convert.ToString(worksheet.Cells[i, 2].Value).Split(' ').First() == "Transaksi" || Convert.ToString(worksheet.Cells[i, 2].Value).Split(' ').First() == "Pemotongan")
+                                                    //CHANGE BY NURUL 24/8/2020
+                                                    //if (Convert.ToString(worksheet.Cells[i, 2].Value).Split(' ').First() == "Transaksi" || Convert.ToString(worksheet.Cells[i, 2].Value).Split(' ').First() == "Pemotongan")
+                                                    //{
+                                                    //    var tempData = new mdlTempBayarTokped() { };
+                                                    //    if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 1].Value)))
+                                                    //    {
+                                                    //        tempData.TGL = Convert.ToDateTime(worksheet.Cells[i, 1].Value);
+                                                    //    }
+                                                    //    if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 2].Value)))
+                                                    //    {
+                                                    //        //var tempDesc = Convert.ToString(worksheet.Cells[i, 2].Value).Split('-');
+                                                    //        var tempDesc = Convert.ToString(worksheet.Cells[i, 2].Value).Split(new string[] { "INV/" }, StringSplitOptions.None);
+                                                    //        tempData.KETERANGAN = tempDesc[0];
+                                                    //        //tempData.REF = tempDesc[1].Substring[1];
+                                                    //        if (tempDesc[1].Contains(" "))
+                                                    //        {
+                                                    //            var getref = tempDesc[1].Split(' ');
+                                                    //            tempData.REF = "INV/" + getref[0];
+                                                    //        }
+                                                    //        else
+                                                    //        {
+                                                    //            tempData.REF = "INV/" + tempDesc[1];
+                                                    //        }
+
+                                                    //    }
+                                                    //    if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
+                                                    //    {
+                                                    //        tempData.NILAI = Convert.ToDouble(worksheet.Cells[i, 3].Value);
+                                                    //    }
+                                                    //    recordsTokped.Add(tempData);
+                                                    //    ret.sudahSimpanTemp = true;
+                                                    //}
+
+                                                    if (Convert.ToString(worksheet.Cells[i, 2].Value).Contains("INV/"))
                                                     {
                                                         var tempData = new mdlTempBayarTokped() { };
                                                         if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 1].Value)))
@@ -48492,10 +48525,16 @@ namespace MasterOnline.Controllers
                                                         }
                                                         if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 2].Value)))
                                                         {
-                                                            //var tempDesc = Convert.ToString(worksheet.Cells[i, 2].Value).Split('-');
                                                             var tempDesc = Convert.ToString(worksheet.Cells[i, 2].Value).Split(new string[] { "INV/" }, StringSplitOptions.None);
-                                                            tempData.KETERANGAN = tempDesc[0];
-                                                            //tempData.REF = tempDesc[1].Substring[1];
+                                                            var first = tempDesc[0].Split(' ').First();
+                                                            if (first.Contains("Transaksi") || first.Contains("Pemotongan"))
+                                                            {
+                                                                tempData.KETERANGAN = tempDesc[0];
+                                                            }
+                                                            else
+                                                            {
+                                                                tempData.KETERANGAN = Convert.ToString(worksheet.Cells[i, 2].Value);
+                                                            }
                                                             if (tempDesc[1].Contains(" "))
                                                             {
                                                                 var getref = tempDesc[1].Split(' ');
@@ -48514,6 +48553,7 @@ namespace MasterOnline.Controllers
                                                         recordsTokped.Add(tempData);
                                                         ret.sudahSimpanTemp = true;
                                                     }
+                                                    //END CHANGE BY NURUL 24/8/2020
                                                 }
                                             }
                                         }
@@ -48741,27 +48781,77 @@ namespace MasterOnline.Controllers
                                                             TGL_INPUT = DateTime.UtcNow.AddHours(7),
                                                             USERNAME = uname
                                                         });
+
+                                        //ADD BY NURUL 24/8/2020
+                                        var cekDipotongKarnaResolusi = new List<string>();
+                                        var cekKetTidakDiketahui = recordsTokped.Where(a => !a.KETERANGAN.Contains("Transaksi") && !a.KETERANGAN.Contains("Pemotongan")).ToList();
+                                        if (cekKetTidakDiketahui.Count() > 0)
+                                        {
+                                            for (int i = 0; i < cekKetTidakDiketahui.Count(); i++)
+                                            {
+                                                if (cekKetTidakDiketahui[i].KETERANGAN.Contains("Dipotong karena Solusi dari Resolusi"))
+                                                {
+                                                    cekDipotongKarnaResolusi.Add(cekKetTidakDiketahui[i].REF);
+                                                    var nilai = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "Rp. {0:N}", cekKetTidakDiketahui[i].NILAI);
+                                                    TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                    {
+                                                        LOG_FILE = ret.buktiLog,
+                                                        VARIABLE_1 = ret.nobuk,
+                                                        VARIABLE_2 = ret.TipeData,
+                                                        TEXT_1 = "Transaksi dengan No. Invoice " + cekKetTidakDiketahui[i].REF + " Dipotong karena Solusi dari Resolusi senilai " + nilai + ".<br />",
+                                                        TEXT_2 = cekKetTidakDiketahui[i].REF,
+                                                        TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                        USERNAME = uname
+                                                    };
+                                                    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                                    ErasoftDbContext.SaveChanges();
+                                                }
+                                                else
+                                                {
+                                                    var nilai = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "Rp. {0:N}", cekKetTidakDiketahui[i].NILAI);
+                                                    TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                    {
+                                                        LOG_FILE = ret.buktiLog,
+                                                        VARIABLE_1 = ret.nobuk,
+                                                        VARIABLE_2 = ret.TipeData,
+                                                        TEXT_1 = "Transaksi " + cekKetTidakDiketahui[i].KETERANGAN + " belum ada dalam perhitungan senilai " + nilai + ".<br />",
+                                                        TEXT_2 = cekKetTidakDiketahui[i].REF,
+                                                        TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                        USERNAME = uname
+                                                    };
+                                                    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                                    ErasoftDbContext.SaveChanges();
+                                                }
+                                            }
+                                        }                                        
+                                        //END ADD BY NURUL 24/8/2020
+
                                         ErasoftDbContext.Database.ExecuteSqlCommand("update ART03A set LOG_FILE = '" + ret.buktiLog + ";" + detail1.Count().ToString() + "' where BUKTI ='" + ret.nobuk + "' and LOG_FILE ='" + ret.buktiLog + "'");
                                         foreach (var bayar in detail1)
                                         {
-                                            TEMP_UPLOAD_EXCEL_BAYAR rec = new TEMP_UPLOAD_EXCEL_BAYAR()
+                                            //ADD BY NURUL 24/8/2020
+                                            if (!cekDipotongKarnaResolusi.Contains(bayar.NOREF))
                                             {
-                                                NAMA_FILE = bayar.NAMA_FILE,
-                                                CUST = bayar.CUST,
-                                                MARKETPLACE = bayar.MARKETPLACE,
-                                                NOREF = bayar.NOREF,
-                                                TGL = bayar.TGL,
-                                                BAYAR = bayar.BAYAR,
-                                                POTONGAN = bayar.POTONGAN,
-                                                NILAI_REF = bayar.NILAI_REF,
-                                                NILAI_LAIN = bayar.NILAI_LAIN,
-                                                TGL_INPUT = bayar.TGL_INPUT,
-                                                SUDAH_INPUT = bayar.SUDAH_INPUT,
-                                                USERNAME = bayar.USERNAME,
-                                                KET = bayar.KET
-                                            };
-                                            ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Add(rec);
-                                            ErasoftDbContext.SaveChanges();
+                                            //END ADD BY NURUL 24/8/2020
+                                                TEMP_UPLOAD_EXCEL_BAYAR rec = new TEMP_UPLOAD_EXCEL_BAYAR()
+                                                {
+                                                    NAMA_FILE = bayar.NAMA_FILE,
+                                                    CUST = bayar.CUST,
+                                                    MARKETPLACE = bayar.MARKETPLACE,
+                                                    NOREF = bayar.NOREF,
+                                                    TGL = bayar.TGL,
+                                                    BAYAR = bayar.BAYAR,
+                                                    POTONGAN = bayar.POTONGAN,
+                                                    NILAI_REF = bayar.NILAI_REF,
+                                                    NILAI_LAIN = bayar.NILAI_LAIN,
+                                                    TGL_INPUT = bayar.TGL_INPUT,
+                                                    SUDAH_INPUT = bayar.SUDAH_INPUT,
+                                                    USERNAME = bayar.USERNAME,
+                                                    KET = bayar.KET
+                                                };
+                                                ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Add(rec);
+                                                ErasoftDbContext.SaveChanges();
+                                            }
                                         }
 
                                         list_ref = ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == ret.nobuk && a.NAMA_FILE == ret.TipeData && a.CUST == cust_id).Select(A => A.NOREF).ToList();
