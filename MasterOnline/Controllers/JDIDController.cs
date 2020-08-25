@@ -1219,11 +1219,16 @@ namespace MasterOnline.Controllers
                 //}
                 //else
                 //{
-                
-                foreach (Newtonsoft.Json.Linq.JProperty property in detItem.saleAttributeNameMap)
-                {
-                    brgAttribute.Add(property.Name, property.Value.ToString());
+                if (detItem.saleAttributeNameMap != null){
+                    if(detItem.saleAttributeNameMap.Count() > 0)
+                    {
+                        foreach (Newtonsoft.Json.Linq.JProperty property in detItem.saleAttributeNameMap)
+                        {
+                            brgAttribute.Add(property.Name, property.Value.ToString());
+                        }
+                    }
                 }
+                
                 //price = brgAttribute.TryGetValue("jdPrice", out value) ? Convert.ToDouble(value) : Convert.ToDouble(item.jdPrice);
                 if (Convert.ToDouble(detItem.jdPrice) > 0)
                     price = Convert.ToDouble(detItem.jdPrice);
