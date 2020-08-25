@@ -1219,15 +1219,12 @@ namespace MasterOnline.Controllers
                 //}
                 //else
                 //{
-                if (detItem.saleAttributeNameMap != null){
-                    if(detItem.saleAttributeNameMap.Count() > 0)
-                    {
-                        foreach (Newtonsoft.Json.Linq.JProperty property in detItem.saleAttributeNameMap)
-                        {
-                            brgAttribute.Add(property.Name, property.Value.ToString());
-                        }
-                    }
-                }
+                //if (detItem.saleAttributeNameMap != null){
+                //    if(detItem.saleAttributeNameMap.Count > 0)
+                //    {
+                        
+                //    }
+                //}
                 
                 //price = brgAttribute.TryGetValue("jdPrice", out value) ? Convert.ToDouble(value) : Convert.ToDouble(item.jdPrice);
                 if (Convert.ToDouble(detItem.jdPrice) > 0)
@@ -1251,6 +1248,12 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrEmpty(detItem.saleAttributeIds) && detItem.saleAttributeIds != "null")
                 {
                     attrVal = detItem.saleAttributeIds.Split(';');
+
+                    foreach (Newtonsoft.Json.Linq.JProperty property in detItem.saleAttributeNameMap)
+                    {
+                        brgAttribute.Add(property.Name, property.Value.ToString());
+                    }
+
                     for (i = 0; i < attrVal.Length; i++)
                     {
                         var attr = attrVal[i].Split(':');
