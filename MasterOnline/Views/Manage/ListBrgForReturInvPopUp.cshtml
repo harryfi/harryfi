@@ -264,13 +264,18 @@
 
                 var cekTrue = [];
                 cekTrue.length = 0;
+                var cekQty = [];
+                cekQty.length = 0;
                 $(".checkbox_barang").each(function (z, chk) {
                     if ($(chk).prop('checked') == true) {
+                        var tempRec = $(chk).attr("data-recnum");
                         cekTrue.push($(chk).attr("data-recnum"));
+                        cekQty.push($('#table-barang-popup #Qty-' + tempRec).val())
                     }
                 });
                 if (cekTrue.length > 0) {
                     var tempBrg = "";
+                    var tempQty = "";
                     cekTrue.forEach(function (item) {
                         if (item != null && item != "") {
                             if (tempBrg != "") {
@@ -279,8 +284,16 @@
                             tempBrg += item;
                         }
                     });
+                    cekQty.forEach(function (item) {
+                        if (item != null && item != "") {
+                            if (tempQty != "") {
+                                tempQty += ";"
+                            }
+                            tempQty += item;
+                        }
+                    });
 
-                    var temp_Value = $("#setGd").val() + "|" + tempBrg;
+                    var temp_Value = $("#setGd").val() + "|" + tempBrg + "|" + tempQty;
                     self.window.close();
                     window.onunload = refreshTextBox;
                     function refreshTextBox() {
