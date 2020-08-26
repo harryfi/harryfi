@@ -266,41 +266,48 @@
                 cekTrue.length = 0;
                 var cekQty = [];
                 cekQty.length = 0;
+                var lanjut = true;
                 $(".checkbox_barang").each(function (z, chk) {
                     if ($(chk).prop('checked') == true) {
                         var tempRec = $(chk).attr("data-recnum");
                         cekTrue.push($(chk).attr("data-recnum"));
                         cekQty.push($('#table-barang-popup #Qty-' + tempRec).val())
+                        if ($('#table-barang-popup #Qty-' + tempRec).val() > $('#table-barang-popup #QtyRetur-' + tempRec).text()) {
+                            alert('Kuantitas retur brg (' + $(chk).attr("data-brg") + ') tidak boleh melebihi kuantitas awal invoice (' + $('#table-barang-popup #QtyRetur-' + tempRec).text() + ')!');
+                            lanjut = false;
+                        }
                     }
                 });
-                if (cekTrue.length > 0) {
-                    var tempBrg = "";
-                    var tempQty = "";
-                    cekTrue.forEach(function (item) {
-                        if (item != null && item != "") {
-                            if (tempBrg != "") {
-                                tempBrg += ","
+                if (lanjut == true) {
+                    if (cekTrue.length > 0) {
+                        var tempBrg = "";
+                        var tempQty = "";
+                        cekTrue.forEach(function (item) {
+                            if (item != null && item != "") {
+                                if (tempBrg != "") {
+                                    tempBrg += ","
+                                }
+                                tempBrg += item;
                             }
-                            tempBrg += item;
-                        }
-                    });
-                    cekQty.forEach(function (item) {
-                        if (item != null && item != "") {
-                            if (tempQty != "") {
-                                tempQty += ";"
+                        });
+                        cekQty.forEach(function (item) {
+                            if (item != null && item != "") {
+                                if (tempQty != "") {
+                                    tempQty += ";"
+                                }
+                                tempQty += item;
                             }
-                            tempQty += item;
-                        }
-                    });
+                        });
 
-                    var temp_Value = $("#setGd").val() + "|" + tempBrg + "|" + tempQty;
-                    self.window.close();
-                    window.onunload = refreshTextBox;
-                    function refreshTextBox() {
-                        window.opener.ProsesReturAfterPrompt(temp_Value);
+                        var temp_Value = $("#setGd").val() + "|" + tempBrg + "|" + tempQty;
+                        self.window.close();
+                        window.onunload = refreshTextBox;
+                        function refreshTextBox() {
+                            window.opener.ProsesReturAfterPrompt(temp_Value);
+                        }
+                    } else {
+                        alert('Silahkan Pilih barang yang akan di retur.');
                     }
-                } else {
-                    alert('Silahkan Pilih barang yang akan di retur.');
                 }
             } else {
                 alert('Silahkan pilih gudang terlebih dahulu.');

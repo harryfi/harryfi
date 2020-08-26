@@ -54098,6 +54098,10 @@ namespace MasterOnline.Controllers
                 if (invoiceDetailInDb.Count() > 0)
                 {
                     //foreach (var item in rec_detail)
+                    var vmError = new InvoiceViewModel()
+                    {
+
+                    };
                     for (int i = 0; i < rec_detail.Count(); i++)
                     {
                         var getbrg = invoiceDetailInDb.Where(a => a.NO.ToString() == rec_detail[i]).FirstOrDefault();
@@ -54107,18 +54111,22 @@ namespace MasterOnline.Controllers
                         var qtyBrg = Convert.ToDouble(rec_qty[i]);
                         if (qtyOnHand - qtyBrg < 0)
                         {
-                            var vmError = new InvoiceViewModel()
-                            {
-
-                            };
+                            
                             //vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + getbrg.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
-                            vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + gudang + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                            vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + gudang + " sisa ( " + Convert.ToString(qtyOnHand) + " )." + System.Environment.NewLine);
                             //return Json(vmError, JsonRequestBehavior.AllowGet);
-                            string sql1 = "delete from pbt01a where inv='" + bukti + "'";
-                            ErasoftDbContext.Database.ExecuteSqlCommand(sql1);
+                            //string sql1 = "delete from pbt01a where inv='" + bukti + "'";
+                            //ErasoftDbContext.Database.ExecuteSqlCommand(sql1);
                             //return new JsonResult { Data = new { mo_error = "Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + getbrg.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                            return new JsonResult { Data = new { mo_error = "Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + gudang + " sisa ( " + Convert.ToString(qtyOnHand) + " ).", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                            //return new JsonResult { Data = new { mo_error = "Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + gudang + " sisa ( " + Convert.ToString(qtyOnHand) + " ).", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                         }
+                    }
+
+                    if(vmError.Errors.Count() > 0)
+                    {
+                        string sql1 = "delete from pbt01a where inv='" + bukti + "'";
+                        ErasoftDbContext.Database.ExecuteSqlCommand(sql1);
+                        return new JsonResult { Data = new { mo_error = vmError.Errors.ToArray(), mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
                 }
                 else
