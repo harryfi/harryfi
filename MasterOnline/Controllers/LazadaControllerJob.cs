@@ -382,7 +382,15 @@ namespace MasterOnline.Controllers
             {
                 xmlString += "<" + lzdAttr.Key + ">";
                 //xmlString += XmlEscape(lzdAttr.Value.ToString());
-                xmlString += "<![CDATA[" + XmlEscape(Convert.ToString(lzdAttr.Value).Replace(System.Environment.NewLine, "<br>")) + "]]>";
+                //xmlString += "<![CDATA[" + XmlEscape(Convert.ToString(lzdAttr.Value).Replace(System.Environment.NewLine, "<br>")) + "]]>";
+                if (lzdAttr.Value.ToString().Contains("<p>"))
+                {
+                    xmlString += "<![CDATA[" + lzdAttr.Value.ToString().Replace("\r\n", "").Replace("&nbsp;", " ").Replace("<em>", "<i>").Replace("</em>", "</i>").Replace(System.Environment.NewLine, "<br>") + "]]>";
+                }
+                else
+                {
+                    xmlString += XmlEscape(lzdAttr.Value.ToString());
+                }
                 xmlString += "</" + lzdAttr.Key + ">";
             }
             //end change 8 Apriil 2019, get attr from api
