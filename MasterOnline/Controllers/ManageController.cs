@@ -54019,13 +54019,73 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public ActionResult SaveDetailReturInvoice(string get_selected, string bukti, string noref, string gudang)
+        //add by nurul 27/8/2020
+        public ActionResult validasiQOHReturInvoice(string get_selected, string noref, string gudang, string get_selected_qty)
+        {
+            var temp_brg = "";
+            var rec_detail = new List<string>();
+            var rec_qty = new List<string>();
+            if (get_selected != null && get_selected != "")
+            {
+                rec_detail = get_selected.Split(',').ToList();
+                foreach (var rec in rec_detail)
+                {
+                    if (temp_brg != "")
+                    {
+                        temp_brg += ",";
+                    }
+
+                    temp_brg += "'" + rec + "'";
+                }
+            }
+            else
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Tidak ada barang yang dipilih.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            if (get_selected_qty != null && get_selected_qty != "")
+            {
+                rec_qty = get_selected_qty.Split(';').ToList();
+            }
+            var invoiceDetailInDb = ErasoftDbContext.PBT01B.Where(b => b.INV == noref).ToList();
+            if (invoiceDetailInDb.Count() > 0)
+            {
+                var vmError = new InvoiceViewModel()
+                {
+
+                };
+                for (int i = 0; i < rec_detail.Count(); i++)
+                {
+                    var getbrg = invoiceDetailInDb.Where(a => a.NO.ToString() == rec_detail[i]).FirstOrDefault();
+                    var qtyOnHand = GetQOHSTF08A(getbrg.BRG, gudang);
+
+                    var qtyBrg = Convert.ToDouble(rec_qty[i]);
+                    if (qtyOnHand - qtyBrg < 0)
+                    {
+                        vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + gudang + " sisa ( " + Convert.ToString(qtyOnHand) + " )." + System.Environment.NewLine);
+                    }
+                }
+
+                if (vmError.Errors.Count() > 0)
+                {
+                    return new JsonResult { Data = new { mo_error = vmError.Errors.ToArray(), mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+            }
+            else
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            return new EmptyResult();
+        }
+        //end add by nurul 27/8/2020
+
+        public ActionResult SaveDetailReturInvoice(string get_selected, string bukti, string noref, string gudang, string get_selected_qty)
         {
             try
             {
                 bool returBaru = false;
                 var temp_brg = "";
                 var rec_detail = new List<string>();
+                var rec_qty = new List<string>();
                 if (get_selected != null && get_selected != "")
                 {
                     rec_detail = get_selected.Split(',').ToList();
@@ -54076,26 +54136,56 @@ namespace MasterOnline.Controllers
                     return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
 
+                //add by nurul 26/8/2020
+                if (get_selected_qty != null && get_selected_qty != "")
+                {
+                    rec_qty = get_selected_qty.Split(';').ToList();
+                    //foreach (var rec in rec_qty)
+                    //{
+                    //    if (temp_brg != "")
+                    //    {
+                    //        temp_brg += ",";
+                    //    }
+
+                    //    temp_brg += "'" + rec + "'";
+                    //}
+                    //returBaru = true;
+                }
+                //end add by nurul 26/8/2020
+
                 var invoiceDetailInDb = ErasoftDbContext.PBT01B.Where(b => b.INV == noref).ToList();
                 if (invoiceDetailInDb.Count() > 0)
                 {
-                    foreach (var item in rec_detail)
+                    //foreach (var item in rec_detail)
+                    var vmError = new InvoiceViewModel()
                     {
-                        var getbrg = invoiceDetailInDb.Where(a => a.NO.ToString() == item).FirstOrDefault();
+
+                    };
+                    for (int i = 0; i < rec_detail.Count(); i++)
+                    {
+                        var getbrg = invoiceDetailInDb.Where(a => a.NO.ToString() == rec_detail[i]).FirstOrDefault();
                         var qtyOnHand = GetQOHSTF08A(getbrg.BRG, gudang);
 
-                        if (qtyOnHand - getbrg.QTY < 0)
+                        //if (qtyOnHand - getbrg.QTY < 0)
+                        var qtyBrg = Convert.ToDouble(rec_qty[i]);
+                        if (qtyOnHand - qtyBrg < 0)
                         {
-                            var vmError = new InvoiceViewModel()
-                            {
-
-                            };
-                            vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + getbrg.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                            
+                            //vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + getbrg.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                            vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + gudang + " sisa ( " + Convert.ToString(qtyOnHand) + " )." + System.Environment.NewLine);
                             //return Json(vmError, JsonRequestBehavior.AllowGet);
-                            string sql1 = "delete from pbt01a where inv='" + bukti + "'";
-                            ErasoftDbContext.Database.ExecuteSqlCommand(sql1);
-                            return new JsonResult { Data = new { mo_error = "Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + getbrg.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                            //string sql1 = "delete from pbt01a where inv='" + bukti + "'";
+                            //ErasoftDbContext.Database.ExecuteSqlCommand(sql1);
+                            //return new JsonResult { Data = new { mo_error = "Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + getbrg.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                            //return new JsonResult { Data = new { mo_error = "Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + gudang + " sisa ( " + Convert.ToString(qtyOnHand) + " ).", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                         }
+                    }
+
+                    if(vmError.Errors.Count() > 0)
+                    {
+                        string sql1 = "delete from pbt01a where inv='" + bukti + "'";
+                        ErasoftDbContext.Database.ExecuteSqlCommand(sql1);
+                        return new JsonResult { Data = new { mo_error = vmError.Errors.ToArray(), mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
                 }
                 else
@@ -54117,17 +54207,57 @@ namespace MasterOnline.Controllers
                     if (temp_brg.Count() > 0)
                     {
                         //insert detail
+                        //CHANGE BY NURUL 26/8/2020
+                        //string insertDetail = "INSERT INTO PBT01B (JENISFORM,INV,PO,BRG,NAMA_BRG,GD,BK,QTY,DISC2,NDISC2,HBELI,THARGA,NOBUK,AUTO_LOAD, ";
+                        //insertDetail += "   QTY_RETUR,BIAYA,USERNAME,TGLINPUT,TOTAL_LOT,TOTAL_QTY,DISCOUNT_1,DISCOUNT_2,DISCOUNT_3, ";
+                        //insertDetail += "   NILAI_DISC_1,NILAI_DISC_2,NILAI_DISC_3,KET,NO_URUT_PO,PPNBM,NILAI_PPNBM,BRG_ORIGINAL,LKU ";
+                        //insertDetail += "   )";
+                        //insertDetail += "SELECT ";
+                        //insertDetail += "   '2','" + bukti + "',B.PO,B.BRG,B.NAMA_BRG,'" + gudang + "',B.BK,B.QTY,B.DISC2,B.NDISC2,B.HBELI,B.THARGA,B.NOBUK,B.AUTO_LOAD,";
+                        //insertDetail += "   B.QTY_RETUR,B.BIAYA,B.USERNAME,B.TGLINPUT,B.TOTAL_LOT,B.TOTAL_QTY,B.DISCOUNT_1,B.DISCOUNT_2,B.DISCOUNT_3, ";
+                        //insertDetail += "   B.NILAI_DISC_1,B.NILAI_DISC_2,B.NILAI_DISC_3,B.KET,B.NO,B.PPNBM,B.NILAI_PPNBM,B.BRG_ORIGINAL,B.LKU ";
+                        //insertDetail += "FROM PBT01A A LEFT JOIN PBT01B B ON A.INV=B.INV  ";
+                        //insertDetail += "WHERE A.INV='" + noref + "' AND B.NO IN (" + temp_brg + ") ";
+                        //ErasoftDbContext.Database.ExecuteSqlCommand(insertDetail);
                         string insertDetail = "INSERT INTO PBT01B (JENISFORM,INV,PO,BRG,NAMA_BRG,GD,BK,QTY,DISC2,NDISC2,HBELI,THARGA,NOBUK,AUTO_LOAD, ";
                         insertDetail += "   QTY_RETUR,BIAYA,USERNAME,TGLINPUT,TOTAL_LOT,TOTAL_QTY,DISCOUNT_1,DISCOUNT_2,DISCOUNT_3, ";
                         insertDetail += "   NILAI_DISC_1,NILAI_DISC_2,NILAI_DISC_3,KET,NO_URUT_PO,PPNBM,NILAI_PPNBM,BRG_ORIGINAL,LKU ";
-                        insertDetail += "   )";
-                        insertDetail += "SELECT ";
-                        insertDetail += "   '2','" + bukti + "',B.PO,B.BRG,B.NAMA_BRG,'" + gudang + "',B.BK,B.QTY,B.DISC2,B.NDISC2,B.HBELI,B.THARGA,B.NOBUK,B.AUTO_LOAD,";
-                        insertDetail += "   B.QTY_RETUR,B.BIAYA,B.USERNAME,B.TGLINPUT,B.TOTAL_LOT,B.TOTAL_QTY,B.DISCOUNT_1,B.DISCOUNT_2,B.DISCOUNT_3, ";
-                        insertDetail += "   B.NILAI_DISC_1,B.NILAI_DISC_2,B.NILAI_DISC_3,B.KET,B.NO,B.PPNBM,B.NILAI_PPNBM,B.BRG_ORIGINAL,B.LKU ";
-                        insertDetail += "FROM PBT01A A LEFT JOIN PBT01B B ON A.INV=B.INV  ";
-                        insertDetail += "WHERE A.INV='" + noref + "' AND B.NO IN (" + temp_brg + ") ";
+                        insertDetail += "   ) ";
+                        for (int i = 0; i < rec_detail.Count(); i++)
+                        {
+                            var qtyBrg = Convert.ToDouble(rec_qty[i]);
+                            var detail = rec_detail[i];
+                            if (rec_detail.Count() > 0)
+                            {
+                                if (rec_detail[i] == rec_detail.First())
+                                {
+                                    insertDetail += " ( ";
+                                }
+                            }
+                                insertDetail += "SELECT ";
+                                insertDetail += "   '2','" + bukti + "',B.PO,B.BRG,B.NAMA_BRG,'" + gudang + "',B.BK,'" + qtyBrg + "',B.DISC2,B.NDISC2,B.HBELI, ";
+                                insertDetail += "   ((" + qtyBrg + " * B.HBELI) - (B.NILAI_DISC_1 + B.NILAI_DISC_2)) AS THARGA, ";
+                                insertDetail += "   B.NOBUK,B.AUTO_LOAD, ";
+                                insertDetail += "   B.QTY_RETUR,B.BIAYA,B.USERNAME,B.TGLINPUT,B.TOTAL_LOT,B.TOTAL_QTY,B.DISCOUNT_1,B.DISCOUNT_2,B.DISCOUNT_3, ";
+                                insertDetail += "   B.NILAI_DISC_1,B.NILAI_DISC_2,B.NILAI_DISC_3,B.KET,B.NO,B.PPNBM,B.NILAI_PPNBM,B.BRG_ORIGINAL,B.LKU ";
+                                insertDetail += "FROM PBT01A A LEFT JOIN PBT01B B ON A.INV=B.INV  ";
+                                insertDetail += "WHERE A.INV='" + noref + "' AND B.NO IN (" + rec_detail[i] + ")  ";
+                            if(rec_detail.Count() > 0)
+                            {
+                                if (rec_detail[i] != rec_detail.Last())
+                                {
+                                    insertDetail += " union ";
+                                }
+                                if (rec_detail[i] == rec_detail.Last())
+                                {
+                                    insertDetail += ")";
+                                }
+                            }
+                            
+                        }
                         ErasoftDbContext.Database.ExecuteSqlCommand(insertDetail);
+                        //END CHANGE BY NURUL 26/8/2020
+
                         //update header
                         string updateHeader = "UPDATE A SET ";
                         updateHeader += "A.BRUTO=ISNULL(B.BRUTO,0), ";
@@ -54149,9 +54279,10 @@ namespace MasterOnline.Controllers
                         updateHeader += "- ISNULL(B.NDISC1,0) + ISNULL(B.BIAYA_LAIN,0) ";
                         updateHeader += "+ ISNULL( (ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.HBELI,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) - ISNULL(B.NDISC1,0)) * ISNULL(B.PPN,0) /100 ,0) ";
                         updateHeader += ",0) AS NETTO FROM PBT01A B INNER JOIN PBT01B C ON C.INV=B.INV ";
-                        updateHeader += "WHERE B.INV='" + noref + "' AND C.NO in (" + temp_brg + ") ";
+                        //updateHeader += "WHERE B.INV='" + noref + "' AND C.NO in (" + temp_brg + ") ";
+                        updateHeader += "WHERE B.INV='" + bukti + "' ";
                         updateHeader += "GROUP BY B.INV, B.BIAYA_LAIN,B.DISC1,B.NDISC1,B.PPN,B.NPPN  ";
-                        updateHeader += ")B ON A.REF=B.INV WHERE A.INV='" + bukti + "'";
+                        updateHeader += ")B ON A.INV=B.INV WHERE A.INV='" + bukti + "'";
                         ErasoftDbContext.Database.ExecuteSqlCommand(updateHeader);
                     }
 
@@ -54183,6 +54314,8 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                string sql1 = "delete from pbt01a where inv='" + bukti + "'";
+                ErasoftDbContext.Database.ExecuteSqlCommand(sql1);
                 var err = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }

@@ -140,9 +140,9 @@
             //$('#search_faktur_click').click(function () {
             //    searchTableFaktur();
             //});
-            
+
         }
-        
+
         //end add by nurul
         function pilihPrompt($value) {
             self.window.close();
@@ -219,7 +219,7 @@
         }*@
 
         function getGudang() {
-            
+
             $.ajax({
                 type: "GET",
                 url: '@Url.Action("GetGudang", "Manage")',
@@ -261,36 +261,110 @@
 
         function ProsesRetur() {
             if ($("#setGd").val() != "" && $("#setGd").val() != null && $("#setGd").val() != undefined) {
-
+                var listError = "";
                 var cekTrue = [];
                 cekTrue.length = 0;
+                var cekQty = [];
+                cekQty.length = 0;
+                var lanjut = true;
+                var _noref = "";
                 $(".checkbox_barang").each(function (z, chk) {
                     if ($(chk).prop('checked') == true) {
+                        var tempRec = $(chk).attr("data-recnum");
                         cekTrue.push($(chk).attr("data-recnum"));
+                        cekQty.push($('#table-barang-popup #Qty-' + tempRec).val())
+                        if ($('#table-barang-popup #Qty-' + tempRec).val() > $('#table-barang-popup #QtyRetur-' + tempRec).text()) {
+                            //alert('Kuantitas retur brg (' + $(chk).attr("data-brg") + ') tidak boleh melebihi kuantitas awal invoice (' + $('#table-barang-popup #QtyRetur-' + tempRec).text() + ')!');
+                            listError += "Kuantitas retur brg (" + $(chk).attr("data-brg") + ") tidak boleh melebihi kuantitas awal invoice (" + $("#table-barang-popup #QtyRetur-" + tempRec).text() + ")! \n";
+                            lanjut = false;
+                        }
+                        _noref = $(chk).attr("data-ref");
                     }
                 });
-                if (cekTrue.length > 0) {
-                    var tempBrg = "";
-                    cekTrue.forEach(function (item) {
-                        if (item != null && item != "") {
-                            if (tempBrg != "") {
-                                tempBrg += ","
+                if (lanjut == true) {
+                    if (cekTrue.length > 0) {
+                        var tempBrg = "";
+                        var tempQty = "";
+                        cekTrue.forEach(function (item) {
+                            if (item != null && item != "") {
+                                if (tempBrg != "") {
+                                    tempBrg += ","
+                                }
+                                tempBrg += item;
                             }
-                            tempBrg += item;
-                        }
-                    });
+                        });
+                        cekQty.forEach(function (item) {
+                            if (item != null && item != "") {
+                                if (tempQty != "") {
+                                    tempQty += ";"
+                                }
+                                tempQty += item;
+                            }
+                        });
 
-                    var temp_Value = $("#setGd").val() + "|" + tempBrg;
-                    self.window.close();
-                    window.onunload = refreshTextBox;
-                    function refreshTextBox() {
-                        window.opener.ProsesReturAfterPrompt(temp_Value);
+                        var temp_Value = $("#setGd").val() + "|" + tempBrg + "|" + tempQty;
+                        //self.window.close();
+                        //window.onunload = refreshTextBox;
+                        //function refreshTextBox() {
+                        //    window.opener.ProsesReturAfterPrompt(temp_Value);
+                        //}
+                        //ProsesReturAfterPrompt(temp_Value);
+                        validasi(temp_Value, _noref);
+                    } else {
+                        alert('Silahkan Pilih barang yang akan di retur.');
                     }
-                } else {
-                    alert('Silahkan Pilih barang yang akan di retur.');
+                }
+                else {
+                    alert(listError);
                 }
             } else {
                 alert('Silahkan pilih gudang terlebih dahulu.');
+            }
+        }
+
+        function validasi(tempValue, $noref) {
+            if (tempValue != "" && tempValue != null && tempValue != undefined) {
+                var splitValue = tempValue.split('|');
+                var get_gudang = splitValue[0];
+                var get_brg = splitValue[1];
+                var get_qty = splitValue[2];
+                var no_ref = $noref;
+                if (get_gudang != "" && get_brg != "" && get_qty != "" && no_ref != "") {
+                    var link = '@Url.Action("validasiQOHReturInvoice", "Manage")';
+                    $.ajax({
+                        type: "POST",
+                        url: link,
+                        data: JSON.stringify({ get_selected: get_brg, noref: no_ref, gudang: get_gudang, get_selected_qty: get_qty }),
+                        contentType: 'application/json; charset=UTF-8',
+                        cache: false,
+                        beforeSend: function () {
+                            //$('#loading_spinner').show();
+                        },
+                        success: function (last_response) {
+                            if (last_response != null && last_response != undefined) {
+                                if (last_response.mo_error != null && last_response != undefined) {
+                                    console.log(last_response.mo_error);
+                                    alert(last_response.mo_error);
+                                    $('#loading_spinner').hide();
+                                } else {
+                                    self.window.close();
+                                    window.onunload = refreshTextBox;
+                                    function refreshTextBox() {
+                                        window.opener.ProsesReturAfterPrompt(tempValue);
+                                    }
+                                }
+                            } else {
+                                if (last_response.Errors[0] == "") {
+                                    console.log(last_response.Errors);
+                                    alert('Ada data yang tidak valid!');
+                                } else {
+                                    alert(last_response.Errors[0]);
+                                }
+                                $('#loading_spinner').hide();
+                            }
+                        }
+                    });
+                }
             }
         }
         //end add by nurul 30/4/2019
