@@ -1144,6 +1144,25 @@ namespace MasterOnline.Controllers
                 //var display = statusBrg.Equals("active") ? 1 : 0;
                 string deskripsi = itemFromList.description;
 
+                var typeItemCode = "";
+                var typeItemDesc = "";
+                if (!string.IsNullOrEmpty(Convert.ToString(item.piece)))
+                {
+                    typeItemCode = Convert.ToString(item.piece);
+                    switch (typeItemCode)
+                    {
+                        case "0":
+                            typeItemDesc = "Small item <= 20KG";
+                            break;
+                        case "1":
+                            typeItemDesc = "Big item > 20KG";
+                            break;
+                        default:
+                            typeItemDesc = "";
+                            break;
+                    }
+                }
+
                 var afterSaleCode = "";
                 var afterSaleDesc = "";
                 if (!string.IsNullOrEmpty(Convert.ToString(itemFromList.afterSale)))
@@ -1396,10 +1415,16 @@ namespace MasterOnline.Controllers
 
                     for (int j = i; j < 20; j++)
                     {
-                        if(j == 18)
+                        if(j == 17)
                         {
-                            //ACODE_20, ANAME_20, AVALUE_20 for aftersale
-                            if(typeBrg != 2)
+                            //ACODE_18, ANAME_18, AVALUE_18 for piece / tipe barang  Small item ≤20KG / Big item > 20KG
+                            if (typeBrg != 2)
+                                sSQL_Value += ",'" + typeItemCode + "','typeitem','" + typeItemDesc + "'";
+                        }
+                        else if(j == 18)
+                        {
+                            //ACODE_19, ANAME_19, AVALUE_19 for aftersale
+                            if (typeBrg != 2)
                             sSQL_Value += ",'" + afterSaleCode + "','aftersale','" + afterSaleDesc + "'";
                         }
                         else if(j == 19)
@@ -1419,7 +1444,13 @@ namespace MasterOnline.Controllers
                     sSQL_Value += ",'','',''";
                     for (int j = 1; j < 20; j++)
                     {
-                        if (j == 18)
+                        if (j == 17)
+                        {
+                            //ACODE_18, ANAME_18, AVALUE_18 for piece / tipe barang  Small item ≤20KG / Big item > 20KG
+                            if (typeBrg != 2)
+                                sSQL_Value += ",'" + typeItemCode + "','typeitem','" + typeItemDesc + "'";
+                        }
+                        else if (j == 18)
                         {
                             //ACODE_20, ANAME_20, AVALUE_20 for aftersale
                             if(typeBrg != 2)
