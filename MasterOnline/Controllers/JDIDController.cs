@@ -304,7 +304,7 @@ namespace MasterOnline.Controllers
 
             DatabaseSQL EDB = new DatabaseSQL(data.DatabasePathErasoft);
             var resultExecDefault = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + data.no_cust + "'");
-            
+
             var mgrApiManager = new JDIDController();
             mgrApiManager.AppKey = data.appKey;
             mgrApiManager.AppSecret = data.appSecret;
@@ -346,15 +346,15 @@ namespace MasterOnline.Controllers
                                 {
                                     EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM CATEGORY_JDID");
                                 }
-//                                #region connstring
-//#if AWS
-//                    string con = "Data Source=" + dbPath + ";Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
-//#elif Debug_AWS
-//                                string con = "Data Source=13.250.232.74;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
-//#else
-//                                string con = "Data Source=13.251.222.53;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
-//#endif
-//                                #endregion
+                                //                                #region connstring
+                                //#if AWS
+                                //                    string con = "Data Source=" + dbPath + ";Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
+                                //#elif Debug_AWS
+                                //                                string con = "Data Source=13.250.232.74;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
+                                //#else
+                                //                                string con = "Data Source=13.251.222.53;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
+                                //#endif
+                                //                                #endregion
 
                                 string con = EDB.ConnectionStrings.FirstOrDefault().Value.ToString();
 
@@ -509,7 +509,7 @@ namespace MasterOnline.Controllers
 #elif Debug_AWS
                                 string con = "Data Source=13.250.232.74;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
-                        string con = "Data Source=13.251.222.53;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
+                                string con = "Data Source=13.251.222.53;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
                                 #endregion
                                 using (SqlConnection oConnection = new SqlConnection(con))
@@ -744,6 +744,45 @@ namespace MasterOnline.Controllers
 
 
             return listOpt;
+        }
+
+        // add by fauzi for get name brand in sinkro and master barang
+        public string getBrandByShopID(JDIDAPIData data, string shopID, int brandID)
+        {
+            var retResult = "";
+            var mgrApiManager = new JDIDController();
+
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
+
+            mgrApiManager.Method = "epi.shop.center.sdk.service.outer.ShopSdk.getBrandByShopId";
+            mgrApiManager.ParamJson = "{ \"shopId\":" + shopID + "}";
+
+            var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
+            var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+            if (ret != null)
+            {
+                if (ret.openapi_code == 0 && ret.openapi_msg == "success" && ret.openapi_data != null)
+                {
+                    var listAttr = JsonConvert.DeserializeObject(ret.openapi_data, typeof(Data_Detail_Brand)) as Data_Detail_Brand;
+                    if (listAttr != null)
+                    {
+                        if (listAttr.model.Count > 0)
+                        {
+                            foreach(var itemBrand in listAttr.model)
+                            {
+                                if(itemBrand.brandId == brandID)
+                                {
+                                    retResult = itemBrand.brandDto.nameInd;
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+            return retResult;
         }
 
         public BindingBase getListProduct(JDIDAPIData data, int page, string cust, int recordCount, int totalData)
@@ -1051,14 +1090,14 @@ namespace MasterOnline.Controllers
                                 {
                                     if (createParent)
                                     {
-                                        var retSQL = CreateSQLValue(item, detailData.model[0], kdBrgInduk, "", cust, IdMarket, 1, itemFromList);
+                                        var retSQL = CreateSQLValue(data, item, detailData.model[0], kdBrgInduk, "", cust, IdMarket, 1, itemFromList);
                                         if (retSQL.exception == 1)
                                             ret.exception = 1;
                                         if (retSQL.status == 1)
                                             sSQLVal += retSQL.message;
                                     }
 
-                                    var retSQL2 = CreateSQLValue(item, detailData.model[0], kdBrgInduk, skuId, cust, IdMarket, 2, itemFromList);
+                                    var retSQL2 = CreateSQLValue(data, item, detailData.model[0], kdBrgInduk, skuId, cust, IdMarket, 2, itemFromList);
                                     if (retSQL2.exception == 1)
                                         ret.exception = 1;
                                     if (retSQL2.status == 1)
@@ -1066,7 +1105,7 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
-                                    var retSQL = CreateSQLValue(item, detailData.model[0], "", skuId, cust, IdMarket, 0, itemFromList);
+                                    var retSQL = CreateSQLValue(data, item, detailData.model[0], "", skuId, cust, IdMarket, 0, itemFromList);
                                     if (retSQL.exception == 1)
                                         ret.exception = 1;
                                     if (retSQL.status == 1)
@@ -1111,7 +1150,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        protected BindingBase CreateSQLValue(Model_Product item, Model_Detail_Product detItem, string kdBrgInduk, string skuId, string cust, int IdMarket, int typeBrg, Spuinfovolist itemFromList)
+        protected BindingBase CreateSQLValue(JDIDAPIData data, Model_Product item, Model_Detail_Product detItem, string kdBrgInduk, string skuId, string cust, int IdMarket, int typeBrg, Spuinfovolist itemFromList)
         {
             // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
             var ret = new BindingBase
@@ -1140,9 +1179,33 @@ namespace MasterOnline.Controllers
                 double price = Convert.ToDouble(item.jdPrice);
                 //var statusBrg = detItem != null ? detItem.status : 1;
                 var statusBrg = detItem.status;
-                string brand = itemFromList.brandId.ToString();
+                string brand = "";
+                if(itemFromList.brandId.ToString() != null)
+                {
+                    brand = getBrandByShopID(data, itemFromList.shopId.ToString(), Convert.ToInt32(itemFromList.brandId));
+                }
+
                 //var display = statusBrg.Equals("active") ? 1 : 0;
                 string deskripsi = itemFromList.description;
+
+                var typeItemCode = "";
+                var typeItemDesc = "";
+                if (!string.IsNullOrEmpty(Convert.ToString(item.piece)))
+                {
+                    typeItemCode = Convert.ToString(item.piece);
+                    switch (typeItemCode)
+                    {
+                        case "0":
+                            typeItemDesc = "Small item <= 20KG";
+                            break;
+                        case "1":
+                            typeItemDesc = "Big item > 20KG";
+                            break;
+                        default:
+                            typeItemDesc = "";
+                            break;
+                    }
+                }
 
                 var afterSaleCode = "";
                 var afterSaleDesc = "";
@@ -1347,21 +1410,21 @@ namespace MasterOnline.Controllers
                 //if (detItem.saleAttributeNameMap != null){
                 //    if(detItem.saleAttributeNameMap.Count > 0)
                 //    {
-                        
+
                 //    }
                 //}
-                
+
                 //price = brgAttribute.TryGetValue("jdPrice", out value) ? Convert.ToDouble(value) : Convert.ToDouble(item.jdPrice);
                 if (Convert.ToDouble(detItem.jdPrice) > 0)
                     price = Convert.ToDouble(detItem.jdPrice);
 
                 //}
-                if (listBrand.Count > 0)
-                {
-                    var a = listBrand.Where(m => m.brandId == itemFromList.brandId).FirstOrDefault();
-                    if (a != null)
-                        brand = a.brandName;
-                }
+                //if (listBrand.Count > 0)
+                //{
+                //    var a = listBrand.Where(m => m.brandId == itemFromList.brandId).FirstOrDefault();
+                //    if (a != null)
+                //        brand = a.brandName;
+                //}
                 //sSQL_Value += Convert.ToDouble(detItem != null ? detItem.netWeight : item.netWeight) * 1000 + " , " + Convert.ToDouble(detItem != null ? detItem.packLong : item.packLong) + " , ";
                 //sSQL_Value += Convert.ToDouble(detItem != null ? detItem.packWide : item.packWide) + " , " + Convert.ToDouble(detItem != null ? detItem.packHeight : item.packHeight);
                 sSQL_Value += Convert.ToDouble(detItem.netWeight) * 1000 + " , " + Convert.ToDouble(detItem.packLong) + " , ";
@@ -1384,9 +1447,16 @@ namespace MasterOnline.Controllers
                         var attr = attrVal[i].Split(':');
                         if (attr.Length == 2)
                         {
-                            var attrName = (brgAttribute.TryGetValue(attrVal[i], out value) ? value : "").Split(':');
+                            if(brgAttribute.Count > 0)
+                            {
+                                var attrName = (brgAttribute.TryGetValue(attrVal[i], out value) ? value : "").Split(':');
 
-                            sSQL_Value += ",'" + attr[0] + "','" + attrName[0] + "','" + attr[1] + "'";
+                                sSQL_Value += ",'" + attr[0] + "','" + attrName[0] + "','" + attr[1] + "'";
+                            }
+                            else
+                            {
+                                sSQL_Value += ",'','',''";
+                            }
                         }
                         else
                         {
@@ -1396,17 +1466,41 @@ namespace MasterOnline.Controllers
 
                     for (int j = i; j < 20; j++)
                     {
-                        if(j == 18)
+                        if (j == 17)
                         {
-                            //ACODE_20, ANAME_20, AVALUE_20 for aftersale
-                            if(typeBrg != 2)
-                            sSQL_Value += ",'" + afterSaleCode + "','aftersale','" + afterSaleDesc + "'";
+                            //ACODE_18, ANAME_18, AVALUE_18 for piece / tipe barang  Small item ≤20KG / Big item > 20KG
+                            //if (typeBrg != 2)
+                            //{
+                                sSQL_Value += ",'" + typeItemCode + "','typeitem','" + typeItemDesc + "'";
+                            //}
+                            //else
+                            //{
+                            //    sSQL_Value += ",'','',''";
+                            //}
                         }
-                        else if(j == 19)
+                        else if (j == 18)
+                        {
+                            //ACODE_19, ANAME_19, AVALUE_19 for aftersale
+                            //if (typeBrg != 2)
+                            //{
+                                sSQL_Value += ",'" + afterSaleCode + "','aftersale','" + afterSaleDesc + "'";
+                            //}
+                            //else
+                            //{
+                            //    sSQL_Value += ",'','',''";
+                            //}
+                        }
+                        else if (j == 19)
                         {
                             //ACODE_20, ANAME_20, AVALUE_20 for warranty
-                            if(typeBrg != 2)
-                            sSQL_Value += ",'" + warrantyCode + "','warranty','" + warrantyDesc + "'";
+                            //if (typeBrg != 2)
+                            //{
+                                sSQL_Value += ",'" + warrantyCode + "','warranty','" + warrantyDesc + "'";
+                            //}
+                            //else
+                            //{
+                            //    sSQL_Value += ",'','',''";
+                            //}                                
                         }
                         else
                         {
@@ -1419,17 +1513,41 @@ namespace MasterOnline.Controllers
                     sSQL_Value += ",'','',''";
                     for (int j = 1; j < 20; j++)
                     {
-                        if (j == 18)
+                        if (j == 17)
+                        {
+                            //ACODE_18, ANAME_18, AVALUE_18 for piece / tipe barang  Small item ≤20KG / Big item > 20KG
+                            //if (typeBrg != 2)
+                            //{
+                                sSQL_Value += ",'" + typeItemCode + "','typeitem','" + typeItemDesc + "'";
+                            //}
+                            //else
+                            //{
+                            //    sSQL_Value += ",'','',''";
+                            //}
+                        }
+                        else if (j == 18)
                         {
                             //ACODE_20, ANAME_20, AVALUE_20 for aftersale
-                            if(typeBrg != 2)
-                            sSQL_Value += ",'" + afterSaleCode + "','aftersale','" + afterSaleDesc + "'";
+                            //if (typeBrg != 2)
+                            //{
+                                sSQL_Value += ",'" + afterSaleCode + "','aftersale','" + afterSaleDesc + "'";
+                            //}
+                            //else
+                            //{
+                            //    sSQL_Value += ",'','',''";
+                            //}
                         }
                         else if (j == 19)
                         {
                             //ACODE_20, ANAME_20, AVALUE_20 for warranty
-                            if(typeBrg != 2)
-                            sSQL_Value += ",'" + warrantyCode + "','warranty','" + warrantyDesc + "'";
+                            //if (typeBrg != 2)
+                            //{
+                                sSQL_Value += ",'" + warrantyCode + "','warranty','" + warrantyDesc + "'";
+                            //}
+                            //else
+                            //{
+                            //    sSQL_Value += ",'','',''";
+                            //}
                         }
                         else
                         {
@@ -1437,7 +1555,7 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                                
+
 
                 sSQL_Value += "),";
                 //if (typeBrg == 1)
@@ -2060,6 +2178,41 @@ namespace MasterOnline.Controllers
         public dynamic saleAttributeNameMap { get; set; }
         public float jdPrice { get; set; }
         public object maxQuantity { get; set; }
+    }
+
+    public class Data_Detail_Brand
+    {
+        public int code { get; set; }
+        public string message { get; set; }
+        public List<Model_Detail_Brand> model { get; set; }
+        public bool success { get; set; }
+    }
+    
+    public class Model_Detail_Brand
+    {
+        public int isForever { get; set; }
+        public Branddto brandDto { get; set; }
+        public long endDate { get; set; }
+        public int brandId { get; set; }
+        public int shopId { get; set; }
+        public int id { get; set; }
+        public long startDate { get; set; }
+        public int status { get; set; }
+    }
+
+    public class Branddto
+    {
+        public string firstChar { get; set; }
+        public string logoImg { get; set; }
+        public long modifyDate { get; set; }
+        public string nameInd { get; set; }
+        public int origin { get; set; }
+        public string nameCn { get; set; }
+        public int id { get; set; }
+        public string nameEn { get; set; }
+        public string _class { get; set; }
+        public long createDate { get; set; }
+        public int status { get; set; }
     }
 
     public class JDIDAPIData

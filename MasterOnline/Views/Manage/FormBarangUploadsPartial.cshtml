@@ -298,6 +298,13 @@
                     @if (Model.TempArf01.NAMA == "19")
                     {
                         <div class="form-group">
+                            @Html.LabelFor(m => m.TempBrg.AVALUE_18, "Tipe Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                @Html.HiddenFor(m => m.TempBrg.AVALUE_18)
+                                <input class="form-control" value="@Model.TempBrg.AVALUE_18" disabled />
+                            </div>
+                        </div>
+                        <div class="form-group">
                             @Html.LabelFor(m => m.TempBrg.AVALUE_19, "After Sale *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 @Html.HiddenFor(m => m.TempBrg.AVALUE_19)

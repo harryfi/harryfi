@@ -1428,6 +1428,24 @@
             </div>*@
                                                                             <div class="row">
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
+                                                                                    @Html.Label("Tipe Barang *", new { @class = "control-label" })
+                                                                                </div>
+                                                                                <div class="col-md-3 col-sm-3 col-xs-12 form-group">
+                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_18, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_18 })
+                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_18, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_18 })
+                                                                                    <div class="input-group text">
+                                                                                        <table>
+                                                                                            <tr>
+                                                                                                <td>
+                                                                                                    @Html.TextBox("Tipe Barang" + i + "JDID", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_18 })
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row">
+                                                                                <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                     @Html.Label("After Sale *", new { @class = "control-label" })
                                                                                 </div>
                                                                                 <div class="col-md-3 col-sm-3 col-xs-12 form-group">
@@ -1439,13 +1457,6 @@
                                                                                                 <td>
                                                                                                     @Html.TextBox("After Sale" + i + "JDID", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_19 })
                                                                                                 </td>
-                                                                                                @*<td>
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptBrandJDID(@i,@($"(\"{listMarket[i].CUST}\")"))">
-                                            <span class="glyphicon glyphicon-option-horizontal"></span>
-                                        </button>
-                                    </span>
-                                </td>*@
                                                                                             </tr>
                                                                                         </table>
                                                                                     </div>
@@ -1464,13 +1475,6 @@
                                                                                                 <td>
                                                                                                     @Html.TextBox("Warranty" + i + "JDID", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_20 })
                                                                                                 </td>
-                                                                                                @*<td>
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptBrandJDID(@i,@($"(\"{listMarket[i].CUST}\")"))">
-                                            <span class="glyphicon glyphicon-option-horizontal"></span>
-                                        </button>
-                                    </span>
-                                </td>*@
                                                                                             </tr>
                                                                                         </table>
                                                                                     </div>
