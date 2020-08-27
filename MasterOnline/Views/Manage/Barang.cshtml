@@ -1624,7 +1624,6 @@
                                             }
                                         }
 
-
                                         if (loop == 0) {
                                             loop = 1;
                                         }
@@ -1645,6 +1644,13 @@
                                     else {
                                         if (loop == 1) {
                                             $('#attribute_lazada_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
+                                            if (setCKEditor) {
+                                                initCKEditor();
+                                                CKEDITOR.instances[CKEditorInstanceName].setData(CKEditorAdaValue);
+                                                setCKEditor = false;
+                                                CKEditorInstanceName = "";
+                                                CKEditorAdaValue = "";
+                                            }
                                             fieldAVALUE = "";
                                             loop = 2;
                                             for (var i = 0; i < (SelectList.length / 6); i++) {
@@ -4758,6 +4764,10 @@
             for(var i in CKEDITOR.instances) {
                 CKEDITOR.instances[i].updateElement();
             }
+            //$('.make_ckeditor').each(function () {
+            //    var $textarea = $(this);
+            //    $textarea.val(CKEDITOR.instances[$textarea.attr('id')].getData());
+            //});
         }
 
         function simpanBarangInduk(btnClicked) {
