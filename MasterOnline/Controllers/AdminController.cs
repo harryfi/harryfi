@@ -3479,6 +3479,29 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
+                                else if (marketplace.ToUpper() == "JDID")
+                                {
+
+                                    string[] splitArguments = resultDataJob.Tables[0].Rows[i]["ARGUMENTS"].ToString().Replace("\"", "").Replace("\\", "").Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "").Split(',');
+
+                                    if (splitArguments.Length > 0)
+                                    {
+                                        string[] no_custJDID = splitArguments[3].ToString().Split(':');
+                                        string[] appKeyJDID = splitArguments[0].ToString().Split(':');
+                                        string[] usernameJDID = splitArguments[4].ToString().Split(':');
+                                        string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE API_KEY = '" + appKeyJDID[1] + "' AND CUST = '" + no_custJDID[1] + "'; ";
+                                        var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_JDID", queryCheckToko);
+                                        if (resultDataToko.Tables[0].Rows.Count > 0)
+                                        {
+                                            //if (resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() == username82Cart[1])
+                                            //{
+                                            checkApprove = true;
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameJDID[1];
+                                            //namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                            //}
+                                        }
+                                    }
+                                }
 
                                 if (checkApprove)
                                 {
