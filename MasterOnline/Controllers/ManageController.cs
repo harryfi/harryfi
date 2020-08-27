@@ -54019,6 +54019,65 @@ namespace MasterOnline.Controllers
             }
         }
 
+        //add by nurul 27/8/2020
+        public ActionResult validasiQOHReturInvoice(string get_selected, string noref, string gudang, string get_selected_qty)
+        {
+            var temp_brg = "";
+            var rec_detail = new List<string>();
+            var rec_qty = new List<string>();
+            if (get_selected != null && get_selected != "")
+            {
+                rec_detail = get_selected.Split(',').ToList();
+                foreach (var rec in rec_detail)
+                {
+                    if (temp_brg != "")
+                    {
+                        temp_brg += ",";
+                    }
+
+                    temp_brg += "'" + rec + "'";
+                }
+            }
+            else
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Tidak ada barang yang dipilih.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            if (get_selected_qty != null && get_selected_qty != "")
+            {
+                rec_qty = get_selected_qty.Split(';').ToList();
+            }
+            var invoiceDetailInDb = ErasoftDbContext.PBT01B.Where(b => b.INV == noref).ToList();
+            if (invoiceDetailInDb.Count() > 0)
+            {
+                var vmError = new InvoiceViewModel()
+                {
+
+                };
+                for (int i = 0; i < rec_detail.Count(); i++)
+                {
+                    var getbrg = invoiceDetailInDb.Where(a => a.NO.ToString() == rec_detail[i]).FirstOrDefault();
+                    var qtyOnHand = GetQOHSTF08A(getbrg.BRG, gudang);
+
+                    var qtyBrg = Convert.ToDouble(rec_qty[i]);
+                    if (qtyOnHand - qtyBrg < 0)
+                    {
+                        vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + gudang + " sisa ( " + Convert.ToString(qtyOnHand) + " )." + System.Environment.NewLine);
+                    }
+                }
+
+                if (vmError.Errors.Count() > 0)
+                {
+                    return new JsonResult { Data = new { mo_error = vmError.Errors.ToArray(), mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+            }
+            else
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            return new EmptyResult();
+        }
+        //end add by nurul 27/8/2020
+
         public ActionResult SaveDetailReturInvoice(string get_selected, string bukti, string noref, string gudang, string get_selected_qty)
         {
             try
