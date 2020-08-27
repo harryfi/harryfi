@@ -1469,38 +1469,38 @@ namespace MasterOnline.Controllers
                         if (j == 17)
                         {
                             //ACODE_18, ANAME_18, AVALUE_18 for piece / tipe barang  Small item ≤20KG / Big item > 20KG
-                            if (typeBrg != 2)
-                            {
+                            //if (typeBrg != 2)
+                            //{
                                 sSQL_Value += ",'" + typeItemCode + "','typeitem','" + typeItemDesc + "'";
-                            }
-                            else
-                            {
-                                sSQL_Value += ",'','',''";
-                            }
+                            //}
+                            //else
+                            //{
+                            //    sSQL_Value += ",'','',''";
+                            //}
                         }
                         else if (j == 18)
                         {
                             //ACODE_19, ANAME_19, AVALUE_19 for aftersale
-                            if (typeBrg != 2)
-                            {
+                            //if (typeBrg != 2)
+                            //{
                                 sSQL_Value += ",'" + afterSaleCode + "','aftersale','" + afterSaleDesc + "'";
-                            }
-                            else
-                            {
-                                sSQL_Value += ",'','',''";
-                            }
+                            //}
+                            //else
+                            //{
+                            //    sSQL_Value += ",'','',''";
+                            //}
                         }
                         else if (j == 19)
                         {
                             //ACODE_20, ANAME_20, AVALUE_20 for warranty
-                            if (typeBrg != 2)
-                            {
+                            //if (typeBrg != 2)
+                            //{
                                 sSQL_Value += ",'" + warrantyCode + "','warranty','" + warrantyDesc + "'";
-                            }
-                            else
-                            {
-                                sSQL_Value += ",'','',''";
-                            }                                
+                            //}
+                            //else
+                            //{
+                            //    sSQL_Value += ",'','',''";
+                            //}                                
                         }
                         else
                         {
@@ -1516,38 +1516,38 @@ namespace MasterOnline.Controllers
                         if (j == 17)
                         {
                             //ACODE_18, ANAME_18, AVALUE_18 for piece / tipe barang  Small item ≤20KG / Big item > 20KG
-                            if (typeBrg != 2)
-                            {
+                            //if (typeBrg != 2)
+                            //{
                                 sSQL_Value += ",'" + typeItemCode + "','typeitem','" + typeItemDesc + "'";
-                            }
-                            else
-                            {
-                                sSQL_Value += ",'','',''";
-                            }
+                            //}
+                            //else
+                            //{
+                            //    sSQL_Value += ",'','',''";
+                            //}
                         }
                         else if (j == 18)
                         {
                             //ACODE_20, ANAME_20, AVALUE_20 for aftersale
-                            if (typeBrg != 2)
-                            {
+                            //if (typeBrg != 2)
+                            //{
                                 sSQL_Value += ",'" + afterSaleCode + "','aftersale','" + afterSaleDesc + "'";
-                            }
-                            else
-                            {
-                                sSQL_Value += ",'','',''";
-                            }
+                            //}
+                            //else
+                            //{
+                            //    sSQL_Value += ",'','',''";
+                            //}
                         }
                         else if (j == 19)
                         {
                             //ACODE_20, ANAME_20, AVALUE_20 for warranty
-                            if (typeBrg != 2)
-                            {
+                            //if (typeBrg != 2)
+                            //{
                                 sSQL_Value += ",'" + warrantyCode + "','warranty','" + warrantyDesc + "'";
-                            }
-                            else
-                            {
-                                sSQL_Value += ",'','',''";
-                            }
+                            //}
+                            //else
+                            //{
+                            //    sSQL_Value += ",'','',''";
+                            //}
                         }
                         else
                         {
