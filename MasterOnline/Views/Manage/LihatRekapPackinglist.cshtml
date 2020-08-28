@@ -141,7 +141,9 @@
 <body style="width:75%;margin-left:10px;margin-top:10px;">
     <div>
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-10"></div>
+            <div class="col-md-2">
+                <button id="download-btn" class="btn btn-primary" onclick="DownloadExcelFaktur('@Model.printMode', '@Model.packingList.NO_BUKTI', '@Model.packingList.TGL.Value.ToString("dd/MM/yyyy")')">Download</button>
                 <button id="print-btn" class="btn btn-success pull-right">Cetak</button>
             </div>
         </div>
@@ -165,6 +167,7 @@
             {
                 <tr>
                     <th style="width:100px">No. Pesanan</th>
+                    <th>No. Referensi</th>
                     <th style="width:130px">Kode Barang</th>
                     <th>Nama Barang</th>
                     <th style="width:75px;text-align:center">QTY</th>
@@ -186,6 +189,7 @@
                             {
                                 <td>@rekap.NO_PESANAN</td>
                             }
+                            <td>@rekap.NO_REFERENSI</td>
                             <td>@rekap.BRG</td>
                             <td>@rekap.NAMA_BARANG</td>
                             <td style="text-align:center">@rekap.QTY</td>
@@ -235,8 +239,15 @@
                 window.print();
             });
 
+            //$('#download-btn').click(function () {
+            //    //$(this).hide();
+            //    //window.print();
+            //    DownloadExcelFaktur();
+            //});
+
             window.onafterprint = function () {
                 $('#print-btn').show();
+                $('#download-btn').show();
             }
             //add by nurul 29/4/2019
             function overrideKeyDown(winEvent) {
@@ -259,8 +270,57 @@
             }
 
             document.onkeydown = overrideKeyDown;
-
         });
+
+        //add by nurul 23/7/2020
+        function DownloadExcelFaktur(mode, nobuk, tgl) {
+            $('#loading_spinner').show();
+
+            var link = '@Html.Raw(Url.Action("ListPackingListtoExcel", "TransferExcel"))';
+            link += "?noPackingList=" + nobuk + "&mode=" + mode + "&tgl=" + tgl;
+
+            $.ajax({
+                xhr: function () {
+                    var xhr = $.ajaxSettings.xhr();
+                    xhr.onprogress = function (evt) {
+                        if (evt.lengthComputable) {
+                            $('#loading_spinner').hide();
+                        }
+                        $('#loading_spinner').hide();
+                    };
+                    return xhr;
+                },
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (response) {
+                    $('#loading_spinner').hide();
+                    if (response.Errors.length == 0) {
+                        var bytes = new Uint8Array(response.byteExcel);
+                        saveByteArray(response.namaFile, bytes);
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function saveByteArray(reportName, byte) {
+            var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            //document.body.appendChild(link);
+            link.click();
+            //document.body.removeChild(link);
+        };
+        //end add by nurul 23/7/2020
     </script>
 </body>
 </html>

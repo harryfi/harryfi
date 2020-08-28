@@ -281,7 +281,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        [AutomaticRetry(Attempts = 2)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Lazada Gagal.")]
         public BindingBase CreateProduct(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, BrgViewModel data)
@@ -382,7 +382,15 @@ namespace MasterOnline.Controllers
             {
                 xmlString += "<" + lzdAttr.Key + ">";
                 //xmlString += XmlEscape(lzdAttr.Value.ToString());
-                xmlString += "<![CDATA[" + XmlEscape(Convert.ToString(lzdAttr.Value).Replace(System.Environment.NewLine, "<br>")) + "]]>";
+                //xmlString += "<![CDATA[" + XmlEscape(Convert.ToString(lzdAttr.Value).Replace(System.Environment.NewLine, "<br>")) + "]]>";
+                if (lzdAttr.Value.ToString().Contains("<p>"))
+                {
+                    xmlString += "<![CDATA[" + lzdAttr.Value.ToString().Replace("\r\n", "").Replace("&nbsp;", " ").Replace("<em>", "<i>").Replace("</em>", "</i>").Replace(System.Environment.NewLine, "<br>") + "]]>";
+                }
+                else
+                {
+                    xmlString += XmlEscape(lzdAttr.Value.ToString());
+                }
                 xmlString += "</" + lzdAttr.Key + ">";
             }
             //end change 8 Apriil 2019, get attr from api
@@ -3459,7 +3467,10 @@ namespace MasterOnline.Controllers
             var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
             var username = uname;
             //var dmin2 = DateTime.Today.AddDays(-2);
-            var dmin2 = DateTime.Now.AddDays(-1);
+            //var dmin2 = DateTime.Now.AddDays(-1);
+            //var dmin2 = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            var dmin2 = DateTime.UtcNow.AddHours(7).AddHours(-3);
+
             var brgCancelled = new List<TEMP_ALL_MP_ORDER_ITEM>();
             var connIDStok = Guid.NewGuid().ToString();
             var listOrderUnpaid = ErasoftDbContext.SOT01A.Where(m => m.CUST == cust && m.TGL < dmin2 && m.STATUS_TRANSAKSI == "0").Select(m => new { nobuk = m.NO_BUKTI, noref = m.NO_REFERENSI }).ToList();

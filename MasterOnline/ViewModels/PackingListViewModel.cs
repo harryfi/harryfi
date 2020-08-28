@@ -39,6 +39,13 @@ namespace MasterOnline.ViewModels
         public DateTime? TGL_INPUT { get; set; }
 
         public int? RecNum { get; set; }
+
+        //add by nurul 22/7/2020
+        public string NO_REFERENSI { get; set; }
+        public string STATUS_PRINT { get; set; }
+        public double? BARCODE { get; set; }
+        //end add by nurul 22/7/2020
+
     }
 
     public class RekapBarang
@@ -49,5 +56,16 @@ namespace MasterOnline.ViewModels
         public string PEMBELI { get; set; }
         public string MARKETPLACE { get; set; }
         public int QTY { get; set; }
+
+        //add by nurul 22/7/2020
+        public string BARCODE { get; set; }
+        public string NO_REFERENSI { get; set; }
+        //end add by nurul 22/7/2020
+    }
+
+    public class templistDetailPacking
+    {
+        public string nobuk { get; set; }
+        public List<SOT03BDetailPacking> listDetail = new List<SOT03BDetailPacking>();
     }
 }

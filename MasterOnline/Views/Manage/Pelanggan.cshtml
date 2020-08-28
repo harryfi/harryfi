@@ -1368,7 +1368,7 @@
                 <h4 class="modal-title">JD ID API Key</h4>
             </div>
             <div class="modal-body">
-                <div class="row text-left">
+                @*<div class="row text-left">
                     <h4>1. Login akun JD.ID anda di web : http://api.jd.id/ctrlCenter/appList </h4>
                     <h4>2. Klik +New App.</h4>
                     <h4>3. Isi Nama aplikasi : Master Online, dan isi email anda. Kemudian Save</h4>
@@ -1376,6 +1376,16 @@
                     <h4>5. Pilih Category : Seller to JD, pastikan di bagian Waiting to auth semua sudah tercentang. Kemudian Save.</h4>
                     <h4>6. Setelah kembali ke list App, klik view dibagian Key dan Token.</h4>
                     <h4>7. Isi field di Master Online sesuai data yang tampil.</h4>
+                </div>*@
+                <div class="row text-left">
+                    <h4>1. Login akun JD.ID anda di web : http://api.jd.id/ctrlCenter/appList.</h4>
+                    <h4>2. Klik +New App.</h4>
+                    <h4>3. Isi Nama Aplikasi : MasterOnline, dan isi email anda. Kemudian Save.</h4>
+                    <h4>4. Aplikasi Master Online yang anda buat akan muncul pada App List, Klik Manage.</h4>
+                    <h4>5. Pilih Category: Seller to JD, pada kolom Not Apply silahkan centang All untuk menghubungkan all API JD.ID dengan Master Online. Kemudian Save.</h4>
+                    <h4>6. Setelah kembali ke App List, klik view dibagian Key&Token.</h4>
+                    <h4>7. Isi data di Master Online sesuai dengan data yang tampil.</h4>
+                    <h4>8. Integrasi JD.ID dan Master Online sudah aktif saat kolom Already own pada halaman JD.ID Open Platform anda sudah terisi.</h4>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1421,11 +1431,11 @@
             <div class="modal-body">
                 <div class="row text-left">
                     <h4>1. Login akun Blibli anda sebagai seller di web : https://merchant.blibli.com/MTA/login </h4>
-                    <h4>2. Klik Email anda di kanan atas, kemudian pilih menu Seller API Manager.</h4>
-                    <h4>3. Klik Generate di API Seller Key pada menu Manage API Key.</h4>
-                    <h4>4. Dapatkan API Client Id melalui CS MasterOnline, masukkan dan klik Bind di API Client Id pada menu Bind API Client di Blibli.</h4>
-                    <h4>5. Setelah sukses, copy data API Seller Key ke Master Online.</h4>
-                    <h4>6. Untuk mendapatkan Seller ID, buka halaman Info Toko anda (Store Info).</h4>
+                    <h4>2. Klik email anda di kanan atas, kemudian pilih menu Pengaturan seller API.</h4>
+                    <h4>3. Klik buat di Kata Sandi API pada menu Atur Kata Sandi API.</h4>
+                    <h4>4. Dapatkan ID API Klien melalui CS MasterOnline, masukkan dan klik hubungkan di ID API Klien pada menu Hubungkan API klien di Blibli.</h4>
+                    <h4>5. Setelah sukses, copy data Kata Sandi API ke Master Online.</h4>
+                    <h4>6. Untuk mendapatkan ID Seller, buka halaman Info Toko anda.</h4>
                 </div>
             </div>
             <div class="modal-footer">
@@ -1908,8 +1918,11 @@
                                     showHideJDForm(true);
                                     $('#JDAppSecret').show();
                                     $('#JDAccessToken').show();
+                                    $('#divAPIKey').show();
+                                    lblDesc.innerText = "APP key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
                                 } else {
                                     showHideJDForm(false);
+                                    lblDesc.innerText = "API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
                                 }
                                 //end unremark by nurul 25/3/2019
 
@@ -2168,7 +2181,7 @@
             //$('#labelKetTokped2').remove();
             if (show) {
                 if ($('#Customers_KD_ANALISA').val() == "2") {
-                    var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">Seller ID *</label>';
+                    var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">ID Seller *</label>';
 
                     var valuetxtSort1_Cust = "";
                     if ($('#Customers_Sort1_Cust').val() != null && $('#Customers_Sort1_Cust').val() != undefined && $('#Customers_Sort1_Cust').val() != "") {
@@ -2178,7 +2191,7 @@
                     }
                     var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Seller ID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="' + valuetxtSort1_Cust + '" maxlength="10"></div>';
                     $('#BlibliSellerID').append(labelSort1_Cust + txtSort1_Cust);
-                    $('#lbl_Customers_API_KEY').html("API Seller Key *");
+                    $('#lbl_Customers_API_KEY').html("Kata Sandi API *");
                 } else {
                     var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">Merchant ID *</label>';
 
@@ -2798,7 +2811,12 @@
                         $('#JDAppSecret').append(labelAPP_SECRET + txtAPI_CLIENT_U);
                         $('#JDAccessToken').append(labelTOKEN + txtToken);
                         $('#lbl_Customers_API_KEY').html("APP Key *");
-                    }
+                        //add by fauzi 24 Agustus 2020
+                        $('#divAPIKey').show();
+                        lblDesc.innerText = "APP key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
+                    } else {
+                        lblDesc.innerText = "API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.";
+                    }//end add
                     if (@shopee == response.Customers.NAMA) {
                             lblDesc.style.visibility = 'hidden';
                         lblDesc2.style.visibility = 'hidden';

@@ -1838,64 +1838,71 @@ namespace MasterOnline.Controllers
                 //try
                 //{
                 var listOrder = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderByStatusResult)) as ShopeeGetOrderByStatusResult;
-                if (stat == StatusOrder.READY_TO_SHIP || stat == StatusOrder.UNPAID)
+                if(listOrder.orders != null)
                 {
-                    string[] ordersn_list = listOrder.orders.Select(p => p.ordersn).ToArray();
-                    //add by calvin 4 maret 2019, filter
-                    var dariTgl = DateTimeOffset.UtcNow.AddDays(-30).DateTime;
-                    var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto Shopee" && p.CUST == CUST && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
-                    //end add by calvin
-                    var filtered = ordersn_list.Where(p => !SudahAdaDiMO.Contains(p));
-                    if (filtered.Count() > 0)
+                    if(listOrder.orders.Length > 0)
                     {
-                        await GetOrderDetails(iden, filtered.ToArray(), connID, CUST, NAMA_CUST, stat);
-                        jmlhNewOrder = filtered.Count();
-                    }
-
-                    //add by calvin 29 mei 2019
-                    if (stat == StatusOrder.READY_TO_SHIP)
-                    {
-                        string ordersn = "";
-                        var filteredSudahAda = ordersn_list.Where(p => SudahAdaDiMO.Contains(p));
-                        foreach (var item in filteredSudahAda)
+                        if (stat == StatusOrder.READY_TO_SHIP || stat == StatusOrder.UNPAID)
                         {
-                            ordersn = ordersn + "'" + item + "',";
-                        }
-                        if (!string.IsNullOrEmpty(ordersn))
-                        {
-                            ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
-                            if (rowAffected > 0)
+                            string[] ordersn_list = listOrder.orders.Select(p => p.ordersn).ToArray();
+                            //add by calvin 4 maret 2019, filter
+                            var dariTgl = DateTimeOffset.UtcNow.AddDays(-30).DateTime;
+                            var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto Shopee" && p.CUST == CUST && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
+                            //end add by calvin
+                            var filtered = ordersn_list.Where(p => !SudahAdaDiMO.Contains(p));
+                            if (filtered.Count() > 0)
                             {
-                                jmlhPesananDibayar += rowAffected;
+                                await GetOrderDetails(iden, filtered.ToArray(), connID, CUST, NAMA_CUST, stat);
+                                jmlhNewOrder = filtered.Count();
+                            }
+
+                            //add by calvin 29 mei 2019
+                            if (stat == StatusOrder.READY_TO_SHIP)
+                            {
+                                string ordersn = "";
+                                var filteredSudahAda = ordersn_list.Where(p => SudahAdaDiMO.Contains(p));
+                                foreach (var item in filteredSudahAda)
+                                {
+                                    ordersn = ordersn + "'" + item + "',";
+                                }
+                                if (!string.IsNullOrEmpty(ordersn))
+                                {
+                                    ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
+                                    if (rowAffected > 0)
+                                    {
+                                        jmlhPesananDibayar += rowAffected;
+                                    }
+                                }
+                            }
+                            //end add by calvin 29 mei 2019
+
+                            if (listOrder.more)
+                            {
+                                //add by Tri 4 Mei 2020, update stok di jalankan per batch karena batch berikutnya akan memiliki connID yg berbeda
+                                new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
+                                //end add by Tri 4 Mei 2020, update stok di jalankan per batch karena batch berikutnya akan memiliki connID yg berbeda
+
+                                await GetOrderByStatus(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar);
+                            }
+                            else
+                            {
+                                if (jmlhNewOrder > 0)
+                                {
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Shopee.");
+                                    new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
+                                }
+                                if (jmlhPesananDibayar > 0)
+                                {
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari Shopee.");
+                                }
                             }
                         }
                     }
-                    //end add by calvin 29 mei 2019
-
-                    if (listOrder.more)
-                    {
-                        //add by Tri 4 Mei 2020, update stok di jalankan per batch karena batch berikutnya akan memiliki connID yg berbeda
-                        new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
-                        //end add by Tri 4 Mei 2020, update stok di jalankan per batch karena batch berikutnya akan memiliki connID yg berbeda
-
-                        await GetOrderByStatus(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar);
-                    }
-                    else
-                    {
-                        if (jmlhNewOrder > 0)
-                        {
-                            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                            contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Shopee.");
-                            new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
-                        }
-                        if (jmlhPesananDibayar > 0)
-                        {
-                            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                            contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari Shopee.");
-                        }
-                    }
                 }
+               
                 //}
                 //catch (Exception ex2)
                 //{
@@ -1987,102 +1994,107 @@ namespace MasterOnline.Controllers
                 //{
                 var listOrder = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderByStatusResult)) as ShopeeGetOrderByStatusResult;
 
-                string[] ordersn_list = listOrder.orders.Where(p => p.order_status == stat.ToString()).Select(p => p.ordersn).ToArray();
-                string ordersn = "";
-                foreach (var item in ordersn_list)
+                if (listOrder.orders != null)
                 {
-                    ordersn = ordersn + "'" + item + "',";
-                }
-                if (ordersn_list.Count() > 0)
-                {
-                    ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                    var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND'");
-                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11'");
-                    if (rowAffected > 0)
+                    if (listOrder.orders.Length > 0)
                     {
-                        //add by Tri 4 Des 2019, isi cancel reason
-                        var sSQL1 = "";
-                        var sSQL2 = "SELECT * INTO #TEMP FROM (";
-                        var listReason = new Dictionary<string, string>();
-                        //if (ordersn_list.Count() > 50)
-                        //{
-                        //    var order50 = new string[50];
-                        //    int i = 0;
-                        //    foreach (var order in listOrder.orders)
-                        //    {
-                        //        order50[i] = order.ordersn;
-                        //        i++;
-                        //        if (i > 50 || order == listOrder.orders.Last())
-                        //        {
-                        //            var list2 = await GetOrderDetailsForCancelReason(iden, ordersn_list);
-                        //            listReason = AddDictionary(listReason, list2);
-                        //            i = 0;
-                        //            order50 = new string[50];
-                        //        }
-                        //    }
-                        //}
-                        //else
-                        //{
-                        listReason = await GetOrderDetailsForCancelReason(iden, ordersn_list);
-                        //}
-                        foreach (var order in listOrder.orders)
+                        string[] ordersn_list = listOrder.orders.Where(p => p.order_status == stat.ToString()).Select(p => p.ordersn).ToArray();
+                        string ordersn = "";
+                        foreach (var item in ordersn_list)
                         {
-                            string reasonValue;
-                            if (listReason.TryGetValue(order.ordersn, out reasonValue))
+                            ordersn = ordersn + "'" + item + "',";
+                        }
+                        if (ordersn_list.Count() > 0)
+                        {
+                            ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                            var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND'");
+                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11'");
+                            if (rowAffected > 0)
                             {
-                                if (!string.IsNullOrEmpty(sSQL1))
+                                //add by Tri 4 Des 2019, isi cancel reason
+                                var sSQL1 = "";
+                                var sSQL2 = "SELECT * INTO #TEMP FROM (";
+                                var listReason = new Dictionary<string, string>();
+                                //if (ordersn_list.Count() > 50)
+                                //{
+                                //    var order50 = new string[50];
+                                //    int i = 0;
+                                //    foreach (var order in listOrder.orders)
+                                //    {
+                                //        order50[i] = order.ordersn;
+                                //        i++;
+                                //        if (i > 50 || order == listOrder.orders.Last())
+                                //        {
+                                //            var list2 = await GetOrderDetailsForCancelReason(iden, ordersn_list);
+                                //            listReason = AddDictionary(listReason, list2);
+                                //            i = 0;
+                                //            order50 = new string[50];
+                                //        }
+                                //    }
+                                //}
+                                //else
+                                //{
+                                listReason = await GetOrderDetailsForCancelReason(iden, ordersn_list);
+                                //}
+                                foreach (var order in listOrder.orders)
                                 {
-                                    sSQL1 += " UNION ALL ";
+                                    string reasonValue;
+                                    if (listReason.TryGetValue(order.ordersn, out reasonValue))
+                                    {
+                                        if (!string.IsNullOrEmpty(sSQL1))
+                                        {
+                                            sSQL1 += " UNION ALL ";
+                                        }
+                                        sSQL1 += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + listReason[order.ordersn] + "' ALASAN ";
+                                    }
                                 }
-                                sSQL1 += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + listReason[order.ordersn] + "' ALASAN ";
-                            }
-                        }
-                        sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
-                        sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
-                        sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
-                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
-                        //var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == ordersn && m.CUST == CUST).Select(m => m.NO_BUKTI).FirstOrDefault();
-                        //if (!string.IsNullOrEmpty(nobuk))
-                        //{
-                        //    var sot01d = ErasoftDbContext.SOT01D.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
-                        //    if (sot01d == null)
-                        //    {
-                        //        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "INSERT INTO SOT01D(NO_BUKTI, CATATAN_1, USERNAME) VALUES ('" + nobuk + "','" + order.reason + "','AUTO LAZADA')");
-                        //    }
-                        //}
-                        //end add by Tri 4 Des 2019, isi cancel reason
+                                sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
+                                sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
+                                sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
+                                EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
+                                //var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == ordersn && m.CUST == CUST).Select(m => m.NO_BUKTI).FirstOrDefault();
+                                //if (!string.IsNullOrEmpty(nobuk))
+                                //{
+                                //    var sot01d = ErasoftDbContext.SOT01D.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
+                                //    if (sot01d == null)
+                                //    {
+                                //        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "INSERT INTO SOT01D(NO_BUKTI, CATATAN_1, USERNAME) VALUES ('" + nobuk + "','" + order.reason + "','AUTO LAZADA')");
+                                //    }
+                                //}
+                                //end add by Tri 4 Des 2019, isi cancel reason
 
-                        //var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
-                        string qry_Retur = "SELECT F.NO_REF FROM SIT01A F LEFT JOIN SIT01A R ON R.NO_REF = F.NO_BUKTI AND R.JENIS_FORM = '3' AND F.JENIS_FORM = '2' ";
-                        qry_Retur += "WHERE F.NO_REF IN (" + ordersn + ") AND ISNULL(R.NO_BUKTI, '') = '' AND F.CUST = '" + CUST + "'";
-                        var dsFaktur = EDB.GetDataSet("MOConnectionString", "RETUR", qry_Retur);
-                        if (dsFaktur.Tables[0].Rows.Count > 0)
-                        {
-                            var listFaktur = "";
-                            for (int j = 0; j < dsFaktur.Tables[0].Rows.Count; j++)
-                            {
-                                listFaktur += "'" + dsFaktur.Tables[0].Rows[j]["NO_REF"].ToString() + "',";
+                                //var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
+                                string qry_Retur = "SELECT F.NO_REF FROM SIT01A F LEFT JOIN SIT01A R ON R.NO_REF = F.NO_BUKTI AND R.JENIS_FORM = '3' AND F.JENIS_FORM = '2' ";
+                                qry_Retur += "WHERE F.NO_REF IN (" + ordersn + ") AND ISNULL(R.NO_BUKTI, '') = '' AND F.CUST = '" + CUST + "'";
+                                var dsFaktur = EDB.GetDataSet("MOConnectionString", "RETUR", qry_Retur);
+                                if (dsFaktur.Tables[0].Rows.Count > 0)
+                                {
+                                    var listFaktur = "";
+                                    for (int j = 0; j < dsFaktur.Tables[0].Rows.Count; j++)
+                                    {
+                                        listFaktur += "'" + dsFaktur.Tables[0].Rows[j]["NO_REF"].ToString() + "',";
+                                    }
+                                    listFaktur = listFaktur.Substring(0, listFaktur.Length - 1);
+                                    var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + listFaktur + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
+                                }
+                                new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                             }
-                            listFaktur = listFaktur.Substring(0, listFaktur.Length - 1);
-                            var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + listFaktur + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
-                        }
-                        new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
-                    }
-                    jmlhNewOrder = jmlhNewOrder + rowAffected;
-                    if (listOrder.more)
-                    {
-                        await GetOrderByStatusCancelled(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
-                    }
-                    else
-                    {
-                        if (jmlhNewOrder > 0)
-                        {
-                            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                            contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhNewOrder) + " Pesanan dari Shopee dibatalkan.");
+                            jmlhNewOrder = jmlhNewOrder + rowAffected;
+                            if (listOrder.more)
+                            {
+                                await GetOrderByStatusCancelled(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
+                            }
+                            else
+                            {
+                                if (jmlhNewOrder > 0)
+                                {
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhNewOrder) + " Pesanan dari Shopee dibatalkan.");
+                                }
+                            }
                         }
                     }
                 }
-
                 //}
                 //catch (Exception ex2)
                 //{
@@ -2122,7 +2134,8 @@ namespace MasterOnline.Controllers
             SetupContext(iden);
 
             long seconds = CurrentTimeSecond();
-            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-10).ToUnixTimeSeconds();
+            //long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-10).ToUnixTimeSeconds();
+            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-14).ToUnixTimeSeconds();//change by Tri 25 aug 2020, pesanan bisa selesai lebih dari 10hari
             long timeStampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -2176,31 +2189,37 @@ namespace MasterOnline.Controllers
                 //try
                 //{
                 var listOrder = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderByStatusResult)) as ShopeeGetOrderByStatusResult;
-
-                string[] ordersn_list = listOrder.orders.Where(p => p.order_status == stat.ToString()).Select(p => p.ordersn).ToArray();
-                string ordersn = "";
-                foreach (var item in ordersn_list)
+                if(listOrder.orders != null)
                 {
-                    ordersn = ordersn + "'" + item + "',";
-                }
-                if (ordersn_list.Count() > 0)
-                {
-                    ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '03'");
-                    jmlhNewOrder = jmlhNewOrder + rowAffected;
-                    if (listOrder.more)
+                    if(listOrder.orders.Length > 0)
                     {
-                        await GetOrderByStatusCompleted(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
-                    }
-                    else
-                    {
-                        if (jmlhNewOrder > 0)
+                        string[] ordersn_list = listOrder.orders.Where(p => p.order_status == stat.ToString()).Select(p => p.ordersn).ToArray();
+                        string ordersn = "";
+                        foreach (var item in ordersn_list)
                         {
-                            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                            contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhNewOrder) + " Pesanan dari Shopee sudah selesai.");
+                            ordersn = ordersn + "'" + item + "',";
+                        }
+                        if (ordersn_list.Count() > 0)
+                        {
+                            ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '03'");
+                            jmlhNewOrder = jmlhNewOrder + rowAffected;
+                            if (listOrder.more)
+                            {
+                                await GetOrderByStatusCompleted(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
+                            }
+                            else
+                            {
+                                if (jmlhNewOrder > 0)
+                                {
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhNewOrder) + " Pesanan dari Shopee sudah selesai.");
+                                }
+                            }
                         }
                     }
                 }
+                
 
                 //}
                 //catch (Exception ex2)
@@ -2274,7 +2293,7 @@ namespace MasterOnline.Controllers
                 foreach (var order in result.orders)
                 {
                     var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.NO_REFERENSI == order.ordersn);
-                    
+
                     if (order.tracking_no != null && order.tracking_no != "")
                     {
                         ret = order.tracking_no;
@@ -2290,9 +2309,9 @@ namespace MasterOnline.Controllers
                         //contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee gagal.");
                         //List<string> list_ordersn = new List<string>();
                         //list_ordersn.Add(ordersn);
-                        
-                        var cekRetry = retry;      
-                        if (cekRetry >= 0 &&  cekRetry < 2)
+
+                        var cekRetry = retry;
+                        if (cekRetry >= 0 && cekRetry < 2)
                         {
                             cekRetry = retry + 1;
                             string EDBConnID = EDB.GetConnectionString("ConnId");
@@ -2518,7 +2537,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                //end add by nurul 16/6/2020
+                    //end add by nurul 16/6/2020
 
                     var ordersn_list = list_ordersn.ToArray();
 
@@ -2823,7 +2842,7 @@ namespace MasterOnline.Controllers
                         ((order.recipient_address.full_address ?? "").Replace("'", "`")),
                         (tlp),
                         //(NAMA_CUST.Replace(',', '.')),
-                        (NAMA_CUST.Length > 30? NAMA_CUST.Substring(0, 30) : NAMA_CUST),
+                        (NAMA_CUST.Length > 30 ? NAMA_CUST.Substring(0, 30) : NAMA_CUST),
                         (AL_KIRIM1),
                         DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                         (username),
@@ -2929,8 +2948,8 @@ namespace MasterOnline.Controllers
                         {
                             dropshipper = dropshipper.Substring(0, 300);
                         }
-                        string buyer_username = !string.IsNullOrEmpty(order.buyer_username) ? order.buyer_username.Replace('\'','`') : "";
-                        if(buyer_username.Length > 300)
+                        string buyer_username = !string.IsNullOrEmpty(order.buyer_username) ? order.buyer_username.Replace('\'', '`') : "";
+                        if (buyer_username.Length > 300)
                         {
                             buyer_username = buyer_username.Substring(0, 300);
                         }
@@ -2981,7 +3000,7 @@ namespace MasterOnline.Controllers
                             NAMA_CUST = NAMA_CUST
                         };
                         var ShippingFeeData = await GetShippingFee(iden, order.ordersn);
-                        if(ShippingFeeData != null)
+                        if (ShippingFeeData != null)
                         {
                             newOrder.estimated_shipping_fee = (ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee).ToString();
                         }
@@ -3101,7 +3120,7 @@ namespace MasterOnline.Controllers
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            var ret =  new GetShippingFeeResult();
+            var ret = new GetShippingFeeResult();
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -3145,7 +3164,7 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(responseFromServer))
             {
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetShippingFeeResult)) as GetShippingFeeResult;
-                if(result != null)
+                if (result != null)
                 {
                     if (string.IsNullOrEmpty(result.error))
                     {
@@ -3818,7 +3837,7 @@ namespace MasterOnline.Controllers
             {
                 //try
                 //{
-                
+
 
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
                 if ((result.error == null ? "" : result.error) == "")
@@ -3987,7 +4006,7 @@ namespace MasterOnline.Controllers
                         }
 
 
-                        
+
                     }
                     else
                     {
@@ -4084,7 +4103,7 @@ namespace MasterOnline.Controllers
                         pesananInDb.status_kirim = "1";
                         ErasoftDbContext.SaveChanges();
                     }
-                        throw new Exception(result.msg);
+                    throw new Exception(result.msg);
 
                     //currentLog.REQUEST_EXCEPTION = result.msg;
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
@@ -4753,7 +4772,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        [AutomaticRetry(Attempts = 2)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Shopee Gagal.")]
         public async Task<string> CreateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string brg, string cust, List<ShopeeLogisticsClass> logistics)
@@ -4884,66 +4903,66 @@ namespace MasterOnline.Controllers
             //end add by calvin 1 mei 2019
             int jmlPic = 0;
             //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
-            List<string> byteGambarUploaded = new List<string>();
+            //List<string> byteGambarUploaded = new List<string>();
             //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
 
             if (jmlPic < 9)
             {
-                if (!byteGambarUploaded.Contains(brgInDb.Sort5))
+                //if (!byteGambarUploaded.Contains(brgInDb.Sort5))
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
                     {
                         HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_1 });
                         jmlPic++;
-                        byteGambarUploaded.Add(brgInDb.Sort5);
+                        //byteGambarUploaded.Add(brgInDb.Sort5);
                     }
                 }
             }
             if (jmlPic < 9)
             {
-                if (!byteGambarUploaded.Contains(brgInDb.Sort6))
+                //if (!byteGambarUploaded.Contains(brgInDb.Sort6))
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
                     {
                         HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_2 });
                         jmlPic++;
-                        byteGambarUploaded.Add(brgInDb.Sort6);
+                        //byteGambarUploaded.Add(brgInDb.Sort6);
                     }
                 }
             }
             if (jmlPic < 9)
             {
-                if (!byteGambarUploaded.Contains(brgInDb.Sort7))
+                //if (!byteGambarUploaded.Contains(brgInDb.Sort7))
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
                     {
                         HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_3 });
                         jmlPic++;
-                        byteGambarUploaded.Add(brgInDb.Sort7);
+                        //byteGambarUploaded.Add(brgInDb.Sort7);
                     }
                 }
             }
             if (jmlPic < 9)
             {
-                if (!byteGambarUploaded.Contains(brgInDb.SIZE_GAMBAR_4))
+                //if (!byteGambarUploaded.Contains(brgInDb.SIZE_GAMBAR_4))
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
                     {
                         HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_4 });
                         jmlPic++;
-                        byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_4);
+                        //byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_4);
                     }
                 }
             }
             if (jmlPic < 9)
             {
-                if (!byteGambarUploaded.Contains(brgInDb.SIZE_GAMBAR_5))
+                //if (!byteGambarUploaded.Contains(brgInDb.SIZE_GAMBAR_5))
                 {
                     if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
                     {
                         HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_5 });
                         jmlPic++;
-                        byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_5);
+                        //byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_5);
                     }
                 }
             }
@@ -5049,7 +5068,7 @@ namespace MasterOnline.Controllers
                                 value = value.Trim()
                             });
                         }
-                            
+
                     }
                 }
 
@@ -5369,6 +5388,11 @@ namespace MasterOnline.Controllers
                             {
                                 if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                 {
+                                    //add 6 aug 2020, hapus error log lama sebelum panggil update produk
+                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Update Produk' AND CUST = '" + customer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + brg + "'";
+                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                                    //end add 6 aug 2020, hapus error log lama sebelum panggil update produk
+
                                     iden.merchant_code = customer.Sort1_Cust;
                                     //Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
                                     //Task.Run(() => shoAPI.UpdateProduct(idenNew, brg, customer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
@@ -5394,7 +5418,7 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public async Task<GetVariationResult> CekVariationShopee( ShopeeAPIData iden, long item_id)
+        public async Task<GetVariationResult> CekVariationShopee(ShopeeAPIData iden, long item_id)
         {
             var ret = new GetVariationResult();
             SetupContext(iden);
@@ -5452,7 +5476,7 @@ namespace MasterOnline.Controllers
             if (responseFromServer != "")
             {
                 ret = JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariationResult)) as GetVariationResult;
-                
+
             }
 
             return ret;
@@ -5856,20 +5880,20 @@ namespace MasterOnline.Controllers
                     //    }
                     //}
                     #endregion
-                    if(dataBrg.variations != null)
+                    if (dataBrg.variations != null)
                     {
-                        if(dataBrg.variations.Length > 0)
+                        if (dataBrg.variations.Length > 0)
                         {
                             var tempData = new List<STF02>();
                             var newData = ListVariant;
                             //var cekTier1 = dataBrg.variations.Where(p => p.tier_index[0] == 0).ToList();
-                            if(dataBrg.tier_variation.Length == 1)// shopee 1 tier
+                            if (dataBrg.tier_variation.Length == 1)// shopee 1 tier
                             {
-                                foreach(var tier1_s in dataBrg.variations.OrderBy(p => p.tier_index[0]))
+                                foreach (var tier1_s in dataBrg.variations.OrderBy(p => p.tier_index[0]))
                                 {
                                     var brgMPVar = dataBrg.item_id + ";" + tier1_s.variation_id;
                                     var dStf02h = ListStf02hVariasi.Where(p => (p.BRG_MP ?? "") == brgMPVar).FirstOrDefault();
-                                    if(dStf02h != null)
+                                    if (dStf02h != null)
                                     {
                                         var currentBrg = dStf02h.BRG;
                                         var sorted = ListVariant.Where(p => p.BRG == currentBrg).FirstOrDefault();
@@ -6037,7 +6061,7 @@ namespace MasterOnline.Controllers
             }
             HttpBody.variation = variation.ToArray();
             HttpBody.tier_variation = tier_variation.ToArray();
-           
+
             string myData = JsonConvert.SerializeObject(HttpBody);
             myData = myData.Replace(",\"images_url\":null", " ");//remove images_url from tier 2
 
@@ -6360,6 +6384,7 @@ namespace MasterOnline.Controllers
                 {
                     if (string.IsNullOrEmpty(resServer.error))
                     {
+                        await UpdateProductDisplay(iden, brg, cust);//add by Tri 6 aug 2020, update display product
                         var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
                         if (item != null)
                         {
@@ -6428,6 +6453,89 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public async Task<string> UpdateProductDisplay(ShopeeAPIData iden, string brg, string cust)
+        {
+            SetupContext(iden);
+
+            var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+            var stf02h_brg = ErasoftDbContext.STF02H.Where(m => m.BRG == brg && m.IDMARKET == customer.RecNum).FirstOrDefault();
+            string urll = "https://partner.shopeemobile.com/api/v1/items/unlist";
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string itemId = "";
+            if (!string.IsNullOrEmpty(stf02h_brg.BRG_MP))
+            {
+                var splitCode = stf02h_brg.BRG_MP.Split(';');
+                if (splitCode[0] != "0")
+                {
+                    itemId = splitCode[0];
+                }
+            }
+
+            if (!string.IsNullOrEmpty(itemId))
+            {
+                string myData = "{ \"shopid\":" + iden.merchant_code + ",\"partner_id\":" + MOPartnerID + ",\"timestamp\":" + seconds + ",";
+                myData += "\"items\": [{\"item_id\":" + itemId + ", \"unlist\":" + (stf02h_brg.DISPLAY ? "false" : "true") + " }] }";
+
+                string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "POST";
+                myReq.Headers.Add("Authorization", signature);
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                string responseFromServer = "";
+
+                //try
+                //{
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+                //}
+                //catch (Exception ex)
+                //{
+                //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //}
+
+                if (responseFromServer != "")
+                {
+                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUnlistProductResponse)) as ShopeeUnlistProductResponse;
+                    if (resServer != null)
+                    {
+                        if(resServer.failed != null)
+                        {
+                            if(resServer.failed.Length > 0)
+                            {
+                                string errMsg = "Error Unlist Product : ";
+                                foreach (var er in resServer.failed)
+                                {
+                                    errMsg += er.item_id + " : " + er.error_description + "\n";
+                                }
+                                throw new Exception(errMsg);
+                            }
+                            
+                        }
+                    }
+
+                }
+            }
+
+            return "";
+        }
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke Shopee gagal.")]
@@ -8501,6 +8609,25 @@ namespace MasterOnline.Controllers
             //public long size_id { get; set; }//If specify logistic fee_type is SIZE_SELECTION size_id is required
             public bool is_free { get; set; }
 
+        }
+
+        public class ShopeeUnlistProductResponse
+        {
+            public ShopeeUnlistProductFailed[] failed { get; set; }
+            public ShopeeUnlistProductSuccess[] success { get; set; }
+            public string request_id { get; set; }
+        }
+
+        public class ShopeeUnlistProductFailed
+        {
+            public long item_id { get; set; }
+            public string error_description { get; set; }
+        }
+
+        public class ShopeeUnlistProductSuccess
+        {
+            public long item_id { get; set; }
+            public bool unlist { get; set; }
         }
 
         public class ShopeeCreateProdResponse : ShopeeError

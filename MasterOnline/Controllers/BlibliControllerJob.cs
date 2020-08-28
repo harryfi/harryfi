@@ -7156,7 +7156,7 @@ namespace MasterOnline.Controllers
             return null;
         }
 
-        [AutomaticRetry(Attempts = 2)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Blibli Gagal.")]
         public async Task<string> CreateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, BlibliProductData data, PerformContext context)
@@ -7317,11 +7317,13 @@ namespace MasterOnline.Controllers
 
                 idGambar = stf02h.ACODE_50;
                 urlGambar = stf02h.AVALUE_50;
-                if (string.IsNullOrWhiteSpace(idGambar))
+                //if (string.IsNullOrWhiteSpace(idGambar))
+                if (string.IsNullOrWhiteSpace(urlGambar))
                 {
                     idGambar = data.dataBarangInDb.Sort5;
                     urlGambar = data.dataBarangInDb.LINK_GAMBAR_1;
                 }
+                idGambar = stf02h.BRG + "_1_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss");
                 //if (!string.IsNullOrWhiteSpace(idGambar))
                 if (!string.IsNullOrWhiteSpace(urlGambar))
                 {
@@ -7377,11 +7379,13 @@ namespace MasterOnline.Controllers
                 }
                 idGambar = stf02h.ACODE_49;
                 urlGambar = stf02h.AVALUE_49;
-                if (string.IsNullOrWhiteSpace(idGambar))
+                //if (string.IsNullOrWhiteSpace(idGambar))
+                if (string.IsNullOrWhiteSpace(urlGambar))
                 {
                     idGambar = data.dataBarangInDb.Sort6;
                     urlGambar = data.dataBarangInDb.LINK_GAMBAR_2;
                 }
+                idGambar = stf02h.BRG + "_2_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss");
                 //if (!string.IsNullOrWhiteSpace(idGambar))
                 if (!string.IsNullOrWhiteSpace(urlGambar))
                 {
@@ -7439,11 +7443,13 @@ namespace MasterOnline.Controllers
 
                 idGambar = stf02h.ACODE_48;
                 urlGambar = stf02h.AVALUE_48;
-                if (string.IsNullOrWhiteSpace(idGambar))
+                //if (string.IsNullOrWhiteSpace(idGambar))
+                if (string.IsNullOrWhiteSpace(urlGambar))
                 {
                     idGambar = data.dataBarangInDb.Sort7;
                     urlGambar = data.dataBarangInDb.LINK_GAMBAR_3;
                 }
+                idGambar = stf02h.BRG + "_3_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss");
                 if (!string.IsNullOrWhiteSpace(urlGambar))
                 //if (!string.IsNullOrWhiteSpace(idGambar))
                 {
@@ -7502,11 +7508,13 @@ namespace MasterOnline.Controllers
 
                 idGambar = stf02h.SIZE_GAMBAR_4;
                 urlGambar = stf02h.LINK_GAMBAR_4;
-                if (string.IsNullOrWhiteSpace(idGambar))
+                //if (string.IsNullOrWhiteSpace(idGambar))
+                if (string.IsNullOrWhiteSpace(urlGambar))
                 {
                     idGambar = data.dataBarangInDb.SIZE_GAMBAR_4;
                     urlGambar = data.dataBarangInDb.LINK_GAMBAR_4;
                 }
+                idGambar = stf02h.BRG + "_4_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss");
                 //if (!string.IsNullOrWhiteSpace(idGambar))
                 if (!string.IsNullOrWhiteSpace(urlGambar))
                 {
@@ -7564,11 +7572,13 @@ namespace MasterOnline.Controllers
 
                 idGambar = stf02h.SIZE_GAMBAR_5;
                 urlGambar = stf02h.LINK_GAMBAR_5;
-                if (string.IsNullOrWhiteSpace(idGambar))
+                //if (string.IsNullOrWhiteSpace(idGambar))
+                if (string.IsNullOrWhiteSpace(urlGambar))
                 {
                     idGambar = data.dataBarangInDb.SIZE_GAMBAR_5;
                     urlGambar = data.dataBarangInDb.LINK_GAMBAR_5;
                 }
+                idGambar = stf02h.BRG + "_5_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss");
                 //if (!string.IsNullOrWhiteSpace(idGambar))
                 if (!string.IsNullOrWhiteSpace(urlGambar))
                 {
@@ -7831,6 +7841,7 @@ namespace MasterOnline.Controllers
                     {
                         url = var_item.LINK_GAMBAR_1;
                     }
+                    image_id = "_1_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss");
                     //if (!string.IsNullOrWhiteSpace(image_id))
                     if (!string.IsNullOrWhiteSpace(url))
                     {

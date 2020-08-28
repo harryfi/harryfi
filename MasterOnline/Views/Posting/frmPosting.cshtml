@@ -52,13 +52,13 @@
     <div class="col-md-2">
         @Html.Label("", "Tahun")
         <div class="input-group number">
-            @Html.TextBox("Tahun", null, new { @class = "form-control", @MaxLength = "4" })
+            @Html.TextBox("Tahun", null, new { @class = "form-control", @MaxLength = "4", @disabled = "disabled" })
         </div>
     </div>
     <div class="col-md-2">
         @Html.Label("", "Bulan")
         <div class="input-group number">
-            @Html.TextBox("Bulan", null, new { @class = "form-control", @ReadOnly = true })
+            @Html.TextBox("Bulan", null, new { @class = "form-control", @ReadOnly = true, @disabled = "disabled" })
         </div>
     </div>
     <div class="col-md-8">
@@ -66,12 +66,12 @@
 </div>
 <div class="row">
     <div class="col-md-2">
-        @Html.Label("", "Dari Tanggal", new { @style = "padding-right:10px" })
-            <select id="DrTgl" style="height:30px; padding-left:10px"></select>
+        @Html.Label("", "Dari Tanggal", new { @style = "padding-right:10px", @disabled = "disabled" })
+        <select id="DrTgl" style="height:30px; padding-left:10px" disabled="disabled"></select>
     </div>
     <div class="col-md-2">
-        @Html.Label("", "Sampai Tanggal", new { @style= "padding-right:10px" })
-            <select id="SdTgl" style="height:30px; padding-left:10px"></select>
+        @Html.Label("", "Sampai Tanggal", new { @style = "padding-right:10px" })
+        <select id="SdTgl" style="height:30px; padding-left:10px"></select>
     </div>
     @*<div class="col-md-2">
             @Html.Label("", "Dari Tanggal")
@@ -88,10 +88,13 @@
     <div class="col-md-8">
     </div>
 </div>
-<br/>
+<br />
 <div class="row">
-    <div class="col-md-12">
-        <button type="button" class="btn btn-primary" id="process-posting">Process</button>
+    <div class="col-md-10">
+        <button type="button" class="btn btn-primary" id="process-posting">Proses</button>
+    </div>
+    <div class="col-md-2">
+        <button type="button" class="btn btn-primary pull-right" id="view-error-posting" data-toggle="modal" data-target="#viewErrorPosting">View Error</button>
     </div>
 </div>
 <br />
@@ -131,13 +134,37 @@
     </div>
     <div class="infoPost"></div>
 </div>
+<div class="modal fade" id="viewErrorPosting" tabindex="-1" role="dialog" aria-labelledby="labelErrorPosting">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelErrorPosting">Log Error Posting</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="logErroruploadpesananviewdiv">
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="closeLogErrorUploadPesanan()">Tutup</button>
+                @*<button type="button" class="btn btn-success" onclick="closeEditor()">sYa</button>*@
+            </div>
+        </div>
+    </div>
+</div>
 @section scripts
 {
     <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     @*<script src="//code.jquery.com/ui/1.11.0/jquery-ui.min.js" type="text/javascript"></script>*@
 
     <script>
+        var tempLog = "";
+        var tempBulan = "";
         var promptSupp = "";
         var promptBrg = "";
         var $bln = "";
@@ -156,11 +183,11 @@
             optionsDr += "<option>" + DrTgl + "</option>";
         }
         document.getElementById("DrTgl").innerHTML = optionsDr;
-        var optionsSd = "";
-        for (var SdTgl = 1; SdTgl <= lastOfThisMonth.getDate(); SdTgl++) {
-            optionsSd += "<option>" + SdTgl + "</option>";
-        }
-        document.getElementById("SdTgl").innerHTML = optionsSd;
+        //var optionsSd = "";
+        //for (var SdTgl = 1; SdTgl <= lastOfThisMonth.getDate(); SdTgl++) {
+        //    optionsSd += "<option>" + SdTgl + "</option>";
+        //}
+        //document.getElementById("SdTgl").innerHTML = optionsSd;
 
         $(document).ready(function () {
             var d = new Date();
@@ -217,11 +244,11 @@
                     optionsDr += "<option>" + DrTgl + "</option>";
                 }
                 document.getElementById("DrTgl").innerHTML = optionsDr;
-                optionsSd = "";
-                for (var SdTgl = 1; SdTgl <= lastOfThisMonth.getDate(); SdTgl++) {
-                    optionsSd += "<option>" + SdTgl + "</option>";
-                }
-                document.getElementById("SdTgl").innerHTML = optionsSd;
+                //optionsSd = "";
+                //for (var SdTgl = 1; SdTgl <= lastOfThisMonth.getDate(); SdTgl++) {
+                //    optionsSd += "<option>" + SdTgl + "</option>";
+                //}
+                //document.getElementById("SdTgl").innerHTML = optionsSd;
                 });
             //end change by nurul 23/8/2019
             $('#Tahun').change(function () {
@@ -236,11 +263,11 @@
                     optionsDr += "<option>" + DrTgl + "</option>";
                 }
                 document.getElementById("DrTgl").innerHTML = optionsDr;
-                optionsSd = "";
-                for (var SdTgl = 1; SdTgl <= lastOfThisMonth.getDate(); SdTgl++) {
-                    optionsSd += "<option>" + SdTgl + "</option>";
-                }
-                document.getElementById("SdTgl").innerHTML = optionsSd;
+                //optionsSd = "";
+                //for (var SdTgl = 1; SdTgl <= lastOfThisMonth.getDate(); SdTgl++) {
+                //    optionsSd += "<option>" + SdTgl + "</option>";
+                //}
+                //document.getElementById("SdTgl").innerHTML = optionsSd;
             });
             //drSdTgl();
             //$('#DrTgl').datepicker({
@@ -261,17 +288,35 @@
             //    $('#SdTgl').val($(this).val());
             //    $(this).datepicker('hide');
             //});
-
+            getLastTglPosting();
             $('#process-posting').click(function () {
-                $('#infoPosting').val('');
-                $('.labelPosting').html('Status : Proses sedang dimulai..');
-                $('#bannerPembelian').attr('class', 'list-group-item list-group-item-light');
-                $('#bannerPersediaan').attr('class', 'list-group-item list-group-item-light');
-                $('#bannerPenjualan').attr('class', 'list-group-item list-group-item-light');
-                $('#bannerHutang').attr('class', 'list-group-item list-group-item-light');
-                $('#bannerPiutang').attr('class', 'list-group-item list-group-item-light');
-                $('#bannerJurnal').attr('class', 'list-group-item list-group-item-light');
-                previewing();
+                if (parseInt($('#DrTgl').val()) > parseInt($('#SdTgl').val())) {
+                    alert("Dari Tanggal tidak boleh lebih besar dari Sampai Tanggal")
+                } else {
+                    $('#infoPosting').val('');
+                    $('.labelPosting').html('Status : Proses sedang dimulai..');
+                    $('#bannerPembelian').attr('class', 'list-group-item list-group-item-light');
+                    $('#bannerPersediaan').attr('class', 'list-group-item list-group-item-light');
+                    $('#bannerPenjualan').attr('class', 'list-group-item list-group-item-light');
+                    $('#bannerHutang').attr('class', 'list-group-item list-group-item-light');
+                    $('#bannerPiutang').attr('class', 'list-group-item list-group-item-light');
+                    $('#bannerJurnal').attr('class', 'list-group-item list-group-item-light');
+                    previewing();
+                }
+            });
+            $('#view-error-posting').click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("ErrorLogPosting", "Manage")',
+                    success: function (value) {
+                        $('#viewErrorPosting').modal('show');
+                        $('#logErroruploadpesananviewdiv').html(value);
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        $tempErr.length = 0;
+                    }
+                });
             });
         });
 
@@ -325,6 +370,7 @@
         function FormatMonth() {
             var d;
             d = new Date($('#Bulan').val() + ' ' + 2018);
+            tempBulan = d.getMonth() + 1;
             return d.getMonth() + 1;
         }
 
@@ -381,6 +427,82 @@
             }
         }
 
+        //add by nurul 3/8/2020
+        function getLastTglPosting() {
+            var $link = '@Html.Raw(Url.Action("getLastTglPosting", "Posting"))';
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                success: function (data) {
+                    
+                    var b = new Date(data.bulan + ' ' + 2018);
+                    var c = b.getMonth() + 1;
+                    var a = new Date(data.tahun, c - 1, data.tgl);
+                    firstOfThisMonth = a;
+                    firstOfThisMonth.setDate(1);
+                    var a = firstOfThisMonth;
+                    a.setDate(1);
+                    lastOfThisMonth = a.addMonths(1).addDays(-1);
+
+                    //var optionsDr = "";
+                    //for (var DrTgl = 1; DrTgl <= lastOfThisMonth.getDate(); DrTgl++) {
+                    //    optionsDr += "<option>" + DrTgl + "</option>";
+                    //}
+                    //document.getElementById("DrTgl").innerHTML = data.tgl;
+                    var optionsSd = "";
+                    for (var SdTgl = 1; SdTgl <= lastOfThisMonth.getDate(); SdTgl++) {
+                        optionsSd += "<option>" + SdTgl + "</option>";
+                    }
+                    document.getElementById("SdTgl").innerHTML = optionsSd;
+
+                    $('#SdTgl').val(data.tgl);
+                    $('#DrTgl').val(data.tgl);
+                    $('#Bulan').val(data.bulan);
+                    $('#Tahun').val(data.tahun);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function showError() {
+            var link = '@Url.Action("ShowErrorLogPosting", "Manage")';
+            var $log = "";
+            if (tempLog != "") {
+                $log = tempLog;
+            }
+            $postdata = {
+                logErr: $log,
+            };
+                                    $.ajax({
+                                        type: "POST",
+                                        url: link,
+                                        contentType: "application/json; charset=UTF-8",
+                                        cache: false,
+                                        data: JSON.stringify($postdata),
+                                        success: function (value) {
+                                            $('#viewErrorPosting').modal('show');
+                                            $('#logErroruploadpesananviewdiv').html(value);
+                                        },
+                                        error: function (xhr, status, error) {
+                                            console.log(error);
+                                            $tempErr.length = 0;
+                                        }
+                                    });
+                                //}
+        }
+
+        function downloadLogPosting(txt){
+            window.open('/Manage/DownloadLogPosting?filename=' + txt,'_blank');
+        }
+
+        function closeLogErrorUploadPesanan() {
+            $('#viewErrorPosting').modal('hide');
+        }
+        //end add by nurul 3/8/2020
+
         window.addEventListener('message', function (event) {
 
             //if (~event.origin.indexOf('http://13.251.222.53')) {
@@ -397,6 +519,7 @@
                     $('.progress-bar').html('100% Complete');
                     $('#infoPosting').val($('#infoPosting').val() + event.data.data.trim() + '\r\n');
                     $('#banner' + event.data.nama).attr('class', 'list-group-item list-group-item-success');
+                    tempLog = $('#infoPosting').val();
                 }
                 else if (event.data.event_id == 'infoPostingSelesai') {
                     $('.labelPosting').html('Status : Proses Selesai.');
@@ -404,6 +527,8 @@
                     $('.progress-bar').html('100% Complete');
                     $('#infoPosting').val($('#infoPosting').val() + event.data.data.trim() + '\r\n');
                     $('#bannerJurnal').attr('class', 'list-group-item list-group-item-success');
+                    tempLog = $('#infoPosting').val();
+                    showError();
                     setTimeout(function () { $("#LoadPostingMO").remove(); }, 2000);
                 }
             } else {

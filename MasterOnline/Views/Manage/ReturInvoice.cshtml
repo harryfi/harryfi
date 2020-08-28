@@ -1102,7 +1102,15 @@
             var $bruto = parseInt($totalAwal) - parseInt($totalAwalBarang);
 
             $($trElement + ' .netto-barang').html(convertToRupiah($total) + '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="InvoiceDetail_HARGA" name="InvoiceDetail.HARGA" type="hidden" value="">');
-            $('#Invoice_BRUTO').val(convertToRupiah($bruto + parseInt($total)));
+
+            //$('#Invoice_BRUTO').val(convertToRupiah($bruto + parseInt($total)));
+            var jumlahNettoDetail = 0;
+            var countDetail = document.getElementById("table_tambah").rows.length;
+            for (var i = 1; i < countDetail; i++) {
+                var nettoDetail = convertToAngka(document.getElementById("table_tambah").rows[i].cells[10].innerHTML);
+                jumlahNettoDetail = jumlahNettoDetail + nettoDetail;
+            }
+            $('#Invoice_BRUTO').val(convertToRupiah(jumlahNettoDetail));
 
             refreshNetto();
         }
@@ -2071,7 +2079,8 @@
                 var splitValue = tempValue.split('|');
                 var get_gudang = splitValue[0];
                 var get_brg = splitValue[1];
-                if (get_gudang != "" && get_brg != "") {
+                var get_qty = splitValue[2];
+                if (get_gudang != "" && get_brg != "" && get_qty != "") {
                     if ($('#Invoice_TGL').val() == '') {
                         $('#Invoice_TGL').val() == $('#TGL').val();
                     }
@@ -2102,7 +2111,7 @@
                                         $.ajax({
                                             type: "POST",
                                             url: link,
-                                            data: JSON.stringify({ get_selected: get_brg, bukti: response.mo_bukti, noref: response.mo_ref, gudang: get_gudang }),
+                                            data: JSON.stringify({ get_selected: get_brg, bukti: response.mo_bukti, noref: response.mo_ref, gudang: get_gudang, get_selected_qty:get_qty }),
                                             contentType: 'application/json; charset=UTF-8',
                                             cache: false,
                                             beforeSend: function () {

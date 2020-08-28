@@ -1395,7 +1395,7 @@
         $('#foto_produk_induk_1').off('change').on('change', function () {
             var file = this.files[0];
             var fileType = file["type"];
-            
+
             if ($.inArray(fileType, validImageVar) < 0) {
                 alert('Hanya boleh file berformat .jpg!');
                 return;
@@ -1726,9 +1726,25 @@
 
         }
     }
+    function cekImageVar() {
+        var ret = true;
+        $('.box_upload_var').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            if (data_barang_id != undefined) {
+                if ($(item).css('background-image') == 'none' || $(item).css('background-image').includes('manage/master/barang')) {
+                    ret = false;
+                }
+            }
 
+        });
+        return ret;
+    }
     var validasi_simpanBarangVariant = true;
     function simpanBarangVariant() {
+        if (!cekImageVar()) {
+            $('#modalImageVarKosong').modal('show');            
+        }
+        else {
         if (confirm('Selesai setting gambar dan harga per variasi ?')) {
             validasi_simpanBarangVariant = true;
             message_validasi_simpanBarangVariant = "";
@@ -1814,9 +1830,11 @@
                 $('#loading_spinner').hide();
                 if (message_validasi_autoloadStf02Variant != "") {
                     alert(message_validasi_autoloadStf02Variant);
-                    
+
                 }
             }
+            }
+
         }
     }
     function UpdateHjualVariantBarang() {
@@ -2452,6 +2470,24 @@
                         </div>
                     }
                 }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalImageVarKosong" tabindex="-1" role="dialog" aria-labelledby="modalImageVarKosong">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalImageVarKosongLabel">Error Save Barang</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Silahkan lengkapi gambar variasi terlebih dahulu.</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>

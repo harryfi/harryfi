@@ -2442,7 +2442,8 @@ namespace MasterOnline.Controllers
             string ret = "";
             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
 
-            string urll = string.Format("{0}/api/v1/getManufacturer?apiKey={1}&apiCredential={2}", iden.API_url, iden.API_key, iden.API_credential);
+            //string urll = string.Format("{0}/api/v1/getManufacturer?apiKey={1}&apiCredential={2}", iden.API_url, iden.API_key, iden.API_credential);
+            string urll = string.Format("{0}/api/v1/getCategory?apiKey={1}&apiCredential={2}", iden.API_url, iden.API_key, iden.API_credential);
 
             DatabaseSQL EDB = new DatabaseSQL(iden.DatabasePathErasoft);
             var resultExecDefault = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + iden.no_cust + "'");

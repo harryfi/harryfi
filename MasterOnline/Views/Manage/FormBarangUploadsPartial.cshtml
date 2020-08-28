@@ -43,7 +43,7 @@
     @Html.HiddenFor(m => m.TempBrg.IMAGE4)
     @Html.HiddenFor(m => m.TempBrg.IMAGE5)
     @Html.HiddenFor(m => m.TempBrg.TYPE)
-    @Html.HiddenFor(m => m.TempBrg.ACODE_1)
+    @*@Html.HiddenFor(m => m.TempBrg.ACODE_1)
     @Html.HiddenFor(m => m.TempBrg.ANAME_1)
     @Html.HiddenFor(m => m.TempBrg.AVALUE_1)
     @Html.HiddenFor(m => m.TempBrg.ACODE_2)
@@ -192,7 +192,7 @@
     @Html.HiddenFor(m => m.TempBrg.ANAME_49)
     @Html.HiddenFor(m => m.TempBrg.ACODE_50)
     @Html.HiddenFor(m => m.TempBrg.ANAME_50)
-    @Html.HiddenFor(m => m.TempBrg.AVALUE_50)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_50)*@
 
     @Html.HiddenFor(m => m.Stf02.ID)
     @Html.HiddenFor(m => m.Stf02.NAMA3)
@@ -292,9 +292,33 @@
                         <div class="col-md-4 col-sm-4 col-xs-12">
                             @Html.HiddenFor(m => m.TempBrg.HJUAL_MP)
                             @*@(Model?.TempBrg != null ? Html.TextBoxFor(m => m.TempBrg.HJUAL, new { @class = "form-control", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.TempBrg.HJUAL), disabled = "disabled", maxlength = "12" }) : Html.TextBoxFor(m => m.TempBrg.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12" }))*@
-                            <input class="form-control" style = "text-align:right" value="@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.TempBrg.HJUAL_MP)" disabled />
+                            <input class="form-control" style="text-align:right" value="@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.TempBrg.HJUAL_MP)" disabled />
                         </div>
                     </div>
+                    @if (Model.TempArf01.NAMA == "19")
+                    {
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.TempBrg.AVALUE_18, "Tipe Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                @Html.HiddenFor(m => m.TempBrg.AVALUE_18)
+                                <input class="form-control" value="@Model.TempBrg.AVALUE_18" disabled />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.TempBrg.AVALUE_19, "After Sale *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                @Html.HiddenFor(m => m.TempBrg.AVALUE_19)
+                                <input class="form-control" value="@Model.TempBrg.AVALUE_19" disabled />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.TempBrg.AVALUE_20, "Warranty *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                @Html.HiddenFor(m => m.TempBrg.AVALUE_20)
+                                <input class="form-control" value="@Model.TempBrg.AVALUE_20" disabled />
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
             <div class="x_panel">
@@ -310,8 +334,8 @@
                 <div class="x_content">
                     <div class="form-group">
                         @*<div class="col-md-3 col-sm-3 col-xs-12">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang MO *</label>
-                            </div>*@
+                <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang MO *</label>
+            </div>*@
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang MO *</label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <table>
@@ -358,7 +382,7 @@
                         </div>
                     </div>
                     @*@if (Model.TempBrg.TYPE == "3" && Model.TempBrg.KODE_BRG_INDUK != "")
-                        {*@
+        {*@
                     <div class="form-group" id="divBrgInduk">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang Induk**</label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -370,12 +394,12 @@
                                         <label>**Kode Barang Induk wajib diisi untuk barang varian</label>
                                     </td>
                                     @*<td>
-                                            <span class="input-group-btn">
-                                                <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptBarang('4');">
-                                                    <span class="glyphicon glyphicon-option-horizontal"></span>
-                                                </button>
-                                            </span>
-                                        </td>*@
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptBarang('4');">
+                                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                                </button>
+                            </span>
+                        </td>*@
                                 </tr>
                             </table>
                         </div>

@@ -290,7 +290,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        [AutomaticRetry(Attempts = 2)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke 82Cart Gagal.")]
         public async Task<string> E2Cart_CreateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, E2CartAPIData iden)
@@ -978,8 +978,10 @@ namespace MasterOnline.Controllers
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
             postData += "&id_product_attribute=" + Uri.EscapeDataString(brg_mp_split[1]);
             postData += "&id_attribute=" + Uri.EscapeDataString("[" + attributeItems + "]");
-            postData += "&weight=" + Uri.EscapeDataString(weight);
-            postData += "&price=" + Uri.EscapeDataString(price);
+            //postData += "&weight=" + Uri.EscapeDataString(weight); remark for default 0 karena ada impact berat ke induk dari berat varian.
+            //postData += "&price=" + Uri.EscapeDataString(price); remark for default 0 karena ada impact harga ke induk dari harga varian.
+            postData += "&weight=" + Uri.EscapeDataString("0");
+            postData += "&price=" + Uri.EscapeDataString("0");
             postData += "&reference=" + Uri.EscapeDataString(kodeBarang);
             postData += "&minimal_quantity=" + Uri.EscapeDataString("1");
             postData += "&wholesale_price=" + Uri.EscapeDataString("0");
@@ -1055,8 +1057,10 @@ namespace MasterOnline.Controllers
             postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
             postData += "&id_attribute_group=" + Uri.EscapeDataString(attributeGroup);
             postData += "&id_attribute=" + Uri.EscapeDataString("[" + attributeItems + "]");
-            postData += "&weight=" + Uri.EscapeDataString(weight);
-            postData += "&price=" + Uri.EscapeDataString(price);
+            //postData += "&weight=" + Uri.EscapeDataString(weight); remark for default 0 karena ada impact berat ke induk dari berat varian.
+            //postData += "&price=" + Uri.EscapeDataString(price); remark for default 0 karena ada impact harga ke induk dari harga varian.
+            postData += "&weight=" + Uri.EscapeDataString("0");
+            postData += "&price=" + Uri.EscapeDataString("0");
             postData += "&reference=" + Uri.EscapeDataString(kodeBarang);
             if (!string.IsNullOrEmpty(urlImage))
             {
@@ -2055,7 +2059,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke 82Cart gagal.")]
-        public async Task<string> E2Cart_UpdatePrice_82Cart(string dbPathEra, string kdbrg, string log_CUST, string log_ActionCategory, string log_ActionName, E2CartAPIData iden, string brg_mp, int priceInduk, int priceGrosir)
+        public async Task<string> E2Cart_UpdatePrice_82Cart(string dbPathEra, string kdbrg, string log_CUST, string log_ActionCategory, string log_ActionName, E2CartAPIData iden, string brg_mp, int priceInduk, string priceImpact)
         {
             SetupContext(iden);
             long milis = CurrentTimeMillis();
@@ -2084,14 +2088,14 @@ namespace MasterOnline.Controllers
             {
                 postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
                 postData += "&price=" + Uri.EscapeDataString(priceInduk.ToString());
-                postData += "&wholesale_price=" + Uri.EscapeDataString(priceGrosir.ToString());
+                postData += "&wholesale_price=" + Uri.EscapeDataString("0");
             }
             else
             {
                 postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
                 postData += "&id_product_attribute=" + Uri.EscapeDataString(brg_mp_split[1]);
-                postData += "&price_attribute=" + Uri.EscapeDataString(priceInduk.ToString());
-                postData += "&wholesale_price=" + Uri.EscapeDataString(priceGrosir.ToString());
+                postData += "&price_attribute=" + Uri.EscapeDataString(priceImpact.ToString());
+                postData += "&wholesale_price=" + Uri.EscapeDataString("0");
 
             }
 

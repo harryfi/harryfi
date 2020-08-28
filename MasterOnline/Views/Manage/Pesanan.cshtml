@@ -42,6 +42,64 @@
     @*<link href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.dataTables.min.css" rel="stylesheet" />*@
     @*//add by nurul 24/3/2020*@
     <style>
+        .user-link {
+            text-decoration: underline;
+        }
+        [data-tip] {
+            position: relative;
+            white-space: pre-line;
+        }
+
+            [data-tip]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                left: 35px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                width: 0;
+                height: 0;
+            }
+
+            [data-tip]:after {
+                display: none;
+                content: attr(data-tip);
+                position: absolute;
+                top: 35px;
+                left: 0px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 300px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                /*white-space: normal;*/
+                word-wrap: normal;
+                width: 250%;
+                white-space: pre-line;                
+            }
+
+            [data-tip]:hover:before,
+            [data-tip]:hover:after {
+                display: block;
+                white-space: pre-line;
+            }
+
+            
+
         #loading_pesanan_NotFound {
             display: none;
             width: 100%;
@@ -1703,6 +1761,7 @@
                                     <option value="15">Tokopedia</option>
                                     <option value="16">Blibli</option>
                                     <option value="17">Shopee</option>
+                                    <option value="19">JD.ID</option>
                                     <option value="20">82Cart</option>
                                     <option value="21">Shopify</option>
                                     <option value="18">Offline</option>
@@ -1833,6 +1892,7 @@
                                     <option value="15">Tokopedia</option>
                                     <option value="16">Blibli</option>
                                     <option value="17">Shopee</option>
+                                    <option value="19">JD.ID</option>
                                     <option value="20">82Cart</option>
                                     <option value="21">Shopify</option>
                                     <option value="18">Offline</option>
@@ -1940,6 +2000,7 @@
                                     <option value="15">Tokopedia</option>
                                     <option value="16">Blibli</option>
                                     <option value="17">Shopee</option>
+                                    <option value="19">JD.ID</option>
                                     <option value="20">82Cart</option>
                                     <option value="21">Shopify</option>
                                     <option value="18">Offline</option>
@@ -2030,6 +2091,7 @@
                                     <option value="15">Tokopedia</option>
                                     <option value="16">Blibli</option>
                                     <option value="17">Shopee</option>
+                                    <option value="19">JD.ID</option>
                                     <option value="20">82Cart</option>
                                     <option value="21">Shopify</option>
                                     <option value="18">Offline</option>
@@ -2136,6 +2198,7 @@
                                     <option value="15">Tokopedia</option>
                                     <option value="16">Blibli</option>
                                     <option value="17">Shopee</option>
+                                    <option value="19">JD.ID</option>
                                     <option value="20">82Cart</option>
                                     <option value="21">Shopify</option>
                                     <option value="18">Offline</option>
@@ -2227,6 +2290,7 @@
                                     <option value="15">Tokopedia</option>
                                     <option value="16">Blibli</option>
                                     <option value="17">Shopee</option>
+                                    <option value="19">JD.ID</option>
                                     <option value="20">82Cart</option>
                                     <option value="21">Shopify</option>
                                     <option value="18">Offline</option>
@@ -3491,9 +3555,9 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="modalPackingPengiriman" tabindex="-1" role="dialog" aria-labelledby="PackingMulti">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-        <div class="modal-content">
+<div class="modal fade" id="modalPackingPengiriman" tabindex="-1" role="dialog" aria-labelledby="PackingMulti" >
+    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document" style="width: 1100px; margin:auto">
+        <div class="modal-content" >
             <div class="modal-header">
                 <h4 class="modal-title" id="PackingMulti">Pengiriman</h4>
             </div>
@@ -3504,7 +3568,8 @@
                     <h4 id="modalPackingPengiriman_packingTitle">Nomor Bukti Packing List : </h4>
                 </div>
                 <div class="row" style="margin-top: 15px;">
-                    <div class="x_content">
+                    <div id="show_packing_list"></div>
+                    @*<div class="x_content">
                         <ul id="detail-packinglist-tabs" class="nav nav-tabs">
                             <li id="li_pesanan_tokped_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_tokped_tab_focus" href="#packing_pesanan_tokped" aria-expanded="false">Tokopedia</a></li>
                             <li id="li_pesanan_lazada_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_lazada_tab_focus" href="#packing_pesanan_lazada" aria-expanded="false">Lazada</a></li>
@@ -3545,7 +3610,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>*@
                 </div>
             </div>
             <br />
@@ -4935,6 +5000,91 @@
                 //    id: "COD_NOT_SUPPORTED",
                 //    text: "COD NOT SUPPORTED"
                 //};
+
+                var comboSelect = $('#cbCancelReason').selectize({
+                    valueField: 'id',
+                    searchField: 'text',
+                    options: listReason,
+                    onChange: function (value) {
+                        $('#txtCancelReason').val(value);
+                        //$('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                        if (value.includes("STOCK")) {
+                            $('#ckBrg').show();
+                        } else {
+                            $('#ckBrg').hide();
+                        }
+
+                    }
+                });
+
+            }
+            else if (idMarketplace == "19") {//JDID
+                $('#ckBrg').remove();
+                sHTML += '</div>';
+                sHTML += '<div id="ckBrg" style="display:none">';
+                listBrg.forEach(function setCheckBox(item, index) {
+                    var splitText = item.split(';');
+                    //sHTML += '<div class="checkbox"><label><input type="checkbox" class="ckBarang" id-barang="' + splitText[0] + '"/>' + splitText[1] +'</label></div></div>';
+                    sHTML += '<div class="radio"><label><input type="radio" name="ckBarang" class="ckBarang" id-barang="' + splitText[0] + '"/>' + splitText[1] + '</label></div>';
+                });
+                sHTML += '</div>';
+                sHTML += '</div>';
+
+                $('#divCbCancel').append(sHTML);
+                $('#cancel_reason').show();
+                //$('#cbCancelReason').show();
+                listReason[0] = {
+                    id: "2",
+                    text: "User Reject"
+                };
+                listReason[1] = {
+                    id: "6",
+                    text: "Lengthy Delivery"
+                };
+                listReason[2] = {
+                    id: "10",
+                    text: "Not pay auto cancel"
+                };
+                listReason[3] = {
+                    id: "14",
+                    text: "pay not pass"
+                };
+                listReason[4] = {
+                    id: "15",
+                    text: "Wrong/Less product ordered"
+                };
+                listReason[5] = {
+                    id: "16",
+                    text: "Change Payment Method"
+                };
+                listReason[6] = {
+                    id: "17",
+                    text: "Out of Stock"
+                };
+                listReason[7] = {
+                    id: "18",
+                    text: "Invalid Price/Voucher"
+                };
+                listReason[8] = {
+                    id: "20",
+                    text: "Already purchased from others"
+                };
+                listReason[9] = {
+                    id: "100",
+                    text: "Change Address"
+                };
+                listReason[10] = {
+                    id: "102",
+                    text: "Change Payment Method"
+                };
+                listReason[11] = {
+                    id: "107",
+                    text: "Duplicate order"
+                };
+                listReason[12] = {
+                    id: "9",
+                    text: "Others"
+                };
 
                 var comboSelect = $('#cbCancelReason').selectize({
                     valueField: 'id',
@@ -10103,8 +10253,8 @@
                 backdrop: 'static',
                 keyboard: false
             });
-
-            RefreshSemuaPesananMP();
+            refreshShowPackingList();
+            //RefreshSemuaPesananMP();
         }
         var packingstatussinglerecnum = 0;
         function packingStatusSingleRecord(recnum){
@@ -11244,6 +11394,39 @@
             return false;
         }
         //end add by nurul 10/4/2019
+
+    //add by nurul 27/7/2020
+    function refreshShowPackingList() {
+        //$('#packingList_NO_BUKTI').val();
+        var $link = '@Html.Raw(Url.Action("EditPackinglist", "Manage", new { nobuk = "replaceBuktiPacking" }))';
+            $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#modalUbahStatusMultiPacking_packingNo').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#loading_barang_tab').show();
+                    //refreshingPackingBlibli = true;
+                },
+                complete: function () {
+                    //refreshingPackingBlibli = false;
+                    //onRefreshSemuaPesananMPComplete();
+                },
+                success: function (response) {
+                    $('#show_packing_list').html(response);
+                    $('#show_packing_list').show();
+                    $('#detail-packing').show();
+                    $('#pesanan_detail_tab_focus').click();
+                    $('#header-packing').hide();
+
+                    //$('#loading_barang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+    }
+    //end add by nurul 27/7/2020
 </script>
     <script>
         //Disable Enter Key Submit Form

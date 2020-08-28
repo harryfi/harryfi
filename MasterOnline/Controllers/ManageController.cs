@@ -3807,17 +3807,21 @@ namespace MasterOnline.Controllers
             #region JD ID get Category
             else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "JD.ID").IdMarket.ToString()))
             {
-                //if (!string.IsNullOrEmpty(customer.Customers.TOKEN) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U) && !string.IsNullOrEmpty(customer.Customers.API_KEY))
-                //{
-                //    var jdAPI = new JDIDController();
-                //    JDIDAPIData dataJD = new JDIDAPIData
-                //    {
-                //        accessToken = customer.Customers.TOKEN,
-                //        appKey = customer.Customers.API_KEY,
-                //        appSecret = customer.Customers.API_CLIENT_U,
-                //    };
-                //    jdAPI.getCategory(dataJD);
-                //}
+                if (!string.IsNullOrEmpty(customer.Customers.TOKEN) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U) && !string.IsNullOrEmpty(customer.Customers.API_KEY))
+                {
+                    var jdAPI = new JDIDController();
+                    JDIDAPIData dataJD = new JDIDAPIData
+                    {
+                        no_cust = kdCustomer,
+                        email = customer.Customers.EMAIL,
+                        accessToken = customer.Customers.TOKEN,
+                        appKey = customer.Customers.API_KEY,
+                        appSecret = customer.Customers.API_CLIENT_U,
+                        DatabasePathErasoft = dbPathEra,
+                    };
+                    //Task.Run(() => jdAPI.checkAPICustomerShop(dataJD)).Wait();
+                    jdAPI.JDID_checkAPICustomerShop(dataJD);
+                }
 
             }
 
@@ -6224,7 +6228,7 @@ namespace MasterOnline.Controllers
                     var data = new JDIDAPIData
                     {
                         accessToken = customer.TOKEN,
-                        appKey = customer.API_CLIENT_P,
+                        appKey = customer.API_KEY,
                         appSecret = customer.API_CLIENT_U
                     };
                     var jdApi = new JDIDController();
@@ -7203,8 +7207,11 @@ namespace MasterOnline.Controllers
                             List<int> protectDuplicateIdMarket = new List<int>();
                             foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
                             {
-                                if (!protectDuplicateIdMarket.Contains(hargaPerMarket.IDMARKET))
+                                var stf02hInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == dataBarang.Stf02.BRG).FirstOrDefault();
+                                if(stf02hInDB == null)
                                 {
+                                    if (!protectDuplicateIdMarket.Contains(hargaPerMarket.IDMARKET))
+                                    {
                                     protectDuplicateIdMarket.Add(hargaPerMarket.IDMARKET);
                                     hargaPerMarket.BRG = dataBarang.Stf02.BRG;
 
@@ -7249,6 +7256,15 @@ namespace MasterOnline.Controllers
                                     }
                                     //end add by calvin 1 maret 2019
                                     ErasoftDbContext.STF02H.Add(hargaPerMarket);
+                                    }
+
+                                }
+                                else
+                                {
+                                    List<string> listError2 = new List<string>();
+                                    listError2.Add("Data barang ada yang terduplikat, Silahkan hubungi Support MO.");
+                                    dataBarang.Errors = listError2;
+                                    return Json(dataBarang, JsonRequestBehavior.AllowGet);
                                 }
 
                             }
@@ -8403,11 +8419,21 @@ namespace MasterOnline.Controllers
                             List<int> protectDuplicateIdMarket = new List<int>();
                             foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
                             {
-                                if (!protectDuplicateIdMarket.Contains(hargaPerMarket.IDMARKET))
+                                var stf02hInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == dataBarang.Stf02.BRG).FirstOrDefault();
+                                if(stf02hInDB == null) { 
+                                    if (!protectDuplicateIdMarket.Contains(hargaPerMarket.IDMARKET))
+                                    {
+                                        protectDuplicateIdMarket.Add(hargaPerMarket.IDMARKET);
+                                        hargaPerMarket.BRG = dataBarang.Stf02.BRG;
+                                        ErasoftDbContext.STF02H.Add(hargaPerMarket);
+                                    }
+                                }
+                                else
                                 {
-                                    protectDuplicateIdMarket.Add(hargaPerMarket.IDMARKET);
-                                    hargaPerMarket.BRG = dataBarang.Stf02.BRG;
-                                    ErasoftDbContext.STF02H.Add(hargaPerMarket);
+                                    List<string> listError2 = new List<string>();
+                                    listError2.Add("Data barang ada yang terduplikat, Silahkan hubungi Support MO.");
+                                    dataBarang.Errors = listError2;
+                                    return Json(dataBarang, JsonRequestBehavior.AllowGet);
                                 }
                             }
                         }
@@ -8615,6 +8641,12 @@ namespace MasterOnline.Controllers
                                 //end change by Tri 23 agustus 2019, validasi harga 1 function
                                 i++;
                                 //end add validasi harga per marketplace
+
+                                //add by Tri 4 aug 2020, update display varian
+                                string updateDisplaySQL = "UPDATE STF02H SET DISPLAY = " + (dataBaru.DISPLAY ? 1 : 0);
+                                updateDisplaySQL += " WHERE BRG IN (SELECT BRG FROM STF02 WHERE PART = '"+ barangInDb.BRG + "') AND IDMARKET = " + dataBaru.IDMARKET;
+                                EDB.ExecuteSQL("CString", CommandType.Text, updateDisplaySQL);
+                                //end add by Tri 4 aug 2020, update display varian
                             }
                             if (validPrice)
                             {
@@ -9969,6 +10001,11 @@ namespace MasterOnline.Controllers
                                                 };
                                                 //end add by nurul 29/1/2020
 
+                                                //add 6 aug 2020, hapus error log lama sebelum panggil update produk
+                                                string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Update Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + barangInDb.BRG + "'";
+                                                EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                                                //end add 6 aug 2020, hapus error log lama sebelum panggil update produk
+
                                                 //remark by calvin 26 februari 2019, ini untuk update deskripsi dll
                                                 //unremark by nurul 15/1/2020, biar bisa update deskripsi, tapi panjang lebar dan tinggi harus <= 40 cm
                                                 var temp_brg = (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG);
@@ -10102,6 +10139,10 @@ namespace MasterOnline.Controllers
                                         {
                                             if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                             {
+                                                //add 6 aug 2020, hapus error log lama sebelum panggil init tier
+                                                string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                                EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                                                //end add 6 aug 2020, hapus error log lama sebelum panggil init tier
                                                 //ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
                                                 //{
                                                 //    merchant_code = tblCustomer.Sort1_Cust,
@@ -10274,9 +10315,9 @@ namespace MasterOnline.Controllers
                                                     //    if (brg_mp[1] == "0")
                                                     //    {
 #if (Debug_AWS || DEBUG)
-                                                    Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0)).Wait();
+                                                    Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, "0")).Wait();
 #else
-                                                clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0));
+                                                clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, "0"));
 #endif
                                                     //Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0)).Wait();
                                                     //}
@@ -10455,9 +10496,9 @@ namespace MasterOnline.Controllers
                                                     //    if (brg_mp[1] == "0")
                                                     //    {
 #if (Debug_AWS || DEBUG)
-                                                    Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0)).Wait();
+                                                    Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, "0")).Wait();
 #else
-                                                    clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0));
+                                                    clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, "0"));
 #endif
                                                     //Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, 0)).Wait();
                                                     //}
@@ -11622,6 +11663,20 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public ActionResult PromptBrandJDID(string merchant_code, string category)
+        {
+            try
+            {
+                ViewData["cust"] = merchant_code;
+                ViewData["category"] = category;
+                return View("PromptBrandJDID");
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+
         public ActionResult PromptAttribute82Cart(string cust, string attribute)
         {
             try
@@ -11779,6 +11834,39 @@ namespace MasterOnline.Controllers
             }
 
             return PartialView("TablePromptBrandBlibli");
+        }
+
+        public async Task<ActionResult> RefreshBrandJDID(string category, string cust, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["cust"] = cust;
+            ViewData["category"] = category;
+            if (string.IsNullOrEmpty(search))
+                search = "a";
+            var marketPlace = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).SingleOrDefault();
+            if (marketPlace != null)
+            {
+                var brandJDID = MoDbContext.BrandJDID.OrderBy(p => p.brandName).ToList();
+                //var list_value = new List<BRAND_JDID>();
+                //foreach (var item in ret.content)
+                //{
+                //    if (item.brandApprovalStatus == "APPROVED")
+                //    {
+                //        list_value.Add(new BRAND_BLIBLI()
+                //        {
+                //            brand_id = item.brandName,
+                //            name = item.brandName
+                //        });
+                //    }
+
+                //}
+                IPagedList<BRAND_JDID> pageOrders = new StaticPagedList<BRAND_JDID>(brandJDID, pagenumber + 1, 10, 10);
+                return PartialView("TablePromptBrandJDID", pageOrders);
+            }
+
+            return PartialView("TablePromptBrandJDID");
         }
 
         public async Task<ActionResult> RefreshBrand82Cart(string category, string cust, int? page, string search = "")
@@ -16500,6 +16588,10 @@ namespace MasterOnline.Controllers
             {
                 sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_FAKTUR ASC ";
             }
+            else if(search != "")
+            {
+                sSQLSelect2 += "ORDER BY A.NO_FAKTUR DESC ";
+            }
             else
             {
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_FAKTUR DESC ";
@@ -20254,6 +20346,10 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
+            //ADD BY NURUL 7/8/2020
+            //sSQLSelect += ", ISNULL(CONVERT(VARCHAR,KET),'') AS catatanPembeli ";
+            sSQLSelect += ", ISNULL(A.KET,'') AS catatanPembeli ";
+            //END ADD BY NURUL 7/8/2020
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -20319,6 +20415,25 @@ namespace MasterOnline.Controllers
             sSQLSelect2 += "FETCH NEXT " + take + " ROWS ONLY ";
 
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLTemp + sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            //add by nurul 7/8/2020
+            var cekTokped = listOrderNew.Where(a => a.MARKET.Contains("Tokopedia")).ToList();
+            if (cekTokped.Count() > 0)
+            {
+                foreach (var getKetTokped in cekTokped)
+                {
+                    var tempKet = "";
+                    var getKet = ErasoftDbContext.SOT01B.Where(a => a.NO_BUKTI == getKetTokped.NOSO).ToList();
+                    foreach (var detail in getKet)
+                    {
+                        if (detail.KET_DETAIL != null && detail.KET_DETAIL != "" && detail.KET_DETAIL != "-")
+                        {
+                            tempKet = tempKet + detail.BRG + " - " + detail.KET_DETAIL + Environment.NewLine;
+                        }
+                    }
+                    getKetTokped.catatanPembeli = tempKet;
+                }
+            }
+            //end add by nurul 7/8/2020
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQL2).Single();
 
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
@@ -20593,6 +20708,10 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
+            //ADD BY NURUL 7/8/2020
+            //sSQLSelect += ", ISNULL(CONVERT(VARCHAR,KET),'') AS catatanPembeli ";
+            sSQLSelect += ", ISNULL(A.KET,'') AS catatanPembeli ";
+            //END ADD BY NURUL 7/8/2020
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -20658,6 +20777,25 @@ namespace MasterOnline.Controllers
             sSQLSelect2 += "FETCH NEXT " + take + " ROWS ONLY ";
 
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLTemp + sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            //add by nurul 7/8/2020
+            var cekTokped = listOrderNew.Where(a => a.MARKET.Contains("Tokopedia")).ToList();
+            if (cekTokped.Count() > 0)
+            {
+                foreach(var getKetTokped in cekTokped)
+                {
+                    var tempKet = "";
+                    var getKet = ErasoftDbContext.SOT01B.Where(a => a.NO_BUKTI == getKetTokped.NOSO).ToList();
+                    foreach(var detail in getKet)
+                    {
+                        if (detail.KET_DETAIL != null && detail.KET_DETAIL != "" && detail.KET_DETAIL != "-")
+                        {
+                            tempKet = tempKet + detail.BRG + " - " + detail.KET_DETAIL + Environment.NewLine;
+                        }
+                    }
+                    getKetTokped.catatanPembeli = tempKet;
+                }
+            }
+            //end add by nurul 7/8/2020
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQL2).Single();
 
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
@@ -29458,137 +29596,155 @@ namespace MasterOnline.Controllers
             List<STT01B> newSTT01B = new List<STT01B>();
 
             var stokOpDb = ErasoftDbContext.STT04A.Where(a => a.ID == stokOpId).Single();
-            var stokDetailOpDb = ErasoftDbContext.STT04B.Where(b => b.NOBUK == stokOpDb.NOBUK).ToList();
-
-            var lastBuktiOM = GenerateAutoNumber(ErasoftDbContext, "OM", "STT01A", "Nobuk");
-            var noStokOM = "OM" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiOM) + 1).PadLeft(6, '0');
-            var lastBuktiOK = GenerateAutoNumber(ErasoftDbContext, "OK", "STT01A", "Nobuk");
-            var noStokOK = "OK" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiOK) + 1).PadLeft(6, '0');
-
-
-            int jmRowOM = 0; int jmRowOK = 0;
-            foreach (var item in stokDetailOpDb)
+            //add by nurul 11/8/2020
+            var ssql1 = "";
+            ssql1 += "select count(bukti) from stf09a where tgl > '" + stokOpDb.TGL?.ToString("yyyy-MM-dd") + "'";
+            var cekSTF09A = ErasoftDbContext.Database.SqlQuery<int>(ssql1).Single();
+            if (cekSTF09A > 0)
             {
-                //Cek Stok Fisik
-                string sSQL = "SELECT ISNULL(SUM(QAwal+QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12) - SUM(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12), 0)  AS STOK_FISIK " +
-                    "FROM STF08A WHERE Tahun = YEAR(GETDATE()) ";
-                sSQL += "AND BRG='" + item.Brg + "' AND GD = '" + item.Gud + "'";
-                var stok = ErasoftDbContext.Database.SqlQuery<getStokFisik>(sSQL).Single();
-
-                STT01A stokOpnameA = new STT01A
-                {
-                    Jenis_Form = 1,
-                    STATUS_LOADING = "0",
-                    Tgl = stokOpDb.TGL,
-                    Satuan = "",
-                    Ket = "",
-                    ST_Cetak = "",
-                    ST_Posting = "",
-                    JRef = "6",
-                    Ref = stokOpDb.NOBUK,
-                    UserName = stokOpDb.USERNAME,
-                    TglInput = DateTime.Now,
-                    Retur_Penuh = false,
-                    Terima_Penuh = false,
-                    VALUTA = "IDR",
-                    TUKAR = 1,
-                    TERIMA_PENUH_PO_QC = false,
-                    JLH_KARYAWAN = 0,
-                    NILAI_ANGKUTAN = 0,
-                    KOLI = 0,
-                    BERAT = 0,
-                    VOLUME = 0
-                };
-
-                STT01B stokOpnameB = new STT01B
-                {
-                    Jenis_Form = 1,
-                    Kobar = item.Brg,
-                    Satuan = "2",
-                    Harsat = 0,
-                    Harga = 0,
-                    UserName = stokOpDb.USERNAME,
-                    TglInput = DateTime.Now,
-                    Qty_Retur = 0,
-                    Qty_Berat = 0,
-                    TOTAL_LOT = 0,
-                    TOTAL_QTY = 0,
-                    QTY_TERIMA = 0,
-                    QTY_CLAIM = 0,
-                    NO_URUT_PO = 0,
-                    NO_URUT_SJ = 0,
-                    QTY_TERIMA_PO_QC = 0,
-                };
-
-                if (stok.STOK_FISIK < item.Qty)
-                {
-                    // Stok Masuk
-                    double selisihOM = item.Qty - stok.STOK_FISIK;
-
-                    stokOpnameB.Nobuk = noStokOM;
-                    stokOpnameB.Ke_Gd = item.Gud;
-                    stokOpnameB.Dr_Gd = "";
-                    stokOpnameB.Qty = selisihOM;
-
-                    jmRowOM++;
-
-                    if (jmRowOM == 1)
-                    {
-                        stokOpnameA.Nobuk = noStokOM;
-                        stokOpnameA.JTran = "M";
-                        stokOpnameA.MK = "M";
-                        newSTT01A.Add(stokOpnameA);
-                        ErasoftDbContext.STT01A.AddRange(newSTT01A);
-                    }
-
-                    newSTT01B.Add(stokOpnameB);
-                    ErasoftDbContext.STT01B.AddRange(newSTT01B);
-                }
-
-                if (stok.STOK_FISIK > item.Qty)
-                {
-                    //Stok Keluar
-                    double selisihOK = stok.STOK_FISIK - item.Qty;
-
-                    stokOpnameB.Nobuk = noStokOK;
-                    stokOpnameB.Ke_Gd = "";
-                    stokOpnameB.Dr_Gd = item.Gud;
-                    stokOpnameB.Qty = selisihOK;
-
-                    jmRowOK++;
-
-
-                    if (jmRowOK == 1)
-                    {
-                        stokOpnameA.Nobuk = noStokOK;
-                        stokOpnameA.JTran = "K";
-                        stokOpnameA.MK = "K";
-                        newSTT01A.Add(stokOpnameA);
-                        ErasoftDbContext.STT01A.AddRange(newSTT01A);
-                    }
-
-                    newSTT01B.Add(stokOpnameB);
-                    ErasoftDbContext.STT01B.AddRange(newSTT01B);
-                }
-
+                ret.Errors.Add("Transaksi stok opname tidak dapat diproses karena sudah ada transaksi di atas tanggal " + stokOpDb.TGL?.ToString("dd/MM/yyyy") + ".");
             }
-
-            using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+            else
             {
-                try
+                //end add by nurul 11/8/2020
+                var stokDetailOpDb = ErasoftDbContext.STT04B.Where(b => b.NOBUK == stokOpDb.NOBUK).ToList();
+
+                var lastBuktiOM = GenerateAutoNumber(ErasoftDbContext, "OM", "STT01A", "Nobuk");
+                var noStokOM = "OM" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiOM) + 1).PadLeft(6, '0');
+                var lastBuktiOK = GenerateAutoNumber(ErasoftDbContext, "OK", "STT01A", "Nobuk");
+                var noStokOK = "OK" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiOK) + 1).PadLeft(6, '0');
+
+
+                int jmRowOM = 0; int jmRowOK = 0;
+                foreach (var item in stokDetailOpDb)
                 {
-                    ErasoftDbContext.STT04A.Where(p => p.NOBUK == stokOpDb.NOBUK).Update(p => new STT04A() { POSTING = "1" });
+                    //Cek Stok Fisik
+                    string sSQL = "SELECT ISNULL(SUM(QAwal+QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12) - SUM(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12), 0)  AS STOK_FISIK " +
+                        "FROM STF08A WHERE Tahun = YEAR(GETDATE()) ";
+                    sSQL += "AND BRG='" + item.Brg + "' AND GD = '" + item.Gud + "'";
+                    var stok = ErasoftDbContext.Database.SqlQuery<getStokFisik>(sSQL).Single();
 
-                    ErasoftDbContext.SaveChanges();
+                    STT01A stokOpnameA = new STT01A
+                    {
+                        Jenis_Form = 1,
+                        STATUS_LOADING = "0",
+                        Tgl = stokOpDb.TGL,
+                        Satuan = "",
+                        Ket = "",
+                        ST_Cetak = "",
+                        ST_Posting = "-",
+                        JRef = "6",
+                        Ref = stokOpDb.NOBUK,
+                        UserName = stokOpDb.USERNAME,
+                        TglInput = DateTime.Now,
+                        Retur_Penuh = false,
+                        Terima_Penuh = false,
+                        VALUTA = "IDR",
+                        TUKAR = 1,
+                        TERIMA_PENUH_PO_QC = false,
+                        JLH_KARYAWAN = 0,
+                        NILAI_ANGKUTAN = 0,
+                        KOLI = 0,
+                        BERAT = 0,
+                        VOLUME = 0
+                    };
 
-                    Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, stokOpDb.USERNAME));
+                    STT01B stokOpnameB = new STT01B
+                    {
+                        Jenis_Form = 1,
+                        Kobar = item.Brg,
+                        Satuan = "2",
+                        Harsat = 0,
+                        Harga = 0,
+                        UserName = stokOpDb.USERNAME,
+                        TglInput = DateTime.Now,
+                        Qty_Retur = 0,
+                        Qty_Berat = 0,
+                        TOTAL_LOT = 0,
+                        TOTAL_QTY = 0,
+                        QTY_TERIMA = 0,
+                        QTY_CLAIM = 0,
+                        NO_URUT_PO = 0,
+                        NO_URUT_SJ = 0,
+                        QTY_TERIMA_PO_QC = 0,
+                    };
 
-                    transaction.Commit();
+                    if (stok.STOK_FISIK < item.Qty)
+                    {
+                        // Stok Masuk
+                        double selisihOM = item.Qty - stok.STOK_FISIK;
+
+                        stokOpnameB.Nobuk = noStokOM;
+                        stokOpnameB.Ke_Gd = item.Gud;
+                        stokOpnameB.Dr_Gd = "";
+                        stokOpnameB.Qty = selisihOM;
+
+                        jmRowOM++;
+
+                        if (jmRowOM == 1)
+                        {
+                            stokOpnameA.Nobuk = noStokOM;
+                            stokOpnameA.JTran = "M";
+                            stokOpnameA.MK = "M";
+                            newSTT01A.Add(stokOpnameA);
+                            ErasoftDbContext.STT01A.AddRange(newSTT01A);
+                        }
+
+                        newSTT01B.Add(stokOpnameB);
+                        ErasoftDbContext.STT01B.AddRange(newSTT01B);
+                    }
+
+                    if (stok.STOK_FISIK > item.Qty)
+                    {
+                        //Stok Keluar
+                        double selisihOK = stok.STOK_FISIK - item.Qty;
+
+                        stokOpnameB.Nobuk = noStokOK;
+                        stokOpnameB.Ke_Gd = "";
+                        stokOpnameB.Dr_Gd = item.Gud;
+                        stokOpnameB.Qty = selisihOK;
+                        //add by nurul 14/8/2020, jenis form u/ OK d set jd 0 biar berhasil k posting 
+                        stokOpnameB.Jenis_Form = 0;
+                        //end add by nurul 14/8/2020, jenis form u/ OK d set jd 0 biar berhasil k posting 
+
+                        jmRowOK++;
+
+
+                        if (jmRowOK == 1)
+                        {
+                            stokOpnameA.Nobuk = noStokOK;
+                            stokOpnameA.JTran = "K";
+                            stokOpnameA.MK = "K";
+                            //add by nurul 14/8/2020, jenis form u/ OK d set jd 0 biar berhasil k posting 
+                            stokOpnameA.Jenis_Form = 0;
+                            //end add by nurul 14/8/2020, jenis form u/ OK d set jd 0 biar berhasil k posting 
+                            newSTT01A.Add(stokOpnameA);
+                            ErasoftDbContext.STT01A.AddRange(newSTT01A);
+                        }
+
+                        newSTT01B.Add(stokOpnameB);
+                        ErasoftDbContext.STT01B.AddRange(newSTT01B);
+                    }
+
                 }
-                catch (Exception ex)
+
+                using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
                 {
-                    transaction.Rollback();
-                    ret.Errors.Add(ex.InnerException == null ? ex.Message : "Data tidak berhasil diproses, " + ex.InnerException.Message);
+                    try
+                    {
+                        ErasoftDbContext.STT04A.Where(p => p.NOBUK == stokOpDb.NOBUK).Update(p => new STT04A() { POSTING = "1" });
+
+                        ErasoftDbContext.SaveChanges();
+
+                        Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, stokOpDb.USERNAME));
+
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        ret.Errors.Add(ex.InnerException == null ? ex.Message : "Data tidak berhasil diproses, " + ex.InnerException.Message);
+                    }
                 }
             }
 
@@ -30081,6 +30237,13 @@ namespace MasterOnline.Controllers
             //Response.AppendHeader("Content-Disposition", cd.ToString());
 
             return File(data, contentType, filename);
+        }
+
+        [HttpGet]
+        public FileResult JD_Download_PrintLabel(string path)
+        {
+            byte[] fileBytes = System.IO.File.ReadAllBytes(path);
+            return File(fileBytes, "application/pdf");
         }
 
         [HttpGet]
@@ -32994,6 +33157,8 @@ namespace MasterOnline.Controllers
             var kdShopee = "17";
             var kdShopify = "21";
             var kd82Cart = "20";
+            var kdJD = "19";
+
             var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.RecNum == hJualInDb.IDMARKET);
             if (customer != null)
             {
@@ -33387,6 +33552,36 @@ namespace MasterOnline.Controllers
 #endif
                     }
                 }
+                else if (customer.NAMA.Equals(kdJD))
+                {
+                    if (!string.IsNullOrWhiteSpace(customer.API_KEY))
+                    {
+                        var JDIDApi = new JDIDControllerJob();
+
+                        JDIDControllerJob.JDIDAPIDataJob data = new JDIDControllerJob.JDIDAPIDataJob()
+                        {
+                            no_cust = customer.CUST,
+                            accessToken = customer.TOKEN,
+                            appKey = customer.API_KEY,
+                            appSecret = customer.API_CLIENT_U,
+                            username = customer.USERNAME,
+                            email = customer.EMAIL,
+                            DatabasePathErasoft = dbPathEra
+                        };
+                        if (hJualInDb.BRG_MP != "")
+                        {
+
+#if Debug_AWS || DEBUG
+                            Task.Run(() => JDIDApi.JD_updatePrice(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualBaru, customer.USERNAME)).Wait();
+#else
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                            clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_updatePrice(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualBaru, customer.USERNAME));
+                                    
+#endif
+                        }
+                    }
+                }
                 //end add by calvin 18 desember 2018
                 //}
             }
@@ -33580,7 +33775,7 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
-        public ActionResult UbahHargaJual82Cart(int? recNum, double hargaJualGrosirBaru, double hargaJualIndukBaru)
+        public ActionResult UbahHargaJual82Cart(int? recNum, string hargaJualDampakBaru, double hargaJualIndukBaru)
         {
             var ret = new ReturnJson();
             var hJualInDb = ErasoftDbContext.STF02H.SingleOrDefault(h => h.RecNum == recNum);
@@ -33595,20 +33790,20 @@ namespace MasterOnline.Controllers
             var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.RecNum == hJualInDb.IDMARKET);
             if (customer.NAMA.Equals(kd82Cart))
             {
-                if (hargaJualIndukBaru < 0)
-                {
-                    ret.message = "Harga Jual minimal 0.";
-                    return Json(ret, JsonRequestBehavior.AllowGet);
-                }
-                if (hargaJualGrosirBaru < 0)
-                {
-                    ret.message = "Harga Jual Grosir minimal 0.";
-                    return Json(ret, JsonRequestBehavior.AllowGet);
-                }
+                //if (hargaJualIndukBaru < 0)
+                //{
+                //    ret.message = "Harga Jual minimal 0.";
+                //    return Json(ret, JsonRequestBehavior.AllowGet);
+                //}
+                //if (hargaJualGrosirBaru < 0)
+                //{
+                //    ret.message = "Harga Jual Grosir minimal 0.";
+                //    return Json(ret, JsonRequestBehavior.AllowGet);
+                //}
             }
             brg.HJUAL = hargaJualIndukBaru;
             brg.Tgl_Input = DateTime.Today;
-            hJualInDb.HJUAL = hargaJualGrosirBaru;
+            hJualInDb.HJUAL = hargaJualIndukBaru;
             ErasoftDbContext.SaveChanges();
 
             if (!string.IsNullOrEmpty(hJualInDb.BRG_MP))//add by Tri, 24-06-2019
@@ -33636,11 +33831,11 @@ namespace MasterOnline.Controllers
                         else
                         {
 #if (DEBUG || Debug_AWS)
-                            Task.Run(() => v82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, (int)hargaJualGrosirBaru)).Wait();
+                            Task.Run(() => v82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, hargaJualDampakBaru)).Wait();
 #else
                             var sqlStorage = new SqlServerStorage(EDBConnID);
                         var clientJobServer = new BackgroundJobClient(sqlStorage);
-                        clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, (int)hargaJualGrosirBaru));
+                        clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, hargaJualDampakBaru));
 #endif
                         }
                     }
@@ -33648,6 +33843,24 @@ namespace MasterOnline.Controllers
                 }
             }
             return new EmptyResult();
+        }
+
+        [HttpGet]
+        public ActionResult GetHargaInduk82Cart(string kodebrg)
+        {
+            var brgSTF02Check = ErasoftDbContext.STF02.SingleOrDefault(h => h.BRG == kodebrg);
+            var brgSTF02 = ErasoftDbContext.STF02.Where(a => a.TYPE == "4").SingleOrDefault(b => b.BRG == brgSTF02Check.PART);
+
+            if (brgSTF02 == null)
+            {
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            else
+            {
+                var hargaInduk = brgSTF02.HJUAL;
+                return new JsonResult { Data = new { success = true, hargaInduk = hargaInduk }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            
         }
 
         public class ReturnJson
@@ -34202,10 +34415,11 @@ namespace MasterOnline.Controllers
                                             if (customer.NAMA == "7")
                                             {
                                                 //merek
-                                                var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == data.TempBrg.MEREK).FirstOrDefault();
+                                                //var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == data.TempBrg.MEREK).FirstOrDefault();
+                                                var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == tempBrginDB.MEREK).FirstOrDefault();
                                                 if (getKodeMerk != null)
                                                 {
-                                                    dupeStf02h.ANAME_38 = data.TempBrg.MEREK;
+                                                    dupeStf02h.ANAME_38 = tempBrginDB.MEREK;
                                                     dupeStf02h.AVALUE_38 = getKodeMerk.brand_id;
                                                 }
                                             }
@@ -34330,163 +34544,163 @@ namespace MasterOnline.Controllers
                                     brgMp.DeliveryTempElevenia = data.TempBrg.DeliveryTempElevenia;
                                     brgMp.PICKUP_POINT = data.TempBrg.PICKUP_POINT;
                                     #region attribute mp
-                                    brgMp.ACODE_1 = data.TempBrg.ACODE_1;
-                                    brgMp.ANAME_1 = data.TempBrg.ANAME_1;
+                                    brgMp.ACODE_1 = tempBrginDB.ACODE_1;
+                                    brgMp.ANAME_1 = tempBrginDB.ANAME_1;
                                     if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
                                     {
-                                        brgMp.AVALUE_1 = HttpUtility.HtmlDecode(data.TempBrg.AVALUE_1);
+                                        brgMp.AVALUE_1 = HttpUtility.HtmlDecode(tempBrginDB.AVALUE_1);
                                     }
                                     else
                                     {
-                                        brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                                        brgMp.AVALUE_1 = tempBrginDB.AVALUE_1;
                                     }
-                                    brgMp.ACODE_2 = data.TempBrg.ACODE_2;
-                                    brgMp.ANAME_2 = data.TempBrg.ANAME_2;
-                                    brgMp.AVALUE_2 = data.TempBrg.AVALUE_2;
-                                    brgMp.ACODE_3 = data.TempBrg.ACODE_3;
-                                    brgMp.ANAME_3 = data.TempBrg.ANAME_3;
-                                    brgMp.AVALUE_3 = data.TempBrg.AVALUE_3;
-                                    brgMp.ACODE_4 = data.TempBrg.ACODE_4;
-                                    brgMp.ANAME_4 = data.TempBrg.ANAME_4;
-                                    brgMp.AVALUE_4 = data.TempBrg.AVALUE_4;
-                                    brgMp.ACODE_5 = data.TempBrg.ACODE_5;
-                                    brgMp.ANAME_5 = data.TempBrg.ANAME_5;
-                                    brgMp.AVALUE_5 = data.TempBrg.AVALUE_5;
-                                    brgMp.ACODE_6 = data.TempBrg.ACODE_6;
-                                    brgMp.ANAME_6 = data.TempBrg.ANAME_6;
-                                    brgMp.AVALUE_6 = data.TempBrg.AVALUE_6;
-                                    brgMp.ACODE_7 = data.TempBrg.ACODE_7;
-                                    brgMp.ANAME_7 = data.TempBrg.ANAME_7;
-                                    brgMp.AVALUE_7 = data.TempBrg.AVALUE_7;
-                                    brgMp.ACODE_8 = data.TempBrg.ACODE_8;
-                                    brgMp.ANAME_8 = data.TempBrg.ANAME_8;
-                                    brgMp.AVALUE_8 = data.TempBrg.AVALUE_8;
-                                    brgMp.ACODE_9 = data.TempBrg.ACODE_9;
-                                    brgMp.ANAME_9 = data.TempBrg.ANAME_9;
-                                    brgMp.AVALUE_9 = data.TempBrg.AVALUE_9;
-                                    brgMp.ACODE_10 = data.TempBrg.ACODE_10;
-                                    brgMp.ANAME_10 = data.TempBrg.ANAME_10;
-                                    brgMp.AVALUE_10 = data.TempBrg.AVALUE_10;
-                                    brgMp.ACODE_11 = data.TempBrg.ACODE_11;
-                                    brgMp.ANAME_11 = data.TempBrg.ANAME_11;
-                                    brgMp.AVALUE_11 = data.TempBrg.AVALUE_11;
-                                    brgMp.ACODE_12 = data.TempBrg.ACODE_12;
-                                    brgMp.ANAME_12 = data.TempBrg.ANAME_12;
-                                    brgMp.AVALUE_12 = data.TempBrg.AVALUE_12;
-                                    brgMp.ACODE_13 = data.TempBrg.ACODE_13;
-                                    brgMp.ANAME_13 = data.TempBrg.ANAME_13;
-                                    brgMp.AVALUE_13 = data.TempBrg.AVALUE_13;
-                                    brgMp.ACODE_14 = data.TempBrg.ACODE_14;
-                                    brgMp.ANAME_14 = data.TempBrg.ANAME_14;
-                                    brgMp.AVALUE_14 = data.TempBrg.AVALUE_14;
-                                    brgMp.ACODE_15 = data.TempBrg.ACODE_15;
-                                    brgMp.ANAME_15 = data.TempBrg.ANAME_15;
-                                    brgMp.AVALUE_15 = data.TempBrg.AVALUE_15;
-                                    brgMp.ACODE_16 = data.TempBrg.ACODE_16;
-                                    brgMp.ANAME_16 = data.TempBrg.ANAME_16;
-                                    brgMp.AVALUE_16 = data.TempBrg.AVALUE_16;
-                                    brgMp.ACODE_17 = data.TempBrg.ACODE_17;
-                                    brgMp.ANAME_17 = data.TempBrg.ANAME_17;
-                                    brgMp.AVALUE_17 = data.TempBrg.AVALUE_17;
-                                    brgMp.ACODE_18 = data.TempBrg.ACODE_18;
-                                    brgMp.ANAME_18 = data.TempBrg.ANAME_18;
-                                    brgMp.AVALUE_18 = data.TempBrg.AVALUE_18;
-                                    brgMp.ACODE_19 = data.TempBrg.ACODE_19;
-                                    brgMp.ANAME_19 = data.TempBrg.ANAME_19;
-                                    brgMp.AVALUE_19 = data.TempBrg.AVALUE_19;
-                                    brgMp.ACODE_20 = data.TempBrg.ACODE_20;
-                                    brgMp.ANAME_20 = data.TempBrg.ANAME_20;
-                                    brgMp.AVALUE_20 = data.TempBrg.AVALUE_20;
-                                    brgMp.ACODE_21 = data.TempBrg.ACODE_21;
-                                    brgMp.ANAME_21 = data.TempBrg.ANAME_21;
-                                    brgMp.AVALUE_21 = data.TempBrg.AVALUE_21;
-                                    brgMp.ACODE_22 = data.TempBrg.ACODE_22;
-                                    brgMp.ANAME_22 = data.TempBrg.ANAME_22;
-                                    brgMp.AVALUE_22 = data.TempBrg.AVALUE_22;
-                                    brgMp.ACODE_23 = data.TempBrg.ACODE_23;
-                                    brgMp.ANAME_23 = data.TempBrg.ANAME_23;
-                                    brgMp.AVALUE_23 = data.TempBrg.AVALUE_23;
-                                    brgMp.ACODE_24 = data.TempBrg.ACODE_24;
-                                    brgMp.ANAME_24 = data.TempBrg.ANAME_24;
-                                    brgMp.AVALUE_24 = data.TempBrg.AVALUE_24;
-                                    brgMp.ACODE_25 = data.TempBrg.ACODE_25;
-                                    brgMp.ANAME_25 = data.TempBrg.ANAME_25;
-                                    brgMp.AVALUE_25 = data.TempBrg.AVALUE_25;
-                                    brgMp.ACODE_26 = data.TempBrg.ACODE_26;
-                                    brgMp.ANAME_26 = data.TempBrg.ANAME_26;
-                                    brgMp.AVALUE_26 = data.TempBrg.AVALUE_26;
-                                    brgMp.ACODE_27 = data.TempBrg.ACODE_27;
-                                    brgMp.ANAME_27 = data.TempBrg.ANAME_27;
-                                    brgMp.AVALUE_27 = data.TempBrg.AVALUE_27;
-                                    brgMp.ACODE_28 = data.TempBrg.ACODE_28;
-                                    brgMp.ANAME_28 = data.TempBrg.ANAME_28;
-                                    brgMp.AVALUE_28 = data.TempBrg.AVALUE_28;
-                                    brgMp.ACODE_29 = data.TempBrg.ACODE_29;
-                                    brgMp.ANAME_29 = data.TempBrg.ANAME_29;
-                                    brgMp.AVALUE_29 = data.TempBrg.AVALUE_29;
-                                    brgMp.ACODE_30 = data.TempBrg.ACODE_30;
-                                    brgMp.ANAME_30 = data.TempBrg.ANAME_30;
-                                    brgMp.AVALUE_30 = data.TempBrg.AVALUE_30;
-                                    brgMp.ACODE_31 = data.TempBrg.ACODE_31;
-                                    brgMp.ANAME_31 = data.TempBrg.ANAME_31;
-                                    brgMp.AVALUE_31 = data.TempBrg.AVALUE_31;
-                                    brgMp.ACODE_32 = data.TempBrg.ACODE_32;
-                                    brgMp.ANAME_32 = data.TempBrg.ANAME_32;
-                                    brgMp.AVALUE_32 = data.TempBrg.AVALUE_32;
-                                    brgMp.ACODE_33 = data.TempBrg.ACODE_33;
-                                    brgMp.ANAME_33 = data.TempBrg.ANAME_33;
-                                    brgMp.AVALUE_33 = data.TempBrg.AVALUE_33;
-                                    brgMp.ACODE_34 = data.TempBrg.ACODE_34;
-                                    brgMp.ANAME_34 = data.TempBrg.ANAME_34;
-                                    brgMp.AVALUE_34 = data.TempBrg.AVALUE_34;
-                                    brgMp.ACODE_35 = data.TempBrg.ACODE_35;
-                                    brgMp.ANAME_35 = data.TempBrg.ANAME_35;
-                                    brgMp.AVALUE_35 = data.TempBrg.AVALUE_35;
-                                    brgMp.ACODE_36 = data.TempBrg.ACODE_36;
-                                    brgMp.ANAME_36 = data.TempBrg.ANAME_36;
-                                    brgMp.AVALUE_36 = data.TempBrg.AVALUE_36;
-                                    brgMp.ACODE_37 = data.TempBrg.ACODE_37;
-                                    brgMp.ANAME_37 = data.TempBrg.ANAME_37;
-                                    brgMp.AVALUE_37 = data.TempBrg.AVALUE_37;
-                                    brgMp.ACODE_38 = data.TempBrg.ACODE_38;
-                                    brgMp.ANAME_38 = data.TempBrg.ANAME_38;
-                                    brgMp.AVALUE_38 = data.TempBrg.AVALUE_38;
-                                    brgMp.ACODE_39 = data.TempBrg.ACODE_39;
-                                    brgMp.ANAME_39 = data.TempBrg.ANAME_39;
-                                    brgMp.AVALUE_39 = data.TempBrg.AVALUE_39;
-                                    brgMp.ACODE_40 = data.TempBrg.ACODE_40;
-                                    brgMp.ANAME_40 = data.TempBrg.ANAME_40;
-                                    brgMp.AVALUE_40 = data.TempBrg.AVALUE_40;
-                                    brgMp.ACODE_41 = data.TempBrg.ACODE_41;
-                                    brgMp.ANAME_41 = data.TempBrg.ANAME_41;
-                                    brgMp.AVALUE_41 = data.TempBrg.AVALUE_41;
-                                    brgMp.ACODE_42 = data.TempBrg.ACODE_42;
-                                    brgMp.ANAME_42 = data.TempBrg.ANAME_42;
-                                    brgMp.AVALUE_42 = data.TempBrg.AVALUE_42;
-                                    brgMp.ACODE_43 = data.TempBrg.ACODE_43;
-                                    brgMp.ANAME_43 = data.TempBrg.ANAME_43;
-                                    brgMp.AVALUE_43 = data.TempBrg.AVALUE_43;
-                                    brgMp.ACODE_44 = data.TempBrg.ACODE_44;
-                                    brgMp.ANAME_44 = data.TempBrg.ANAME_44;
-                                    brgMp.AVALUE_44 = data.TempBrg.AVALUE_44;
-                                    brgMp.ACODE_45 = data.TempBrg.ACODE_45;
-                                    brgMp.ANAME_45 = data.TempBrg.ANAME_45;
-                                    brgMp.AVALUE_45 = data.TempBrg.AVALUE_45;
-                                    brgMp.ACODE_46 = data.TempBrg.ACODE_46;
-                                    brgMp.ANAME_46 = data.TempBrg.ANAME_46;
-                                    brgMp.AVALUE_46 = data.TempBrg.AVALUE_46;
-                                    brgMp.ACODE_47 = data.TempBrg.ACODE_47;
-                                    brgMp.ANAME_47 = data.TempBrg.ANAME_47;
-                                    brgMp.AVALUE_47 = data.TempBrg.AVALUE_47;
-                                    brgMp.ACODE_48 = data.TempBrg.ACODE_48;
-                                    brgMp.ANAME_48 = data.TempBrg.ANAME_48;
-                                    brgMp.AVALUE_48 = data.TempBrg.AVALUE_48;
-                                    brgMp.ACODE_49 = data.TempBrg.ACODE_49;
-                                    brgMp.ANAME_49 = data.TempBrg.ANAME_49;
-                                    brgMp.AVALUE_49 = data.TempBrg.AVALUE_49;
-                                    brgMp.ACODE_50 = data.TempBrg.ACODE_50;
-                                    brgMp.ANAME_50 = data.TempBrg.ANAME_50;
-                                    brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
+                                    brgMp.ACODE_2 = tempBrginDB.ACODE_2;
+                                    brgMp.ANAME_2 = tempBrginDB.ANAME_2;
+                                    brgMp.AVALUE_2 = tempBrginDB.AVALUE_2;
+                                    brgMp.ACODE_3 = tempBrginDB.ACODE_3;
+                                    brgMp.ANAME_3 = tempBrginDB.ANAME_3;
+                                    brgMp.AVALUE_3 = tempBrginDB.AVALUE_3;
+                                    brgMp.ACODE_4 = tempBrginDB.ACODE_4;
+                                    brgMp.ANAME_4 = tempBrginDB.ANAME_4;
+                                    brgMp.AVALUE_4 = tempBrginDB.AVALUE_4;
+                                    brgMp.ACODE_5 = tempBrginDB.ACODE_5;
+                                    brgMp.ANAME_5 = tempBrginDB.ANAME_5;
+                                    brgMp.AVALUE_5 = tempBrginDB.AVALUE_5;
+                                    brgMp.ACODE_6 = tempBrginDB.ACODE_6;
+                                    brgMp.ANAME_6 = tempBrginDB.ANAME_6;
+                                    brgMp.AVALUE_6 = tempBrginDB.AVALUE_6;
+                                    brgMp.ACODE_7 = tempBrginDB.ACODE_7;
+                                    brgMp.ANAME_7 = tempBrginDB.ANAME_7;
+                                    brgMp.AVALUE_7 = tempBrginDB.AVALUE_7;
+                                    brgMp.ACODE_8 = tempBrginDB.ACODE_8;
+                                    brgMp.ANAME_8 = tempBrginDB.ANAME_8;
+                                    brgMp.AVALUE_8 = tempBrginDB.AVALUE_8;
+                                    brgMp.ACODE_9 = tempBrginDB.ACODE_9;
+                                    brgMp.ANAME_9 = tempBrginDB.ANAME_9;
+                                    brgMp.AVALUE_9 = tempBrginDB.AVALUE_9;
+                                    brgMp.ACODE_10 = tempBrginDB.ACODE_10;
+                                    brgMp.ANAME_10 = tempBrginDB.ANAME_10;
+                                    brgMp.AVALUE_10 = tempBrginDB.AVALUE_10;
+                                    brgMp.ACODE_11 = tempBrginDB.ACODE_11;
+                                    brgMp.ANAME_11 = tempBrginDB.ANAME_11;
+                                    brgMp.AVALUE_11 = tempBrginDB.AVALUE_11;
+                                    brgMp.ACODE_12 = tempBrginDB.ACODE_12;
+                                    brgMp.ANAME_12 = tempBrginDB.ANAME_12;
+                                    brgMp.AVALUE_12 = tempBrginDB.AVALUE_12;
+                                    brgMp.ACODE_13 = tempBrginDB.ACODE_13;
+                                    brgMp.ANAME_13 = tempBrginDB.ANAME_13;
+                                    brgMp.AVALUE_13 = tempBrginDB.AVALUE_13;
+                                    brgMp.ACODE_14 = tempBrginDB.ACODE_14;
+                                    brgMp.ANAME_14 = tempBrginDB.ANAME_14;
+                                    brgMp.AVALUE_14 = tempBrginDB.AVALUE_14;
+                                    brgMp.ACODE_15 = tempBrginDB.ACODE_15;
+                                    brgMp.ANAME_15 = tempBrginDB.ANAME_15;
+                                    brgMp.AVALUE_15 = tempBrginDB.AVALUE_15;
+                                    brgMp.ACODE_16 = tempBrginDB.ACODE_16;
+                                    brgMp.ANAME_16 = tempBrginDB.ANAME_16;
+                                    brgMp.AVALUE_16 = tempBrginDB.AVALUE_16;
+                                    brgMp.ACODE_17 = tempBrginDB.ACODE_17;
+                                    brgMp.ANAME_17 = tempBrginDB.ANAME_17;
+                                    brgMp.AVALUE_17 = tempBrginDB.AVALUE_17;
+                                    brgMp.ACODE_18 = tempBrginDB.ACODE_18;
+                                    brgMp.ANAME_18 = tempBrginDB.ANAME_18;
+                                    brgMp.AVALUE_18 = tempBrginDB.AVALUE_18;
+                                    brgMp.ACODE_19 = tempBrginDB.ACODE_19;
+                                    brgMp.ANAME_19 = tempBrginDB.ANAME_19;
+                                    brgMp.AVALUE_19 = tempBrginDB.AVALUE_19;
+                                    brgMp.ACODE_20 = tempBrginDB.ACODE_20;
+                                    brgMp.ANAME_20 = tempBrginDB.ANAME_20;
+                                    brgMp.AVALUE_20 = tempBrginDB.AVALUE_20;
+                                    brgMp.ACODE_21 = tempBrginDB.ACODE_21;
+                                    brgMp.ANAME_21 = tempBrginDB.ANAME_21;
+                                    brgMp.AVALUE_21 = tempBrginDB.AVALUE_21;
+                                    brgMp.ACODE_22 = tempBrginDB.ACODE_22;
+                                    brgMp.ANAME_22 = tempBrginDB.ANAME_22;
+                                    brgMp.AVALUE_22 = tempBrginDB.AVALUE_22;
+                                    brgMp.ACODE_23 = tempBrginDB.ACODE_23;
+                                    brgMp.ANAME_23 = tempBrginDB.ANAME_23;
+                                    brgMp.AVALUE_23 = tempBrginDB.AVALUE_23;
+                                    brgMp.ACODE_24 = tempBrginDB.ACODE_24;
+                                    brgMp.ANAME_24 = tempBrginDB.ANAME_24;
+                                    brgMp.AVALUE_24 = tempBrginDB.AVALUE_24;
+                                    brgMp.ACODE_25 = tempBrginDB.ACODE_25;
+                                    brgMp.ANAME_25 = tempBrginDB.ANAME_25;
+                                    brgMp.AVALUE_25 = tempBrginDB.AVALUE_25;
+                                    brgMp.ACODE_26 = tempBrginDB.ACODE_26;
+                                    brgMp.ANAME_26 = tempBrginDB.ANAME_26;
+                                    brgMp.AVALUE_26 = tempBrginDB.AVALUE_26;
+                                    brgMp.ACODE_27 = tempBrginDB.ACODE_27;
+                                    brgMp.ANAME_27 = tempBrginDB.ANAME_27;
+                                    brgMp.AVALUE_27 = tempBrginDB.AVALUE_27;
+                                    brgMp.ACODE_28 = tempBrginDB.ACODE_28;
+                                    brgMp.ANAME_28 = tempBrginDB.ANAME_28;
+                                    brgMp.AVALUE_28 = tempBrginDB.AVALUE_28;
+                                    brgMp.ACODE_29 = tempBrginDB.ACODE_29;
+                                    brgMp.ANAME_29 = tempBrginDB.ANAME_29;
+                                    brgMp.AVALUE_29 = tempBrginDB.AVALUE_29;
+                                    brgMp.ACODE_30 = tempBrginDB.ACODE_30;
+                                    brgMp.ANAME_30 = tempBrginDB.ANAME_30;
+                                    brgMp.AVALUE_30 = tempBrginDB.AVALUE_30;
+                                    brgMp.ACODE_31 = tempBrginDB.ACODE_31;
+                                    brgMp.ANAME_31 = tempBrginDB.ANAME_31;
+                                    brgMp.AVALUE_31 = tempBrginDB.AVALUE_31;
+                                    brgMp.ACODE_32 = tempBrginDB.ACODE_32;
+                                    brgMp.ANAME_32 = tempBrginDB.ANAME_32;
+                                    brgMp.AVALUE_32 = tempBrginDB.AVALUE_32;
+                                    brgMp.ACODE_33 = tempBrginDB.ACODE_33;
+                                    brgMp.ANAME_33 = tempBrginDB.ANAME_33;
+                                    brgMp.AVALUE_33 = tempBrginDB.AVALUE_33;
+                                    brgMp.ACODE_34 = tempBrginDB.ACODE_34;
+                                    brgMp.ANAME_34 = tempBrginDB.ANAME_34;
+                                    brgMp.AVALUE_34 = tempBrginDB.AVALUE_34;
+                                    brgMp.ACODE_35 = tempBrginDB.ACODE_35;
+                                    brgMp.ANAME_35 = tempBrginDB.ANAME_35;
+                                    brgMp.AVALUE_35 = tempBrginDB.AVALUE_35;
+                                    brgMp.ACODE_36 = tempBrginDB.ACODE_36;
+                                    brgMp.ANAME_36 = tempBrginDB.ANAME_36;
+                                    brgMp.AVALUE_36 = tempBrginDB.AVALUE_36;
+                                    brgMp.ACODE_37 = tempBrginDB.ACODE_37;
+                                    brgMp.ANAME_37 = tempBrginDB.ANAME_37;
+                                    brgMp.AVALUE_37 = tempBrginDB.AVALUE_37;
+                                    brgMp.ACODE_38 = tempBrginDB.ACODE_38;
+                                    brgMp.ANAME_38 = tempBrginDB.ANAME_38;
+                                    brgMp.AVALUE_38 = tempBrginDB.AVALUE_38;
+                                    brgMp.ACODE_39 = tempBrginDB.ACODE_39;
+                                    brgMp.ANAME_39 = tempBrginDB.ANAME_39;
+                                    brgMp.AVALUE_39 = tempBrginDB.AVALUE_39;
+                                    brgMp.ACODE_40 = tempBrginDB.ACODE_40;
+                                    brgMp.ANAME_40 = tempBrginDB.ANAME_40;
+                                    brgMp.AVALUE_40 = tempBrginDB.AVALUE_40;
+                                    brgMp.ACODE_41 = tempBrginDB.ACODE_41;
+                                    brgMp.ANAME_41 = tempBrginDB.ANAME_41;
+                                    brgMp.AVALUE_41 = tempBrginDB.AVALUE_41;
+                                    brgMp.ACODE_42 = tempBrginDB.ACODE_42;
+                                    brgMp.ANAME_42 = tempBrginDB.ANAME_42;
+                                    brgMp.AVALUE_42 = tempBrginDB.AVALUE_42;
+                                    brgMp.ACODE_43 = tempBrginDB.ACODE_43;
+                                    brgMp.ANAME_43 = tempBrginDB.ANAME_43;
+                                    brgMp.AVALUE_43 = tempBrginDB.AVALUE_43;
+                                    brgMp.ACODE_44 = tempBrginDB.ACODE_44;
+                                    brgMp.ANAME_44 = tempBrginDB.ANAME_44;
+                                    brgMp.AVALUE_44 = tempBrginDB.AVALUE_44;
+                                    brgMp.ACODE_45 = tempBrginDB.ACODE_45;
+                                    brgMp.ANAME_45 = tempBrginDB.ANAME_45;
+                                    brgMp.AVALUE_45 = tempBrginDB.AVALUE_45;
+                                    brgMp.ACODE_46 = tempBrginDB.ACODE_46;
+                                    brgMp.ANAME_46 = tempBrginDB.ANAME_46;
+                                    brgMp.AVALUE_46 = tempBrginDB.AVALUE_46;
+                                    brgMp.ACODE_47 = tempBrginDB.ACODE_47;
+                                    brgMp.ANAME_47 = tempBrginDB.ANAME_47;
+                                    brgMp.AVALUE_47 = tempBrginDB.AVALUE_47;
+                                    brgMp.ACODE_48 = tempBrginDB.ACODE_48;
+                                    brgMp.ANAME_48 = tempBrginDB.ANAME_48;
+                                    brgMp.AVALUE_48 = tempBrginDB.AVALUE_48;
+                                    brgMp.ACODE_49 = tempBrginDB.ACODE_49;
+                                    brgMp.ANAME_49 = tempBrginDB.ANAME_49;
+                                    brgMp.AVALUE_49 = tempBrginDB.AVALUE_49;
+                                    brgMp.ACODE_50 = tempBrginDB.ACODE_50;
+                                    brgMp.ANAME_50 = tempBrginDB.ANAME_50;
+                                    brgMp.AVALUE_50 = tempBrginDB.AVALUE_50;
                                     #endregion
                                     //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
                                     brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
@@ -34496,7 +34710,8 @@ namespace MasterOnline.Controllers
                                     if (customer.NAMA == "7")
                                     {
                                         //merek
-                                        var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == data.TempBrg.MEREK).FirstOrDefault();
+                                        //var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == data.TempBrg.MEREK).FirstOrDefault();
+                                        var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == tempBrginDB.MEREK).FirstOrDefault();
                                         if (getKodeMerk != null)
                                         {
                                             brgMp.ANAME_38 = data.TempBrg.MEREK;
@@ -34529,159 +34744,159 @@ namespace MasterOnline.Controllers
                                 brgMp.ANAME_1 = data.TempBrg.ANAME_1;
                                 if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
                                 {
-                                    brgMp.AVALUE_1 = HttpUtility.HtmlDecode(data.TempBrg.AVALUE_1);
+                                    brgMp.AVALUE_1 = HttpUtility.HtmlDecode(tempBrginDB.AVALUE_1);
                                 }
                                 else
                                 {
-                                    brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                                    brgMp.AVALUE_1 = tempBrginDB.AVALUE_1;
                                 }
-                                brgMp.ACODE_2 = data.TempBrg.ACODE_2;
-                                brgMp.ANAME_2 = data.TempBrg.ANAME_2;
-                                brgMp.AVALUE_2 = data.TempBrg.AVALUE_2;
-                                brgMp.ACODE_3 = data.TempBrg.ACODE_3;
-                                brgMp.ANAME_3 = data.TempBrg.ANAME_3;
-                                brgMp.AVALUE_3 = data.TempBrg.AVALUE_3;
-                                brgMp.ACODE_4 = data.TempBrg.ACODE_4;
-                                brgMp.ANAME_4 = data.TempBrg.ANAME_4;
-                                brgMp.AVALUE_4 = data.TempBrg.AVALUE_4;
-                                brgMp.ACODE_5 = data.TempBrg.ACODE_5;
-                                brgMp.ANAME_5 = data.TempBrg.ANAME_5;
-                                brgMp.AVALUE_5 = data.TempBrg.AVALUE_5;
-                                brgMp.ACODE_6 = data.TempBrg.ACODE_6;
-                                brgMp.ANAME_6 = data.TempBrg.ANAME_6;
-                                brgMp.AVALUE_6 = data.TempBrg.AVALUE_6;
-                                brgMp.ACODE_7 = data.TempBrg.ACODE_7;
-                                brgMp.ANAME_7 = data.TempBrg.ANAME_7;
-                                brgMp.AVALUE_7 = data.TempBrg.AVALUE_7;
-                                brgMp.ACODE_8 = data.TempBrg.ACODE_8;
-                                brgMp.ANAME_8 = data.TempBrg.ANAME_8;
-                                brgMp.AVALUE_8 = data.TempBrg.AVALUE_8;
-                                brgMp.ACODE_9 = data.TempBrg.ACODE_9;
-                                brgMp.ANAME_9 = data.TempBrg.ANAME_9;
-                                brgMp.AVALUE_9 = data.TempBrg.AVALUE_9;
-                                brgMp.ACODE_10 = data.TempBrg.ACODE_10;
-                                brgMp.ANAME_10 = data.TempBrg.ANAME_10;
-                                brgMp.AVALUE_10 = data.TempBrg.AVALUE_10;
-                                brgMp.ACODE_11 = data.TempBrg.ACODE_11;
-                                brgMp.ANAME_11 = data.TempBrg.ANAME_11;
-                                brgMp.AVALUE_11 = data.TempBrg.AVALUE_11;
-                                brgMp.ACODE_12 = data.TempBrg.ACODE_12;
-                                brgMp.ANAME_12 = data.TempBrg.ANAME_12;
-                                brgMp.AVALUE_12 = data.TempBrg.AVALUE_12;
-                                brgMp.ACODE_13 = data.TempBrg.ACODE_13;
-                                brgMp.ANAME_13 = data.TempBrg.ANAME_13;
-                                brgMp.AVALUE_13 = data.TempBrg.AVALUE_13;
-                                brgMp.ACODE_14 = data.TempBrg.ACODE_14;
-                                brgMp.ANAME_14 = data.TempBrg.ANAME_14;
-                                brgMp.AVALUE_14 = data.TempBrg.AVALUE_14;
-                                brgMp.ACODE_15 = data.TempBrg.ACODE_15;
-                                brgMp.ANAME_15 = data.TempBrg.ANAME_15;
-                                brgMp.AVALUE_15 = data.TempBrg.AVALUE_15;
-                                brgMp.ACODE_16 = data.TempBrg.ACODE_16;
-                                brgMp.ANAME_16 = data.TempBrg.ANAME_16;
-                                brgMp.AVALUE_16 = data.TempBrg.AVALUE_16;
-                                brgMp.ACODE_17 = data.TempBrg.ACODE_17;
-                                brgMp.ANAME_17 = data.TempBrg.ANAME_17;
-                                brgMp.AVALUE_17 = data.TempBrg.AVALUE_17;
-                                brgMp.ACODE_18 = data.TempBrg.ACODE_18;
-                                brgMp.ANAME_18 = data.TempBrg.ANAME_18;
-                                brgMp.AVALUE_18 = data.TempBrg.AVALUE_18;
-                                brgMp.ACODE_19 = data.TempBrg.ACODE_19;
-                                brgMp.ANAME_19 = data.TempBrg.ANAME_19;
-                                brgMp.AVALUE_19 = data.TempBrg.AVALUE_19;
-                                brgMp.ACODE_20 = data.TempBrg.ACODE_20;
-                                brgMp.ANAME_20 = data.TempBrg.ANAME_20;
-                                brgMp.AVALUE_20 = data.TempBrg.AVALUE_20;
-                                brgMp.ACODE_21 = data.TempBrg.ACODE_21;
-                                brgMp.ANAME_21 = data.TempBrg.ANAME_21;
-                                brgMp.AVALUE_21 = data.TempBrg.AVALUE_21;
-                                brgMp.ACODE_22 = data.TempBrg.ACODE_22;
-                                brgMp.ANAME_22 = data.TempBrg.ANAME_22;
-                                brgMp.AVALUE_22 = data.TempBrg.AVALUE_22;
-                                brgMp.ACODE_23 = data.TempBrg.ACODE_23;
-                                brgMp.ANAME_23 = data.TempBrg.ANAME_23;
-                                brgMp.AVALUE_23 = data.TempBrg.AVALUE_23;
-                                brgMp.ACODE_24 = data.TempBrg.ACODE_24;
-                                brgMp.ANAME_24 = data.TempBrg.ANAME_24;
-                                brgMp.AVALUE_24 = data.TempBrg.AVALUE_24;
-                                brgMp.ACODE_25 = data.TempBrg.ACODE_25;
-                                brgMp.ANAME_25 = data.TempBrg.ANAME_25;
-                                brgMp.AVALUE_25 = data.TempBrg.AVALUE_25;
-                                brgMp.ACODE_26 = data.TempBrg.ACODE_26;
-                                brgMp.ANAME_26 = data.TempBrg.ANAME_26;
-                                brgMp.AVALUE_26 = data.TempBrg.AVALUE_26;
-                                brgMp.ACODE_27 = data.TempBrg.ACODE_27;
-                                brgMp.ANAME_27 = data.TempBrg.ANAME_27;
-                                brgMp.AVALUE_27 = data.TempBrg.AVALUE_27;
-                                brgMp.ACODE_28 = data.TempBrg.ACODE_28;
-                                brgMp.ANAME_28 = data.TempBrg.ANAME_28;
-                                brgMp.AVALUE_28 = data.TempBrg.AVALUE_28;
-                                brgMp.ACODE_29 = data.TempBrg.ACODE_29;
-                                brgMp.ANAME_29 = data.TempBrg.ANAME_29;
-                                brgMp.AVALUE_29 = data.TempBrg.AVALUE_29;
-                                brgMp.ACODE_30 = data.TempBrg.ACODE_30;
-                                brgMp.ANAME_30 = data.TempBrg.ANAME_30;
-                                brgMp.AVALUE_30 = data.TempBrg.AVALUE_30;
-                                brgMp.ACODE_31 = data.TempBrg.ACODE_31;
-                                brgMp.ANAME_31 = data.TempBrg.ANAME_31;
-                                brgMp.AVALUE_31 = data.TempBrg.AVALUE_31;
-                                brgMp.ACODE_32 = data.TempBrg.ACODE_32;
-                                brgMp.ANAME_32 = data.TempBrg.ANAME_32;
-                                brgMp.AVALUE_32 = data.TempBrg.AVALUE_32;
-                                brgMp.ACODE_33 = data.TempBrg.ACODE_33;
-                                brgMp.ANAME_33 = data.TempBrg.ANAME_33;
-                                brgMp.AVALUE_33 = data.TempBrg.AVALUE_33;
-                                brgMp.ACODE_34 = data.TempBrg.ACODE_34;
-                                brgMp.ANAME_34 = data.TempBrg.ANAME_34;
-                                brgMp.AVALUE_34 = data.TempBrg.AVALUE_34;
-                                brgMp.ACODE_35 = data.TempBrg.ACODE_35;
-                                brgMp.ANAME_35 = data.TempBrg.ANAME_35;
-                                brgMp.AVALUE_35 = data.TempBrg.AVALUE_35;
-                                brgMp.ACODE_36 = data.TempBrg.ACODE_36;
-                                brgMp.ANAME_36 = data.TempBrg.ANAME_36;
-                                brgMp.AVALUE_36 = data.TempBrg.AVALUE_36;
-                                brgMp.ACODE_37 = data.TempBrg.ACODE_37;
-                                brgMp.ANAME_37 = data.TempBrg.ANAME_37;
-                                brgMp.AVALUE_37 = data.TempBrg.AVALUE_37;
-                                brgMp.ACODE_38 = data.TempBrg.ACODE_38;
-                                brgMp.ANAME_38 = data.TempBrg.ANAME_38;
-                                brgMp.AVALUE_38 = data.TempBrg.AVALUE_38;
-                                brgMp.ACODE_39 = data.TempBrg.ACODE_39;
-                                brgMp.ANAME_39 = data.TempBrg.ANAME_39;
-                                brgMp.AVALUE_39 = data.TempBrg.AVALUE_39;
-                                brgMp.ACODE_40 = data.TempBrg.ACODE_40;
-                                brgMp.ANAME_40 = data.TempBrg.ANAME_40;
-                                brgMp.AVALUE_40 = data.TempBrg.AVALUE_40;
-                                brgMp.ACODE_41 = data.TempBrg.ACODE_41;
-                                brgMp.ANAME_41 = data.TempBrg.ANAME_41;
-                                brgMp.AVALUE_41 = data.TempBrg.AVALUE_41;
-                                brgMp.ACODE_42 = data.TempBrg.ACODE_42;
-                                brgMp.ANAME_42 = data.TempBrg.ANAME_42;
-                                brgMp.AVALUE_42 = data.TempBrg.AVALUE_42;
-                                brgMp.ACODE_43 = data.TempBrg.ACODE_43;
-                                brgMp.ANAME_43 = data.TempBrg.ANAME_43;
-                                brgMp.AVALUE_43 = data.TempBrg.AVALUE_43;
-                                brgMp.ACODE_44 = data.TempBrg.ACODE_44;
-                                brgMp.ANAME_44 = data.TempBrg.ANAME_44;
-                                brgMp.AVALUE_44 = data.TempBrg.AVALUE_44;
-                                brgMp.ACODE_45 = data.TempBrg.ACODE_45;
-                                brgMp.ANAME_45 = data.TempBrg.ANAME_45;
-                                brgMp.AVALUE_45 = data.TempBrg.AVALUE_45;
-                                brgMp.ACODE_46 = data.TempBrg.ACODE_46;
-                                brgMp.ANAME_46 = data.TempBrg.ANAME_46;
-                                brgMp.AVALUE_46 = data.TempBrg.AVALUE_46;
-                                brgMp.ACODE_47 = data.TempBrg.ACODE_47;
-                                brgMp.ANAME_47 = data.TempBrg.ANAME_47;
-                                brgMp.AVALUE_47 = data.TempBrg.AVALUE_47;
-                                brgMp.ACODE_48 = data.TempBrg.ACODE_48;
-                                brgMp.ANAME_48 = data.TempBrg.ANAME_48;
-                                brgMp.AVALUE_48 = data.TempBrg.AVALUE_48;
-                                brgMp.ACODE_49 = data.TempBrg.ACODE_49;
-                                brgMp.ANAME_49 = data.TempBrg.ANAME_49;
-                                brgMp.AVALUE_49 = data.TempBrg.AVALUE_49;
-                                brgMp.ACODE_50 = data.TempBrg.ACODE_50;
-                                brgMp.ANAME_50 = data.TempBrg.ANAME_50;
-                                brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
+                                brgMp.ACODE_2 = tempBrginDB.ACODE_2;
+                                brgMp.ANAME_2 = tempBrginDB.ANAME_2;
+                                brgMp.AVALUE_2 = tempBrginDB.AVALUE_2;
+                                brgMp.ACODE_3 = tempBrginDB.ACODE_3;
+                                brgMp.ANAME_3 = tempBrginDB.ANAME_3;
+                                brgMp.AVALUE_3 = tempBrginDB.AVALUE_3;
+                                brgMp.ACODE_4 = tempBrginDB.ACODE_4;
+                                brgMp.ANAME_4 = tempBrginDB.ANAME_4;
+                                brgMp.AVALUE_4 = tempBrginDB.AVALUE_4;
+                                brgMp.ACODE_5 = tempBrginDB.ACODE_5;
+                                brgMp.ANAME_5 = tempBrginDB.ANAME_5;
+                                brgMp.AVALUE_5 = tempBrginDB.AVALUE_5;
+                                brgMp.ACODE_6 = tempBrginDB.ACODE_6;
+                                brgMp.ANAME_6 = tempBrginDB.ANAME_6;
+                                brgMp.AVALUE_6 = tempBrginDB.AVALUE_6;
+                                brgMp.ACODE_7 = tempBrginDB.ACODE_7;
+                                brgMp.ANAME_7 = tempBrginDB.ANAME_7;
+                                brgMp.AVALUE_7 = tempBrginDB.AVALUE_7;
+                                brgMp.ACODE_8 = tempBrginDB.ACODE_8;
+                                brgMp.ANAME_8 = tempBrginDB.ANAME_8;
+                                brgMp.AVALUE_8 = tempBrginDB.AVALUE_8;
+                                brgMp.ACODE_9 = tempBrginDB.ACODE_9;
+                                brgMp.ANAME_9 = tempBrginDB.ANAME_9;
+                                brgMp.AVALUE_9 = tempBrginDB.AVALUE_9;
+                                brgMp.ACODE_10 = tempBrginDB.ACODE_10;
+                                brgMp.ANAME_10 = tempBrginDB.ANAME_10;
+                                brgMp.AVALUE_10 = tempBrginDB.AVALUE_10;
+                                brgMp.ACODE_11 = tempBrginDB.ACODE_11;
+                                brgMp.ANAME_11 = tempBrginDB.ANAME_11;
+                                brgMp.AVALUE_11 = tempBrginDB.AVALUE_11;
+                                brgMp.ACODE_12 = tempBrginDB.ACODE_12;
+                                brgMp.ANAME_12 = tempBrginDB.ANAME_12;
+                                brgMp.AVALUE_12 = tempBrginDB.AVALUE_12;
+                                brgMp.ACODE_13 = tempBrginDB.ACODE_13;
+                                brgMp.ANAME_13 = tempBrginDB.ANAME_13;
+                                brgMp.AVALUE_13 = tempBrginDB.AVALUE_13;
+                                brgMp.ACODE_14 = tempBrginDB.ACODE_14;
+                                brgMp.ANAME_14 = tempBrginDB.ANAME_14;
+                                brgMp.AVALUE_14 = tempBrginDB.AVALUE_14;
+                                brgMp.ACODE_15 = tempBrginDB.ACODE_15;
+                                brgMp.ANAME_15 = tempBrginDB.ANAME_15;
+                                brgMp.AVALUE_15 = tempBrginDB.AVALUE_15;
+                                brgMp.ACODE_16 = tempBrginDB.ACODE_16;
+                                brgMp.ANAME_16 = tempBrginDB.ANAME_16;
+                                brgMp.AVALUE_16 = tempBrginDB.AVALUE_16;
+                                brgMp.ACODE_17 = tempBrginDB.ACODE_17;
+                                brgMp.ANAME_17 = tempBrginDB.ANAME_17;
+                                brgMp.AVALUE_17 = tempBrginDB.AVALUE_17;
+                                brgMp.ACODE_18 = tempBrginDB.ACODE_18;
+                                brgMp.ANAME_18 = tempBrginDB.ANAME_18;
+                                brgMp.AVALUE_18 = tempBrginDB.AVALUE_18;
+                                brgMp.ACODE_19 = tempBrginDB.ACODE_19;
+                                brgMp.ANAME_19 = tempBrginDB.ANAME_19;
+                                brgMp.AVALUE_19 = tempBrginDB.AVALUE_19;
+                                brgMp.ACODE_20 = tempBrginDB.ACODE_20;
+                                brgMp.ANAME_20 = tempBrginDB.ANAME_20;
+                                brgMp.AVALUE_20 = tempBrginDB.AVALUE_20;
+                                brgMp.ACODE_21 = tempBrginDB.ACODE_21;
+                                brgMp.ANAME_21 = tempBrginDB.ANAME_21;
+                                brgMp.AVALUE_21 = tempBrginDB.AVALUE_21;
+                                brgMp.ACODE_22 = tempBrginDB.ACODE_22;
+                                brgMp.ANAME_22 = tempBrginDB.ANAME_22;
+                                brgMp.AVALUE_22 = tempBrginDB.AVALUE_22;
+                                brgMp.ACODE_23 = tempBrginDB.ACODE_23;
+                                brgMp.ANAME_23 = tempBrginDB.ANAME_23;
+                                brgMp.AVALUE_23 = tempBrginDB.AVALUE_23;
+                                brgMp.ACODE_24 = tempBrginDB.ACODE_24;
+                                brgMp.ANAME_24 = tempBrginDB.ANAME_24;
+                                brgMp.AVALUE_24 = tempBrginDB.AVALUE_24;
+                                brgMp.ACODE_25 = tempBrginDB.ACODE_25;
+                                brgMp.ANAME_25 = tempBrginDB.ANAME_25;
+                                brgMp.AVALUE_25 = tempBrginDB.AVALUE_25;
+                                brgMp.ACODE_26 = tempBrginDB.ACODE_26;
+                                brgMp.ANAME_26 = tempBrginDB.ANAME_26;
+                                brgMp.AVALUE_26 = tempBrginDB.AVALUE_26;
+                                brgMp.ACODE_27 = tempBrginDB.ACODE_27;
+                                brgMp.ANAME_27 = tempBrginDB.ANAME_27;
+                                brgMp.AVALUE_27 = tempBrginDB.AVALUE_27;
+                                brgMp.ACODE_28 = tempBrginDB.ACODE_28;
+                                brgMp.ANAME_28 = tempBrginDB.ANAME_28;
+                                brgMp.AVALUE_28 = tempBrginDB.AVALUE_28;
+                                brgMp.ACODE_29 = tempBrginDB.ACODE_29;
+                                brgMp.ANAME_29 = tempBrginDB.ANAME_29;
+                                brgMp.AVALUE_29 = tempBrginDB.AVALUE_29;
+                                brgMp.ACODE_30 = tempBrginDB.ACODE_30;
+                                brgMp.ANAME_30 = tempBrginDB.ANAME_30;
+                                brgMp.AVALUE_30 = tempBrginDB.AVALUE_30;
+                                brgMp.ACODE_31 = tempBrginDB.ACODE_31;
+                                brgMp.ANAME_31 = tempBrginDB.ANAME_31;
+                                brgMp.AVALUE_31 = tempBrginDB.AVALUE_31;
+                                brgMp.ACODE_32 = tempBrginDB.ACODE_32;
+                                brgMp.ANAME_32 = tempBrginDB.ANAME_32;
+                                brgMp.AVALUE_32 = tempBrginDB.AVALUE_32;
+                                brgMp.ACODE_33 = tempBrginDB.ACODE_33;
+                                brgMp.ANAME_33 = tempBrginDB.ANAME_33;
+                                brgMp.AVALUE_33 = tempBrginDB.AVALUE_33;
+                                brgMp.ACODE_34 = tempBrginDB.ACODE_34;
+                                brgMp.ANAME_34 = tempBrginDB.ANAME_34;
+                                brgMp.AVALUE_34 = tempBrginDB.AVALUE_34;
+                                brgMp.ACODE_35 = tempBrginDB.ACODE_35;
+                                brgMp.ANAME_35 = tempBrginDB.ANAME_35;
+                                brgMp.AVALUE_35 = tempBrginDB.AVALUE_35;
+                                brgMp.ACODE_36 = tempBrginDB.ACODE_36;
+                                brgMp.ANAME_36 = tempBrginDB.ANAME_36;
+                                brgMp.AVALUE_36 = tempBrginDB.AVALUE_36;
+                                brgMp.ACODE_37 = tempBrginDB.ACODE_37;
+                                brgMp.ANAME_37 = tempBrginDB.ANAME_37;
+                                brgMp.AVALUE_37 = tempBrginDB.AVALUE_37;
+                                brgMp.ACODE_38 = tempBrginDB.ACODE_38;
+                                brgMp.ANAME_38 = tempBrginDB.ANAME_38;
+                                brgMp.AVALUE_38 = tempBrginDB.AVALUE_38;
+                                brgMp.ACODE_39 = tempBrginDB.ACODE_39;
+                                brgMp.ANAME_39 = tempBrginDB.ANAME_39;
+                                brgMp.AVALUE_39 = tempBrginDB.AVALUE_39;
+                                brgMp.ACODE_40 = tempBrginDB.ACODE_40;
+                                brgMp.ANAME_40 = tempBrginDB.ANAME_40;
+                                brgMp.AVALUE_40 = tempBrginDB.AVALUE_40;
+                                brgMp.ACODE_41 = tempBrginDB.ACODE_41;
+                                brgMp.ANAME_41 = tempBrginDB.ANAME_41;
+                                brgMp.AVALUE_41 = tempBrginDB.AVALUE_41;
+                                brgMp.ACODE_42 = tempBrginDB.ACODE_42;
+                                brgMp.ANAME_42 = tempBrginDB.ANAME_42;
+                                brgMp.AVALUE_42 = tempBrginDB.AVALUE_42;
+                                brgMp.ACODE_43 = tempBrginDB.ACODE_43;
+                                brgMp.ANAME_43 = tempBrginDB.ANAME_43;
+                                brgMp.AVALUE_43 = tempBrginDB.AVALUE_43;
+                                brgMp.ACODE_44 = tempBrginDB.ACODE_44;
+                                brgMp.ANAME_44 = tempBrginDB.ANAME_44;
+                                brgMp.AVALUE_44 = tempBrginDB.AVALUE_44;
+                                brgMp.ACODE_45 = tempBrginDB.ACODE_45;
+                                brgMp.ANAME_45 = tempBrginDB.ANAME_45;
+                                brgMp.AVALUE_45 = tempBrginDB.AVALUE_45;
+                                brgMp.ACODE_46 = tempBrginDB.ACODE_46;
+                                brgMp.ANAME_46 = tempBrginDB.ANAME_46;
+                                brgMp.AVALUE_46 = tempBrginDB.AVALUE_46;
+                                brgMp.ACODE_47 = tempBrginDB.ACODE_47;
+                                brgMp.ANAME_47 = tempBrginDB.ANAME_47;
+                                brgMp.AVALUE_47 = tempBrginDB.AVALUE_47;
+                                brgMp.ACODE_48 = tempBrginDB.ACODE_48;
+                                brgMp.ANAME_48 = tempBrginDB.ANAME_48;
+                                brgMp.AVALUE_48 = tempBrginDB.AVALUE_48;
+                                brgMp.ACODE_49 = tempBrginDB.ACODE_49;
+                                brgMp.ANAME_49 = tempBrginDB.ANAME_49;
+                                brgMp.AVALUE_49 = tempBrginDB.AVALUE_49;
+                                brgMp.ACODE_50 = tempBrginDB.ACODE_50;
+                                brgMp.ANAME_50 = tempBrginDB.ANAME_50;
+                                brgMp.AVALUE_50 = tempBrginDB.AVALUE_50;
                                 #endregion
                                 //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
                                 brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
@@ -34691,10 +34906,11 @@ namespace MasterOnline.Controllers
                                 if (customer.NAMA == "7")
                                 {
                                     //merek
-                                    var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == data.TempBrg.MEREK).FirstOrDefault();
+                                    //var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == data.TempBrg.MEREK).FirstOrDefault();
+                                    var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == tempBrginDB.MEREK).FirstOrDefault();
                                     if (getKodeMerk != null)
                                     {
-                                        brgMp.ANAME_38 = data.TempBrg.MEREK;
+                                        brgMp.ANAME_38 = tempBrginDB.MEREK;
                                         brgMp.AVALUE_38 = getKodeMerk.brand_id;
                                     }
                                 }
@@ -34834,163 +35050,163 @@ namespace MasterOnline.Controllers
                             //brgMp.USERNAME = "SYSTEM_UPLOAD_BRG";
                             brgMp.USERNAME = data.Stf02.USERNAME;
                             #region attribute mp
-                            brgMp.ACODE_1 = data.TempBrg.ACODE_1;
-                            brgMp.ANAME_1 = data.TempBrg.ANAME_1;
+                            brgMp.ACODE_1 = tempBrginDB.ACODE_1;
+                            brgMp.ANAME_1 = tempBrginDB.ANAME_1;
                             if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
                             {
-                                brgMp.AVALUE_1 = HttpUtility.HtmlDecode(data.TempBrg.AVALUE_1);
+                                brgMp.AVALUE_1 = HttpUtility.HtmlDecode(tempBrginDB.AVALUE_1);
                             }
                             else
                             {
-                                brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                                brgMp.AVALUE_1 = tempBrginDB.AVALUE_1;
                             }
-                            brgMp.ACODE_2 = data.TempBrg.ACODE_2;
-                            brgMp.ANAME_2 = data.TempBrg.ANAME_2;
-                            brgMp.AVALUE_2 = data.TempBrg.AVALUE_2;
-                            brgMp.ACODE_3 = data.TempBrg.ACODE_3;
-                            brgMp.ANAME_3 = data.TempBrg.ANAME_3;
-                            brgMp.AVALUE_3 = data.TempBrg.AVALUE_3;
-                            brgMp.ACODE_4 = data.TempBrg.ACODE_4;
-                            brgMp.ANAME_4 = data.TempBrg.ANAME_4;
-                            brgMp.AVALUE_4 = data.TempBrg.AVALUE_4;
-                            brgMp.ACODE_5 = data.TempBrg.ACODE_5;
-                            brgMp.ANAME_5 = data.TempBrg.ANAME_5;
-                            brgMp.AVALUE_5 = data.TempBrg.AVALUE_5;
-                            brgMp.ACODE_6 = data.TempBrg.ACODE_6;
-                            brgMp.ANAME_6 = data.TempBrg.ANAME_6;
-                            brgMp.AVALUE_6 = data.TempBrg.AVALUE_6;
-                            brgMp.ACODE_7 = data.TempBrg.ACODE_7;
-                            brgMp.ANAME_7 = data.TempBrg.ANAME_7;
-                            brgMp.AVALUE_7 = data.TempBrg.AVALUE_7;
-                            brgMp.ACODE_8 = data.TempBrg.ACODE_8;
-                            brgMp.ANAME_8 = data.TempBrg.ANAME_8;
-                            brgMp.AVALUE_8 = data.TempBrg.AVALUE_8;
-                            brgMp.ACODE_9 = data.TempBrg.ACODE_9;
-                            brgMp.ANAME_9 = data.TempBrg.ANAME_9;
-                            brgMp.AVALUE_9 = data.TempBrg.AVALUE_9;
-                            brgMp.ACODE_10 = data.TempBrg.ACODE_10;
-                            brgMp.ANAME_10 = data.TempBrg.ANAME_10;
-                            brgMp.AVALUE_10 = data.TempBrg.AVALUE_10;
-                            brgMp.ACODE_11 = data.TempBrg.ACODE_11;
-                            brgMp.ANAME_11 = data.TempBrg.ANAME_11;
-                            brgMp.AVALUE_11 = data.TempBrg.AVALUE_11;
-                            brgMp.ACODE_12 = data.TempBrg.ACODE_12;
-                            brgMp.ANAME_12 = data.TempBrg.ANAME_12;
-                            brgMp.AVALUE_12 = data.TempBrg.AVALUE_12;
-                            brgMp.ACODE_13 = data.TempBrg.ACODE_13;
-                            brgMp.ANAME_13 = data.TempBrg.ANAME_13;
-                            brgMp.AVALUE_13 = data.TempBrg.AVALUE_13;
-                            brgMp.ACODE_14 = data.TempBrg.ACODE_14;
-                            brgMp.ANAME_14 = data.TempBrg.ANAME_14;
-                            brgMp.AVALUE_14 = data.TempBrg.AVALUE_14;
-                            brgMp.ACODE_15 = data.TempBrg.ACODE_15;
-                            brgMp.ANAME_15 = data.TempBrg.ANAME_15;
-                            brgMp.AVALUE_15 = data.TempBrg.AVALUE_15;
-                            brgMp.ACODE_16 = data.TempBrg.ACODE_16;
-                            brgMp.ANAME_16 = data.TempBrg.ANAME_16;
-                            brgMp.AVALUE_16 = data.TempBrg.AVALUE_16;
-                            brgMp.ACODE_17 = data.TempBrg.ACODE_17;
-                            brgMp.ANAME_17 = data.TempBrg.ANAME_17;
-                            brgMp.AVALUE_17 = data.TempBrg.AVALUE_17;
-                            brgMp.ACODE_18 = data.TempBrg.ACODE_18;
-                            brgMp.ANAME_18 = data.TempBrg.ANAME_18;
-                            brgMp.AVALUE_18 = data.TempBrg.AVALUE_18;
-                            brgMp.ACODE_19 = data.TempBrg.ACODE_19;
-                            brgMp.ANAME_19 = data.TempBrg.ANAME_19;
-                            brgMp.AVALUE_19 = data.TempBrg.AVALUE_19;
-                            brgMp.ACODE_20 = data.TempBrg.ACODE_20;
-                            brgMp.ANAME_20 = data.TempBrg.ANAME_20;
-                            brgMp.AVALUE_20 = data.TempBrg.AVALUE_20;
-                            brgMp.ACODE_21 = data.TempBrg.ACODE_21;
-                            brgMp.ANAME_21 = data.TempBrg.ANAME_21;
-                            brgMp.AVALUE_21 = data.TempBrg.AVALUE_21;
-                            brgMp.ACODE_22 = data.TempBrg.ACODE_22;
-                            brgMp.ANAME_22 = data.TempBrg.ANAME_22;
-                            brgMp.AVALUE_22 = data.TempBrg.AVALUE_22;
-                            brgMp.ACODE_23 = data.TempBrg.ACODE_23;
-                            brgMp.ANAME_23 = data.TempBrg.ANAME_23;
-                            brgMp.AVALUE_23 = data.TempBrg.AVALUE_23;
-                            brgMp.ACODE_24 = data.TempBrg.ACODE_24;
-                            brgMp.ANAME_24 = data.TempBrg.ANAME_24;
-                            brgMp.AVALUE_24 = data.TempBrg.AVALUE_24;
-                            brgMp.ACODE_25 = data.TempBrg.ACODE_25;
-                            brgMp.ANAME_25 = data.TempBrg.ANAME_25;
-                            brgMp.AVALUE_25 = data.TempBrg.AVALUE_25;
-                            brgMp.ACODE_26 = data.TempBrg.ACODE_26;
-                            brgMp.ANAME_26 = data.TempBrg.ANAME_26;
-                            brgMp.AVALUE_26 = data.TempBrg.AVALUE_26;
-                            brgMp.ACODE_27 = data.TempBrg.ACODE_27;
-                            brgMp.ANAME_27 = data.TempBrg.ANAME_27;
-                            brgMp.AVALUE_27 = data.TempBrg.AVALUE_27;
-                            brgMp.ACODE_28 = data.TempBrg.ACODE_28;
-                            brgMp.ANAME_28 = data.TempBrg.ANAME_28;
-                            brgMp.AVALUE_28 = data.TempBrg.AVALUE_28;
-                            brgMp.ACODE_29 = data.TempBrg.ACODE_29;
-                            brgMp.ANAME_29 = data.TempBrg.ANAME_29;
-                            brgMp.AVALUE_29 = data.TempBrg.AVALUE_29;
-                            brgMp.ACODE_30 = data.TempBrg.ACODE_30;
-                            brgMp.ANAME_30 = data.TempBrg.ANAME_30;
-                            brgMp.AVALUE_30 = data.TempBrg.AVALUE_30;
-                            brgMp.ACODE_31 = data.TempBrg.ACODE_31;
-                            brgMp.ANAME_31 = data.TempBrg.ANAME_31;
-                            brgMp.AVALUE_31 = data.TempBrg.AVALUE_31;
-                            brgMp.ACODE_32 = data.TempBrg.ACODE_32;
-                            brgMp.ANAME_32 = data.TempBrg.ANAME_32;
-                            brgMp.AVALUE_32 = data.TempBrg.AVALUE_32;
-                            brgMp.ACODE_33 = data.TempBrg.ACODE_33;
-                            brgMp.ANAME_33 = data.TempBrg.ANAME_33;
-                            brgMp.AVALUE_33 = data.TempBrg.AVALUE_33;
-                            brgMp.ACODE_34 = data.TempBrg.ACODE_34;
-                            brgMp.ANAME_34 = data.TempBrg.ANAME_34;
-                            brgMp.AVALUE_34 = data.TempBrg.AVALUE_34;
-                            brgMp.ACODE_35 = data.TempBrg.ACODE_35;
-                            brgMp.ANAME_35 = data.TempBrg.ANAME_35;
-                            brgMp.AVALUE_35 = data.TempBrg.AVALUE_35;
-                            brgMp.ACODE_36 = data.TempBrg.ACODE_36;
-                            brgMp.ANAME_36 = data.TempBrg.ANAME_36;
-                            brgMp.AVALUE_36 = data.TempBrg.AVALUE_36;
-                            brgMp.ACODE_37 = data.TempBrg.ACODE_37;
-                            brgMp.ANAME_37 = data.TempBrg.ANAME_37;
-                            brgMp.AVALUE_37 = data.TempBrg.AVALUE_37;
-                            brgMp.ACODE_38 = data.TempBrg.ACODE_38;
-                            brgMp.ANAME_38 = data.TempBrg.ANAME_38;
-                            brgMp.AVALUE_38 = data.TempBrg.AVALUE_38;
-                            brgMp.ACODE_39 = data.TempBrg.ACODE_39;
-                            brgMp.ANAME_39 = data.TempBrg.ANAME_39;
-                            brgMp.AVALUE_39 = data.TempBrg.AVALUE_39;
-                            brgMp.ACODE_40 = data.TempBrg.ACODE_40;
-                            brgMp.ANAME_40 = data.TempBrg.ANAME_40;
-                            brgMp.AVALUE_40 = data.TempBrg.AVALUE_40;
-                            brgMp.ACODE_41 = data.TempBrg.ACODE_41;
-                            brgMp.ANAME_41 = data.TempBrg.ANAME_41;
-                            brgMp.AVALUE_41 = data.TempBrg.AVALUE_41;
-                            brgMp.ACODE_42 = data.TempBrg.ACODE_42;
-                            brgMp.ANAME_42 = data.TempBrg.ANAME_42;
-                            brgMp.AVALUE_42 = data.TempBrg.AVALUE_42;
-                            brgMp.ACODE_43 = data.TempBrg.ACODE_43;
-                            brgMp.ANAME_43 = data.TempBrg.ANAME_43;
-                            brgMp.AVALUE_43 = data.TempBrg.AVALUE_43;
-                            brgMp.ACODE_44 = data.TempBrg.ACODE_44;
-                            brgMp.ANAME_44 = data.TempBrg.ANAME_44;
-                            brgMp.AVALUE_44 = data.TempBrg.AVALUE_44;
-                            brgMp.ACODE_45 = data.TempBrg.ACODE_45;
-                            brgMp.ANAME_45 = data.TempBrg.ANAME_45;
-                            brgMp.AVALUE_45 = data.TempBrg.AVALUE_45;
-                            brgMp.ACODE_46 = data.TempBrg.ACODE_46;
-                            brgMp.ANAME_46 = data.TempBrg.ANAME_46;
-                            brgMp.AVALUE_46 = data.TempBrg.AVALUE_46;
-                            brgMp.ACODE_47 = data.TempBrg.ACODE_47;
-                            brgMp.ANAME_47 = data.TempBrg.ANAME_47;
-                            brgMp.AVALUE_47 = data.TempBrg.AVALUE_47;
-                            brgMp.ACODE_48 = data.TempBrg.ACODE_48;
-                            brgMp.ANAME_48 = data.TempBrg.ANAME_48;
-                            brgMp.AVALUE_48 = data.TempBrg.AVALUE_48;
-                            brgMp.ACODE_49 = data.TempBrg.ACODE_49;
-                            brgMp.ANAME_49 = data.TempBrg.ANAME_49;
-                            brgMp.AVALUE_49 = data.TempBrg.AVALUE_49;
-                            brgMp.ACODE_50 = data.TempBrg.ACODE_50;
-                            brgMp.ANAME_50 = data.TempBrg.ANAME_50;
-                            brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
+                            brgMp.ACODE_2 = tempBrginDB.ACODE_2;
+                            brgMp.ANAME_2 = tempBrginDB.ANAME_2;
+                            brgMp.AVALUE_2 = tempBrginDB.AVALUE_2;
+                            brgMp.ACODE_3 = tempBrginDB.ACODE_3;
+                            brgMp.ANAME_3 = tempBrginDB.ANAME_3;
+                            brgMp.AVALUE_3 = tempBrginDB.AVALUE_3;
+                            brgMp.ACODE_4 = tempBrginDB.ACODE_4;
+                            brgMp.ANAME_4 = tempBrginDB.ANAME_4;
+                            brgMp.AVALUE_4 = tempBrginDB.AVALUE_4;
+                            brgMp.ACODE_5 = tempBrginDB.ACODE_5;
+                            brgMp.ANAME_5 = tempBrginDB.ANAME_5;
+                            brgMp.AVALUE_5 = tempBrginDB.AVALUE_5;
+                            brgMp.ACODE_6 = tempBrginDB.ACODE_6;
+                            brgMp.ANAME_6 = tempBrginDB.ANAME_6;
+                            brgMp.AVALUE_6 = tempBrginDB.AVALUE_6;
+                            brgMp.ACODE_7 = tempBrginDB.ACODE_7;
+                            brgMp.ANAME_7 = tempBrginDB.ANAME_7;
+                            brgMp.AVALUE_7 = tempBrginDB.AVALUE_7;
+                            brgMp.ACODE_8 = tempBrginDB.ACODE_8;
+                            brgMp.ANAME_8 = tempBrginDB.ANAME_8;
+                            brgMp.AVALUE_8 = tempBrginDB.AVALUE_8;
+                            brgMp.ACODE_9 = tempBrginDB.ACODE_9;
+                            brgMp.ANAME_9 = tempBrginDB.ANAME_9;
+                            brgMp.AVALUE_9 = tempBrginDB.AVALUE_9;
+                            brgMp.ACODE_10 = tempBrginDB.ACODE_10;
+                            brgMp.ANAME_10 = tempBrginDB.ANAME_10;
+                            brgMp.AVALUE_10 = tempBrginDB.AVALUE_10;
+                            brgMp.ACODE_11 = tempBrginDB.ACODE_11;
+                            brgMp.ANAME_11 = tempBrginDB.ANAME_11;
+                            brgMp.AVALUE_11 = tempBrginDB.AVALUE_11;
+                            brgMp.ACODE_12 = tempBrginDB.ACODE_12;
+                            brgMp.ANAME_12 = tempBrginDB.ANAME_12;
+                            brgMp.AVALUE_12 = tempBrginDB.AVALUE_12;
+                            brgMp.ACODE_13 = tempBrginDB.ACODE_13;
+                            brgMp.ANAME_13 = tempBrginDB.ANAME_13;
+                            brgMp.AVALUE_13 = tempBrginDB.AVALUE_13;
+                            brgMp.ACODE_14 = tempBrginDB.ACODE_14;
+                            brgMp.ANAME_14 = tempBrginDB.ANAME_14;
+                            brgMp.AVALUE_14 = tempBrginDB.AVALUE_14;
+                            brgMp.ACODE_15 = tempBrginDB.ACODE_15;
+                            brgMp.ANAME_15 = tempBrginDB.ANAME_15;
+                            brgMp.AVALUE_15 = tempBrginDB.AVALUE_15;
+                            brgMp.ACODE_16 = tempBrginDB.ACODE_16;
+                            brgMp.ANAME_16 = tempBrginDB.ANAME_16;
+                            brgMp.AVALUE_16 = tempBrginDB.AVALUE_16;
+                            brgMp.ACODE_17 = tempBrginDB.ACODE_17;
+                            brgMp.ANAME_17 = tempBrginDB.ANAME_17;
+                            brgMp.AVALUE_17 = tempBrginDB.AVALUE_17;
+                            brgMp.ACODE_18 = tempBrginDB.ACODE_18;
+                            brgMp.ANAME_18 = tempBrginDB.ANAME_18;
+                            brgMp.AVALUE_18 = tempBrginDB.AVALUE_18;
+                            brgMp.ACODE_19 = tempBrginDB.ACODE_19;
+                            brgMp.ANAME_19 = tempBrginDB.ANAME_19;
+                            brgMp.AVALUE_19 = tempBrginDB.AVALUE_19;
+                            brgMp.ACODE_20 = tempBrginDB.ACODE_20;
+                            brgMp.ANAME_20 = tempBrginDB.ANAME_20;
+                            brgMp.AVALUE_20 = tempBrginDB.AVALUE_20;
+                            brgMp.ACODE_21 = tempBrginDB.ACODE_21;
+                            brgMp.ANAME_21 = tempBrginDB.ANAME_21;
+                            brgMp.AVALUE_21 = tempBrginDB.AVALUE_21;
+                            brgMp.ACODE_22 = tempBrginDB.ACODE_22;
+                            brgMp.ANAME_22 = tempBrginDB.ANAME_22;
+                            brgMp.AVALUE_22 = tempBrginDB.AVALUE_22;
+                            brgMp.ACODE_23 = tempBrginDB.ACODE_23;
+                            brgMp.ANAME_23 = tempBrginDB.ANAME_23;
+                            brgMp.AVALUE_23 = tempBrginDB.AVALUE_23;
+                            brgMp.ACODE_24 = tempBrginDB.ACODE_24;
+                            brgMp.ANAME_24 = tempBrginDB.ANAME_24;
+                            brgMp.AVALUE_24 = tempBrginDB.AVALUE_24;
+                            brgMp.ACODE_25 = tempBrginDB.ACODE_25;
+                            brgMp.ANAME_25 = tempBrginDB.ANAME_25;
+                            brgMp.AVALUE_25 = tempBrginDB.AVALUE_25;
+                            brgMp.ACODE_26 = tempBrginDB.ACODE_26;
+                            brgMp.ANAME_26 = tempBrginDB.ANAME_26;
+                            brgMp.AVALUE_26 = tempBrginDB.AVALUE_26;
+                            brgMp.ACODE_27 = tempBrginDB.ACODE_27;
+                            brgMp.ANAME_27 = tempBrginDB.ANAME_27;
+                            brgMp.AVALUE_27 = tempBrginDB.AVALUE_27;
+                            brgMp.ACODE_28 = tempBrginDB.ACODE_28;
+                            brgMp.ANAME_28 = tempBrginDB.ANAME_28;
+                            brgMp.AVALUE_28 = tempBrginDB.AVALUE_28;
+                            brgMp.ACODE_29 = tempBrginDB.ACODE_29;
+                            brgMp.ANAME_29 = tempBrginDB.ANAME_29;
+                            brgMp.AVALUE_29 = tempBrginDB.AVALUE_29;
+                            brgMp.ACODE_30 = tempBrginDB.ACODE_30;
+                            brgMp.ANAME_30 = tempBrginDB.ANAME_30;
+                            brgMp.AVALUE_30 = tempBrginDB.AVALUE_30;
+                            brgMp.ACODE_31 = tempBrginDB.ACODE_31;
+                            brgMp.ANAME_31 = tempBrginDB.ANAME_31;
+                            brgMp.AVALUE_31 = tempBrginDB.AVALUE_31;
+                            brgMp.ACODE_32 = tempBrginDB.ACODE_32;
+                            brgMp.ANAME_32 = tempBrginDB.ANAME_32;
+                            brgMp.AVALUE_32 = tempBrginDB.AVALUE_32;
+                            brgMp.ACODE_33 = tempBrginDB.ACODE_33;
+                            brgMp.ANAME_33 = tempBrginDB.ANAME_33;
+                            brgMp.AVALUE_33 = tempBrginDB.AVALUE_33;
+                            brgMp.ACODE_34 = tempBrginDB.ACODE_34;
+                            brgMp.ANAME_34 = tempBrginDB.ANAME_34;
+                            brgMp.AVALUE_34 = tempBrginDB.AVALUE_34;
+                            brgMp.ACODE_35 = tempBrginDB.ACODE_35;
+                            brgMp.ANAME_35 = tempBrginDB.ANAME_35;
+                            brgMp.AVALUE_35 = tempBrginDB.AVALUE_35;
+                            brgMp.ACODE_36 = tempBrginDB.ACODE_36;
+                            brgMp.ANAME_36 = tempBrginDB.ANAME_36;
+                            brgMp.AVALUE_36 = tempBrginDB.AVALUE_36;
+                            brgMp.ACODE_37 = tempBrginDB.ACODE_37;
+                            brgMp.ANAME_37 = tempBrginDB.ANAME_37;
+                            brgMp.AVALUE_37 = tempBrginDB.AVALUE_37;
+                            brgMp.ACODE_38 = tempBrginDB.ACODE_38;
+                            brgMp.ANAME_38 = tempBrginDB.ANAME_38;
+                            brgMp.AVALUE_38 = tempBrginDB.AVALUE_38;
+                            brgMp.ACODE_39 = tempBrginDB.ACODE_39;
+                            brgMp.ANAME_39 = tempBrginDB.ANAME_39;
+                            brgMp.AVALUE_39 = tempBrginDB.AVALUE_39;
+                            brgMp.ACODE_40 = tempBrginDB.ACODE_40;
+                            brgMp.ANAME_40 = tempBrginDB.ANAME_40;
+                            brgMp.AVALUE_40 = tempBrginDB.AVALUE_40;
+                            brgMp.ACODE_41 = tempBrginDB.ACODE_41;
+                            brgMp.ANAME_41 = tempBrginDB.ANAME_41;
+                            brgMp.AVALUE_41 = tempBrginDB.AVALUE_41;
+                            brgMp.ACODE_42 = tempBrginDB.ACODE_42;
+                            brgMp.ANAME_42 = tempBrginDB.ANAME_42;
+                            brgMp.AVALUE_42 = tempBrginDB.AVALUE_42;
+                            brgMp.ACODE_43 = tempBrginDB.ACODE_43;
+                            brgMp.ANAME_43 = tempBrginDB.ANAME_43;
+                            brgMp.AVALUE_43 = tempBrginDB.AVALUE_43;
+                            brgMp.ACODE_44 = tempBrginDB.ACODE_44;
+                            brgMp.ANAME_44 = tempBrginDB.ANAME_44;
+                            brgMp.AVALUE_44 = tempBrginDB.AVALUE_44;
+                            brgMp.ACODE_45 = tempBrginDB.ACODE_45;
+                            brgMp.ANAME_45 = tempBrginDB.ANAME_45;
+                            brgMp.AVALUE_45 = tempBrginDB.AVALUE_45;
+                            brgMp.ACODE_46 = tempBrginDB.ACODE_46;
+                            brgMp.ANAME_46 = tempBrginDB.ANAME_46;
+                            brgMp.AVALUE_46 = tempBrginDB.AVALUE_46;
+                            brgMp.ACODE_47 = tempBrginDB.ACODE_47;
+                            brgMp.ANAME_47 = tempBrginDB.ANAME_47;
+                            brgMp.AVALUE_47 = tempBrginDB.AVALUE_47;
+                            brgMp.ACODE_48 = tempBrginDB.ACODE_48;
+                            brgMp.ANAME_48 = tempBrginDB.ANAME_48;
+                            brgMp.AVALUE_48 = tempBrginDB.AVALUE_48;
+                            brgMp.ACODE_49 = tempBrginDB.ACODE_49;
+                            brgMp.ANAME_49 = tempBrginDB.ANAME_49;
+                            brgMp.AVALUE_49 = tempBrginDB.AVALUE_49;
+                            brgMp.ACODE_50 = tempBrginDB.ACODE_50;
+                            brgMp.ANAME_50 = tempBrginDB.ANAME_50;
+                            brgMp.AVALUE_50 = tempBrginDB.AVALUE_50;
                             #endregion
                             //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
                             brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
@@ -35000,7 +35216,8 @@ namespace MasterOnline.Controllers
                             if (customer.NAMA == "7")
                             {
                                 //merek
-                                var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == data.TempBrg.MEREK).FirstOrDefault();
+                                //var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == data.TempBrg.MEREK).FirstOrDefault();
+                                var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == tempBrginDB.MEREK).FirstOrDefault();
                                 if (getKodeMerk != null)
                                 {
                                     brgMp.ANAME_38 = data.TempBrg.MEREK;
@@ -35231,15 +35448,23 @@ namespace MasterOnline.Controllers
                             stf02.LINK_GAMBAR_1 = UploadImageService.UploadSingleImageToImgurFromUrl(tempBrg.IMAGE, "uploaded-image").data.link_l;
                         }
                         //remark 19/9/19, barang induk ambil 1 gambar saja
-                        //if (!string.IsNullOrEmpty(tempBrg.IMAGE2))
-                        //{
-                        //    stf02.LINK_GAMBAR_2 = UploadImageService.UploadSingleImageToImgurFromUrl(tempBrg.IMAGE2, "uploaded-image").data.link_l;
-                        //}
-                        //if (!string.IsNullOrEmpty(tempBrg.IMAGE3))
-                        //{
-                        //    stf02.LINK_GAMBAR_3 = UploadImageService.UploadSingleImageToImgurFromUrl(tempBrg.IMAGE3, "uploaded-image").data.link_l;
-                        //}
+                        if (!string.IsNullOrEmpty(tempBrg.IMAGE2))
+                        {
+                            stf02.LINK_GAMBAR_2 = UploadImageService.UploadSingleImageToImgurFromUrl(tempBrg.IMAGE2, "uploaded-image").data.link_l;
+                        }
+                        if (!string.IsNullOrEmpty(tempBrg.IMAGE3))
+                        {
+                            stf02.LINK_GAMBAR_3 = UploadImageService.UploadSingleImageToImgurFromUrl(tempBrg.IMAGE3, "uploaded-image").data.link_l;
+                        }
                         //end remark 19/9/19, barang induk ambil 1 gambar saja
+                        if (!string.IsNullOrEmpty(tempBrg.IMAGE4))
+                        {
+                            stf02.LINK_GAMBAR_4 = UploadImageService.UploadSingleImageToImgurFromUrl(tempBrg.IMAGE4, "uploaded-image").data.link_l;
+                        }
+                        if (!string.IsNullOrEmpty(tempBrg.IMAGE5))
+                        {
+                            stf02.LINK_GAMBAR_5 = UploadImageService.UploadSingleImageToImgurFromUrl(tempBrg.IMAGE5, "uploaded-image").data.link_l;
+                        }
 
                         eraDB.STF02.Add(stf02);
 
@@ -36376,6 +36601,14 @@ namespace MasterOnline.Controllers
                                     {
                                         stf02.LINK_GAMBAR_3 = UploadImageService.UploadSingleImageToImgurFromUrl(item.IMAGE3, "uploaded-image").data.link_l;
                                     }
+                                    if (!string.IsNullOrEmpty(item.IMAGE4))
+                                    {
+                                        stf02.LINK_GAMBAR_4 = UploadImageService.UploadSingleImageToImgurFromUrl(item.IMAGE4, "uploaded-image").data.link_l;
+                                    }
+                                    if (!string.IsNullOrEmpty(item.IMAGE5))
+                                    {
+                                        stf02.LINK_GAMBAR_5 = UploadImageService.UploadSingleImageToImgurFromUrl(item.IMAGE5, "uploaded-image").data.link_l;
+                                    }
 
                                     eraDB.STF02.Add(stf02);
                                     var brgMp = new STF02H();
@@ -36709,6 +36942,7 @@ namespace MasterOnline.Controllers
             {
                 //ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST == cust).ToList(),
                 ListMarket = ErasoftDbContext.ARF01.ToList(),
+                TempArf01 = ErasoftDbContext.ARF01.Where(t => t.CUST == cust).FirstOrDefault(),
                 Stf02 = new STF02(),
                 TempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp.ToUpper()) && t.CUST == cust).FirstOrDefault(),
                 ListKategoriMerk = ErasoftDbContext.STF02E.Where(m => m.LEVEL.Equals("2")).OrderBy(m => m.KET).ToList(),
@@ -37192,7 +37426,7 @@ namespace MasterOnline.Controllers
                                     }
                                 case "BLIBLI":
                                     var BliApi = new BlibliController();
-                                    if (string.IsNullOrEmpty(arf01.TOKEN))
+                                    if (string.IsNullOrEmpty(arf01.TOKEN) && arf01.KD_ANALISA != "2")
                                     {
                                         return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
                                     }
@@ -37360,9 +37594,12 @@ namespace MasterOnline.Controllers
                                     {
                                         JDIDAPIData data = new JDIDAPIData()
                                         {
+                                            no_cust = arf01.CUST,
                                             accessToken = arf01.TOKEN,
                                             appKey = arf01.API_KEY,
                                             appSecret = arf01.API_CLIENT_U,
+                                            email = arf01.EMAIL,
+                                            DatabasePathErasoft = dbPathEra
                                         };
                                         var resultJD = JDApi.getListProduct(data, page, cust, recordCount, totalData);
                                         retBarang.exception = resultJD.exception;
@@ -40029,12 +40266,21 @@ namespace MasterOnline.Controllers
                 {
                     isiDetailpacking.SO_STATUS_KIRIM = cariSO.status_kirim;
                     isiDetailpacking.SO_TRACKING_NUMBER = cariSO.TRACKING_SHIPMENT;
+                    //ADD BY NURUL 22/7/2020
+                    isiDetailpacking.NO_REFERENSI = cariSO.NO_REFERENSI;
+                    isiDetailpacking.STATUS_PRINT = cariSO.status_print;
+                    isiDetailpacking.BARCODE = cariSO.TIPE_KIRIM;
+                    //END ADD BY NURUL 22/7/2020
                 }
                 vm.listDetailPacking.Add(isiDetailpacking);
             }
 
             vm.listRekapBarang = new List<RekapBarang>();
-            var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
+            //CHANGE BY NURUL 22/7/2020
+            //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
+            //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(A.QTY) QTY, ISNULL(C.BRG_CUST,'') AS BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT01B C ON A.NO_PESANAN=C.NO_BUKTI AND A.BRG=C.BRG WHERE A.NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, C.BRG_CUST");
+            var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(B.WARNA,'') as BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, B.WARNA");
+            //END CHANGE BY NURUL 22/7/2020
             for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
             {
                 var newData = new RekapBarang
@@ -40042,6 +40288,9 @@ namespace MasterOnline.Controllers
                     BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
                     NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
                     QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
+                    //ADD BY NURUL 22/7/2020
+                    BARCODE = dsRekap.Tables[0].Rows[i]["BARCODE"].ToString(),
+                    //END ADD BY NURUL 22/7/2020
                 };
                 vm.listRekapBarang.Add(newData);
             }
@@ -40327,7 +40576,8 @@ namespace MasterOnline.Controllers
             retData.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
             if (mode == "1")
             {
-                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.NO_PESANAN, A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, QTY, PEMBELI, MARKETPLACE FROM SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT03B C ON A.NO_BUKTI = C.NO_BUKTI AND A.NO_PESANAN = C.NO_PESANAN WHERE A.NO_BUKTI = '" + nobuk + "' ORDER BY A.NO_PESANAN, NAMA_BARANG");
+                //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.NO_PESANAN, A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, QTY, PEMBELI, MARKETPLACE FROM SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT03B C ON A.NO_BUKTI = C.NO_BUKTI AND A.NO_PESANAN = C.NO_PESANAN WHERE A.NO_BUKTI = '" + nobuk + "' ORDER BY A.NO_PESANAN, NAMA_BARANG");
+                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.NO_PESANAN, A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, QTY, PEMBELI, MARKETPLACE, ISNULL(D.NO_REFERENSI,'') AS NO_REFERENSI FROM SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT03B C ON A.NO_BUKTI = C.NO_BUKTI AND A.NO_PESANAN = C.NO_PESANAN INNER JOIN SOT01A D ON A.NO_PESANAN = D.NO_BUKTI WHERE A.NO_BUKTI = '" + nobuk + "' ORDER BY A.NO_PESANAN, NAMA_BARANG");
                 var retRekap = new List<RekapBarang>();
                 if (dsRekap.Tables[0].Rows.Count > 0)
                 {
@@ -40336,6 +40586,7 @@ namespace MasterOnline.Controllers
                         var newData = new RekapBarang
                         {
                             NO_PESANAN = dsRekap.Tables[0].Rows[i]["NO_PESANAN"].ToString(),
+                            NO_REFERENSI = dsRekap.Tables[0].Rows[i]["NO_REFERENSI"].ToString(),
                             BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
                             NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
                             PEMBELI = dsRekap.Tables[0].Rows[i]["PEMBELI"].ToString(),
@@ -40515,6 +40766,9 @@ namespace MasterOnline.Controllers
                 case "17":
                     viewName = "PackingListShopee";
                     break;
+                case "19":
+                    viewName = "PackingListJDID";
+                    break;
                 //case "20":
                 //    viewName = "PackingList82Cart";
                 //    break;
@@ -40583,6 +40837,9 @@ namespace MasterOnline.Controllers
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.CUST,A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item, isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no, A.recnum as so_recnum ";
             sSQLSelect += ", A.NO_PO_CUST as no_job ";
+            //add by nurul 22/7/2020
+            sSQLSelect += ", isnull(A.status_print,'') AS status_print ";
+            //end add by nurul 22/7/2020
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
             string sSQL2 = "";
@@ -40610,6 +40867,30 @@ namespace MasterOnline.Controllers
 
             IPagedList<PackingPerMP> pageOrders = new StaticPagedList<PackingPerMP>(pageContent, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView(viewName, pageOrders);
+        }
+
+        public ActionResult SaveNoResiPesananJDID(string idpesanan, string noresi)
+        {
+            try
+            {
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
+
+                if(noresi != null && idpesanan != null)
+                {
+
+                    var dataPesanan = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == idpesanan).SingleOrDefault();
+                    dataPesanan.TRACKING_SHIPMENT = noresi.ToString();
+                    ErasoftDbContext.SaveChanges();
+                    var successCount = listSuccess.Count();
+                    return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "No Resi Kosong." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses tambah no resi. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
         }
 
         public ActionResult RequestPickupTokpedPerPacking(string cust, string bukti, List<string> rows_selected)
@@ -45157,6 +45438,10 @@ namespace MasterOnline.Controllers
             int successCount = 0;
             string packingNo = "";
 
+            //add by nurul 12/8/2020
+            List<string> brgTidakProses = new List<string>();
+            //end add by nurul 12/8/2020
+
             try
             {
 
@@ -45209,6 +45494,7 @@ namespace MasterOnline.Controllers
                 var getlistSO = ErasoftDbContext.Database.SqlQuery<listProsesUbahStatusPackingTransaction>(sSql1).ToList();
                 if (getlistSO.Count() > 0)
                 {
+                    
                     var lastNobuk = "";
                     var lastNobukRecnum = "";
                     var validNobuk = true;
@@ -45252,7 +45538,14 @@ namespace MasterOnline.Controllers
                                 var tokpedApi = new TokopediaControllerJob();
                                 //#if (DEBUG || Debug_AWS)
                                 //Task.Run(() => tokpedApi.JOBCOD(data, Nobuk, SOA_NOREF).Wait());
-                                Task.Run(() => tokpedApi.JOBCOD(data, Nobuk, dsSORow.SOA_NOREF).Wait());
+#if (DEBUG || Debug_AWS)
+                                Task.Run(() => tokpedApi.JOBCOD1(data, Nobuk, dsSORow.SOA_NOREF).Wait());
+#else                            
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.JOBCOD1(data, Nobuk, dsSORow.SOA_NOREF));
+#endif
+                                //Task.Run(() => tokpedApi.JOBCOD(data, Nobuk, dsSORow.SOA_NOREF).Wait());
                                 //var kodeBookingTokped = tokpedApi.JOBCOD(data, Nobuk, SOA_NOREF);
                                 //if (kodeBookingTokped.Result.ToString() == "")
                                 //{
@@ -45327,12 +45620,12 @@ namespace MasterOnline.Controllers
                         {
                             if (validNobuk & lastNobuk != "")
                             {
-                                var doUpdateSOB = "SELECT 0 NO_URUT, LOKASI INTO #TEMP_SOT01B FROM SOT01B WHERE 0=1; " + Environment.NewLine;
-                                doUpdateSOB += "INSERT INTO #TEMP_SOT01B (NO_URUT,LOKASI) VALUES " + Environment.NewLine;
-                                stringUpdateSOB = stringUpdateSOB.Substring(0, stringUpdateSOB.Length - 1) + ";" + Environment.NewLine;
-                                stringUpdateSOB += "UPDATE B SET LOKASI = TEMP.LOKASI, QTY_N = QTY FROM SOT01B B INNER JOIN #TEMP_SOT01B TEMP ON B.NO_URUT = TEMP.NO_URUT;";
+                                //var doUpdateSOB = "SELECT 0 NO_URUT, LOKASI INTO #TEMP_SOT01B FROM SOT01B WHERE 0=1; " + Environment.NewLine;
+                                //doUpdateSOB += "INSERT INTO #TEMP_SOT01B (NO_URUT,LOKASI) VALUES " + Environment.NewLine;
+                                //stringUpdateSOB = stringUpdateSOB.Substring(0, stringUpdateSOB.Length - 1) + ";" + Environment.NewLine;
+                                //stringUpdateSOB += "UPDATE B SET LOKASI = TEMP.LOKASI, QTY_N = QTY FROM SOT01B B INNER JOIN #TEMP_SOT01B TEMP ON B.NO_URUT = TEMP.NO_URUT;";
 
-                                EDB.ExecuteSQL("sConn", CommandType.Text, doUpdateSOB + stringUpdateSOB);
+                                //EDB.ExecuteSQL("sConn", CommandType.Text, doUpdateSOB + stringUpdateSOB);
 
                                 listSuccessRecnum.Add(Convert.ToInt32(lastNobukRecnum));
                                 listSuccess.Add(lastNobuk);
@@ -45357,6 +45650,7 @@ namespace MasterOnline.Controllers
                         var qtyOnHand = GetQOHSTF08A(dsSORow.BRG, gudang);
                         if (qtyOnHand + (dsSORow.QTY_N > 0 ? (dsSORow.LOKASI == gudang ? dsSORow.QTY_N : 0) : 0) - dsSORow.QTY < 0)
                         {
+                            brgTidakProses.Add(dsSORow.SOB_RECNUM.ToString());
                             validNobuk = false;
                             var inListError = listError.Where(p => p.no_bukti_so == Nobuk).FirstOrDefault();
                             if (inListError == null)
@@ -45382,16 +45676,40 @@ namespace MasterOnline.Controllers
                     }
                     if (validNobuk)
                     {
-                        var doUpdateSOB = "SELECT 0 NO_URUT, LOKASI INTO #TEMP_SOT01B FROM SOT01B WHERE 0=1; " + Environment.NewLine;
-                        doUpdateSOB += "INSERT INTO #TEMP_SOT01B (NO_URUT,LOKASI) VALUES " + Environment.NewLine;
-                        stringUpdateSOB = stringUpdateSOB.Substring(0, stringUpdateSOB.Length - 1) + ";" + Environment.NewLine;
-                        stringUpdateSOB += "UPDATE B SET LOKASI = TEMP.LOKASI, QTY_N = QTY FROM SOT01B B INNER JOIN #TEMP_SOT01B TEMP ON B.NO_URUT = TEMP.NO_URUT;";
+                        //var doUpdateSOB = "SELECT 0 NO_URUT, LOKASI INTO #TEMP_SOT01B FROM SOT01B WHERE 0=1; " + Environment.NewLine;
+                        //doUpdateSOB += "INSERT INTO #TEMP_SOT01B (NO_URUT,LOKASI) VALUES " + Environment.NewLine;
+                        //stringUpdateSOB = stringUpdateSOB.Substring(0, stringUpdateSOB.Length - 1) + ";" + Environment.NewLine;
+                        //stringUpdateSOB += "UPDATE B SET LOKASI = TEMP.LOKASI, QTY_N = QTY FROM SOT01B B INNER JOIN #TEMP_SOT01B TEMP ON B.NO_URUT = TEMP.NO_URUT;";
 
-                        EDB.ExecuteSQL("sConn", CommandType.Text, doUpdateSOB + stringUpdateSOB);
-
+                        //EDB.ExecuteSQL("sConn", CommandType.Text, doUpdateSOB + stringUpdateSOB);
                         listSuccessRecnum.Add(Convert.ToInt32(lastNobukRecnum));
                         listSuccess.Add(lastNobuk);
                     }
+
+                    //add by nurul 12/8/2020
+                    if (brgTidakProses.Count() < getlistSO.Count())
+                    {
+                        var stringListRecnumSOB = "";
+                        for (int i = 0; i < getlistSO.Count(); i++)
+                        {
+                            if (!string.IsNullOrWhiteSpace(getlistSO[i].SOB_RECNUM.ToString()))
+                            {
+                                var a = getlistSO[i].SOB_RECNUM.ToString();
+                                if (!brgTidakProses.Contains(a))
+                                {
+                                    if (stringListRecnumSOB != "")
+                                    {
+                                        stringListRecnumSOB += ",";
+                                    }
+
+                                    stringListRecnumSOB += "'" + getlistSO[i].SOB_RECNUM.ToString().Trim() + "'";
+                                }
+                            }
+                        }
+                        var sSQL4 = "update sot01b set lokasi = '" + default_gudang + "' , qty_n = qty where isnull(lokasi,'')='' and no_urut in (" + stringListRecnumSOB + ")";
+                        ErasoftDbContext.Database.ExecuteSqlCommand(sSQL4);
+                    }
+                    //end add by nurul 12/8/2020
                 }
 
                 successCount = listSuccess.Count();
@@ -45897,7 +46215,14 @@ namespace MasterOnline.Controllers
                                     context.SaveChanges();
 
                                     //add by nurul 6/2/2020, tambah update sit01a untuk trigger create art01d
-                                    context.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = newSIT01A.BRUTO });
+                                    //context.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = newSIT01A.BRUTO });
+#if (DEBUG || Debug_AWS)
+                                Task.Run(() => new StokControllerJob().updateBrutoSit01a("", dbPathEra, usernameLogin, noOrder, newSIT01A.BRUTO).Wait());
+#else                            
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                clientJobServer.Enqueue<StokControllerJob>(x => x.updateBrutoSit01a("", dbPathEra, usernameLogin, noOrder, newSIT01A.BRUTO));
+#endif
                                     //end add by nurul 6/2/2020, tambah update sit01a untuk trigger create art01d
                                 }
                                 context.SOT03B.AddRange(newpackingdetail);
@@ -48323,7 +48648,40 @@ namespace MasterOnline.Controllers
                                             {
                                                 if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 2].Value)))
                                                 {
-                                                    if (Convert.ToString(worksheet.Cells[i, 2].Value).Split(' ').First() == "Transaksi" || Convert.ToString(worksheet.Cells[i, 2].Value).Split(' ').First() == "Pemotongan")
+                                                    //CHANGE BY NURUL 24/8/2020
+                                                    //if (Convert.ToString(worksheet.Cells[i, 2].Value).Split(' ').First() == "Transaksi" || Convert.ToString(worksheet.Cells[i, 2].Value).Split(' ').First() == "Pemotongan")
+                                                    //{
+                                                    //    var tempData = new mdlTempBayarTokped() { };
+                                                    //    if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 1].Value)))
+                                                    //    {
+                                                    //        tempData.TGL = Convert.ToDateTime(worksheet.Cells[i, 1].Value);
+                                                    //    }
+                                                    //    if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 2].Value)))
+                                                    //    {
+                                                    //        //var tempDesc = Convert.ToString(worksheet.Cells[i, 2].Value).Split('-');
+                                                    //        var tempDesc = Convert.ToString(worksheet.Cells[i, 2].Value).Split(new string[] { "INV/" }, StringSplitOptions.None);
+                                                    //        tempData.KETERANGAN = tempDesc[0];
+                                                    //        //tempData.REF = tempDesc[1].Substring[1];
+                                                    //        if (tempDesc[1].Contains(" "))
+                                                    //        {
+                                                    //            var getref = tempDesc[1].Split(' ');
+                                                    //            tempData.REF = "INV/" + getref[0];
+                                                    //        }
+                                                    //        else
+                                                    //        {
+                                                    //            tempData.REF = "INV/" + tempDesc[1];
+                                                    //        }
+
+                                                    //    }
+                                                    //    if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
+                                                    //    {
+                                                    //        tempData.NILAI = Convert.ToDouble(worksheet.Cells[i, 3].Value);
+                                                    //    }
+                                                    //    recordsTokped.Add(tempData);
+                                                    //    ret.sudahSimpanTemp = true;
+                                                    //}
+
+                                                    if (Convert.ToString(worksheet.Cells[i, 2].Value).Contains("INV/"))
                                                     {
                                                         var tempData = new mdlTempBayarTokped() { };
                                                         if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 1].Value)))
@@ -48332,10 +48690,16 @@ namespace MasterOnline.Controllers
                                                         }
                                                         if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 2].Value)))
                                                         {
-                                                            //var tempDesc = Convert.ToString(worksheet.Cells[i, 2].Value).Split('-');
                                                             var tempDesc = Convert.ToString(worksheet.Cells[i, 2].Value).Split(new string[] { "INV/" }, StringSplitOptions.None);
-                                                            tempData.KETERANGAN = tempDesc[0];
-                                                            //tempData.REF = tempDesc[1].Substring[1];
+                                                            var first = tempDesc[0].Split(' ').First();
+                                                            if (first.Contains("Transaksi") || first.Contains("Pemotongan"))
+                                                            {
+                                                                tempData.KETERANGAN = tempDesc[0];
+                                                            }
+                                                            else
+                                                            {
+                                                                tempData.KETERANGAN = Convert.ToString(worksheet.Cells[i, 2].Value);
+                                                            }
                                                             if (tempDesc[1].Contains(" "))
                                                             {
                                                                 var getref = tempDesc[1].Split(' ');
@@ -48354,6 +48718,7 @@ namespace MasterOnline.Controllers
                                                         recordsTokped.Add(tempData);
                                                         ret.sudahSimpanTemp = true;
                                                     }
+                                                    //END CHANGE BY NURUL 24/8/2020
                                                 }
                                             }
                                         }
@@ -48581,27 +48946,77 @@ namespace MasterOnline.Controllers
                                                             TGL_INPUT = DateTime.UtcNow.AddHours(7),
                                                             USERNAME = uname
                                                         });
+
+                                        //ADD BY NURUL 24/8/2020
+                                        var cekDipotongKarnaResolusi = new List<string>();
+                                        var cekKetTidakDiketahui = recordsTokped.Where(a => !a.KETERANGAN.Contains("Transaksi") && !a.KETERANGAN.Contains("Pemotongan")).ToList();
+                                        if (cekKetTidakDiketahui.Count() > 0)
+                                        {
+                                            for (int i = 0; i < cekKetTidakDiketahui.Count(); i++)
+                                            {
+                                                if (cekKetTidakDiketahui[i].KETERANGAN.Contains("Dipotong karena Solusi dari Resolusi"))
+                                                {
+                                                    cekDipotongKarnaResolusi.Add(cekKetTidakDiketahui[i].REF);
+                                                    var nilai = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "Rp. {0:N}", cekKetTidakDiketahui[i].NILAI);
+                                                    TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                    {
+                                                        LOG_FILE = ret.buktiLog,
+                                                        VARIABLE_1 = ret.nobuk,
+                                                        VARIABLE_2 = ret.TipeData,
+                                                        TEXT_1 = "Transaksi dengan No. Invoice " + cekKetTidakDiketahui[i].REF + " Dipotong karena Solusi dari Resolusi senilai " + nilai + ".<br />",
+                                                        TEXT_2 = cekKetTidakDiketahui[i].REF,
+                                                        TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                        USERNAME = uname
+                                                    };
+                                                    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                                    ErasoftDbContext.SaveChanges();
+                                                }
+                                                else
+                                                {
+                                                    var nilai = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "Rp. {0:N}", cekKetTidakDiketahui[i].NILAI);
+                                                    TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                    {
+                                                        LOG_FILE = ret.buktiLog,
+                                                        VARIABLE_1 = ret.nobuk,
+                                                        VARIABLE_2 = ret.TipeData,
+                                                        TEXT_1 = "Transaksi " + cekKetTidakDiketahui[i].KETERANGAN + " belum ada dalam perhitungan senilai " + nilai + ".<br />",
+                                                        TEXT_2 = cekKetTidakDiketahui[i].REF,
+                                                        TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                        USERNAME = uname
+                                                    };
+                                                    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                                    ErasoftDbContext.SaveChanges();
+                                                }
+                                            }
+                                        }                                        
+                                        //END ADD BY NURUL 24/8/2020
+
                                         ErasoftDbContext.Database.ExecuteSqlCommand("update ART03A set LOG_FILE = '" + ret.buktiLog + ";" + detail1.Count().ToString() + "' where BUKTI ='" + ret.nobuk + "' and LOG_FILE ='" + ret.buktiLog + "'");
                                         foreach (var bayar in detail1)
                                         {
-                                            TEMP_UPLOAD_EXCEL_BAYAR rec = new TEMP_UPLOAD_EXCEL_BAYAR()
+                                            //ADD BY NURUL 24/8/2020
+                                            if (!cekDipotongKarnaResolusi.Contains(bayar.NOREF))
                                             {
-                                                NAMA_FILE = bayar.NAMA_FILE,
-                                                CUST = bayar.CUST,
-                                                MARKETPLACE = bayar.MARKETPLACE,
-                                                NOREF = bayar.NOREF,
-                                                TGL = bayar.TGL,
-                                                BAYAR = bayar.BAYAR,
-                                                POTONGAN = bayar.POTONGAN,
-                                                NILAI_REF = bayar.NILAI_REF,
-                                                NILAI_LAIN = bayar.NILAI_LAIN,
-                                                TGL_INPUT = bayar.TGL_INPUT,
-                                                SUDAH_INPUT = bayar.SUDAH_INPUT,
-                                                USERNAME = bayar.USERNAME,
-                                                KET = bayar.KET
-                                            };
-                                            ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Add(rec);
-                                            ErasoftDbContext.SaveChanges();
+                                            //END ADD BY NURUL 24/8/2020
+                                                TEMP_UPLOAD_EXCEL_BAYAR rec = new TEMP_UPLOAD_EXCEL_BAYAR()
+                                                {
+                                                    NAMA_FILE = bayar.NAMA_FILE,
+                                                    CUST = bayar.CUST,
+                                                    MARKETPLACE = bayar.MARKETPLACE,
+                                                    NOREF = bayar.NOREF,
+                                                    TGL = bayar.TGL,
+                                                    BAYAR = bayar.BAYAR,
+                                                    POTONGAN = bayar.POTONGAN,
+                                                    NILAI_REF = bayar.NILAI_REF,
+                                                    NILAI_LAIN = bayar.NILAI_LAIN,
+                                                    TGL_INPUT = bayar.TGL_INPUT,
+                                                    SUDAH_INPUT = bayar.SUDAH_INPUT,
+                                                    USERNAME = bayar.USERNAME,
+                                                    KET = bayar.KET
+                                                };
+                                                ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Add(rec);
+                                                ErasoftDbContext.SaveChanges();
+                                            }
                                         }
 
                                         list_ref = ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == ret.nobuk && a.NAMA_FILE == ret.TipeData && a.CUST == cust_id).Select(A => A.NOREF).ToList();
@@ -52052,6 +52467,310 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 23/12/2019
 
+        //add by fauzi
+        public ActionResult JDIDLabelPerPacking(string cust, string bukti, List<string> rows_selected, string label)
+        {
+            try
+            {
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                string sSQL2 = "";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+
+                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+
+                //List<string> orderItemIds = new List<string>();
+                List<string> temp_htmlString = new List<string>();
+                List<string> temp_base64String = new List<string>();
+                List<string> temp_strmsg = new List<string>();
+                List<string> temp_strmsg_label = new List<string>();
+                
+                List<string> temp_printLabel = new List<string>();
+
+                //add by nurul 16/12/2019
+                //bool gakketemulagi = false;
+                var tempLblTokped = new List<tempLabelTokopedia>();
+
+                //var lastIndexHeader = 0;
+                //var lastIndexResi = 0;
+                //var lastIndexInvoice = 0;
+                //var lastIndexInsurance = 0;
+                //var lastIndexAddress = 0;
+                //var lastIndexProduct = 0;
+
+                //end add by nurul 16/12/2019
+
+                var listNobuk = "";
+                var Valid = false;
+                //ADD BY NURUL 24/2/2020
+                if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
+                {
+                    if (marketPlace.STATUS_API == "1")
+                    {
+                        Valid = true;
+                    }
+                    else
+                    {
+                        return new JsonResult { Data = new { mo_error = "Account link status is expired." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                var string_detailSO = "";
+                foreach (var nobuk in ListStt01a)
+                {
+                    if (string_detailSO != "")
+                    {
+                        string_detailSO += ",";
+                    }
+
+                    string_detailSO += "'" + nobuk.no_bukti + "'";
+                }
+                string ssql = "SELECT ORDER_ITEM_ID,NO_BUKTI FROM SOT01B WHERE NO_BUKTI IN (" + string_detailSO + ") ";
+                var listDetailSo = ErasoftDbContext.Database.SqlQuery<ORDERITEMSO>(ssql).ToList();
+                var hitungDetail = listDetailSo.Count();
+
+                JDIDControllerJob.JDIDAPIDataJob data = new JDIDControllerJob.JDIDAPIDataJob
+                {
+                    no_cust = marketPlace.CUST,
+                    accessToken = marketPlace.TOKEN,
+                    appKey = marketPlace.API_KEY,
+                    appSecret = marketPlace.API_CLIENT_U,
+                    username = marketPlace.USERNAME,
+                    email = marketPlace.EMAIL,
+                    DatabasePathErasoft = dbPathEra
+                };
+                foreach (var so in ListStt01a)
+                {
+                    if (listNobuk != "")
+                    {
+                        listNobuk += ",";
+                    }
+                    listNobuk += "'" + so.no_bukti + "'";
+                    if (Valid)
+                    {
+                        var jdidjob = new JDIDControllerJob();
+
+                        var retApi = jdidjob.JD_printLabelJDID(data, so.no_referensi);
+                        if (!retApi.Result.ToString().Contains("error"))
+                        {
+                            
+                            #region initial folder
+                            string messageErrorLog = "";
+                            string filename = "JDID_print_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                            #endregion
+
+                            if (!System.IO.File.Exists(path))
+                            {
+                                System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                                FileStream stream = System.IO.File.Create(path);
+                                byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
+                                stream.Write(byteArray, 0, byteArray.Length);
+                                stream.Close();
+                                temp_printLabel.Add(path);
+                            }
+
+                            var sql = "update SOT01A set status_print = '1', status_kirim = '1' where no_bukti in ('" + so.no_bukti + "')";
+                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
+                        }
+                        else
+                        {
+                            temp_strmsg_label.Add(retApi.Result.ToString());
+                        }
+                    }
+                }
+                
+                if (temp_printLabel.Count() > 0)
+                {
+                    return new JsonResult { Data = new { mo_label = temp_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    if (label == "1")
+                    {
+                        //return new JsonResult { Data = new { mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        //return Json(temp_htmlString, JsonRequestBehavior.AllowGet);
+                        return new JsonResult { Data = new { mo_label = temp_strmsg_label }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                    else if (label == "2")
+                    {
+                        return new JsonResult { Data = new { mo_label = temp_strmsg_label }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        //return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            return JsonErrorMessage("This Function is for JD.ID only");
+        }
+        //end by fauzi
+
+        //add by fauzi
+        public ActionResult ReadyToShipJDIDPerPacking(string cust, string bukti, List<string> rows_selected, string label)
+        {
+            try
+            {
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir,A.TRACKING_SHIPMENT as tracking_no, 0 as jumlah_item ";
+                string sSQL2 = "";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+
+                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                
+                List<string> temp_base64String = new List<string>();
+                List<string> temp_strmsg = new List<string>();
+                List<string> temp_strmsg_label = new List<string>();
+
+                List<string> temp_printLabel = new List<string>();
+
+                var listErrors = new List<PackingListErrors>();
+
+                var listNobuk = "";
+                var Valid = false;
+                //ADD BY NURUL 24/2/2020
+                if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
+                {
+                    if (marketPlace.STATUS_API == "1")
+                    {
+                        Valid = true;
+                    }
+                    else
+                    {
+                        return new JsonResult { Data = new { mo_error = "Account link status is expired." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                var string_detailSO = "";
+                foreach (var nobuk in ListStt01a)
+                {
+                    if (string_detailSO != "")
+                    {
+                        string_detailSO += ",";
+                    }
+
+                    string_detailSO += "'" + nobuk.no_bukti + "'";
+                }
+                string ssql = "SELECT ORDER_ITEM_ID,NO_BUKTI FROM SOT01B WHERE NO_BUKTI IN (" + string_detailSO + ") ";
+                var listDetailSo = ErasoftDbContext.Database.SqlQuery<ORDERITEMSO>(ssql).ToList();
+                var hitungDetail = listDetailSo.Count();
+                var hitungSuccess = 0;
+
+                JDIDControllerJob.JDIDAPIDataJob data = new JDIDControllerJob.JDIDAPIDataJob
+                {
+                    no_cust = marketPlace.CUST,
+                    accessToken = marketPlace.TOKEN,
+                    appKey = marketPlace.API_KEY,
+                    appSecret = marketPlace.API_CLIENT_U,
+                    username = marketPlace.USERNAME,
+                    email = marketPlace.EMAIL,
+                    DatabasePathErasoft = dbPathEra
+                };
+                foreach (var so in ListStt01a)
+                {
+                    if (listNobuk != "")
+                    {
+                        listNobuk += ",";
+                    }
+                    listNobuk += "'" + so.no_bukti + "'";
+                    if (Valid)
+                    {
+                        var jdidjob = new JDIDControllerJob();
+
+                        var retApi = jdidjob.JD_sendGoodJDID(data, so.no_referensi, so.tracking_no);
+                        if (!retApi.Result.ToString().ToLower().Contains("error"))
+                        {
+                            hitungSuccess += 1;
+                            var sql = "update SOT01A set status_kirim = '2' where no_bukti in ('" + so.no_bukti + "')";
+                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
+                        }
+                        else
+                        {
+                            listErrors.Add(new PackingListErrors
+                            {
+                                keyname = so.no_bukti,
+                                errorMessage = retApi.Result.ToString()
+                            });
+                            temp_strmsg_label.Add(retApi.Result.ToString());
+                        }
+                    }
+                }
+
+                if (temp_printLabel.Count() > 0)
+                {
+                    return new JsonResult { Data = new { result = temp_printLabel, successCount = hitungSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    return new JsonResult { Data = new { listErrors, result = temp_strmsg_label, successCount = hitungSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            return JsonErrorMessage("This Function is for JD.ID only");
+        }
+        //end by fauzi
+
         //add by nurul 11/12/2019, cetak label pesanan
         public ActionResult CetakLabelMo(string cust, string bukti, string[] rows_selected, string toko, string tlpToko, string ctkLabel, string alLink, string noLink, string namaLink, string mpLink, string nobukLink, string totalLink, string portLink, string refLink, List<tempBarcodeLazada> data, string ketLink)
         {
@@ -53464,13 +54183,73 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public ActionResult SaveDetailReturInvoice(string get_selected, string bukti, string noref, string gudang)
+        //add by nurul 27/8/2020
+        public ActionResult validasiQOHReturInvoice(string get_selected, string noref, string gudang, string get_selected_qty)
+        {
+            var temp_brg = "";
+            var rec_detail = new List<string>();
+            var rec_qty = new List<string>();
+            if (get_selected != null && get_selected != "")
+            {
+                rec_detail = get_selected.Split(',').ToList();
+                foreach (var rec in rec_detail)
+                {
+                    if (temp_brg != "")
+                    {
+                        temp_brg += ",";
+                    }
+
+                    temp_brg += "'" + rec + "'";
+                }
+            }
+            else
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Tidak ada barang yang dipilih.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            if (get_selected_qty != null && get_selected_qty != "")
+            {
+                rec_qty = get_selected_qty.Split(';').ToList();
+            }
+            var invoiceDetailInDb = ErasoftDbContext.PBT01B.Where(b => b.INV == noref).ToList();
+            if (invoiceDetailInDb.Count() > 0)
+            {
+                var vmError = new InvoiceViewModel()
+                {
+
+                };
+                for (int i = 0; i < rec_detail.Count(); i++)
+                {
+                    var getbrg = invoiceDetailInDb.Where(a => a.NO.ToString() == rec_detail[i]).FirstOrDefault();
+                    var qtyOnHand = GetQOHSTF08A(getbrg.BRG, gudang);
+
+                    var qtyBrg = Convert.ToDouble(rec_qty[i]);
+                    if (qtyOnHand - qtyBrg < 0)
+                    {
+                        vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + gudang + " sisa ( " + Convert.ToString(qtyOnHand) + " )." + System.Environment.NewLine);
+                    }
+                }
+
+                if (vmError.Errors.Count() > 0)
+                {
+                    return new JsonResult { Data = new { mo_error = vmError.Errors.ToArray(), mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+            }
+            else
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            return new EmptyResult();
+        }
+        //end add by nurul 27/8/2020
+
+        public ActionResult SaveDetailReturInvoice(string get_selected, string bukti, string noref, string gudang, string get_selected_qty)
         {
             try
             {
                 bool returBaru = false;
                 var temp_brg = "";
                 var rec_detail = new List<string>();
+                var rec_qty = new List<string>();
                 if (get_selected != null && get_selected != "")
                 {
                     rec_detail = get_selected.Split(',').ToList();
@@ -53521,26 +54300,56 @@ namespace MasterOnline.Controllers
                     return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
 
+                //add by nurul 26/8/2020
+                if (get_selected_qty != null && get_selected_qty != "")
+                {
+                    rec_qty = get_selected_qty.Split(';').ToList();
+                    //foreach (var rec in rec_qty)
+                    //{
+                    //    if (temp_brg != "")
+                    //    {
+                    //        temp_brg += ",";
+                    //    }
+
+                    //    temp_brg += "'" + rec + "'";
+                    //}
+                    //returBaru = true;
+                }
+                //end add by nurul 26/8/2020
+
                 var invoiceDetailInDb = ErasoftDbContext.PBT01B.Where(b => b.INV == noref).ToList();
                 if (invoiceDetailInDb.Count() > 0)
                 {
-                    foreach (var item in rec_detail)
+                    //foreach (var item in rec_detail)
+                    var vmError = new InvoiceViewModel()
                     {
-                        var getbrg = invoiceDetailInDb.Where(a => a.NO.ToString() == item).FirstOrDefault();
+
+                    };
+                    for (int i = 0; i < rec_detail.Count(); i++)
+                    {
+                        var getbrg = invoiceDetailInDb.Where(a => a.NO.ToString() == rec_detail[i]).FirstOrDefault();
                         var qtyOnHand = GetQOHSTF08A(getbrg.BRG, gudang);
 
-                        if (qtyOnHand - getbrg.QTY < 0)
+                        //if (qtyOnHand - getbrg.QTY < 0)
+                        var qtyBrg = Convert.ToDouble(rec_qty[i]);
+                        if (qtyOnHand - qtyBrg < 0)
                         {
-                            var vmError = new InvoiceViewModel()
-                            {
-
-                            };
-                            vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + getbrg.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                            
+                            //vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + getbrg.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                            vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + gudang + " sisa ( " + Convert.ToString(qtyOnHand) + " )." + System.Environment.NewLine);
                             //return Json(vmError, JsonRequestBehavior.AllowGet);
-                            string sql1 = "delete from pbt01a where inv='" + bukti + "'";
-                            ErasoftDbContext.Database.ExecuteSqlCommand(sql1);
-                            return new JsonResult { Data = new { mo_error = "Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + getbrg.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                            //string sql1 = "delete from pbt01a where inv='" + bukti + "'";
+                            //ErasoftDbContext.Database.ExecuteSqlCommand(sql1);
+                            //return new JsonResult { Data = new { mo_error = "Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + getbrg.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                            //return new JsonResult { Data = new { mo_error = "Tidak bisa retur, Qty untuk barang ( " + getbrg.BRG + " ) di gudang " + gudang + " sisa ( " + Convert.ToString(qtyOnHand) + " ).", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                         }
+                    }
+
+                    if(vmError.Errors.Count() > 0)
+                    {
+                        string sql1 = "delete from pbt01a where inv='" + bukti + "'";
+                        ErasoftDbContext.Database.ExecuteSqlCommand(sql1);
+                        return new JsonResult { Data = new { mo_error = vmError.Errors.ToArray(), mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
                 }
                 else
@@ -53562,17 +54371,57 @@ namespace MasterOnline.Controllers
                     if (temp_brg.Count() > 0)
                     {
                         //insert detail
+                        //CHANGE BY NURUL 26/8/2020
+                        //string insertDetail = "INSERT INTO PBT01B (JENISFORM,INV,PO,BRG,NAMA_BRG,GD,BK,QTY,DISC2,NDISC2,HBELI,THARGA,NOBUK,AUTO_LOAD, ";
+                        //insertDetail += "   QTY_RETUR,BIAYA,USERNAME,TGLINPUT,TOTAL_LOT,TOTAL_QTY,DISCOUNT_1,DISCOUNT_2,DISCOUNT_3, ";
+                        //insertDetail += "   NILAI_DISC_1,NILAI_DISC_2,NILAI_DISC_3,KET,NO_URUT_PO,PPNBM,NILAI_PPNBM,BRG_ORIGINAL,LKU ";
+                        //insertDetail += "   )";
+                        //insertDetail += "SELECT ";
+                        //insertDetail += "   '2','" + bukti + "',B.PO,B.BRG,B.NAMA_BRG,'" + gudang + "',B.BK,B.QTY,B.DISC2,B.NDISC2,B.HBELI,B.THARGA,B.NOBUK,B.AUTO_LOAD,";
+                        //insertDetail += "   B.QTY_RETUR,B.BIAYA,B.USERNAME,B.TGLINPUT,B.TOTAL_LOT,B.TOTAL_QTY,B.DISCOUNT_1,B.DISCOUNT_2,B.DISCOUNT_3, ";
+                        //insertDetail += "   B.NILAI_DISC_1,B.NILAI_DISC_2,B.NILAI_DISC_3,B.KET,B.NO,B.PPNBM,B.NILAI_PPNBM,B.BRG_ORIGINAL,B.LKU ";
+                        //insertDetail += "FROM PBT01A A LEFT JOIN PBT01B B ON A.INV=B.INV  ";
+                        //insertDetail += "WHERE A.INV='" + noref + "' AND B.NO IN (" + temp_brg + ") ";
+                        //ErasoftDbContext.Database.ExecuteSqlCommand(insertDetail);
                         string insertDetail = "INSERT INTO PBT01B (JENISFORM,INV,PO,BRG,NAMA_BRG,GD,BK,QTY,DISC2,NDISC2,HBELI,THARGA,NOBUK,AUTO_LOAD, ";
                         insertDetail += "   QTY_RETUR,BIAYA,USERNAME,TGLINPUT,TOTAL_LOT,TOTAL_QTY,DISCOUNT_1,DISCOUNT_2,DISCOUNT_3, ";
                         insertDetail += "   NILAI_DISC_1,NILAI_DISC_2,NILAI_DISC_3,KET,NO_URUT_PO,PPNBM,NILAI_PPNBM,BRG_ORIGINAL,LKU ";
-                        insertDetail += "   )";
-                        insertDetail += "SELECT ";
-                        insertDetail += "   '2','" + bukti + "',B.PO,B.BRG,B.NAMA_BRG,'" + gudang + "',B.BK,B.QTY,B.DISC2,B.NDISC2,B.HBELI,B.THARGA,B.NOBUK,B.AUTO_LOAD,";
-                        insertDetail += "   B.QTY_RETUR,B.BIAYA,B.USERNAME,B.TGLINPUT,B.TOTAL_LOT,B.TOTAL_QTY,B.DISCOUNT_1,B.DISCOUNT_2,B.DISCOUNT_3, ";
-                        insertDetail += "   B.NILAI_DISC_1,B.NILAI_DISC_2,B.NILAI_DISC_3,B.KET,B.NO,B.PPNBM,B.NILAI_PPNBM,B.BRG_ORIGINAL,B.LKU ";
-                        insertDetail += "FROM PBT01A A LEFT JOIN PBT01B B ON A.INV=B.INV  ";
-                        insertDetail += "WHERE A.INV='" + noref + "' AND B.NO IN (" + temp_brg + ") ";
+                        insertDetail += "   ) ";
+                        for (int i = 0; i < rec_detail.Count(); i++)
+                        {
+                            var qtyBrg = Convert.ToDouble(rec_qty[i]);
+                            var detail = rec_detail[i];
+                            if (rec_detail.Count() > 0)
+                            {
+                                if (rec_detail[i] == rec_detail.First())
+                                {
+                                    insertDetail += " ( ";
+                                }
+                            }
+                                insertDetail += "SELECT ";
+                                insertDetail += "   '2','" + bukti + "',B.PO,B.BRG,B.NAMA_BRG,'" + gudang + "',B.BK,'" + qtyBrg + "',B.DISC2,B.NDISC2,B.HBELI, ";
+                                insertDetail += "   ((" + qtyBrg + " * B.HBELI) - (B.NILAI_DISC_1 + B.NILAI_DISC_2)) AS THARGA, ";
+                                insertDetail += "   B.NOBUK,B.AUTO_LOAD, ";
+                                insertDetail += "   B.QTY_RETUR,B.BIAYA,B.USERNAME,B.TGLINPUT,B.TOTAL_LOT,B.TOTAL_QTY,B.DISCOUNT_1,B.DISCOUNT_2,B.DISCOUNT_3, ";
+                                insertDetail += "   B.NILAI_DISC_1,B.NILAI_DISC_2,B.NILAI_DISC_3,B.KET,B.NO,B.PPNBM,B.NILAI_PPNBM,B.BRG_ORIGINAL,B.LKU ";
+                                insertDetail += "FROM PBT01A A LEFT JOIN PBT01B B ON A.INV=B.INV  ";
+                                insertDetail += "WHERE A.INV='" + noref + "' AND B.NO IN (" + rec_detail[i] + ")  ";
+                            if(rec_detail.Count() > 0)
+                            {
+                                if (rec_detail[i] != rec_detail.Last())
+                                {
+                                    insertDetail += " union ";
+                                }
+                                if (rec_detail[i] == rec_detail.Last())
+                                {
+                                    insertDetail += ")";
+                                }
+                            }
+                            
+                        }
                         ErasoftDbContext.Database.ExecuteSqlCommand(insertDetail);
+                        //END CHANGE BY NURUL 26/8/2020
+
                         //update header
                         string updateHeader = "UPDATE A SET ";
                         updateHeader += "A.BRUTO=ISNULL(B.BRUTO,0), ";
@@ -53594,9 +54443,10 @@ namespace MasterOnline.Controllers
                         updateHeader += "- ISNULL(B.NDISC1,0) + ISNULL(B.BIAYA_LAIN,0) ";
                         updateHeader += "+ ISNULL( (ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.HBELI,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) - ISNULL(B.NDISC1,0)) * ISNULL(B.PPN,0) /100 ,0) ";
                         updateHeader += ",0) AS NETTO FROM PBT01A B INNER JOIN PBT01B C ON C.INV=B.INV ";
-                        updateHeader += "WHERE B.INV='" + noref + "' AND C.NO in (" + temp_brg + ") ";
+                        //updateHeader += "WHERE B.INV='" + noref + "' AND C.NO in (" + temp_brg + ") ";
+                        updateHeader += "WHERE B.INV='" + bukti + "' ";
                         updateHeader += "GROUP BY B.INV, B.BIAYA_LAIN,B.DISC1,B.NDISC1,B.PPN,B.NPPN  ";
-                        updateHeader += ")B ON A.REF=B.INV WHERE A.INV='" + bukti + "'";
+                        updateHeader += ")B ON A.INV=B.INV WHERE A.INV='" + bukti + "'";
                         ErasoftDbContext.Database.ExecuteSqlCommand(updateHeader);
                     }
 
@@ -53628,11 +54478,334 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                string sql1 = "delete from pbt01a where inv='" + bukti + "'";
+                ErasoftDbContext.Database.ExecuteSqlCommand(sql1);
                 var err = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
         //end add by nurul 8/6/2020
+
+        //add by nurul 24/7/2020
+        public ActionResult refreshTablePackingListPerAkun(string bukti, string cust, string marketplace, string search = "", string filter = "", string filtervalue = "")
+        {
+            var listData = new tempListPacking() {
+                BUKTI = bukti,
+                CUST = cust
+            };
+            string viewName = "";
+            switch (marketplace)
+            {
+                case "LAZADA":
+                    viewName = "ListDetailPackingListLazada";
+                    break;
+                //case "BUKALAPAK":
+                //    viewName = "PackingListBukalapak";
+                //    break;
+                //case "ELEVENIA":
+                //    viewName = "PackingListElevenia";
+                //    break;
+                case "TOKOPEDIA":
+                    viewName = "ListDetailPackingListTokped";
+                    break;
+                case "BLIBLI":
+                    viewName = "ListDetailPackingListBlibli";
+                    break;
+                case "SHOPEE":
+                    viewName = "ListDetailPackingListShopee";
+                    break;
+                //case "20":
+                //    viewName = "PackingList82Cart";
+                //    break;
+                //case "21":
+                //    viewName = "PackingListShopify";
+                //    break;
+                default:
+                    viewName = "";
+                    break;
+            }
+            if (bukti != null && cust != null)
+            {
+                string[] getkata = search.Split(' ');
+                string sSQLkode = "";
+                string sSQLkdbooking = "";
+                string sSQLresi = "";
+                string sSQLpembeli = "";
+                string sSQLkurir = "";
+                string sSQLreferensi = "";
+                string sSQLjob = "";
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
+                    {
+                        for (int i = 0; i < getkata.Length; i++)
+                        {
+                            if (i > 0)
+                            {
+                                sSQLkode += " and ";
+                                sSQLkdbooking += " and ";
+                                sSQLpembeli += " and ";
+                                sSQLresi += " and ";
+                                sSQLkurir += " and ";
+                                sSQLreferensi += " and ";
+                                if (marketplace == "TOKOPEDIA" || marketplace == "SHOPEE")
+                                {
+                                    sSQLjob += " and ";
+                                }
+                            }
+
+                            sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
+                            sSQLkdbooking += "  isnull(A.NO_PO_CUST,'') like '%" + getkata[i] + "%' ";
+                            sSQLpembeli += " B.PEMBELI like '%" + getkata[i] + "%' ";
+                            sSQLresi += "  isnull(A.TRACKING_SHIPMENT,'') like '%" + getkata[i] + "%' ";
+                            sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
+                            sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
+                            if (marketplace == "TOKOPEDIA" || marketplace == "SHOPEE")
+                            {
+                                sSQLjob += " A.NO_PO_CUST like '%" + getkata[i] + "%' ";
+                            }
+                        }
+                    }
+                }
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST,A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item, isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no, A.recnum as so_recnum ";
+                sSQLSelect += ", A.NO_PO_CUST as no_job, isnull(A.status_print,'') AS status_print ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
+                string sSQL2 = "";
+                sSQLSelect += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+                string sSQLTemp = "";
+                switch (filter)
+                {
+                    case "kirim":
+                        {
+                            sSQLTemp = "WHERE ISNULL(STATUS_KIRIM,'') = '" + filtervalue + "' ";
+                        }
+                        break;
+                    case "print":
+                        {
+                            sSQLTemp = "WHERE ISNULL(STATUS_PRINT,'0') = '" + filtervalue + "' ";
+                        }
+                        break;
+                    default:
+                        {
+                            sSQLTemp += "";
+                        }
+                        break;
+                }
+                if (search != "")
+                {
+                    if (sSQLTemp != "")
+                    {
+                        if (marketplace == "TOKOPEDIA" || marketplace == "SHOPEE")
+                        {
+                            sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLjob + ") ) ";
+                        }
+                        else
+                        {
+                            sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                        }
+                    }
+                    else
+                    {
+                        if (marketplace == "TOKOPEDIA" || marketplace == "SHOPEE")
+                        {
+                            sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") or (" + sSQLjob + ") ) ";
+                        }
+                        else
+                        {
+                            sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLkdbooking + ") or (" + sSQLpembeli + ") or (" + sSQLresi + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                        }
+                    }
+                }
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                var listOrder = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLTemp + sSQLSelect2).ToList();
+                listData.listPacking.AddRange(listOrder);
+            }
+            return PartialView(viewName, listData);
+        }
+
+        public ActionResult refreshTablePackingTabPesanan(string bukti, string search = "", string filter = "", string filtervalue = "")
+        {
+            var listData = new templistDetailPacking()
+            {
+                nobuk = bukti
+            };
+            if (bukti != null)
+            {
+                string[] getkata = search.Split(' ');
+                string sSQLkode = "";
+                string sSQLmarket = "";
+                string sSQLresi = "";
+                string sSQLpembeli = "";
+                string sSQLreferensi = "";
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
+                    {
+                        for (int i = 0; i < getkata.Length; i++)
+                        {
+                            if (i > 0)
+                            {
+                                sSQLkode += " and ";
+                                sSQLpembeli += " and ";
+                                //sSQLresi += " and ";
+                                sSQLreferensi += " and ";
+                                sSQLmarket += " and ";
+                            }
+
+                            sSQLkode += " A.NO_PESANAN like '%" + getkata[i] + "%' ";
+                            sSQLpembeli += " a.PEMBELI like '%" + getkata[i] + "%' ";
+                            //sSQLresi += "  isnull(b.TRACKING_SHIPMENT,'') like '%" + getkata[i] + "%' ";
+                            sSQLreferensi += "  b.NO_REFERENSI like '%" + getkata[i] + "%' ";
+                            sSQLmarket += "  a.MARKETPLACE like '%" + getkata[i] + "%' ";
+                        }
+                    }
+                }
+
+                string sSQLSelect = "";
+                sSQLSelect += "select a.RecNum, a.NO_BUKTI, a.PEMBELI, a.TGL_INPUT, a.USERNAME, a.NO_PESANAN, a.TGL_PESANAN, a.MARKETPLACE, ";
+                sSQLSelect += "ISNULL(b.STATUS_KIRIM,'0') AS SO_STATUS_KIRIM, ISNULL(b.TRACKING_SHIPMENT,'') AS SO_TRACKING_NUMBER, ISNULL(b.NO_REFERENSI,'') AS NO_REFERENSI, ISNULL(b.STATUS_PRINT,'0') AS STATUS_PRINT, ISNULL(b.TIPE_KIRIM,0) AS BARCODE  ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
+                string sSQL2 = "";
+                sSQLSelect += "from sot03b a left join sot01a b on a.no_pesanan=b.no_bukti where a.no_bukti = '" + bukti + "' ";
+                string sSQLTemp = "";
+                switch (filter)
+                {
+                    case "kirim":
+                        {
+                            sSQLTemp = "AND ISNULL(b.STATUS_KIRIM,'0') = '" + filtervalue + "' ";
+                        }
+                        break;
+                    case "print":
+                        {
+                            sSQLTemp = "AND ISNULL(b.STATUS_PRINT,'0') = '" + filtervalue + "' ";
+                        }
+                        break;
+                    default:
+                        {
+                            sSQLTemp += "";
+                        }
+                        break;
+                }
+                if (search != "")
+                {
+                    sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLpembeli + ") or (" + sSQLmarket + ") or (" + sSQLreferensi + ") ) ";
+                }
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.RecNum asc ";
+
+                var listOrder = ErasoftDbContext.Database.SqlQuery<SOT03BDetailPacking>(sSQLSelect + sSQL2 + sSQLTemp + sSQLSelect2).ToList();
+                listData.listDetail.AddRange(listOrder);
+            }
+            return PartialView("ListDetailPackingList", listData);
+        }
+        //end add by nurul 24/7/2020
+
+        //add by Tri 13 Aug 2020, refresh stok per brg
+        public ActionResult UpdateStokPerBarang(string brg)
+        {
+            List<string> listBrg = new List<string>();
+
+            listBrg.Add(brg);
+
+            updateStockMarketPlace(listBrg, "[UP_STOK]["+DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss")+"]");
+
+            return JsonErrorMessage("");
+        }
+        //end add by Tri 13 Aug 2020, refresh stok per brg
+
+        //add by nurul 5/8/2020
+        public ActionResult ShowErrorLogPosting(string logErr)
+        {
+            var vm = new LOG_IMPORT_FAKTUR() { };
+            if (logErr != "" && logErr != null)
+            {
+                AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                string uname = sessionData.Account.Username;
+
+                var cekLogPosting = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == "POSTING").OrderByDescending(a => a.UPLOAD_DATETIME).FirstOrDefault();
+                if (cekLogPosting != null && cekLogPosting.LOG_FILE.Contains(sessionData.Account.DatabasePathErasoft))
+                {
+                    var logPath = Path.Combine(Server.MapPath("~/Content/Uploaded/LogPosting/"), cekLogPosting.LOG_FILE);
+                    if (System.IO.File.Exists(logPath))
+                    {
+                        System.IO.File.Delete(logPath);
+                    }
+                }
+
+                string message = "";
+                string filename = "Log_Posting_" + sessionData.Account.DatabasePathErasoft + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+                var path = Path.Combine(Server.MapPath("~/Content/Uploaded/LogPosting/"), filename);
+
+                LOG_IMPORT_FAKTUR newLogImportPosting = new LOG_IMPORT_FAKTUR
+                {
+                    CUST = "POSTING",
+                    UPLOADER = uname,
+                    //change by nurul 28/11/2019
+                    //UPLOAD_DATETIME = DateTime.Now,
+                    UPLOAD_DATETIME = DateTime.UtcNow.AddHours(7),
+                    //end change by nurul 28/11/2019
+                    LOG_FILE = filename,
+                    LAST_FAKTUR_UPLOADED = "",
+                    LAST_FAKTUR_UPLOADED_DATETIME = DateTime.UtcNow.AddHours(7),
+                };
+                ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportPosting);
+                ErasoftDbContext.SaveChanges();
+
+                //bool folderExists = Directory.Exists(Server.MapPath("LogPosting"));
+                //if (!folderExists)
+                //{
+                //    Directory.CreateDirectory(Server.MapPath("LogPosting"));
+                //}
+
+                if (!System.IO.File.Exists(path))
+                {
+                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/LogPosting/"), ""));
+                    var asd = System.IO.File.Create(path);
+                    asd.Close();
+                }
+                StreamWriter tw = new StreamWriter(path);
+                message = logErr + System.Environment.NewLine;
+                tw.WriteLine(message);
+                tw.Close();
+                vm = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == "POSTING").OrderByDescending(a => a.UPLOAD_DATETIME).FirstOrDefault();
+
+            }
+            return PartialView("PostingView", vm);
+        }
+
+        [HttpGet]
+        public FileResult DownloadLogPosting(string filename)
+        {
+            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/LogPosting/"), filename);
+
+            byte[] data = System.IO.File.ReadAllBytes(path);
+            string contentType = MimeMapping.GetMimeMapping(path);
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                FileName = filename,
+                Inline = true,
+            };
+            //Response.AppendHeader("Content-Disposition", cd.ToString());
+
+            return File(data, contentType, filename);
+        }
+
+        public ActionResult ErrorLogPosting()
+        {
+            var vm = new LOG_IMPORT_FAKTUR() {
+                
+            };
+            vm = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == "POSTING").OrderByDescending(a => a.UPLOAD_DATETIME).FirstOrDefault();
+            return PartialView("PostingView", vm);
+        }
+        //end add by nurul 5/8/2020
     }
     public class smolSTF02
     {
