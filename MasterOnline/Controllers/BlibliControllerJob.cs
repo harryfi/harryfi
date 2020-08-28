@@ -7291,7 +7291,7 @@ namespace MasterOnline.Controllers
                 string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
                 string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
                 //if (!string.IsNullOrWhiteSpace(attribute_id))
-                if (!string.IsNullOrWhiteSpace(attribute_id) && (value ?? "null") != "null")
+                if (!string.IsNullOrWhiteSpace(attribute_id) && (value ?? "null") != "null" && !string.IsNullOrEmpty(value))
                 {
                     if (dsFeature.Contains(attribute_id))
                     {
@@ -8866,9 +8866,10 @@ namespace MasterOnline.Controllers
                 string attribute_id = Convert.ToString(attribute["ACODE_" + i.ToString()]);
                 string attribute_name = Convert.ToString(attribute["ANAME_" + i.ToString()]);
                 string attribute_type = Convert.ToString(attribute["ATYPE_" + i.ToString()]);
+                string attribute_vc = Convert.ToString(attribute["AVARCREATE_" + i.ToString()]);
                 if (!string.IsNullOrWhiteSpace(attribute_id))
                 {
-                    if (attribute_type == "DEFINING_ATTRIBUTE" || attribute_name == "Warna")
+                    if (attribute_type == "DEFINING_ATTRIBUTE" || attribute_vc == "1")
                     {
                         dsVariasi.Add(attribute_id);
                     }
@@ -8896,7 +8897,7 @@ namespace MasterOnline.Controllers
             {
                 string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
                 string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
-                if (!string.IsNullOrWhiteSpace(attribute_id) && (attribute_id ?? "null") != "null")
+                if (!string.IsNullOrWhiteSpace(attribute_id) && (value ?? "null") != "null" && !string.IsNullOrEmpty(value))
                 {
                     if (dsFeature.Contains(attribute_id))
                     {
