@@ -25547,15 +25547,17 @@ namespace MasterOnline.Controllers
             //BlibliController bliAPI = new BlibliController();
             //BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
             //{
-            //    merchant_code = "",
-            //    API_client_password = "Serayu112pwt",
-            //    API_client_username = "mta-api-ses-60077",
-            //    API_secret_key = "Serayu112pwt",
+            //    merchant_code = "SES-60077",
+            //    API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
+            //    API_client_username = "mta-api-pterasoftteknologiindonesia-40eb0",
+            //    API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
             //    token = "2f7f7d61-d4c9-4e2e-8dc6-07cd0bca06be",
             //    mta_username_email_merchant = "mochhazam@gmail.com",
             //    mta_password_password_merchant = "Serayu112pwt",
+            //    versiToken = "2",
             //    idmarket = 12
             //};
+            //await bliAPI.GetCategoryTree(iden);
             //List<string> listCategory = new List<string>();
             //listCategory.Add("SA-1000049");
 
