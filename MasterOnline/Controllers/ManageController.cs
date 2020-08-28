@@ -18614,6 +18614,14 @@ namespace MasterOnline.Controllers
             return Json(listPelanggan, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
+        public ActionResult GetPelangganAkunPromo()
+        {
+            //var listPelanggan = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).ToList();
+            var listPelanggan = ErasoftDbContext.ARF01.Where(m => m.NAMA != "16").OrderBy(m => m.NAMA).ToList();
+
+            return Json(listPelanggan, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
         public ActionResult GetPelangganAkunTokpedShopee()
         {
             //change by Tri, 16/7/2019, filter tokped, bl dan offline
