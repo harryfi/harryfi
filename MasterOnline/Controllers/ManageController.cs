@@ -10985,6 +10985,7 @@ namespace MasterOnline.Controllers
                                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                     clientJobServer.Enqueue<BlibliControllerJob>(x => x.GetQueueFeedDetail(iden2, queData));
 #endif
+                                                                break;
                                                             }
                                                         }
                                                     }
@@ -11018,7 +11019,6 @@ namespace MasterOnline.Controllers
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
                                             clientJobServer.Enqueue<BlibliControllerJob>(x => x.ReviseProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", idenJob, null, null));
 #endif
-                                                    break;
                                                 }
                                                 else
                                                 {
