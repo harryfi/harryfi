@@ -1077,6 +1077,7 @@
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
     <Compile Include="Utils\XcelUtils.cs" />
+    <Compile Include="ViewModels\HargaJualMassalViewModel.cs" />
     <Compile Include="ViewModels\mdlTempBayarBlibli.cs" />
     <Compile Include="ViewModels\mdlTempBayarTokped.cs" />
     <Compile Include="ViewModels\mdlSaldoAwal.cs" />
@@ -6419,6 +6420,7 @@
     <Content Include="Views\Manage\PromptBrandJDID.cshtml" />
     <Content Include="Views\Manage\PackingListJDID.cshtml" />
     <Content Include="Views\Manage\ListDetailPackingListJDID.cshtml" />
+    <Content Include="Views\Manage\FormUpdateHargaMassal.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

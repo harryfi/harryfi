@@ -1,0 +1,182 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model MasterOnline.ViewModels.HargaJualMassalViewModel
+@{
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    var context = new MoDbContext("");
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        //context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        Initialize();
+    });
+
+    function getTanggal() {
+        $('#TGL_PROSES').datepicker({
+            format: 'dd/mm/yyyy',
+            language: 'id'
+        }).change(function () {
+            $('#dtProses').val($(this).val());
+            //add by nurul 31/10/2018
+            $(this).datepicker('hide');
+            //end add
+
+        });
+    }
+</script>
+
+<div class="form-horizontal">
+    <div class="row">
+        <div class="col-md-8 col-sm-8 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2 style="font-size: 16px">Update Massal</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <br>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.CUST, "1. Pilih Akun Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            @Html.HiddenFor(m => m.CUST)
+                            <select id="CUSTOMER" placeholder="Harap Pilih" required="required"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>2. Download Excel Harga Jual</label>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <button type="button" class="btn btn-primary" id="btnDownload"><span>Download</span></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>3. Upload Excel Harga Jual (Max 4 excel)</label>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <button type="button" class="btn btn-primary" id="btnUpload"><span>Upload</span></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-8 file_upload_section">
+                            @Html.HiddenFor(m => m.FILE_1)
+                            <input type='file' id='file_upload_excel_1' name="file_upload_excel" onchange="checkfile(this);" multiple
+                                   accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-primary" onclick="deletefileexcel(1);" data-style="expand-right">
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <label>Jumlah barang yang diproses : </label>
+                            <label id="lblJml1">@Model.JML_BRG_1</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-8 file_upload_section">
+                            @Html.HiddenFor(m => m.FILE_2)
+                            <input type='file' id='file_upload_excel_2' name="file_upload_excel" onchange="checkfile(this);" multiple
+                                   accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-primary" onclick="deletefileexcel(2);" data-style="expand-right">
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <label>Jumlah barang yang diproses : </label>
+                            <label id="lblJml2">@Model.JML_BRG_2</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-8 file_upload_section">
+                            @Html.HiddenFor(m => m.FILE_3)
+                            <input type='file' id='file_upload_excel_3' name="file_upload_excel" onchange="checkfile(this);" multiple
+                                   accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-primary" onclick="deletefileexcel(3);" data-style="expand-right">
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <label>Jumlah barang yang diproses : </label>
+                            <label id="lblJml3">@Model.JML_BRG_3</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-8 file_upload_section">
+                            @Html.HiddenFor(m => m.FILE_4)
+                            <input type='file' id='file_upload_excel_4' name="file_upload_excel" onchange="checkfile(this);" multiple
+                                   accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-primary" onclick="deletefileexcel(4);" data-style="expand-right">
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <label>Jumlah barang yang diproses : </label>
+                            <label id="lblJml4">@Model.JML_BRG_4</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.TGL_PROSES, "4. Pilih Tanggal", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            @Html.HiddenFor(m => m.TGL_PROSES)
+                            <div class="input-group date">
+                                <input type="text" id="dtProses" class="form-control" />
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.JAM_PROSES, "5. Pilih Jam", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            @Html.HiddenFor(m => m.JAM_PROSES)
+                            <select id="cbJamProses" placeholder="Harap Pilih" required="required"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <label>6. </label>
+                            @Html.HiddenFor(m => m.STATUS)
+                            <button type="button" class="btn btn-primary" onclick="changeStatus();" data-style="expand-right">
+                                <span>Proses</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
