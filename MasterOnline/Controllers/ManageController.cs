@@ -29454,7 +29454,7 @@ namespace MasterOnline.Controllers
             var stokOpDb = ErasoftDbContext.STT04A.Where(a => a.ID == stokOpId).Single();
             //add by nurul 11/8/2020
             var ssql1 = "";
-            ssql1 += "select count(bukti) from stf09a where tgl > '" + stokOpDb.TGL?.ToString("yyyy-MM-dd 23:59:59") + "'";
+            ssql1 += "select count(bukti) from stf09a where tgl > '" + stokOpDb.TGL?.ToString("yyyy-MM-dd") + "'";
             var cekSTF09A = ErasoftDbContext.Database.SqlQuery<int>(ssql1).Single();
             if (cekSTF09A > 0)
             {
