@@ -45515,40 +45515,82 @@ namespace MasterOnline.Controllers
                         var tempCountQtyBrgX = tempBerhasilUpdate.Where(a => a.brg == dsSORow.BRG).Sum(a => a.qty);
                         var totalQOH = qtyOnHand - tempCountQtyBrgX;
                         //if (qtyOnHand + (dsSORow.QTY_N > 0 ? (dsSORow.LOKASI == gudang ? dsSORow.QTY_N : 0) : 0) - dsSORow.QTY < 0)
-                        if (totalQOH + (dsSORow.QTY_N > 0 ? (dsSORow.LOKASI == gudang ? dsSORow.QTY_N : 0) : 0) - dsSORow.QTY < 0)
-                        //end change by nurul 31/8/2020
+                        var cekQty = (dsSORow.QTY_N > 0 ? (dsSORow.LOKASI == gudang ? dsSORow.QTY_N : 0) : 0);
+                        if (approved == 0)
                         {
-                            brgTidakProses.Add(dsSORow.SOB_RECNUM.ToString());
-                            validNobuk = false;
-                            var inListError = listError.Where(p => p.no_bukti_so == Nobuk).FirstOrDefault();
-                            if (inListError == null)
+                            if (totalQOH + (dsSORow.QTY_N > 0 ? (dsSORow.LOKASI == gudang ? dsSORow.QTY_N : 0) : 0) - dsSORow.QTY < 0)
+                            //end change by nurul 31/8/2020
                             {
-                                listError.Add(new listErrorPacking
+                                brgTidakProses.Add(dsSORow.SOB_RECNUM.ToString());
+                                validNobuk = false;
+                                var inListError = listError.Where(p => p.no_bukti_so == Nobuk).FirstOrDefault();
+                                if (inListError == null)
                                 {
-                                    no_bukti_so = Nobuk,
-                                    //error_msg = "Qty sisa untuk item [" + SOB_Brg + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ")."
-                                    error_msg = "Qty sisa untuk item [" + dsSORow.BRG + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ")."
-                                });
+                                    listError.Add(new listErrorPacking
+                                    {
+                                        no_bukti_so = Nobuk,
+                                        //error_msg = "Qty sisa untuk item [" + SOB_Brg + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ")."
+                                        error_msg = "Qty sisa untuk item [" + dsSORow.BRG + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ")."
+                                    });
+                                }
+                                else
+                                {
+                                    //inListError.error_msg += "</br>Qty sisa untuk item [" + SOB_Brg + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ").";
+                                    inListError.error_msg += "</br>Qty sisa untuk item [" + dsSORow.BRG + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ").";
+                                }
                             }
                             else
                             {
-                                //inListError.error_msg += "</br>Qty sisa untuk item [" + SOB_Brg + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ").";
-                                inListError.error_msg += "</br>Qty sisa untuk item [" + dsSORow.BRG + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ").";
+                                //add by nurul 31/8/2020
+                                var tempData = new updateGudangQtySOT01b()
+                                {
+                                    brg = dsSORow.BRG,
+                                    qty = dsSORow.QTY,
+                                    recnum = dsSORow.SOB_RECNUM.ToString()
+                                };
+                                tempBerhasilUpdate.Add(tempData);
+                                //add by nurul 31/8/2020
+                                //stringUpdateSOB += Environment.NewLine + "(" + SOB_RECNUM + ", '" + gudang + "'),";
+                                stringUpdateSOB += Environment.NewLine + "(" + dsSORow.SOB_RECNUM + ", '" + gudang + "'),";
                             }
                         }
-                        else
+                        else if(approved == 1)
                         {
-                            //add by nurul 31/8/2020
-                            var tempData = new updateGudangQtySOT01b()
+                            if (totalQOH + (dsSORow.QTY_N > 0 ? (dsSORow.LOKASI == gudang ? dsSORow.QTY_N : 0) : 0) - dsSORow.QTY < 0)
+                            //end change by nurul 31/8/2020
                             {
-                                brg = dsSORow.BRG,
-                                qty = dsSORow.QTY,
-                                recnum = dsSORow.SOB_RECNUM.ToString()
-                            };
-                            tempBerhasilUpdate.Add(tempData);
-                            //add by nurul 31/8/2020
-                            //stringUpdateSOB += Environment.NewLine + "(" + SOB_RECNUM + ", '" + gudang + "'),";
-                            stringUpdateSOB += Environment.NewLine + "(" + dsSORow.SOB_RECNUM + ", '" + gudang + "'),";
+                                brgTidakProses.Add(dsSORow.SOB_RECNUM.ToString());
+                                validNobuk = false;
+                                var inListError = listError.Where(p => p.no_bukti_so == Nobuk).FirstOrDefault();
+                                if (inListError == null)
+                                {
+                                    listError.Add(new listErrorPacking
+                                    {
+                                        no_bukti_so = Nobuk,
+                                        //error_msg = "Qty sisa untuk item [" + SOB_Brg + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ")."
+                                        error_msg = "Qty sisa untuk item [" + dsSORow.BRG + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ")."
+                                    });
+                                }
+                                else
+                                {
+                                    //inListError.error_msg += "</br>Qty sisa untuk item [" + SOB_Brg + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ").";
+                                    inListError.error_msg += "</br>Qty sisa untuk item [" + dsSORow.BRG + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ").";
+                                }
+                            }
+                            else
+                            {
+                                //add by nurul 31/8/2020
+                                var tempData = new updateGudangQtySOT01b()
+                                {
+                                    brg = dsSORow.BRG,
+                                    qty = dsSORow.QTY,
+                                    recnum = dsSORow.SOB_RECNUM.ToString()
+                                };
+                                tempBerhasilUpdate.Add(tempData);
+                                //add by nurul 31/8/2020
+                                //stringUpdateSOB += Environment.NewLine + "(" + SOB_RECNUM + ", '" + gudang + "'),";
+                                stringUpdateSOB += Environment.NewLine + "(" + dsSORow.SOB_RECNUM + ", '" + gudang + "'),";
+                            }
                         }
                     }
                     if (validNobuk)
@@ -45588,7 +45630,7 @@ namespace MasterOnline.Controllers
                     //}
 
                     var cekrec = true;
-                    if (tempBerhasilUpdate.Count() <= getlistSO.Count() && tempBerhasilUpdate.Count() > 0)
+                    if (tempBerhasilUpdate.Count() <= getlistSO.Count() && tempBerhasilUpdate.Count() > 0 && approved == 1)
                     {
                         var stringListRecnumSOB = "";
                         for (int i = 0; i < tempBerhasilUpdate.Count(); i++)
