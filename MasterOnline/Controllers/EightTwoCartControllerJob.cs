@@ -1917,6 +1917,10 @@ namespace MasterOnline.Controllers
                             var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11'");
                             if (rowAffected > 0)
                             {
+                                //add by Tri 1 sep 2020, hapus packing list
+                                var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11')");
+                                var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11')");
+                                //end add by Tri 1 sep 2020, hapus packing list
                                 //add by Tri 4 Des 2019, isi cancel reason
                                 var sSQL1 = "";
                                 var sSQL2 = "SELECT * INTO #TEMP FROM (";

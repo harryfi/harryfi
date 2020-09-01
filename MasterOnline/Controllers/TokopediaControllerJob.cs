@@ -3675,6 +3675,10 @@ namespace MasterOnline.Controllers
                         jmlhOrder = jmlhOrder + rowAffected;
                         if (rowAffected > 0)
                         {
+                            //add by Tri 1 sep 2020, hapus packing list
+                            var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11')");
+                            var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11')");
+                            //end add by Tri 1 sep 2020, hapus packing list
                             var dsOrders = EDB.GetDataSet("MOConnectionString", "SOT01", "SELECT A.NO_BUKTI, A.NO_REFERENSI FROM SOT01A A LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = '' AND NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '11'");
                             if (dsOrders.Tables[0].Rows.Count > 0)
                             {

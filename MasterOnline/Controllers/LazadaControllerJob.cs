@@ -3299,6 +3299,10 @@ namespace MasterOnline.Controllers
 
                             if (rowAffected > 0)
                             {
+                                //add by Tri 1 sep 2020, hapus packing list
+                                var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.order_id + "')  AND STATUS_TRANSAKSI = '11')");
+                                var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.order_id + "')  AND STATUS_TRANSAKSI = '11')");
+                                //end add by Tri 1 sep 2020, hapus packing list
                                 jmlhOrder = jmlhOrder + rowAffected;
                                 //add by Tri 4 Des 2019, isi cancel reason
                                 var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == order.order_id && m.CUST == cust).Select(m => m.NO_BUKTI).FirstOrDefault();
