@@ -1669,7 +1669,7 @@ namespace MasterOnline.Controllers
                 //queryStatus = "\"}\"" + "," + "\"23\"" + "," + "\"";
                 //queryStatus = "\\\"}\"" + "," + "\"23\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","23","\"000003\""
             }
-            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusPaid%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusCompleted%' and invocationdata not like '%JD_GetOrderByStatusCancelled%' ");
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusPaid%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusComplete%' and invocationdata not like '%JD_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
 
             return ret;
@@ -2103,44 +2103,6 @@ namespace MasterOnline.Controllers
                     }
                 }
 
-                //if (callSP)
-                //{
-                //    SqlCommand CommandSQL = new SqlCommand();
-
-                //    //add by Tri call sp to insert buyer data
-                //    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                //    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-
-                //    EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
-                //    //end add by Tri call sp to insert buyer data
-
-                //    CommandSQL = new SqlCommand();
-                //    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-
-                //    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-                //    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
-                //    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                //    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
-                //    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-                //    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
-                //    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-                //    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
-                //    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
-                //    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 1;
-                //    CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
-                //    CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
-                //    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = iden.no_cust;
-
-                //    EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
-
-                //    if (newRecord > 0)
-                //    {
-                //        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                //        contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(newRecord) + " Pesanan baru dari JD.ID.");
-
-                //        new StokControllerJob().updateStockMarketPlace(connectionID, iden.DatabasePathErasoft, iden.username);
-                //    }
-                //}
             }
 
             return ret;
@@ -2366,10 +2328,9 @@ namespace MasterOnline.Controllers
                                 {
                                     if (OrderNoInDb.Contains(Convert.ToString(order.orderId)))
                                     {
-                                        idOrderComplete = idOrderComplete + "'" + order.orderId + "',";
-                                        //jmlhOrderCompleted++;
-                                        doInsert = false;
+                                        idOrderComplete = idOrderComplete + "'" + order.orderId + "',";                                
                                     }
+                                    doInsert = false;
                                 }
                                 else if (order.orderState.ToString() == "7") // READY TO SHIP
                                 {
@@ -2388,6 +2349,9 @@ namespace MasterOnline.Controllers
                                 {
                                     if (!OrderNoInDb.Contains(Convert.ToString(order.orderId)))
                                     {
+                                        doInsert = false;
+                                    }
+                                    else {
                                         doInsert = false;
                                     }
                                 }
