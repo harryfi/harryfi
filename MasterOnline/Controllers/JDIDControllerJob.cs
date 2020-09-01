@@ -1666,8 +1666,7 @@ namespace MasterOnline.Controllers
             var queryStatus = "";
             if (stat == StatusOrder.PAID)
             {
-                //queryStatus = "\"}\"" + "," + "\"23\"" + "," + "\"";
-                //queryStatus = "\\\"}\"" + "," + "\"23\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","23","\"000003\""
+                queryStatus = "\"1\"" + "," + "\"\\\"" + CUST + "\\\"\"" + "," + "\"\\\"" + NAMA_CUST + "\\\"\"";  // "1","\"000011\"","\"Echoboomers\""
             }
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusPaid%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusComplete%' and invocationdata not like '%JD_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
@@ -1789,8 +1788,7 @@ namespace MasterOnline.Controllers
             var queryStatus = "";
             if (stat == StatusOrder.READY_TO_SHIP)
             {
-                //queryStatus = "\"}\"" + "," + "\"23\"" + "," + "\"";
-                //queryStatus = "\\\"}\"" + "," + "\"23\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","23","\"000003\""
+                queryStatus = "\"7\"" + "," + "\"\\\"" + CUST + "\\\"\"" + "," + "\"\\\"" + NAMA_CUST + "\\\"\"";  // "7","\"000011\"","\"Echoboomers\""
             }
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusRTS%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusComplete%' and invocationdata not like '%JD_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
@@ -1912,8 +1910,7 @@ namespace MasterOnline.Controllers
             var queryStatus = "";
             if (stat == StatusOrder.CANCELLED)
             {
-                ////queryStatus = "\"}\"" + "," + "\"23\"" + "," + "\"";
-                //queryStatus = "\\\"}\"" + "," + "\"23\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","23","\"000003\""
+                queryStatus = "\"5\"" + "," + "\"\\\"" + CUST + "\\\"\"" + "," + "\"\\\"" + NAMA_CUST + "\\\"\"";  // "5","\"000011\"","\"Echoboomers\""
             }
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusCancel%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusComplete%' ");
             // end tunning untuk tidak duplicate
@@ -2043,8 +2040,7 @@ namespace MasterOnline.Controllers
             var queryStatus = "";
             if (stat == StatusOrder.COMPLETED)
             {
-                //queryStatus = "\"}\"" + "," + "\"23\"" + "," + "\"";
-                //queryStatus = "\\\"}\"" + "," + "\"23\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","23","\"000003\""
+                queryStatus = "\"6\"" + "," + "\"\\\"" + CUST + "\\\"\"" + "," + "\"\\\"" + NAMA_CUST + "\\\"\"";  // "6","\"000011\"","\"Echoboomers\""
             }
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusComplete%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
