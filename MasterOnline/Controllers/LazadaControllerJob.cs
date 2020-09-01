@@ -3295,13 +3295,13 @@ namespace MasterOnline.Controllers
                     {
                         if (orderUnpaidList.Contains(order.order_id))
                         {
-                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI <> '11'");
+                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
 
                             if (rowAffected > 0)
                             {
                                 //add by Tri 1 sep 2020, hapus packing list
-                                var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.order_id + "')  AND STATUS_TRANSAKSI = '11')");
-                                var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.order_id + "')  AND STATUS_TRANSAKSI = '11')");
+                                var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.order_id + "')  AND STATUS_TRANSAKSI = '11' AND CUST = '" + cust + "')");
+                                var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.order_id + "')  AND STATUS_TRANSAKSI = '11' AND CUST = '" + cust + "')");
                                 //end add by Tri 1 sep 2020, hapus packing list
                                 jmlhOrder = jmlhOrder + rowAffected;
                                 //add by Tri 4 Des 2019, isi cancel reason
@@ -3326,7 +3326,7 @@ namespace MasterOnline.Controllers
                                     var returFaktur = ErasoftDbContext.SIT01A.Where(m => m.JENIS_FORM == "3" && m.NO_REF == fakturInDB.NO_BUKTI).FirstOrDefault();
                                     if(returFaktur == null)
                                     {
-                                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.order_id + "') AND STATUS <> '2' AND ST_POSTING = 'T'");
+                                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.order_id + "') AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + cust + "'");
                                     }
 
                                 }
@@ -3334,7 +3334,7 @@ namespace MasterOnline.Controllers
                                 var orderDetail = (from a in ErasoftDbContext.SOT01A
                                                    join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
                                                    //where a.NO_REFERENSI == order.order_id
-                                                   where a.NO_REFERENSI == order.order_id && b.BRG != "NOT_FOUND"
+                                                   where a.NO_REFERENSI == order.order_id && b.BRG != "NOT_FOUND" && a.CUST == cust
                                                    select new { b.BRG }).ToList();
                                 foreach (var item in orderDetail)
                                 {
