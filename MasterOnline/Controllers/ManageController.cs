@@ -45290,6 +45290,7 @@ namespace MasterOnline.Controllers
             public string recnum { get; set; }
             public string brg { get; set; }
             public double qty { get; set; }
+            public string nobuk { get; set; }//add by Tri 1 sep 2020
         }
         //end add by nurul 7/7/2020
         public ActionResult UbahStatusPesananPackingTransaction(string[] get_selected, bool packinglist, int approved)
@@ -45538,6 +45539,14 @@ namespace MasterOnline.Controllers
                                     //inListError.error_msg += "</br>Qty sisa untuk item [" + SOB_Brg + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ").";
                                     inListError.error_msg += "</br>Qty sisa untuk item [" + dsSORow.BRG + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ").";
                                 }
+                                //add by Tri 1 sep 2020, remove nobuk from tempBerhasilUpdate
+                                //var removeData = tempBerhasilUpdate.Where(m => m.nobuk == dsSORow.NO_BUKTI).ToList();
+                                //if(removeData.Count > 0)
+                                //{
+                                    tempBerhasilUpdate.RemoveAll(m => m.nobuk == dsSORow.NO_BUKTI);
+                                //    tempBerhasilUpdate.RemoveRange(removeData);
+                                //}
+                                //end add by Tri 1 sep 2020, remove nobuk from tempBerhasilUpdate
                             }
                             else
                             {
@@ -45546,7 +45555,8 @@ namespace MasterOnline.Controllers
                                 {
                                     brg = dsSORow.BRG,
                                     qty = dsSORow.QTY,
-                                    recnum = dsSORow.SOB_RECNUM.ToString()
+                                    recnum = dsSORow.SOB_RECNUM.ToString(),
+                                    nobuk = dsSORow.NO_BUKTI//add by Tri 1 sep 2020
                                 };
                                 tempBerhasilUpdate.Add(tempData);
                                 //add by nurul 31/8/2020
@@ -45576,6 +45586,15 @@ namespace MasterOnline.Controllers
                                     //inListError.error_msg += "</br>Qty sisa untuk item [" + SOB_Brg + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ").";
                                     inListError.error_msg += "</br>Qty sisa untuk item [" + dsSORow.BRG + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ").";
                                 }
+                                //add by Tri 1 sep 2020, remove nobuk from tempBerhasilUpdate
+                                //var removeData = tempBerhasilUpdate.Where(m => m.nobuk == dsSORow.NO_BUKTI).ToList();
+                                //if (removeData.Count > 0)
+                                //{
+                                //    tempBerhasilUpdate.RemoveRange(removeData);
+                                //}
+                                tempBerhasilUpdate.RemoveAll(m => m.nobuk == dsSORow.NO_BUKTI);
+
+                                //end add by Tri 1 sep 2020, remove nobuk from tempBerhasilUpdate
                             }
                             else
                             {
@@ -45584,7 +45603,8 @@ namespace MasterOnline.Controllers
                                 {
                                     brg = dsSORow.BRG,
                                     qty = dsSORow.QTY,
-                                    recnum = dsSORow.SOB_RECNUM.ToString()
+                                    recnum = dsSORow.SOB_RECNUM.ToString(),
+                                    nobuk = dsSORow.NO_BUKTI//add by Tri 1 sep 2020
                                 };
                                 tempBerhasilUpdate.Add(tempData);
                                 //add by nurul 31/8/2020
