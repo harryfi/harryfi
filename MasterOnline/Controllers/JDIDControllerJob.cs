@@ -636,52 +636,48 @@ namespace MasterOnline.Controllers
         {
             SetupContext(DatabasePathErasoft, uname);
 
-            //var mgrApiManager = new JDIDControllerJob();
+            try {
 
-            //mgrApiManager.AppKey = data.appKey;
-            //mgrApiManager.AppSecret = data.appSecret;
-            //mgrApiManager.AccessToken = data.accessToken;
-            //mgrApiManager.Method = "epi.ware.openapi.SkuApi.updateSkuInfo";
-            //mgrApiManager.ParamJson = "{\"skuInfo\":{\"skuId\":" + id + ", \"jdPrice\":" + price + "}}";
+                string sMethod = "epi.ware.openapi.SkuApi.updateSkuInfo";
+                string sParamJson = "{\"skuInfo\":{\"skuId\":" + id + ", \"jdPrice\":" + price + "}}";
 
-            string sMethod = "epi.ware.openapi.SkuApi.updateSkuInfo";
-            string sParamJson = "{\"skuInfo\":{\"skuId\":" + id + ", \"jdPrice\":" + price + "}}";
-
-            var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
-            var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RESJob)) as JDID_RESJob;
-            if (ret != null)
-            {
-                if (ret.openapi_msg.ToLower() == "success")
+                var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
+                var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RESJob)) as JDID_RESJob;
+                if (ret != null)
                 {
-                    var retPrice = JsonConvert.DeserializeObject(ret.openapi_data, typeof(Data_UpPriceJob)) as Data_UpPriceJob;
-                    if (retPrice != null)
+                    if (ret.openapi_msg.ToLower() == "success")
                     {
-                        if (retPrice.success)
+                        var retPrice = JsonConvert.DeserializeObject(ret.openapi_data, typeof(Data_UpPriceJob)) as Data_UpPriceJob;
+                        if (retPrice != null)
                         {
+                            if (retPrice.success)
+                            {
 
+                            }
+                            else
+                            {
+                                throw new Exception(retPrice.message.ToString());
+                            }
                         }
                         else
                         {
-                            //currentLog.REQUEST_EXCEPTION = retStok.message;
-                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                            throw new Exception(ret.openapi_msg.ToString());
                         }
                     }
                     else
                     {
-                        //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
-                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                        throw new Exception(ret.openapi_msg.ToString());
                     }
                 }
                 else
                 {
-                    //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
-                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                    throw new Exception("Tidak ada respon dari API.");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                //currentLog.REQUEST_EXCEPTION = response;
-                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
             }
 
             return "";
@@ -1659,21 +1655,21 @@ namespace MasterOnline.Controllers
             var daysFrom = -1;
             var daysTo = 1;
 
-            //while (daysFrom > -3)
-            //{
-            await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, -3, 0);
-            //    daysFrom -= 3;
-            //    daysTo -= 3;
-            //}
+            while (daysFrom > -13)
+            {
+                await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, daysFrom, daysTo);
+                daysFrom -= 3;
+                daysTo -= 3;
+            }
 
             // tunning untuk tidak duplicate
-            //var queryStatus = "";
-            //if (stat == StatusOrder.PAID)
-            //{
-            //    //queryStatus = "\"}\"" + "," + "\"23\"" + "," + "\"";
-            //    queryStatus = "\\\"}\"" + "," + "\"23\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","23","\"000003\""
-            //}
-            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%E2Cart_GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%E2Cart_GetOrderByStatusCompleted%' and invocationdata not like '%E2Cart_GetOrderByStatusCancelled%' ");
+            var queryStatus = "";
+            if (stat == StatusOrder.PAID)
+            {
+                //queryStatus = "\"}\"" + "," + "\"23\"" + "," + "\"";
+                //queryStatus = "\\\"}\"" + "," + "\"23\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","23","\"000003\""
+            }
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusPaid%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusCompleted%' and invocationdata not like '%JD_GetOrderByStatusCancelled%' ");
             // end tunning untuk tidak duplicate
 
             return ret;
@@ -1782,21 +1778,21 @@ namespace MasterOnline.Controllers
             var daysFrom = -1;
             var daysTo = 1;
 
-            //while (daysFrom > -3)
-            //{
-            await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, -3, 0);
-            //    daysFrom -= 3;
-            //    daysTo -= 3;
-            //}
+            while (daysFrom > -13)
+            {
+                await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, daysFrom, daysTo);
+                daysFrom -= 3;
+                daysTo -= 3;
+            }
 
             // tunning untuk tidak duplicate
-            //var queryStatus = "";
-            //if (stat == StatusOrder.PAID)
-            //{
-            //    //queryStatus = "\"}\"" + "," + "\"23\"" + "," + "\"";
-            //    queryStatus = "\\\"}\"" + "," + "\"23\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","23","\"000003\""
-            //}
-            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%E2Cart_GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%E2Cart_GetOrderByStatusCompleted%' and invocationdata not like '%E2Cart_GetOrderByStatusCancelled%' ");
+            var queryStatus = "";
+            if (stat == StatusOrder.READY_TO_SHIP)
+            {
+                //queryStatus = "\"}\"" + "," + "\"23\"" + "," + "\"";
+                //queryStatus = "\\\"}\"" + "," + "\"23\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","23","\"000003\""
+            }
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusRTS%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusComplete%' and invocationdata not like '%JD_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
 
             return ret;
@@ -1846,50 +1842,50 @@ namespace MasterOnline.Controllers
                     var insertTemp = GetOrderDetail(iden, listOrder, iden.no_cust, connIdARF01C, connectionID);
                     if (insertTemp.status == 1)
                     {
-                        callSP = true;
+                        //callSP = true;
                         if (insertTemp.recordCount > 0)
                             newRecord += insertTemp.recordCount;
                     }
                 }
 
-                if (callSP)
-                {
-                    SqlCommand CommandSQL = new SqlCommand();
+                //if (callSP)
+                //{
+                //    SqlCommand CommandSQL = new SqlCommand();
 
-                    //add by Tri call sp to insert buyer data
-                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
+                //    //add by Tri call sp to insert buyer data
+                //    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                //    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
 
-                    EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
-                    //end add by Tri call sp to insert buyer data
+                //    EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
+                //    //end add by Tri call sp to insert buyer data
 
-                    CommandSQL = new SqlCommand();
-                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                //    CommandSQL = new SqlCommand();
+                //    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
 
-                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-                    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
-                    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 1;
-                    CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = iden.no_cust;
+                //    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
+                //    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
+                //    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                //    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                //    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                //    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                //    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                //    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                //    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                //    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 1;
+                //    CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                //    CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                //    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = iden.no_cust;
 
-                    EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                //    EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
 
-                    if (newRecord > 0)
-                    {
-                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                        contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(newRecord) + " Pesanan baru dari JD.ID.");
+                //    if (newRecord > 0)
+                //    {
+                //        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                //        contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(newRecord) + " Pesanan baru dari JD.ID.");
 
-                        new StokControllerJob().updateStockMarketPlace(connectionID, iden.DatabasePathErasoft, iden.username);
-                    }
-                }
+                //        //new StokControllerJob().updateStockMarketPlace(connectionID, iden.DatabasePathErasoft, iden.username);
+                //    }
+                //}
             }
 
             return ret;
@@ -1902,24 +1898,24 @@ namespace MasterOnline.Controllers
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
-            //var daysFrom = -1;
-            //var daysTo = 1;
+            var daysFrom = -1;
+            var daysTo = 1;
 
-            //while (daysFrom > -13)
-            //{
-            await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, -3, 0);
-            //    daysFrom -= 3;
-            //    daysTo -= 3;
-            //}
+            while (daysFrom > -13)
+            {
+                await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, daysFrom, daysTo);
+                daysFrom -= 3;
+                daysTo -= 3;
+            }
 
             // tunning untuk tidak duplicate
             var queryStatus = "";
-            if (stat == StatusOrder.PAID)
+            if (stat == StatusOrder.CANCELLED)
             {
                 ////queryStatus = "\"}\"" + "," + "\"23\"" + "," + "\"";
                 //queryStatus = "\\\"}\"" + "," + "\"23\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","23","\"000003\""
             }
-            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%E2Cart_GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%E2Cart_GetOrderByStatusCompleted%' and invocationdata not like '%E2Cart_GetOrderByStatusCancelled%' ");
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusCancel%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusComplete%' ");
             // end tunning untuk tidak duplicate
 
             return ret;
@@ -2033,15 +2029,15 @@ namespace MasterOnline.Controllers
             string ret = "";
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
-            //var daysFrom = -1;
-            //var daysTo = 1;
+            var daysFrom = -1;
+            var daysTo = 1;
 
-            //while (daysFrom > -3)
-            //{
-            await JD_GetOrderByStatusCompleteList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, -10, 0);
-            //    daysFrom -= 3;
-            //    daysTo -= 3;
-            //}
+            while (daysFrom > -13)
+            {
+                await JD_GetOrderByStatusCompleteList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, daysFrom, daysTo);
+                daysFrom -= 3;
+                daysTo -= 3;
+            }
 
             // tunning untuk tidak duplicate
             var queryStatus = "";
@@ -2050,7 +2046,7 @@ namespace MasterOnline.Controllers
                 //queryStatus = "\"}\"" + "," + "\"23\"" + "," + "\"";
                 //queryStatus = "\\\"}\"" + "," + "\"23\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","23","\"000003\""
             }
-            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%E2Cart_GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%E2Cart_GetOrderByStatusCompleted%' and invocationdata not like '%E2Cart_GetOrderByStatusCancelled%' ");
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusComplete%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
 
             return ret;
@@ -2237,7 +2233,7 @@ namespace MasterOnline.Controllers
                         var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                         contextNotif.Clients.Group(data.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(newRecord) + " Pesanan baru dari Lazada.");
 
-                        new StokControllerJob().updateStockMarketPlace(connectionID, data.DatabasePathErasoft, uname);
+                        //new StokControllerJob().updateStockMarketPlace(connectionID, data.DatabasePathErasoft, uname);
                     }
                 }
             }
@@ -2257,7 +2253,7 @@ namespace MasterOnline.Controllers
 
             string sMethod = "epi.popOrder.getOrderIdListByCondition";
             string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"bookTimeBegin\": "
-                + DateTimeOffset.Now.AddDays(addDays).ToUnixTimeSeconds() + "}";
+                + DateTimeOffset.Now.AddDays(addDays).AddHours(7).ToUnixTimeSeconds() + "}";
             //string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + "}";
 
             try
@@ -2379,13 +2375,12 @@ namespace MasterOnline.Controllers
                                 {
                                     if (OrderNoInDb.Contains(Convert.ToString(order.orderId)))
                                     {
-                                        idOrderRTS = idOrderRTS + "'" + order.orderId + "',";
                                         //jmlhOrderReadytoShip++;
                                         doInsert = false;
                                     }
                                     else
                                     {
-                                        jmlhOrderNew++;
+                                        idOrderRTS = idOrderRTS + "'" + order.orderId + "',";
                                         doInsert = true;
                                     }
                                 }
@@ -2482,7 +2477,10 @@ namespace MasterOnline.Controllers
 
                                     if (!OrderNoInDb.Contains(Convert.ToString(order.orderId)))
                                     {
-                                        jmlhNewOrder++;
+                                        if(string.IsNullOrEmpty(idOrderRTS))
+                                        {
+                                            jmlhNewOrder++;
+                                        }
                                         insertQValue = insertQValue.Substring(0, insertQValue.Length - 2);
                                         EDB.ExecuteSQL(username, CommandType.Text, insertQ + insertQValue);
 
@@ -2534,7 +2532,7 @@ namespace MasterOnline.Controllers
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                     contextNotif.Clients.Group(data.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari JD.ID.");
 
-                                    new StokControllerJob().updateStockMarketPlace(conn_id_order, data.DatabasePathErasoft, data.username);
+                                    //new StokControllerJob().updateStockMarketPlace(conn_id_order, data.DatabasePathErasoft, data.username);
                                 }
 
                             }
@@ -2549,7 +2547,7 @@ namespace MasterOnline.Controllers
                                     var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + idOrderCancel + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                     contextNotif.Clients.Group(data.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderCancel) + " Pesanan dari JD.ID dibatalkan.");
-                                    new StokControllerJob().updateStockMarketPlace(conn_id_order, data.DatabasePathErasoft, data.username);
+                                    //new StokControllerJob().updateStockMarketPlace(conn_id_order, data.DatabasePathErasoft, data.username);
                                 }
                             }
 
@@ -2575,6 +2573,7 @@ namespace MasterOnline.Controllers
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                     contextNotif.Clients.Group(data.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderReadytoShip) + " Pesanan dari JD.ID Ready To Ship.");
                                 }
+                                //new StokControllerJob().updateStockMarketPlace(conn_id_order, data.DatabasePathErasoft, data.username);
                             }
                         }
                     }
