@@ -2215,7 +2215,7 @@ namespace MasterOnline.Controllers
 
             string sMethod = "epi.popOrder.getOrderIdListByCondition";
             string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"bookTimeBegin\": "
-                + DateTimeOffset.Now.AddDays(addDays).AddHours(7).ToUnixTimeSeconds() + "}";
+                + DateTimeOffset.Now.AddDays(addDays).AddHours(7).ToUnixTimeSeconds() + "000 }";
             //string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + "}";
 
             try
