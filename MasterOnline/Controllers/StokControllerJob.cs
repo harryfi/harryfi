@@ -2268,7 +2268,7 @@ namespace MasterOnline.Controllers
                 skuUpdate = brg_mp[0];
             }
             bool allowUpdate = true;
-            if (skuUpdate.Contains("PENDING") || skuUpdate.Contains("PEDITENDING"))
+            if (skuUpdate.Contains("PENDING") || skuUpdate.Contains("PEDITENDING") || skuUpdate.Contains("NEED_CORRECTION"))
             {
                 allowUpdate = false;
             }
