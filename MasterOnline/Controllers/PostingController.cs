@@ -103,6 +103,8 @@ namespace MasterOnline.Controllers
             sSQL += "select * from (SELECT top 1 bukti as no_bukti,tgl as tanggal FROM art03a where ISNULL(POSTING,'') <> 'Y'  order by tanggal asc )a ";
             sSQL += "union ";
             sSQL += "select * from (SELECT top 1 bukti as no_bukti,tgl as tanggal FROM apt03a where ISNULL(POSTING,'') <> 'Y' order by tanggal asc )a ";
+            sSQL += "union ";
+            sSQL += "select * from (SELECT top 1 bukti as no_bukti,tgl as tanggal FROM GLFTRAN1 where ISNULL(POSTING,'') <> 'Y' order by tanggal asc )a ";
             sSQL += ")b order by tanggal asc ";
             var tempLastPosting = ErasoftDbContext.Database.SqlQuery<lastPosting>(sSQL).SingleOrDefault();
 

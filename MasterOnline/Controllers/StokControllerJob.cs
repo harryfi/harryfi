@@ -2268,7 +2268,7 @@ namespace MasterOnline.Controllers
                 skuUpdate = brg_mp[0];
             }
             bool allowUpdate = true;
-            if (skuUpdate.Contains("PENDING") || skuUpdate.Contains("PEDITENDING"))
+            if (skuUpdate.Contains("PENDING") || skuUpdate.Contains("PEDITENDING") || skuUpdate.Contains("NEED_CORRECTION"))
             {
                 allowUpdate = false;
             }
@@ -3197,6 +3197,10 @@ namespace MasterOnline.Controllers
                                 {
                                     msgError = result.errors;
                                 }
+                                if (result.error != null)
+                                {
+                                    msgError = result.error;
+                                }
                                 throw new Exception("Failed update stock " + stf02_brg + ":" + Convert.ToString(qty) + " stock. " + msgError);
                             }
                         }
@@ -3769,60 +3773,56 @@ namespace MasterOnline.Controllers
             SetupContext(DatabasePathErasoft, uname);
 
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
-            //add by calvin 17 juni 2019
+
             if (qtyOnHand < 0)
             {
                 qtyOnHand = 0;
             }
-            //end add by calvin 17 juni 2019
+
             stok = Convert.ToInt32(qtyOnHand);
-
-            //var mgrApiManager = new JDIDControllerJob();
-
-            //mgrApiManager.AppKey = data.appKey;
-            //mgrApiManager.AppSecret = data.appSecret;
-            //mgrApiManager.AccessToken = data.accessToken;
-            //mgrApiManager.Method = "epi.ware.openapi.warestock.updateWareStock";
-            //mgrApiManager.ParamJson = "{\"jsonStr\":[{\"skuId\":" + id + ", \"realNum\": " + stok + "}]}";
-
-            string sMethod = "epi.ware.openapi.warestock.updateWareStock";
-            string sParamJson = "{\"jsonStr\":[{\"skuId\":" + id + ", \"realNum\": " + stok + "}]}";
-
-            var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
-            var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
-            if (ret != null)
+            
+            try
             {
-                if (ret.openapi_msg.ToLower() == "success")
-                {
-                    var retStok = JsonConvert.DeserializeObject(ret.openapi_data, typeof(Data_UpStok)) as Data_UpStok;
-                    if (retStok != null)
-                    {
-                        if (retStok.success)
-                        {
+                string sMethod = "epi.ware.openapi.warestock.updateWareStock";
+                string sParamJson = "{\"jsonStr\":[{\"skuId\":" + id + ", \"realNum\": " + stok + "}]}";
 
+                var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
+                var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (ret != null)
+                {
+                    if (ret.openapi_msg.ToLower() == "success")
+                    {
+                        var retStok = JsonConvert.DeserializeObject(ret.openapi_data, typeof(Data_UpStok)) as Data_UpStok;
+                        if (retStok != null)
+                        {
+                            if (retStok.success)
+                            {
+
+                            }
+                            else
+                            {
+                                throw new Exception(retStok.message.ToString());
+                            }
                         }
                         else
                         {
-                            //currentLog.REQUEST_EXCEPTION = retStok.message;
-                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                            throw new Exception(ret.openapi_msg.ToString());
                         }
                     }
                     else
                     {
-                        //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
-                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                        throw new Exception(ret.openapi_msg.ToString());
                     }
                 }
                 else
                 {
-                    //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
-                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                    throw new Exception("Tidak ada respon dari API.");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                //currentLog.REQUEST_EXCEPTION = response;
-                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
             }
 
             return "";
@@ -4262,6 +4262,7 @@ namespace MasterOnline.Controllers
         {
             public object variant { get; set; }
             public string errors { get; set; }
+            public string error { get; set; }
         }
 
         public class ShopifyUpdateStockResult

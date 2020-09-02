@@ -710,7 +710,7 @@ namespace MasterOnline.Controllers
                 }
 
                 // tunning untuk tidak duplicate
-                    var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + connId + "%' and invocationdata like '%blibli%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + connId + "%' and invocationdata like '%blibli%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%'");
                 // end tunning untuk tidak duplicate
             }
 
@@ -1281,7 +1281,7 @@ namespace MasterOnline.Controllers
                                 oCommand.Parameters["@startOperationalTime"].Value = result.value.startOperationalTime ?? 0;
 
                                 oCommand.Parameters["@endOperationalTime"].Value = result.value.endOperationalTime ?? 0;
-                                oCommand.Parameters["@issuer"].Value = issuer ;
+                                oCommand.Parameters["@issuer"].Value = issuer;
                                 oCommand.Parameters["@refundResolution"].Value = refundResolution;
                                 oCommand.Parameters["@unFullFillReason"].Value = !string.IsNullOrEmpty(result.value.unFullFillReason) ? result.value.unFullFillReason.Replace("'", "`") : "";
                                 oCommand.Parameters["@unFullFillQuantity"].Value = result.value.unFullFillQuantity != null ? result.value.unFullFillQuantity : 0;
@@ -1293,7 +1293,7 @@ namespace MasterOnline.Controllers
                                 oCommand.Parameters["@logisticsProductCode"].Value = logisticsProductCode;
 
                                 oCommand.Parameters["@logisticsProductName"].Value = logisticsProductName;
-                                oCommand.Parameters["@logisticsOptionCode"].Value = logisticsOptionCode ;
+                                oCommand.Parameters["@logisticsOptionCode"].Value = logisticsOptionCode;
                                 oCommand.Parameters["@logisticsOptionName"].Value = logisticsOptionName;
                                 oCommand.Parameters["@destinationLongitude"].Value = result.value.destinationLongitude ?? 0;
                                 oCommand.Parameters["@destinationLatitude"].Value = result.value.destinationLatitude ?? 0;
@@ -5330,7 +5330,7 @@ namespace MasterOnline.Controllers
                                     //    await GetProdukInReviewList(data, requestId, ProductCode, gdnSku, log_request_id);
                                     //}
 
-                                    if (Convert.ToString(result.value.queueFeed.requestAction) == "createProductV2")
+                                    if (Convert.ToString(result.value.queueFeed.requestAction) == "createProductV2" || Convert.ToString(result.value.queueFeed.requestAction) == "productRevision")
                                     {
                                         string ProductCode = "";
                                         string gdnSku = "";
@@ -6059,6 +6059,7 @@ namespace MasterOnline.Controllers
             public string attributeType { get; set; }
             public string name { get; set; }
             public List<string> options { get; set; }
+            public bool variantCreation { get; set; }
         }
 
 
@@ -6174,6 +6175,7 @@ namespace MasterOnline.Controllers
                             returnData["ATYPE_" + a] = Convert.ToString(attribs.attributeType);
                             returnData["ANAME_" + a] = Convert.ToString(attribs.name);
                             returnData["AOPTIONS_" + a] = attribs.options.Count > 0 ? "1" : "0";
+                            returnData["AVARCREATE_" + a] = attribs.variantCreation ? "1" : "0";
 
                             if (attribs.options.Count() > 0)
                             {
@@ -7255,10 +7257,12 @@ namespace MasterOnline.Controllers
             for (int i = 1; i <= 35; i++)
             {
                 string attribute_id = Convert.ToString(attribute["ACODE_" + i.ToString()]);
+                string attribute_name = Convert.ToString(attribute["ANAME_" + i.ToString()]);
                 string attribute_type = Convert.ToString(attribute["ATYPE_" + i.ToString()]);
+                string attribute_vc = Convert.ToString(attribute["AVARCREATE_" + i.ToString()]);
                 if (!string.IsNullOrWhiteSpace(attribute_id))
                 {
-                    if (attribute_type == "DEFINING_ATTRIBUTE")
+                    if (attribute_type == "DEFINING_ATTRIBUTE" || attribute_vc == "1")
                     {
                         dsVariasi.Add(attribute_id);
                     }
@@ -7286,7 +7290,8 @@ namespace MasterOnline.Controllers
             {
                 string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
                 string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
-                if (!string.IsNullOrWhiteSpace(attribute_id))
+                //if (!string.IsNullOrWhiteSpace(attribute_id))
+                if (!string.IsNullOrWhiteSpace(attribute_id) && (value ?? "null") != "null" && !string.IsNullOrEmpty(value))
                 {
                     if (dsFeature.Contains(attribute_id))
                     {
@@ -7669,7 +7674,7 @@ namespace MasterOnline.Controllers
                             if (!DefiningAttributes.ContainsKey(attribute_id))
                             {
                                 //if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
-                                    DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
+                                DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
                             }
                             if (aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
                                 attributeMap.Add(attribute_id, value);
@@ -7753,6 +7758,7 @@ namespace MasterOnline.Controllers
                 //change 9 juli 2020, ambil 35 attribute
                 //for (int i = 1; i <= 30; i++)
                 List<string> dsVariasiFCValues = new List<string>();//untuk menampung family color
+                List<string> dsVariasiFCValuesInduk = new List<string>();//untuk menampung family color induk
                 for (int i = 1; i <= 35; i++)
                 //end change 9 juli 2020, ambil 35 attribute
                 {
@@ -7770,7 +7776,8 @@ namespace MasterOnline.Controllers
                                 if (!dsVariasiValues.Contains(v.MP_VALUE_VAR))
                                 {
                                     dsVariasiValues.Add(v.MP_VALUE_VAR);
-                                    if(v.MP_JUDUL_VAR == "WA-0000002")//add family color jika ada attribute warna
+                                    //if (v.MP_JUDUL_VAR == "WA-0000002")//add family color jika ada attribute warna
+                                    if (aname == "Warna")//add family color jika ada attribute warna
                                     {
                                         dsVariasiFCValues.Add(v.MP_VALUE_FC_VAR);
                                     }
@@ -7795,18 +7802,28 @@ namespace MasterOnline.Controllers
 
                             if (!DefiningAttributes.ContainsKey(attribute_id))
                             {
-                                if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
+                                if (aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
                                     DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
+                            }
+
+                            if(attribute_id == "FA-2000060")
+                            {
+                                dsVariasiFCValuesInduk.Add(value);
                             }
                         }
                     }
                 }
 
-                if(dsVariasiFCValues.Count > 0)//masukan attribute family color kalau ada isinya
+                if (dsVariasiFCValues.Count > 0)//masukan attribute family color kalau ada isinya
                 {
                     DefiningAttributes.Add("FA-2000060", dsVariasiFCValues.ToArray());
                 }
 
+                if (!DefiningAttributes.ContainsKey("FA-2000060") && dsVariasiFCValuesInduk.Count > 0)//belum ada familu color dan attr ada di brg induk
+                {
+                    DefiningAttributes.Add("FA-2000060", dsVariasiFCValuesInduk.ToArray());
+
+                }
                 newData.productDefiningAttributes = DefiningAttributes;
 
                 foreach (var var_item in var_stf02)
@@ -8242,7 +8259,7 @@ namespace MasterOnline.Controllers
                     //oCommand.Transaction = oTransaction;
                     oCommand.CommandType = CommandType.Text;
                     string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
-                    oCommand.CommandText = "UPDATE H SET BRG_MP='PENDING',LINK_STATUS='Buat Produk Pending', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = ''";
+                    oCommand.CommandText = "UPDATE H SET BRG_MP='PENDING',LINK_STATUS='Buat Produk Pending', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE";
                     //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
                     oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
                     oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 50));
@@ -8287,6 +8304,82 @@ namespace MasterOnline.Controllers
             var token = SetupContext(iden);
             iden.token = token;
 
+            string productCodeBlibli = "";
+            try
+            {
+                var aProductCode = JsonConvert.DeserializeObject(ProductCode, typeof(BlibliGetQueueProductCode)) as BlibliGetQueueProductCode;
+                if (aProductCode != null)
+                {
+                    if (!string.IsNullOrEmpty(aProductCode.productCode))
+                    {
+                        productCodeBlibli = aProductCode.productCode;
+                    }
+                    else if (!string.IsNullOrEmpty(aProductCode.newProductCode))//need correction
+                    {
+                        productCodeBlibli = aProductCode.newProductCode;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (iden.versiToken == "2")
+            {
+                var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                var resCek = cekProductQC(productCodeBlibli, iden, customer.RecNum ?? 0, kodeProduk);
+                if (resCek.status == 1)//need correction
+                {
+                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                    {
+                        oConnection.Open();
+                        using (SqlCommand oCommand = oConnection.CreateCommand())
+                        {
+                            oCommand.CommandType = CommandType.Text;
+                            oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = 0 WHERE REQUESTID = @REQUESTID ";
+                            oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters[0].Value = requestID;
+                            oCommand.ExecuteNonQuery();
+                        }
+                    }
+                    throw new Exception("Data Produk ada yang perlu diperbaiki. Silahkan edit di Master Barang.");
+                }
+            }
+
+
+            //string productCodeBlibli = "";
+            //try
+            //{
+            //    var aProductCode = JsonConvert.DeserializeObject(ProductCode, typeof(BlibliGetQueueProductCode)) as BlibliGetQueueProductCode;
+            //    if(aProductCode != null)
+            //    {
+            //        if (!string.IsNullOrEmpty(aProductCode.productCode))
+            //        {
+            //            productCodeBlibli = aProductCode.productCode;
+            //        }
+            //        else if (!string.IsNullOrEmpty(aProductCode.newProductCode))//need correction
+            //        {
+            //            productCodeBlibli = aProductCode.newProductCode;
+            //        }
+            //    }
+
+            //}
+            //catch (Exception ex)
+            //{
+
+            //}
+
+            if (!string.IsNullOrEmpty(productCodeBlibli))
+            {
+
+                var productInProcess = await cekProdukInProcess(iden, productCodeBlibli, 0);
+                if (productInProcess.status == 1)//product masih di qc
+                {
+                    return "";
+                }
+            }
             //remark 19 Des 2019
             //DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
@@ -8399,10 +8492,1399 @@ namespace MasterOnline.Controllers
             //end remark 19 Des 2019
             return "";
         }
+        public async Task<BindingBase> cekProdukInProcess(BlibliAPIData iden, string kodeProduk, int page)
+        {
+            var ret = new BindingBase
+            {
+                status = 0,
+            };
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/inProcessProduct", iden.API_secret_key);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/inProcessProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&size=50&channelId=MasterOnline";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            if (iden.versiToken != "2")
+            {
+                myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
+                myReq.Headers.Add("username", userMTA);
+            }
+            else
+            {
+                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(iden.API_client_username + ":" + iden.API_client_password))));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+                myReq.Headers.Add("Signature-Time", milis.ToString());
+            }
+            string responseFromServer = "";
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (responseFromServer != "")
+            {
+                //perlu tes item tanpa varian
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ProductInReviewListResult)) as ProductInReviewListResult;
+                if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
+                {
+                    foreach (var item in result.content) //cek semua item in review
+                    {
+                        if(item.productCode == kodeProduk)
+                        {
+                            ret.status = 1;
+                            return ret;
+                        }
+                    }
+                    if(result.content.Length >= 50)
+                    {
+                        var recur = await cekProdukInProcess(iden, kodeProduk, page +1);
+                        if(recur.status == 1)
+                        {
+                            ret.status = 1;
+                            return ret;
+                        }
+                    }
+                }
+            }
+
+            return ret;
+        }
+        public BindingBase cekProductQC(string kodeProduk, BlibliAPIData iden, int idMarket, string brg)
+        {
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            var ret = new BindingBase();
+            var token = SetupContext(iden);
+            iden.token = token;
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+
+            var urll = "https://api.blibli.com/v2/proxy/seller/v1/product-submissions/filter?requestId=MasterOnline-" + Uri.EscapeDataString(milis.ToString()) + "&username=" + Uri.EscapeDataString(userMTA) + "&storeCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&channelId=MasterOnline";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+
+            string usernameMO = iden.API_client_username;
+            string passMO = iden.API_client_password;
+
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+            myReq.Headers.Add("Signature-Time", milis.ToString());
+
+            //string myData = "{ \"filter\" : { \"sellerSku\": \"" + kodeProduk + "\",";
+            string myData = "{ \"filter\" : { ";
+            myData += "\"state\": \"NEED_CORRECTION\"},";
+            myData += "\"paging\": {";
+            myData += "\"page\": 0, ";
+            myData += "\"size\": 100 } ";
+            myData += "}";
+            string responseFromServer = "";
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = myReq.GetResponse())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
+            if (!string.IsNullOrEmpty(responseFromServer))
+            {
+
+                var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(Blibli_ProductSubmissionList_Response)) as Blibli_ProductSubmissionList_Response;
+                if (listBrg != null)
+                {
+                    if (!string.IsNullOrEmpty(listBrg.errorCode))
+                    {
+                        throw new Exception(listBrg.errorCode + " : " + listBrg.errorMessage);
+                    }
+                    else
+                    {
+                        if (listBrg.content.Length > 0)//ada di need correction
+                        {
+                            foreach(var data in listBrg.content)
+                            {
+                                if(data.product.code == kodeProduk)
+                                {
+                                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE STF02H SET BRG_MP = 'NEED_CORRECTION;" + listBrg.content[0].product.code + "' WHERE BRG = '" + brg + "' AND IDMARKET = " + idMarket);
+                                    ret.status = 1;
+                                    return ret;
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+            return ret;
+        }
+
+        public async Task<BindingBase> getBrandCode(BlibliAPIData data, string brandName)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+
+            string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+            string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = data.mta_password_password_merchant;//<-- pass merchant
+
+            //add by nurul 13/7/2020
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/getBrands";
+            System.Net.HttpWebRequest myReq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(urll);
+            //end add by nurul 13/7/2020
+
+            //change by nurul 13/7/2020
+            if (data.versiToken != "2")
+            {
+                //string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getBrands", data.API_secret_key);
+
+                //string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getBrands?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brands=" + search + "&masterCategoryCode=" + category + "&page=" + pagenumber + "&size=10";
+                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/getBrands", data.API_secret_key);
+
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/getBrands?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brandName=" + brandName + "&username=" + Uri.EscapeDataString(data.mta_username_email_merchant) + "&page=" + 0 + "&size=50&storeId=10001";
+
+                myReq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("bearer " + data.token));
+                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("requestId", milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
+                myReq.Headers.Add("username", userMTA);
+            }
+            else
+            {
+                string usernameMO = data.API_client_username;
+                //string passMO = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
+                string passMO = data.API_client_password;
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/getBrands?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brandName=" + brandName + "&username=" + Uri.EscapeDataString(data.mta_username_email_merchant) + "&page=" + 0 + "&size=50&storeId=10001";
+
+                myReq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("Api-Seller-Key", data.API_secret_key.ToString());
+                myReq.Headers.Add("Signature-Time", milis.ToString());
+            }
+            string responseFromServer = "";
+            try
+            {
+                using (System.Net.WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != "")
+            {
+                //var ret = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliBrand)) as BlibliBrand;BlibliBrandV2
+                try
+                {
+                    var retData = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliBrandV2)) as BlibliBrandV2;
+                    var list_value = new List<BRAND_BLIBLI>();
+                    foreach (var item in retData.content)
+                    {
+                        if (item.brandApprovalStatus == "APPROVED" && item.brandName == brandName)
+                        {
+                            ret.status = 1;
+                            ret.message = item.code;
+                            return ret;
+                        }
+
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+            }
+            return ret;
+        }
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_create_product")]
+        [NotifyOnFailed("Create Product {obj} ke Blibli Gagal.")]
+        public async Task<string> ReviseProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, BlibliProductData data, PerformContext context)
+        {
+            var token = SetupContext(iden);
+            iden.token = token;
+
+            var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
+            var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == kodeProduk && p.IDMARKET == arf01.RecNum).FirstOrDefault();
+            var barangInDb = ErasoftDbContext.STF02.AsNoTracking().SingleOrDefault(b => b.BRG == kodeProduk);
+            data = new BlibliControllerJob.BlibliProductData
+            {
+                kode = barangInDb.BRG,
+                nama = barangInDb.NAMA + ' ' + barangInDb.NAMA2 + ' ' + barangInDb.NAMA3,
+                berat = (barangInDb.BERAT).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
+                Keterangan = barangInDb.Deskripsi,
+                Qty = "0",
+                MinQty = "0",
+                PickupPoint = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == arf01.RecNum).PICKUP_POINT.ToString(),
+                IDMarket = arf01.RecNum.ToString(),
+                Length = Convert.ToString(barangInDb.PANJANG),
+                Width = Convert.ToString(barangInDb.LEBAR),
+                Height = Convert.ToString(barangInDb.TINGGI),
+                dataBarangInDb = barangInDb
+            };
+            data.type = barangInDb.TYPE;//add by Tri 27/9/2019
+            data.Brand = stf02h.AVALUE_38;
+            var dataBrand = await getBrandCode(iden, stf02h.AVALUE_38);
+            if(dataBrand.status == 1)
+            {
+                data.Brand = dataBrand.message;
+            }
+
+            data.Price = barangInDb.HJUAL.ToString();
+            data.MarketPrice = stf02h.HJUAL.ToString();
+            data.CategoryCode = stf02h.CATEGORY_CODE.ToString();
+
+            data.display = stf02h.DISPLAY ? "true" : "false";
+
+            //if merchant code diisi. barulah upload produk
+            string ret = "";
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+            //add by nurul 13/7/2020
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/getProductList?";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            //end add by nurul 13/7/2020
+
+            //-productType / productHandlingType / productTypeCode
+            //It's a product handling type, it's determine on how it will be shipped:
+
+            //REGULAR: regular product, this type is handled by Blibli for specified merchantType. The shipping cost of Regular Product is covered by Blibli.
+            //The ID number for REGULAR type = 1.
+            //BIG_PRODUCT / HANDLING_BY_MERCHANT : shipped or handling by merchant, Blibli not covered the shipping cost for this product type.Ideally the big product category is like AC, refrigerator and other product that need instalment.Or maybe the electric voucher that sold by merchant by sending email or sms to customer can be included as this type.
+            //The ID number for BIG_PRODUCT type = 2.
+            //BOPIS : is (Buy Online Pickup In merchant Store).Customer that bought must came to merchant store to pick their product.
+            //The ID number for BOPIS type = 3.
+
+            ReviseProductBlibliData newData = new ReviseProductBlibliData()
+            {
+                //name = data.nama,
+                //brand = data.Brand,
+                //url = "",
+                //categoryCode = data.CategoryCode,
+                //productType = 1,
+                //pickupPointCode = data.PickupPoint,
+                //length = Convert.ToInt32(Convert.ToDouble(data.Length)),
+                //width = Convert.ToInt32(Convert.ToDouble(data.Width)),
+                //height = Convert.ToInt32(Convert.ToDouble(data.Height)),
+                //weight = Convert.ToInt32(Convert.ToDouble(data.berat)),
+                //description = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+                ////uniqueSellingPoint = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+                ////diisi dengan AVALUE_39
+                //productStory = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+            };
+            newData.product = new ReviseProductData
+            {
+                name = data.nama,
+                description = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+                productType = 1,                
+            };
+            newData.dimension = new ReviseDimension
+            {
+                length = Convert.ToInt32(Convert.ToDouble(data.Length)),
+                width = Convert.ToInt32(Convert.ToDouble(data.Width)),
+                height = Convert.ToInt32(Convert.ToDouble(data.Height)),
+                weight = Convert.ToInt32(Convert.ToDouble(data.berat)),
+            };
+            newData.pickupPoint = new RevisepickupPoint
+            {
+                code = data.PickupPoint
+            };
+            newData.category = new ReviseCategoryCode
+            {
+                code = data.CategoryCode
+            };
+            newData.brand = new ReviseBrand
+            {
+                code = data.Brand
+            };
+            //string sSQL = "SELECT * FROM (";
+            //for (int i = 1; i <= 30; i++)
+            //{
+            //    sSQL += "SELECT B.ACODE_" + i.ToString() + " AS CATEGORY_CODE,B.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE_" + i.ToString() + " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H (NOLOCK) A INNER JOIN MO.DBO.ATTRIBUTE_BLIBLI (NOLOCK) B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
+            //    if (i < 30)
+            //    {
+            //        sSQL += "UNION ALL " + System.Environment.NewLine;
+            //    }
+            //}
+
+            //DataSet dsFeature = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE <> 'DEFINING_ATTRIBUTE' ");
+            //DataSet dsVariasi = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'DEFINING_ATTRIBUTE' ");
+
+            var CategoryBlibli = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE == data.CategoryCode).FirstOrDefault();
+            var listAttributeBlibli = await GetAttributeToList(iden, CategoryBlibli);
+
+            List<string> dsFeature = new List<string>();
+            List<string> dsVariasi = new List<string>();
+            var attribute = listAttributeBlibli.attributes.FirstOrDefault();
+            //for (int i = 1; i <= 30; i++)
+            for (int i = 1; i <= 35; i++)
+            {
+                string attribute_id = Convert.ToString(attribute["ACODE_" + i.ToString()]);
+                string attribute_name = Convert.ToString(attribute["ANAME_" + i.ToString()]);
+                string attribute_type = Convert.ToString(attribute["ATYPE_" + i.ToString()]);
+                string attribute_vc = Convert.ToString(attribute["AVARCREATE_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(attribute_id))
+                {
+                    if (attribute_type == "DEFINING_ATTRIBUTE" || attribute_vc == "1")
+                    {
+                        dsVariasi.Add(attribute_id);
+                    }
+                    else
+                    {
+                        dsFeature.Add(attribute_id);
+                    }
+                }
+            }
+
+            Dictionary<string, string> nonDefiningAttributes = new Dictionary<string, string>();
+
+            //for (int i = 0; i < dsFeature.Tables[0].Rows.Count; i++)
+            //{
+            //    if (!nonDefiningAttributes.ContainsKey(Convert.ToString(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"])))
+            //    {
+            //        nonDefiningAttributes.Add(Convert.ToString(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]), Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim());
+            //    }
+            //}
+
+            //change 9 juli 2020, ambil 35 attribute
+            //for (int i = 1; i <= 30; i++)
+            for (int i = 1; i <= 35; i++)
+            //end change 9 juli 2020, ambil 35 attribute
+            {
+                string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
+                string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(attribute_id) && (value ?? "null") != "null" && !string.IsNullOrEmpty(value))
+                {
+                    if (dsFeature.Contains(attribute_id))
+                    {
+                        if (!nonDefiningAttributes.ContainsKey(attribute_id))
+                        {
+                            nonDefiningAttributes.Add(attribute_id, value.Trim());
+                        }
+                    }
+                }
+            }
+
+            newData.nonDefiningAttributes = nonDefiningAttributes;
+
+            //Dictionary<string, string> images = new Dictionary<string, string>();
+            var images = new List<ReviseImageMap>();
+            var sImages = new ReviseImageMap();
+            //List<string> uploadedImageID = new List<string>();
+            List<ReviseProductitem> productItems = new List<ReviseProductitem>();
+            #region bukan barang variasi
+            if (data.type == "3")
+            {
+                List<string> images_pervar = new List<string>();
+                string idGambar = "";
+                string urlGambar = "";
+
+                idGambar = stf02h.ACODE_50;
+                urlGambar = stf02h.AVALUE_50;
+                if (string.IsNullOrWhiteSpace(idGambar))
+                {
+                    idGambar = data.dataBarangInDb.Sort5;
+                    urlGambar = data.dataBarangInDb.LINK_GAMBAR_1;
+                }
+                idGambar = stf02h.BRG + "_1_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss");
+                //if (!string.IsNullOrWhiteSpace(idGambar))
+                if (!string.IsNullOrWhiteSpace(urlGambar))
+                {
+                    //if (!uploadedImageID.Contains(idGambar))
+                    //{
+                    using (var client = new HttpClient())
+                    {
+                        var bytes = await client.GetByteArrayAsync(urlGambar);
+
+                        using (var stream = new MemoryStream(bytes, true))
+                        {
+                            var img = Image.FromStream(stream);
+                            float newResolution = img.Height;
+                            if (img.Width < newResolution)
+                            {
+                                newResolution = img.Width;
+                            }
+                            var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                            //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+
+                            //change by calvin 1 maret 2019
+                            //ImageConverter _imageConverter = new ImageConverter();
+                            //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                            System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                            System.Drawing.Imaging.Encoder myEncoder =
+                                System.Drawing.Imaging.Encoder.Quality;
+                            System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                            System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                            myEncoderParameters.Param[0] = myEncoderParameter;
+
+                            var resizedStream = new System.IO.MemoryStream();
+                            resizedImage.Save(resizedStream, jpgEncoder, myEncoderParameters);
+                            resizedStream.Position = 0;
+                            byte[] resizedByteArr = resizedStream.ToArray();
+                            //end change by calvin 1 maret 2019
+                            resizedStream.Dispose();
+
+                            if (string.IsNullOrWhiteSpace(idGambar))
+                            {
+                                idGambar = Convert.ToString(bytes.Length);
+                            }
+                            //if (!uploadedImageID.Contains(idGambar))
+                            //{
+                            //    uploadedImageID.Add(idGambar);
+                            //images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            sImages.data = Convert.ToBase64String(resizedByteArr);
+                            sImages.name = idGambar;
+                            images.Add(sImages);
+                            images_pervar.Add(idGambar);
+                            //}
+                        }
+                    }
+                    //}
+                }
+                idGambar = stf02h.ACODE_49;
+                urlGambar = stf02h.AVALUE_49;
+                if (string.IsNullOrWhiteSpace(idGambar))
+                {
+                    idGambar = data.dataBarangInDb.Sort6;
+                    urlGambar = data.dataBarangInDb.LINK_GAMBAR_2;
+                }
+                idGambar = stf02h.BRG + "_2_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss");
+                //if (!string.IsNullOrWhiteSpace(idGambar))
+                if (!string.IsNullOrWhiteSpace(urlGambar))
+                {
+                    //if (!uploadedImageID.Contains(idGambar))
+                    //{
+                    using (var client = new HttpClient())
+                    {
+                        var bytes = await client.GetByteArrayAsync(urlGambar);
+
+                        using (var stream = new MemoryStream(bytes, true))
+                        {
+                            var img = Image.FromStream(stream);
+                            float newResolution = img.Height;
+                            if (img.Width < newResolution)
+                            {
+                                newResolution = img.Width;
+                            }
+                            var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                            //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+
+                            //change by calvin 1 maret 2019
+                            //ImageConverter _imageConverter = new ImageConverter();
+                            //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                            System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                            System.Drawing.Imaging.Encoder myEncoder =
+                                System.Drawing.Imaging.Encoder.Quality;
+                            System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                            System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                            myEncoderParameters.Param[0] = myEncoderParameter;
+
+                            var resizedStream = new System.IO.MemoryStream();
+                            resizedImage.Save(resizedStream, jpgEncoder, myEncoderParameters);
+                            resizedStream.Position = 0;
+                            byte[] resizedByteArr = resizedStream.ToArray();
+                            //end change by calvin 1 maret 2019
+                            resizedStream.Dispose();
+
+                            if (string.IsNullOrWhiteSpace(idGambar))
+                            {
+                                idGambar = Convert.ToString(bytes.Length);
+                            }
+
+                            //if (!uploadedImageID.Contains(idGambar))
+                            //{
+                            //    uploadedImageID.Add(idGambar);
+                            //images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            sImages.data = Convert.ToBase64String(resizedByteArr);
+                            sImages.name = idGambar;
+                            images.Add(sImages);
+                            images_pervar.Add(idGambar);
+                            //}
+                        }
+                    }
+                    //}
+                }
+
+                idGambar = stf02h.ACODE_48;
+                urlGambar = stf02h.AVALUE_48;
+                if (string.IsNullOrWhiteSpace(idGambar))
+                {
+                    idGambar = data.dataBarangInDb.Sort7;
+                    urlGambar = data.dataBarangInDb.LINK_GAMBAR_3;
+                }
+                idGambar = stf02h.BRG + "_3_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss");
+                if (!string.IsNullOrWhiteSpace(urlGambar))
+                //if (!string.IsNullOrWhiteSpace(idGambar))
+                {
+                    //if (!uploadedImageID.Contains(idGambar))
+                    //{
+                    using (var client = new HttpClient())
+                    {
+                        var bytes = await client.GetByteArrayAsync(urlGambar);
+
+                        using (var stream = new MemoryStream(bytes, true))
+                        {
+                            var img = Image.FromStream(stream);
+                            float newResolution = img.Height;
+                            if (img.Width < newResolution)
+                            {
+                                newResolution = img.Width;
+                            }
+                            var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                            //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+
+                            //change by calvin 1 maret 2019
+                            //ImageConverter _imageConverter = new ImageConverter();
+                            //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                            System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                            System.Drawing.Imaging.Encoder myEncoder =
+                                System.Drawing.Imaging.Encoder.Quality;
+                            System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                            System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                            myEncoderParameters.Param[0] = myEncoderParameter;
+
+                            var resizedStream = new System.IO.MemoryStream();
+                            resizedImage.Save(resizedStream, jpgEncoder, myEncoderParameters);
+                            resizedStream.Position = 0;
+                            byte[] resizedByteArr = resizedStream.ToArray();
+                            //end change by calvin 1 maret 2019
+                            resizedStream.Dispose();
+
+                            if (string.IsNullOrWhiteSpace(idGambar))
+                            {
+                                idGambar = Convert.ToString(bytes.Length);
+                            }
+
+                            //if (!uploadedImageID.Contains(idGambar))
+                            //{
+                            //    uploadedImageID.Add(idGambar);
+                            //images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            sImages.data = Convert.ToBase64String(resizedByteArr);
+                            sImages.name = idGambar;
+                            images.Add(sImages);
+                            images_pervar.Add(idGambar);
+                            //}
+                        }
+                    }
+                    //}
+                }
+                #region 6/9/2019, 5 gambar
+
+                idGambar = stf02h.SIZE_GAMBAR_4;
+                urlGambar = stf02h.LINK_GAMBAR_4;
+                if (string.IsNullOrWhiteSpace(idGambar))
+                {
+                    idGambar = data.dataBarangInDb.SIZE_GAMBAR_4;
+                    urlGambar = data.dataBarangInDb.LINK_GAMBAR_4;
+                }
+                //if (!string.IsNullOrWhiteSpace(idGambar))
+                idGambar = stf02h.BRG + "_4_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss");
+                if (!string.IsNullOrWhiteSpace(urlGambar))
+                {
+                    //if (!uploadedImageID.Contains(idGambar))
+                    //{
+                    using (var client = new HttpClient())
+                    {
+                        var bytes = await client.GetByteArrayAsync(urlGambar);
+
+                        using (var stream = new MemoryStream(bytes, true))
+                        {
+                            var img = Image.FromStream(stream);
+                            float newResolution = img.Height;
+                            if (img.Width < newResolution)
+                            {
+                                newResolution = img.Width;
+                            }
+                            var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                            //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+
+                            //change by calvin 1 maret 2019
+                            //ImageConverter _imageConverter = new ImageConverter();
+                            //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                            System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                            System.Drawing.Imaging.Encoder myEncoder =
+                                System.Drawing.Imaging.Encoder.Quality;
+                            System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                            System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                            myEncoderParameters.Param[0] = myEncoderParameter;
+
+                            var resizedStream = new System.IO.MemoryStream();
+                            resizedImage.Save(resizedStream, jpgEncoder, myEncoderParameters);
+                            resizedStream.Position = 0;
+                            byte[] resizedByteArr = resizedStream.ToArray();
+                            //end change by calvin 1 maret 2019
+                            resizedStream.Dispose();
+
+                            if (string.IsNullOrWhiteSpace(idGambar))
+                            {
+                                idGambar = Convert.ToString(bytes.Length);
+                            }
+
+                            //if (!uploadedImageID.Contains(idGambar))
+                            //{
+                            //    uploadedImageID.Add(idGambar);
+                            //images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            sImages.data = Convert.ToBase64String(resizedByteArr);
+                            sImages.name = idGambar;
+                            images.Add(sImages);
+                            images_pervar.Add(idGambar);
+                            //}
+                        }
+                    }
+                    //}
+                }
+
+                idGambar = stf02h.SIZE_GAMBAR_5;
+                urlGambar = stf02h.LINK_GAMBAR_5;
+                if (string.IsNullOrWhiteSpace(idGambar))
+                {
+                    idGambar = data.dataBarangInDb.SIZE_GAMBAR_5;
+                    urlGambar = data.dataBarangInDb.LINK_GAMBAR_5;
+                }
+                idGambar = stf02h.BRG + "_5_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss");
+                //if (!string.IsNullOrWhiteSpace(idGambar))
+                if (!string.IsNullOrWhiteSpace(urlGambar))
+                {
+                    //if (!uploadedImageID.Contains(idGambar))
+                    //{
+                    using (var client = new HttpClient())
+                    {
+                        var bytes = await client.GetByteArrayAsync(urlGambar);
+
+                        using (var stream = new MemoryStream(bytes, true))
+                        {
+                            var img = Image.FromStream(stream);
+                            float newResolution = img.Height;
+                            if (img.Width < newResolution)
+                            {
+                                newResolution = img.Width;
+                            }
+                            var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                            //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+
+                            //change by calvin 1 maret 2019
+                            //ImageConverter _imageConverter = new ImageConverter();
+                            //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                            System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                            System.Drawing.Imaging.Encoder myEncoder =
+                                System.Drawing.Imaging.Encoder.Quality;
+                            System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                            System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                            myEncoderParameters.Param[0] = myEncoderParameter;
+
+                            var resizedStream = new System.IO.MemoryStream();
+                            resizedImage.Save(resizedStream, jpgEncoder, myEncoderParameters);
+                            resizedStream.Position = 0;
+                            byte[] resizedByteArr = resizedStream.ToArray();
+                            //end change by calvin 1 maret 2019
+                            resizedStream.Dispose();
+
+                            if (string.IsNullOrWhiteSpace(idGambar))
+                            {
+                                idGambar = Convert.ToString(bytes.Length);
+                            }
+
+                            //if (!uploadedImageID.Contains(idGambar))
+                            //{
+                            //    uploadedImageID.Add(idGambar);
+                            //images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            sImages.data = Convert.ToBase64String(resizedByteArr);
+                            sImages.name = idGambar;
+                            images.Add(sImages);
+                            images_pervar.Add(idGambar);
+                            //}
+                        }
+                    }
+                    //}
+                }
+                #endregion
+                Dictionary<string, string[]> DefiningAttributes = new Dictionary<string, string[]>();
+                Dictionary<string, string> attributeMap = new Dictionary<string, string>();
+                //for (int a = 0; a < dsVariasi.Tables[0].Rows.Count; a++)
+                //{
+                //    List<string> dsVariasiValues = new List<string>();
+                //    string A_CODE = Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"]);
+                //    string A_VALUE = Convert.ToString(dsVariasi.Tables[0].Rows[a]["VALUE"]);
+                //    if (!dsVariasiValues.Contains(A_VALUE))
+                //    {
+                //        dsVariasiValues.Add(A_VALUE);
+                //    }
+
+                //    if (!DefiningAttributes.ContainsKey(A_CODE))
+                //    {
+                //        DefiningAttributes.Add(A_CODE, dsVariasiValues.ToArray());
+                //    }
+
+                //    attributeMap.Add(A_CODE, A_VALUE);
+                //}
+                //change 9 juli 2020, ambil 35 attribute
+                //for (int i = 1; i <= 30; i++)
+                for (int i = 1; i <= 35; i++)
+                //end change 9 juli 2020, ambil 35 attribute
+                {
+                    string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
+                    string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                    string aname = Convert.ToString(stf02h["ANAME_" + i.ToString()]);//add 30 april 2020, get attr name
+                    if (!string.IsNullOrWhiteSpace(attribute_id))
+                    {
+                        if (dsVariasi.Contains(attribute_id))
+                        {
+                            List<string> dsVariasiValues = new List<string>();
+                            if (!dsVariasiValues.Contains(value))
+                            {
+                                dsVariasiValues.Add(value);
+                            }
+
+                            if (!DefiningAttributes.ContainsKey(attribute_id))
+                            {
+                                //if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
+                                DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
+                            }
+                            if (aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
+                                attributeMap.Add(attribute_id, value);
+                        }
+                    }
+                }
+
+                ReviseProductitem newVarItem = new ReviseProductitem()
+                {
+                    //change sementara, perubahan ketentuan UPC di blibli
+                    //upcCode = data.dataBarangInDb.BRG,
+                    upcCode = "",
+                    //end change sementara, perubahan ketentuan UPC di blibli
+                    sellerSku = data.dataBarangInDb.BRG,
+                    //price = Convert.ToInt32(Convert.ToDouble(data.Price)),
+                    //salePrice = Convert.ToInt32(stf02h.HJUAL),
+                    minimumStock = Convert.ToInt32(data.dataBarangInDb.MINI),
+                    stock = Convert.ToInt32(data.dataBarangInDb.MINI),
+                    buyable = true,
+                    displayable = true,
+                    //dangerousGoodsLevel = 0,
+                    images = images_pervar.ToArray(),
+                    attributesMap = attributeMap
+                };
+                newVarItem.price = new ReviseProductPrice
+                {
+                    regular = Convert.ToInt32(Convert.ToDouble(data.Price)),
+                    sale = Convert.ToInt32(stf02h.HJUAL),
+                };
+                //add by calvin 15 agustus 2019
+                var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
+                if (qty_stock > 0)
+                {
+                    newVarItem.stock = Convert.ToInt32(qty_stock);
+                }
+                //end add by calvin 15 agustus 2019
+
+                productItems.Add(newVarItem);
+                newData.definingAttributes = DefiningAttributes;
+            }
+            #endregion
+            #region Barang Variasi
+            else
+            {
+                Dictionary<string, string> DefiningDariStf02H = new Dictionary<string, string>();
+
+                var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == data.kode).ToList();
+                var var_stf02_listbrg = var_stf02.Select(p => p.BRG).ToList();
+                var var_stf02h = ErasoftDbContext.STF02H.Where(p => var_stf02_listbrg.Contains(p.BRG) && p.IDMARKET == arf01.RecNum).ToList();
+                var var_stf02i = ErasoftDbContext.STF02I.Where(p => p.BRG == data.kode && p.MARKET == "BLIBLI").ToList().OrderBy(p => p.RECNUM);
+
+                Dictionary<string, string[]> DefiningAttributes = new Dictionary<string, string[]>();
+                //for (int a = 0; a < dsVariasi.Tables[0].Rows.Count; a++)
+                //{
+                //    string A_CODE = Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"]);
+                //    string A_VALUE = Convert.ToString(dsVariasi.Tables[0].Rows[a]["VALUE"]);
+
+                //    List<string> dsVariasiValues = new List<string>();
+                //    var var_stf02i_distinct = var_stf02i.Where(p => p.MP_JUDUL_VAR == A_CODE).ToList().OrderBy(p => p.RECNUM);
+                //    foreach (var v in var_stf02i_distinct)
+                //    {
+                //        if (!dsVariasiValues.Contains(v.MP_VALUE_VAR))
+                //        {
+                //            dsVariasiValues.Add(v.MP_VALUE_VAR);
+                //        }
+                //    }
+
+                //    //add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
+                //    //maka ambil value untuk attribute tersebut dari stf02h, ( diisi pada bagian detail per marketplace ).
+                //    if (var_stf02i_distinct.Count() == 0)
+                //    {
+                //        if (A_CODE == "WA-0000002") // Warna
+                //        {
+                //            ValueVariasiWarna = A_VALUE;
+                //            dsVariasiValues.Add(A_VALUE);
+                //        }
+                //    }
+                //    //end add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
+
+                //    if (!DefiningAttributes.ContainsKey(A_CODE))
+                //    {
+                //        DefiningAttributes.Add(A_CODE, dsVariasiValues.ToArray());
+                //    }
+                //}
+                //change 9 juli 2020, ambil 35 attribute
+                //for (int i = 1; i <= 30; i++)
+                List<string> dsVariasiFCValues = new List<string>();//untuk menampung family color
+                List<string> dsVariasiFCValuesInduk = new List<string>();//untuk menampung family color induk
+                for (int i = 1; i <= 35; i++)
+                //end change 9 juli 2020, ambil 35 attribute
+                {
+                    string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
+                    string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                    string aname = Convert.ToString(stf02h["ANAME_" + i.ToString()]);//add 30 april 2020, get attr name
+                    if (!string.IsNullOrWhiteSpace(attribute_id))
+                    {
+                        if (dsVariasi.Contains(attribute_id))
+                        {
+                            List<string> dsVariasiValues = new List<string>();
+                            var var_stf02i_distinct = var_stf02i.Where(p => p.MP_JUDUL_VAR == attribute_id).ToList().OrderBy(p => p.RECNUM);
+                            foreach (var v in var_stf02i_distinct)
+                            {
+                                if (!dsVariasiValues.Contains(v.MP_VALUE_VAR))
+                                {
+                                    dsVariasiValues.Add(v.MP_VALUE_VAR);
+                                    //if (v.MP_JUDUL_VAR == "WA-0000002")//add family color jika ada attribute warna
+                                    if (aname == "Warna")//add family color jika ada attribute warna
+                                    {
+                                        dsVariasiFCValues.Add(v.MP_VALUE_FC_VAR);
+                                    }
+                                }
+                            }
+
+                            //add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
+                            //maka ambil value untuk attribute tersebut dari stf02h, ( diisi pada bagian detail per marketplace ).
+                            if (var_stf02i_distinct.Count() == 0)
+                            {
+                                if (aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
+                                {
+                                    DefiningDariStf02H.Add(attribute_id, value);
+                                    //if (attribute_id == "WA-0000002") // Warna
+                                    //{
+                                    //    ValueVariasiWarna = value;
+                                    dsVariasiValues.Add(value);
+                                    //}
+                                }
+                            }
+                            //end add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
+
+                            if (!DefiningAttributes.ContainsKey(attribute_id))
+                            {
+                                if (aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
+                                    DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
+                            }
+
+                            if (attribute_id == "FA-2000060")
+                            {
+                                dsVariasiFCValuesInduk.Add(value);
+                            }
+                        }
+                    }
+                }
+
+                if (dsVariasiFCValues.Count > 0)//masukan attribute family color kalau ada isinya
+                {
+                    DefiningAttributes.Add("FA-2000060", dsVariasiFCValues.ToArray());
+                }
+
+                if (!DefiningAttributes.ContainsKey("FA-2000060") && dsVariasiFCValuesInduk.Count > 0)//belum ada familu color dan attr ada di brg induk
+                {
+                    DefiningAttributes.Add("FA-2000060", dsVariasiFCValuesInduk.ToArray());
+
+                }
+
+                newData.definingAttributes = DefiningAttributes;
+
+                foreach (var var_item in var_stf02)
+                {
+                    var var_stf02h_item = var_stf02h.Where(p => p.BRG == var_item.BRG).FirstOrDefault();
+
+                    List<string> images_pervar = new List<string>();
+                    string image_id = var_stf02h_item.ACODE_50;
+                    if (string.IsNullOrWhiteSpace(image_id))
+                    {
+                        image_id = var_item.Sort5;
+                    }
+                    string url = var_stf02h_item.AVALUE_50;
+                    if (string.IsNullOrWhiteSpace(url))
+                    {
+                        url = var_item.LINK_GAMBAR_1;
+                    }
+                    image_id = "_1_" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss");
+                    //if (!string.IsNullOrWhiteSpace(image_id))
+                    if (!string.IsNullOrWhiteSpace(url))
+                    {
+                        //if (!uploadedImageID.Contains(image_id))
+                        //{
+                        using (var client = new HttpClient())
+                        {
+                            //string url = var_stf02h_item.AVALUE_50;
+                            //if (string.IsNullOrWhiteSpace(url))
+                            //{
+                            //    url = var_item.LINK_GAMBAR_1;
+                            //}
+                            //var bytes = await client.GetByteArrayAsync(var_item.LINK_GAMBAR_1);
+                            var bytes = await client.GetByteArrayAsync(url);
+
+                            //images.Add(var_item.Sort5, Convert.ToBase64String(bytes));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            using (var stream = new MemoryStream(bytes, true))
+                            {
+                                var img = Image.FromStream(stream);
+                                float newResolution = img.Height;
+                                if (img.Width < newResolution)
+                                {
+                                    newResolution = img.Width;
+                                }
+                                var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                                //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+
+                                //change by calvin 1 maret 2019
+                                //ImageConverter _imageConverter = new ImageConverter();
+                                //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                                System.Drawing.Imaging.Encoder myEncoder =
+                                    System.Drawing.Imaging.Encoder.Quality;
+                                System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                                System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                                myEncoderParameters.Param[0] = myEncoderParameter;
+
+                                var resizedStream = new System.IO.MemoryStream();
+                                resizedImage.Save(resizedStream, jpgEncoder, myEncoderParameters);
+                                resizedStream.Position = 0;
+                                byte[] resizedByteArr = resizedStream.ToArray();
+                                //end change by calvin 1 maret 2019
+                                resizedStream.Dispose();
+
+                                //images.Add(var_item.Sort5, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                if (string.IsNullOrWhiteSpace(image_id))
+                                {
+                                    image_id = Convert.ToString(bytes.Length);
+                                }
+                                //if (!uploadedImageID.Contains(image_id))
+                                //{
+                                //    uploadedImageID.Add(image_id);
+                                //images.Add(var_item.BRG + image_id, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                sImages.data = Convert.ToBase64String(resizedByteArr);
+                                sImages.name = var_item.BRG + image_id;
+                                images.Add(sImages);
+                                images_pervar.Add(var_item.BRG + image_id); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                                                            //}
+                            }
+                        }
+                        //}
+                    }
+                    #region 6/9/2019, barang varian 2 gambar
+                    //image_id = var_stf02h_item.ACODE_49;
+                    //if (string.IsNullOrWhiteSpace(image_id))
+                    //{
+                    //    image_id = var_item.Sort6;
+                    //}
+                    //if (!string.IsNullOrWhiteSpace(image_id))
+                    //{
+                    //    if (!uploadedImageID.Contains(image_id))
+                    //    {
+                    //        using (var client = new HttpClient())
+                    //        {
+                    //            string url = var_stf02h_item.AVALUE_49;
+                    //            if (string.IsNullOrWhiteSpace(url))
+                    //            {
+                    //                url = var_item.LINK_GAMBAR_2;
+                    //            }
+                    //            //var bytes = await client.GetByteArrayAsync(var_item.LINK_GAMBAR_1);
+                    //            var bytes = await client.GetByteArrayAsync(url);
+
+                    //            //images.Add(var_item.Sort5, Convert.ToBase64String(bytes));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                    //            using (var stream = new MemoryStream(bytes, true))
+                    //            {
+                    //                var img = Image.FromStream(stream);
+                    //                float newResolution = img.Height;
+                    //                if (img.Width < newResolution)
+                    //                {
+                    //                    newResolution = img.Width;
+                    //                }
+                    //                var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                    //                //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+
+                    //                //change by calvin 1 maret 2019
+                    //                //ImageConverter _imageConverter = new ImageConverter();
+                    //                //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                    //                System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                    //                System.Drawing.Imaging.Encoder myEncoder =
+                    //                    System.Drawing.Imaging.Encoder.Quality;
+                    //                System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                    //                System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                    //                myEncoderParameters.Param[0] = myEncoderParameter;
+
+                    //                var resizedStream = new System.IO.MemoryStream();
+                    //                resizedImage.Save(resizedStream, jpgEncoder, myEncoderParameters);
+                    //                resizedStream.Position = 0;
+                    //                byte[] resizedByteArr = resizedStream.ToArray();
+                    //                //end change by calvin 1 maret 2019
+                    //                resizedStream.Dispose();
+
+                    //                //images.Add(var_item.Sort5, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                    //                if (string.IsNullOrWhiteSpace(image_id))
+                    //                {
+                    //                    image_id = Convert.ToString(bytes.Length);
+                    //                }
+                    //                if (!uploadedImageID.Contains(image_id))
+                    //                {
+                    //                    uploadedImageID.Add(image_id);
+                    //                    images.Add(image_id, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                    //                    images_pervar.Add(image_id); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                    //                }
+                    //            }
+                    //        }
+                    //    }
+                    //}
+                    #endregion
+                    Dictionary<string, string> attributeMap = new Dictionary<string, string>();
+                    if (!string.IsNullOrWhiteSpace(var_item.Sort8))
+                    {
+                        var var_stf02i_judul_mp_var_1 = var_stf02i.Where(p => p.KODE_VAR == var_item.Sort8 && p.LEVEL_VAR == 1).FirstOrDefault();
+                        if (var_stf02i_judul_mp_var_1 != null)
+                        {
+                            attributeMap.Add(var_stf02i_judul_mp_var_1.MP_JUDUL_VAR, var_stf02i_judul_mp_var_1.MP_VALUE_VAR);
+                        }
+                        if (!string.IsNullOrWhiteSpace(var_item.Sort9))
+                        {
+                            var var_stf02i_judul_mp_var_2 = var_stf02i.Where(p => p.KODE_VAR == var_item.Sort9 && p.LEVEL_VAR == 2).FirstOrDefault();
+                            if (var_stf02i_judul_mp_var_2 != null)
+                            {
+                                attributeMap.Add(var_stf02i_judul_mp_var_2.MP_JUDUL_VAR, var_stf02i_judul_mp_var_2.MP_VALUE_VAR);
+                            }
+                        }
+                        //add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
+                        //if (!attributeMap.ContainsKey("WA-0000002"))
+                        //{
+                        //    attributeMap.Add("WA-0000002", ValueVariasiWarna);
+                        //}
+                        if (DefiningDariStf02H.Count() > 0)
+                        {
+                            foreach (var item in DefiningDariStf02H)
+                            {
+                                if (!attributeMap.ContainsKey(item.Key))
+                                {
+                                    attributeMap.Add(item.Key, item.Value);
+                                }
+                            }
+                        }
+                        //end add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
+                    }
+                    else if (!string.IsNullOrWhiteSpace(var_item.Sort9))
+                    {
+                        var var_stf02i_judul_mp_var_2 = var_stf02i.Where(p => p.KODE_VAR == var_item.Sort9 && p.LEVEL_VAR == 2).FirstOrDefault();
+                        if (var_stf02i_judul_mp_var_2 != null)
+                        {
+                            attributeMap.Add(var_stf02i_judul_mp_var_2.MP_JUDUL_VAR, var_stf02i_judul_mp_var_2.MP_VALUE_VAR);
+                        }
+                        if (DefiningDariStf02H.Count() > 0)
+                        {
+                            foreach (var item in DefiningDariStf02H)
+                            {
+                                if (!attributeMap.ContainsKey(item.Key))
+                                {
+                                    attributeMap.Add(item.Key, item.Value);
+                                }
+                            }
+                        }
+                    }
+
+                    ReviseProductitem newVarItem = new ReviseProductitem()
+                    {
+                        //change sementara, perubahan ketentuan UPC di blibli
+                        //upcCode = var_item.BRG,
+                        upcCode = "",
+                        //change sementara, perubahan ketentuan UPC di blibli
+                        sellerSku = var_item.BRG,
+                        //price = Convert.ToInt32(var_item.HJUAL),
+                        //salePrice = Convert.ToInt32(var_stf02h_item.HJUAL),
+                        minimumStock = Convert.ToInt32(var_item.MINI),
+                        stock = Convert.ToInt32(var_item.MINI),
+                        buyable = true,
+                        displayable = true,
+                        //dangerousGoodsLevel = 0,
+                        images = images_pervar.ToArray(),
+                        attributesMap = attributeMap
+                    };
+
+                    newVarItem.price = new ReviseProductPrice
+                    {
+                        regular = Convert.ToInt32(Convert.ToDouble(var_item.HJUAL)),
+                        sale = Convert.ToInt32(var_stf02h_item.HJUAL),
+                    };
+                    //add by calvin 15 agustus 2019
+                    var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
+                    if (qty_stock > 0)
+                    {
+                        newVarItem.stock = Convert.ToInt32(qty_stock);
+                    }
+                    //end add by calvin 15 agustus 2019
+                    productItems.Add(newVarItem);
+                }
+            }
+            #endregion
+
+            newData.productItems = (productItems);
+            newData.imageMap = images.ToArray();
+            newData.product.uniqueSellingPoint = Convert.ToBase64String(Encoding.ASCII.GetBytes(Convert.ToString(stf02h["AVALUE_39"])));
+
+            string myData = JsonConvert.SerializeObject(newData);
+
+            //myData = myData.Replace("\\r\\n", "\\n").Replace("–", "-").Replace("\\\"\\\"", "").Replace("×", "x");
+            var prdCode = stf02h.BRG_MP.Split(';');
+            string product_code = "";
+            if (prdCode.Length == 2)
+            {
+                product_code = prdCode[1];
+            }
+            urll = "https://api.blibli.com/v2/proxy/seller/v1/product-submissions/" + product_code + "?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&username=" + Uri.EscapeDataString(userMTA) + "&storeCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&channelId=MasterOnline";
+
+#if (DEBUG || Debug_AWS)
+            string jobId = "";
+#else
+            string jobId = context.BackgroundJob.Id;
+#endif
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Create Product",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = data.kode,
+                REQUEST_ATTRIBUTE_2 = data.nama,
+                REQUEST_ATTRIBUTE_3 = jobId, //hangfire job id ( create product )
+                //REQUEST_ATTRIBUTE_5 = "BLIBLI_CPRODUCT",//add by Tri 19 Des 2019, agar log create brg blibli tidak terhapus
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
+            myReq = (HttpWebRequest)WebRequest.Create(urll);
+            string usernameMO = iden.API_client_username;
+            string passMO = iden.API_client_password;
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+            myReq.Headers.Add("Signature-Time", milis.ToString());
+
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = myReq.GetResponse())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ReviseProductResult)) as ReviseProductResult;
+                if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
+                {
+                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                    var client = new BackgroundJobClient(sqlStorage);
+                    //INSERT QUEUE FEED
+#if (DEBUG || Debug_AWS)
+                    await CreateProductSuccess_1(dbPathEra, kodeProduk, log_CUST, "Barang", "Buat Produk (Tahap 2 / 3)", iden, Convert.ToString(data.kode), Convert.ToString(result.content.queueId), Convert.ToString(milis));
+#else
+                    client.Enqueue<BlibliControllerJob>(x => x.CreateProductSuccess_1(dbPathEra, kodeProduk, log_CUST, "Barang", "Buat Produk (Tahap 2 / 3)", iden, Convert.ToString(data.kode), Convert.ToString(result.content.queueId), Convert.ToString(milis)));
+#endif
+                    //client.Enqueue<BlibliControllerJob>(x => x.CreateProductSuccess_2(dbPathEra, kodeProduk, log_CUST, "Barang", "Buat Produk (Tahap 2 / 3)", iden, Convert.ToString(data.kode), Convert.ToString(result.value.queueFeedId), Convert.ToString(milis)));
+                }
+                else
+                {
+                    throw new Exception(Convert.ToString(result.errorCode));
+
+                    //currentLog.REQUEST_EXCEPTION = Convert.ToString(result.errorCode);
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                }
+            }
+
+            return ret;
+        }
+
 
         public class BlibliCekProductActive
         {
             public string[] merchantSkus { get; set; }
+        }
+
+        public class BlibliGetQueueProductCode
+        {
+            public string productCode { get; set; }
+            public string productName { get; set; }
+            public string[] merchantSkuList { get; set; }
+            //need_correction
+            public string oldProductCode { get; set; }
+            public string newProductCode { get; set; }
+
+        }
+
+        public class Blibli_ProductSubmissionList_Response
+        {
+            public string requestId { get; set; }
+            public ProductSubmissionList_Content[] content { get; set; }
+            public Paging paging { get; set; }
+            public string errorMessage { get; set; }
+            public string errorCode { get; set; }
+        }
+
+        public class Paging
+        {
+            public int pageSize { get; set; }
+            public int pageNumber { get; set; }
+            public int totalPage { get; set; }
+            public int totalRecord { get; set; }
+        }
+
+        public class ProductSubmissionList_Content
+        {
+            public Product product { get; set; }
+            //public Brand brand { get; set; }
+            //public Dimension dimension { get; set; }
+            //public Category category { get; set; }
+            //public ProductSubmissionList_Image[] images { get; set; }
+            public ProductSubmissionList_Productitem[] productItems { get; set; }
+        }
+
+        public class Product
+        {
+            public string code { get; set; }
+            public string sku { get; set; }
+            public string name { get; set; }
+            public string videoUrl { get; set; }
+            public string uniqueSellingPoint { get; set; }
+            public string description { get; set; }
+        }
+
+        public class Brand
+        {
+            public string name { get; set; }
+            public string state { get; set; }
+        }
+
+        public class Dimension
+        {
+            public int length { get; set; }
+            public int width { get; set; }
+            public float weight { get; set; }
+            public int height { get; set; }
+            public int shippingWeight { get; set; }
+        }
+
+        public class Category
+        {
+            public string code { get; set; }
+            public string name { get; set; }
+        }
+
+        public class ProductSubmissionList_Image
+        {
+            public string path { get; set; }
+            public int sequence { get; set; }
+            public bool main { get; set; }
+        }
+
+        public class ProductSubmissionList_Productitem
+        {
+            public string name { get; set; }
+            public string code { get; set; }
+            public string upcCode { get; set; }
         }
 
         public class BlibliCekProductActiveResult
@@ -8450,7 +9932,7 @@ namespace MasterOnline.Controllers
             public bool promoBundling { get; set; }
             public bool isArchived { get; set; }
         }
-                
+
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Blibli Berhasil. Cek Active Gagal.")]
@@ -8508,7 +9990,7 @@ namespace MasterOnline.Controllers
             {
                 //add by nurul 10/7/2020
                 string usernameMO = iden.API_client_username;
-                string passMO = iden.API_client_password;             
+                string passMO = iden.API_client_password;
                 //string passMO = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
                 //end add by nurul 10/7/2020
                 string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
@@ -8761,7 +10243,7 @@ namespace MasterOnline.Controllers
                 string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
                 string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
                 string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
-                
+
                 urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/createPackage?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&storeId=10001" + "&channelId=MasterOnline&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code);
 
                 myReq = (HttpWebRequest)WebRequest.Create(urll);
@@ -9191,7 +10673,76 @@ namespace MasterOnline.Controllers
 
             return destImage;
         }
+        public class ReviseProductBlibliData
+        {
+            public ReviseProductData product { get; set; }
+            public RevisepickupPoint pickupPoint { get; set; }
+            public ReviseCategoryCode category { get; set; }
+            public ReviseBrand brand { get; set; }
+            //public string url { get; set; }
+            public ReviseDimension dimension { get; set; }
+            //public string productStory { get; set; }
+            public Dictionary<string, string> nonDefiningAttributes { get; set; }
+            public Dictionary<string, string[]> definingAttributes { get; set; }
+            public List<ReviseProductitem> productItems { get; set; }
+            public ReviseImageMap[] imageMap { get; set; }
+        }
+        public class ReviseProductitem
+        {
+            public string upcCode { get; set; }
+            public string sellerSku { get; set; }
+            public ReviseProductPrice price { get; set; }
+            //public int salePrice { get; set; }
+            public int stock { get; set; }
+            public int minimumStock { get; set; }
+            public bool displayable { get; set; }
+            public bool buyable { get; set; }
+            public string[] images { get; set; }
+            //public int dangerousGoodsLevel { get; set; }
+            public Dictionary<string, string> attributesMap { get; set; }
+        }
+        public class ReviseProductPrice
+        {
+            public int regular { get; set; }
+            public int sale { get; set; }
 
+        }
+        public class ReviseDimension
+        {
+            public int length { get; set; }
+            public int width { get; set; }
+            public int height { get; set; }
+            public int weight { get; set; }
+
+        }
+        public class ReviseBrand
+        {
+            public string code { get; set; }
+
+        }
+        public class ReviseCategoryCode
+        {
+            public string code { get; set; }
+
+        }
+        public class RevisepickupPoint
+        {
+            public string code { get; set; }
+
+        }
+        public class ReviseImageMap
+        {
+            public string data { get; set; }
+            public string name { get; set; }
+            public string path { get; set; }
+        }
+        public class ReviseProductData
+        {
+            public string name { get; set; }
+            public string description { get; set; }
+            public int productType { get; set; }
+            public string uniqueSellingPoint { get; set; }
+        }
         public class CreateProductBlibliData
         {
             public string name { get; set; }
@@ -9502,12 +11053,26 @@ namespace MasterOnline.Controllers
             public bool success { get; set; }
             public CreateProductResultValue value { get; set; }
         }
-
+        public class ReviseProductResult
+        {
+            public string requestId { get; set; }
+            public object headers { get; set; }
+            public object errorMessage { get; set; }
+            public object errorCode { get; set; }
+            public bool success { get; set; }
+            public ReviseProductResultValue content { get; set; }
+        }
         public class CreateProductResultValue
         {
             public string queueFeedId { get; set; }
             public string requestAction { get; set; }
             public int total { get; set; }
+            public long timeStamp { get; set; }
+        }
+        public class ReviseProductResultValue
+        {
+            public string queueId { get; set; }
+            public string action { get; set; }
             public long timeStamp { get; set; }
         }
 
