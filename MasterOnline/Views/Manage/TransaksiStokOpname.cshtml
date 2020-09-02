@@ -1179,14 +1179,11 @@
             link.click();
         }
 
-        function popupAlertUploadSaldoAwal() {
-            alert("Proses upload dan input Stok Opname sudah selesai!");
+        function popupAlertUploadStokOpname(message) {
+            //alert("Proses upload dan input Stok Opname sudah selesai!");
+            alert(message);
         }
-
-        function popupAlertUploadSaldoAwal_withError() {
-            alert("Proses upload dan input Stok Opname sudah selesai!");
-        }
-
+        
         function uploadExcelSOP() {
             if ($('#file_upload_excel')[0].files.length < 1) {
                 $('#file_upload_excel').click();
@@ -1252,38 +1249,17 @@
                     success: function (response) {
                         $('#loading_upload').hide();
                         $('#btnUploadExcelSOP').removeAttr('disabled');
-                        setTimeout(popupAlertUploadSaldoAwal, 500);
                         document.getElementById("file_upload_excel").value = "";
 
-                        //if (response.countAll != null && response.Errors.length == 0 && response.statusLoop == true && response.statusSuccess == false) {
-                        //    $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
-                        //    $('#pBar_uploadFile').html(response.percent + '% Complete');
-
-                        //    if (response.progress <= response.countAll) {
-                        //        uploadFileExcelStokOpname(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
-                        //    }
-
-                        //} else if (response.statusSuccess == true && response.Errors.length == 0) {
-                        //    document.getElementById("file_upload_excel").value = "";
-                        //    $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
-                        //    $('#pBar_uploadFile').html('100% Complete');
-                        //    $('#btnUploadExcelSOP').removeAttr('disabled');
-                        //    setTimeout(popupAlertUploadSaldoAwal, 500);
-
-                        //} else if (response.statusSuccess == true && response.Errors.length > 0) {
-                        //    document.getElementById("file_upload_excel").value = "";
-                        //    $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
-                        //    $('#pBar_uploadFile').html('100% Complete');
-                        //    $('#btnUploadExcelSOP').removeAttr('disabled');
-                        //    setTimeout(popupAlertUploadSaldoAwal, 500);
-
-                        //} else {
-                        //    $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
-                        //    $('#pBar_uploadFile').html('0% Complete');
-                        //    $('#btnUploadExcelSOP').removeAttr('disabled');
-                        //    document.getElementById("file_upload_excel").value = "";
-                        //}
-
+                        if (response.statusSuccess == true && response.Errors.length > 0) {
+                            var err = "";
+                            for (i = 0; i < response.Errors.length; i++) {
+                                err += response.Errors[i] + "\n";
+                            }
+                            setTimeout(popupAlertUploadStokOpname(err), 500);
+                        } else if (response.statusSuccess == true && response.Errors.length == 0) {
+                            setTimeout(popupAlertUploadStokOpname("Proses upload dan input Stok Opname sudah selesai"), 500);
+                        }
                     },
                     error: function (xhr, status, error) {
                         var err = "";

@@ -22,6 +22,7 @@ using Spire.Xls;
 using System.Data.SqlClient;
 using System.Data;
 using MasterOnline.Utils;
+using System.Text.RegularExpressions;
 
 namespace MasterOnline.Controllers
 {
@@ -3519,12 +3520,15 @@ namespace MasterOnline.Controllers
                                                     prog[1] = "0";
                                                 }
 
+                                                ret.progress = Convert.ToInt32(prog[1]);
 
-                                                for (int i = Convert.ToInt32(prog[1]); i <= worksheet.Dimension.End.Row; i++)
+                                                for (int i = Convert.ToInt32(prog[1]); i <= ret.countAll; i++)
                                                 {
                                                     ret.statusLoop = true;
-                                                    ret.progress = i;
-                                                    ret.percent = (i * 100) / ret.countAll;
+                                                    //ret.progress = i;
+                                                    ret.progress += 1;
+                                                    //ret.percent = (i * 100) / ret.countAll;
+                                                    Functions.SendProgress("Process in progress...", ret.progress, ret.countAll);
 
                                                     var kd_brg = worksheet.Cells[i, 1].Value == null ? "" : worksheet.Cells[i, 1].Value.ToString();
                                                     if (!string.IsNullOrEmpty(kd_brg))
@@ -3534,14 +3538,20 @@ namespace MasterOnline.Controllers
                                                         {
                                                             if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
                                                             {
-                                                                //stok 0 juga bisa masuk
-                                                                if (Convert.ToInt32(worksheet.Cells[i, 3].Value) >= 0)
+                                                                //stok 0 juga bisa masuk //replace(/(?!-)[^0-9.]/g, "")
+                                                                var valStock = worksheet.Cells[i, 3].Value.ToString();
+                                                                valStock = Regex.Replace(valStock, "[^0-9]", "");
+
+                                                                //if (Convert.ToInt32(worksheet.Cells[i, 3].Value) >= 0)
+                                                                if(!string.IsNullOrEmpty(valStock))
+                                                                if (Convert.ToInt32(valStock) >= 0)
                                                                 {
                                                                     var stt04b = new STT04B
                                                                     {
                                                                         Gud = gd,
                                                                         Brg = current_brg.BRG,
-                                                                        Qty = Convert.ToInt32(worksheet.Cells[i, 3].Value),
+                                                                        //Qty = Convert.ToInt32(worksheet.Cells[i, 3].Value),
+                                                                        Qty = Convert.ToInt32(valStock),
                                                                         Tgl = DateTime.Today,
                                                                         HPokok = 0,
                                                                         BK = "",
@@ -3564,26 +3574,28 @@ namespace MasterOnline.Controllers
                                                         }
                                                         else
                                                         {
+                                                            transaction.Rollback();
                                                             ret.Errors.Add("Kode Barang (" + kd_brg + ") tidak ditemukan");
                                                             ret.statusSuccess = true;
                                                             ret.lastRow[file_index] = i;
-                                                            i = worksheet.Dimension.End.Row;
+                                                            i = ret.countAll;
                                                         }
                                                     }
-
-                                                    Functions.SendProgress("Process in progress...", i, worksheet.Dimension.End.Row);
-
                                                 }
                                             }
                                         }
                                         else
                                         {
+                                            transaction.Rollback();
                                             ret.Errors.Add("Kode gudang tidak ditemukan");
+                                            ret.statusSuccess = true;
                                         }
                                     }
                                     else
                                     {
+                                        transaction.Rollback();
                                         ret.Errors.Add("Kode gudang tidak ditemukan");
+                                        ret.statusSuccess = true;
                                     }
                                 }
 
@@ -3596,6 +3608,7 @@ namespace MasterOnline.Controllers
                                 {
                                     transaction.Rollback();
                                     ret.Errors.Add(ex.InnerException == null ? ex.Message : "Data tidak berhasil diproses, " + ex.InnerException.Message);
+                                    ret.statusSuccess = true;
                                 }
                             }
                         }
@@ -3605,6 +3618,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.statusSuccess = true;
                 ret.Errors.Add(ex.InnerException == null ? ex.Message : "Data tidak berhasil diproses, " + ex.InnerException.Message);
             }
 
