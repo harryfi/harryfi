@@ -54373,6 +54373,9 @@ namespace MasterOnline.Controllers
                 case "SHOPEE":
                     viewName = "ListDetailPackingListShopee";
                     break;
+                case "JDID":
+                    viewName = "ListDetailPackingListJDID";
+                    break;
                 //case "20":
                 //    viewName = "PackingList82Cart";
                 //    break;
