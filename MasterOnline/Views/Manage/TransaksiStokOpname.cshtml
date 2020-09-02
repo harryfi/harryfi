@@ -1257,6 +1257,8 @@
                                 err += response.Errors[i] + "\n";
                             }
                             setTimeout(popupAlertUploadStokOpname(err), 500);
+                            $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                            $('#pBar_uploadFile').html('0% Complete');
                         } else if (response.statusSuccess == true && response.Errors.length == 0) {
                             setTimeout(popupAlertUploadStokOpname("Proses upload dan input Stok Opname sudah selesai"), 500);
                         }
@@ -1272,6 +1274,8 @@
                         $('#progressBarUpload').hide();
                         $('#btnUploadExcelSOP').removeAttr('disabled');
                         document.getElementById("file_upload_excel").value = "";
+                        $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                        $('#pBar_uploadFile').html('0% Complete');
                     }
                 });
 
