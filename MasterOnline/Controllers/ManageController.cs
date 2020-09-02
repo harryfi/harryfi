@@ -45446,6 +45446,7 @@ namespace MasterOnline.Controllers
             public string brg { get; set; }
             public double qty { get; set; }
             public string nobuk { get; set; }//add by Tri 1 sep 2020
+            public bool sudahAdaLokasiNQtyN { get; set; }
         }
         //end add by nurul 7/7/2020
         public ActionResult UbahStatusPesananPackingTransaction(string[] get_selected, bool packinglist, int approved)
@@ -45668,10 +45669,11 @@ namespace MasterOnline.Controllers
                         //if (qtyOnHand + (SOB_QtyN > 0 ? (SOB_Lokasi == gudang ? SOB_QtyN : 0) : 0) - SOB_Qty < 0)
                         var qtyOnHand = GetQOHSTF08A(dsSORow.BRG, gudang);
                         //change by nurul 31/8/2020
-                        var tempCountQtyBrgX = tempBerhasilUpdate.Where(a => a.brg == dsSORow.BRG).Sum(a => a.qty);
-                        var totalQOH = qtyOnHand - tempCountQtyBrgX;
+                        var tempCountQtyBrgX = tempBerhasilUpdate.Where(a => a.brg == dsSORow.BRG && a.sudahAdaLokasiNQtyN == false).Sum(a => a.qty);
+                        
                         //if (qtyOnHand + (dsSORow.QTY_N > 0 ? (dsSORow.LOKASI == gudang ? dsSORow.QTY_N : 0) : 0) - dsSORow.QTY < 0)
                         var cekQty = (dsSORow.QTY_N > 0 ? (dsSORow.LOKASI == gudang ? dsSORow.QTY_N : 0) : 0);
+                        var totalQOH = qtyOnHand - tempCountQtyBrgX;
                         //if (approved == 0)
                         //{
                             if (totalQOH + (dsSORow.QTY_N > 0 ? (dsSORow.LOKASI == gudang ? dsSORow.QTY_N : 0) : 0) - dsSORow.QTY < 0)
@@ -45713,6 +45715,10 @@ namespace MasterOnline.Controllers
                                     recnum = dsSORow.SOB_RECNUM.ToString(),
                                     nobuk = dsSORow.NO_BUKTI//add by Tri 1 sep 2020
                                 };
+                                if(dsSORow.LOKASI != "" && dsSORow.QTY_N > 0)
+                                {
+                                    tempData.sudahAdaLokasiNQtyN = true;
+                                }
                                 tempBerhasilUpdate.Add(tempData);
                                 //add by nurul 31/8/2020
                                 //stringUpdateSOB += Environment.NewLine + "(" + SOB_RECNUM + ", '" + gudang + "'),";
