@@ -839,7 +839,7 @@ namespace MasterOnline.Controllers
                                     if (listProd.model.spuInfoVoList.Count == 10)
                                         //ret.message = (page + 1).ToString();
                                         ret.nextPage = 1;
-
+                                    var spu = "";
                                     foreach (var item in listProd.model.spuInfoVoList)
                                     {
                                         //product status: 1.online,2.offline,3.punish,4.deleted
@@ -856,6 +856,10 @@ namespace MasterOnline.Controllers
                                                 adaError = true;
                                                 msg += item.spuId + ":" + retProd.message + "___||___";
                                             }
+                                        }
+                                        else
+                                        {
+                                            spu = spu + item.spuId + ",";
                                         }
 
                                     }
@@ -996,6 +1000,10 @@ namespace MasterOnline.Controllers
                                                 //createParent = false;
                                             }
                                         }
+                                        else
+                                        {
+                                            var datasudahada = item.skuId.ToString(); // breakpoint
+                                        }
                                         //}
 
                                     }
@@ -1012,6 +1020,10 @@ namespace MasterOnline.Controllers
                                             {
                                                 ret.recordCount += retData.recordCount;
                                             }
+                                        }
+                                        else
+                                        {
+                                            var datasudahada = item.skuId.ToString(); // breakpoint
                                         }
                                     }
 
@@ -1325,14 +1337,18 @@ namespace MasterOnline.Controllers
                 if (typeBrg != 1)
                 {
                     //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
-                    if (!string.IsNullOrEmpty(detItem.sellerSkuId.ToString()))
+                    //if (!string.IsNullOrEmpty(detItem.sellerSkuId.ToString()) && detItem.sellerSkuId.ToString() != "null")
+                    // change by fauzi 03/09/2020 tambah validasi untuk seller sku dengan isi null
+                    var sellerSKUAPI = Convert.ToString(detItem.sellerSkuId);
+                    if (!string.IsNullOrEmpty(sellerSKUAPI) && sellerSKUAPI != "null")
                     {
-                        sSQL_Value += " ( '" + skuId + "' , '" + detItem.sellerSkuId.ToString() + "' , '";
+                        sSQL_Value += " ( '" + skuId + "' , '" + sellerSKUAPI + "' , '";
                     }
                     else
                     {
                         sSQL_Value += " ( '" + skuId + "' , '" + skuId + "' , '";
                     }
+                    //end changed by fauzi 03/09/2020
                     //sSQL_Value += " ( '" + skuId + "' , '' , '";
                     //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
