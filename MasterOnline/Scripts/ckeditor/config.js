@@ -7,13 +7,14 @@ CKEDITOR.editorConfig = function( config ) {
 	// Define changes to default configuration here.
 	// For complete reference see:
 	// https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html
-
+	//config.plugins = 'wordcount';
+	config.extraPlugins = 'wordcount,notification';
 	// The toolbar groups arrangement, optimized for two toolbar rows.
 	config.toolbarGroups = [
 		//{ name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
 		//{ name: 'editing', groups: ['find', 'selection', 'spellchecker'] },
 		{ name: 'basicstyles', groups: ['basicstyles', 'cleanup'] },
-		{ name: 'editing', groups: ['find', 'selection'] },
+		{ name: 'editing', items: ['SpellChecker'], groups: ['find', 'selection'] },
 		{ name: 'links' },
 		//{ name: 'insert' },
 		{ name: 'document',	   groups: [ 'mode', 'document', 'doctools' ] },
@@ -38,4 +39,9 @@ CKEDITOR.editorConfig = function( config ) {
 	// Simplify the dialog windows.
 	config.removeDialogTabs = 'image:advanced;link:advanced';
 	config.removePlugins = 'scayt';
+
+	//config.extraPlugins = 'wordcount,notification';
+	//config.wordcount = {
+	//	showCharCount: true,
+	//}
 };

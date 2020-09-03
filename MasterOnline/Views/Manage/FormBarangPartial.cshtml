@@ -76,6 +76,9 @@
         display: table-cell;
         vertical-align: middle;
     }
+    .cke_wordcount{
+        margin-top : 3px;
+    }
 </style>
 <script src="~/Scripts/ckeditor/ckeditor.js"></script>
 <script type="text/javascript">
@@ -84,10 +87,21 @@
     }
     var model_listhargajualpermarketview = @Html.Raw(Json.Encode(model_listhargajualpermarketview));
 
-    function initCKEditor(){
+    function initCKEditor() {
+        //CKEDITOR.replace('editor1', {
+        //    extraPlugins: 'wordcount'
+        //});
+
         $('.make_ckeditor').each(function (i, item) {
             if ($('#cke_' + item.id).length == 0) {
-                CKEDITOR.replace(item.id);
+                CKEDITOR.replace(item.id, {
+                    extraPlugins: 'wordcount',
+                    wordcount: {
+                        showCharCount: true,
+                        showWordCount: false,
+                        showParagraphs: false
+                    }
+                });
             }
         });
     }
