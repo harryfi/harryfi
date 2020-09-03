@@ -8,7 +8,7 @@ namespace MasterOnline.ViewModels
     public class HargaJualMassalViewModel
     {
         public string NO_BUKTI { get; set; }
-        public string CUST { get; set; }
+        //public string CUST { get; set; }
         public string FILE_1 { get; set; }
         public int JML_BRG_1 { get; set; }
         public string FILE_2 { get; set; }

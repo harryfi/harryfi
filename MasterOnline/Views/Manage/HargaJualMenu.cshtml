@@ -521,7 +521,7 @@
                     $('#HJUALBARU82CartDampak').val(hargaAkhir);
 
                 });
-                
+
             });
         //add by Tri, 27 Mei 2019
         function exportExcel() {
@@ -994,5 +994,57 @@
             });
         }
         //end add by nurul 13/6/2019
+
+        //add by Tri 3 sep 2020, harga jual massal
+        function getMarketplace() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetPelangganAkun", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var customerList = [];
+                    $.each(data,
+                        function (i, item) {
+                            var $namaMarket = $marketCollection[item.NAMA];
+
+                            customerList[i] = {
+                                id: item.CUST,
+                                text: $namaMarket + " (" + item.PERSO + ")",
+                                term: item.TOP
+                            };
+                        });
+
+                    var custSelect = $('#CUSTOMER').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: customerList,
+                        onChange: function (value) {
+                            if (value == null) {
+                                $("#Promosi_NAMA_MARKET").val(null);
+                            } else {
+                                $("#Promosi_NAMA_MARKET").val(value);
+                                if ($('.selectivity-single-selected-item-remove')[0] != undefined) {
+                                    $('.selectivity-single-selected-item-remove')[0].click();//remove selected brg
+                                }
+
+                                if ($("#CUSTOMER").children("option").filter(":selected").text().includes("Lazada (")) {
+                                    $("#div_text").show();
+                                } else {
+                                    $("#div_text").hide();
+                                }
+                                getDataBarang();
+                            }
+                            $('#btn-simpan-perubahan-row').show();
+                        },
+                    });
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        //end add by Tri 3 sep 2020, harga jual massal
     </script>
 }
