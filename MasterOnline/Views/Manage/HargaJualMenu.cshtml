@@ -175,49 +175,70 @@
             display: block;
         }
 </style>
-
-<div class="row" id="hargaJual-section">
-    <div class="col-lg-12 col-md-12">
-        <div class="row hargaJual_table_section marginmin">
-            <div class="col-lg-8 col-sm-6">
-                <div class="input-group">
-                    <label class="col-lg-1 col-sm-4" style="padding-top:5px; margin-right:8px;">Search</label>
-                    <div class="col-lg-4 col-sm-4">
-                        <select class="form-control" id="filter_pencarian_field" required="required">
-                            <option value="kodebarang">Kode Barang</option>
-                            <option value="namabarang">Nama Barang</option>
-                        </select>
+<div class="" role="tabpanel" data-example-id="togglable-tabs">
+    <ul id="myTab" class="nav nav-tabs" role="tablist">
+        <li class="active">
+            <a href="#tab_content1" id="hargajual-tab" role="tab" data-toggle="tab" aria-expanded="true">Harga Jual</a>
+        </li>
+        <li>
+            <a href="#tab_content2" id="updatemassal-tab" role="tab" data-toggle="tab" aria-expanded="true">Update Massal</a>
+        </li>
+    </ul>
+</div>
+<div id="myTabContent" class="tab-content">
+    <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="hargajual-tab">
+        <div class="row" id="hargaJual-section">
+            <div class="col-lg-12 col-md-12">
+                <div class="row hargaJual_table_section marginmin">
+                    <div class="col-lg-8 col-sm-6">
+                        <div class="input-group">
+                            <label class="col-lg-1 col-sm-4" style="padding-top:5px; margin-right:8px;">Search</label>
+                            <div class="col-lg-4 col-sm-4">
+                                <select class="form-control" id="filter_pencarian_field" required="required">
+                                    <option value="kodebarang">Kode Barang</option>
+                                    <option value="namabarang">Nama Barang</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-5 col-sm-6">
+                                <input id="search_hargaJual" type="text" class="form-control" placeholder="Ketik Pencarian">
+                            </div>
+                            <div class="col-lg-1 col-sm-6">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_hargaJual_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-lg-5 col-sm-6">
-                        <input id="search_hargaJual" type="text" class="form-control" placeholder="Ketik Pencarian">
-                    </div>
-                    <div class="col-lg-1 col-sm-6">
-                        <span class="input-group-btn">
-                            <button type="button" id="search_hargaJual_click" class="btn btn-primary">
-                                <i class="fa fa-search"></i>
+                    <div class="col-lg-4 col-sm-6">
+                        <div class="pull-right">
+                            @*<button type="button" class=" btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>*@
+                            <button type="button" onclick="exportExcel()" class=" btn btn-primary" data-style="expand-right">
+                                <span>Export ke Excel</span>
                             </button>
-                        </span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-4 col-sm-6">
-                <div class="pull-right">
-                    @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                            <span>Refresh</span>
-                        </button>*@
-                    <button type="button" onclick="exportExcel()" class=" btn btn-primary" data-style="expand-right">
-                        <span>Export ke Excel</span>
-                    </button>
+                <div class="row hargaJual_table_section">
+                    <div class="col-sm-12" id="table-hargaJual-partial">
+                        @*@Html.Partial("TableHargaJualPartial")*@
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="row hargaJual_table_section">
-            <div class="col-sm-12" id="table-hargaJual-partial">
-                @*@Html.Partial("TableHargaJualPartial")*@
+        <div role="tabpanel" class="tab-pane fade in" id="tab_content2" aria-labelledby="updatemassal-tab">            
+            <div class="row udate_massal_section" style="margin-top: 5px;">
+                <div class="col-sm-12 addpixel" id="form-update-massal-partial">
+                    @*@Html.Partial("TablePromosiPartial")*@
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 <!-- Modal Hapus hargaJual -->
 <div class="modal fade" id="konfHapusHargaJual" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
@@ -339,7 +360,7 @@
                         <div class="row">
                             <div class="col-m12">
                                 <b>Masukkan harga jual baru:</b>
-                                <input type="text" id="HJUALBARU82Cart" name="HJUALBARU82Cart" value="27000"  class="form-control" style="margin-top: 10px;" />
+                                <input type="text" id="HJUALBARU82Cart" name="HJUALBARU82Cart" value="27000" class="form-control" style="margin-top: 10px;" />
                                 <input type="hidden" id="HJUALBARU82CartTemp" name="HJUALBARU82CartTemp" disabled="disabled" class="form-control" style="margin-top: 10px;" />
                             </div>
                         </div>
@@ -350,11 +371,11 @@
                             </div>
                         </div>
                         @*<div class="row">
-            <div class="col-m12">
-                <b>Masukkan harga grosir yang baru:</b>
-                <input type="text" id="HJUALPROMOSIBARU82Cart" name="HJUALPROMOSIBARU82Cart" class="form-control" style="margin-top: 10px;" />
-            </div>
-        </div>*@
+                                <div class="col-m12">
+                                    <b>Masukkan harga grosir yang baru:</b>
+                                    <input type="text" id="HJUALPROMOSIBARU82Cart" name="HJUALPROMOSIBARU82Cart" class="form-control" style="margin-top: 10px;" />
+                                </div>
+                            </div>*@
                     </div>
                 </div>
             </div>
@@ -402,13 +423,13 @@
                     </div>
                 </div>
                 @*<div class="row">
-                    <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-3 col-sm-3">Periode 3 bulan terakhir</label>
-                        <div class="col-md-3 col-sm-3">
-                                <label id="ttl-periode" class="control-label" disabled="disabled"></label>
-                            </div>
-                    </div>
-                </div>*@
+                        <div class="form-group" style="margin-top: 5px;">
+                            <label class="control-label col-md-3 col-sm-3">Periode 3 bulan terakhir</label>
+                            <div class="col-md-3 col-sm-3">
+                                    <label id="ttl-periode" class="control-label" disabled="disabled"></label>
+                                </div>
+                        </div>
+                    </div>*@
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -441,7 +462,7 @@
         var $page = window.text;
         //end add by nurul 12/2/2019
         var $recNum = 0;
-
+        var $TabAktif = 0;
         var tempBrg = "";
         var tempNama = "";
 
@@ -452,7 +473,7 @@
             //end add by nurul 12/2/2019
                 //Initialize();
                 var filterBy = "kodebarang";
-                refreshTableHargaJual("");
+                //refreshTableHargaJual("");
                 //add by nurul 12/2/2019
                 //$('#datatable').on('page.dt', function () {
                 //    $page = $('#datatable').DataTable().page.info().page;
@@ -460,6 +481,15 @@
                 //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
 
+                $('#hargajual-tab').click(function () {
+                    $TabAktif = 0;
+                    refreshTableHargaJual();
+                });
+
+                $('#updatemassal-tab').click(function () {
+                    $TabAktif = 1;
+                    refreshFormHargaMassal();
+                });
 
 
                 $('#search_hargaJual').keypress(function (e) {
@@ -1021,21 +1051,13 @@
                         options: customerList,
                         onChange: function (value) {
                             if (value == null) {
-                                $("#Promosi_NAMA_MARKET").val(null);
+                                $("#txtCust").val(null);
                             } else {
-                                $("#Promosi_NAMA_MARKET").val(value);
+                                $("#txtCust").val(value);
                                 if ($('.selectivity-single-selected-item-remove')[0] != undefined) {
                                     $('.selectivity-single-selected-item-remove')[0].click();//remove selected brg
                                 }
-
-                                if ($("#CUSTOMER").children("option").filter(":selected").text().includes("Lazada (")) {
-                                    $("#div_text").show();
-                                } else {
-                                    $("#div_text").hide();
-                                }
-                                getDataBarang();
                             }
-                            $('#btn-simpan-perubahan-row').show();
                         },
                     });
 
