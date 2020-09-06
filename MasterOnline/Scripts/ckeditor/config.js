@@ -8,13 +8,13 @@ CKEDITOR.editorConfig = function( config ) {
 	// For complete reference see:
 	// https://ckeditor.com/docs/ckeditor4/latest/api/CKEDITOR_config.html
 	//config.plugins = 'wordcount';
-	config.extraPlugins = 'wordcount,notification';
+	//config.extraPlugins = 'wordcount,notification';
 	// The toolbar groups arrangement, optimized for two toolbar rows.
 	config.toolbarGroups = [
 		//{ name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
 		//{ name: 'editing', groups: ['find', 'selection', 'spellchecker'] },
 		{ name: 'basicstyles', groups: ['basicstyles', 'cleanup'] },
-		{ name: 'editing', items: ['SpellChecker'], groups: ['find', 'selection'] },
+		{ name: 'editing', groups: ['find', 'selection'] },
 		{ name: 'links' },
 		//{ name: 'insert' },
 		{ name: 'document',	   groups: [ 'mode', 'document', 'doctools' ] },
