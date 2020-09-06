@@ -11,7 +11,7 @@
     {
         var accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
         username = context.Account.Single(a => a.AccountId == accId).Username;
-        context.Dispose();
+        //context.Dispose();
     }
     else
     {
@@ -24,6 +24,7 @@
 }
 @section styles
 {
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
     <link href="~/Content/selectize.css" rel="stylesheet" />
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" />
@@ -229,11 +230,12 @@
                 </div>
             </div>
         </div>
-        <div role="tabpanel" class="tab-pane fade in" id="tab_content2" aria-labelledby="updatemassal-tab">            
-            <div class="row udate_massal_section" style="margin-top: 5px;">
-                <div class="col-sm-12 addpixel" id="form-update-massal-partial">
-                    @*@Html.Partial("TablePromosiPartial")*@
-                </div>
+
+    </div>
+    <div role="tabpanel" class="tab-pane fade in" id="tab_content2" aria-labelledby="updatemassal-tab">
+        <div class="row udate_massal_section" style="margin-top: 5px;">
+            <div class="col-sm-12 addpixel" id="form-update-massal-partial">
+                @*@Html.Partial("TablePromosiPartial")*@
             </div>
         </div>
     </div>
@@ -473,7 +475,7 @@
             //end add by nurul 12/2/2019
                 //Initialize();
                 var filterBy = "kodebarang";
-                //refreshTableHargaJual("");
+                refreshTableHargaJual("");
                 //add by nurul 12/2/2019
                 //$('#datatable').on('page.dt', function () {
                 //    $page = $('#datatable').DataTable().page.info().page;
@@ -1026,6 +1028,17 @@
         //end add by nurul 13/6/2019
 
         //add by Tri 3 sep 2020, harga jual massal
+        @{
+            var markets = new Dictionary<string, string>();
+
+            foreach (var marketplace in context.Marketplaces.ToList())
+            {
+                markets.Add(marketplace.IdMarket.ToString(), marketplace.NamaMarket);
+            }
+        }
+
+        var $marketCollection = @Html.Raw(Json.Encode(markets));
+
         function getMarketplace() {
             $.ajax({
                 type: "GET",
@@ -1051,18 +1064,192 @@
                         options: customerList,
                         onChange: function (value) {
                             if (value == null) {
-                                $("#txtCust").val(null);
+                                $("#txtCust").val('');
                             } else {
                                 $("#txtCust").val(value);
-                                if ($('.selectivity-single-selected-item-remove')[0] != undefined) {
-                                    $('.selectivity-single-selected-item-remove')[0].click();//remove selected brg
-                                }
                             }
                         },
                     });
 
                 },
                 error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function refreshFormHargaMassal() {
+             var $link = '@Html.Raw(Url.Action("RefreshFormHargaMassal", "Manage"))';
+            //$link = $link.replace("replaceSearch", $('#search_barang_promosi').val());
+            ////$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            //$link = $link.replace("replaceLastPage", $tpPage);
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#table-promosi-partial').hide();
+                    //$('#table-barang-promosi-partial').hide();
+                    //$('#loading_promosi_tab').show();
+                },
+                success: function (response) {
+                    $('#form-update-massal-partial').html(response);
+                    refreshInputan();
+                    getMarketplace();
+                    getTanggal();
+                    //$('#loading_promosi_tab').hide();
+                    //$('#table-barang-promosi-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function refreshInputan() {
+            if ($('#TGL_PROSES').val() != '') {
+                $('#TGL_PROSES').val($('#TGL_PROSES').val().split(' ')[0]);
+                $('#dtProses').val($('#TGL_PROSES').val());
+            } else {
+                $('#TGL_PROSES').val($('#dtProses').val());
+            }
+        }
+        function getTanggal() {
+            $('#dtProses').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                $('#TGL_PROSES').val($(this).val());
+                //add by nurul 31/10/2018
+                $(this).datepicker('hide');
+                //end add
+
+            });
+        }
+
+        function checkfile(s) {
+            var validExts = new Array(".xlsx", ".xls");
+            var fileExt = s.value;
+            if (fileExt != null && fileExt != "") {
+                fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
+                if (validExts.indexOf(fileExt) < 0) {
+                    alert("Invalid file selected, valid files are of " +
+                        validExts.toString() + " types.");
+                    document.getElementById("file_upload_excel").value = "";
+
+                    return false;
+                }
+            }
+        }
+        function DownloadExcelHJual() {
+            if ($('#txtCust').val() == '') {
+                alert('Silahkan pilih akun marketplace terlebih dahulu.');
+                return "";
+            }
+            var link = '@Html.Raw(Url.Action("DownloadExcelHJual", "TransferExcel"))';
+            link += "?cust=" + encodeURIComponent($('#txtCust').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                async: false,
+                beforeSend: function () {
+                    //$('#loading_spinner_btn').show();
+                },
+                success: function (response) {
+                    if (response.Errors.length == 0) {
+                        var bytes = new Uint8Array(response.byteExcel);
+                        saveByteArray(response.namaFile, bytes);
+                    } else {
+                        //alert(response.Errors[0]);
+                    }
+                },
+                error: function (xhr) {
+                    //$('#loading_spinner_btn').hide();
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function saveByteArray(reportName, byte) {
+            var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            //document.body.appendChild(link);
+            link.click();
+            //document.body.removeChild(link);
+        };
+
+
+        function UploadExcelHargaJual() {
+            var formdata = new FormData();
+            if ($('#file_upload_excel_1')[0].files.length < 1) {
+                formdata.append("NO_DATA_1", null);
+            }
+            else {
+                formdata.append("FILE_EXCEL_1", $('#file_upload_excel_1')[0].files[0]);
+            }
+            if ($('#file_upload_excel_2')[0].files.length < 1) {
+                formdata.append("NO_DATA_2", null);
+            }
+            else {
+                formdata.append("FILE_EXCEL_2", $('#file_upload_excel_2')[0].files[0]);
+            }
+            if ($('#file_upload_excel_3')[0].files.length < 1) {
+                formdata.append("NO_DATA_3", null);
+            }
+            else {
+                formdata.append("FILE_EXCEL_3", $('#file_upload_excel_3')[0].files[0]);
+            }
+            if ($('#file_upload_excel_4')[0].files.length < 1) {
+                formdata.append("NO_DATA_4", null);
+            }
+            else {
+                formdata.append("FILE_EXCEL_4", $('#file_upload_excel_4')[0].files[0]);
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UploadExcelHJual", "TransferExcel")',
+                data: formdata,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false,  // tell jQuery not to set contentType
+                beforeSend: function() {
+                    //$('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        ////add by nurul 3/1/2019
+                        //$modeEdit = 1;
+                        ////end add
+                        //$('#form-partial').html(response);
+                        //refreshInputan();
+                        //getTanggal();
+                        //getDataBarang();
+                        //getMarketplace();
+                        ////ADD BY NURUL 2/1/2019 (HIDDEN HEADER KALO UDAH ADA DETAIL)
+                        //$('#Promosi_NAMA_PROMOSI').attr('readonly', 'readonly').css('background-color', '#eee')
+                        //    .css('cursor', 'not-allowed');
+                        ////$('#Promosi_NAMA_MARKET').attr('readonly', 'readonly').css('background-color', '#eee')
+                        ////.css('cursor', 'not-allowed');
+                        //$('#TGL_MULAI').attr('readonly', 'readonly').css('background-color', '#eee')
+                        //    .css('cursor', 'not-allowed');
+                        //$('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
+                        //    .css('cursor', 'not-allowed');
+                        ////END ADD
+                    } else {
+                        console.log(response.Errors);
+                        alert(response.Errors[0]);
+                    }
+                    //$('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    alert('Ada data yang tidak valid!');
+                    //$('#loading_spinner').hide();
                     console.log(xhr);
                 }
             });

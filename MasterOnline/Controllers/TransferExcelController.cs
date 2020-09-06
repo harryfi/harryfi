@@ -3760,6 +3760,103 @@ namespace MasterOnline.Controllers
 
         }
         //END ADD BY NURUL 23/7/2020
+
+        public ActionResult DownloadExcelHJual(string cust)
+        {
+            var ret = new BindDownloadExcel
+            {
+                Errors = new List<string>()
+            };
+            try
+            {
+                var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+                var idMarket = Convert.ToInt32(customer.NAMA);
+                var mp = MoDbContext.Marketplaces.Where(m => m.IdMarket == idMarket).FirstOrDefault();
+
+                using (var package = new OfficeOpenXml.ExcelPackage())
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Harga Jual");
+
+                    worksheet.Protection.IsProtected = true;
+                    worksheet.Column(4).Style.Locked = false;
+
+                    string sSQL = "SELECT S.BRG, ";
+                    //sSQL += "replace(replace(S.NAMA, char(10), ''), char(13), '') + ISNULL(replace(replace(S.NAMA2, char(10), ''), char(13), ''), '') AS NAMA, ";
+                    //sSQL += "M.NAMAMARKET + '(' + replace(replace(A.PERSO, char(10), ''), char(13), '') + ')' AS AKUN,H.HJUAL, M.IDMARKET, ISNULL(STF10.HPOKOK, 0) AS HPOKOK ";
+                    //sSQL += "FROM STF02 S INNER JOIN STF02H H ON S.BRG = H.BRG INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM ";
+                    //sSQL += "INNER JOIN MO..MARKETPLACE M ON A.NAMA = M.IDMARKET LEFT JOIN STF10 ON S.BRG = STF10.BRG WHERE TYPE = '3' ORDER BY NAMA,M.IDMARKET";
+                    sSQL += "replace(replace(S.NAMA, char(10), ''), char(13), '') + ISNULL(replace(replace(S.NAMA2, char(10), ''), char(13), ''), '') AS NAMA, ";
+                    sSQL += "H.HJUAL ";
+                    sSQL += "FROM STF02 S INNER JOIN STF02H H ON S.BRG = H.BRG INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM ";
+                    sSQL += " WHERE TYPE = '3' AND CUST = '"+cust+"' ORDER BY NAMA";
+                    var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
+
+                    worksheet.Cells["A1"].Value = "Akun Marketplace :";
+                    worksheet.Cells[1, 2].Value = mp.NamaMarket + "(" + customer.PERSO + ")";
+                    worksheet.Cells[1, 3].Value = cust;
+
+                    if (dsBarang.Tables[0].Rows.Count > 0)
+                    {
+                        for (int i = 0; i < dsBarang.Tables[0].Rows.Count; i++)
+                        {
+                            worksheet.Cells[3 + i, 1].Value = dsBarang.Tables[0].Rows[i]["BRG"].ToString();
+                            worksheet.Cells[3 + i, 2].Value = dsBarang.Tables[0].Rows[i]["NAMA"].ToString();
+                            worksheet.Cells[3 + i, 3].Value = dsBarang.Tables[0].Rows[i]["HJUAL"].ToString();
+                        }
+                        ExcelRange rg0 = worksheet.Cells[2, 1, worksheet.Dimension.End.Row, 4];
+                        string tableName0 = "TableBarang";
+                        ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+                        table0.Columns[0].Name = "KODE BARANG";
+                        table0.Columns[1].Name = "NAMA BARANG";
+                        table0.Columns[2].Name = "HARGA JUAL LAMA";
+                        table0.Columns[3].Name = "HARGA JUAL BARU";
+
+                        table0.ShowHeader = true;
+                        table0.ShowFilter = true;
+                        table0.ShowRowStripes = false;
+                        worksheet.Cells.AutoFitColumns(0);
+
+                        //return File(package.GetAsByteArray(), System.Net.Mime.MediaTypeNames.Application.Octet, username + "_hargaJual" + ".xlsx");
+                        ret.byteExcel = package.GetAsByteArray();
+                        ret.namaFile = "HJual_" + mp.NamaMarket + "_" + customer.PERSO + ".xlsx";
+                    }
+                    else
+                    {
+                        ret.Errors.Add("Tidak ada data harga jual barang.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+            }
+
+            //return Json(ret, JsonRequestBehavior.AllowGet);
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+        public ActionResult UploadExcelHJual()
+        {
+            if (Request.Files.Count > 0)
+            {
+
+            }
+                var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = "",
+                ContentType = "application/json"
+            };
+
+            return result;
+        }
     }
 
 

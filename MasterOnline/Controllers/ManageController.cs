@@ -32992,6 +32992,41 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 13/6/2019
 
+        //add by Tri, update harga jual massal
+        public ActionResult RefreshFormHargaMassal()
+        {
+            var vm = new HargaJualMassalViewModel();
+
+            var lastData = ErasoftDbContext.LOG_HARGAJUAL_A.Where(m => m.STATUS == 1).FirstOrDefault();
+            if(lastData == null)
+            {
+                vm.NO_BUKTI = GenerateAutoNumber(ErasoftDbContext, "HM", "LOG_HARGAJUAL_A", "NO_BUKTI");
+                vm.STATUS = 0;
+                vm.JML_BRG_1 = 0;
+                vm.JML_BRG_2 = 0;
+                vm.JML_BRG_3 = 0;
+                vm.JML_BRG_4 = 0;
+                vm.TGL_PROSES = DateTime.UtcNow.AddHours(7).Hour < 18 ? DateTime.UtcNow.AddHours(7) : DateTime.UtcNow.AddHours(7).AddDays(1);
+            }
+            else
+            {
+                vm.NO_BUKTI = lastData.NO_BUKTI;
+                vm.FILE_1 = lastData.FILE_1;
+                vm.FILE_2 = lastData.FILE_2;
+                vm.FILE_3 = lastData.FILE_3;
+                vm.FILE_4 = lastData.FILE_4;
+                vm.JML_BRG_1 = lastData.JML_BRG_1;
+                vm.JML_BRG_2 = lastData.JML_BRG_2;
+                vm.JML_BRG_3 = lastData.JML_BRG_3;
+                vm.JML_BRG_4 = lastData.JML_BRG_4;
+                vm.STATUS = lastData.STATUS;
+                vm.TGL_PROSES = lastData.TGL_PROSES;
+                vm.JAM_PROSES = lastData.JAM_PROSES;
+            }
+
+            return PartialView("FormUpdateHargaMassal", vm);
+        }
+        //end add by Tri, update harga jual massal
         [HttpGet]
         public ActionResult UbahHargaJual(int? recNum, double hargaJualBaru)
         {

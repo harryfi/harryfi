@@ -25,18 +25,43 @@
 
     $(document).ready(function () {
         Initialize();
+        setJamProses();
     });
 
-    function getTanggal() {
-        $('#TGL_PROSES').datepicker({
-            format: 'dd/mm/yyyy',
-            language: 'id'
-        }).change(function () {
-            $('#dtProses').val($(this).val());
-            //add by nurul 31/10/2018
-            $(this).datepicker('hide');
-            //end add
-
+    function setJamProses() {
+        var listTime = [];
+        listTime[0] = {
+            id: "18",
+            text: "18:00"
+        };
+        listTime[1] = {
+            id: "19",
+            text: "19:00"
+        };
+        listTime[2] = {
+            id: "20",
+            text: "20:00"
+        };
+        listTime[3] = {
+            id: "21",
+            text: "21:00"
+        };
+        listTime[4] = {
+            id: "22",
+            text: "22:00"
+        };
+        listTime[5] = {
+            id: "23",
+            text: "23:00"
+        };
+        var comboSelect = $('#cbJamProses').selectize({
+            valueField: 'id',
+            searchField: 'text',
+            options: listTime,
+            onChange: function (value) {
+                $('#JAM_PROSES').val(value);
+                
+            }
         });
     }
 </script>
@@ -44,8 +69,8 @@
 <div class="form-horizontal">
     <div class="row">
         <div class="col-md-8 col-sm-8 col-xs-12">
-            <div class="x_panel">
-                <div class="x_title">
+            @*<div class="x_panel">*@
+                @*<div class="x_title">
                     <h2 style="font-size: 16px">Update Massal</h2>
                     <ul class="nav navbar-right panel_toolbox">
                         <li>
@@ -53,26 +78,27 @@
                         </li>
                     </ul>
                     <div class="clearfix"></div>
-                </div>
-                <div class="x_content">
+                </div>*@
+                @*<div class="x_content">*@
                     <br>
                     <div class="form-group">
-                        <label>1. Pilih Akun Marketplace</label>
+                        <div class="col-md-8 col-sm-8 col-xs-8"><label>1. Pilih Akun Marketplace</label></div>
                         <div class="col-md-4 col-sm-4 col-xs-4">
-                            <input style="display:none;" id="txtCust"/>
+                            <input style="display:none;" id="txtCust" />
                             <select id="CUSTOMER" placeholder="Harap Pilih" required="required"></select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>2. Download Excel Harga Jual</label>
+                        <div class="col-md-8 col-sm-8 col-xs-8"><label>2. Download Excel Harga Jual</label></div>
                         <div class="col-md-4 col-sm-4 col-xs-4">
-                            <button type="button" class="btn btn-primary" id="btnDownload"><span>Download</span></button>
+                            <button type="button" class="btn btn-primary" id="btnDownload" onclick="DownloadExcelHJual();"><span>Download</span></button>
                         </div>
                     </div>
+                    <hr />
                     <div class="form-group">
-                        <label>3. Upload Excel Harga Jual (Max 4 excel)</label>
+                        <div class="col-md-8 col-sm-8 col-xs-8"><label>3. Upload Excel Harga Jual (Max 4 excel)</label></div>
                         <div class="col-md-4 col-sm-4 col-xs-4">
-                            <button type="button" class="btn btn-primary" id="btnUpload"><span>Upload</span></button>
+                            <button type="button" class="btn btn-primary" id="btnUpload" onclick="UploadExcelHargaJual();"><span>Upload</span></button>
                         </div>
                     </div>
                     <div class="form-group">
@@ -88,6 +114,7 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <div class="col-md-1"></div>
                         <div class="row">
                             <label>Jumlah barang yang diproses : </label>
                             <label id="lblJml1">@Model.JML_BRG_1</label>
@@ -106,6 +133,7 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <div class="col-md-1"></div>
                         <div class="row">
                             <label>Jumlah barang yang diproses : </label>
                             <label id="lblJml2">@Model.JML_BRG_2</label>
@@ -124,6 +152,7 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <div class="col-md-1"></div>
                         <div class="row">
                             <label>Jumlah barang yang diproses : </label>
                             <label id="lblJml3">@Model.JML_BRG_3</label>
@@ -142,11 +171,13 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <div class="col-md-1"></div>
                         <div class="row">
                             <label>Jumlah barang yang diproses : </label>
                             <label id="lblJml4">@Model.JML_BRG_4</label>
                         </div>
                     </div>
+                    <hr />
                     <div class="form-group">
                         @Html.LabelFor(m => m.TGL_PROSES, "4. Pilih Tanggal", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
                         <div class="col-md-4 col-sm-4 col-xs-4">
@@ -175,8 +206,9 @@
                             </button>
                         </div>
                     </div>
-                </div>
-            </div>
+                @*</div>*@
+
+            @*</div>*@
         </div>
     </div>
 </div>
