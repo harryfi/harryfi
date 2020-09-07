@@ -52738,19 +52738,16 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
+                            var sql = "update SOT01A set status_print = '0' where no_bukti in ('" + so.no_bukti + "')";
+                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
                             temp_strmsg_label.Add(retApi.Result.ToString());
                         }
                     }
                 }
-
-                if(temp_printLabel.Count() > 0)
-                {
-                    //temp_printLabel_split = temp_printLabel_split.Substring(0, temp_printLabel_split.Length - 1);
-                    result_printLabel = MergePDFProcess(temp_printLabel_split, bukti);
-                }
                 
                 if (temp_printLabel.Count() > 0)
                 {
+                    result_printLabel = MergePDFProcess(temp_printLabel_split, bukti);
                     //return new JsonResult { Data = new { mo_label = temp_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     return new JsonResult { Data = new { mo_label = result_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
@@ -52772,6 +52769,8 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                var sql = "update SOT01A set status_print = '0' where no_bukti in ('" + so.no_bukti + "')";
+                ErasoftDbContext.Database.ExecuteSqlCommand(sql);
                 return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             return JsonErrorMessage("This Function is for JD.ID only");
@@ -52945,6 +52944,8 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
+                            var sql = "update SOT01A set status_kirim = '1' where no_bukti in ('" + so.no_bukti + "')";
+                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
                             listErrors.Add(new PackingListErrors
                             {
                                 keyname = so.no_bukti,
@@ -52966,6 +52967,8 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                var sql = "update SOT01A set status_kirim = '1' where no_bukti in ('" + so.no_bukti + "')";
+                ErasoftDbContext.Database.ExecuteSqlCommand(sql);
                 return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             return JsonErrorMessage("This Function is for JD.ID only");
