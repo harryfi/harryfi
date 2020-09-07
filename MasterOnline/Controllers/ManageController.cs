@@ -52745,7 +52745,7 @@ namespace MasterOnline.Controllers
 
                 if(temp_printLabel.Count() > 0)
                 {
-                    temp_printLabel_split = temp_printLabel_split.Substring(0, temp_printLabel_split.Length - 1);
+                    //temp_printLabel_split = temp_printLabel_split.Substring(0, temp_printLabel_split.Length - 1);
                     result_printLabel = MergePDFProcess(temp_printLabel_split, bukti);
                 }
                 
@@ -52789,17 +52789,17 @@ namespace MasterOnline.Controllers
             {
                 string[] dataSplit = FileLocation.Split(';');
 
-                PdfReader reader = null;
+                iTextSharp.text.pdf.PdfReader reader = null;
                 iTextSharp.text.Document sourceDocument = null;
-                PdfCopy pdfCopyProvider = null;
-                PdfImportedPage importedPage;
+                iTextSharp.text.pdf.PdfCopy pdfCopyProvider = null;
+                iTextSharp.text.pdf.PdfImportedPage importedPage;
                 //string outputPdfPath = @"D:/newFile.pdf";
                 string filename = "JDID_printlabelresult_" + no_bukti + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
                 var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
                 result = path;
 
                 sourceDocument = new iTextSharp.text.Document();
-                pdfCopyProvider = new PdfCopy(sourceDocument, new System.IO.FileStream(path, System.IO.FileMode.Create));
+                pdfCopyProvider = new iTextSharp.text.pdf.PdfCopy(sourceDocument, new System.IO.FileStream(path, System.IO.FileMode.Create));
 
                 sourceDocument.Open();
 
@@ -52807,7 +52807,7 @@ namespace MasterOnline.Controllers
                 {
                     int pages = TotalPageCount(dataSplit[f]);
 
-                    reader = new PdfReader(dataSplit[f]);
+                    reader = new iTextSharp.text.pdf.PdfReader(dataSplit[f]);
                     for (int i = 1; i <= pages; i++)
                     {
                         importedPage = pdfCopyProvider.GetImportedPage(reader, i);
