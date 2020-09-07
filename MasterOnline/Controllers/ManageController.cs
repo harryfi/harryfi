@@ -52769,8 +52769,6 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                var sql = "update SOT01A set status_print = '0' where no_bukti in ('" + so.no_bukti + "')";
-                ErasoftDbContext.Database.ExecuteSqlCommand(sql);
                 return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             return JsonErrorMessage("This Function is for JD.ID only");
@@ -52967,8 +52965,6 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                var sql = "update SOT01A set status_kirim = '1' where no_bukti in ('" + so.no_bukti + "')";
-                ErasoftDbContext.Database.ExecuteSqlCommand(sql);
                 return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             return JsonErrorMessage("This Function is for JD.ID only");
