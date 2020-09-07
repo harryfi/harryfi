@@ -52733,7 +52733,7 @@ namespace MasterOnline.Controllers
                                 temp_printLabel_split = temp_printLabel_split + path + ";";
                             }
 
-                            var sql = "update SOT01A set status_print = '1', status_kirim = '1' where no_bukti in ('" + so.no_bukti + "')";
+                            var sql = "update SOT01A set status_print = '1' where no_bukti in ('" + so.no_bukti + "')";
                             ErasoftDbContext.Database.ExecuteSqlCommand(sql);
                         }
                         else
@@ -52881,7 +52881,7 @@ namespace MasterOnline.Controllers
                 List<string> temp_strmsg = new List<string>();
                 List<string> temp_strmsg_label = new List<string>();
 
-                List<string> temp_printLabel = new List<string>();
+                List<string> temp_readytoShip = new List<string>();
 
                 var listErrors = new List<PackingListErrors>();
 
@@ -52941,6 +52941,7 @@ namespace MasterOnline.Controllers
                             hitungSuccess += 1;
                             var sql = "update SOT01A set status_kirim = '2' where no_bukti in ('" + so.no_bukti + "')";
                             ErasoftDbContext.Database.ExecuteSqlCommand(sql);
+                            temp_readytoShip.Add(so.no_referensi);
                         }
                         else
                         {
@@ -52954,9 +52955,9 @@ namespace MasterOnline.Controllers
                     }
                 }
 
-                if (temp_printLabel.Count() > 0)
+                if (temp_readytoShip.Count() > 0)
                 {
-                    return new JsonResult { Data = new { result = temp_printLabel, successCount = hitungSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    return new JsonResult { Data = new { result = temp_readytoShip, successCount = hitungSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
                 else
                 {
