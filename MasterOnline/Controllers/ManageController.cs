@@ -33002,10 +33002,10 @@ namespace MasterOnline.Controllers
             {
                 vm.NO_BUKTI = GenerateAutoNumber(ErasoftDbContext, "HM", "LOG_HARGAJUAL_A", "NO_BUKTI");
                 vm.STATUS = 0;
-                vm.JML_BRG_1 = 0;
-                vm.JML_BRG_2 = 0;
-                vm.JML_BRG_3 = 0;
-                vm.JML_BRG_4 = 0;
+                vm.JML_BRG_1 = "0/0";
+                vm.JML_BRG_2 = "0/0";
+                vm.JML_BRG_3 = "0/0";
+                vm.JML_BRG_4 = "0/0";
                 vm.TGL_PROSES = DateTime.UtcNow.AddHours(7).Hour < 18 ? DateTime.UtcNow.AddHours(7) : DateTime.UtcNow.AddHours(7).AddDays(1);
             }
             else

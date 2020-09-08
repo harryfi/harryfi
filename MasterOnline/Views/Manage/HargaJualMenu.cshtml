@@ -1184,8 +1184,81 @@
             //document.body.removeChild(link);
         };
 
-
         function UploadExcelHargaJual() {
+            if (($('#file_upload_excel_1')[0].files.length < 1 || document.getElementById('lblJml1').innerText != "0/0")
+                && ($('#file_upload_excel_2')[0].files.length < 1 || document.getElementById('lblJml2').innerText != "0/0")
+                && ($('#file_upload_excel_3')[0].files.length < 1 || document.getElementById('lblJml3').innerText != "0/0")
+                && ($('#file_upload_excel_4')[0].files.length < 1 || document.getElementById('lblJml4').innerText != "0/0")) {
+                alert('Anda belum memilih file untuk diupload atau semua file sudah diupload.');
+                return false;
+            }
+            UploadFileExcel(1, 0, 0);
+        }
+        var err = "";
+        function UploadFileExcel(index, page, dataProcessed) {
+            if (($('#file_upload_excel_' + index)[0].files.length < 1 || document.getElementById('lblJml' + index).innerText != "0/0") && page == 0) {
+                //skip
+                if (index < 4) {
+                    UploadFileExcel(index + 1, 0, 0);
+                }
+                else {
+                    alert('Upload file excel telah selesai.');
+                }
+                return "";
+            }
+            var formdata = new FormData();
+            formdata.append("FILE_EXCEL_" + index, $('#file_upload_excel_' + index)[0].files[0]);
+
+            var link = '@Html.Raw(Url.Action("UploadExcelHJual", "TransferExcel"))';
+            link += "?page=" + encodeURIComponent(page) + "&dataProcessed=" + encodeURIComponent(dataProcessed);
+
+            $.ajax({
+                type: "POST",
+                url: link,
+                data: formdata,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false,  // tell jQuery not to set contentType
+                beforeSend: function() {
+                    $('#delFile_' + index).hide();
+                    $('#loading_' + index).show();
+                },
+                success: function (response) {
+                    if (response.Errors != null) {
+                        for (i = 0; i < response.Errors.length; i++) {
+                            err += response.Errors[i] + "\n";
+                        }
+                    }
+                    document.getElementById('lblJml' + index).innerText = response.progress + "/" + response.lastRow[0];
+
+                    if (response.nextFile) {
+                        if (index < 4) {
+                            UploadFileExcel(index + 1, 0, 0);
+                        }
+                        else {
+                            if (err != "") {
+                                alert('Upload file excel telah selesai, dengan Error :\n' + err);
+                            }
+                            else {
+                                alert('Upload file excel telah selesai.');
+                            }
+                        }
+                        $('#delFile_' + index).show();
+                        $('#loading_' + index).hide();
+                    } else {
+                        UploadFileExcel(index, page + 1, response.progress);
+                    }
+                    //$('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    $('#delFile_' + index).show();
+                    $('#loading_' + index).hide();
+                    alert('Ada data yang tidak valid!');
+                    //$('#loading_spinner').hide();
+                    console.log(xhr);
+                }
+            });
+        }
+        @*function UploadExcelHargaJual() {
             var formdata = new FormData();
             if ($('#file_upload_excel_1')[0].files.length < 1) {
                 formdata.append("NO_DATA_1", null);
@@ -1253,7 +1326,7 @@
                     console.log(xhr);
                 }
             });
-        }
+        }*@
         //end add by Tri 3 sep 2020, harga jual massal
     </script>
 }
