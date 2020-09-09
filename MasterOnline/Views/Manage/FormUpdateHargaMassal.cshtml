@@ -20,7 +20,8 @@
         username = username.Substring(0, 17) + "...";
     }
 }
-
+@Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.NO_BUKTI)
 <script type="text/javascript">
 
     $(document).ready(function () {
@@ -98,22 +99,22 @@
             <div class="form-group">
                 <div class="col-md-8 col-sm-8 col-xs-8"><label>3. Upload Excel Harga Jual (Max 4 excel)</label></div>
                 <div class="col-md-4 col-sm-4 col-xs-4">
-                    <button type="button" class="btn btn-primary" id="btnUpload" onclick="UploadExcelHargaJual();"><span>Upload</span></button>
+                    <button type="button" class="btn btn-primary" id="btnUpload" onclick="UploadExcelHargaJual();" style="display:none;"><span>Upload</span></button>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-md-8 file_upload_section">
                     @Html.HiddenFor(m => m.FILE_1)
-                    <input type='file' id='file_upload_excel_1' name="file_upload_excel" onchange="checkfile(this);" multiple
+                    <input type='file' id='file_upload_excel_1' name="file_upload_excel" onchange="checkfile(this, 1);" multiple
                            accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
                 </div>
                 <div class="col-md-4" id="delFile_1">
-                    <button type="button" class="btn btn-primary" onclick="deletefileexcel(1);" data-style="expand-right">
-                        <span>Delete</span>
+                    <button type="button" class="btn btn-danger" onclick="deletefileexcel(1);" data-style="expand-right">
+                        <span>Hapus</span>
                     </button>
-                    <div id="loading_1" style="display:none;">
-                        <img src="~/Content/Images/spinner.gif" style="width:25px;height:25px;" />
-                    </div>
+                </div>
+                <div id="loading_1" style="display:none;">
+                    <img src="~/Content/Images/spinner.gif" style="width:25px;height:25px;" />
                 </div>
             </div>
             <div class="form-group">
@@ -124,18 +125,32 @@
                 </div>
             </div>
             <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang tidak diisi harga jual baru : </label>
+                    <label id="lblJml_tidakdiisi_1">@Model.JML_BRG_NH_1</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang tidak link dengan marketplace : </label>
+                    <label id="lblJml_tidaklink_1">@Model.JML_BRG_NL_1</label>
+                </div>
+            </div>
+            <div class="form-group">
                 <div class="col-md-8 file_upload_section">
                     @Html.HiddenFor(m => m.FILE_2)
-                    <input type='file' id='file_upload_excel_2' name="file_upload_excel" onchange="checkfile(this);" multiple
+                    <input type='file' id='file_upload_excel_2' name="file_upload_excel" onchange="checkfile(this, 2);" multiple
                            accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
                 </div>
                 <div class="col-md-4" id="delFile_2">
-                    <button type="button" class="btn btn-primary" onclick="deletefileexcel(2);" data-style="expand-right">
-                        <span>Delete</span>
+                    <button type="button" class="btn btn-danger" onclick="deletefileexcel(2);" data-style="expand-right">
+                        <span>Hapus</span>
                     </button>
-                    <div id="loading_2" style="display:none;">
-                        <img src="~/Content/Images/spinner.gif" style="width:25px;height:25px;" />
-                    </div>
+                </div>
+                <div id="loading_2" style="display:none;">
+                    <img src="~/Content/Images/spinner.gif" style="width:25px;height:25px;" />
                 </div>
             </div>
             <div class="form-group">
@@ -146,18 +161,32 @@
                 </div>
             </div>
             <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang tidak diisi harga jual baru : </label>
+                    <label id="lblJml_tidakdiisi_2">@Model.JML_BRG_NH_2</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang tidak link dengan marketplace : </label>
+                    <label id="lblJml_tidaklink_2">@Model.JML_BRG_NL_2</label>
+                </div>
+            </div>
+            <div class="form-group">
                 <div class="col-md-8 file_upload_section">
                     @Html.HiddenFor(m => m.FILE_3)
-                    <input type='file' id='file_upload_excel_3' name="file_upload_excel" onchange="checkfile(this);" multiple
+                    <input type='file' id='file_upload_excel_3' name="file_upload_excel" onchange="checkfile(this, 3);" multiple
                            accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
                 </div>
                 <div class="col-md-4" id="delFile_3">
-                    <button type="button" class="btn btn-primary" onclick="deletefileexcel(3);" data-style="expand-right">
-                        <span>Delete</span>
+                    <button type="button" class="btn btn-danger" onclick="deletefileexcel(3);" data-style="expand-right">
+                        <span>Hapus</span>
                     </button>
-                    <div id="loading_3" style="display:none;">
-                        <img src="~/Content/Images/spinner.gif" style="width:25px;height:25px;" />
-                    </div>
+                </div>
+                <div id="loading_3" style="display:none;">
+                    <img src="~/Content/Images/spinner.gif" style="width:25px;height:25px;" />
                 </div>
             </div>
             <div class="form-group">
@@ -168,18 +197,32 @@
                 </div>
             </div>
             <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang tidak diisi harga jual baru : </label>
+                    <label id="lblJml_tidakdiisi_3">@Model.JML_BRG_NH_3</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang tidak link dengan marketplace : </label>
+                    <label id="lblJml_tidaklink_3">@Model.JML_BRG_NL_3</label>
+                </div>
+            </div>
+            <div class="form-group">
                 <div class="col-md-8 file_upload_section">
                     @Html.HiddenFor(m => m.FILE_4)
-                    <input type='file' id='file_upload_excel_4' name="file_upload_excel" onchange="checkfile(this);" multiple
+                    <input type='file' id='file_upload_excel_4' name="file_upload_excel" onchange="checkfile(this, 4);" multiple
                            accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
                 </div>
                 <div class="col-md-4" id="delFile_4">
-                    <button type="button" class="btn btn-primary" onclick="deletefileexcel(4);" data-style="expand-right">
-                        <span>Delete</span>
+                    <button type="button" class="btn btn-danger" onclick="deletefileexcel(4);" data-style="expand-right">
+                        <span>Hapus</span>
                     </button>
-                    <div id="loading_4" style="display:none;">
-                        <img src="~/Content/Images/spinner.gif" style="width:25px;height:25px;" />
-                    </div>
+                </div>
+                <div id="loading_4" style="display:none;">
+                    <img src="~/Content/Images/spinner.gif" style="width:25px;height:25px;" />
                 </div>
             </div>
             <div class="form-group">
@@ -187,6 +230,20 @@
                 <div class="row">
                     <label>Jumlah barang yang diproses : </label>
                     <label id="lblJml4">@Model.JML_BRG_4</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang tidak diisi harga jual baru : </label>
+                    <label id="lblJml_tidakdiisi_4">@Model.JML_BRG_NH_4</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang tidak link dengan marketplace : </label>
+                    <label id="lblJml_tidaklink_4">@Model.JML_BRG_NL_4</label>
                 </div>
             </div>
             <hr />

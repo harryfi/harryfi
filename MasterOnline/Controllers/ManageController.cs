@@ -32993,6 +32993,16 @@ namespace MasterOnline.Controllers
         //end add by nurul 13/6/2019
 
         //add by Tri, update harga jual massal
+        [Route("manage/master/harga-jual-massal")]
+        public ActionResult HargaJualMassal()
+        {
+            var vm = new HargaJualViewModel()
+            {
+            };
+
+            return View("HargaJualMassal", vm);
+            //return View(vm);
+        }
         public ActionResult RefreshFormHargaMassal()
         {
             var vm = new HargaJualMassalViewModel();
@@ -33001,15 +33011,44 @@ namespace MasterOnline.Controllers
             if(lastData == null)
             {
                 vm.NO_BUKTI = GenerateAutoNumber(ErasoftDbContext, "HM", "LOG_HARGAJUAL_A", "NO_BUKTI");
-                vm.STATUS = 0;
-                vm.JML_BRG_1 = "0/0";
-                vm.JML_BRG_2 = "0/0";
-                vm.JML_BRG_3 = "0/0";
-                vm.JML_BRG_4 = "0/0";
-                vm.TGL_PROSES = DateTime.UtcNow.AddHours(7).Hour < 18 ? DateTime.UtcNow.AddHours(7) : DateTime.UtcNow.AddHours(7).AddDays(1);
+                //vm.STATUS = 0;
+                //vm.JML_BRG_1 = "0/0";
+                //vm.JML_BRG_2 = "0/0";
+                //vm.JML_BRG_3 = "0/0";
+                //vm.JML_BRG_4 = "0/0";
+                //vm.JML_BRG_NH_1 = 0;
+                //vm.JML_BRG_NH_2 = 0;
+                //vm.JML_BRG_NH_3 = 0;
+                //vm.JML_BRG_NH_4 = 0;
+                //vm.JML_BRG_NL_1 = 0;
+                //vm.JML_BRG_NL_2 = 0;
+                //vm.JML_BRG_NL_3 = 0;
+                //vm.JML_BRG_NL_4 = 0;
+                //vm.TGL_PROSES = DateTime.UtcNow.AddHours(7).Hour < 18 ? DateTime.UtcNow.AddHours(7) : DateTime.UtcNow.AddHours(7).AddDays(1);
+                //vm.USERNAME = usernameLogin;
+                //vm.TGL_INPUT = DateTime.UtcNow.AddHours(7);
+                lastData.STATUS = 0;
+                lastData.JML_BRG_1 = "0/0";
+                lastData.JML_BRG_2 = "0/0";
+                lastData.JML_BRG_3 = "0/0";
+                lastData.JML_BRG_4 = "0/0";
+                lastData.JML_BRG_NH_1 = 0;
+                lastData.JML_BRG_NH_2 = 0;
+                lastData.JML_BRG_NH_3 = 0;
+                lastData.JML_BRG_NH_4 = 0;
+                lastData.JML_BRG_NL_1 = 0;
+                lastData.JML_BRG_NL_2 = 0;
+                lastData.JML_BRG_NL_3 = 0;
+                lastData.JML_BRG_NL_4 = 0;
+                lastData.TGL_PROSES = DateTime.UtcNow.AddHours(7).Hour < 18 ? DateTime.UtcNow.AddHours(7) : DateTime.UtcNow.AddHours(7).AddDays(1);
+                lastData.USERNAME = usernameLogin;
+                lastData.TGL_INPUT = DateTime.UtcNow.AddHours(7);
+
+                ErasoftDbContext.LOG_HARGAJUAL_A.Add(lastData);
+                ErasoftDbContext.SaveChanges();
             }
-            else
-            {
+            //else
+            //{
                 vm.NO_BUKTI = lastData.NO_BUKTI;
                 vm.FILE_1 = lastData.FILE_1;
                 vm.FILE_2 = lastData.FILE_2;
@@ -33022,9 +33061,29 @@ namespace MasterOnline.Controllers
                 vm.STATUS = lastData.STATUS;
                 vm.TGL_PROSES = lastData.TGL_PROSES;
                 vm.JAM_PROSES = lastData.JAM_PROSES;
-            }
+                vm.JML_BRG_NH_1 = lastData.JML_BRG_NH_1;
+                vm.JML_BRG_NH_2 = lastData.JML_BRG_NH_2;
+                vm.JML_BRG_NH_3 = lastData.JML_BRG_NH_3;
+                vm.JML_BRG_NH_4 = lastData.JML_BRG_NH_4;
+                vm.JML_BRG_NL_1 = lastData.JML_BRG_NL_1;
+                vm.JML_BRG_NL_2 = lastData.JML_BRG_NL_2;
+                vm.JML_BRG_NL_3 = lastData.JML_BRG_NL_3;
+                vm.JML_BRG_NL_4 = lastData.JML_BRG_NL_4;
+            //}
 
             return PartialView("FormUpdateHargaMassal", vm);
+        }
+
+        public ActionResult DeleteTempHargaMassal( string nobuk, int index)
+        {
+            var sSQL = "DELETE FROM TEMP_UPDATE_HJUAL WHERE INDEX_FILE = " + index;
+            EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+
+            sSQL = "UPDATE LOG_HARGAJUAL_A SET FILE_" + index + " = '', JML_BRG_" + index + " = '0/0', ";
+            sSQL += "JML_BRG_NH_" + index + " = 0, JML_BRG_NL_" + index + " = 0 WHERE NO_BUKTI = '"+nobuk+"'";
+            EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+
+            return JsonErrorMessage("");
         }
         //end add by Tri, update harga jual massal
         [HttpGet]

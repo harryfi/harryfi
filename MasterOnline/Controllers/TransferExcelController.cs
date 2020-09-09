@@ -3850,7 +3850,7 @@ namespace MasterOnline.Controllers
             return result;
         }
 
-        public ActionResult UploadExcelHJual(int page, int dataProcessed)
+        public ActionResult UploadExcelHJual(int page, int dataProcessed, int NH, int NL, int index_file)
         {
             //var file = Request.Files[0];
             //List<string> excelData = new List<string>();
@@ -3862,6 +3862,9 @@ namespace MasterOnline.Controllers
             ret.lastRow = new List<int>();
             ret.nextFile = false;
             ret.progress = dataProcessed;
+            ret.jmlNH = NH;
+            ret.jmlNL = NL;
+            var filename = "";
             try
             {
                 if (Request.Files.Count > 0)
@@ -3872,6 +3875,7 @@ namespace MasterOnline.Controllers
                         var file = Request.Files[file_index];
                         if (file != null && file.ContentLength > 0)
                         {
+                            filename = file.FileName;
                             byte[] data;
                             ret.lastRow.Add(0);
                             using (Stream inputStream = file.InputStream)
@@ -3904,7 +3908,9 @@ namespace MasterOnline.Controllers
                                             {
                                                 if (page == 0)
                                                 {
-                                                    var resetDataTemp = EDB.ExecuteSQL("CString", System.Data.CommandType.Text, "DELETE FROM TEMP_UPDATE_HJUAL WHERE IDMARKET = " + customer.RecNum);
+                                                    //var resetDataTemp = EDB.ExecuteSQL("CString", System.Data.CommandType.Text, "DELETE FROM TEMP_UPDATE_HJUAL WHERE IDMARKET = " + customer.RecNum);
+                                                    var resetDataTemp = EDB.ExecuteSQL("CString", System.Data.CommandType.Text, "DELETE FROM TEMP_UPDATE_HJUAL WHERE INDEX_FILE = " + index_file);
+
                                                 }
                                                 string namaMP = mp.Where(m => m.IdMarket.ToString() == customer.NAMA).SingleOrDefault().NamaMarket;
                                                 ret.cust.Add(cust);
@@ -3916,7 +3922,7 @@ namespace MasterOnline.Controllers
                                                     ret.nextFile = true;
                                                     maxData = worksheet.Dimension.End.Row;
                                                 }
-                                                var sSQL = "INSERT INTO TEMP_UPDATE_HJUAL(BRG, IDMARKET, HJUAL, TGL_INPUT, USERNAME) VALUES ";
+                                                var sSQL = "INSERT INTO TEMP_UPDATE_HJUAL(BRG, IDMARKET, INDEX_FILE, HJUAL, TGL_INPUT, USERNAME) VALUES ";
                                                 //loop all rows
                                                 for (int i = 4 + (page * dataPerPage); i <= maxData; i++)
                                                 {
@@ -3926,13 +3932,18 @@ namespace MasterOnline.Controllers
 
                                                         if (string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 5].Value)))
                                                         {
+                                                            ret.jmlNH++;
                                                             // barang varian tapi tidak diisi kode brg induk di excel
                                                             //break;
                                                         }
                                                         else
                                                         {
+                                                            if (string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
+                                                            {
+                                                                ret.jmlNL++;
+                                                            }
                                                             var sSQL2 = " ('" + worksheet.Cells[i, 1].Value.ToString() + "',";
-                                                            sSQL2 += customer.RecNum + "," + worksheet.Cells[i, 5].Value.ToString() + ", '";
+                                                            sSQL2 += customer.RecNum + "," + index_file + "," + worksheet.Cells[i, 5].Value.ToString() + ", '";
                                                             sSQL2 += DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "')";
                                                             var result = EDB.ExecuteSQL("CString", CommandType.Text, sSQL + sSQL2);
                                                             if(result == 1 && !string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
@@ -3984,6 +3995,9 @@ namespace MasterOnline.Controllers
                 ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
                 ret.nextFile = true;
             }
+            var sSQL3 = "UPDATE LOG_HARGAJUAL_A SET FILE_" + index_file + " = '"+filename+"', JML_BRG_" + index_file + " = '"+ ret.progress + "/" + ret.lastRow[0] + "', ";
+            sSQL3 += "JML_BRG_NH_" + index_file + " = "+ ret.jmlNH + ", JML_BRG_NL_" + index_file + " = " + ret.jmlNL + " WHERE STATUS = 0";
+            EDB.ExecuteSQL("CString", CommandType.Text, sSQL3);
 
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
@@ -4022,6 +4036,9 @@ namespace MasterOnline.Controllers
         public double TPOT { get; set; }
         public double? TLEBIHBAYAR { get; set; }
         //end add by nurul 6/4/2020
+
+        public int jmlNH { get; set; }
+        public int jmlNL { get; set; }
     }
 
     public class BindDownloadExcel

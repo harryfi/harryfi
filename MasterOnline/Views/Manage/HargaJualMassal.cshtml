@@ -1,0 +1,535 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model HargaJualViewModel
+@{
+    ViewBag.Title = "Harga Jual Barang";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    var context = new MoDbContext("");
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        //context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
+}
+@section styles
+{
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600" rel="stylesheet" />
+    <style>
+        #hargaJual-section > div {
+            background-color: #fff;
+            padding: 20px;
+        }
+
+        #HargaJuals_AL {
+            resize: vertical;
+            height: 100px;
+            max-height: 100px;
+        }
+
+        #hapus_label {
+            color: orange;
+            font-weight: bold;
+        }
+
+        @@media screen and (max-width: 767px) {
+            .edthargajualmdl {
+                width: 43%
+            }
+
+            .brgtblhrgajb {
+                margin-left: 10px;
+            }
+
+            .marginmin {
+                margin-left: 0px;
+            }
+
+            #hargaJual-section > div {
+                padding: 2px;
+                width: 87%;
+                margin-left: 20px;
+            }
+
+            .dataTables_paginate {
+                margin-top: 9px;
+            }
+        }
+    </style>
+}
+<style>
+    #loading_spinner_btnBlibli {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0);
+    }
+
+    #loading_spinner_image_btnBlibli {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+
+    #loading_spinner_btn82Cart {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0);
+    }
+
+    #loading_spinner_image_btn82Cart {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+
+    [data-tip] {
+        position: relative;
+    }
+
+        [data-tip]:before {
+            content: '';
+            /* hides the tooltip when not hovered */
+            display: none;
+            content: '';
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid #1a1a1a;
+            position: absolute;
+            top: 30px;
+            /*left: 35px;*/
+            z-index: 8;
+            font-size: 0;
+            line-height: 0;
+            /*width: 0;
+                height: 0;*/
+            margin-left: 0px;
+            left: 50%;
+        }
+
+        [data-tip]:after {
+            display: none;
+            content: attr(data-tip);
+            position: absolute;
+            top: 35px;
+            /*left: 0px;*/
+            padding: 2px 5px;
+            background: #1a1a1a;
+            color: #fff;
+            z-index: 9;
+            font-size: 0.85em;
+            height: auto;
+            line-break: normal;
+            max-width: 300px;
+            line-height: 18px;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            border-radius: 3px;
+            white-space: normal;
+            word-wrap: normal;
+            left: 30px;
+            margin-left: -50px;
+            width: 68px;
+        }
+
+        [data-tip]:hover:before,
+        [data-tip]:hover:after {
+            display: block;
+        }
+</style>
+
+<div class="" role="tabpanel" data-example-id="togglable-tabs">
+    <ul id="myTab" class="nav nav-tabs" role="tablist">
+        <li class="active">
+            <a href="#tab_content1" id="updatemassal-tab" role="tab" data-toggle="tab" aria-expanded="true">Update Massal</a>
+        </li>
+        <li>
+            <a href="#tab_content2" id="histori-tab" role="tab" data-toggle="tab" aria-expanded="true">History</a>
+        </li>
+    </ul>
+</div>
+
+<div id="myTabContent" class="tab-content">
+    <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="updatemassal-tab">
+        <div class="row udate_massal_section" style="margin-top: 5px;">
+            <div class="col-sm-12 addpixel" id="form-update-massal-partial">
+            </div>
+        </div>
+    </div>
+    <div role="tabpanel" class="tab-pane fade in" id="tab_content2" aria-labelledby="histori-tab">
+        <div class="row histori_section" style="margin-top: 5px;">
+            <div class="col-sm-12 addpixel" id="tabel-histori">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var $TabAktif = 0;
+        var $page = window.text;
+        $(document).on('ready',
+            function () {
+                //add by nurul 12/2/2019
+                $page = 0;
+                //end add by nurul 12/2/2019
+                //Initialize();
+                refreshFormHargaMassal();
+
+
+
+                $('#updatemassal-tab').click(function () {
+                    $TabAktif = 0;
+                    refreshFormHargaMassal();
+                });
+
+
+            });
+
+        function Initialize() {
+            displayButtonHapus();
+            //$('#search_hargaJual').keypress(function (e) {
+            //    var key = e.which;
+            //    if (key == 13)// the enter key code
+            //    {
+            //        searchTableHargaJual();
+            //        return false;
+            //    }
+            //});
+            //$('#search_hargaJual_click').click(function () {
+            //    searchTableHargaJual();
+            //});
+
+        }
+        function displayButtonHapus() {
+            if (document.getElementById('lblJml1').innerText != "0/0") {
+                $('#delFile_1').show();
+            } else {
+                $('#delFile_1').hide();
+            }
+            if (document.getElementById('lblJml2').innerText != "0/0") {
+                $('#delFile_2').show();
+            } else {
+                $('#delFile_2').hide();
+            }
+            if (document.getElementById('lblJml3').innerText != "0/0") {
+                $('#delFile_3').show();
+            } else {
+                $('#delFile_3').hide();
+            }
+            if (document.getElementById('lblJml4').innerText != "0/0") {
+                $('#delFile_4').show();
+            } else {
+                $('#delFile_4').hide();
+            }
+        }
+        @{
+            var markets = new Dictionary<string, string>();
+
+            foreach (var marketplace in context.Marketplaces.ToList())
+            {
+                markets.Add(marketplace.IdMarket.ToString(), marketplace.NamaMarket);
+            }
+        }
+
+        var $marketCollection = @Html.Raw(Json.Encode(markets));
+
+        function getMarketplace() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetPelangganAkun", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var customerList = [];
+                    $.each(data,
+                        function (i, item) {
+                            var $namaMarket = $marketCollection[item.NAMA];
+
+                            customerList[i] = {
+                                id: item.CUST,
+                                text: $namaMarket + " (" + item.PERSO + ")",
+                                term: item.TOP
+                            };
+                        });
+
+                    var custSelect = $('#CUSTOMER').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: customerList,
+                        onChange: function (value) {
+                            if (value == null) {
+                                $("#txtCust").val('');
+                            } else {
+                                $("#txtCust").val(value);
+                            }
+                        },
+                    });
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function refreshFormHargaMassal() {
+             var $link = '@Html.Raw(Url.Action("RefreshFormHargaMassal", "Manage"))';
+            //$link = $link.replace("replaceSearch", $('#search_barang_promosi').val());
+            ////$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            //$link = $link.replace("replaceLastPage", $tpPage);
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#table-promosi-partial').hide();
+                    //$('#table-barang-promosi-partial').hide();
+                    //$('#loading_promosi_tab').show();
+                },
+                success: function (response) {
+                    $('#form-update-massal-partial').html(response);
+                    refreshInputan();
+                    getMarketplace();
+                    getTanggal();
+                    //$('#loading_promosi_tab').hide();
+                    //$('#table-barang-promosi-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function refreshInputan() {
+            if ($('#TGL_PROSES').val() != '') {
+                $('#TGL_PROSES').val($('#TGL_PROSES').val().split(' ')[0]);
+                $('#dtProses').val($('#TGL_PROSES').val());
+            } else {
+                $('#TGL_PROSES').val($('#dtProses').val());
+            }
+        }
+        function getTanggal() {
+            $('#dtProses').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                $('#TGL_PROSES').val($(this).val());
+                //add by nurul 31/10/2018
+                $(this).datepicker('hide');
+                //end add
+
+            });
+        }
+
+        function checkfile(s, index) {
+            var validExts = new Array(".xlsx", ".xls");
+            var fileExt = s.value;
+            if (fileExt != null && fileExt != "") {
+                fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
+                if (validExts.indexOf(fileExt) < 0) {
+                    alert("Invalid file selected, valid files are of " +
+                        validExts.toString() + " types.");
+                    document.getElementById("file_upload_excel").value = "";
+
+                    return false;
+                }
+            }
+            UploadFileExcel(index, 0, 0, 0, 0);
+        }
+        function DownloadExcelHJual() {
+            if ($('#txtCust').val() == '') {
+                alert('Silahkan pilih akun marketplace terlebih dahulu.');
+                return "";
+            }
+            var link = '@Html.Raw(Url.Action("DownloadExcelHJual", "TransferExcel"))';
+            link += "?cust=" + encodeURIComponent($('#txtCust').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                async: false,
+                beforeSend: function () {
+                    //$('#loading_spinner_btn').show();
+                },
+                success: function (response) {
+                    if (response.Errors.length == 0) {
+                        var bytes = new Uint8Array(response.byteExcel);
+                        saveByteArray(response.namaFile, bytes);
+                    } else {
+                        //alert(response.Errors[0]);
+                    }
+                },
+                error: function (xhr) {
+                    //$('#loading_spinner_btn').hide();
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function saveByteArray(reportName, byte) {
+            var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            //document.body.appendChild(link);
+            link.click();
+            //document.body.removeChild(link);
+        };
+
+        //function UploadExcelHargaJual() {
+        //    if (($('#file_upload_excel_1')[0].files.length < 1 || document.getElementById('lblJml1').innerText != "0/0")
+        //        && ($('#file_upload_excel_2')[0].files.length < 1 || document.getElementById('lblJml2').innerText != "0/0")
+        //        && ($('#file_upload_excel_3')[0].files.length < 1 || document.getElementById('lblJml3').innerText != "0/0")
+        //        && ($('#file_upload_excel_4')[0].files.length < 1 || document.getElementById('lblJml4').innerText != "0/0")) {
+        //        alert('Anda belum memilih file untuk diupload atau semua file sudah diupload.');
+        //        return false;
+        //    }
+        //    UploadFileExcel(1, 0, 0);
+        //}
+        var err = "";
+        function UploadFileExcel(index, page, dataProcessed, nh, nl) {
+            //if (($('#file_upload_excel_' + index)[0].files.length < 1 || document.getElementById('lblJml' + index).innerText != "0/0") && page == 0) {
+            //    //skip
+            //    if (index < 4) {
+            //        UploadFileExcel(index + 1, 0, 0);
+            //    }
+            //    else {
+            //        alert('Upload file excel telah selesai.');
+            //    }
+            //    return "";
+            //}
+            if ($('#file_upload_excel_' + index)[0].files.length < 1){
+                return "";
+            }
+
+            var formdata = new FormData();
+            formdata.append("FILE_EXCEL_" + index, $('#file_upload_excel_' + index)[0].files[0]);
+
+            var link = '@Html.Raw(Url.Action("UploadExcelHJual", "TransferExcel"))';
+            link += "?page=" + encodeURIComponent(page) + "&dataProcessed=" + encodeURIComponent(dataProcessed);
+            link += "&NH=" + encodeURIComponent(nh) + "&NL=" + encodeURIComponent(nl) + "&index_file=" + encodeURIComponent(index);
+
+            $.ajax({
+                type: "POST",
+                url: link,
+                data: formdata,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false,  // tell jQuery not to set contentType
+                beforeSend: function() {
+                    $('#delFile_' + index).hide();
+                    $('#loading_' + index).show();
+                },
+                success: function (response) {
+                    if (response.Errors != null) {
+                        for (i = 0; i < response.Errors.length; i++) {
+                            err += response.Errors[i] + "\n";
+                        }
+                    }
+                    document.getElementById('lblJml' + index).innerText = response.progress + "/" + response.lastRow[0];
+                    document.getElementById('lblJml_tidakdiisi_' + index).innerText = response.jmlNH;
+                    document.getElementById('lblJml_tidaklink_' + index).innerText = response.jmlNL;
+
+                    if (response.nextFile) {
+                        //if (index < 4) {
+                        //    UploadFileExcel(index + 1, 0, 0);
+                        //}
+                        //else
+                        {
+                            if (err != "") {
+                                alert('Upload file excel telah selesai, dengan Error :\n' + err);
+                            }
+                            else {
+                                alert('Upload file excel telah selesai.');
+                            }
+                        }
+                        $('#delFile_' + index).show();
+                        $('#loading_' + index).hide();
+                    } else {
+                        UploadFileExcel(index, page + 1, response.progress, response.jmlNH, response.jmlNL);
+                    }
+                    //$('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    $('#delFile_' + index).show();
+                    $('#loading_' + index).hide();
+                    alert('Ada data yang tidak valid!');
+                    //$('#loading_spinner').hide();
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function deletefileexcel(index) {
+             var link = '@Html.Raw(Url.Action("DeleteTempHargaMassal", "Manage"))';
+            link += "?nobuk=" + encodeURIComponent($('#NO_BUKTI').val()) + "&index=" + index;
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                async: false,
+                beforeSend: function () {
+                    //$('#loading_spinner_btn').show();
+                },
+                success: function (response) {
+                    if (response.Errors.length == 0) {
+                       
+                    } else {
+                        //alert(response.Errors[0]);
+                    }
+                },
+                error: function (xhr) {
+                    //$('#loading_spinner_btn').hide();
+                    console.log(xhr);
+                }
+            });
+        }
+    </script>
+}
