@@ -1141,7 +1141,8 @@ namespace MasterOnline.Controllers
                                 no_cust = marketPlace.Sort1_Cust,
                                 account_store = marketPlace.PERSO,
                                 API_key = marketPlace.API_KEY,
-                                API_password = marketPlace.API_CLIENT_P
+                                API_password = marketPlace.API_CLIENT_P,
+                                email = marketPlace.EMAIL
                             };
                             if (stf02h.BRG_MP != "")
                             {
@@ -1590,7 +1591,7 @@ namespace MasterOnline.Controllers
                                     };
                                     if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
                                     {
-                                        
+
                                     }
                                     else
                                     {
@@ -1839,7 +1840,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    if(res.detail != null)
+                    if (res.detail != null)
                     {
                         ret.message = res.detail[0].message;
                     }
@@ -1915,9 +1916,9 @@ namespace MasterOnline.Controllers
 
                                         foreach (Order_Items items in order.order_items)
                                         {
-                                            if(items.sku == sellerSku)
+                                            if (items.sku == sellerSku)
                                             {
-                                                if(items.status == "pending" || items.status == "unpaid")//stok tertahan
+                                                if (items.status == "pending" || items.status == "unpaid")//stok tertahan
                                                 {
                                                     ret.recordCount++;
                                                 }
@@ -1964,7 +1965,7 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 ret.status = 0;
-            }          
+            }
 
             return ret;
         }
@@ -2615,7 +2616,7 @@ namespace MasterOnline.Controllers
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedGetProductInfoRootobject)) as TokpedGetProductInfoRootobject;
                 //change by Tri 15 apr 2020, message ada isi nya saat sukses
                 //if (!string.IsNullOrWhiteSpace(result.header.messages))
-                if(result != null)
+                if (result != null)
                 //if(result.header.error_code != 0)
                 ////end change by Tri 15 apr 2020, message ada isi nya saat sukses
                 //    {
@@ -2896,7 +2897,7 @@ namespace MasterOnline.Controllers
                                 var rowFailedMessage = "";
                                 foreach (var itemRow in result.data.failed_rows_data)
                                 {
-                                    if(!string.IsNullOrEmpty(itemRow.message) && itemRow.product_id != 0)
+                                    if (!string.IsNullOrEmpty(itemRow.message) && itemRow.product_id != 0)
                                     {
                                         rowFailedMessage = rowFailedMessage + Convert.ToString(itemRow.message) + " product id:" + Convert.ToString(itemRow.product_id) + ";";
                                     }
@@ -2907,7 +2908,7 @@ namespace MasterOnline.Controllers
                             {
                                 throw new Exception("failed_rows:" + Convert.ToString(result.data.failed_rows));
                             }
-                            
+
                         }
                         else
                         {
@@ -2997,7 +2998,7 @@ namespace MasterOnline.Controllers
             }
 
             qty = Convert.ToInt32(qtyOnHand);
-            
+
             string urll = string.Format("{0}/api/v1/editProductdetail", iden.API_url);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
@@ -3050,7 +3051,7 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrEmpty(responseFromServer))
                 {
                     var resultAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ResultUpdateStock82Cart)) as ResultUpdateStock82Cart;
-                    if(resultAPI.error != "none" && resultAPI.error != null)
+                    if (resultAPI.error != "none" && resultAPI.error != null)
                     {
                         //currentLog.REQUEST_ATTRIBUTE_3 = "Exception"; //marketplace stock
                         //currentLog.REQUEST_EXCEPTION = resultAPI.error.ToString();
@@ -3071,7 +3072,7 @@ namespace MasterOnline.Controllers
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, no_cust, currentLog, "82Cart");
                 throw new Exception(msg);
             }
-            
+
             return ret;
         }
 
@@ -3099,7 +3100,8 @@ namespace MasterOnline.Controllers
             string[] brg_mp_split = brg_mp.Split(';');
 
             //string urll = "https://{0}:{1}@{2}.myshopify.com/admin/products/{3}.json";
-            string urll = "https://{0}:{1}@{2}.myshopify.com/admin/variants/{3}.json";
+            //string urll = "https://{0}:{1}@{2}.myshopify.com/admin/variants/{3}.json";
+            string urll = "https://{0}:{1}@{2}.myshopify.com/admin/api/2020-07/inventory_levels/set.json"; //admin/api/2020-07/inventory_levels/adjust.json for increase and decrease quantity
             var kodeBrg = "";
             if (brg_mp_split[1] != "0")
             {
@@ -3110,23 +3112,36 @@ namespace MasterOnline.Controllers
                 kodeBrg = brg_mp_split[0];
             }
 
+            ShopifyController.ShopifyAPIData dataAPI = new ShopifyController.ShopifyAPIData();
+            dataAPI.no_cust = iden.no_cust;
+            dataAPI.username = uname;
+            dataAPI.DatabasePathErasoft = DatabasePathErasoft;
+            dataAPI.account_store = iden.account_store;
+            dataAPI.API_key = iden.API_key;
+            dataAPI.API_password = iden.API_password;
+            dataAPI.email = iden.email;
+
+            var shopify = new ShopifyController();
+            string resultGetLocationID = shopify.Shopify_GetLocationID(dataAPI);
+            string resultGetInventoryID = await shopify.Shopify_getSingleProductforUpdateStock(dataAPI, brg_mp);
+
             var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store, Convert.ToInt64(kodeBrg));
 
-            ShopifyUpdateStockProduct putProdData = new ShopifyUpdateStockProduct
-            {
-                //id = Convert.ToInt64(brg_mp_split[0]),
-                //published = true,
-                //available = true,
-                variant = new ShopifyUpdateStockProductVariant()
-            };
+            //ShopifyUpdateStockProduct putProdData = new ShopifyUpdateStockProduct
+            //{
+            //    //id = Convert.ToInt64(brg_mp_split[0]),
+            //    //published = true,
+            //    //available = true,
+            //    variant = new ShopifyUpdateStockProductVariant()
+            //};
             //ShopifyUpdateStockProductVariant variants = new ShopifyUpdateStockProductVariant
             //{
             //    id = Convert.ToInt64(kodeBrg),
             //    inventory_quantity = qty.ToString()
             //};
 
-            putProdData.variant.id = Convert.ToInt64(kodeBrg);
-            putProdData.variant.inventory_quantity = qty.ToString();
+            //putProdData.variant.id = Convert.ToInt64(kodeBrg);
+            //putProdData.variant.inventory_quantity = qty.ToString();
 
 
             //ShopifyUpdateStock putData = new ShopifyUpdateStock
@@ -3134,14 +3149,22 @@ namespace MasterOnline.Controllers
             //    product = putProdData
             //};
 
-            string myData = JsonConvert.SerializeObject(putProdData);
+            ShopifyUpdateStockNewAPI dataJsonAPI = new ShopifyUpdateStockNewAPI
+            {
+                inventory_item_id = Convert.ToInt64(resultGetInventoryID),
+                location_id = Convert.ToInt64(resultGetLocationID),
+                available = Convert.ToInt32(qty)
+            };
+
+            //string myData = JsonConvert.SerializeObject(putProdData);
+            string myData = JsonConvert.SerializeObject(dataJsonAPI);
 
             string responseFromServer = "";
             var client = new HttpClient();
             client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", (iden.API_password));
             var content = new StringContent(myData, Encoding.UTF8, "application/json");
             content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-            HttpResponseMessage clientResponse = await client.PutAsync(vformatUrl, content);
+            HttpResponseMessage clientResponse = await client.PostAsync(vformatUrl, content);
 
             using (HttpContent responseContent = clientResponse.Content)
             {
@@ -3345,7 +3368,7 @@ namespace MasterOnline.Controllers
                     string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
                     if (msg.Contains("not allowed to edit"))
                     {
-                       
+
 #if (DEBUG || Debug_AWS)
                         await ShopeeUnlinkProduct(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(0), qty);
 #else
@@ -3780,7 +3803,7 @@ namespace MasterOnline.Controllers
             }
 
             stok = Convert.ToInt32(qtyOnHand);
-            
+
             try
             {
                 string sMethod = "epi.ware.openapi.warestock.updateWareStock";
@@ -3828,7 +3851,7 @@ namespace MasterOnline.Controllers
             return "";
         }
 
-        
+
 
         //add by nurul 29/7/2020
         [AutomaticRetry(Attempts = 2)]
@@ -3860,7 +3883,8 @@ namespace MasterOnline.Controllers
                         throw new Exception("Faktur Tidak Ditemukan.");
                     }
                 }
-                else {
+                else
+                {
                     throw new Exception("Faktur Tidak Ditemukan.");
                 }
             }
@@ -4257,6 +4281,15 @@ namespace MasterOnline.Controllers
             //public string weight { get; set; }
             //public string weight_unit { get; set; }
         }
+
+
+        public class ShopifyUpdateStockNewAPI
+        {
+            public long inventory_item_id { get; set; }
+            public long location_id { get; set; }
+            public int available { get; set; }
+        }
+
 
         public class ResultUpdateStockVariant
         {
