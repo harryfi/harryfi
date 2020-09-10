@@ -3123,7 +3123,7 @@ namespace MasterOnline.Controllers
 
             var shopify = new ShopifyController();
             string resultGetLocationID = shopify.Shopify_GetLocationID(dataAPI);
-            string resultGetInventoryID = await shopify.Shopify_getSingleProductforUpdateStock(dataAPI, brg_mp);
+            string resultGetInventoryID = shopify.Shopify_getSingleProductforUpdateStock(dataAPI, brg_mp);
 
             var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store, Convert.ToInt64(kodeBrg));
 
