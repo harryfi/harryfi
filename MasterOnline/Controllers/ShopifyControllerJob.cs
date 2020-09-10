@@ -1601,6 +1601,7 @@ namespace MasterOnline.Controllers
                         throw new Exception("error");
                     }
                 }
+                new ShopifyControllerJob().Shopify_CreateProductImageVariant(iden, 5710989492373, 36217806880917, "https://s3.bukalapak.com/img/8535545212/s-330-330/au_feature_connect_with_ease_71968113.jpg.webp");
 
                 //}
                 //catch (Exception ex2)
@@ -1628,26 +1629,40 @@ namespace MasterOnline.Controllers
 
             string myData = JsonConvert.SerializeObject(body);
 
-            string responseFromServer = "";           
+            //string responseFromServer = "";
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
-            myReq.Method = "POST";
-            myReq.Headers.Add("X-Shopify-Access-Token", (iden.API_password));
-            myReq.Accept = "application/json";
-            myReq.ContentType = "application/json";
-            myReq.ContentLength = myData.Length;
-            using (var dataStream = myReq.GetRequestStream())
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            //myReq.Method = "POST";
+            //myReq.Headers.Add("X-Shopify-Access-Token", (iden.API_password));
+            //myReq.Accept = "application/json";
+            //myReq.ContentType = "application/json";
+            //myReq.ContentLength = myData.Length;
+            //using (var dataStream = myReq.GetRequestStream())
+            //{
+            //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            //}
+            //using (WebResponse response = myReq.GetResponse())
+            //{
+            //    using (Stream stream = response.GetResponseStream())
+            //    {
+            //        StreamReader reader = new StreamReader(stream);
+            //        responseFromServer = reader.ReadToEnd();
+            //    }
+            //}
+            string responseFromServer = "";
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", (iden.API_password));
+            var content = new StringContent(myData, Encoding.UTF8, "application/json");
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+            HttpResponseMessage clientResponse = await client.PostAsync(vformatUrl, content);
+
+            using (HttpContent responseContent = clientResponse.Content)
             {
-                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-            }
-            using (WebResponse response = myReq.GetResponse())
-            {
-                using (Stream stream = response.GetResponseStream())
+                using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
+                    responseFromServer = await reader.ReadToEndAsync();
                 }
-            }
+            };
 
             if (responseFromServer != null)
             {
