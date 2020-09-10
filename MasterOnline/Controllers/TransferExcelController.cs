@@ -3908,6 +3908,12 @@ namespace MasterOnline.Controllers
                                             {
                                                 if (page == 0)
                                                 {
+                                                    var cekData = EDB.GetDataSet("CString", "TEMP_UPDATE_HJUAL", " SELECT * FROM TEMP_UPDATE_HJUAL WHERE INDEX_FILE <> " + index_file + " AND IDMARKET = " + customer.RecNum);
+                                                    if(cekData.Tables[0].Rows.Count > 0)
+                                                    {
+                                                        ret.Errors.Add("Anda sudah mengupload excel harga jual untuk akun ini. Silahkan upload excel untuk akun marketplace lain.");
+                                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                                                    }
                                                     //var resetDataTemp = EDB.ExecuteSQL("CString", System.Data.CommandType.Text, "DELETE FROM TEMP_UPDATE_HJUAL WHERE IDMARKET = " + customer.RecNum);
                                                     var resetDataTemp = EDB.ExecuteSQL("CString", System.Data.CommandType.Text, "DELETE FROM TEMP_UPDATE_HJUAL WHERE INDEX_FILE = " + index_file);
 

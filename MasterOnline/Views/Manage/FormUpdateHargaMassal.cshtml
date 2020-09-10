@@ -104,12 +104,34 @@
             </div>
             <div class="form-group">
                 <div class="col-md-8 file_upload_section">
-                    @Html.HiddenFor(m => m.FILE_1)
-                    <input type='file' id='file_upload_excel_1' name="file_upload_excel" onchange="checkfile(this, 1);" multiple
+                    <input type='file' id='file_upload_excel' name="file_upload_excel" onchange="checkfile(this, 0);"
                            accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
                 </div>
+
+            </div>
+            <br />
+            <br />
+            <div class="form-group">
+                <div class="col-md-8 file_upload_section">
+                    @*@Html.HiddenFor(m => m.FILE_1)*@
+                    <table class="col-md-12">
+                        <tr>
+                            <th>
+                                <label>File 1 : </label>
+                            </th>
+                            <th>
+                                <div>
+                                    @Html.TextBoxFor(m => m.FILE_1, new { @class = "form-control", @readonly = "true" })
+                                    <input type='file' id='file_upload_excel_1' name="file_upload_excel" onchange="checkfile(this, 1);" style="display:none"
+                                           accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                                </div>
+
+                            </th>
+                        </tr>
+                    </table>
+                </div>
                 <div class="col-md-4" id="delFile_1">
-                    <button type="button" class="btn btn-danger" onclick="deletefileexcel(1);" data-style="expand-right">
+                    <button type="button" id="btnDelFile_1" class="btn btn-danger" onclick="deletefileexcel(1);" data-style="expand-right">
                         <span>Hapus</span>
                     </button>
                 </div>
@@ -140,12 +162,25 @@
             </div>
             <div class="form-group">
                 <div class="col-md-8 file_upload_section">
-                    @Html.HiddenFor(m => m.FILE_2)
-                    <input type='file' id='file_upload_excel_2' name="file_upload_excel" onchange="checkfile(this, 2);" multiple
-                           accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                    @*@Html.HiddenFor(m => m.FILE_2)*@
+                    <table class="col-md-12">
+                        <tr>
+                            <th>
+                                <label>File 2 : </label>
+                            </th>
+                            <th>
+                                <div>
+                                    @Html.TextBoxFor(m => m.FILE_2, new { @class = "form-control", @readonly = "true" })
+                                    <input type='file' id='file_upload_excel_2' name="file_upload_excel" onchange="checkfile(this, 2);" style="display:none"
+                                           accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                                </div>
+                                
+                            </th>
+                        </tr>                        
+                    </table>                    
                 </div>
                 <div class="col-md-4" id="delFile_2">
-                    <button type="button" class="btn btn-danger" onclick="deletefileexcel(2);" data-style="expand-right">
+                    <button type="button" id="btnDelFile_2" class="btn btn-danger" onclick="deletefileexcel(2);" data-style="expand-right">
                         <span>Hapus</span>
                     </button>
                 </div>
@@ -176,12 +211,25 @@
             </div>
             <div class="form-group">
                 <div class="col-md-8 file_upload_section">
-                    @Html.HiddenFor(m => m.FILE_3)
-                    <input type='file' id='file_upload_excel_3' name="file_upload_excel" onchange="checkfile(this, 3);" multiple
-                           accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                    @*@Html.HiddenFor(m => m.FILE_3)*@
+                    <table class="col-md-12">
+                        <tr>
+                            <th>
+                                <label>File 3 : </label>
+                            </th>
+                            <th>
+                                <div>
+                                    @Html.TextBoxFor(m => m.FILE_3, new { @class = "form-control", @readonly = "true" })
+                                    <input type='file' id='file_upload_excel_3' name="file_upload_excel" onchange="checkfile(this, 3);" style="display:none"
+                                           accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                                </div>
+
+                            </th>
+                        </tr>
+                    </table>
                 </div>
                 <div class="col-md-4" id="delFile_3">
-                    <button type="button" class="btn btn-danger" onclick="deletefileexcel(3);" data-style="expand-right">
+                    <button type="button" id="btnDelFile_3" class="btn btn-danger" onclick="deletefileexcel(3);" data-style="expand-right">
                         <span>Hapus</span>
                     </button>
                 </div>
@@ -212,12 +260,25 @@
             </div>
             <div class="form-group">
                 <div class="col-md-8 file_upload_section">
-                    @Html.HiddenFor(m => m.FILE_4)
-                    <input type='file' id='file_upload_excel_4' name="file_upload_excel" onchange="checkfile(this, 4);" multiple
-                           accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                    @*@Html.HiddenFor(m => m.FILE_4)*@
+                    <table class="col-md-12">
+                        <tr>
+                            <th>
+                                <label>File 4 : </label>
+                            </th>
+                            <th>
+                                <div>
+                                    @Html.TextBoxFor(m => m.FILE_4, new { @class = "form-control", @readonly = "true" })
+                                    <input type='file' id='file_upload_excel_4' name="file_upload_excel" onchange="checkfile(this, 4);" style="display:none"
+                                           accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                                </div>
+
+                            </th>
+                        </tr>
+                    </table>
                 </div>
                 <div class="col-md-4" id="delFile_4">
-                    <button type="button" class="btn btn-danger" onclick="deletefileexcel(4);" data-style="expand-right">
+                    <button type="button" id="btnDelFile_4" class="btn btn-danger" onclick="deletefileexcel(4);" data-style="expand-right">
                         <span>Hapus</span>
                     </button>
                 </div>

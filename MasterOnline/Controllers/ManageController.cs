@@ -33007,10 +33007,10 @@ namespace MasterOnline.Controllers
         {
             var vm = new HargaJualMassalViewModel();
 
-            var lastData = ErasoftDbContext.LOG_HARGAJUAL_A.Where(m => m.STATUS == 1).FirstOrDefault();
+            var lastData = ErasoftDbContext.LOG_HARGAJUAL_A.Where(m => m.STATUS <= 1).FirstOrDefault();
             if(lastData == null)
             {
-                vm.NO_BUKTI = GenerateAutoNumber(ErasoftDbContext, "HM", "LOG_HARGAJUAL_A", "NO_BUKTI");
+                //vm.NO_BUKTI = GenerateAutoNumber(ErasoftDbContext, "HM", "LOG_HARGAJUAL_A", "NO_BUKTI");
                 //vm.STATUS = 0;
                 //vm.JML_BRG_1 = "0/0";
                 //vm.JML_BRG_2 = "0/0";
@@ -33027,6 +33027,10 @@ namespace MasterOnline.Controllers
                 //vm.TGL_PROSES = DateTime.UtcNow.AddHours(7).Hour < 18 ? DateTime.UtcNow.AddHours(7) : DateTime.UtcNow.AddHours(7).AddDays(1);
                 //vm.USERNAME = usernameLogin;
                 //vm.TGL_INPUT = DateTime.UtcNow.AddHours(7);
+                lastData = new LOG_HARGAJUAL_A();
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "HM", "LOG_HARGAJUAL_A", "NO_BUKTI");
+                lastData.NO_BUKTI = "HM" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+
                 lastData.STATUS = 0;
                 lastData.JML_BRG_1 = "0/0";
                 lastData.JML_BRG_2 = "0/0";

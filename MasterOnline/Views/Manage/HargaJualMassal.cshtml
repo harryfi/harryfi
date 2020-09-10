@@ -376,8 +376,28 @@
 
                     return false;
                 }
+                if (index == 0) {
+                    if ($('#FILE_1').val() == "") {
+                        index = 1;
+                    }
+                    else if ($('#FILE_2').val() == "") {
+                        index = 2;
+                    }
+                    else if ($('#FILE_3').val() == "") {
+                        index = 3;
+                    }
+                    else if ($('#FILE_4').val() == "") {
+                        index = 4;
+                    }
+                    else {
+                        alert('Maksimum excel yang dapat di proses adalah 4.\nSilahkan hapus salah satu excel di proses ini atau upload lagi setelah proses Update Harga Massal ini selesai.');
+                        return false;
+                    }
+                    $('#FILE_' + index).val($('#file_upload_excel')[0].files[0].name);
+                    UploadFileExcel(index, 0, 0, 0, 0);
+                }
             }
-            UploadFileExcel(index, 0, 0, 0, 0);
+            //UploadFileExcel(index, 0, 0, 0, 0);
         }
         function DownloadExcelHJual() {
             if ($('#txtCust').val() == '') {
@@ -444,12 +464,13 @@
             //    }
             //    return "";
             //}
-            if ($('#file_upload_excel_' + index)[0].files.length < 1){
-                return "";
-            }
+            //if ($('#file_upload_excel_' + index)[0].files.length < 1){
+            //    return "";
+            //}
 
             var formdata = new FormData();
-            formdata.append("FILE_EXCEL_" + index, $('#file_upload_excel_' + index)[0].files[0]);
+            //formdata.append("FILE_EXCEL_" + index, $('#file_upload_excel_' + index)[0].files[0]);
+            formdata.append("FILE_EXCEL_" + index, $('#file_upload_excel')[0].files[0]);
 
             var link = '@Html.Raw(Url.Action("UploadExcelHJual", "TransferExcel"))';
             link += "?page=" + encodeURIComponent(page) + "&dataProcessed=" + encodeURIComponent(dataProcessed);
@@ -464,10 +485,18 @@
                 beforeSend: function() {
                     $('#delFile_' + index).hide();
                     $('#loading_' + index).show();
+                    disableUpload(1);
                 },
                 success: function (response) {
                     if (response.Errors != null) {
                         for (i = 0; i < response.Errors.length; i++) {
+                            if (response.Errors[i].include("Anda sudah mengupload excel harga jual untuk akun ini")) {
+                                alert(response.Errors[i]);
+                                $('#delFile_' + index).show();
+                                $('#loading_' + index).hide();
+                                disableUpload(0);
+                                return false;
+                            }
                             err += response.Errors[i] + "\n";
                         }
                     }
@@ -490,12 +519,14 @@
                         }
                         $('#delFile_' + index).show();
                         $('#loading_' + index).hide();
+                        disableUpload(0);
                     } else {
                         UploadFileExcel(index, page + 1, response.progress, response.jmlNH, response.jmlNL);
                     }
                     //$('#loading_spinner').hide();
                 },
                 error: function (xhr) {
+                    disableUpload(0);
                     $('#delFile_' + index).show();
                     $('#loading_' + index).hide();
                     alert('Ada data yang tidak valid!');
@@ -519,17 +550,47 @@
                     //$('#loading_spinner_btn').show();
                 },
                 success: function (response) {
-                    if (response.Errors.length == 0) {
-                       
-                    } else {
-                        //alert(response.Errors[0]);
-                    }
+                    //if (response.Errors.length == 0) {
+
+                    //} else {
+                    //    //alert(response.Errors[0]);
+                    //}
+                    $('#delFile_' + index).hide();
+                    $('#FILE_' + index).val('');
+                    //$('#file_upload_excel_' + index).val('');
+                    document.getElementById('lblJml' + index).innerText = "0/0";
+                    document.getElementById('lblJml_tidakdiisi_' + index).innerText = "0";
+                    document.getElementById('lblJml_tidaklink_' + index).innerText = "0";
                 },
                 error: function (xhr) {
                     //$('#loading_spinner_btn').hide();
                     console.log(xhr);
                 }
             });
+        }
+
+        function disableUpload(val) {
+            if (val == 1) {
+                document.getElementById("file_upload_excel").disabled = true;
+                document.getElementById("file_upload_excel_1").disabled = true;
+                document.getElementById("file_upload_excel_2").disabled = true;
+                document.getElementById("file_upload_excel_3").disabled = true;
+                document.getElementById("file_upload_excel_4").disabled = true;
+                document.getElementById("btnDelFile_1").disabled = true;
+                document.getElementById("btnDelFile_2").disabled = true;
+                document.getElementById("btnDelFile_3").disabled = true;
+                document.getElementById("btnDelFile_4").disabled = true;
+            } else {
+                document.getElementById("file_upload_excel").disabled = false;
+                document.getElementById("file_upload_excel_1").disabled = false;
+                document.getElementById("file_upload_excel_2").disabled = false;
+                document.getElementById("file_upload_excel_3").disabled = false;
+                document.getElementById("file_upload_excel_4").disabled = false;
+                document.getElementById("btnDelFile_1").disabled = false;
+                document.getElementById("btnDelFile_2").disabled = false;
+                document.getElementById("btnDelFile_3").disabled = false;
+                document.getElementById("btnDelFile_4").disabled = false;
+            }
         }
     </script>
 }
