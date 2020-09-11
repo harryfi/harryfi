@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using Microsoft.AspNet.SignalR;
 using MasterOnline.Hubs;
+using System.IO;
 
 namespace MasterOnline.Utils
 {

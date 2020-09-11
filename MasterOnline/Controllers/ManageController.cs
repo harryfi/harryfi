@@ -43,6 +43,9 @@ using CsvHelper;
 using System.Configuration;
 using System.Data;
 using System.Net;
+using iTextSharp.text.pdf;
+using iTextSharp.text;
+using System.Text.RegularExpressions;
 // end
 
 using Spire.Xls;
@@ -25983,7 +25986,7 @@ namespace MasterOnline.Controllers
 
         public Bitmap BlibliResizeImage(System.Drawing.Image image, int width, int height)
         {
-            var destRect = new Rectangle(0, 0, width, height);
+            var destRect = new System.Drawing.Rectangle(0, 0, width, height);
             var destImage = new Bitmap(width, height);
 
             destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
@@ -26019,14 +26022,14 @@ namespace MasterOnline.Controllers
         }
         public static Bitmap BlibliResizeImageFromStream(MemoryStream stream)
         {
-            using (var img = Image.FromStream(stream))
+            using (var img = System.Drawing.Image.FromStream(stream))
             {
                 float newResolution = img.Height;
                 if (img.Width < newResolution)
                 {
                     newResolution = img.Width;
                 }
-                var destRect = new Rectangle(0, 0, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                var destRect = new System.Drawing.Rectangle(0, 0, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
                 var destImage = new Bitmap(Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
 
                 //var newWidth = (int)(srcImage.Width * scaleFactor);
@@ -52644,6 +52647,8 @@ namespace MasterOnline.Controllers
                 List<string> temp_strmsg_label = new List<string>();
                 
                 List<string> temp_printLabel = new List<string>();
+                string temp_printLabel_split = "";
+                string result_printLabel = "";
 
                 //add by nurul 16/12/2019
                 //bool gakketemulagi = false;
@@ -52713,7 +52718,7 @@ namespace MasterOnline.Controllers
                             
                             #region initial folder
                             string messageErrorLog = "";
-                            string filename = "JDID_print_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                            string filename = "JDID_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
                             var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
                             #endregion
 
@@ -52725,13 +52730,16 @@ namespace MasterOnline.Controllers
                                 stream.Write(byteArray, 0, byteArray.Length);
                                 stream.Close();
                                 temp_printLabel.Add(path);
+                                temp_printLabel_split = temp_printLabel_split + path + ";";
                             }
 
-                            var sql = "update SOT01A set status_print = '1', status_kirim = '1' where no_bukti in ('" + so.no_bukti + "')";
+                            var sql = "update SOT01A set status_print = '1' where no_bukti in ('" + so.no_bukti + "')";
                             ErasoftDbContext.Database.ExecuteSqlCommand(sql);
                         }
                         else
                         {
+                            var sql = "update SOT01A set status_print = '0' where no_bukti in ('" + so.no_bukti + "')";
+                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
                             temp_strmsg_label.Add(retApi.Result.ToString());
                         }
                     }
@@ -52739,7 +52747,9 @@ namespace MasterOnline.Controllers
                 
                 if (temp_printLabel.Count() > 0)
                 {
-                    return new JsonResult { Data = new { mo_label = temp_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    result_printLabel = MergePDFProcess(temp_printLabel_split, bukti);
+                    //return new JsonResult { Data = new { mo_label = temp_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    return new JsonResult { Data = new { mo_label = result_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
                 else
                 {
@@ -52764,6 +52774,64 @@ namespace MasterOnline.Controllers
             return JsonErrorMessage("This Function is for JD.ID only");
         }
         //end by fauzi
+
+        //add by fauzi function for merge file PDF.
+
+
+        public string MergePDFProcess(string FileLocation, string no_bukti)
+        {
+            string result = "";
+
+            if (!string.IsNullOrEmpty(FileLocation))
+            {
+                string[] dataSplit = FileLocation.Split(';');
+
+                iTextSharp.text.pdf.PdfReader reader = null;
+                iTextSharp.text.Document sourceDocument = null;
+                iTextSharp.text.pdf.PdfCopy pdfCopyProvider = null;
+                iTextSharp.text.pdf.PdfImportedPage importedPage;
+                //string outputPdfPath = @"D:/newFile.pdf";
+                string filename = "JDID_printlabelresult_" + no_bukti + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                result = path;
+
+                sourceDocument = new iTextSharp.text.Document();
+                pdfCopyProvider = new iTextSharp.text.pdf.PdfCopy(sourceDocument, new System.IO.FileStream(path, System.IO.FileMode.Create));
+
+                sourceDocument.Open();
+
+                for (int f = 0; f < dataSplit.Length - 1; f++)
+                {
+                    int pages = TotalPageCount(dataSplit[f]);
+
+                    reader = new iTextSharp.text.pdf.PdfReader(dataSplit[f]);
+                    for (int i = 1; i <= pages; i++)
+                    {
+                        importedPage = pdfCopyProvider.GetImportedPage(reader, i);
+                        pdfCopyProvider.AddPage(importedPage);
+                    }
+
+                    reader.Close();
+                }
+
+                sourceDocument.Close();
+            }
+
+
+            return result;
+        }
+
+        private static int TotalPageCount(string file)
+        {
+            using (StreamReader sr = new StreamReader(System.IO.File.OpenRead(file)))
+            {
+                Regex regex = new Regex(@"/Type\s*/Page[^s]");
+                MatchCollection matches = regex.Matches(sr.ReadToEnd());
+
+                return matches.Count;
+            }
+        }
+        // end by fauzi for merge pdf //07/09/2020
 
         //add by fauzi
         public ActionResult ReadyToShipJDIDPerPacking(string cust, string bukti, List<string> rows_selected, string label)
@@ -52810,7 +52878,7 @@ namespace MasterOnline.Controllers
                 List<string> temp_strmsg = new List<string>();
                 List<string> temp_strmsg_label = new List<string>();
 
-                List<string> temp_printLabel = new List<string>();
+                List<string> temp_readytoShip = new List<string>();
 
                 var listErrors = new List<PackingListErrors>();
 
@@ -52870,9 +52938,12 @@ namespace MasterOnline.Controllers
                             hitungSuccess += 1;
                             var sql = "update SOT01A set status_kirim = '2' where no_bukti in ('" + so.no_bukti + "')";
                             ErasoftDbContext.Database.ExecuteSqlCommand(sql);
+                            temp_readytoShip.Add(so.no_referensi);
                         }
                         else
                         {
+                            var sql = "update SOT01A set status_kirim = '1' where no_bukti in ('" + so.no_bukti + "')";
+                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
                             listErrors.Add(new PackingListErrors
                             {
                                 keyname = so.no_bukti,
@@ -52883,9 +52954,9 @@ namespace MasterOnline.Controllers
                     }
                 }
 
-                if (temp_printLabel.Count() > 0)
+                if (temp_readytoShip.Count() > 0)
                 {
-                    return new JsonResult { Data = new { result = temp_printLabel, successCount = hitungSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    return new JsonResult { Data = new { result = temp_readytoShip, successCount = hitungSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
                 else
                 {

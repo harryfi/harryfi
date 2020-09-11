@@ -683,11 +683,12 @@
                             var adaUrl = false;
                             var urlValue = "";
                             var countUrl = 0;
-
-                            response.mo_label.forEach(function (item) {
-                                window.open('/Manage/JD_Download_PrintLabel?path=' + item, '_blank');
-                                textareaValue += item + "</br>";
-                            });
+                            if (response.mo_label != null) {
+                                //response.mo_label.forEach(function (item) {
+                                window.open('/Manage/JD_Download_PrintLabel?path=' + response.mo_label, '_blank');
+                                textareaValue += response.mo_label + "</br>";
+                            //});
+                            }
 
                             $('#modalPrintJDID__' + cust).modal('hide');
 
