@@ -1419,7 +1419,7 @@ namespace MasterOnline.Controllers
                 HttpBody.product.images.Add(new ShopifyCreateProductImages { position = "2", src = brgInDb.LINK_GAMBAR_2, alt = brgInDb.NAMA.ToString() });
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
                 HttpBody.product.images.Add(new ShopifyCreateProductImages { position = "3", src = brgInDb.LINK_GAMBAR_3, alt = brgInDb.NAMA.ToString() });
-            
+
 
             string myData = JsonConvert.SerializeObject(HttpBody);
 
@@ -1501,7 +1501,7 @@ namespace MasterOnline.Controllers
                             item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                             item.LINK_ERROR = "0;Buat Produk;;";
                             ErasoftDbContext.SaveChanges();
-
+                                                        
                             if (brgInDb.TYPE == "4")
                             {
                                 //await InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, resServer.item_id, marketplace);
@@ -1527,50 +1527,45 @@ namespace MasterOnline.Controllers
                                 var ListVariantSTF02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
                                 var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "JDID").ToList();
                                 List<string> byteGambarUploaded = new List<string>();
+                                
+                                foreach (var itemData in ListVariantSTF02)
+                                {
+                                    #region varian LV1
+                                    if (!string.IsNullOrEmpty(itemData.Sort8))
+                                    {
+                                        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == itemData.Sort8).FirstOrDefault();
+                                        listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ",";
+                                        listattributeIDItems = variant_id_group.MP_VALUE_VAR + ",";
+                                    }
+                                    #endregion
 
-                                new ShopifyControllerJob().Shopify_CreateProductImageVariant(iden, 5710989492373, 36217806880917, "https://s3.bukalapak.com/img/8535545212/s-330-330/au_feature_connect_with_ease_71968113.jpg.webp");
+                                    #region varian LV2
+                                    if (!string.IsNullOrEmpty(itemData.Sort9))
+                                    {
+                                        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == itemData.Sort9).FirstOrDefault();
+                                        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
+                                        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                                    }
+                                    #endregion
 
+                                    #region varian LV3
+                                    if (!string.IsNullOrEmpty(itemData.Sort10))
+                                    {
+                                        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
+                                        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
+                                        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                                    }
+                                    #endregion
 
-                                //foreach (var itemData in ListVariantSTF02)
-                                //{
-                                //    #region varian LV1
-                                //    if (!string.IsNullOrEmpty(itemData.Sort8))
-                                //    {
-                                //        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == itemData.Sort8).FirstOrDefault();
-                                //        listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ",";
-                                //        listattributeIDItems = variant_id_group.MP_VALUE_VAR + ",";
-                                //    }
-                                //    #endregion
+                                    listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
+                                    listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
+                                                                        
+                                    new ShopifyControllerJob().Shopify_CreateProductVariant(iden, resServer.product.id, itemData.Ket_Sort8, itemData.HJUAL.ToString(), itemData.LINK_GAMBAR_1.ToString());
 
-                                //    #region varian LV2
-                                //    if (!string.IsNullOrEmpty(itemData.Sort9))
-                                //    {
-                                //        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == itemData.Sort9).FirstOrDefault();
-                                //        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
-                                //        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
-                                //    }
-                                //    #endregion
-
-                                //    #region varian LV3
-                                //    if (!string.IsNullOrEmpty(itemData.Sort10))
-                                //    {
-                                //        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
-                                //        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
-                                //        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
-                                //    }
-                                //    #endregion
-
-                                //    listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
-                                //    listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
-
-                                //    //new ShopifyControllerJob().Shopify_CreateProductImageVariant(iden, resServer.product.id, resServer.product.id, itemData.LINK_GAMBAR_1.ToString());
-
-                                //    //new ShopifyControllerJob().Shopify_CreateProductVariant(dataLocal, itemData.BRG, item.BRG_MP, listattributeIDGroup, listattributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
-
-                                //}
+                                }
                                 //END HANDLE VARIANT SHOPIFY
                             }
-                            
+
 
                             if (resServer.product.variants.Count() > 0)
                             {
@@ -1580,29 +1575,17 @@ namespace MasterOnline.Controllers
                                     new ShopifyControllerJob().Shopify_UpdateInventoryItemSKU(iden, variant.sku, variant.inventory_item_id);
                                 }
                             }
-
-                            //////manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-
-
                         }
                         else
                         {
-                            //currentLog.REQUEST_EXCEPTION = "item not found";
-                            ////manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                             throw new Exception("item not found");
                         }
                     }
                     else
                     {
-                        //currentLog.REQUEST_RESULT = resServer.msg;
-                        //currentLog.REQUEST_EXCEPTION = resServer.error + ";" + resServer.msg;
-                        ////manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                        //throw new Exception(currentLog.REQUEST_EXCEPTION);
                         throw new Exception("error");
                     }
                 }
-                new ShopifyControllerJob().Shopify_CreateProductImageVariant(iden, 5710989492373, 36217806880917, "https://s3.bukalapak.com/img/8535545212/s-330-330/au_feature_connect_with_ease_71968113.jpg.webp");
-
                 //}
                 //catch (Exception ex2)
                 //{
@@ -1616,7 +1599,7 @@ namespace MasterOnline.Controllers
         public async Task<string> Shopify_CreateProductImageVariant(ShopifyAPIData iden, long product_id, long variant_id, string url_image)
         {
             string ret = "";
-            string urll = "https://{0}:{1}@{2}.myshopify.com/admin/api/2020-07/products/{3}/images.json";   
+            string urll = "https://{0}:{1}@{2}.myshopify.com/admin/api/2020-07/products/{3}/images.json";
             var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store, product_id);
 
             ShopifyCreateImageProductVariant body = new ShopifyCreateImageProductVariant
@@ -1625,63 +1608,108 @@ namespace MasterOnline.Controllers
             };
 
             body.image.variant_ids = new long[] { variant_id };
-            body.image.src = url_image;                       
+            body.image.src = url_image;
 
             string myData = JsonConvert.SerializeObject(body);
 
-            //string responseFromServer = "";
-
-            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
-            //myReq.Method = "POST";
-            //myReq.Headers.Add("X-Shopify-Access-Token", (iden.API_password));
-            //myReq.Accept = "application/json";
-            //myReq.ContentType = "application/json";
-            //myReq.ContentLength = myData.Length;
-            //using (var dataStream = myReq.GetRequestStream())
-            //{
-            //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-            //}
-            //using (WebResponse response = myReq.GetResponse())
-            //{
-            //    using (Stream stream = response.GetResponseStream())
-            //    {
-            //        StreamReader reader = new StreamReader(stream);
-            //        responseFromServer = reader.ReadToEnd();
-            //    }
-            //}
             string responseFromServer = "";
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", (iden.API_password));
-            var content = new StringContent(myData, Encoding.UTF8, "application/json");
-            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-            HttpResponseMessage clientResponse = await client.PostAsync(vformatUrl, content);
 
-            using (HttpContent responseContent = clientResponse.Content)
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "POST";
+            myReq.Headers.Add("X-Shopify-Access-Token", (iden.API_password));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
             {
-                using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = myReq.GetResponse())
+            {
+                using (Stream stream = response.GetResponseStream())
                 {
-                    responseFromServer = await reader.ReadToEndAsync();
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
                 }
-            };
+            }            
 
             if (responseFromServer != null)
             {
                 //try
                 //{
-                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopifyCreateResult)) as ShopifyCreateResult;
+                //var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopifyCreateResult)) as ShopifyCreateResult;
+                //if (resServer != null)
+                //{
+                //    if (resServer != null)
+                //    {
+
+                //    }
+                //    else
+                //    {
+                //        throw new Exception("error");
+                //    }
+                //}
+
+            }
+            return ret;
+        }
+
+        public async Task<string> Shopify_CreateProductVariant(ShopifyAPIData iden, long product_id, string option, string price, string urlImage)
+        {
+            string ret = "";
+            string urll = "https://{0}:{1}@{2}.myshopify.com/admin/api/2020-07/products/{3}/variants.json";
+            var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store, product_id);
+
+            ShopifyCreateProductVariant body = new ShopifyCreateProductVariant
+            {
+                variant = new ShopifyCreateProductVariant_Detail()
+            };
+
+            body.variant.option1 = option;
+            body.variant.price = price;
+
+            string myData = JsonConvert.SerializeObject(body);
+
+            string responseFromServer = "";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "POST";
+            myReq.Headers.Add("X-Shopify-Access-Token", (iden.API_password));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = myReq.GetResponse())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer != null)
+            {
+                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopifyResultCreateProductVariant)) as ShopifyResultCreateProductVariant;
                 if (resServer != null)
                 {
-                    if (resServer != null)
+                    if (resServer.variant != null)
                     {
-                        
+                        new ShopifyControllerJob().Shopify_CreateProductImageVariant(iden, product_id, resServer.variant.id, urlImage);
                     }
                     else
                     {
-                        throw new Exception("error");
+                        throw new Exception("Gagal Buat Product Variant.");
                     }
                 }
-                
+                else {
+                    throw new Exception("error");
+                }
             }
+
             return ret;
         }
 
@@ -2216,6 +2244,44 @@ namespace MasterOnline.Controllers
             public string admin_graphql_api_id { get; set; }
         }
 
+        // RESULT CREATE VARIANT ITEM
+
+        public class ShopifyResultCreateProductVariant
+        {
+            public ShopifyResultCreateProductVariant_Variant variant { get; set; }
+        }
+
+        public class ShopifyResultCreateProductVariant_Variant
+        {
+            public long id { get; set; }
+            public long product_id { get; set; }
+            public string title { get; set; }
+            public string price { get; set; }
+            public string sku { get; set; }
+            public int position { get; set; }
+            public string inventory_policy { get; set; }
+            public object compare_at_price { get; set; }
+            public string fulfillment_service { get; set; }
+            public string inventory_management { get; set; }
+            public string option1 { get; set; }
+            public object option2 { get; set; }
+            public object option3 { get; set; }
+            public DateTime created_at { get; set; }
+            public DateTime updated_at { get; set; }
+            public bool taxable { get; set; }
+            public object barcode { get; set; }
+            public int grams { get; set; }
+            public object image_id { get; set; }
+            public float weight { get; set; }
+            public string weight_unit { get; set; }
+            public long inventory_item_id { get; set; }
+            public int inventory_quantity { get; set; }
+            public int old_inventory_quantity { get; set; }
+            public bool requires_shipping { get; set; }
+            public string admin_graphql_api_id { get; set; }
+        }
+        // END RESULT CREATE VARIANT ITEM
+
         public class ShopifyCreateProductOptionResult
         {
             public long id { get; set; }
@@ -2251,9 +2317,21 @@ namespace MasterOnline.Controllers
         {
             public long[] variant_ids { get; set; }
             public string src { get; set; }
-        }               
+        }
         //END CREATE IMAGE FOR PRODUCT VARIANT
 
+        //CREATE ITEM FOR PRODUCT VARIANT
+        public class ShopifyCreateProductVariant
+        {
+            public ShopifyCreateProductVariant_Detail variant { get; set; }
+        }
+
+        public class ShopifyCreateProductVariant_Detail
+        {
+            public string option1 { get; set; }
+            public string price { get; set; }
+        }
+        //END CREATE ITEM FOR PRODUCT VARIANT
 
         //UPDATE STOCK
         public class ShopifyUpdateStockResult

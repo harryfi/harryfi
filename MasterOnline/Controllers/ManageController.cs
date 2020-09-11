@@ -9799,19 +9799,6 @@ namespace MasterOnline.Controllers
                                             string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) + "'";
                                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 
-                                            //ShopifyController.ShopifyAPIData iden = new ShopifyController.ShopifyAPIData();
-                                            //iden.no_cust = tblCustomer.CUST;
-                                            //iden.DatabasePathErasoft = dbPathEra;
-                                            //iden.account_store = tblCustomer.PERSO;
-                                            //iden.API_key = tblCustomer.API_KEY;
-                                            //iden.API_password = tblCustomer.API_CLIENT_P;
-
-                                            //ShopifyController ShopifyAPI = new ShopifyController();
-
-                                            //Task.Run(() => ShopifyAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST).Wait());
-                                            //ShopifyAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST);
-
-
                                             ShopifyControllerJob.ShopifyAPIData data = new ShopifyControllerJob.ShopifyAPIData();
                                             data.no_cust = tblCustomer.CUST;
                                             data.username = usernameLogin;
@@ -12747,6 +12734,7 @@ namespace MasterOnline.Controllers
             saveBarangBlibliVariant(2, brg);
             saveBarangTokpedVariant(2, brg, false);
             createBarangLazadaVariant(brg);
+            saveBarang82CartVariant(2, brg, false);
             saveBarang82CartVariant(2, brg, false);
             //}
 
