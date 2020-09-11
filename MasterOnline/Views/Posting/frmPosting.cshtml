@@ -179,7 +179,10 @@
         lastOfThisMonth = a.addMonths(1).addDays(-1);
 
         var optionsDr = "";
-        for (var DrTgl = 1; DrTgl <= lastOfThisMonth.getDate(); DrTgl++) {
+        //for (var DrTgl = 1; DrTgl <= lastOfThisMonth.getDate(); DrTgl++) {
+        //    optionsDr += "<option>" + DrTgl + "</option>";
+        //}
+        for (var DrTgl = 1; DrTgl <= 31; DrTgl++) {
             optionsDr += "<option>" + DrTgl + "</option>";
         }
         document.getElementById("DrTgl").innerHTML = optionsDr;
