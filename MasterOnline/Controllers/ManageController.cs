@@ -33089,6 +33089,115 @@ namespace MasterOnline.Controllers
 
             return JsonErrorMessage("");
         }
+        public ActionResult ChangeStatusUpdateHargaMassal(HargaJualMassalViewModel data)
+        {
+            var currentData = ErasoftDbContext.LOG_HARGAJUAL_A.Where(m => m.NO_BUKTI == data.NO_BUKTI).FirstOrDefault();
+            if(currentData != null)
+            {
+                if(data.STATUS == 0)//change to proses
+                {
+                    var dtNow = DateTime.UtcNow.AddHours(7);
+                    if (data.TGL_PROSES.Date < dtNow.Date)
+                    {
+                        return JsonErrorMessage("Tanggal Proses yang anda pilih sudah lewat dari saat ini");
+                    }
+                    else if(data.TGL_PROSES.Date == dtNow.Date)
+                    {
+                        var cekProses = ErasoftDbContext.LOG_HARGAJUAL_B.Where(m => m.TGL_INPUT.Date == data.TGL_PROSES.Date && (m.KET ?? "") != "CANCEL").ToList();
+                        if(cekProses.Count > 0)//sudah ada data yg proses hari ini dan tidak cancel
+                        {
+                            return JsonErrorMessage("Anda sudah melakukan proses update harga massal hari ini.\nSilahkan pilih hari lain untuk proses update harga massal berikutnya.");
+                        }
+
+                        if(data.JAM_PROSES <= dtNow.Hour)
+                        {
+                            return JsonErrorMessage("Jam Proses yang anda pilih sudah lewat dari saat ini");
+                        }
+                    }
+                    currentData.TGL_PROSES = data.TGL_PROSES;
+                    currentData.JAM_PROSES = data.JAM_PROSES;
+                    currentData.USERNAME = usernameLogin;
+                    currentData.STATUS = 1;
+                    currentData.TGL_INPUT = dtNow;
+
+                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                    var Jobclient = new BackgroundJobClient(sqlStorage);
+
+                    var dtProses = new DateTime(currentData.TGL_PROSES.Year, currentData.TGL_PROSES.Month, currentData.TGL_PROSES.Day, currentData.JAM_PROSES, 0, 0).AddHours(-7);
+                    if (!string.IsNullOrEmpty(currentData.FILE_1))
+                    {
+                        Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(EDBConnID, currentData.NO_BUKTI, "", "Update Harga Massal", currentData.NO_BUKTI +"_1", 1, usernameLogin), dtProses);
+
+                        var newData1 = new LOG_HARGAJUAL_B
+                        {
+                            NO_BUKTI = currentData.NO_BUKTI,
+                            NO_FILE = 1,
+                            TGL_INPUT = dtNow,
+                            USERNAME = usernameLogin,
+                            KET = ""
+                        };
+                        var cekJob = EDB.GetDataSet("CString", "hangfire", "SELECT [ID] FROM HANGFIRE.JOB WHERE ARGUMENTS LIKE '%"+ currentData.NO_BUKTI + "_1%' AND ARGUMENTS LIKE '%Update Harga Massal%'");
+                        if(cekJob.Tables[0].Rows.Count > 0)
+                        {
+                            newData1.HANGFIRE_JOBID = Convert.ToInt64( cekJob.Tables[0].Rows[0]["ID"].ToString());
+                        }
+                        ErasoftDbContext.LOG_HARGAJUAL_B.Add(newData1);
+                    }
+                    if (!string.IsNullOrEmpty(currentData.FILE_2))
+                    {
+                        Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(EDBConnID, currentData.NO_BUKTI, "", "Update Harga Massal", currentData.NO_BUKTI +"_2", 2, usernameLogin), dtProses);
+                        var newData2 = new LOG_HARGAJUAL_B
+                        {
+                            NO_BUKTI = currentData.NO_BUKTI,
+                            NO_FILE = 2,
+                            TGL_INPUT = dtNow,
+                            USERNAME = usernameLogin,
+                            KET = ""
+                        };
+                        ErasoftDbContext.LOG_HARGAJUAL_B.Add(newData2);
+                    }
+                    if (!string.IsNullOrEmpty(currentData.FILE_3))
+                    {
+                        Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(EDBConnID, currentData.NO_BUKTI, "", "Update Harga Massal", currentData.NO_BUKTI +"_3", 3, usernameLogin), dtProses);
+                        var newData3 = new LOG_HARGAJUAL_B
+                        {
+                            NO_BUKTI = currentData.NO_BUKTI,
+                            NO_FILE = 3,
+                            TGL_INPUT = dtNow,
+                            USERNAME = usernameLogin,
+                            KET = ""
+                        };
+                        ErasoftDbContext.LOG_HARGAJUAL_B.Add(newData3);
+                    }
+                    if (!string.IsNullOrEmpty(currentData.FILE_4))
+                    {
+                        Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(EDBConnID, currentData.NO_BUKTI, "", "Update Harga Massal", currentData.NO_BUKTI +"_4", 4, usernameLogin), dtProses);
+                        var newData4 = new LOG_HARGAJUAL_B
+                        {
+                            NO_BUKTI = currentData.NO_BUKTI,
+                            NO_FILE = 4,
+                            TGL_INPUT = dtNow,
+                            USERNAME = usernameLogin,
+                            KET = ""
+                        };
+                        ErasoftDbContext.LOG_HARGAJUAL_B.Add(newData4);
+                    }
+                    ErasoftDbContext.SaveChanges();
+                }
+                else if (data.STATUS == 1)//change to cancel
+                {
+                    var sSQL_delete = "DELETE FROM HANGFIRE.JOB WHERE ARGUMENTS LIKE '%" + currentData.NO_BUKTI + "%' AND ARGUMENTS LIKE '%Update Harga Massal%' AND STATENAME IN ('Enqueued', 'SCHEDULED')";
+                }
+            }
+            else
+            {
+                return JsonErrorMessage("Data Not Found");
+            }
+            return JsonErrorMessage("");
+        }
+
         //end add by Tri, update harga jual massal
         [HttpGet]
         public ActionResult UbahHargaJual(int? recNum, double hargaJualBaru)

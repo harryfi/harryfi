@@ -490,8 +490,9 @@
                 success: function (response) {
                     if (response.Errors != null) {
                         for (i = 0; i < response.Errors.length; i++) {
-                            if (response.Errors[i].include("Anda sudah mengupload excel harga jual untuk akun ini")) {
+                            if (response.Errors[i].includes("Anda sudah mengupload excel harga jual untuk akun ini")) {
                                 alert(response.Errors[i]);
+                                $('#FILE_' + index).val();
                                 $('#delFile_' + index).show();
                                 $('#loading_' + index).hide();
                                 disableUpload(0);
@@ -590,6 +591,46 @@
                 document.getElementById("btnDelFile_2").disabled = false;
                 document.getElementById("btnDelFile_3").disabled = false;
                 document.getElementById("btnDelFile_4").disabled = false;
+            }
+        }
+        function cekTanggal() {
+            if ($('#JAM_PROSES').val() == "0") {
+                alert('Anda belum memilih jam proses.');
+                return false;
+            }
+            return true;
+        }
+        function changeStatus() {
+            if (cekTanggal()) {
+
+                $postdata = {
+                    NO_BUKTI: $('#NO_BUKTI').val(),
+                    TGL_PROSES: $('#dtProses').val(),
+                    JAM_PROSES: $('#JAM_PROSES').val(),
+                    STATUS: $('#STATUS').val(),
+                };
+
+                 var $link = '@Url.Action("ChangeStatusUpdateHargaMassal", "Manage")';
+                $.ajax({
+                    type: "POST",
+                    url: $link,
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    data: JSON.stringify($postdata),
+                    success: function (response) {
+                        if (response != null) {
+                            if (response.mo_error == null) {
+                                
+                            } else {
+                                alert(response.mo_error);
+                            }
+                        }
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
             }
         }
     </script>

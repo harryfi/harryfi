@@ -3777,8 +3777,8 @@ namespace MasterOnline.Controllers
                 {
                     ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Harga Jual");
 
-                    worksheet.Protection.IsProtected = true;
-                    worksheet.Column(5).Style.Locked = false;
+                    //worksheet.Protection.IsProtected = true;
+                    //worksheet.Column(5).Style.Locked = false;
 
                     string sSQL = "SELECT S.BRG, ";
                     //sSQL += "replace(replace(S.NAMA, char(10), ''), char(13), '') + ISNULL(replace(replace(S.NAMA2, char(10), ''), char(13), ''), '') AS NAMA, ";
@@ -3786,7 +3786,7 @@ namespace MasterOnline.Controllers
                     //sSQL += "FROM STF02 S INNER JOIN STF02H H ON S.BRG = H.BRG INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM ";
                     //sSQL += "INNER JOIN MO..MARKETPLACE M ON A.NAMA = M.IDMARKET LEFT JOIN STF10 ON S.BRG = STF10.BRG WHERE TYPE = '3' ORDER BY NAMA,M.IDMARKET";
                     sSQL += "replace(replace(S.NAMA, char(10), ''), char(13), '') + ISNULL(replace(replace(S.NAMA2, char(10), ''), char(13), ''), '') AS NAMA, ";
-                    sSQL += "H.HJUAL, ISNULL(BRG_MP, '') BRG_MP ";
+                    sSQL += "H.HJUAL, ISNULL(BRG_MP, '') BRG_MP, KET_SORT1 ";
                     sSQL += "FROM STF02 S INNER JOIN STF02H H ON S.BRG = H.BRG INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM ";
                     sSQL += " WHERE TYPE = '3' AND CUST = '" + cust + "' ORDER BY NAMA";
                     var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
@@ -3802,22 +3802,24 @@ namespace MasterOnline.Controllers
                         {
                             worksheet.Cells[4 + i, 1].Value = dsBarang.Tables[0].Rows[i]["BRG"].ToString();
                             worksheet.Cells[4 + i, 2].Value = dsBarang.Tables[0].Rows[i]["NAMA"].ToString();
-                            worksheet.Cells[4 + i, 3].Value = dsBarang.Tables[0].Rows[i]["BRG_MP"].ToString();
-                            worksheet.Cells[4 + i, 4].Value = dsBarang.Tables[0].Rows[i]["HJUAL"].ToString();
+                            worksheet.Cells[4 + i, 3].Value = dsBarang.Tables[0].Rows[i]["KET_SORT1"].ToString();
+                            worksheet.Cells[4 + i, 4].Value = dsBarang.Tables[0].Rows[i]["BRG_MP"].ToString();
+                            worksheet.Cells[4 + i, 5].Value = dsBarang.Tables[0].Rows[i]["HJUAL"].ToString();
                             if (!string.IsNullOrEmpty(dsBarang.Tables[0].Rows[i]["BRG_MP"].ToString()))
                             {
                                 dataWithLink++;
                             }
                         }
                         worksheet.Cells[2, 2].Value = dataCount + dataWithLink + " / " + dsBarang.Tables[0].Rows.Count;
-                        ExcelRange rg0 = worksheet.Cells[3, 1, worksheet.Dimension.End.Row, 5];
+                        ExcelRange rg0 = worksheet.Cells[3, 1, worksheet.Dimension.End.Row, 6];
                         string tableName0 = "TableBarang";
                         ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
                         table0.Columns[0].Name = "KODE BARANG";
                         table0.Columns[1].Name = "NAMA BARANG";
-                        table0.Columns[2].Name = "KODE BARANG MP";
-                        table0.Columns[3].Name = "HARGA JUAL LAMA";
-                        table0.Columns[4].Name = "HARGA JUAL BARU";
+                        table0.Columns[2].Name = "KATEGORI BARANG";
+                        table0.Columns[3].Name = "KODE BARANG MP";
+                        table0.Columns[4].Name = "HARGA JUAL LAMA";
+                        table0.Columns[5].Name = "HARGA JUAL BARU";
 
                         table0.ShowHeader = true;
                         table0.ShowFilter = true;
@@ -3944,15 +3946,15 @@ namespace MasterOnline.Controllers
                                                         }
                                                         else
                                                         {
-                                                            if (string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
+                                                            if (string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 4].Value)))
                                                             {
                                                                 ret.jmlNL++;
                                                             }
                                                             var sSQL2 = " ('" + worksheet.Cells[i, 1].Value.ToString() + "',";
-                                                            sSQL2 += customer.RecNum + "," + index_file + "," + worksheet.Cells[i, 5].Value.ToString() + ", '";
+                                                            sSQL2 += customer.RecNum + "," + index_file + "," + worksheet.Cells[i, 6].Value.ToString() + ", '";
                                                             sSQL2 += DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "')";
                                                             var result = EDB.ExecuteSQL("CString", CommandType.Text, sSQL + sSQL2);
-                                                            if(result == 1 && !string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
+                                                            if(result == 1 && !string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 4].Value)))
                                                             {
                                                                 ret.progress++;
                                                             }

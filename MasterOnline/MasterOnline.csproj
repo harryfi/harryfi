@@ -321,6 +321,7 @@
     <Compile Include="Controllers\EightTwoCartControllerJob.cs" />
     <Compile Include="Controllers\JDIDControllerJob.cs" />
     <Compile Include="Controllers\ExcelControllerJob.cs" />
+    <Compile Include="Controllers\MasterOnlineController.cs" />
     <Compile Include="Controllers\ShopifyController.cs" />
     <Compile Include="Controllers\ShopifyControllerJob.cs" />
     <Compile Include="Controllers\StokControllerJob.cs" />
@@ -6431,6 +6432,7 @@
     <Folder Include="Views\BCA\" />
     <Folder Include="Views\Blibli\" />
     <Folder Include="Views\Elevenia\" />
+    <Folder Include="Views\MasterOnline\" />
     <Folder Include="Views\StokOpnameViewModel\" />
   </ItemGroup>
   <ItemGroup>
