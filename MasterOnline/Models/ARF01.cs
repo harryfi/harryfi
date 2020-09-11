@@ -28,7 +28,8 @@ namespace MasterOnline
         public string TLP { get; set; }
 
         [Required]
-        [StringLength(30)]
+        //[StringLength(30)] remark change to 100 by fauzi for 82Cart url Website
+        [StringLength(100)]
         public string PERSO { get; set; }
 
         [StringLength(15)]
