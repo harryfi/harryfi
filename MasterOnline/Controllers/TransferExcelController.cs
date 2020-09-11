@@ -3786,9 +3786,9 @@ namespace MasterOnline.Controllers
                     //sSQL += "FROM STF02 S INNER JOIN STF02H H ON S.BRG = H.BRG INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM ";
                     //sSQL += "INNER JOIN MO..MARKETPLACE M ON A.NAMA = M.IDMARKET LEFT JOIN STF10 ON S.BRG = STF10.BRG WHERE TYPE = '3' ORDER BY NAMA,M.IDMARKET";
                     sSQL += "replace(replace(S.NAMA, char(10), ''), char(13), '') + ISNULL(replace(replace(S.NAMA2, char(10), ''), char(13), ''), '') AS NAMA, ";
-                    sSQL += "H.HJUAL, ISNULL(BRG_MP, '') BRG_MP, KET_SORT1 ";
+                    sSQL += "H.HJUAL, ISNULL(BRG_MP, '') BRG_MP, ISNULL(E.KET, '') KET ";
                     sSQL += "FROM STF02 S INNER JOIN STF02H H ON S.BRG = H.BRG INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM ";
-                    sSQL += " WHERE TYPE = '3' AND CUST = '" + cust + "' ORDER BY NAMA";
+                    sSQL += "LEFT JOIN STF02E E ON S.SORT1 = E.KODE AND E.LEVEL = 1 WHERE TYPE = '3' AND CUST = '" + cust + "' ORDER BY NAMA";
                     var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
 
                     worksheet.Cells["A1"].Value = "Akun Marketplace :";
@@ -3802,7 +3802,7 @@ namespace MasterOnline.Controllers
                         {
                             worksheet.Cells[4 + i, 1].Value = dsBarang.Tables[0].Rows[i]["BRG"].ToString();
                             worksheet.Cells[4 + i, 2].Value = dsBarang.Tables[0].Rows[i]["NAMA"].ToString();
-                            worksheet.Cells[4 + i, 3].Value = dsBarang.Tables[0].Rows[i]["KET_SORT1"].ToString();
+                            worksheet.Cells[4 + i, 3].Value = dsBarang.Tables[0].Rows[i]["KET"].ToString();
                             worksheet.Cells[4 + i, 4].Value = dsBarang.Tables[0].Rows[i]["BRG_MP"].ToString();
                             worksheet.Cells[4 + i, 5].Value = dsBarang.Tables[0].Rows[i]["HJUAL"].ToString();
                             if (!string.IsNullOrEmpty(dsBarang.Tables[0].Rows[i]["BRG_MP"].ToString()))

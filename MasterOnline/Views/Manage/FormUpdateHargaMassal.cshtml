@@ -64,6 +64,7 @@
 
             }
         });
+        comboSelect[0].selectize.setValue($('#JAM_PROSES').val(), true);
     }
 </script>
 
@@ -339,7 +340,14 @@
                 <div style="vertical-align:middle">
                     @Html.HiddenFor(m => m.STATUS)
                     <button type="button" class="btn btn-primary" onclick="changeStatus();" data-style="expand-right">
-                        <span>Proses</span>
+                        @if (Model.STATUS == 0)
+                        {
+                            <span>Proses</span>
+                        }
+                        else
+                        {
+                            <span>Batal</span>
+                        }
                     </button>
                 </div>
             </div>

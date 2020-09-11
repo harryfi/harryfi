@@ -619,10 +619,10 @@
                     data: JSON.stringify($postdata),
                     success: function (response) {
                         if (response != null) {
-                            if (response.mo_error == null) {
-                                
+                            if (response.Errors[0] == '') {
+                                refreshFormHargaMassal();
                             } else {
-                                alert(response.mo_error);
+                                alert(response.Errors[0]);
                             }
                         }
 

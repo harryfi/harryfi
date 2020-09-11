@@ -33103,7 +33103,7 @@ namespace MasterOnline.Controllers
                     }
                     else if(data.TGL_PROSES.Date == dtNow.Date)
                     {
-                        var cekProses = ErasoftDbContext.LOG_HARGAJUAL_B.Where(m => m.TGL_INPUT.Date == data.TGL_PROSES.Date && (m.KET ?? "") != "CANCEL").ToList();
+                        var cekProses = ErasoftDbContext.LOG_HARGAJUAL_B.Where(m => m.TGL_INPUT.Month == data.TGL_PROSES.Month && m.TGL_INPUT.Year == data.TGL_PROSES.Year && m.TGL_INPUT.Day == data.TGL_PROSES.Day && (m.STATUS ?? "") != "dibatalkan").ToList();
                         if(cekProses.Count > 0)//sudah ada data yg proses hari ini dan tidak cancel
                         {
                             return JsonErrorMessage("Anda sudah melakukan proses update harga massal hari ini.\nSilahkan pilih hari lain untuk proses update harga massal berikutnya.");
@@ -33140,14 +33140,14 @@ namespace MasterOnline.Controllers
                         var cekCust = EDB.GetDataSet("CString", "ARF01", "SELECT CUST, NAMA FROM ARF01 WHERE RECNUM IN (SELECT DISTINCT IDMARKET FROM TEMP_UPDATE_HJUAL WHERE INDEX_FILE = 1)");
                         if (cekCust.Tables[0].Rows.Count > 0)
                         {
-                            if(cekCust.Tables[0].Rows[0]["NAMA"].ToString() == "8" || cekCust.Tables[0].Rows[0]["NAMA"].ToString() != "18")//buka lapak dan offline
+                            if(cekCust.Tables[0].Rows[0]["NAMA"].ToString() == "8" || cekCust.Tables[0].Rows[0]["NAMA"].ToString() == "18")//buka lapak dan offline
                             {
 
                             }
                             else
                             {
                                 logCust = cekCust.Tables[0].Rows[0]["CUST"].ToString();
-                                Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(EDBConnID, currentData.NO_BUKTI, logCust, "Update Harga Massal", currentData.NO_BUKTI + "_1", 1, usernameLogin), dtProses);
+                                Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(dbSourceEra, currentData.NO_BUKTI, logCust, "Update Harga Massal", currentData.NO_BUKTI + "_1", 1, usernameLogin), dtProses);
 
                                 var cekJob = EDB.GetDataSet("CString", "hangfire", "SELECT [ID] FROM HANGFIRE.JOB WHERE ARGUMENTS LIKE '%" + currentData.NO_BUKTI + "_1%' AND ARGUMENTS LIKE '%Update Harga Massal%'");
                                 if (cekJob.Tables[0].Rows.Count > 0)
@@ -33202,7 +33202,9 @@ namespace MasterOnline.Controllers
                 }
                 else if (data.STATUS == 1)//change to cancel
                 {
-                    for(int i = 1; i <= 4; i++)
+                    var sSQL = "UPDATE LOG_HARGAJUAL_A SET STATUS = 9 WHERE NO_BUKTI = '"+ currentData.NO_BUKTI + "'";
+                    EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                    for (int i = 1; i <= 4; i++)
                     {
                         var sSQL_delete = "DELETE FROM HANGFIRE.JOB WHERE ARGUMENTS LIKE '%" + currentData.NO_BUKTI + "_" + i + "%' AND ARGUMENTS LIKE '%Update Harga Massal%' AND STATENAME IN ('Enqueued', 'Scheduled')";
                         var resultDelete = EDB.ExecuteSQL("CString", CommandType.Text, sSQL_delete);
