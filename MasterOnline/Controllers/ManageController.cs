@@ -12735,7 +12735,6 @@ namespace MasterOnline.Controllers
             saveBarangTokpedVariant(2, brg, false);
             createBarangLazadaVariant(brg);
             saveBarang82CartVariant(2, brg, false);
-            saveBarang82CartVariant(2, brg, false);
             //}
 
             //change by calvin 26 april 2019
