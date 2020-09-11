@@ -45459,6 +45459,8 @@ namespace MasterOnline.Controllers
 
             //add by nurul 12/8/2020
             List<string> brgTidakProses = new List<string>();
+            List<updateGudangQtySOT01b> tempBerhasilUpdate = new List<updateGudangQtySOT01b>();
+            List<updateGudangQtySOT01b> tempBarangGagalUpdate = new List<updateGudangQtySOT01b>();
             //end add by nurul 12/8/2020
 
             try
@@ -45518,7 +45520,7 @@ namespace MasterOnline.Controllers
                     var lastNobukRecnum = "";
                     var validNobuk = true;
                     var stringUpdateSOB = "";
-                    List<updateGudangQtySOT01b> tempBerhasilUpdate = new List<updateGudangQtySOT01b>();
+                    
                     //for (int i = 0; i < dsSO.Tables[0].Rows.Count; i++)
                     for (int i = 0; i < getlistSO.Count(); i++)
                     {
@@ -45674,8 +45676,78 @@ namespace MasterOnline.Controllers
                         //if (qtyOnHand + (dsSORow.QTY_N > 0 ? (dsSORow.LOKASI == gudang ? dsSORow.QTY_N : 0) : 0) - dsSORow.QTY < 0)
                         var cekQty = (dsSORow.QTY_N > 0 ? (dsSORow.LOKASI == gudang ? dsSORow.QTY_N : 0) : 0);
                         var totalQOH = qtyOnHand - tempCountQtyBrgX;
+                        var cekQtyN = dsSORow.QTY_N;
+                        var cekGudang = dsSORow.LOKASI;
                         //if (approved == 0)
                         //{
+                        if (cekQtyN > 0)
+                        {
+                            if (qtyOnHand + (dsSORow.QTY_N > 0 ? (dsSORow.LOKASI == gudang ? dsSORow.QTY_N : 0) : 0) - dsSORow.QTY < 0)
+                            //end change by nurul 31/8/2020
+                            {
+                                brgTidakProses.Add(dsSORow.SOB_RECNUM.ToString());
+                                validNobuk = false;
+                                var inListError = listError.Where(p => p.no_bukti_so == Nobuk).FirstOrDefault();
+                                if (inListError == null)
+                                {
+                                    listError.Add(new listErrorPacking
+                                    {
+                                        no_bukti_so = Nobuk,
+                                        //error_msg = "Qty sisa untuk item [" + SOB_Brg + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ")."
+                                        error_msg = "Qty sisa untuk item [" + dsSORow.BRG + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ")."
+                                    });
+                                }
+                                else
+                                {
+                                    //inListError.error_msg += "</br>Qty sisa untuk item [" + SOB_Brg + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ").";
+                                    inListError.error_msg += "</br>Qty sisa untuk item [" + dsSORow.BRG + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ").";
+                                }
+                                //add by Tri 1 sep 2020, remove nobuk from tempBerhasilUpdate
+                                //var removeData = tempBerhasilUpdate.Where(m => m.nobuk == dsSORow.NO_BUKTI).ToList();
+                                //if(removeData.Count > 0)
+                                //{
+                                tempBerhasilUpdate.RemoveAll(m => m.nobuk == dsSORow.NO_BUKTI);
+                                //    tempBerhasilUpdate.RemoveRange(removeData);
+                                //}
+                                //end add by Tri 1 sep 2020, remove nobuk from tempBerhasilUpdate
+
+                                //add by nurul 11/9/2020
+                                var tempData = new updateGudangQtySOT01b()
+                                {
+                                    brg = dsSORow.BRG,
+                                    qty = dsSORow.QTY,
+                                    recnum = dsSORow.SOB_RECNUM.ToString(),
+                                    nobuk = dsSORow.NO_BUKTI
+                                };
+                                if (dsSORow.LOKASI != "" && dsSORow.QTY_N > 0)
+                                {
+                                    tempData.sudahAdaLokasiNQtyN = true;
+                                }
+                                tempBarangGagalUpdate.Add(tempData);
+                                //end add by nurul 11/9/2020
+                            }
+                            else
+                            {
+                                //add by nurul 31/8/2020
+                                var tempData = new updateGudangQtySOT01b()
+                                {
+                                    brg = dsSORow.BRG,
+                                    qty = dsSORow.QTY,
+                                    recnum = dsSORow.SOB_RECNUM.ToString(),
+                                    nobuk = dsSORow.NO_BUKTI//add by Tri 1 sep 2020
+                                };
+                                if (dsSORow.LOKASI != "" && dsSORow.QTY_N > 0)
+                                {
+                                    tempData.sudahAdaLokasiNQtyN = true;
+                                }
+                                tempBerhasilUpdate.Add(tempData);
+                                //add by nurul 31/8/2020
+                                //stringUpdateSOB += Environment.NewLine + "(" + SOB_RECNUM + ", '" + gudang + "'),";
+                                stringUpdateSOB += Environment.NewLine + "(" + dsSORow.SOB_RECNUM + ", '" + gudang + "'),";
+                            }
+                        }
+                        else
+                        {
                             if (totalQOH + (dsSORow.QTY_N > 0 ? (dsSORow.LOKASI == gudang ? dsSORow.QTY_N : 0) : 0) - dsSORow.QTY < 0)
                             //end change by nurul 31/8/2020
                             {
@@ -45700,10 +45772,25 @@ namespace MasterOnline.Controllers
                                 //var removeData = tempBerhasilUpdate.Where(m => m.nobuk == dsSORow.NO_BUKTI).ToList();
                                 //if(removeData.Count > 0)
                                 //{
-                                    tempBerhasilUpdate.RemoveAll(m => m.nobuk == dsSORow.NO_BUKTI);
+                                tempBerhasilUpdate.RemoveAll(m => m.nobuk == dsSORow.NO_BUKTI);
                                 //    tempBerhasilUpdate.RemoveRange(removeData);
                                 //}
                                 //end add by Tri 1 sep 2020, remove nobuk from tempBerhasilUpdate
+
+                                //add by nurul 11/9/2020
+                                var tempData = new updateGudangQtySOT01b()
+                                {
+                                    brg = dsSORow.BRG,
+                                    qty = dsSORow.QTY,
+                                    recnum = dsSORow.SOB_RECNUM.ToString(),
+                                    nobuk = dsSORow.NO_BUKTI
+                                };
+                                if (dsSORow.LOKASI != "" && dsSORow.QTY_N > 0)
+                                {
+                                    tempData.sudahAdaLokasiNQtyN = true;
+                                }
+                                tempBarangGagalUpdate.Add(tempData);
+                                //end add by nurul 11/9/2020
                             }
                             else
                             {
@@ -45715,7 +45802,7 @@ namespace MasterOnline.Controllers
                                     recnum = dsSORow.SOB_RECNUM.ToString(),
                                     nobuk = dsSORow.NO_BUKTI//add by Tri 1 sep 2020
                                 };
-                                if(dsSORow.LOKASI != "" && dsSORow.QTY_N > 0)
+                                if (dsSORow.LOKASI != "" && dsSORow.QTY_N > 0)
                                 {
                                     tempData.sudahAdaLokasiNQtyN = true;
                                 }
@@ -45724,6 +45811,7 @@ namespace MasterOnline.Controllers
                                 //stringUpdateSOB += Environment.NewLine + "(" + SOB_RECNUM + ", '" + gudang + "'),";
                                 stringUpdateSOB += Environment.NewLine + "(" + dsSORow.SOB_RECNUM + ", '" + gudang + "'),";
                             }
+                        }
                         //}
                         //else if(approved == 1)
                         //{
@@ -45811,6 +45899,7 @@ namespace MasterOnline.Controllers
                     //}
 
                     var cekrec = true;
+                    var listNobukGagal = tempBarangGagalUpdate.Select(a => a.nobuk).ToList();
                     if ((tempBerhasilUpdate.Count() < getlistSO.Count() && tempBerhasilUpdate.Count() > 0 && approved == 1) || (tempBerhasilUpdate.Count() ==  getlistSO.Count() && approved == 0))
                     {
                         var stringListRecnumSOB = "";
@@ -45818,17 +45907,19 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(tempBerhasilUpdate[i].recnum.ToString()))
                             {
-                                var a = tempBerhasilUpdate[i].recnum.ToString();
-                                if (stringListRecnumSOB != "")
+                                if (!listNobukGagal.Contains(tempBerhasilUpdate[i].nobuk))
                                 {
-                                    stringListRecnumSOB += ",";
-                                }
+                                    var a = tempBerhasilUpdate[i].recnum.ToString();
+                                    if (stringListRecnumSOB != "")
+                                    {
+                                        stringListRecnumSOB += ",";
+                                    }
 
-                                stringListRecnumSOB += "'" + tempBerhasilUpdate[i].recnum.ToString().Trim() + "'";
-                                
-                                if (brgTidakProses.Contains(a))
-                                {
-                                    cekrec = false;
+                                    stringListRecnumSOB += "'" + tempBerhasilUpdate[i].recnum.ToString().Trim() + "'";
+                                    if (brgTidakProses.Contains(a))
+                                    {
+                                        cekrec = false;
+                                    }
                                 }
                             }
                         }
@@ -45878,7 +45969,7 @@ namespace MasterOnline.Controllers
                                 var sSQL2 = "select a.status_transaksi,a.RecNum,a.no_bukti,isnull(b.no_bukti,'') as bukti_faktur,isnull(c.no_bukti,'') as bukti_packingList ";
                                 sSQL2 += "from sot01a a left join sit01a b on a.no_bukti=b.no_so left join sot03b c on a.no_bukti=c.no_pesanan where A.RECNUM IN (" + ListRecnum + ") ";
                                 var listSemuaSO = context.Database.SqlQuery<templistSemuaSO>(sSQL2).ToList();
-                                var listSemuaDetailSOQty0 = context.SOT01B.Where(a => a.QTY <= 0 && listSuccess.Contains(a.NO_BUKTI)).Select(a => new { NO_BUKTI = a.NO_BUKTI, QTY = a.QTY, BRG = a.BRG }).ToList();
+                                var listSemuaDetailSOQty0 = context.SOT01B.Where(a => (a.QTY <= 0 || a.QTY_N == 0 || a.LOKASI == "" || a.LOKASI == null) && listSuccess.Contains(a.NO_BUKTI)).Select(a => new { NO_BUKTI = a.NO_BUKTI, QTY = a.QTY, BRG = a.BRG, QTY_N = a.QTY_N, GUDANG = a.LOKASI }).ToList();
                                 foreach (var gagal in listSemuaSO)
                                 {
                                     if (gagal.STATUS_TRANSAKSI != "02")
@@ -45926,8 +46017,21 @@ namespace MasterOnline.Controllers
                                                 no_bukti_so = gagal.NO_BUKTI
                                             });
                                         }
+
+                                        //add by nurul 11/9/2020
+                                        if(gagal.QTY_N <= 0 || gagal.GUDANG == "" || gagal.GUDANG == null)
+                                        {
+                                            validContinue = false;
+                                            listError.Add(new listErrorPacking
+                                            {
+                                                error_msg = "Pesanan [" + gagal.NO_BUKTI + "] gagal diproses.",
+                                                no_bukti_so = gagal.NO_BUKTI
+                                            });
+                                        }
+                                        //end add by nurul 11/9/2020
                                     }
                                 }
+
                                 //var listPackinglistinDB = context.SOT03B.Where(p => listSuccess.Contains(p.NO_PESANAN)).ToList();
                                 //foreach (var item in listPackinglistinDB)
                                 //{
@@ -46001,358 +46105,365 @@ namespace MasterOnline.Controllers
                                 foreach (var eachSO in listSemuaSO)
                                 {
                                     var pesananInDb = context.SOT01A.Where(p => p.RecNum == eachSO.RecNum).Single();
-                                    var dataVm = new FakturViewModel()
-                                    {
-                                        Faktur = new SIT01A()
-                                    };
-
-                                    //change by nurul 23/12/2019, perbaikan no bukti
-                                    //var digitAkhir = "";
-                                    //var noOrder = "";
-
-                                    //var listFakturInDb = context.SIT01A.Max(p => p.RecNum);
-
-                                    //if (!listFakturInDb.HasValue)
-                                    //{
-                                    //    digitAkhir = "000001";
-                                    //    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                    //    context.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
-                                    //}
-                                    //else
-                                    //{
-                                    //    var lastSIRecnum = listFakturInDb.Value;
-
-                                    //    if (lastSIRecnum == 0)
-                                    //    {
-                                    //        lastSIRecnum = 1;
-                                    //    }
-                                    //    lastSIRecnum++;
-
-                                    //    digitAkhir = lastSIRecnum.ToString().PadLeft(6, '0');
-                                    //    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                    //}
-                                    var lastBuktiSI = GenerateAutoNumber(context, "SI", "SIT01A", "NO_BUKTI");
-                                    var noOrder = "SI" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiSI) + 1).PadLeft(6, '0');
-                                    //end change by nurul 23/12/2019, perbaikan no bukti
-
-                                    var pesanan_bruto = 0d;
-                                    var pesanan_netto = 0d;
-                                    var pesanan_nilai_ppn = 0d;
-                                    var cust = context.ARF01.Single(p => p.CUST == pesananInDb.CUST);
-                                    var namacustint = Convert.ToInt32(cust.NAMA);
-                                    var marketplace = MoDbContext.Marketplaces.Single(p => p.IdMarket.Value == namacustint).NamaMarket;
-
-                                    var newSIT01A = new SIT01A();
-                                    newSIT01A.NO_BUKTI = noOrder;
-                                    newSIT01A.NO_F_PAJAK = "-";
-                                    newSIT01A.NO_SO = pesananInDb.NO_BUKTI;
-                                    newSIT01A.CUST = pesananInDb.CUST;
-                                    newSIT01A.NAMAPEMESAN = (pesananInDb.NAMAPEMESAN.Length > 20 ? pesananInDb.NAMAPEMESAN.Substring(0, 17) + "..." : pesananInDb.NAMAPEMESAN);
-                                    newSIT01A.PEMESAN = pesananInDb.PEMESAN;
-                                    newSIT01A.NAMA_CUST = cust.PERSO;
-
-                                    //dari pesanan
-                                    newSIT01A.NO_REF = pesananInDb.NO_REFERENSI;
-
-                                    //newSIT01A.AL = context.ARF01.Single(p => p.CUST == newSIT01A.CUST).AL;
-                                    newSIT01A.AL = pesananInDb.ALAMAT_KIRIM;
-                                    newSIT01A.AL2 = cust.AL2;
-                                    newSIT01A.AL3 = cust.AL3;
-                                    //change by nurul 11/10/2019, req pak dani 
-                                    newSIT01A.TGL = DateTime.Now;
-                                    //newSIT01A.TGL = pesananInDb.TGL.Value;
-                                    //end change by nurul 11/10/2019, req pak dani 
-                                    newSIT01A.PPN_Bln_Lapor = Convert.ToByte(newSIT01A.TGL.ToString("MM"));
-                                    newSIT01A.PPN_Thn_Lapor = Convert.ToByte(newSIT01A.TGL.ToString("yyyy").Substring(2, 2));
-                                    newSIT01A.USERNAME = usernameLogin;
-                                    newSIT01A.JENIS_RETUR = "-";
-                                    newSIT01A.JENIS_FORM = "2";
-                                    newSIT01A.STATUS = "1";
-                                    newSIT01A.ST_POSTING = "T";
-                                    newSIT01A.VLT = "IDR";
-                                    newSIT01A.NO_FA_OUTLET = "-";
-                                    newSIT01A.NO_LPB = "-";
-                                    newSIT01A.GROUP_LIMIT = "-";
-                                    newSIT01A.KODE_ANGKUTAN = "-";
-                                    newSIT01A.JENIS_MOBIL = "-";
-                                    newSIT01A.JTRAN = "SI";
-                                    newSIT01A.JENIS = "1";
-                                    newSIT01A.NAMA_CUST = "-";
-                                    newSIT01A.TUKAR = 1;
-                                    newSIT01A.TUKAR_PPN = 1;
-                                    newSIT01A.SOPIR = "-";
-                                    newSIT01A.KET = "-";
-                                    newSIT01A.PPNBM = 0;
-                                    newSIT01A.NILAI_PPNBM = 0;
-                                    newSIT01A.KODE_SALES = "-";
-                                    newSIT01A.KODE_WIL = "-";
-                                    newSIT01A.U_MUKA = 0;
-                                    newSIT01A.U_MUKA_FA = 0;
-                                    newSIT01A.TERM = pesananInDb.TERM;
-                                    newSIT01A.TGL_JT_TEMPO = pesananInDb.TGL_JTH_TEMPO;
-
-                                    newSIT01A.PPN = pesananInDb.PPN;
-
-                                    newSIT01A.DISCOUNT = pesananInDb.DISCOUNT;
-                                    newSIT01A.NILAI_DISC = pesananInDb.NILAI_DISC;
-                                    newSIT01A.MATERAI = pesananInDb.ONGKOS_KIRIM;
-
-
-                                    newSIT01A.TGLINPUT = DateTime.Now;
-
-                                    //add by nurul 4/3/2020
-                                    newSIT01A.PENGIRIM = pesananInDb.EXPEDISI;
-                                    newSIT01A.NAMAPENGIRIM = pesananInDb.SHIPMENT;
-                                    //end add by nurul 4/3/2020
-
-                                    #region add by calvin 6 juni 2018, agar sit01a field yang penting tidak null
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NILAI_DISC)))
-                                    {
-                                        newSIT01A.NILAI_DISC = 0;
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NO_SO)))
-                                    {
-                                        newSIT01A.NO_SO = "-";
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NO_REF)))
-                                    {
-                                        newSIT01A.NO_REF = "-";
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.DISCOUNT)))
-                                    {
-                                        newSIT01A.DISCOUNT = 0;
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.CUST_QQ)))
-                                    {
-                                        newSIT01A.CUST_QQ = "-";
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NAMA_CUST_QQ)))
-                                    {
-                                        newSIT01A.NAMA_CUST_QQ = "-";
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.STATUS_LOADING)))
-                                    {
-                                        newSIT01A.STATUS_LOADING = "-";
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NO_PO_CUST)))
-                                    {
-                                        newSIT01A.NO_PO_CUST = "-";
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.PENGIRIM)))
-                                    {
-                                        newSIT01A.PENGIRIM = "-";
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NAMAPENGIRIM)))
-                                    {
-                                        newSIT01A.NAMAPENGIRIM = "-";
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.ZONA)))
-                                    {
-                                        newSIT01A.ZONA = "-";
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.UCAPAN)))
-                                    {
-                                        newSIT01A.UCAPAN = "-";
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.N_UCAPAN)))
-                                    {
-                                        newSIT01A.N_UCAPAN = "-";
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.PEMESAN)))
-                                    {
-                                        newSIT01A.PEMESAN = "-";
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.SUPP)))
-                                    {
-                                        newSIT01A.SUPP = "-";
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.KOMISI)))
-                                    {
-                                        newSIT01A.KOMISI = 0;
-                                    }
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.N_KOMISI)))
-                                    {
-                                        newSIT01A.N_KOMISI = 0;
-                                    }
-                                    #endregion
-
-                                    if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.TOTAL_TITIPAN)))
-                                    {
-                                        newSIT01A.TOTAL_TITIPAN = 0;
-                                    }
-
-                                    pesananInDb.STATUS_TRANSAKSI = "03";
-                                    if (pesananInDb.status_kirim != "2")
-                                    {
-                                        pesananInDb.status_kirim = "0";
-                                    }
-                                    pesananInDb.status_print = "0";
-
-                                    var pesanan = new SOT03B();
-                                    pesanan.NO_PESANAN = pesananInDb.NO_BUKTI;
-                                    pesanan.TGL_PESANAN = pesananInDb.TGL.Value;
-                                    pesanan.PEMBELI = pesananInDb.NAMAPEMESAN;
-                                    pesanan.MARKETPLACE = marketplace;
-                                    pesanan.NO_BUKTI = newPackinglist.NO_BUKTI;
-                                    pesanan.USERNAME = usernameLogin;
-                                    pesanan.TGL_INPUT = newPackinglist.TGL;
-                                    newpackingdetail.Add(pesanan);
-
-                                    //var listBarangPesananInDb = context.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+                                    //add by nurul 11/9/2020, validasi untuk qtyN dan gudang blank tidak boleh create faktur 
                                     var listBarangPesananInDb = listDetailPesananSiapProses.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
-                                    List<string> listBrg = new List<string>();
-                                    var listSIT01B = new List<SIT01B>();
-                                    foreach (var pesananDetail in listBarangPesananInDb)
+                                    var listQtyNGdNull = listBarangPesananInDb.Where(a => a.QTY_N == 0 && (a.LOKASI == "" || a.LOKASI == null)).ToList();
+                                    if (listQtyNGdNull.Count() == 0)
                                     {
-                                        var newSIT01B = new SIT01B();
-                                        newSIT01B.NO_BUKTI = noOrder;
-                                        newSIT01B.USERNAME = usernameLogin;
-                                        newSIT01B.CATATAN = "-";
-                                        newSIT01B.JENIS_FORM = "2";
-                                        newSIT01B.TGLINPUT = DateTime.Now;
-                                        #region add by calvin 31 okt 2018, hitung ulang sesuai dengan qty_n, bukan qty
-                                        double nilai_disc_1 = 0d;
-                                        double nilai_disc_2 = 0d;
-                                        double harga = 0d;
-                                        if (Math.Abs(pesananDetail.DISCOUNT) > 0)
+                                        //end add by nurul 11/9/2020
+                                        var dataVm = new FakturViewModel()
                                         {
-                                            nilai_disc_1 = (pesananDetail.DISCOUNT * pesananDetail.H_SATUAN * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0)) / 100;
-                                        }
-                                        else
-                                        {
-                                            //req by pak dani, dibuat proporsional jika discount bukan persen, tapi nilai discount, karena bisa lebih besar daripada harga * qty_n
-                                            nilai_disc_1 = (pesananDetail.NILAI_DISC_1 / pesananDetail.QTY) * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0);
-                                        }
+                                            Faktur = new SIT01A()
+                                        };
 
-                                        if (Math.Abs(pesananDetail.DISCOUNT_2) > 0)
-                                        {
-                                            nilai_disc_2 = (pesananDetail.DISCOUNT * (pesananDetail.H_SATUAN - nilai_disc_1) * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0)) / 100;
-                                        }
-                                        else
-                                        {
-                                            nilai_disc_2 = (pesananDetail.NILAI_DISC_2 / pesananDetail.QTY) * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0);
-                                        }
+                                        //change by nurul 23/12/2019, perbaikan no bukti
+                                        //var digitAkhir = "";
+                                        //var noOrder = "";
 
-                                        harga = pesananDetail.H_SATUAN * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0) - nilai_disc_1 -
-                                                                  nilai_disc_2;
+                                        //var listFakturInDb = context.SIT01A.Max(p => p.RecNum);
+
+                                        //if (!listFakturInDb.HasValue)
+                                        //{
+                                        //    digitAkhir = "000001";
+                                        //    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                        //    context.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
+                                        //}
+                                        //else
+                                        //{
+                                        //    var lastSIRecnum = listFakturInDb.Value;
+
+                                        //    if (lastSIRecnum == 0)
+                                        //    {
+                                        //        lastSIRecnum = 1;
+                                        //    }
+                                        //    lastSIRecnum++;
+
+                                        //    digitAkhir = lastSIRecnum.ToString().PadLeft(6, '0');
+                                        //    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                        //}
+                                        var lastBuktiSI = GenerateAutoNumber(context, "SI", "SIT01A", "NO_BUKTI");
+                                        var noOrder = "SI" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiSI) + 1).PadLeft(6, '0');
+                                        //end change by nurul 23/12/2019, perbaikan no bukti
+
+                                        var pesanan_bruto = 0d;
+                                        var pesanan_netto = 0d;
+                                        var pesanan_nilai_ppn = 0d;
+                                        var cust = context.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+                                        var namacustint = Convert.ToInt32(cust.NAMA);
+                                        var marketplace = MoDbContext.Marketplaces.Single(p => p.IdMarket.Value == namacustint).NamaMarket;
+
+                                        var newSIT01A = new SIT01A();
+                                        newSIT01A.NO_BUKTI = noOrder;
+                                        newSIT01A.NO_F_PAJAK = "-";
+                                        newSIT01A.NO_SO = pesananInDb.NO_BUKTI;
+                                        newSIT01A.CUST = pesananInDb.CUST;
+                                        newSIT01A.NAMAPEMESAN = (pesananInDb.NAMAPEMESAN.Length > 20 ? pesananInDb.NAMAPEMESAN.Substring(0, 17) + "..." : pesananInDb.NAMAPEMESAN);
+                                        newSIT01A.PEMESAN = pesananInDb.PEMESAN;
+                                        newSIT01A.NAMA_CUST = cust.PERSO;
+
+                                        //dari pesanan
+                                        newSIT01A.NO_REF = pesananInDb.NO_REFERENSI;
+
+                                        //newSIT01A.AL = context.ARF01.Single(p => p.CUST == newSIT01A.CUST).AL;
+                                        newSIT01A.AL = pesananInDb.ALAMAT_KIRIM;
+                                        newSIT01A.AL2 = cust.AL2;
+                                        newSIT01A.AL3 = cust.AL3;
+                                        //change by nurul 11/10/2019, req pak dani 
+                                        newSIT01A.TGL = DateTime.Now;
+                                        //newSIT01A.TGL = pesananInDb.TGL.Value;
+                                        //end change by nurul 11/10/2019, req pak dani 
+                                        newSIT01A.PPN_Bln_Lapor = Convert.ToByte(newSIT01A.TGL.ToString("MM"));
+                                        newSIT01A.PPN_Thn_Lapor = Convert.ToByte(newSIT01A.TGL.ToString("yyyy").Substring(2, 2));
+                                        newSIT01A.USERNAME = usernameLogin;
+                                        newSIT01A.JENIS_RETUR = "-";
+                                        newSIT01A.JENIS_FORM = "2";
+                                        newSIT01A.STATUS = "1";
+                                        newSIT01A.ST_POSTING = "T";
+                                        newSIT01A.VLT = "IDR";
+                                        newSIT01A.NO_FA_OUTLET = "-";
+                                        newSIT01A.NO_LPB = "-";
+                                        newSIT01A.GROUP_LIMIT = "-";
+                                        newSIT01A.KODE_ANGKUTAN = "-";
+                                        newSIT01A.JENIS_MOBIL = "-";
+                                        newSIT01A.JTRAN = "SI";
+                                        newSIT01A.JENIS = "1";
+                                        newSIT01A.NAMA_CUST = "-";
+                                        newSIT01A.TUKAR = 1;
+                                        newSIT01A.TUKAR_PPN = 1;
+                                        newSIT01A.SOPIR = "-";
+                                        newSIT01A.KET = "-";
+                                        newSIT01A.PPNBM = 0;
+                                        newSIT01A.NILAI_PPNBM = 0;
+                                        newSIT01A.KODE_SALES = "-";
+                                        newSIT01A.KODE_WIL = "-";
+                                        newSIT01A.U_MUKA = 0;
+                                        newSIT01A.U_MUKA_FA = 0;
+                                        newSIT01A.TERM = pesananInDb.TERM;
+                                        newSIT01A.TGL_JT_TEMPO = pesananInDb.TGL_JTH_TEMPO;
+
+                                        newSIT01A.PPN = pesananInDb.PPN;
+
+                                        newSIT01A.DISCOUNT = pesananInDb.DISCOUNT;
+                                        newSIT01A.NILAI_DISC = pesananInDb.NILAI_DISC;
+                                        newSIT01A.MATERAI = pesananInDb.ONGKOS_KIRIM;
+
+
+                                        newSIT01A.TGLINPUT = DateTime.Now;
+
+                                        //add by nurul 4/3/2020
+                                        newSIT01A.PENGIRIM = pesananInDb.EXPEDISI;
+                                        newSIT01A.NAMAPENGIRIM = pesananInDb.SHIPMENT;
+                                        //end add by nurul 4/3/2020
+
+                                        #region add by calvin 6 juni 2018, agar sit01a field yang penting tidak null
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NILAI_DISC)))
+                                        {
+                                            newSIT01A.NILAI_DISC = 0;
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NO_SO)))
+                                        {
+                                            newSIT01A.NO_SO = "-";
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NO_REF)))
+                                        {
+                                            newSIT01A.NO_REF = "-";
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.DISCOUNT)))
+                                        {
+                                            newSIT01A.DISCOUNT = 0;
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.CUST_QQ)))
+                                        {
+                                            newSIT01A.CUST_QQ = "-";
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NAMA_CUST_QQ)))
+                                        {
+                                            newSIT01A.NAMA_CUST_QQ = "-";
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.STATUS_LOADING)))
+                                        {
+                                            newSIT01A.STATUS_LOADING = "-";
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NO_PO_CUST)))
+                                        {
+                                            newSIT01A.NO_PO_CUST = "-";
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.PENGIRIM)))
+                                        {
+                                            newSIT01A.PENGIRIM = "-";
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NAMAPENGIRIM)))
+                                        {
+                                            newSIT01A.NAMAPENGIRIM = "-";
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.ZONA)))
+                                        {
+                                            newSIT01A.ZONA = "-";
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.UCAPAN)))
+                                        {
+                                            newSIT01A.UCAPAN = "-";
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.N_UCAPAN)))
+                                        {
+                                            newSIT01A.N_UCAPAN = "-";
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.PEMESAN)))
+                                        {
+                                            newSIT01A.PEMESAN = "-";
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.SUPP)))
+                                        {
+                                            newSIT01A.SUPP = "-";
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.KOMISI)))
+                                        {
+                                            newSIT01A.KOMISI = 0;
+                                        }
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.N_KOMISI)))
+                                        {
+                                            newSIT01A.N_KOMISI = 0;
+                                        }
                                         #endregion
-                                        newSIT01B.NILAI_DISC = nilai_disc_1 + nilai_disc_2;
 
-
-                                        newSIT01B.BRG = pesananDetail.BRG;
-                                        newSIT01B.SATUAN = pesananDetail.SATUAN;
-                                        newSIT01B.H_SATUAN = pesananDetail.H_SATUAN;
-                                        newSIT01B.GUDANG = pesananDetail.LOKASI;
-                                        newSIT01B.QTY = pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0;
-
-                                        newSIT01B.DISCOUNT = pesananDetail.DISCOUNT;
-                                        newSIT01B.DISCOUNT_2 = pesananDetail.DISCOUNT_2;
-                                        newSIT01B.NILAI_DISC_1 = nilai_disc_1;
-                                        newSIT01B.NILAI_DISC_2 = nilai_disc_2;
-                                        newSIT01B.HARGA = harga;
-
-                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.QTY_KIRIM)))
+                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.TOTAL_TITIPAN)))
                                         {
-                                            newSIT01B.QTY_KIRIM = 0;
-                                        }
-                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.QTY_RETUR)))
-                                        {
-                                            newSIT01B.QTY_RETUR = 0;
-                                        }
-                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.DISCOUNT_3)))
-                                        {
-                                            newSIT01B.DISCOUNT_3 = 0;
-                                        }
-                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.DISCOUNT_4)))
-                                        {
-                                            newSIT01B.DISCOUNT_4 = 0;
-                                        }
-                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.DISCOUNT_5)))
-                                        {
-                                            newSIT01B.DISCOUNT_5 = 0;
-                                        }
-                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.NILAI_DISC_3)))
-                                        {
-                                            newSIT01B.NILAI_DISC_3 = 0;
-                                        }
-                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.NILAI_DISC_4)))
-                                        {
-                                            newSIT01B.NILAI_DISC_4 = 0;
-                                        }
-                                        if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.NILAI_DISC_5)))
-                                        {
-                                            newSIT01B.NILAI_DISC_5 = 0;
+                                            newSIT01A.TOTAL_TITIPAN = 0;
                                         }
 
-                                        listSIT01B.Add(newSIT01B);
-                                        listBrg.Add(pesananDetail.BRG);
-
-                                        pesanan_bruto += harga;
-
-                                        var newSot03c = new SOT03C();
-                                        newSot03c.NO_BUKTI = newPackinglist.NO_BUKTI;
-                                        newSot03c.NO_PESANAN = pesananInDb.NO_BUKTI;
-                                        newSot03c.BRG = pesananDetail.BRG;
-                                        newSot03c.QTY = Convert.ToInt32(pesananDetail.QTY_N);
-                                        newSot03c.USERNAME = usernameLogin;
-                                        newSot03c.TGL_INPUT = newPackinglist.TGL;
-                                        newpackingbrgdetail.Add(newSot03c);
-                                    }
-                                    pesanan_nilai_ppn = ((pesanan_bruto - pesananInDb.NILAI_DISC) * pesananInDb.PPN) / 100;
-                                    pesanan_netto = pesanan_bruto - pesananInDb.NILAI_DISC + pesanan_nilai_ppn + pesananInDb.ONGKOS_KIRIM;
-
-                                    newSIT01A.BRUTO = pesanan_bruto;
-                                    newSIT01A.NILAI_PPN = pesanan_nilai_ppn;
-                                    newSIT01A.NETTO = pesanan_netto;
-
-
-                                    //change by nurul 23/12/2019, perbaikan no_bukti
-                                    //context.SIT01A.Add(newSIT01A);
-                                    try
-                                    {
-                                        context.SIT01A.Add(newSIT01A);
-                                        context.SaveChanges();
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        var tempSI = context.SIT01A.Where(a => a.NO_BUKTI == newSIT01A.NO_BUKTI).Single();
-                                        if (tempSI != null)
+                                        pesananInDb.STATUS_TRANSAKSI = "03";
+                                        if (pesananInDb.status_kirim != "2")
                                         {
-                                            if (tempSI.NO_BUKTI == noOrder)
+                                            pesananInDb.status_kirim = "0";
+                                        }
+                                        pesananInDb.status_print = "0";
+
+                                        var pesanan = new SOT03B();
+                                        pesanan.NO_PESANAN = pesananInDb.NO_BUKTI;
+                                        pesanan.TGL_PESANAN = pesananInDb.TGL.Value;
+                                        pesanan.PEMBELI = pesananInDb.NAMAPEMESAN;
+                                        pesanan.MARKETPLACE = marketplace;
+                                        pesanan.NO_BUKTI = newPackinglist.NO_BUKTI;
+                                        pesanan.USERNAME = usernameLogin;
+                                        pesanan.TGL_INPUT = newPackinglist.TGL;
+                                        newpackingdetail.Add(pesanan);
+
+                                        //var listBarangPesananInDb = context.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+                                        //var listBarangPesananInDb = listDetailPesananSiapProses.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+                                        List<string> listBrg = new List<string>();
+                                        var listSIT01B = new List<SIT01B>();
+                                        foreach (var pesananDetail in listBarangPesananInDb)
+                                        {
+                                            var newSIT01B = new SIT01B();
+                                            newSIT01B.NO_BUKTI = noOrder;
+                                            newSIT01B.USERNAME = usernameLogin;
+                                            newSIT01B.CATATAN = "-";
+                                            newSIT01B.JENIS_FORM = "2";
+                                            newSIT01B.TGLINPUT = DateTime.Now;
+                                            #region add by calvin 31 okt 2018, hitung ulang sesuai dengan qty_n, bukan qty
+                                            double nilai_disc_1 = 0d;
+                                            double nilai_disc_2 = 0d;
+                                            double harga = 0d;
+                                            if (Math.Abs(pesananDetail.DISCOUNT) > 0)
                                             {
-                                                var lastBuktiNew = Convert.ToInt32(lastBukti);
-                                                lastBuktiNew++;
-                                                noOrder = "SI" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
-                                                newSIT01A.NO_BUKTI = noOrder;
-                                                context.SIT01A.Add(newSIT01A);
-                                                foreach (var updateDetail in listSIT01B)
+                                                nilai_disc_1 = (pesananDetail.DISCOUNT * pesananDetail.H_SATUAN * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0)) / 100;
+                                            }
+                                            else
+                                            {
+                                                //req by pak dani, dibuat proporsional jika discount bukan persen, tapi nilai discount, karena bisa lebih besar daripada harga * qty_n
+                                                nilai_disc_1 = (pesananDetail.NILAI_DISC_1 / pesananDetail.QTY) * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0);
+                                            }
+
+                                            if (Math.Abs(pesananDetail.DISCOUNT_2) > 0)
+                                            {
+                                                nilai_disc_2 = (pesananDetail.DISCOUNT * (pesananDetail.H_SATUAN - nilai_disc_1) * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0)) / 100;
+                                            }
+                                            else
+                                            {
+                                                nilai_disc_2 = (pesananDetail.NILAI_DISC_2 / pesananDetail.QTY) * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0);
+                                            }
+
+                                            harga = pesananDetail.H_SATUAN * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0) - nilai_disc_1 -
+                                                                      nilai_disc_2;
+                                            #endregion
+                                            newSIT01B.NILAI_DISC = nilai_disc_1 + nilai_disc_2;
+
+
+                                            newSIT01B.BRG = pesananDetail.BRG;
+                                            newSIT01B.SATUAN = pesananDetail.SATUAN;
+                                            newSIT01B.H_SATUAN = pesananDetail.H_SATUAN;
+                                            newSIT01B.GUDANG = pesananDetail.LOKASI;
+                                            newSIT01B.QTY = pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0;
+
+                                            newSIT01B.DISCOUNT = pesananDetail.DISCOUNT;
+                                            newSIT01B.DISCOUNT_2 = pesananDetail.DISCOUNT_2;
+                                            newSIT01B.NILAI_DISC_1 = nilai_disc_1;
+                                            newSIT01B.NILAI_DISC_2 = nilai_disc_2;
+                                            newSIT01B.HARGA = harga;
+
+                                            if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.QTY_KIRIM)))
+                                            {
+                                                newSIT01B.QTY_KIRIM = 0;
+                                            }
+                                            if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.QTY_RETUR)))
+                                            {
+                                                newSIT01B.QTY_RETUR = 0;
+                                            }
+                                            if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.DISCOUNT_3)))
+                                            {
+                                                newSIT01B.DISCOUNT_3 = 0;
+                                            }
+                                            if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.DISCOUNT_4)))
+                                            {
+                                                newSIT01B.DISCOUNT_4 = 0;
+                                            }
+                                            if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.DISCOUNT_5)))
+                                            {
+                                                newSIT01B.DISCOUNT_5 = 0;
+                                            }
+                                            if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.NILAI_DISC_3)))
+                                            {
+                                                newSIT01B.NILAI_DISC_3 = 0;
+                                            }
+                                            if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.NILAI_DISC_4)))
+                                            {
+                                                newSIT01B.NILAI_DISC_4 = 0;
+                                            }
+                                            if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.NILAI_DISC_5)))
+                                            {
+                                                newSIT01B.NILAI_DISC_5 = 0;
+                                            }
+
+                                            listSIT01B.Add(newSIT01B);
+                                            listBrg.Add(pesananDetail.BRG);
+
+                                            pesanan_bruto += harga;
+
+                                            var newSot03c = new SOT03C();
+                                            newSot03c.NO_BUKTI = newPackinglist.NO_BUKTI;
+                                            newSot03c.NO_PESANAN = pesananInDb.NO_BUKTI;
+                                            newSot03c.BRG = pesananDetail.BRG;
+                                            newSot03c.QTY = Convert.ToInt32(pesananDetail.QTY_N);
+                                            newSot03c.USERNAME = usernameLogin;
+                                            newSot03c.TGL_INPUT = newPackinglist.TGL;
+                                            newpackingbrgdetail.Add(newSot03c);
+                                        }
+                                        pesanan_nilai_ppn = ((pesanan_bruto - pesananInDb.NILAI_DISC) * pesananInDb.PPN) / 100;
+                                        pesanan_netto = pesanan_bruto - pesananInDb.NILAI_DISC + pesanan_nilai_ppn + pesananInDb.ONGKOS_KIRIM;
+
+                                        newSIT01A.BRUTO = pesanan_bruto;
+                                        newSIT01A.NILAI_PPN = pesanan_nilai_ppn;
+                                        newSIT01A.NETTO = pesanan_netto;
+
+
+                                        //change by nurul 23/12/2019, perbaikan no_bukti
+                                        //context.SIT01A.Add(newSIT01A);
+                                        try
+                                        {
+                                            context.SIT01A.Add(newSIT01A);
+                                            context.SaveChanges();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            var tempSI = context.SIT01A.Where(a => a.NO_BUKTI == newSIT01A.NO_BUKTI).Single();
+                                            if (tempSI != null)
+                                            {
+                                                if (tempSI.NO_BUKTI == noOrder)
                                                 {
-                                                    updateDetail.NO_BUKTI = noOrder;
+                                                    var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                                    lastBuktiNew++;
+                                                    noOrder = "SI" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                                    newSIT01A.NO_BUKTI = noOrder;
+                                                    context.SIT01A.Add(newSIT01A);
+                                                    foreach (var updateDetail in listSIT01B)
+                                                    {
+                                                        updateDetail.NO_BUKTI = noOrder;
+                                                    }
+                                                    //listSIT01B.NO_BUKTI = noOrder;
+                                                    context.SaveChanges();
                                                 }
-                                                //listSIT01B.NO_BUKTI = noOrder;
-                                                context.SaveChanges();
+                                            }
+                                            else
+                                            {
+                                                return new JsonResult { Data = new { error_packing_list = true }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                                             }
                                         }
-                                        else
-                                        {
-                                            return new JsonResult { Data = new { error_packing_list = true }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                                        }
-                                    }
-                                    //end change by nurul 23/12/2019, perbaikan no bukti
+                                        //end change by nurul 23/12/2019, perbaikan no bukti
 
-                                    context.SIT01B.AddRange(listSIT01B);
-                                    context.SaveChanges();
+                                        context.SIT01B.AddRange(listSIT01B);
+                                        context.SaveChanges();
 
-                                    //add by nurul 6/2/2020, tambah update sit01a untuk trigger create art01d
-                                    //context.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = newSIT01A.BRUTO });
+                                        //add by nurul 6/2/2020, tambah update sit01a untuk trigger create art01d
+                                        //context.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = newSIT01A.BRUTO });
 #if (DEBUG || Debug_AWS)
-                                Task.Run(() => new StokControllerJob().updateBrutoSit01a("", dbPathEra, usernameLogin, noOrder, newSIT01A.BRUTO).Wait());
-#else                            
+                                        Task.Run(() => new StokControllerJob().updateBrutoSit01a("", dbPathEra, usernameLogin, noOrder, newSIT01A.BRUTO).Wait());
+#else
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 clientJobServer.Enqueue<StokControllerJob>(x => x.updateBrutoSit01a("", dbPathEra, usernameLogin, noOrder, newSIT01A.BRUTO));
 #endif
-                                    //end add by nurul 6/2/2020, tambah update sit01a untuk trigger create art01d
+                                        //end add by nurul 6/2/2020, tambah update sit01a untuk trigger create art01d
+                                    }
                                 }
                                 context.SOT03B.AddRange(newpackingdetail);
                                 context.SOT03C.AddRange(newpackingbrgdetail);
