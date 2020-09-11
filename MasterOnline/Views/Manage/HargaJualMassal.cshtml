@@ -502,7 +502,7 @@
                         }
                     }
                     document.getElementById('lblJml' + index).innerText = response.progress + "/" + response.lastRow[0];
-                    document.getElementById('lblJml_tidakdiisi_' + index).innerText = response.jmlNH;
+                    //document.getElementById('lblJml_tidakdiisi_' + index).innerText = response.jmlNH;
                     document.getElementById('lblJml_tidaklink_' + index).innerText = response.jmlNL;
 
                     if (response.nextFile) {
@@ -560,7 +560,7 @@
                     $('#FILE_' + index).val('');
                     //$('#file_upload_excel_' + index).val('');
                     document.getElementById('lblJml' + index).innerText = "0/0";
-                    document.getElementById('lblJml_tidakdiisi_' + index).innerText = "0";
+                    //document.getElementById('lblJml_tidakdiisi_' + index).innerText = "0";
                     document.getElementById('lblJml_tidaklink_' + index).innerText = "0";
                 },
                 error: function (xhr) {

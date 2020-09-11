@@ -33036,10 +33036,10 @@ namespace MasterOnline.Controllers
                 lastData.JML_BRG_2 = "0/0";
                 lastData.JML_BRG_3 = "0/0";
                 lastData.JML_BRG_4 = "0/0";
-                lastData.JML_BRG_NH_1 = 0;
-                lastData.JML_BRG_NH_2 = 0;
-                lastData.JML_BRG_NH_3 = 0;
-                lastData.JML_BRG_NH_4 = 0;
+                //lastData.JML_BRG_NH_1 = 0;
+                //lastData.JML_BRG_NH_2 = 0;
+                //lastData.JML_BRG_NH_3 = 0;
+                //lastData.JML_BRG_NH_4 = 0;
                 lastData.JML_BRG_NL_1 = 0;
                 lastData.JML_BRG_NL_2 = 0;
                 lastData.JML_BRG_NL_3 = 0;
@@ -33065,10 +33065,10 @@ namespace MasterOnline.Controllers
                 vm.STATUS = lastData.STATUS;
                 vm.TGL_PROSES = lastData.TGL_PROSES;
                 vm.JAM_PROSES = lastData.JAM_PROSES;
-                vm.JML_BRG_NH_1 = lastData.JML_BRG_NH_1;
-                vm.JML_BRG_NH_2 = lastData.JML_BRG_NH_2;
-                vm.JML_BRG_NH_3 = lastData.JML_BRG_NH_3;
-                vm.JML_BRG_NH_4 = lastData.JML_BRG_NH_4;
+                //vm.JML_BRG_NH_1 = lastData.JML_BRG_NH_1;
+                //vm.JML_BRG_NH_2 = lastData.JML_BRG_NH_2;
+                //vm.JML_BRG_NH_3 = lastData.JML_BRG_NH_3;
+                //vm.JML_BRG_NH_4 = lastData.JML_BRG_NH_4;
                 vm.JML_BRG_NL_1 = lastData.JML_BRG_NL_1;
                 vm.JML_BRG_NL_2 = lastData.JML_BRG_NL_2;
                 vm.JML_BRG_NL_3 = lastData.JML_BRG_NL_3;
@@ -33124,12 +33124,11 @@ namespace MasterOnline.Controllers
                     var sqlStorage = new SqlServerStorage(EDBConnID);
 
                     var Jobclient = new BackgroundJobClient(sqlStorage);
-
+                    string logCust = "";
                     var dtProses = new DateTime(currentData.TGL_PROSES.Year, currentData.TGL_PROSES.Month, currentData.TGL_PROSES.Day, currentData.JAM_PROSES, 0, 0).AddHours(-7);
                     if (!string.IsNullOrEmpty(currentData.FILE_1))
                     {
-                        Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(EDBConnID, currentData.NO_BUKTI, "", "Update Harga Massal", currentData.NO_BUKTI +"_1", 1, usernameLogin), dtProses);
-
+                        logCust = "";
                         var newData1 = new LOG_HARGAJUAL_B
                         {
                             NO_BUKTI = currentData.NO_BUKTI,
@@ -33138,11 +33137,26 @@ namespace MasterOnline.Controllers
                             USERNAME = usernameLogin,
                             KET = ""
                         };
-                        var cekJob = EDB.GetDataSet("CString", "hangfire", "SELECT [ID] FROM HANGFIRE.JOB WHERE ARGUMENTS LIKE '%"+ currentData.NO_BUKTI + "_1%' AND ARGUMENTS LIKE '%Update Harga Massal%'");
-                        if(cekJob.Tables[0].Rows.Count > 0)
+                        var cekCust = EDB.GetDataSet("CString", "ARF01", "SELECT CUST, NAMA FROM ARF01 WHERE RECNUM IN (SELECT DISTINCT IDMARKET FROM TEMP_UPDATE_HJUAL WHERE INDEX_FILE = 1)");
+                        if (cekCust.Tables[0].Rows.Count > 0)
                         {
-                            newData1.HANGFIRE_JOBID = Convert.ToInt64( cekJob.Tables[0].Rows[0]["ID"].ToString());
+                            if(cekCust.Tables[0].Rows[0]["NAMA"].ToString() == "8" || cekCust.Tables[0].Rows[0]["NAMA"].ToString() != "18")//buka lapak dan offline
+                            {
+
+                            }
+                            else
+                            {
+                                logCust = cekCust.Tables[0].Rows[0]["CUST"].ToString();
+                                Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(EDBConnID, currentData.NO_BUKTI, logCust, "Update Harga Massal", currentData.NO_BUKTI + "_1", 1, usernameLogin), dtProses);
+
+                                var cekJob = EDB.GetDataSet("CString", "hangfire", "SELECT [ID] FROM HANGFIRE.JOB WHERE ARGUMENTS LIKE '%" + currentData.NO_BUKTI + "_1%' AND ARGUMENTS LIKE '%Update Harga Massal%'");
+                                if (cekJob.Tables[0].Rows.Count > 0)
+                                {
+                                    newData1.HANGFIRE_JOBID = Convert.ToInt64(cekJob.Tables[0].Rows[0]["ID"].ToString());
+                                }
+                            }
                         }
+
                         ErasoftDbContext.LOG_HARGAJUAL_B.Add(newData1);
                     }
                     if (!string.IsNullOrEmpty(currentData.FILE_2))
@@ -33188,7 +33202,21 @@ namespace MasterOnline.Controllers
                 }
                 else if (data.STATUS == 1)//change to cancel
                 {
-                    var sSQL_delete = "DELETE FROM HANGFIRE.JOB WHERE ARGUMENTS LIKE '%" + currentData.NO_BUKTI + "%' AND ARGUMENTS LIKE '%Update Harga Massal%' AND STATENAME IN ('Enqueued', 'SCHEDULED')";
+                    for(int i = 1; i <= 4; i++)
+                    {
+                        var sSQL_delete = "DELETE FROM HANGFIRE.JOB WHERE ARGUMENTS LIKE '%" + currentData.NO_BUKTI + "_" + i + "%' AND ARGUMENTS LIKE '%Update Harga Massal%' AND STATENAME IN ('Enqueued', 'Scheduled')";
+                        var resultDelete = EDB.ExecuteSQL("CString", CommandType.Text, sSQL_delete);
+                        if(resultDelete > 0)
+                        {
+                            var historyB = ErasoftDbContext.LOG_HARGAJUAL_B.Where(m => m.NO_BUKTI == currentData.NO_BUKTI && m.NO_FILE == i).FirstOrDefault();
+                            if(historyB != null)
+                            {
+                                historyB.STATUS = "dibatalkan";
+                                ErasoftDbContext.SaveChanges();
+                            }
+                        }
+                    }
+                    
                 }
             }
             else

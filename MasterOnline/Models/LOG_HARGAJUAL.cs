@@ -52,6 +52,7 @@ namespace MasterOnline.Models
         public string KET { get; set; }
         public DateTime TGL_INPUT { get; set; }
         public string USERNAME { get; set; }
+        public string STATUS { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RECNUM { get; set; }
 
