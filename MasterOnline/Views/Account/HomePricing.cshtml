@@ -832,7 +832,8 @@
                                     <td style="text-align:center;">Unlimited</td>
                                 </tr>
                                 <tr>
-                                    <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Jumlah Faktur per Bulan</th>
+                                    @*<th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Jumlah Faktur per Bulan</th>*@
+                                    <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Jumlah Pesanan per Bulan</th>
                                     @foreach (var subs in Model?.ListSubs)
                                     {
                                         <td style="text-align:center;">@(subs.JUMLAH_PESANAN >= 999 ? "Unlimited" : subs.JUMLAH_PESANAN.ToString())</td>
