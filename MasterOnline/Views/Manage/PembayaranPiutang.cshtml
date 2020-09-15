@@ -2229,10 +2229,6 @@
         }
 
         function validasiCreatePot() {
-            var dateSet = new Date();
-            dateSet.setHours(17);
-            dateSet.setMinutes(0);
-            dateSet.setSeconds(0);
             var dateNow = new Date();
             if ($('tr[data-piutang-id != "0"] .potongan-piutang').length <= 0) {
                 $('#progressBarPot').hide();
@@ -2241,7 +2237,7 @@
                 $('#progressBarPot').hide();
                 alert('Tidak ada selisih !');
             }
-            else if (dateNow > dateSet) {
+            else if (dateNow.getHours() < 17) {
                 $('#progressBarPot').hide();
                 alert("Mohon maaf, pelunasan saat ini hanya dapat dilakukan di atas jam 17.00.");
             }
