@@ -46014,7 +46014,7 @@ namespace MasterOnline.Controllers
                                             validContinue = false;
                                             listError.Add(new listErrorPacking
                                             {
-                                                error_msg = "Pesanan [" + gagal.NO_BUKTI + "] gagal diproses.",
+                                                error_msg = "Barang [" + gagal.BRG + "] pada pesanan [" + gagal.NO_BUKTI + "] gagal diproses.",
                                                 no_bukti_so = gagal.NO_BUKTI
                                             });
                                         }

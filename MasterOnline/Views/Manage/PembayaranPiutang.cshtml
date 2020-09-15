@@ -2229,13 +2229,19 @@
         }
 
         function validasiCreatePot() {
+            var dateNow = new Date();
             if ($('tr[data-piutang-id != "0"] .potongan-piutang').length <= 0) {
                 $('#progressBarPot').hide();
                 alert('Tidak ada detail pembayaran');
             } else if (convertToAngka($('#TOTALSELISIH').val()) == 0) {
                 $('#progressBarPot').hide();
                 alert('Tidak ada selisih !');
-            }else if ($('#Piutang_TGL').val() != null &&
+            }
+            //else if (dateNow.getHours() < 17) {
+            //    $('#progressBarPot').hide();
+            //    alert("Mohon maaf, pelunasan saat ini hanya dapat dilakukan di atas jam 17.00.");
+            //}
+            else if ($('#Piutang_TGL').val() != null &&
                 $('#Piutang_CUST').val() != '') {
                 $("#konfCreatePot").modal('show');
                 $('#create-pot').click(function () {
