@@ -173,29 +173,37 @@ namespace MasterOnline.Controllers
                                 };
                                 for (int i = 0; i < dsUpdate.Tables[0].Rows.Count; i++)
                                 {
-                                    BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
+                                    if (dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString().Contains("PENDING") || dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString().Contains("NEED_CORRECTION"))
                                     {
-                                        kode = dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
-                                        kode_mp = dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString()
-                                    };
-                                    var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == dsUpdate.Tables[0].Rows[i]["BRG"].ToString());
-                                    dataJob.Price = brg.HJUAL.ToString();
-                                    if (!string.IsNullOrEmpty(brg.PART))
-                                    {
-                                        brg = ErasoftDbContext.STF02.Where(m => m.BRG == brg.PART).FirstOrDefault();
-                                        if(brg != null)
-                                        {
-                                            dataJob.Price = brg.HJUAL.ToString();
 
-                                        }
                                     }
-                                    dataJob.MarketPrice = dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString();
-                                    var displayJob = Convert.ToBoolean(dsUpdate.Tables[0].Rows[i]["DISPLAY"].ToString());
-                                    dataJob.display = displayJob ? "true" : "false";
-                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "CHILD_" + log_ActionName, dataJob.kode_mp, idenJob, dataJob));
+                                    else
+                                    {
+                                        BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
+                                        {
+                                            kode = dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
+                                            kode_mp = dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString()
+                                        };
+                                        var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == dsUpdate.Tables[0].Rows[i]["BRG"].ToString());
+                                        dataJob.Price = brg.HJUAL.ToString();
+                                        if (!string.IsNullOrEmpty(brg.PART))
+                                        {
+                                            brg = ErasoftDbContext.STF02.Where(m => m.BRG == brg.PART).FirstOrDefault();
+                                            if (brg != null)
+                                            {
+                                                dataJob.Price = brg.HJUAL.ToString();
+
+                                            }
+                                        }
+                                        dataJob.MarketPrice = dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString();
+                                        var displayJob = Convert.ToBoolean(dsUpdate.Tables[0].Rows[i]["DISPLAY"].ToString());
+                                        dataJob.display = displayJob ? "true" : "false";
+                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "CHILD_" + log_ActionName, dataJob.kode_mp, idenJob, dataJob));
+
+                                    }
                                 }
                                 break;
-                            case "17":
+                            case "17"://shopee
                                 if (!string.IsNullOrWhiteSpace(customer.Sort1_Cust))
                                 {
                                     ShopeeControllerJob.ShopeeAPIData dataJob = new ShopeeControllerJob.ShopeeAPIData()
@@ -228,6 +236,27 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
+                                break;
+                            case "20":
+                                EightTwoCartControllerJob.E2CartAPIData data = new EightTwoCartControllerJob.E2CartAPIData()
+                                {
+                                    no_cust = customer.CUST,
+                                    account_store = customer.PERSO,
+                                    API_key = customer.API_KEY,
+                                    API_credential = customer.Sort1_Cust,
+                                    API_url = customer.PERSO,
+                                    DatabasePathErasoft = dbPathEra
+                                };
+                                for (int i = 0; i < dsUpdate.Tables[0].Rows.Count; i++)
+                                {
+                                    clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), 
+                                        customer.CUST, "Price", "Update Price", data, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), 
+                                        Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()), hargaJualDampakBaru));
+
+                                }
+                                break;
+                            case "":
+
                                 break;
                         }
                     }
