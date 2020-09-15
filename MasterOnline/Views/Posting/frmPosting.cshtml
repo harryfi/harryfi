@@ -293,9 +293,19 @@
             //});
             getLastTglPosting();
             $('#process-posting').click(function () {
+                var dateSet = new Date();
+                dateSet.setHours(17);
+                dateSet.setMinutes(0);
+                dateSet.setSeconds(0);
+                var dateNow = new Date();
                 if (parseInt($('#DrTgl').val()) > parseInt($('#SdTgl').val())) {
-                    alert("Dari Tanggal tidak boleh lebih besar dari Sampai Tanggal")
-                } else {
+                    alert("Dari Tanggal tidak boleh lebih besar dari Sampai Tanggal");
+                }
+                else if (dateNow > dateSet)
+                {
+                    alert("Mohon maaf, posting saat ini hanya dapat dilakukan di atas jam 17.00.");
+                }
+                else {
                     $('#infoPosting').val('');
                     $('.labelPosting').html('Status : Proses sedang dimulai..');
                     $('#bannerPembelian').attr('class', 'list-group-item list-group-item-light');
