@@ -33487,7 +33487,8 @@ namespace MasterOnline.Controllers
                             no_cust = customer.Sort1_Cust,
                             account_store = customer.PERSO,
                             API_key = customer.API_KEY,
-                            API_password = customer.API_CLIENT_P
+                            API_password = customer.API_CLIENT_P,
+                            DatabasePathErasoft = dbPathEra,
                         };
                         if (hJualInDb.BRG_MP != "")
                         {
@@ -53065,7 +53066,7 @@ namespace MasterOnline.Controllers
             {
                 return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
-            return JsonErrorMessage("This Function is for JD.ID only");
+            //return JsonErrorMessage("This Function is for JD.ID only");
         }
         //end by fauzi
 
