@@ -237,7 +237,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                                 break;
-                            case "20":
+                            case "20"://82cart
                                 EightTwoCartControllerJob.E2CartAPIData data = new EightTwoCartControllerJob.E2CartAPIData()
                                 {
                                     no_cust = customer.CUST,
@@ -249,20 +249,69 @@ namespace MasterOnline.Controllers
                                 };
                                 for (int i = 0; i < dsUpdate.Tables[0].Rows.Count; i++)
                                 {
+                                    var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == dsUpdate.Tables[0].Rows[i]["BRG"].ToString());
+                                    string hargaJualDampakBaru = "0";
+                                    if (!string.IsNullOrEmpty(brg.PART))
+                                    {
+                                        brg = ErasoftDbContext.STF02.Where(m => m.BRG == brg.PART).FirstOrDefault();
+                                        if (brg != null)
+                                        {
+                                            hargaJualDampakBaru = (brg.HJUAL - Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString())).ToString();
+                                        }
+                                    }
                                     clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), 
-                                        customer.CUST, "Price", "Update Price", data, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), 
+                                        customer.CUST, "Price", "CHILD_" + log_ActionName, data, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), 
                                         Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()), hargaJualDampakBaru));
 
                                 }
                                 break;
-                            case "":
+                            case "21"://shopify
+                                ShopifyControllerJob.ShopifyAPIData dataShopify = new ShopifyControllerJob.ShopifyAPIData()
+                                {
+                                    no_cust = customer.Sort1_Cust,
+                                    account_store = customer.PERSO,
+                                    API_key = customer.API_KEY,
+                                    API_password = customer.API_CLIENT_P
+                                };
+                                for (int i = 0; i < dsUpdate.Tables[0].Rows.Count; i++)
+                                {
+                                    string[] brg_mp = dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString().Split(';');
+                                    if (brg_mp.Count() == 2)
+                                    {
+                                        var hargaJualBaru = Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString());
+
+                                        clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
+                                            customer.CUST, "Price", "CHILD_" + log_ActionName, dataShopify, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), (float)hargaJualBaru));
+
+                                    }
+                                }
+                                break;
+                            case "19"://JDID
+                                JDIDControllerJob.JDIDAPIDataJob dataJD = new JDIDControllerJob.JDIDAPIDataJob()
+                                {
+                                    no_cust = customer.CUST,
+                                    accessToken = customer.TOKEN,
+                                    appKey = customer.API_KEY,
+                                    appSecret = customer.API_CLIENT_U,
+                                    username = customer.USERNAME,
+                                    email = customer.EMAIL,
+                                    DatabasePathErasoft = dbPathEra
+                                };
+                                for (int i = 0; i < dsUpdate.Tables[0].Rows.Count; i++)
+                                {
+                                    clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_updatePrice(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), 
+                                        customer.CUST, "Price", "CHILD_" + log_ActionName, dataJD, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), 
+                                        Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()), username));
+
+                                }
 
                                 break;
                         }
                     }
                 }
             }
-
+            var sSQLDel = "DELETE FROM TEMP_UPDATE_HJUAL ";
+            EDB.ExecuteSQL("CString", CommandType.Text, sSQLDel);
 
             return ret;
 
