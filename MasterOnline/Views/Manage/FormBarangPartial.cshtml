@@ -1603,7 +1603,8 @@
                                                                                         <table>
                                                                                             <tr>
                                                                                                 <td>
-                                                                                                    @Html.TextBox("Brand" + i + "82Cart", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_38 })
+                                                                                                    @*@Html.TextBox("Brand" + i + "82Cart", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_38 })*@
+                                                                                                    @Html.TextBox("Brand" + i + "82Cart", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_38 })
                                                                                                 </td>
                                                                                                 <td>
                                                                                                     <span class="input-group-btn">
