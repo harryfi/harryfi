@@ -2076,6 +2076,39 @@ namespace MasterOnline.Controllers
         public string order_id { get; set; }
     }
 
+    public class JD_HeaderTipe
+    {
+        public List<JD_TipeItem> data { get; set; }
+    }
+
+    public class JD_TipeItem
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+    }
+
+    public class JD_HeaderAfterSale
+    {
+        public List<JD_AfterSale> data { get; set; }
+    }
+
+    public class JD_AfterSale
+    {
+        public string code { get; set; }
+        public string desc { get; set; }
+    }
+
+    public class JD_HeaderJD_Warranty
+    {
+        public List<JD_Warranty> data { get; set; }
+    }
+
+    public class JD_Warranty
+    {
+        public string code { get; set; }
+        public string desc { get; set; }
+    }
+
     public class Data_OrderDetail
     {
         public string message { get; set; }

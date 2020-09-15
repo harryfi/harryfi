@@ -6280,6 +6280,7 @@ namespace MasterOnline.Controllers
             };
             return result;
         }
+        
         #endregion
         //end add by Tri 22 Maret 2018
         //add by calvin 18 desember 2018
@@ -11836,33 +11837,29 @@ namespace MasterOnline.Controllers
             return PartialView("TablePromptBrandBlibli");
         }
 
-        public async Task<ActionResult> RefreshBrandJDID(string category, string cust, int? page, string search = "")
+        public ActionResult RefreshBrandJDID(string category, string cust, int? page, string search = "")
         {
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
             ViewData["cust"] = cust;
             ViewData["category"] = category;
+
             if (string.IsNullOrEmpty(search))
                 search = "a";
             var marketPlace = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).SingleOrDefault();
+            
             if (marketPlace != null)
             {
-                var brandJDID = MoDbContext.BrandJDID.OrderBy(p => p.brandName).ToList();
-                //var list_value = new List<BRAND_JDID>();
-                //foreach (var item in ret.content)
-                //{
-                //    if (item.brandApprovalStatus == "APPROVED")
-                //    {
-                //        list_value.Add(new BRAND_BLIBLI()
-                //        {
-                //            brand_id = item.brandName,
-                //            name = item.brandName
-                //        });
-                //    }
+                
+                var BrandJDID = (from p in MoDbContext.BrandJDID
+                                   where p.brandName.Contains(search)
+                                   orderby p.brandName
+                                   select p);
+                var PromptModel = BrandJDID.Skip(pagenumber * 5).Take(5).ToList();
 
-                //}
-                IPagedList<BRAND_JDID> pageOrders = new StaticPagedList<BRAND_JDID>(brandJDID, pagenumber + 1, 10, 10);
+                IPagedList<BRAND_JDID> pageOrders = new StaticPagedList<BRAND_JDID>(PromptModel, pagenumber + 1, 5, BrandJDID.Count());
+
                 return PartialView("TablePromptBrandJDID", pageOrders);
             }
 
@@ -37655,11 +37652,11 @@ namespace MasterOnline.Controllers
                                         };
 
                                         // get category for 82Cart
-                                        //var resultCategory82Cart = await v82CartAPI.E2Cart_GetCategoryProduct_Sync(data);
+                                        var resultCategory82Cart = await v82CartAPI.E2Cart_GetCategoryProduct_Sync(data);
                                         // end get category for 82Cart
 
                                         // get attribute for 82Cart
-                                        //var resultAttribute82Cart = await v82CartAPI.E2Cart_GetAttribute_Sync(data);
+                                        var resultAttribute82Cart = await v82CartAPI.E2Cart_GetAttribute_Sync(data);
                                         // end get attribute for 82Cart
 
                                         var result82Cart = await v82CartAPI.E2Cart_GetProductsList(data, arf01.RecNum.Value, page, recordCount, totalData);

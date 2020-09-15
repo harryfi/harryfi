@@ -1826,7 +1826,120 @@
                     }
                 }
             }
+
+            getTipeBarangJDID();
+            getAfterSaleJDID();
+            getWarrantyJDID();
         }
+        
+        //add by fauzi for Tipe Barang JDID
+        function getTipeBarangJDID() {
+            var listReason = [];
+
+            listReason[0] = {
+                id: "0",
+                text: "Small item <= 20KG"
+            };
+            listReason[1] = {
+                id: "1",
+                text: "Big item > 20KG"
+            };
+
+            var comboSelect = $('#JDID_tipe_barang').selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: listReason,
+                onChange: function (value) {
+                    //$('#txtCancelReason').val(value);
+                    //if (value.includes("STOCK")) {
+                    //    $('#ckBrg').show();
+                    //} else {
+                    //    $('#ckBrg').hide();
+                    //}
+
+                }
+            });
+        }
+    // end add
+
+        //add by fauzi for Tipe Barang JDID
+        function getAfterSaleJDID() {
+            var listReason = [];
+
+            listReason[0] = {
+                id: "1",
+                text: "Only Support 7 Days Refund"
+            };
+            listReason[1] = {
+                id: "2",
+                text: "Not Support 7 Days Refund And 15 Days Exchange"
+            }; 
+            listReason[1] = {
+                id: "3",
+                text: "Support 7 Days Refund And 15 Days Exchange"
+            };
+            listReason[1] = {
+                id: "4",
+                text: "Only Support 15 Days Exchange"
+            };
+
+
+            var comboSelect = $('#JDID_after_sale').selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: listReason,
+                onChange: function (value) {
+                    //$('#txtCancelReason').val(value);
+                    //if (value.includes("STOCK")) {
+                    //    $('#ckBrg').show();
+                    //} else {
+                    //    $('#ckBrg').hide();
+                    //}
+
+                }
+            });
+        }
+    // end add
+
+        //add by fauzi for Tipe Barang JDID
+        function getWarrantyJDID() {
+            var listReason = [];
+
+            listReason[0] = {
+                id: "1",
+                text: "No warranty"
+            };
+            listReason[1] = {
+                id: "50",
+                text: "6 months official warranty"
+            };
+            listReason[1] = {
+                id: "51",
+                text: "8 months official warranty"
+            };
+            listReason[1] = {
+                id: "52",
+                text: "18 months official warranty"
+            };
+
+
+            var comboSelect = $('#JDID_warranty').selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: listReason,
+                onChange: function (value) {
+                    //$('#txtCancelReason').val(value);
+                    //if (value.includes("STOCK")) {
+                    //    $('#ckBrg').show();
+                    //} else {
+                    //    $('#ckBrg').hide();
+                    //}
+
+                }
+            });
+        }
+    // end add
+
         function FuncGetKategoriJDByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
             var link = '@Url.Action("GetKategoriJDByChildCode", "Manage", new { code = "replaceCode" })';
             link = link.replace("replaceCode", encodeURIComponent(fieldCategoryCodeValue));
