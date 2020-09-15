@@ -266,6 +266,9 @@ namespace MasterOnline
 
         public string SIZE_GAMBAR_5 { get; set; }
 
+        [StringLength(50)]
+        public string BRG_SAP { get; set; }
+
         [JsonIgnore]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<STF02B> STF02B { get; set; }

@@ -2860,6 +2860,286 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 1/7/2019
 
+        #region OTNIEL
+        //add by otniel 9/9/2020
+        [Route("manage/transfer/transfermarketplacetoftp")]
+        public ActionResult TransferMarketplaceToFTP()
+        {
+            var custVm = new CustomerViewModel()
+            {
+                //ListCustomer = ErasoftDbContext.ARF01.ToList(),
+                ListSubs = MoDbContext.Subscription.ToList()
+            };
+
+            return View(custVm);
+        }
+        public ActionResult RefreshTableTransferMarketplace(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+            //change by nurul 26/9/2019, contain search 
+            string[] getkata = search.Split(' ');
+            string sSQLnama = "";
+            string sSQLemail = "";
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (getkata.Length == 1)
+                        {
+                            sSQLnama += " ( C.NamaMarket like '%" + getkata[i] + "%' )";
+                            sSQLemail += " ( A.EMAIL like '%" + getkata[i] + "%' )";
+                        }
+                        else
+                        {
+                            if (getkata[i] == getkata.First())
+                            {
+                                sSQLnama += " ( C.NamaMarket like '%" + getkata[i] + "%'";
+                                sSQLemail += " ( A.EMAIL like '%" + getkata[i] + "%'";
+                            }
+                            else if (getkata[i] == getkata.Last())
+                            {
+                                sSQLnama += " and C.NamaMarket like '%" + getkata[i] + "%' )";
+                                sSQLemail += " and A.EMAIL like '%" + getkata[i] + "%' )";
+                            }
+                            else
+                            {
+                                sSQLnama += " and C.NamaMarket like '%" + getkata[i] + "%' ";
+                                sSQLemail += " and A.EMAIL like '%" + getkata[i] + "%' ";
+                            }
+                        }
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.CUST AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, A.EMAIL AS EMAIL, A.PERSO AS PERSO, A.ATTR5_AREA AS KODE_SAP ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM ARF01 A ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON A.NAMA = C.IdMarket ";
+            if (search != "")
+            {
+                sSQL2 += " WHERE ( " + sSQLemail + " or " + sSQLnama + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY C.NamaMarket ASC, A.EMAIL ASC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listOrderNew = ErasoftDbContext.Database.SqlQuery<TransferMarketplace>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            //end change by nurul 26/9/2019, contain search 
+
+            IPagedList<TransferMarketplace> pageOrders = new StaticPagedList<TransferMarketplace>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableMarketplaceToFTP", pageOrders);
+        }
+        public ActionResult SaveKodeFTPMarketplace(string kodecust, string kodesap)
+        {
+            try
+            {
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
+
+                if (kodesap != null && kodecust != null)
+                {
+                    var vmError = new CustomerViewModel() { };
+                    var cekKodeSap = ErasoftDbContext.ARF01.Where(x => x.Attr5_Area == kodesap).ToList();
+                    if (cekKodeSap.Count > 0)
+                    {
+                        vmError.Errors.Add("Kode SAP ( " + kodesap + " ) sudah ada yang menggunakan !");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+
+                    var dataPesanan = ErasoftDbContext.ARF01.Where(p => p.CUST == kodecust).SingleOrDefault();
+                    dataPesanan.Attr5_Area = kodesap.ToString();
+                    ErasoftDbContext.SaveChanges();
+                    var successCount = listSuccess.Count();
+                    return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "Kode Sap Kosong." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                string errormsg = ex.ToString();
+                return new JsonResult { Data = new { mo_error = "Gagal memproses rubah Kode SAP Marketplace. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+        //end by otniel 9/9/2020
+
+        //add by otniel 9/9/2020
+        [Route("manage/transfer/transferbarangtoftp")]
+        public ActionResult TransferBarangToFTP()
+        {
+            var barangVm = new BarangViewModel();
+
+            return View(barangVm);
+        }
+        public ActionResult RefreshTableTransferToFTPBarang(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+            //change by nurul 26/9/2019, contain search 
+            string[] getkata = search.Split(' ');
+            string sSQLnama = "";
+            string sSQLemail = "";
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (getkata.Length == 1)
+                        {
+                            sSQLnama += " ( A.BRG like '%" + getkata[i] + "%' )";
+                            sSQLemail += " ( A.NAMA like '%" + getkata[i] + "%' )";
+                        }
+                        else
+                        {
+                            if (getkata[i] == getkata.First())
+                            {
+                                sSQLnama += " ( A.BRG like '%" + getkata[i] + "%'";
+                                sSQLemail += " ( A.NAMA like '%" + getkata[i] + "%'";
+                            }
+                            else if (getkata[i] == getkata.Last())
+                            {
+                                sSQLnama += " and A.BRG like '%" + getkata[i] + "%' )";
+                                sSQLemail += " and A.NAMA like '%" + getkata[i] + "%' )";
+                            }
+                            else
+                            {
+                                sSQLnama += " and A.BRG like '%" + getkata[i] + "%' ";
+                                sSQLemail += " and A.NAMA like '%" + getkata[i] + "%' ";
+                            }
+                        }
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.BRG AS BRG, ISNULL(A.NAMA,'') AS NAMA, A.BRG_SAP AS BRG_SAP ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.BRG) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM STF02 A ";
+            if (search != "")
+            {
+                sSQL2 += " WHERE ( " + sSQLemail + " or " + sSQLnama + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.NAMA ASC, A.BRG ASC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listOrderNew = ErasoftDbContext.Database.SqlQuery<TableTransferToFTPBarang>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            //end change by nurul 26/9/2019, contain search 
+
+            IPagedList<TableTransferToFTPBarang> pageOrders = new StaticPagedList<TableTransferToFTPBarang>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableTransferBarangToFTP", pageOrders);
+        }
+        public ActionResult SaveBrgFTPMarketplace(string brg, string brgsap)
+        {
+            try
+            {
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
+
+                if (brg != null && brgsap != null)
+                {
+                    var vmError = new CustomerViewModel() { };
+                    var cekKodeSap = ErasoftDbContext.STF02.Where(x => x.BRG_SAP == brgsap).ToList();
+                    if (cekKodeSap.Count > 0)
+                    {
+                        vmError.Errors.Add("Kode SAP ( " + brgsap + " ) sudah ada yang menggunakan !");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+
+                    var dataPesanan = ErasoftDbContext.STF02.Where(p => p.BRG == brg).SingleOrDefault();
+                    dataPesanan.BRG_SAP = brgsap.ToString();
+                    ErasoftDbContext.SaveChanges();
+                    var successCount = listSuccess.Count();
+                    return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "Barang Kosong." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                string errormsg = ex.ToString();
+                return new JsonResult { Data = new { mo_error = "Gagal memproses rubah barang SAP. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+        //end by otniel 9/9/2020
+
+        //add by otniel 10/9/2020
+        [Route("manage/transfer/transfertoftpparameterlinkftp")]
+        public ActionResult TransferToFTPParameterLinkFtp()
+        {
+            var linkftpVm = ErasoftDbContext.LINKFTP.FirstOrDefault();
+
+            return View(linkftpVm);
+        }
+
+        [HttpPost]
+        public ActionResult SaveLinkFtp(LINKFTP dataVm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("TransferToFTPParameterLinkFtp", dataVm);
+            }
+
+            var linkFtpDb = ErasoftDbContext.LINKFTP.FirstOrDefault(s => s.IP == dataVm.IP);
+
+            if (linkFtpDb == null)
+            {
+                ErasoftDbContext.LINKFTP.Add(dataVm);
+                ErasoftDbContext.SaveChanges();
+            }
+            else
+            {
+                ErasoftDbContext.LINKFTP.Remove(linkFtpDb);
+                ErasoftDbContext.SaveChanges();
+
+                linkFtpDb.IP = dataVm.IP;
+                linkFtpDb.LOGIN = dataVm.LOGIN;
+                var key = Helper.GeneratePassword(10);
+                var encodingPassString = Helper.EncodePassword(dataVm.PASSWORD, key);
+                linkFtpDb.PASSWORD = encodingPassString;
+                linkFtpDb.JAM1 = dataVm.JAM1;
+                linkFtpDb.JAM2 = dataVm.JAM2;
+                linkFtpDb.JAM3 = dataVm.JAM3;
+                linkFtpDb.JAM4 = dataVm.JAM4;
+                linkFtpDb.JAM5 = dataVm.JAM5;
+                ErasoftDbContext.LINKFTP.Add(dataVm);
+                ErasoftDbContext.SaveChanges();
+            }
+            ModelState.Clear();
+            return Json(dataVm, JsonRequestBehavior.AllowGet);
+        }
+        //end by otniel 10/9/2020
+        #endregion
+
         [Route("manage/master/marketplace")]
         public ActionResult Pelanggan()
         {
