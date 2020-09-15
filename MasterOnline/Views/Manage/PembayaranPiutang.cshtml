@@ -2237,10 +2237,10 @@
                 $('#progressBarPot').hide();
                 alert('Tidak ada selisih !');
             }
-            else if (dateNow.getHours() < 17) {
-                $('#progressBarPot').hide();
-                alert("Mohon maaf, pelunasan saat ini hanya dapat dilakukan di atas jam 17.00.");
-            }
+            //else if (dateNow.getHours() < 17) {
+            //    $('#progressBarPot').hide();
+            //    alert("Mohon maaf, pelunasan saat ini hanya dapat dilakukan di atas jam 17.00.");
+            //}
             else if ($('#Piutang_TGL').val() != null &&
                 $('#Piutang_CUST').val() != '') {
                 $("#konfCreatePot").modal('show');
