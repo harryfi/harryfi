@@ -456,6 +456,10 @@ namespace MasterOnline
         public virtual DbSet<TEMP_UPLOAD_EXCEL_BAYAR> TEMP_UPLOAD_EXCEL_BAYAR { get; set; }
         //end add by nurul 9/4/2020
 
+        //add by otniel 10/9/2020        
+        public virtual DbSet<LINKFTP> LINKFTP { get; set; }
+        //end by otniel 10/9/2020
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
 
