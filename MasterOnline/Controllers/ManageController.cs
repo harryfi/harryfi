@@ -53066,7 +53066,7 @@ namespace MasterOnline.Controllers
             {
                 return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
-            return JsonErrorMessage("This Function is for JD.ID only");
+            //return JsonErrorMessage("This Function is for JD.ID only");
         }
         //end by fauzi
 
