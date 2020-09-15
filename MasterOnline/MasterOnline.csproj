@@ -1081,8 +1081,6 @@
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
     <Compile Include="Utils\XcelUtils.cs" />
-    <Compile Include="ViewModels\TransferMarketplace.cs" />
-    <Compile Include="ViewModels\TableTransferToFTPBarang.cs" />
     <Compile Include="ViewModels\mdlTempBayarBlibli.cs" />
     <Compile Include="ViewModels\mdlTempBayarTokped.cs" />
     <Compile Include="ViewModels\mdlSaldoAwal.cs" />
@@ -1393,8 +1391,10 @@
     <Compile Include="ViewModels\SubsViewModel.cs" />
     <Compile Include="ViewModels\SupplierViewModel.cs" />
     <Compile Include="ViewModels\SyncMenuViewModel.cs" />
+    <Compile Include="ViewModels\TableTransferToFTPBarang.cs" />
     <Compile Include="ViewModels\TransferExcelViewModel.cs" />
     <Compile Include="ViewModels\SettingKodeVariasiPartialViewModel.cs" />
+    <Compile Include="ViewModels\TransferMarketplace.cs" />
     <Compile Include="ViewModels\UploadBarangViewModel.cs" />
     <Compile Include="ViewModels\DashboardAdminViewModel.cs" />
     <Compile Include="ViewModels\UserViewModel.cs" />
@@ -6425,12 +6425,8 @@
     <Content Include="Views\Manage\PromptBrandJDID.cshtml" />
     <Content Include="Views\Manage\PackingListJDID.cshtml" />
     <Content Include="Views\Manage\ListDetailPackingListJDID.cshtml" />
-    <Content Include="Views\Manage\TableTransferBarangToFTP.cshtml" />
-    <Content Include="Views\Manage\TransferToFTPParameterLink.cshtml" />
-    <Content Include="Views\Manage\TransferBarangToFTP.cshtml" />
     <Content Include="Views\Manage\TransferMarketplaceToFTP.cshtml" />
     <Content Include="Views\Manage\TableMarketplaceToFTP.cshtml" />
-    <Content Include="Views\Manage\TransferToFTPParameterLinkFtp.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
