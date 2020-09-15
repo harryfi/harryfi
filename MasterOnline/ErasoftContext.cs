@@ -456,6 +456,10 @@ namespace MasterOnline
         public virtual DbSet<TEMP_UPLOAD_EXCEL_BAYAR> TEMP_UPLOAD_EXCEL_BAYAR { get; set; }
         //end add by nurul 9/4/2020
 
+        //add by nurul 19/8/2020
+        public virtual DbSet<STF03C> STF03C { get; set; }
+        //end add by nurul 19/8/2020
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
 

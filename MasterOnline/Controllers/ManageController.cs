@@ -3682,7 +3682,7 @@ namespace MasterOnline.Controllers
                 }
                 //end 
 
-                
+
 
                 custInDb.TOP = customer.Customers.TOP;
                 custInDb.AL = customer.Customers.AL;
@@ -7079,6 +7079,47 @@ namespace MasterOnline.Controllers
                 }
                 //end add by nurul 21/6/2019, validasi berat,p,l,t
 
+                //add by nurul 28/8/2020
+                if (dataBarang.Stf02.KUBILASI.ToString() == "1")
+                {
+                    if (string.IsNullOrWhiteSpace(dataBarang.Stf02.BRG_NON_OS))
+                    {
+                        List<string> listError = new List<string>();
+                        listError.Add("Kode barang acuan harus diisi untuk barang yang memiliki multi SKU.");
+                        dataBarang.Errors = listError;
+                        return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        var cekBarang = dataBarang.Stf02.BRG;
+                        if (cekBarang == "" || cekBarang == null)
+                        {
+                            if (cekBarang == dataBarang.Stf02.BRG_NON_OS)
+                            {
+                                List<string> listError = new List<string>();
+                                listError.Add("Kode barang acuan tidak boleh sama dengan kode barang multi SKU.");
+                                dataBarang.Errors = listError;
+                                return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                            }
+                            var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.BRG == cekBarang);
+                            var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == cekBarang);
+                            var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == cekBarang);
+                            var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == cekBarang);
+                            var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
+                            
+                            if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
+                            {
+                                List<string> listError = new List<string>();
+                                listError.Add("Barang " + cekBarang + " sudah dipakai di transaksi tidak bisa dijadikan barang multi SKU !");
+                                dataBarang.Errors = listError;
+                                return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                            }
+                        }
+                        dataBarang.Stf02.TYPE = "6";
+                    }
+                }
+                //end add by nurul 28/8/2020
+
                 bool insert = false;//add by Tri
                 bool updateHarga = false;//add by Tri
                 bool updateDisplay = false;//add by Tri
@@ -7204,54 +7245,54 @@ namespace MasterOnline.Controllers
                             foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
                             {
                                 var stf02hInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == dataBarang.Stf02.BRG).FirstOrDefault();
-                                if(stf02hInDB == null)
+                                if (stf02hInDB == null)
                                 {
                                     if (!protectDuplicateIdMarket.Contains(hargaPerMarket.IDMARKET))
                                     {
-                                    protectDuplicateIdMarket.Add(hargaPerMarket.IDMARKET);
-                                    hargaPerMarket.BRG = dataBarang.Stf02.BRG;
+                                        protectDuplicateIdMarket.Add(hargaPerMarket.IDMARKET);
+                                        hargaPerMarket.BRG = dataBarang.Stf02.BRG;
 
-                                    //add by calvin 1 maret 2019
-                                    if (extra_image_uploaded.Count() > 0)
-                                    {
-                                        foreach (var extra_image in extra_image_uploaded)
+                                        //add by calvin 1 maret 2019
+                                        if (extra_image_uploaded.Count() > 0)
                                         {
-                                            string[] key_split = extra_image.Key.Split(';');
-                                            int urutan = Convert.ToInt32(key_split[0]);
-                                            int idmarket = Convert.ToInt32(key_split[1]);
-                                            string idGambar = Convert.ToString(key_split[2]);
-                                            if (idmarket == hargaPerMarket.IDMARKET)
+                                            foreach (var extra_image in extra_image_uploaded)
                                             {
-                                                switch (urutan)
+                                                string[] key_split = extra_image.Key.Split(';');
+                                                int urutan = Convert.ToInt32(key_split[0]);
+                                                int idmarket = Convert.ToInt32(key_split[1]);
+                                                string idGambar = Convert.ToString(key_split[2]);
+                                                if (idmarket == hargaPerMarket.IDMARKET)
                                                 {
-                                                    case 1:
-                                                        hargaPerMarket.ACODE_50 = idGambar;
-                                                        hargaPerMarket.AVALUE_50 = extra_image.Value;
-                                                        break;
-                                                    case 2:
-                                                        hargaPerMarket.ACODE_49 = idGambar;
-                                                        hargaPerMarket.AVALUE_49 = extra_image.Value;
-                                                        break;
-                                                    case 3:
-                                                        hargaPerMarket.ACODE_48 = idGambar;
-                                                        hargaPerMarket.AVALUE_48 = extra_image.Value;
-                                                        break;
-                                                    //add 13/9/2019, 5 gambar
-                                                    case 4:
-                                                        hargaPerMarket.SIZE_GAMBAR_4 = idGambar;
-                                                        hargaPerMarket.LINK_GAMBAR_4 = extra_image.Value;
-                                                        break;
-                                                    case 5:
-                                                        hargaPerMarket.SIZE_GAMBAR_5 = idGambar;
-                                                        hargaPerMarket.LINK_GAMBAR_5 = extra_image.Value;
-                                                        break;
-                                                        //end add 13/9/2019, 5 gambar
+                                                    switch (urutan)
+                                                    {
+                                                        case 1:
+                                                            hargaPerMarket.ACODE_50 = idGambar;
+                                                            hargaPerMarket.AVALUE_50 = extra_image.Value;
+                                                            break;
+                                                        case 2:
+                                                            hargaPerMarket.ACODE_49 = idGambar;
+                                                            hargaPerMarket.AVALUE_49 = extra_image.Value;
+                                                            break;
+                                                        case 3:
+                                                            hargaPerMarket.ACODE_48 = idGambar;
+                                                            hargaPerMarket.AVALUE_48 = extra_image.Value;
+                                                            break;
+                                                        //add 13/9/2019, 5 gambar
+                                                        case 4:
+                                                            hargaPerMarket.SIZE_GAMBAR_4 = idGambar;
+                                                            hargaPerMarket.LINK_GAMBAR_4 = extra_image.Value;
+                                                            break;
+                                                        case 5:
+                                                            hargaPerMarket.SIZE_GAMBAR_5 = idGambar;
+                                                            hargaPerMarket.LINK_GAMBAR_5 = extra_image.Value;
+                                                            break;
+                                                            //end add 13/9/2019, 5 gambar
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                                    //end add by calvin 1 maret 2019
-                                    ErasoftDbContext.STF02H.Add(hargaPerMarket);
+                                        //end add by calvin 1 maret 2019
+                                        ErasoftDbContext.STF02H.Add(hargaPerMarket);
                                     }
 
                                 }
@@ -7366,9 +7407,26 @@ namespace MasterOnline.Controllers
                         dataBarang.Stf02.TYPE = "3";
                     }
 
+
                     //add by nurul 27/11/2019, add tgl last edit
                     dataBarang.Stf02.Tgl_Input = DateTime.Today;
                     //end add by nurul 27/11/2019, add tgl last edit
+
+                    //add by nurul 3/9/2020
+                    if (dataBarang.Stf02.TYPE == "6")
+                    {
+                        var cekMultiSKU = ErasoftDbContext.STF03C.Where(a => a.BRG_ACUAN == dataBarang.Stf02.BRG_NON_OS && a.BRG == dataBarang.Stf02.BRG).SingleOrDefault();
+                        if (cekMultiSKU.RECNUM == null)
+                        {
+                            var Stf03c = new STF03C() { };
+                            Stf03c.BRG = dataBarang.Stf02.BRG;
+                            Stf03c.BRG_ACUAN = dataBarang.Stf02.BRG_NON_OS;
+                            Stf03c.TGL_EDIT = DateTime.UtcNow.AddHours(7);
+                            Stf03c.USERNAME = dataBarang.Stf02.USERNAME;
+                            ErasoftDbContext.STF03C.Add(Stf03c);
+                        }
+                    }
+                    //end add by nurul 3/9/2020
 
                     ErasoftDbContext.STF02.Add(dataBarang.Stf02);
                 }
@@ -7396,7 +7454,72 @@ namespace MasterOnline.Controllers
                         barangInDb.LEBAR = dataBarang.Stf02.LEBAR;
                         barangInDb.TINGGI = dataBarang.Stf02.TINGGI;
                         barangInDb.HJUAL = dataBarang.Stf02.HJUAL;
+                        //barangInDb.TYPE = "3";
+
+                        //add by nurul 28/8/2020
+                        var tempType = barangInDb.TYPE;
                         barangInDb.TYPE = "3";
+                        if (dataBarang.Stf02.KUBILASI.ToString() == "1")
+                        {
+                            if (string.IsNullOrWhiteSpace(dataBarang.Stf02.BRG_NON_OS))
+                            {
+                                if (tempType != "4")
+                                {
+                                    barangInDb.TYPE = "3";
+                                    barangInDb.BRG_NON_OS = "";
+                                    barangInDb.KUBILASI = 0;
+                                }
+                                List<string> listError = new List<string>();
+                                listError.Add("Kode barang acuan harus diisi untuk barang yang memiliki multi SKU.");
+                                dataBarang.Errors = listError;
+                                return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                            }
+                            else
+                            {
+                                if (tempType != "4")
+                                {
+                                    var cekBarang = dataBarang.Stf02.BRG;
+                                    if (cekBarang == "" || cekBarang == null && barangInDb.BRG != "" && barangInDb.BRG != null)
+                                    {
+                                        cekBarang = barangInDb.BRG;
+                                    }
+                                    if (cekBarang == dataBarang.Stf02.BRG_NON_OS)
+                                    {
+                                        List<string> listError = new List<string>();
+                                        listError.Add("Kode barang acuan tidak boleh sama dengan kode barang multi SKU.");
+                                        dataBarang.Errors = listError;
+                                        return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                                    }
+                                    var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.BRG == cekBarang);
+                                    var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == cekBarang);
+                                    var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == cekBarang);
+                                    var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == cekBarang);
+                                    var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
+
+                                    if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
+                                    {
+                                        List<string> listError = new List<string>();
+                                        listError.Add("Barang " + cekBarang + " sudah dipakai di transaksi tidak bisa dijadikan barang multi SKU !");
+                                        dataBarang.Errors = listError;
+                                        return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                                    }
+
+                                    dataBarang.Stf02.TYPE = "6";
+                                    barangInDb.TYPE = "6";
+                                    barangInDb.BRG_NON_OS = dataBarang.Stf02.BRG_NON_OS;
+                                    barangInDb.KUBILASI = dataBarang.Stf02.KUBILASI;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if(tempType == "6")
+                            {
+                                barangInDb.KUBILASI = 0;
+                                barangInDb.BRG_NON_OS = "";
+                            }
+                        }
+                        //end add by nurul 28/8/2020
 
                         //add by nurul 27/11/2019, add tgl last edit
                         barangInDb.Tgl_Input = DateTime.Today;
@@ -7933,6 +8056,34 @@ namespace MasterOnline.Controllers
                             }
                         }
                         //end add by calvin
+
+                        //add by nurul 3/9/2020
+                        if (dataBarang.Stf02.TYPE == "6")
+                        {
+                            dataBarang.Stf02.BRG = barangInDb.BRG;
+                            var cekMultiSKU = ErasoftDbContext.STF03C.Where(a => a.BRG_ACUAN == dataBarang.Stf02.BRG_NON_OS && a.BRG == dataBarang.Stf02.BRG).Count();
+                            if (cekMultiSKU == 0)
+                            {
+                                var Stf03c = new STF03C() { };
+                                //Stf03c.BRG = dataBarang.Stf02.BRG;
+                                Stf03c.BRG = barangInDb.BRG;
+                                Stf03c.BRG_ACUAN = dataBarang.Stf02.BRG_NON_OS;
+                                Stf03c.TGL_EDIT = DateTime.UtcNow.AddHours(7);
+                                Stf03c.USERNAME = dataBarang.Stf02.USERNAME;
+                                ErasoftDbContext.STF03C.Add(Stf03c);
+                            }
+                        }
+
+                        if(tempType == "6" && dataBarang.Stf02.TYPE != "6")
+                        {
+                            var cekStf03c = ErasoftDbContext.STF03C.Where(a => a.BRG_ACUAN == dataBarang.Stf02.BRG_NON_OS && a.BRG == barangInDb.BRG).SingleOrDefault();
+                            if(cekStf03c != null)
+                            {
+                                ErasoftDbContext.STF03C.Remove(cekStf03c);
+                                ErasoftDbContext.SaveChanges();
+                            }
+                        }
+                        //end add by nurul 3/9/2020
                     }
                 }
 
@@ -7949,6 +8100,16 @@ namespace MasterOnline.Controllers
                 //}
                 //if (doAPI)
                 //{
+
+                //add by nurul 7/9/2020, langsung update stok u/ brg multi sku 
+                if (dataBarang.Stf02.TYPE == "6")
+                {
+                    List<string> listBrg = new List<string>();
+                    listBrg.Add(dataBarang.Stf02.BRG);
+                    updateStockMarketPlace(listBrg, "[BRG_MULTI][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+                }
+                //end add by nurul 7/9/2020, langsung update stok u/ brg multi sku 
+
                 #region Sync ke Marketplace
                 //var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");//moved to top
                 var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
@@ -8142,7 +8303,7 @@ namespace MasterOnline.Controllers
                     saveBarangElevenia(2, dataBarang, imgPath);
                     saveBarangShopee(2, dataBarang, updateHarga);
                     saveBarangShopify(2, dataBarang);
-                    
+
 
 
                     //get image
@@ -8319,6 +8480,14 @@ namespace MasterOnline.Controllers
                 }
                 //end add by nurul 21/6/2019, validasi berat,p,l,t
 
+                //add by nurul 28/8/2020
+                if (dataBarang.Stf02.KUBILASI.ToString() == "1" || dataBarang.Stf02.BRG_NON_OS != "" || dataBarang.Stf02.BRG_NON_OS != null)
+                {
+                    dataBarang.Stf02.KUBILASI = 0;
+                    dataBarang.Stf02.BRG_NON_OS = "";
+                }
+                //end add by nurul 28/8/2020
+
                 string KodeBarang = "";
                 bool insert = false;//add by Tri
                 bool updateHarga = false;//add by Tri
@@ -8416,7 +8585,8 @@ namespace MasterOnline.Controllers
                             foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
                             {
                                 var stf02hInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == dataBarang.Stf02.BRG).FirstOrDefault();
-                                if(stf02hInDB == null) { 
+                                if (stf02hInDB == null)
+                                {
                                     if (!protectDuplicateIdMarket.Contains(hargaPerMarket.IDMARKET))
                                     {
                                         protectDuplicateIdMarket.Add(hargaPerMarket.IDMARKET);
@@ -8576,6 +8746,14 @@ namespace MasterOnline.Controllers
                         barangInDb.HJUAL = dataBarang.Stf02.HJUAL;
                         barangInDb.TYPE = "4";
 
+                        //add by nurul 28/8/2020
+                        if (dataBarang.Stf02.KUBILASI.ToString() == "1" || dataBarang.Stf02.BRG_NON_OS != "" || dataBarang.Stf02.BRG_NON_OS != null)
+                        {
+                            dataBarang.Stf02.KUBILASI = 0;
+                            dataBarang.Stf02.BRG_NON_OS = "";
+                        }
+                        //end add by nurul 28/8/2020
+
                         //add by nurul 27/11/2019, add tgl last edit
                         barangInDb.Tgl_Input = DateTime.Today;
                         //end add by nurul 27/11/2019, add tgl last edit
@@ -8640,7 +8818,7 @@ namespace MasterOnline.Controllers
 
                                 //add by Tri 4 aug 2020, update display varian
                                 string updateDisplaySQL = "UPDATE STF02H SET DISPLAY = " + (dataBaru.DISPLAY ? 1 : 0);
-                                updateDisplaySQL += " WHERE BRG IN (SELECT BRG FROM STF02 WHERE PART = '"+ barangInDb.BRG + "') AND IDMARKET = " + dataBaru.IDMARKET;
+                                updateDisplaySQL += " WHERE BRG IN (SELECT BRG FROM STF02 WHERE PART = '" + barangInDb.BRG + "') AND IDMARKET = " + dataBaru.IDMARKET;
                                 EDB.ExecuteSQL("CString", CommandType.Text, updateDisplaySQL);
                                 //end add by Tri 4 aug 2020, update display varian
                             }
@@ -14671,9 +14849,9 @@ namespace MasterOnline.Controllers
                                     MP_VALUE_VAR = blibli.var_detail.lv_1[i],
                                     MP_CATEGORY_CODE = blibli.code
                                 };
-                                if(blibli.var_detail.fc_lv_1 != null)
+                                if (blibli.var_detail.fc_lv_1 != null)
                                 {
-                                    if(blibli.var_detail.fc_lv_1.Length > 0)
+                                    if (blibli.var_detail.fc_lv_1.Length > 0)
                                     {
                                         newdataBlibli.MP_VALUE_FC_VAR = blibli.var_detail.fc_lv_1[i];
                                     }
@@ -16395,7 +16573,7 @@ namespace MasterOnline.Controllers
             {
                 sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_FAKTUR ASC ";
             }
-            else if(search != "")
+            else if (search != "")
             {
                 sSQLSelect2 += "ORDER BY A.NO_FAKTUR DESC ";
             }
@@ -20588,11 +20766,11 @@ namespace MasterOnline.Controllers
             var cekTokped = listOrderNew.Where(a => a.MARKET.Contains("Tokopedia")).ToList();
             if (cekTokped.Count() > 0)
             {
-                foreach(var getKetTokped in cekTokped)
+                foreach (var getKetTokped in cekTokped)
                 {
                     var tempKet = "";
                     var getKet = ErasoftDbContext.SOT01B.Where(a => a.NO_BUKTI == getKetTokped.NOSO).ToList();
-                    foreach(var detail in getKet)
+                    foreach (var detail in getKet)
                     {
                         if (detail.KET_DETAIL != null && detail.KET_DETAIL != "" && detail.KET_DETAIL != "-")
                         {
@@ -28104,12 +28282,31 @@ namespace MasterOnline.Controllers
             //}
             // remark by fauzi 18 desember 2019
 
+            ////add by nurul 28/8/2020, handle cek stok brg multi sku  --remark jdnya pake yg d stok controller 
+            //var list_brg = "";
+            //foreach (var brg in listBrg)
+            //{
+            //    if (list_brg != "")
+            //    {
+            //        list_brg += ",";
+            //    }
+
+            //    list_brg += "'" + brg + "'";
+            //}
+            ////var sSQL = "SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ") ";
+            ////var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + "))";
+            //var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";
+            //var ListBrgProcess = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
+            ////end add by nurul 28/8/2020, handle cek stok brg multi sku  --remark jdnya pake yg d stok controller
+
             string sSQLValues = "";
 
             foreach (var item in listBrg)
+            //foreach (var item in ListBrgProcess)
             {
                 sSQLValues = sSQLValues + "('" + item + "', '" + ConnId + "'),";
             }
+
             if (sSQLValues != "")
             {
                 sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
@@ -33626,7 +33823,7 @@ namespace MasterOnline.Controllers
                 var hargaInduk = brgSTF02.HJUAL;
                 return new JsonResult { Data = new { success = true, hargaInduk = hargaInduk }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
-            
+
         }
 
         public class ReturnJson
@@ -38626,6 +38823,15 @@ namespace MasterOnline.Controllers
         // =============================================== Bagian Upload Barang (END)
         protected double GetQOHSTF08A(string Barang, string Gudang)
         {
+            //ADD BY NURUL 4/9/2020, handle cek stok brg multi sku 
+            var cekBrgMultiSKU = ErasoftDbContext.STF02.Where(a => a.BRG == Barang).SingleOrDefault();
+            var tempBrgAwal = Barang;
+            if (cekBrgMultiSKU.TYPE == "6" && cekBrgMultiSKU.KUBILASI == 1 && cekBrgMultiSKU.BRG_NON_OS != "" && cekBrgMultiSKU.BRG_NON_OS != null)
+            {
+                Barang = cekBrgMultiSKU.BRG_NON_OS;
+            }
+            //END ADD BY NURUL 4/9/2020, handle cek stok brg multi sku 
+
             double qtyOnHand = 0d;
             {
                 object[] spParams = {
@@ -45209,7 +45415,7 @@ namespace MasterOnline.Controllers
                 var getlistSO = ErasoftDbContext.Database.SqlQuery<listProsesUbahStatusPackingTransaction>(sSql1).ToList();
                 if (getlistSO.Count() > 0)
                 {
-                    
+
                     var lastNobuk = "";
                     var lastNobukRecnum = "";
                     var validNobuk = true;
@@ -45932,7 +46138,7 @@ namespace MasterOnline.Controllers
                                     //add by nurul 6/2/2020, tambah update sit01a untuk trigger create art01d
                                     //context.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = newSIT01A.BRUTO });
 #if (DEBUG || Debug_AWS)
-                                Task.Run(() => new StokControllerJob().updateBrutoSit01a("", dbPathEra, usernameLogin, noOrder, newSIT01A.BRUTO).Wait());
+                                    Task.Run(() => new StokControllerJob().updateBrutoSit01a("", dbPathEra, usernameLogin, noOrder, newSIT01A.BRUTO).Wait());
 #else                            
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
@@ -53677,7 +53883,8 @@ namespace MasterOnline.Controllers
         //add by nurul 24/7/2020
         public ActionResult refreshTablePackingListPerAkun(string bukti, string cust, string marketplace, string search = "", string filter = "", string filtervalue = "")
         {
-            var listData = new tempListPacking() {
+            var listData = new tempListPacking()
+            {
                 BUKTI = bukti,
                 CUST = cust
             };
@@ -53901,7 +54108,7 @@ namespace MasterOnline.Controllers
 
             listBrg.Add(brg);
 
-            updateStockMarketPlace(listBrg, "[UP_STOK]["+DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss")+"]");
+            updateStockMarketPlace(listBrg, "[UP_STOK][" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmss") + "]");
 
             return JsonErrorMessage("");
         }
@@ -53987,13 +54194,625 @@ namespace MasterOnline.Controllers
 
         public ActionResult ErrorLogPosting()
         {
-            var vm = new LOG_IMPORT_FAKTUR() {
-                
+            var vm = new LOG_IMPORT_FAKTUR()
+            {
+
             };
             vm = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == "POSTING").OrderByDescending(a => a.UPLOAD_DATETIME).FirstOrDefault();
             return PartialView("PostingView", vm);
         }
         //end add by nurul 5/8/2020
+
+        //add by nurul 19/8/2020
+        [Route("manage/MultiSKUMenu")]
+        public ActionResult MultiSKUMenu()
+        {
+            var vm = new multiSKUViewModel()
+            {
+                //ListPiutang = ErasoftDbContext.STF03C.Where(b => b.RANGKA == "1").ToList()
+            };
+
+            return View(vm);
+        }
+
+        public ActionResult RefreshTableMultiSKU(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+            string[] getkata = search.Split(' ');
+            string sSQLnama = "";
+            string sSQLkode = "";
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLkode += " and ";
+                            sSQLnama += " and ";
+                        }
+
+                        sSQLkode += " ( B.BRG_ACUAN like '%" + getkata[i] + "%' ) ";
+                        sSQLnama += "  ( (ISNULL(A.NAMA,'') + ' ' + (ISNULL(A.NAMA2, ''))) like '%" + getkata[i] + "%' ) ";
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT B.BRG_ACUAN, B.TGL_EDIT, (ISNULL(A.NAMA,'') + ' ' + (ISNULL(A.NAMA2, ''))) AS NAMA, A.ID AS RECNUM ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.ID) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM STF02 A ";
+            sSQL2 += "INNER JOIN (SELECT BRG_ACUAN, MAX(TGL_EDIT) AS TGL_EDIT FROM STF03C GROUP BY BRG_ACUAN)B ON A.BRG=B.BRG_ACUAN ";
+            if (search != "")
+            {
+                sSQL2 += " WHERE ( " + sSQLkode + " or " + sSQLnama + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY B.TGL_EDIT DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListMultiSKU = ErasoftDbContext.Database.SqlQuery<mdlMultiSKU>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<mdlMultiSKU> pageOrders = new StaticPagedList<mdlMultiSKU>(ListMultiSKU, pagenumber + 1, 10, totalCount.JUMLAH);
+
+            return PartialView("TableMultiSKUPartial", pageOrders);
+        }
+
+        public ActionResult EditMultiSKU(string kdBrg)
+        {
+            try
+            {
+                var listMultiSKU = ErasoftDbContext.STF03C.Where(b => b.BRG_ACUAN == kdBrg).ToList();
+                var getBrgFromlistMultiSKU = listMultiSKU.Select(a => a.BRG).ToList();
+                //getBrgFromlistMultiSKU.Add(listMultiSKU.FirstOrDefault().BRG_ACUAN);
+                getBrgFromlistMultiSKU.Add(kdBrg);
+                var piuVm = new multiSKUViewModel()
+                {
+                    listMultiSKU = listMultiSKU,
+                    Brg_Acuan = kdBrg,
+                    multiSKU = ErasoftDbContext.STF03C.Where(a => a.BRG_ACUAN == kdBrg).FirstOrDefault(),
+                    listDetailSKU = ErasoftDbContext.STF02.Where(a => getBrgFromlistMultiSKU.Contains(a.BRG)).ToList(),
+                };
+
+                return PartialView("FormMultiSKUPartial", piuVm);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+        }
+
+        public ActionResult DeleteMultiSKU(string kdBrg)
+        {
+            var MultiSKUInDb = ErasoftDbContext.STF03C.Where(b => b.BRG_ACUAN == kdBrg).ToList();
+
+            var vm = new multiSKUViewModel()
+            {
+                //ListPiutang = ErasoftDbContext.ART01A.Where(b => b.RANGKA == "1").ToList()
+                Errors = null
+            };
+            if (MultiSKUInDb.Count() > 0)
+            {
+                foreach (var item in MultiSKUInDb) {
+                    var cekStf02 = ErasoftDbContext.STF02.Where(a => a.BRG == item.BRG && a.TYPE == "6").SingleOrDefault();
+                    if(cekStf02.BRG != null)
+                    {
+                        try
+                        {
+                            ErasoftDbContext.STF02.Where(p => p.BRG == item.BRG && p.TYPE == "6").Update(p => new STF02() { TYPE = "3", KUBILASI = 0, BRG_NON_OS = "" });
+                        }
+                        catch (Exception ex)
+                        {
+                            try
+                            {
+                                var sSQL = "update stf02 set type ='3' and kubilasi='0' and brg_non_os='' where brg= '" + item.BRG + "' and type='6'";
+                                ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                            }
+                            catch (Exception e)
+                            {
+                                vm.Errors.Add("Terjadi Kesalahan, mohon hubungi support. \n" + e.Message);
+                            }
+                        }
+                    }
+                }
+                ErasoftDbContext.STF03C.RemoveRange(MultiSKUInDb);
+                ErasoftDbContext.SaveChanges();
+            }
+            
+            //return PartialView("TablePiutangPartial", vm);
+            return Json(vm, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult DeleteDetailMultiSKU(string kdBrg, string Acuan)
+        {
+            var DetailMultiSKUInDb = ErasoftDbContext.STF03C.Where(b => b.BRG_ACUAN == Acuan && b.BRG == kdBrg).SingleOrDefault();
+
+            var vm = new multiSKUViewModel()
+            {
+                //ListPiutang = ErasoftDbContext.ART01A.Where(b => b.RANGKA == "1").ToList()
+                Errors = null
+            };
+            if (DetailMultiSKUInDb != null)
+            {
+                //foreach (var item in DetailMultiSKUInDb)
+                //{
+                    var cekStf02 = ErasoftDbContext.STF02.Where(a => a.BRG == DetailMultiSKUInDb.BRG && a.TYPE == "6").SingleOrDefault();
+                    if (cekStf02.BRG != null)
+                    {
+                        try
+                        {
+                            ErasoftDbContext.STF02.Where(p => p.BRG == DetailMultiSKUInDb.BRG && p.TYPE == "6").Update(p => new STF02() { TYPE = "3", KUBILASI = 0, BRG_NON_OS = "" });
+                        }
+                        catch (Exception ex)
+                        {
+                            vm.Errors.Add("Terjadi Kesalahan, mohon hubungi support. \n" + ex.Message);
+                            var sSQL = "update stf02 set type ='3' and kubilasi='0' and brg_non_os='' where brg= '" + DetailMultiSKUInDb.BRG + "' and type='6'";
+                            ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                        }
+                    }
+                //}
+                ErasoftDbContext.STF03C.Remove(DetailMultiSKUInDb);
+                ErasoftDbContext.SaveChanges();
+
+                var listMultiSKU = ErasoftDbContext.STF03C.Where(b => b.BRG_ACUAN == Acuan).ToList();
+                var getBrgFromlistMultiSKU = listMultiSKU.Select(a => a.BRG).ToList();
+                //getBrgFromlistMultiSKU.Add(listMultiSKU.FirstOrDefault().BRG_ACUAN);
+                getBrgFromlistMultiSKU.Add(Acuan);
+                //var piuVm = new multiSKUViewModel()
+                //{
+                //    listMultiSKU = listMultiSKU,
+                //    Brg_Acuan = kdBrg,
+                //    multiSKU = ErasoftDbContext.STF03C.Where(a => a.BRG_ACUAN == kdBrg).FirstOrDefault(),
+                //    listDetailSKU = ErasoftDbContext.STF02.Where(a => getBrgFromlistMultiSKU.Contains(a.BRG)).ToList(),
+                //};
+                vm.listMultiSKU = listMultiSKU;
+                vm.Brg_Acuan = Acuan;
+                vm.multiSKU = ErasoftDbContext.STF03C.Where(a => a.BRG_ACUAN == Acuan).FirstOrDefault();
+                vm.listDetailSKU = ErasoftDbContext.STF02.Where(a => getBrgFromlistMultiSKU.Contains(a.BRG)).ToList();
+
+
+            }
+
+            //return PartialView("TablePiutangPartial", vm);
+            //return Json(vm, JsonRequestBehavior.AllowGet);
+            return PartialView("FormMultiSKUPartial", vm);
+        }
+
+        public ActionResult RefreshMultiSKUForm()
+        {
+            try
+            {
+                //var stokInDb = new STT01A();
+
+                var vm = new multiSKUViewModel()
+                {
+                    //ListBarangStok = ErasoftDbContext.STT01B.Where(pd => 0 == 1).ToList(),
+                    //ListBarang = ErasoftDbContext.STF02.Where(pd => 0 == 1).ToList()
+                    //listDetailSKU = ErasoftDbContext.STF02.Where(a => 0 == 1).ToList(),                    
+                };
+
+                return PartialView("FormMultiSKUPartial", vm);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+        }
+
+        [Route("manage/PromptBarangAcuan")]
+        public ActionResult PromptBarangAcuan(string id)
+        {
+            var vm = new PromptBrg()
+            {
+                id = id
+            };
+
+            return View(vm);
+        }
+
+        public ActionResult TablePromptBarangAcuanPartial(string id, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["id"] = id;
+
+            //change by nurul 26/9/2019, contain search 
+            string[] getkata = search.Split(' ');
+            string sSQLnama = "";
+            string sSQLkode = "";
+
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLkode += " and ";
+                            sSQLnama += " and ";
+                        }
+
+                        sSQLkode += " BRG like '%" + getkata[i] + "%' ";
+                        sSQLnama += "  (isnull(NAMA,'') + ' ' + isnull(NAMA2,'')) like '%" + getkata[i] + "%' ";
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT BRG AS KODE, ISNULL(NAMA,'') + ' ' + ISNULL(NAMA2,'') AS NAMA, HJUAL AS HARGA ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(ID) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM STF02 ";
+            sSQL2 += "WHERE TYPE ='3'";
+            if(id !=null && id != "" && id != "undefined")
+            {
+                sSQL2 += "and brg not in (select distinct isnull(brg_non_os,'') from stf02 where isnull(brg_non_os,'')<> '') ";
+            }
+            if (search != "")
+            {
+                sSQL2 += " AND ( " + sSQLkode + " or " + sSQLnama + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY NAMA ASC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListArf01c = ErasoftDbContext.Database.SqlQuery<PromptBarangViewModel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<PromptBarangViewModel> pageOrders = new StaticPagedList<PromptBarangViewModel>(ListArf01c, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TablePromptBarangAcuanPartial", pageOrders);
+        }
+
+        [Route("manage/PromptBarangSKU")]
+        public ActionResult PromptBarangSKU()
+        {
+            var vm = new PromptBrg()
+            {
+            };
+
+            return View(vm);
+        }
+
+        public ActionResult TablePromptBarangSKUPartial(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+            //change by nurul 26/9/2019, contain search 
+            string[] getkata = search.Split(' ');
+            string sSQLnama = "";
+            string sSQLkode = "";
+
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLkode += " and ";
+                            sSQLnama += " and ";
+                        }
+
+                        sSQLkode += " BRG like '%" + getkata[i] + "%' ";
+                        sSQLnama += "  (isnull(NAMA,'') + ' ' + isnull(NAMA2,'')) like '%" + getkata[i] + "%' ";
+                    }
+                }
+            }
+            
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT BRG AS KODE, ISNULL(NAMA,'') + ' ' + ISNULL(NAMA2,'') AS NAMA, HJUAL AS HARGA ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(ID) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM STF02 ";
+            sSQL2 += "WHERE TYPE ='3'";
+            sSQL2 += "and brg not in (select distinct isnull(brg_non_os,'') from stf02 where isnull(brg_non_os,'')<> '') ";
+            
+            if (search != "")
+            {
+                sSQL2 += " AND ( " + sSQLkode + " or " + sSQLnama + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY NAMA ASC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListArf01c = ErasoftDbContext.Database.SqlQuery<PromptBarangViewModel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<PromptBarangViewModel> pageOrders = new StaticPagedList<PromptBarangViewModel>(ListArf01c, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TablePromptBarangSKUPartial", pageOrders);
+        }
+
+        public ActionResult SaveMultiSKU(multiSKUViewModel dataVm)
+        {
+            if (!ModelState.IsValid)
+            {
+                dataVm.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
+                return Json(dataVm, JsonRequestBehavior.AllowGet);
+            }
+
+            if (dataVm.multiSKU.BRG != null && dataVm.multiSKU.BRG != "")
+            {
+                //var lastBukti = GenerateAutoNumber(ErasoftDbContext, "IN", "STT01A", "Nobuk");
+                //var noStok = "IN" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+
+                //dataVm.multiSKU.BRG = noStok;
+                //dataVm.Stok.STATUS_LOADING = "0";
+                //dataVm.BarangStok.Nobuk = noStok;
+                //dataVm.Stok.TglInput = DateTime.Today;
+                //dataVm.Stok.Ket = keterangan;
+                if (dataVm.multiSKU.BRG_ACUAN != null && dataVm.multiSKU.BRG_ACUAN != "")
+                {
+                    var cekBarangAcuan = ErasoftDbContext.STF02.Where(a => a.BRG == dataVm.multiSKU.BRG_ACUAN).SingleOrDefault();
+                    if (cekBarangAcuan != null)
+                    {
+                        var cekBrgMultiSKU = ErasoftDbContext.STF02.Where(a => a.BRG == dataVm.multiSKU.BRG).SingleOrDefault();
+                        if (cekBrgMultiSKU != null)
+                        {
+                            if (cekBrgMultiSKU.TYPE == "3")
+                            {
+                                try
+                                {
+                                    var cekBarang = dataVm.multiSKU.BRG;
+                                    if (cekBarang == dataVm.multiSKU.BRG_ACUAN)
+                                    {
+                                        dataVm.Errors.Add("Kode barang acuan tidak boleh sama dengan kode barang multi SKU.");
+                                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                                    }
+                                    var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.BRG == cekBarang);
+                                    var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == cekBarang);
+                                    var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == cekBarang);
+                                    var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == cekBarang);
+                                    var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
+
+                                    if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
+                                    {
+                                        dataVm.Errors.Add("Barang " + cekBarang + " sudah dipakai di transaksi tidak bisa dijadikan barang multi SKU !");
+                                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                                    }
+
+                                    cekBrgMultiSKU.TYPE = "6";
+                                    cekBrgMultiSKU.KUBILASI = 1;
+                                    cekBrgMultiSKU.BRG_NON_OS = dataVm.multiSKU.BRG_ACUAN;
+                                    cekBrgMultiSKU.Tgl_Input = DateTime.Now;
+                                    cekBarangAcuan.Tgl_Input = DateTime.Now;
+                                    dataVm.multiSKU.USERNAME = usernameLogin;
+                                    dataVm.multiSKU.TGL_EDIT = DateTime.Now;
+                                    ErasoftDbContext.STF03C.Add(dataVm.multiSKU);
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                                catch (Exception ex)
+                                {
+                                    dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support. \n" + ex.Message);
+                                    return Json(dataVm, JsonRequestBehavior.AllowGet);
+                                }
+                            }
+                            else
+                            {
+                                dataVm.Errors.Add("Barang bukan tipe konfig.");
+                                return Json(dataVm, JsonRequestBehavior.AllowGet);
+                            }
+                        }
+                        else
+                        {
+                            dataVm.Errors.Add("Kode barang multi SKU tidak ditemukan.");
+                            return Json(dataVm, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    else
+                    {
+                        dataVm.Errors.Add("Kode barang acuan tidak ditemukan.");
+                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    }
+
+                    //if (dataVm.BarangStok.No == null)
+                    //{
+                    //    var vmError = new StokViewModel() { };
+
+                    //    if (dataVm.BarangStok.Ke_Gd == null || dataVm.BarangStok.Qty == 0 || dataVm.BarangStok.Harga == 0)
+                    //    {
+                    //        vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
+                    //        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    //    }
+
+                    //    ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    //}
+                }
+                else
+                {
+                    dataVm.Errors.Add("Kode barang acuan kosong.");
+                    return Json(dataVm, JsonRequestBehavior.AllowGet);
+                }
+            }
+            else
+            {
+                dataVm.Errors.Add("Kode barang multi SKU tidak ditemukan.");
+                return Json(dataVm, JsonRequestBehavior.AllowGet);
+            }
+            //else
+            //{
+            //    var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == dataVm.Stok.Nobuk);
+
+            //    stokInDb.Tgl = dataVm.Stok.Tgl;
+            //    dataVm.BarangStok.Nobuk = dataVm.Stok.Nobuk;
+
+            //    stokInDb.TglInput = DateTime.Today;
+            //    stokInDb.Ket = keterangan;
+
+            //    if (dataVm.BarangStok.No == null)
+            //    {
+            //        var vmError = new StokViewModel() { };
+
+            //        if (dataVm.BarangStok.Ke_Gd == null || dataVm.BarangStok.Qty == 0 || dataVm.BarangStok.Harga == 0)
+            //        {
+            //            vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
+            //            return Json(vmError, JsonRequestBehavior.AllowGet);
+            //        }
+
+            //        ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+            //    }
+            //}
+
+            ErasoftDbContext.SaveChanges();
+            ModelState.Clear();
+
+            var listMultiSKU = ErasoftDbContext.STF03C.Where(b => b.BRG_ACUAN == dataVm.multiSKU.BRG_ACUAN).ToList();
+            var getBrgFromlistMultiSKU = listMultiSKU.Select(a => a.BRG).ToList();
+            //getBrgFromlistMultiSKU.Add(listMultiSKU.FirstOrDefault().BRG_ACUAN);
+            getBrgFromlistMultiSKU.Add(dataVm.multiSKU.BRG_ACUAN);
+            var Vm = new multiSKUViewModel()
+            {
+                listMultiSKU = listMultiSKU,
+                Brg_Acuan = dataVm.multiSKU.BRG_ACUAN,
+                multiSKU = ErasoftDbContext.STF03C.Where(a => a.BRG_ACUAN == dataVm.multiSKU.BRG_ACUAN).FirstOrDefault(),
+                listDetailSKU = ErasoftDbContext.STF02.Where(a => getBrgFromlistMultiSKU.Contains(a.BRG)).ToList(),
+            };
+
+            //panggil api marketplace to change stock
+            List<string> listBrg = new List<string>();
+            listBrg.Add(dataVm.multiSKU.BRG_ACUAN);
+            updateStockMarketPlace(listBrg, "[BRG_MULTI][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+            //panggil api marketplace to change stock
+
+            return PartialView("FormMultiSKUPartial", Vm);
+        }
+
+        [Route("manage/PromptBarangMultiSKU")]
+        public ActionResult PromptBarangMultiSKUInvoice(string id, string kdBrg)
+        {
+            var vm = new PromptBrg()
+            {
+                id = id,
+                kdBarang = kdBrg
+            };
+
+            return View(vm);
+        }
+
+        public ActionResult TablePromptBarangMultiSKUInvoicePartial(string kdBrg, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+            //change by nurul 26/9/2019, contain search 
+            string[] getkata = search.Split(' ');
+            string sSQLnama = "";
+            string sSQLkode = "";
+            if (kdBrg != "" && kdBrg != null && kdBrg != "undefined")
+            {
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
+                    {
+                        for (int i = 0; i < getkata.Length; i++)
+                        {
+                            if (i > 0)
+                            {
+                                sSQLkode += " and ";
+                                sSQLnama += " and ";
+                            }
+
+                            sSQLkode += " B.BRG like '%" + getkata[i] + "%' ";
+                            sSQLnama += "  (isnull(NAMA,'') + ' ' + isnull(NAMA2,'')) like '%" + getkata[i] + "%' ";
+                        }
+                    }
+                }
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT B.BRG,ISNULL(NAMA,'') + ' ' + ISNULL(NAMA2,'') AS NAMA,B.ID ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(ID) AS JUMLAH ";
+                string sSQL2 = "";
+                sSQL2 += "FROM STF03C A INNER JOIN STF02 B ON A.BRG=B.BRG ";
+                sSQL2 += "WHERE BRG_ACUAN ='" + kdBrg + "' ";
+                if (search != "")
+                {
+                    sSQL2 += " AND ( " + sSQLkode + " or " + sSQLnama + " ) ";
+                }
+
+                var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+                var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+                if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+                {
+                    pagenumber = pagenumber - 1;
+                }
+
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY NAMA ASC ";
+                sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+                sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+                var ListArf01c = ErasoftDbContext.Database.SqlQuery<PromptBarangViewModel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+                IPagedList<PromptBarangViewModel> pageOrders = new StaticPagedList<PromptBarangViewModel>(ListArf01c, pagenumber + 1, 10, totalCount.JUMLAH);
+
+                return PartialView("TablePromptBarangMultiSKUInvoicePartial", pageOrders);
+            }
+            return Json("Tidak ditemukan data.", JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult getBarangMultiSKUForBarang(string brgId)
+        {
+
+            if (brgId != "")
+            {
+                //string sSQL = "";
+                //sSQL += "SELECT B.BRG,ISNULL(NAMA,'') + ' ' + ISNULL(NAMA2,'') AS NAMA,B.ID FROM STF03C A INNER JOIN STF02 B ON A.BRG=B.BRG WHERE BRG_ACUAN ='" + brgId + "' ";
+
+                var listBarang = (from a in ErasoftDbContext.STF03C
+                                  join b in ErasoftDbContext.STF02 on a.BRG equals b.BRG
+                                  where a.BRG_ACUAN == brgId 
+                                  select new { BRG = b.BRG, NAMA = b.NAMA, NAMA2 = b.NAMA2 == null ? "" : b.NAMA2 }).ToList();
+                //select new { BRG = b.BRG, NAMA = b.NAMA + ' ' + b.NAMA2 == null ? "" : b.NAMA2 });
+
+                return Json(listBarang, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                var listGudang = ErasoftDbContext.STF18.ToList();
+                return Json(listGudang, JsonRequestBehavior.AllowGet);
+            }
+        }
+        //end add by nurul 19/8/2020
     }
     public class smolSTF02
     {

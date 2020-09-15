@@ -14,4 +14,13 @@ namespace MasterOnline.ViewModels
         //add by nurul 15/5/2019
         public List<string> Errors { get; set; } = new List<string>();
     }
+
+    public class multiSKUViewModel
+    {
+        public STF03C multiSKU { get; set; }
+        public List<STF03C> listMultiSKU { get; set; } = new List<STF03C>();
+        public List<string> Errors { get; set; } = new List<string>();
+        public List<STF02> listDetailSKU { get; set; } = new List<STF02>();
+        public string Brg_Acuan { get; set; }
+    }
 }

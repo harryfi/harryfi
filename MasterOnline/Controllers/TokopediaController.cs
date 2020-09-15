@@ -515,7 +515,11 @@ namespace MasterOnline.Controllers
 
                     newDataProduct.product_variant = product_variant;
                 }
-                else if (brg_stf02.TYPE == "3")
+
+                //change by nurul 14/9/2020, handle barang multi sku juga 
+                //else if (brg_stf02.TYPE == "3")
+                else if (brg_stf02.TYPE == "3" || brg_stf02.TYPE == "6")
+                //change by nurul 14/9/2020, handle barang multi sku juga 
                 {
                     if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_1))
                     {
@@ -877,7 +881,10 @@ namespace MasterOnline.Controllers
 
                     newDataProduct.product_variant = product_variant;
                 }
-                else if (brg_stf02.TYPE == "3")
+                //change by nurul 14/9/2020, handle barang multi sku juga 
+                //else if (brg_stf02.TYPE == "3")
+                else if (brg_stf02.TYPE == "3" || brg_stf02.TYPE == "6")
+                //change by nurul 14/9/2020, handle barang multi sku juga 
                 {
                     if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_1))
                     {

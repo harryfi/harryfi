@@ -37,6 +37,11 @@ namespace MasterOnline.ViewModels
         public string typeBrg { get; set; }
 
         public string cust { get; set; }
+        public string id { get; set; }
+
+        //add by nurul 9/9/2020
+        public string kdBarang { get; set; }
+        //end add by nurul 9/9/2020
     }
 
     //ADD BY NURUL 19/6/2019

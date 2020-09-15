@@ -718,6 +718,7 @@
     <Compile Include="Models\BarcodeResult.cs" />
     <Compile Include="Models\CATEGORY_82CART.cs" />
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
+    <Compile Include="Models\STF03C.cs" />
     <Compile Include="Models\TEMP_SALDOAWAL.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS_ITEM.cs" />
@@ -6414,6 +6415,15 @@
     <Content Include="Views\Manage\ListDetailPackingListBlibli.cshtml" />
     <Content Include="Views\Manage\ListDetailPackingList.cshtml" />
     <Content Include="Views\Manage\PostingView.cshtml" />
+    <Content Include="Views\Manage\MultiSKUMenu.cshtml" />
+    <Content Include="Views\Manage\TableMultiSKUPartial.cshtml" />
+    <Content Include="Views\Manage\FormMultiSKUPartial.cshtml" />
+    <Content Include="Views\Manage\PromptBarangAcuan.cshtml" />
+    <Content Include="Views\Manage\TablePromptBarangAcuanPartial.cshtml" />
+    <Content Include="Views\Manage\TablePromptBarangSKUPartial.cshtml" />
+    <Content Include="Views\Manage\PromptBarangSKU.cshtml" />
+    <Content Include="Views\Manage\PromptBarangMultiSKUInvoice.cshtml" />
+    <Content Include="Views\Manage\TablePromptBarangMultiSKUInvoicePartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

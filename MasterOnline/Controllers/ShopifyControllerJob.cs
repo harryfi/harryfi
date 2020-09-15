@@ -1181,7 +1181,10 @@ namespace MasterOnline.Controllers
                 sku = detailBrg.BRG
             };
 
-            if (brgInDb.TYPE == "3")
+            //change by nurul 14/9/2020, handle barang multi sku juga 
+            //if (brgInDb.TYPE == "3")
+            if (brgInDb.TYPE == "3" || brgInDb.TYPE == "6")
+            //end change by nurul 14/9/2020, handle barang multi sku juga 
             {
                 variants.option1 = null;
                 variants.title = null;
@@ -1424,8 +1427,11 @@ namespace MasterOnline.Controllers
                 unit_weight = "kg",
                 sku = detailBrg.BRG
             };
-
-            if (brgInDb.TYPE == "3")
+                        
+            //change by nurul 14/9/2020, handle barang multi sku juga 
+            //if (brgInDb.TYPE == "3")
+            if (brgInDb.TYPE == "3" || brgInDb.TYPE == "6")
+            //end change by nurul 14/9/2020, handle barang multi sku juga 
             {
                 variantsData.option1 = "Default Title";
                 variantsData.title = "Default Title";

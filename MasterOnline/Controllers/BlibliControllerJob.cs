@@ -7304,7 +7304,10 @@ namespace MasterOnline.Controllers
             //List<string> uploadedImageID = new List<string>();
             List<Productitem> productItems = new List<Productitem>();
             #region bukan barang variasi
-            if (data.type == "3")
+            //change by nurul 14/9/2020, handle barang multi sku juga 
+            //if (data.type == "3")
+            if (data.type == "3" || data.type == "6")
+            //change by nurul 14/9/2020, handle barang multi sku juga 
             {
                 List<string> images_pervar = new List<string>();
                 string idGambar = "";
@@ -8363,7 +8366,10 @@ namespace MasterOnline.Controllers
 #endif
                     }
                 }
-                else if (tipe == "3")
+                //change by nurul 14/9/2020, handle barang multi sku juga 
+                //else if (tipe == "3")
+                else if (tipe == "3" || tipe == "6")
+                //change by nurul 14/9/2020, handle barang multi sku juga 
                 {
                     List<string> merchantskus = new List<string>();
                     merchantskus.Add(kodeProduk);

@@ -1,0 +1,193 @@
+﻿@using MasterOnline.ViewModels
+@model multiSKUViewModel
+@*@model SaPiutangViewModel*@
+@{
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    if (dataSession?.User != null)
+    {
+        var context = new MoDbContext("");
+        var accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
+}
+<style>
+    .nbrg-class {
+        box-shadow: inset 0 1px 0 rgba(0,0,0,.075);
+        border-radius: 25px 0 0 25px;
+        border: 1px solid rgba(221,226,232,.49);
+        border-radius: 0;
+        width: 100%;
+        text-align: left !important;
+    }
+
+        .nbrg-class:focus {
+            border: 1px solid rgba(221,226,232,.49);
+            border-right: 0;
+            border-color: #CCD0D7;
+            box-shadow: none !important
+        }
+</style>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        Initialize();
+    });
+</script>
+<div>
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        @*<div class="x_panel">*@
+        <div class="">
+            @*<div class="x_title">
+                <h2 style="font-size: 16px">Form Multi SKU</h2>
+                <ul class="nav navbar-right panel_toolbox">
+                    <li>
+                        @*<a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                    </li>
+                </ul>
+                <div class="clearfix"></div>
+            </div>*@
+            <div class="form-horizontal">
+                <div class="">
+                    <br>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.multiSKU.BRG_ACUAN, "Kode Barang Acuan *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    @Html.TextBoxFor(m => m.multiSKU.BRG_ACUAN, new { @class = "form-control", maxlength = 20, @data_val_length_max = 20, required = "required", style="width: 428px !important", @readonly = "readonly" })
+                                    <button id="brg-acuan" class="btn btn-default" style="margin-right:0px" type="button" onclick="promptBarangAcuan()">
+                                        <span class="glyphicon glyphicon-option-horizontal"></span>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Nama Barang Acuan *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div>
+                                @*@Html.TextBox("nama-acuan", "", new { @class = "form-control", maxlength = 30, @disabled = "disabled" })*@
+                                @if (Model.Brg_Acuan != "" && Model.Brg_Acuan != null)
+                                {
+                                    var namaBrgAcuan = Model.listDetailSKU.Where(a => a.BRG == Model.Brg_Acuan).SingleOrDefault().NAMA + ' ' + Model.listDetailSKU.Where(a => a.BRG == Model.Brg_Acuan).SingleOrDefault().NAMA2;                                    
+                                    @Html.TextArea("nama-acuan", namaBrgAcuan, new { @class = "form-control col-md-12 col-sm-12 col-xs-12", style = "resize: none; overflow-y: scroll; height: 80px; width: 100%;", @disabled = "disabled" })
+                                }
+                                else
+                                {
+                                    @Html.TextArea("nama-acuan", new { @class = "form-control col-md-12 col-sm-12 col-xs-12", style = "resize: none; overflow-y: scroll; height: 80px; width: 100%;", @disabled = "disabled" })
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @*<br />*@
+            <hr />
+            <div class="form-horizontal">
+                @*<div>
+                    <div class="clearfix"></div>
+                    <br />
+                    <br />
+                    <br />
+                </div>
+                <div class="x_title">
+                    <h2 style="font-size: 16px">Multi SKU</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            @*<a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>*@
+                <div class="">
+                    <br>
+                    <table id="table_brg_sku" class="table table-bordered" role="grid">
+                        <thead>
+                            <tr>
+                                <th style="width: 150px !important; max-width: 150px !important;padding:5px !important">Kode Barang Multi SKU</th>
+                                <th width="250px">Nama Barang Multi SKU</th>
+                                <th width="40px">Simpan</th>
+                                <th width="40px">Hapus</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var listBarang = Model.listDetailSKU.ToList();
+                                var iPd = 0;
+                            }
+                            @foreach (var sku_multi in Model.listMultiSKU.Where(pb => pb.BRG_ACUAN == Model?.Brg_Acuan).ToList())
+                            {
+                                <tr data-barang-id="brg-@sku_multi.BRG">
+                                    <td style="width: 150px !important; max-width: 150px !important;padding:5px !important">
+                                        @sku_multi.BRG
+                                    </td>
+                                    <td class="nama-barang">
+                                        @{
+                                            var nm = "";
+                                            var nm2 = "";
+                                            if (listBarang.SingleOrDefault(b => b.BRG == sku_multi.BRG) != null)
+                                            {
+                                                nm = listBarang.SingleOrDefault(b => b.BRG == sku_multi.BRG).NAMA;
+                                                nm2 = listBarang.SingleOrDefault(b => b.BRG == sku_multi.BRG)?.NAMA2;
+                                            }
+                                        }
+                                        @nm @nm2
+                                    </td>
+                                    <td class="edit-hapus-col">
+                                        <button type="button" class="btn btn-primary" disabled="disabled">
+                                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                    <td class="edit-hapus-col">
+                                        @*<button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@sku_multi.BRG')">*@
+                                        <button class="btn btn-danger" type="button" onclick="deleteDetailSKUKlik('@sku_multi.BRG','@sku_multi.BRG_ACUAN')">
+                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                </tr>
+                                iPd = iPd + 1;
+                            }
+                            <tr data-barang-id="0">
+                                @Html.HiddenFor(m => m.multiSKU.RECNUM)
+                                @Html.HiddenFor(m => m.multiSKU.TGL_EDIT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                                <td style="width: 150px !important; max-width: 150px !important;padding:5px !important">
+                                    @Html.TextBoxFor(m => m.multiSKU.BRG, new { @readonly = "readonly", placeholder = "Pilih Barang", @style = "background-color : #eee; cursor :not-allowed; height: 34px; width: 210px !important; ; margin-right:0px", @class = "nbrg-class" })
+                                    <button id="tambah-brg" class="btn btn-default" type="button" style="height: 34px;margin:0px;width:25px !important;padding:unset" onclick="PromptMultiSKU()">
+                                        <span class="glyphicon glyphicon-option-horizontal center-block"></span>
+                                    </button>
+                                </td>
+                                @*<td style="width: 150px; max-width: 150px;">
+                                    <div id="BRG" class="selectivity-input" tabindex="0"></div>
+                                    @Html.HiddenFor(m => m.BarangStok.Kobar)
+                                </td>*@
+                                <td class="nama-barang">-</td>
+                                <td class="edit-hapus-col">
+                                    <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanMultiSKU()">
+                                        <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                    </button>
+                                </td>
+                                <td class="edit-hapus-col">
+                                    @*<button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang">*@
+                                    <button class="btn btn-danger" disabled="disabled">
+                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*<button type="button" id="simpan_btn" class="btn btn-primary pull-right" onclick="simpanPiutang(this);">Simpan</button>*@

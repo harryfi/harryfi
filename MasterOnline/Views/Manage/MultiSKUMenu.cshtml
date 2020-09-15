@@ -1,0 +1,849 @@
+﻿@using MasterOnline.ViewModels
+@model multiSKUViewModel
+@{
+    ViewBag.Title = "Multi SKU";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var context = new MoDbContext("");
+}
+
+@section styles
+{
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+
+    <style>
+        .input-group {
+            margin-bottom: 0;
+        }
+
+        #piutang-section > div {
+            background-color: #fff;
+            padding: 20px;
+        }
+
+        #Piutang_AL {
+            resize: vertical;
+            height: 100px;
+            max-height: 100px;
+        }
+
+        #nm-brg-acuan {
+            color: orange;
+            font-weight: bold;
+        }
+        #nm-brg-sku {
+            color: orange;
+            font-weight: bold;
+        }
+    </style>
+}
+
+<div class="row" id="MultiSKU-section">
+    <div class="col-lg-12 col-md-12">
+        <div class="row MultiSKU_table_section">
+            <div class="col-lg-4 col-sm-6">
+                <div class="input-group">
+                    <input id="search_MultiSKU" type="text" class="form-control" placeholder="Pencarian">
+                    <span class="input-group-btn">
+                        <button type="button" id="search_MultiSKU_click" class="btn btn-primary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-6">
+                <div class="pull-right">
+                    <button class="btn btn-primary btn_tambah_data" id="tambah_MultiSKU">Tambah Baru</button>
+                </div>
+            </div>
+        </div>
+        <div class="row MultiSKU_table_section" style="margin-top: 5px;">
+            <div class="col-sm-12">
+                <div id="table-MultiSKU-partial">
+                    @*@Html.Partial("TableMultiSKUPartial")*@
+                </div>
+            </div>
+        </div>
+        <div class="row MultiSKU_editor_section" style="display: none;">
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">Multi SKU</h2>
+                    <span class="title-accent"></span>
+                    <button id="close-editor" type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <h2 style="font-size: 16px">Detail Multi SKU</h2>
+                                        <ul class="nav navbar-right panel_toolbox">
+                                            <li>
+                                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                            </li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="x_content">
+                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                        {
+                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                            {
+                                                <div class="alert alert-danger">
+                                                    <span class="message-error">@modelError.ErrorMessage</span>
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            }
+                                        }
+                                        <br>
+                                        @using (Html.BeginForm("SaveMultiSKU", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-sku" }))
+                                        {
+                                            <div id="form-partial">
+                                                @*@Html.Partial("FormMultiSKUPartial")*@
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Hapus MultiSKU -->
+<div class="modal fade" id="konfHapusMultiSKU" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus semua barang multi sku dr barang acuan <span id="nm-brg-acuan"></span> ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" id="btn-delete-acuan" class="btn btn-success">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modalresponsivetrmsk2">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus barang <span id="nm-brg-sku"></span> ?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" id="btn-delete-sku" class="btn btn-success">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $MultiSKUId = "";
+        var $page = window.text;
+
+        $(document).on('ready',
+            function () {
+                $page = 0;
+
+                //Initialize();
+                refreshTableMultiSKU();
+                $('#tambah_MultiSKU').off('click').on('click', function () {
+
+                    refreshForm();
+                    $("#MultiSKU_TERM").keydown(
+                        function () {
+                            validateInput($(this), 'TOP');
+                        });
+                    $("#MultiSKU_TOTAL").keydown(
+                        function () {
+                            validateInput($(this), 'ANGKA');
+                        });
+                });
+
+                $('#search_MultiSKU').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTableMultiSKU();
+                        return false;
+                    }
+                });
+                $('#search_MultiSKU_click').click(function () {
+                    searchTableMultiSKU();
+                });
+
+                $('#close-editor').on('click', function () {
+                $('input, select, .btn-danger').each(function() {
+                    $(this).removeAttr('disabled');
+                });
+                $('.MultiSKU_table_section').show();
+                $('.MultiSKU_editor_section').hide();
+                $('input').each(function () {
+                    $(this).removeAttr('disabled');
+                });
+                refreshTableMultiSKU();
+            });
+            });
+
+        function Initialize() {
+            $('#search_MultiSKU').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableMultiSKU();
+                    return false;
+                }
+            });
+            $('#search_MultiSKU_click').click(function () {
+                searchTableMultiSKU();
+            });
+
+            if ($('.message-error').text() !== '') {
+                $('#tambah_MultiSKU').click();
+            }
+
+            //$("#MultiSKU_TERM").keydown(
+            //    function () {
+            //        validateInput($(this), 'TOP');
+            //    });
+            //$("#MultiSKU_TOTAL").keydown(
+            //    function () {
+            //        validateInput($(this), 'ANGKA');
+            //    });
+        }
+
+        function refreshInputan() {
+            //$('#CUSTNAME').hide();
+
+            //$('#Piutang_TGL').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).datepicker('setDate', '0').change(function () {
+            //    if ($(this).val() == '') {
+            //        $('#Piutang_JTGL').val('Pilih tanggal dahulu');
+            //        return;
+            //    }
+
+            //    var $tgl = moment($(this).val(), "DD/MM/YYYY");
+            //    $(this).datepicker('hide');
+
+            //    if ($('#Piutang_TERM').val() === '') {
+            //        $('#Piutang_JTGL').val('Masukkan TOP dahulu');
+            //    } else {
+            //        var $tglTop = $tgl.add($('#Piutang_TERM').val(), 'days');
+            //        $('#Piutang_JTGL').val($tglTop.format('DD/MM/YYYY'));
+            //    }
+            //});
+
+            //$('#Piutang_TERM').change(function () {
+            //    if ($(this).val() == '') {
+            //        $('#Piutang_JTGL').val('Masukkan TOP dahulu');
+            //        return;
+            //    }
+
+            //    var $tgl = moment($('#Piutang_TGL').val(), "DD/MM/YYYY");
+
+            //    if ($('#Piutang_TGL').val() === '') {
+            //        $('#Piutang_JTGL').val('Pilih tanggal dahulu');
+            //    } else {
+            //        var $tglTop = $tgl.add($(this).val(), 'days');
+            //        $('#Piutang_JTGL').val($tglTop.format('DD/MM/YYYY'));
+            //    }
+            //});
+
+            //if (value != '')
+            //    $('#Piutang_TGL').val(value);
+
+            //$('#Piutang_JTGL').attr('readonly', 'readonly').css('background-color', '#eee')
+            //    .css('cursor', 'not-allowed');
+        }
+
+            @{
+            var markets = new Dictionary<string, string>();
+
+            foreach (var marketplace in context.Marketplaces.ToList())
+            {
+                markets.Add(marketplace.IdMarket.ToString(), marketplace.NamaMarket);
+            }
+        }
+
+            var $marketCollection = @Html.Raw(Json.Encode(markets));
+
+            @*function getCustomer(value='') {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetCustomer", "Manage")',
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var customerList = [];
+
+                        $.each(data,
+                            function (i, item) {
+                                var $namaMarket = $marketCollection[item.NAMA];
+
+                                customerList[i] = {
+                                    id: item.CUST,
+                                    text: $namaMarket + " (" + item.PERSO + ")",
+                                    term: item.TOP
+                                };
+                            });
+                        $('#CUSTOMER').selectivity({
+                            allowClear: true,
+                            items: customerList,
+                            placeholder: 'Harap pilih'
+                        });
+
+                        var $cust = $('#Piutang_CUST').val();
+
+                        $('#CUSTOMER').change(function () {
+                            var $val = $(this).selectivity('value');
+                            var $objSup = $.grep(customerList, function (data) { return data.id == $val });
+
+                            if ($val === null) {
+                                $("#Piutang_CUST").val(null);
+                                $("#Piutang_NSUPP").val(null);
+                                $("#Piutang_TERM").val(null).change();
+                            } else {
+                                $("#Piutang_CUST").val($val);
+                                var cust30 = $objSup[0].text.substring(0, 30);
+                                if ($objSup[0] != null) {
+                                    $("#Piutang_NCUST, #CUSTNAME").val(cust30);
+                                    $("#Piutang_TERM").val($objSup[0].term).change();
+                                }
+                            }
+                        });
+                        if ($cust !== null) {
+                            $('#CUSTOMER').selectivity('value', $cust);
+                        }
+
+                        if (value != '')
+                            $('#Piutang_TERM').val(value).change();
+
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }*@
+
+        function convertToAngka(rupiah) {
+
+            if (rupiah == '') {
+                rupiah = '0';
+            }
+            if (rupiah.includes(",")) {
+                return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            }
+            else {
+                //jika bisa desimal
+                return parseFloat(rupiah.replaceAll(',', '.'));
+            }
+        }
+        function addError(obj, msg) {
+            $this = obj;
+            $this.closest('.form-group').addClass('has-error');
+            if (!$this.closest('div').find('.text-danger').length) {
+                $this.closest('div').append('<span class="text-danger">' + msg + '</span>');
+            }
+        }
+
+
+        function validasi() {
+            var ret = true;
+
+            if ($("#multiSKU_BRG_ACUAN").val() == "" || $("#multiSKU_BRG_ACUAN").val() == null) {
+                addError($("#multiSKU_BRG_ACUAN").parent().parent().parent(), "Kode barang acuan tidak boleh kosong.");
+                document.getElementById("multiSKU_BRG_ACUAN").focus();
+                ret = false;
+            }
+            if ($("#nama-acuan").val() == "" || $("#nama-acuan").val() == null) {
+                addError($("#nama-acuan").parent().parent(), "Nama barang acuan tidak boleh kosong.");
+                document.getElementById("nama-acuan").focus();
+                ret = false;
+            }
+            return ret;
+        }
+
+            function simpanMultiSKU(btnClicked) {
+                //if (!validateForm()) return false;
+
+                //if (convertToAngka($("#Piutang_TERM").val()) > 999) {
+                //    addError($("#Piutang_TERM").parent(), "Maximum Term is 999 !");
+                //    return false;
+                //}
+
+                if (!validasi()) return false;
+
+                
+
+                //var $form = $(btnClicked).parents('form');
+
+                //$('#Piutang_NETTO').val($('#Piutang_TOTAL').val());
+                var link = '@Url.Action("SaveMultiSKU", "Manage")';
+                $.ajax({
+                    type: "POST",
+                    //url: $form.attr('action'),
+                    url: link,
+                    //data: $form.serialize(),
+                    data: $('#form-sku').serialize(),
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        if (response.Errors == null) {
+                            $('#form-partial').html(response);
+                            $('.MultiSKU_table_section').hide();
+                            $('.MultiSKU_editor_section').show();
+
+                            //$('#close-editor').click();
+                            //$("html, body").animate({ scrollTop: 0 }, "slow");
+                            //    refreshTableMultiSKU();
+                            //$('#loading_spinner').hide();
+                        } else {
+                            if (response.Errors[0] != null) {
+                                alert(response.Errors[0]);
+                                $('#loading_spinner').hide();
+                            } else {
+                                console.log(response.Errors);
+                                alert('Ada data yang tidak valid!');
+                                $('#loading_spinner').hide();
+                            }
+                        }
+                        $('#loading_spinner').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        $('#loading_spinner').hide();
+                    }
+                });
+
+                return false;
+            }
+
+            @*function getCustomerART01A(value='') {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetCustomer", "Manage")',
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var customerList = [];
+
+                        $.each(data,
+                            function (i, item) {
+                                var $namaMarket = $marketCollection[item.NAMA];
+
+                                customerList[i] = {
+                                    id: item.CUST,
+                                    text: $namaMarket + " (" + item.PERSO + ")",
+                                    term: item.TOP
+                                };
+                            });
+                        $('#CUSTOMER').selectivity({
+                            allowClear: true,
+                            items: customerList,
+                            placeholder: 'Harap pilih'
+                        });
+
+                        var $cust = $('#Piutang_CUST').val();
+
+                        $('#CUSTOMER').change(function () {
+                            var $val = $(this).selectivity('value');
+                            var $objSup = $.grep(customerList, function (data) { return data.id == $val });
+
+                            if ($val === null) {
+                                $("#Piutang_CUST").val(null);
+                                $("#Piutang_NSUPP").val(null);
+                                $("#Piutang_TERM").val(null).change();
+                            } else {
+                                $("#Piutang_CUST").val($val);
+                                var cust30 = $objSup[0].text.substring(0, 30);
+                                if ($objSup[0] != null) {
+                                    $("#Piutang_NCUST, #CUSTNAME").val(cust30);
+                                    $("#Piutang_TERM").val($objSup[0].term).change();
+                                }
+                            }
+                        });
+                        if ($cust !== null) {
+                            $('#CUSTOMER').selectivity('value', $cust);
+                        }
+
+                        if (value != '')
+                            $('#Piutang_TERM').val(value).change();
+
+
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }*@
+
+            function refreshTableMultiSKU() {
+                var $link = '@Html.Raw(Url.Action("RefreshTableMultiSKU", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+                $link = $link.replace("replaceSearch", encodeURIComponent($('#search_MultiSKU').val()));
+                $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+
+                $.ajax({
+                    type: "GET",
+                    url: $link,
+                    beforeSend: function () {
+                        $('#table-MultiSKU-partial').hide();
+                        $('#loading_MultiSKU_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-MultiSKU-partial').html(response);
+                        $('#loading_MultiSKU_tab').hide();
+                        $('#table-MultiSKU-partial').show();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+        }
+        function searchTableMultiSKU(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableMultiSKU", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_MultiSKU').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_MultiSKU_click')[0].disabled = true;
+                    $('#loading_MultiSKU_tab').show();
+                },
+                success: function (response) {
+                    $('#search_MultiSKU_click')[0].disabled = false;
+                    $('#table-MultiSKU-partial').html(response);
+                    $('#loading_MultiSKU_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_MultiSKU_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
+            function refreshForm() {
+                var link = '@Url.Action("RefreshMultiSKUForm", "Manage")';
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    success: function (response) {
+                        $('.MultiSKU_table_section').hide();
+                        $('.MultiSKU_editor_section').show();
+                        $('#form-partial').html(response);
+                        refreshInputan();
+                        //getCustomer();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            }
+
+            function undeleteableMultiSKU() {
+                alert('Transaksi Sudah Posting! \nTidak dapat dihapus!');
+            }
+
+            @*function lihatMultiSKU(MultiSKUId) {
+                var link = '@Url.Action("EditMultiSKU", "Manage", new { recNum = "replaceId" })';
+                link = link.replace("replaceId", encodeURIComponent(MultiSKUId));
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        $('#form-partial').html(response);
+                        $('#simpan_btn').hide();
+
+                        var tgl = $("#Piutang_TGL").val();
+                        var term = $("#Piutang_TERM").val();
+
+                        //refreshInputan(tgl.substring(0, 10));
+
+                        $('#CUSTNAME').show();
+                        $('#CUSTOMER').hide();
+
+                        getCustomerART01A(term);
+
+                        $('.MultiSKU_table_section').hide();
+                        $('.MultiSKU_editor_section').show();
+                        $("#Piutang_TERM").keydown(
+                            function () {
+                                validateInput($(this), 'TOP');
+                            });
+                        $("#Piutang_TOTAL").keydown(
+                            function () {
+                                validateInput($(this), 'ANGKA');
+                            });
+
+                        $('input, .btn-danger').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+
+                        $('#loading_spinner').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        $('#loading_spinner').hide();
+                    }
+                });
+            }*@
+
+            function editMultiSKU(MultiSKUId) {
+                var link = '@Url.Action("EditMultiSKU", "Manage", new { kdBrg = "replaceId" })';
+                link = link.replace("replaceId", encodeURIComponent(MultiSKUId));
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        $('#form-partial').html(response);
+                        $('#multiSKU_BRG').val(null);
+                        //var tgl = $("#MultiSKU_TGL").val();
+                        //var term = $("#MultiSKU_TERM").val();
+
+                        //refreshInputan(tgl.substring(0, 10));
+
+                        //getCustomerART01A(term);
+
+                        $('.MultiSKU_table_section').hide();
+                        $('.MultiSKU_editor_section').show();
+
+                        //$("#Piutang_TERM").keydown(
+                        //    function () {
+                        //        validateInput($(this), 'TOP');
+                        //    });
+                        //$("#Piutang_TOTAL").keydown(
+                        //    function () {
+                        //        validateInput($(this), 'ANGKA');
+                        //    });
+
+                        $('#loading_spinner').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        $('#loading_spinner').hide();
+                    }
+                });
+            }
+
+        //function pass(MultiSKUId) {
+        //        this.$MultiSKUId = MultiSKUId;
+        //        $('#nm-brg-acuan').val(MultiSKUId);
+        //}
+
+
+        function deleteSKUKlik($id) {
+            if ($id != null && $id != "" && $id != undefined) {
+                $('#nm-brg-acuan').text($id);
+                $('#konfHapusMultiSKU').modal('show');
+                $('#btn-delete-acuan').off('click').on('click', function () {
+                    deleteMultiSKU($id)
+                });
+            }
+        }
+
+        function deleteMultiSKU($idBrg) {
+            if ($idBrg != null && $idBrg != "" && $idBrg != undefined) {
+                var link = '@Url.Action("DeleteMultiSKU", "Manage", new { kdBrg = "replaceId" })';
+                //link = link.replace("replaceId", encodeURIComponent(this.$MultiSKUId));
+                link = link.replace("replaceId", encodeURIComponent($idBrg));
+
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    contentType: 'application/json',
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        if (response.Errors == null) {
+                            refreshTableMultiSKU();
+                        } else {
+                            alert(response.Errors[0]);
+                        }
+                        $('#konfHapusMultiSKU').modal('hide');
+                        $('#loading_spinner').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+        function validateInput(obj, option) {
+            var x = obj;
+            setTimeout(function () {
+                ValidateFullNamePaste2(x, option);
+            }, 2);
+        }
+
+        function ValidateFullNamePaste2(obj, option) {
+            var x = obj;
+            var strValidChars = "";
+            var totalCharacterCount = x.val();  //window.clipboardData.getData('Text');
+
+            if (option == 'HURUF')
+                strValidChars = "1234567890~!#$%^&*()_+|}{':;?/>.<,\"[]\\=";
+            if (option == 'HURUFANGKA')
+                strValidChars = "~!#$%^&*()_+|}{':;?/>.<,\"[]\\=";
+            if (option == 'ANGKA')
+                strValidChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!#$%^&*()_+|}{':;?/><,\"[]\\=";
+            if (option == 'TOP')
+                strValidChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!#$%^&*()_+|}{':;?/>.<,-\"[]\\=";
+
+            var strChar;
+            var FilteredChars = "";
+            for (i = 0; i < totalCharacterCount.length; i++) {
+                strChar = totalCharacterCount.charAt(i);
+                if (strValidChars.indexOf(strChar) == -1) {
+                    FilteredChars = FilteredChars + strChar;
+                }
+            }
+            obj.val(FilteredChars);
+            return false;
+        }
+
+        function promptBarangAcuan(){
+            promptSKU = "1";
+            var link = '@Url.Action("PromptBarangSKU", "Manage", new { id = "replaceId" })';
+                link = link.replace("replaceId", "1");
+                window.open('@Url.Action("PromptBarangSKU", "Manage")',
+                    "popupWindow",
+                    "width=850, height=400, scrollbars=yes, resizable=no");
+        }
+
+        function PromptMultiSKU() {
+                var link = '@Url.Action("PromptBarangAcuan", "Manage", new { id = "replaceId" })';
+                link = link.replace("replaceId", "2");
+                @*window.open('@Url.Action("PromptBarangAcuan", "Manage")',*@
+                window.open(link,
+                    "popupWindow",
+                    "width=850, height=400, scrollbars=yes, resizable=no");
+        }
+
+        function afterPromptBarangAcuan(kd, nama) {
+            //if (promptSKU == "1") {
+                //var tempSKU = $('#nama-acuan').val(nama);
+                $('#multiSKU_BRG_ACUAN').val(kd);
+                $('#nama-acuan').val(nama);
+                //getBuyerPrompt(kd);                
+            //}
+            //promptSKU = "";
+        }
+        function afterPromptMultiSKU(kd, nama) {
+            //if (promptSKU == "1") {
+                //var tempSKU = $('.nama-barang').val(nama);
+                var $trId = $('#multiSKU_BRG').closest('tr').attr('data-barang-id');
+                var $trElement = 'tr[data-barang-id="' + $trId + '"]';
+                //$($trElement + '.multiSKU_BRG').text(kd);
+                $('#multiSKU_BRG').val(kd);
+            $($trElement + ' .nama-barang').text(nama);
+            //$($trElement + 'save-btn-cls . #save-btn').removeAttr('disabled');
+            $($trElement + ' .btn-primary').removeAttr('disabled');
+                //getBuyerPrompt(kd);                
+            //}
+            //promptSKU = "";
+        }
+
+        var $brg = '';
+
+        //function passBarangInDb($brg) {
+        //    this.$brg = $brg;
+            
+        //}
+        function deleteDetailSKUKlik($id,$acuan) {
+            if ($id != null && $id != "" && $id != undefined && $acuan != null && $acuan != "" && $acuan != undefined) {
+                $('#nm-brg-sku').text($id);
+                $('#konfHapusBarang').modal('show');
+                $('#btn-delete-sku').off('click').on('click', function () {
+                    deleteBarang($id, $acuan)
+                });
+            }
+        }
+
+        function deleteBarang($idBrg, $idAcuan) {
+            if ($idBrg != null && $idBrg != "" && $idBrg != undefined && $idAcuan != null && $idAcuan != "" && $idAcuan != undefined) {
+                @*var link = '@Url.Action("DeleteDetailMultiSKU", "Manage", new { kdBrg = "replaceBrgId", Acuan = "replaceBrgAcuan" })';
+                //link = link.replace("replaceBrgId", encodeURIComponent(this.$brg));
+                link = link.replace("replaceBrgId", encodeURIComponent($idBrg));
+                link = link.replace("replaceBrgAcuan", encodeURIComponent($idAcuan));*@
+
+                $postdata = {
+                    kdBrg: $idBrg,
+                    Acuan: $idAcuan
+                };
+
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteDetailMultiSKU", "Manage")',
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    data: JSON.stringify($postdata),
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    cache: false,
+                    success: function (response) {
+                        if (response.Errors == null) {
+                            $('#form-partial').html(response);
+                            $('.MultiSKU_table_section').hide();
+                            $('.MultiSKU_editor_section').show();
+                        } else {
+                            if (response.Errors[0] != null) {
+                                alert(response.Errors[0]);
+                            } else {
+                                console.log(response.Errors);
+                                alert('Ada data yang tidak valid!');
+                            }
+                        }
+                        $('#konfHapusBarang').modal('hide');
+                        $('#loading_spinner').hide();
+                    },
+                    error: function (xhr) {
+                        $('#loading_spinner').hide();
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+    </script>
+}
