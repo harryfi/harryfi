@@ -6427,6 +6427,9 @@
     <Content Include="Views\Manage\ListDetailPackingListJDID.cshtml" />
     <Content Include="Views\Manage\TransferMarketplaceToFTP.cshtml" />
     <Content Include="Views\Manage\TableMarketplaceToFTP.cshtml" />
+    <Content Include="Views\Manage\TransferToFTPParameterLinkFtp.cshtml" />
+    <Content Include="Views\Manage\TransferBarangToFTP.cshtml" />
+    <Content Include="Views\Manage\TableTransferBarangToFTP.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
