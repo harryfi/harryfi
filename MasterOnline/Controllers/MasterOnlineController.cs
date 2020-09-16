@@ -50,7 +50,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 0)]
         [Queue("3_general")]
-        public async Task<string> UpdateHJulaMassal(string dbPathEra, string nobuk, string log_CUST, string log_ActionCategory, string log_ActionName, int indexFile, string user_name)
+        public async Task<string> UpdateHJulaMassal(string dbPathEra, string nobuk, string log_CUST, string log_ActionCategory, string log_ActionName, string keyword, int indexFile, string user_name)
         {
             //if merchant code diisi. barulah GetOrderList
             string ret = "";
@@ -79,7 +79,7 @@ namespace MasterOnline.Controllers
                             case "7"://LAZADA
                                 for(int i = 0; i < dsUpdate.Tables[0].Rows.Count; i++)
                                 {
-                                    clientJobServer.Enqueue<LazadaControllerJob>(x => x.UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Price", "CHILD_" + log_ActionName,
+                                    clientJobServer.Enqueue<LazadaControllerJob>(x => x.UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Price", "UPDATE_MASSAL_" + keyword,
                                        dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString(), customer.TOKEN, username));
                                 }
                                 break;
@@ -148,7 +148,7 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
-                                        clientJobServer.Enqueue<TokopediaControllerJob>(x => x.UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "CHILD_" + log_ActionName, 
+                                        clientJobServer.Enqueue<TokopediaControllerJob>(x => x.UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, 
                                             Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString()), iden, Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString())));
                                     }
                                 }
@@ -198,7 +198,7 @@ namespace MasterOnline.Controllers
                                         dataJob.MarketPrice = dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString();
                                         var displayJob = Convert.ToBoolean(dsUpdate.Tables[0].Rows[i]["DISPLAY"].ToString());
                                         dataJob.display = displayJob ? "true" : "false";
-                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "CHILD_" + log_ActionName, dataJob.kode_mp, idenJob, dataJob));
+                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dataJob.kode_mp, idenJob, dataJob));
 
                                     }
                                 }
@@ -225,12 +225,12 @@ namespace MasterOnline.Controllers
 
                                             if (brg_mp[1] == "0")
                                             {
-                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "CHILD_" + log_ActionName, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru));
+                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru));
 
                                             }
                                             else if (brg_mp[1] != "")
                                             {
-                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateVariationPrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "CHILD_" + log_ActionName, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru));
+                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateVariationPrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), dataJob, (float)hargaJualBaru));
                                 
                                             }
                                         }
@@ -260,7 +260,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                     clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), 
-                                        customer.CUST, "Price", "CHILD_" + log_ActionName, data, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), 
+                                        customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, data, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), 
                                         Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()), hargaJualDampakBaru));
 
                                 }
@@ -281,7 +281,7 @@ namespace MasterOnline.Controllers
                                         var hargaJualBaru = Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString());
 
                                         clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_UpdatePrice_Job(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
-                                            customer.CUST, "Price", "CHILD_" + log_ActionName, dataShopify, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), (float)hargaJualBaru));
+                                            customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dataShopify, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), (float)hargaJualBaru));
 
                                     }
                                 }
@@ -300,7 +300,7 @@ namespace MasterOnline.Controllers
                                 for (int i = 0; i < dsUpdate.Tables[0].Rows.Count; i++)
                                 {
                                     clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_updatePrice(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), 
-                                        customer.CUST, "Price", "CHILD_" + log_ActionName, dataJD, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), 
+                                        customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dataJD, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), 
                                         Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()), username));
 
                                 }

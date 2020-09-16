@@ -33140,14 +33140,14 @@ namespace MasterOnline.Controllers
                         var cekCust = EDB.GetDataSet("CString", "ARF01", "SELECT CUST, NAMA FROM ARF01 WHERE RECNUM IN (SELECT DISTINCT IDMARKET FROM TEMP_UPDATE_HJUAL WHERE INDEX_FILE = 1)");
                         if (cekCust.Tables[0].Rows.Count > 0)
                         {
-                            if(cekCust.Tables[0].Rows[0]["NAMA"].ToString() == "8" || cekCust.Tables[0].Rows[0]["NAMA"].ToString() == "18")//buka lapak dan offline
-                            {
+                            //if(cekCust.Tables[0].Rows[0]["NAMA"].ToString() == "8" || cekCust.Tables[0].Rows[0]["NAMA"].ToString() == "18")//buka lapak dan offline
+                            //{
 
-                            }
-                            else
+                            //}
+                            //else
                             {
                                 logCust = cekCust.Tables[0].Rows[0]["CUST"].ToString();
-                                Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(dbSourceEra, currentData.NO_BUKTI, logCust, "Update Harga Massal", currentData.NO_BUKTI + "_1", 1, usernameLogin), dtProses);
+                                Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(dbSourceEra, currentData.NO_BUKTI, logCust, "Price", "Update Harga Massal", currentData.NO_BUKTI + "_1", 1, usernameLogin), dtProses);
 
                                 var cekJob = EDB.GetDataSet("CString", "hangfire", "SELECT [ID] FROM HANGFIRE.JOB WHERE ARGUMENTS LIKE '%" + currentData.NO_BUKTI + "_1%' AND ARGUMENTS LIKE '%Update Harga Massal%'");
                                 if (cekJob.Tables[0].Rows.Count > 0)
@@ -33161,7 +33161,7 @@ namespace MasterOnline.Controllers
                     }
                     if (!string.IsNullOrEmpty(currentData.FILE_2))
                     {
-                        Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(EDBConnID, currentData.NO_BUKTI, "", "Update Harga Massal", currentData.NO_BUKTI +"_2", 2, usernameLogin), dtProses);
+                        Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(EDBConnID, currentData.NO_BUKTI, "", "Price", "Update Harga Massal", currentData.NO_BUKTI +"_2", 2, usernameLogin), dtProses);
                         var newData2 = new LOG_HARGAJUAL_B
                         {
                             NO_BUKTI = currentData.NO_BUKTI,
@@ -33174,7 +33174,7 @@ namespace MasterOnline.Controllers
                     }
                     if (!string.IsNullOrEmpty(currentData.FILE_3))
                     {
-                        Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(EDBConnID, currentData.NO_BUKTI, "", "Update Harga Massal", currentData.NO_BUKTI +"_3", 3, usernameLogin), dtProses);
+                        Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(EDBConnID, currentData.NO_BUKTI, "", "Price", "Update Harga Massal", currentData.NO_BUKTI +"_3", 3, usernameLogin), dtProses);
                         var newData3 = new LOG_HARGAJUAL_B
                         {
                             NO_BUKTI = currentData.NO_BUKTI,
@@ -33187,7 +33187,7 @@ namespace MasterOnline.Controllers
                     }
                     if (!string.IsNullOrEmpty(currentData.FILE_4))
                     {
-                        Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(EDBConnID, currentData.NO_BUKTI, "", "Update Harga Massal", currentData.NO_BUKTI +"_4", 4, usernameLogin), dtProses);
+                        Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(EDBConnID, currentData.NO_BUKTI, "", "Price", "Update Harga Massal", currentData.NO_BUKTI +"_4", 4, usernameLogin), dtProses);
                         var newData4 = new LOG_HARGAJUAL_B
                         {
                             NO_BUKTI = currentData.NO_BUKTI,
