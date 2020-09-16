@@ -2,30 +2,28 @@
 @using MasterOnline.ViewModels
 @model CustomerViewModel
 @{
-                /**/
+    ViewBag.Title = "Transfer to FTP";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
-                ViewBag.Title = "Transfer to FTP";
-                Layout = "~/Views/Shared/_LayoutManage.cshtml";
-                var dataSession = Session["SessionInfo"] as AccountUserViewModel;
-
-                long accId;
-                var username = "";
-                var context = new MoDbContext("");
-                if (dataSession?.User != null)
-                {
-                    accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
-                    username = context.Account.Single(a => a.AccountId == accId).Username;
-                    //context.Dispose(); 'remark by nurul 4/2/2019
-                }
-                else
-                {
-                    username = dataSession?.Account.Username;
-                    accId = (dataSession?.Account?.AccountId ?? 0);
-                }
-                if (username.Length > 20)
-                {
-                    username = username.Substring(0, 17) + "...";
-                }
+    long accId;
+    var username = "";
+    var context = new MoDbContext("");
+    if (dataSession?.User != null)
+    {
+        accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        //context.Dispose(); 'remark by nurul 4/2/2019
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+        accId = (dataSession?.Account?.AccountId ?? 0);
+    }
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
 }
 @section styles
 {

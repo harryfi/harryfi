@@ -3314,7 +3314,8 @@ namespace MasterOnline.Controllers
                             record += Convert.ToDateTime(lsFaktur.Tables[0].Rows[i]["TGL_FAKTUR"]).ToString("dd/MM/yyyy");
                             record += ";";
                             record += ";";
-                            record += lsFaktur.Tables[0].Rows[i]["BRG_SAP"].ToString();
+                            //record += lsFaktur.Tables[0].Rows[i]["BRG_SAP"].ToString();
+                            record += lsFaktur.Tables[0].Rows[i]["KODE_BRG"].ToString() + "SAP";
                             record += ";";
                             record += lsFaktur.Tables[0].Rows[i]["QTY"].ToString();
                             record += ";";
