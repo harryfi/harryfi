@@ -4528,7 +4528,8 @@ namespace MasterOnline.Controllers
                             }
                         }
 
-                        if (rows > result.data.Count())
+                        //if (rows > result.data.Count())
+                        if (result.data.Count() <= 0)//change 16 sept 2020, ambil data next page sampai return 0 karena ada bugs di tokped
                         {
                             stop = true;
                         }
