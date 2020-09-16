@@ -310,7 +310,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            var sSQLDel = "DELETE FROM TEMP_UPDATE_HJUAL ";
+            var sSQLDel = "DELETE FROM TEMP_UPDATE_HJUAL WHERE INDEX_FILE = " + indexFile;
             EDB.ExecuteSQL("CString", CommandType.Text, sSQLDel);
 
             return ret;

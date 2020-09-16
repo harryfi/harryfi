@@ -3938,7 +3938,7 @@ namespace MasterOnline.Controllers
                                                     if (!string.IsNullOrEmpty(kd_brg))
                                                     {
 
-                                                        if (string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 5].Value)))
+                                                        if (string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 6].Value)))
                                                         {
                                                             ret.jmlNH++;
                                                             // barang varian tapi tidak diisi kode brg induk di excel
