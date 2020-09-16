@@ -96,15 +96,15 @@ namespace MasterOnline.Controllers
             string ret = "";
             SetupContext(iden);
 
-            var daysFrom = -1;
+            var daysFrom = -3;
             var daysTo = 1;
 
-            while (daysFrom > -13)
-            {
+            //while (daysFrom > -13)
+            //{
                 await Shopify_GetOrderByStatusUnpaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, daysFrom, daysTo);
-                daysFrom -= 3;
-                daysTo -= 3;
-            }
+            //    daysFrom -= 3;
+            //    daysTo -= 3;
+            //}
 
 
             // tunning untuk tidak duplicate
@@ -407,15 +407,15 @@ namespace MasterOnline.Controllers
             string ret = "";
             SetupContext(iden);
 
-            var daysFrom = -1;
+            var daysFrom = -3;
             var daysTo = 1;
 
-            while (daysFrom > -13)
-            {
+            //while (daysFrom > -13)
+            //{
                 await Shopify_GetOrderByStatusPaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
-                daysFrom -= 3;
-                daysTo -= 3;
-            }
+            //    daysFrom -= 3;
+            //    daysTo -= 3;
+            //}
 
 
             // tunning untuk tidak duplicate
@@ -439,6 +439,7 @@ namespace MasterOnline.Controllers
         public async Task<string> Shopify_GetOrderByStatusPaid_List3Days(ShopifyAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderPaid, int daysFrom, int daysTo)
         {
             string ret = "";
+            string connID = Guid.NewGuid().ToString();
 
             SetupContext(iden);
 
@@ -488,11 +489,191 @@ namespace MasterOnline.Controllers
                             jmlhOrderPaid = 0;
                             if (orderFilterPaid != null && orderFilterPaid.Count() > 0)
                             {
-                                foreach (var item in orderFilterPaid)
+                                foreach (var order in orderFilterPaid)
                                 {
-                                    if (OrderNoInDb.Contains(item.id.ToString() + ";" + Convert.ToString(item.order_number)))
+                                    if (OrderNoInDb.Contains(order.id.ToString() + ";" + Convert.ToString(order.order_number)))
                                     {
-                                        ordersn = ordersn + "'" + item.id.ToString() + ";" + Convert.ToString(item.order_number) + "',";
+                                        ordersn = ordersn + "'" + order.id.ToString() + ";" + Convert.ToString(order.order_number) + "',";
+                                    }
+                                    else
+                                    {
+                                        #region PAID INSERT
+                                        if (stat == StatusOrder.PAID)
+                                        {
+                                            try
+                                            {
+                                                if (!OrderNoInDb.Contains(order.id.ToString() + ";" + Convert.ToString(order.order_number)))
+                                                {
+                                                    jmlhOrderPaid++;
+                                                    var connIdARF01C = Guid.NewGuid().ToString();
+                                                    TEMP_SHOPIFY_ORDERS batchinsert = new TEMP_SHOPIFY_ORDERS();
+                                                    List<TEMP_SHOPIFY_ORDERS_ITEM> batchinsertItem = new List<TEMP_SHOPIFY_ORDERS_ITEM>();
+                                                    string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                                                    insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                                                    insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+                                                    var kabKot = "3174";
+                                                    var prov = "31";
+
+
+                                                    string fullname = order.billing_address.first_name.ToString() + " " + order.billing_address.last_name.ToString();
+                                                    string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.billing_address.last_name.ToString();
+
+                                                    insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
+                                                        ((nama ?? "").Replace("'", "`")),
+                                                        ((order.billing_address.address1 ?? "").Replace("'", "`") + " " + (order.billing_address.address2 ?? "").Replace("'", "`")),
+                                                        ((order.billing_address.phone ?? "").Replace("'", "`")),
+                                                        (NAMA_CUST.Replace(',', '.')),
+                                                        ((order.billing_address.address1 ?? "").Replace("'", "`") + " " + (order.billing_address.address2 ?? "").Replace("'", "`")),
+                                                        DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                                                        (username),
+                                                        ((order.billing_address.zip ?? "").Replace("'", "`")),
+                                                        kabKot,
+                                                        prov,
+                                                        connIdARF01C
+                                                        );
+                                                    insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                                                    EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+
+
+                                                    ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPIFY_ORDERS");
+                                                    ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPIFY_ORDERS_ITEM");
+                                                    batchinsertItem = new List<TEMP_SHOPIFY_ORDERS_ITEM>();
+
+                                                    //2020-04-08T05:12:41
+                                                    var dateOrder = Convert.ToDateTime(order.created_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                                                    var datePay = Convert.ToDateTime(order.processed_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                        
+                                                    var shippingLine = "";
+                                                    var trackingCompany = "";
+                                                    var trackingNumber = "";
+
+                                                    if (order.shipping_lines.Count() > 0)
+                                                    {
+                                                        shippingLine = Convert.ToString(order.shipping_lines[0].code);
+                                                    }
+
+                                                    if (order.fulfillments.Count() > 0)
+                                                    {
+                                                        trackingCompany = Convert.ToString(order.fulfillments[0].tracking_company);
+                                                        trackingNumber = Convert.ToString(order.fulfillments[0].tracking_number);
+                                                    }
+
+
+                                                    TEMP_SHOPIFY_ORDERS newOrder = new TEMP_SHOPIFY_ORDERS()
+                                                    {
+                                                        actual_shipping_cost = Convert.ToString(double.Parse(order.total_shipping_price_set.shop_money.amount)),
+                                                        buyer_username = nama,
+                                                        cod = false,
+                                                        country = order.billing_address.country,
+                                                        create_time = Convert.ToDateTime(dateOrder),
+                                                        currency = order.currency,
+                                                        days_to_ship = 0,
+                                                        dropshipper = "",
+                                                        escrow_amount = "",
+                                                        estimated_shipping_fee = Convert.ToString(double.Parse(order.total_shipping_price_set.shop_money.amount)),
+                                                        goods_to_declare = false,
+                                                        message_to_seller = order.note ?? "",
+                                                        note = order.note ?? "",
+                                                        note_update_time = Convert.ToDateTime(dateOrder),
+                                                        ordersn = Convert.ToString(order.id + ";" + order.order_number),
+                                                        //ordersn = Convert.ToString(order.order_number),
+                                                        //order_status = order.current_state_name,
+                                                        order_status = "PAID",
+                                                        payment_method = order.gateway,
+                                                        //change by nurul 5/12/2019, local time 
+                                                        //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
+                                                        pay_time = Convert.ToDateTime(datePay),
+                                                        //end change by nurul 5/12/2019, local time 
+                                                        Recipient_Address_country = order.billing_address.country_code ?? "ID",
+                                                        Recipient_Address_state = order.billing_address.province_code ?? "",
+                                                        Recipient_Address_city = order.billing_address.city ?? "",
+                                                        Recipient_Address_town = "",
+                                                        Recipient_Address_district = "",
+                                                        Recipient_Address_full_address = (order.billing_address.address1 ?? "").Replace("'", "`") + " " + (order.billing_address.address2 ?? "").Replace("'", "`"),
+                                                        Recipient_Address_name = nama,
+                                                        Recipient_Address_phone = order.billing_address.phone ?? "",
+                                                        Recipient_Address_zipcode = order.billing_address.zip ?? "",
+                                                        service_code = shippingLine,
+                                                        shipping_carrier = trackingCompany,
+                                                        total_amount = Convert.ToString(double.Parse(order.total_price)),
+                                                        tracking_no = trackingNumber,
+                                                        update_time = Convert.ToDateTime(dateOrder),
+                                                        CONN_ID = connID,
+                                                        CUST = CUST,
+                                                        NAMA_CUST = NAMA_CUST
+                                                    };
+                                                    foreach (var item in order.line_items)
+                                                    {
+                                                        TEMP_SHOPIFY_ORDERS_ITEM newOrderItem = new TEMP_SHOPIFY_ORDERS_ITEM()
+                                                        {
+                                                            ordersn = Convert.ToString(order.id + ";" + order.order_number),
+                                                            is_wholesale = false,
+                                                            item_id = Convert.ToString(item.product_id),
+                                                            item_name = item.title,
+                                                            item_sku = item.sku,
+                                                            variation_discounted_price = Convert.ToString(double.Parse(item.price)),
+                                                            variation_id = Convert.ToString(item.variant_id),
+                                                            variation_name = item.variant_title,
+                                                            variation_original_price = Convert.ToString(double.Parse(item.price)),
+                                                            variation_quantity_purchased = Convert.ToInt32(item.quantity),
+                                                            variation_sku = item.sku,
+                                                            weight = item.grams,
+                                                            pay_time = Convert.ToDateTime(datePay),
+                                                            CONN_ID = connID,
+                                                            CUST = CUST,
+                                                            NAMA_CUST = NAMA_CUST
+                                                        };
+
+                                                        batchinsertItem.Add(newOrderItem);
+                                                    }
+
+                                                    batchinsert = (newOrder);
+
+                                                    ErasoftDbContext.TEMP_SHOPIFY_ORDERS.Add(batchinsert);
+                                                    ErasoftDbContext.TEMP_SHOPIFY_ORDERS_ITEM.AddRange(batchinsertItem);
+                                                    ErasoftDbContext.SaveChanges();
+                                                    using (SqlCommand CommandSQL = new SqlCommand())
+                                                    {
+                                                        //call sp to insert buyer data
+                                                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                                                        EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                                                    };
+                                                    using (SqlCommand CommandSQL = new SqlCommand())
+                                                    {
+                                                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
+                                                        CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
+                                                        CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                                        CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                                                        CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                                        CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                                                        CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                                        CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                                                        CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                                        CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                                        CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                                        CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 1;
+                                                        CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+
+                                                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                                    }
+                                                }
+                                            }
+                                            catch (Exception ex3)
+                                            {
+
+                                            }
+
+                                            if (jmlhOrderPaid > 0)
+                                            {
+                                                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                                contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhOrderPaid) + " Pesanan baru sudah dibayar dari Shopify.");
+                                                new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
+                                            }
+                                        }
+                                        #endregion
                                     }
                                 }
                             }
@@ -635,15 +816,15 @@ namespace MasterOnline.Controllers
             string ret = "";
             SetupContext(iden);
 
-            var daysFrom = -1;
+            var daysFrom = -5;
             var daysTo = 1;
 
-            while (daysFrom > -13)
-            {
+            //while (daysFrom > -13)
+            //{
                 await Shopify_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
-                daysFrom -= 3;
-                daysTo -= 3;
-            }
+            //    daysFrom -= 3;
+            //    daysTo -= 3;
+            //}
 
             //// tunning untuk tidak duplicate
             //var queryStatus = "\\\"}\"" + "," + "\"6\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","6","\"000003\""
