@@ -6424,6 +6424,7 @@
     <Content Include="Views\Manage\ListDetailPackingListJDID.cshtml" />
     <Content Include="Views\Manage\FormUpdateHargaMassal.cshtml" />
     <Content Include="Views\Manage\HargaJualMassal.cshtml" />
+    <Content Include="Views\Manage\TableHistoryHargaMassal.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
