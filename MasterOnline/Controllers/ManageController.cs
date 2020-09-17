@@ -7079,46 +7079,7 @@ namespace MasterOnline.Controllers
                 }
                 //end add by nurul 21/6/2019, validasi berat,p,l,t
 
-                //add by nurul 28/8/2020
-                if (dataBarang.Stf02.KUBILASI.ToString() == "1")
-                {
-                    if (string.IsNullOrWhiteSpace(dataBarang.Stf02.BRG_NON_OS))
-                    {
-                        List<string> listError = new List<string>();
-                        listError.Add("Kode barang acuan harus diisi untuk barang yang memiliki multi SKU.");
-                        dataBarang.Errors = listError;
-                        return Json(dataBarang, JsonRequestBehavior.AllowGet);
-                    }
-                    else
-                    {
-                        var cekBarang = dataBarang.Stf02.BRG;
-                        if (cekBarang == "" || cekBarang == null)
-                        {
-                            if (cekBarang == dataBarang.Stf02.BRG_NON_OS)
-                            {
-                                List<string> listError = new List<string>();
-                                listError.Add("Kode barang acuan tidak boleh sama dengan kode barang multi SKU.");
-                                dataBarang.Errors = listError;
-                                return Json(dataBarang, JsonRequestBehavior.AllowGet);
-                            }
-                            var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.BRG == cekBarang);
-                            var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == cekBarang);
-                            var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == cekBarang);
-                            var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == cekBarang);
-                            var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
-                            
-                            if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
-                            {
-                                List<string> listError = new List<string>();
-                                listError.Add("Barang " + cekBarang + " sudah dipakai di transaksi tidak bisa dijadikan barang multi SKU !");
-                                dataBarang.Errors = listError;
-                                return Json(dataBarang, JsonRequestBehavior.AllowGet);
-                            }
-                        }
-                        dataBarang.Stf02.TYPE = "6";
-                    }
-                }
-                //end add by nurul 28/8/2020
+                
 
                 bool insert = false;//add by Tri
                 bool updateHarga = false;//add by Tri
@@ -7412,11 +7373,52 @@ namespace MasterOnline.Controllers
                     dataBarang.Stf02.Tgl_Input = DateTime.Today;
                     //end add by nurul 27/11/2019, add tgl last edit
 
+                    //add by nurul 28/8/2020
+                    if (dataBarang.Stf02.KUBILASI.ToString() == "1")
+                    {
+                        if (string.IsNullOrWhiteSpace(dataBarang.Stf02.BRG_NON_OS))
+                        {
+                            List<string> listError = new List<string>();
+                            listError.Add("Kode barang acuan harus diisi untuk barang yang memiliki multi SKU.");
+                            dataBarang.Errors = listError;
+                            return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            var cekBarang = dataBarang.Stf02.BRG;
+                            if (cekBarang == "" || cekBarang == null)
+                            {
+                                if (cekBarang == dataBarang.Stf02.BRG_NON_OS)
+                                {
+                                    List<string> listError = new List<string>();
+                                    listError.Add("Kode barang acuan tidak boleh sama dengan kode barang multi SKU.");
+                                    dataBarang.Errors = listError;
+                                    return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                                }
+                                var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.BRG == cekBarang);
+                                var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == cekBarang);
+                                var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == cekBarang);
+                                var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == cekBarang);
+                                var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
+
+                                if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
+                                {
+                                    List<string> listError = new List<string>();
+                                    listError.Add("Barang " + cekBarang + " sudah dipakai di transaksi tidak bisa dijadikan barang multi SKU !");
+                                    dataBarang.Errors = listError;
+                                    return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                                }
+                            }
+                            dataBarang.Stf02.TYPE = "6";
+                        }
+                    }
+                    //end add by nurul 28/8/2020
+
                     //add by nurul 3/9/2020
                     if (dataBarang.Stf02.TYPE == "6")
                     {
-                        var cekMultiSKU = ErasoftDbContext.STF03C.Where(a => a.BRG_ACUAN == dataBarang.Stf02.BRG_NON_OS && a.BRG == dataBarang.Stf02.BRG).SingleOrDefault();
-                        if (cekMultiSKU.RECNUM == null)
+                        var cekMultiSKU = ErasoftDbContext.STF03C.Where(a => a.BRG_ACUAN == dataBarang.Stf02.BRG_NON_OS && a.BRG == dataBarang.Stf02.BRG).Count();
+                        if (cekMultiSKU == 0)
                         {
                             var Stf03c = new STF03C() { };
                             Stf03c.BRG = dataBarang.Stf02.BRG;
@@ -7490,18 +7492,22 @@ namespace MasterOnline.Controllers
                                         dataBarang.Errors = listError;
                                         return Json(dataBarang, JsonRequestBehavior.AllowGet);
                                     }
-                                    var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.BRG == cekBarang);
-                                    var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == cekBarang);
-                                    var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == cekBarang);
-                                    var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == cekBarang);
-                                    var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
 
-                                    if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
+                                    if (tempType != "6")
                                     {
-                                        List<string> listError = new List<string>();
-                                        listError.Add("Barang " + cekBarang + " sudah dipakai di transaksi tidak bisa dijadikan barang multi SKU !");
-                                        dataBarang.Errors = listError;
-                                        return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                                        var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.BRG == cekBarang);
+                                        var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == cekBarang);
+                                        var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == cekBarang);
+                                        var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == cekBarang);
+                                        var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
+
+                                        if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
+                                        {
+                                            List<string> listError = new List<string>();
+                                            listError.Add("Barang " + cekBarang + " sudah dipakai di transaksi tidak bisa dijadikan barang multi SKU !");
+                                            dataBarang.Errors = listError;
+                                            return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                                        }
                                     }
 
                                     dataBarang.Stf02.TYPE = "6";
@@ -8080,7 +8086,6 @@ namespace MasterOnline.Controllers
                             if(cekStf03c != null)
                             {
                                 ErasoftDbContext.STF03C.Remove(cekStf03c);
-                                ErasoftDbContext.SaveChanges();
                             }
                         }
                         //end add by nurul 3/9/2020
@@ -17172,7 +17177,7 @@ namespace MasterOnline.Controllers
                 //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
             };
             var listBarangInFakturDetail = vm.ListFakturDetail.Select(p => p.BRG).ToList();
-            vm.ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList();
+            vm.ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && (a.TYPE == "3" || a.TYPE == "6")).ToList();
             return PartialView("BarangFakturPartial", vm);
         }
 
@@ -17197,7 +17202,7 @@ namespace MasterOnline.Controllers
                 //ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => pd.NO_BUKTI == fakturInDb.NO_BUKTI && pd.JENIS_FORM == "3").ToList(),
                 ListFakturDetail = ListFakturDetail,
                 //ListBarang = ErasoftDbContext.STF02.ToList() 'change by nurul 21/1/2019 
-                ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && (a.TYPE == "3" || a.TYPE == "6")).ToList(),
                 noRef = noref
             };
 
@@ -20025,7 +20030,7 @@ namespace MasterOnline.Controllers
             //var ListBarang = (from a in ErasoftDbContext.STF02
             //                  where a.TYPE == "3" && ListKodeBarangMarket.Any(y => a.BRG.Contains(y))
             //                  select new listBarang_NotFound { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2 }).ToList();
-            var sSql3 = "select BRG,NAMA,NAMA2 from stf02 where [type]='3' and brg in (select brg from stf02h where idmarket='" + idMarket + "')";
+            var sSql3 = "select BRG,NAMA,NAMA2 from stf02 where ([type]='3' or [type]='6') and brg in (select brg from stf02h where idmarket='" + idMarket + "')";
             var ListBarang = ErasoftDbContext.Database.SqlQuery<listBarang_NotFound>(sSql3).ToList();
             //end change by nurul 24/3/2020
             var ListKodeBarangMarket2 = ListBarang.Select(p => p.BRG).ToList();
@@ -20055,7 +20060,22 @@ namespace MasterOnline.Controllers
                 var dataStf02h = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h).SingleOrDefault();
 
                 var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.NO_BUKTI == PesananDetail.NO_BUKTI);
-                PesananDetail.BRG = dataStf02h.BRG;
+                //change by nurul 16/9/2020, brg multi sku
+                //PesananDetail.BRG = dataStf02h.BRG;
+                var cekTipeBrg = ErasoftDbContext.STF02.Where(a => a.BRG == dataStf02h.BRG).SingleOrDefault();
+                if (cekTipeBrg.TYPE == "6")
+                {
+                    if (cekTipeBrg.KUBILASI == 1 && !string.IsNullOrEmpty(cekTipeBrg.BRG_NON_OS))
+                    {
+                        PesananDetail.BRG = cekTipeBrg.BRG_NON_OS;
+                        PesananDetail.BRG_MULTISKU = dataStf02h.BRG;
+                    }
+                }
+                else
+                {
+                    PesananDetail.BRG = dataStf02h.BRG;
+                }
+                //end change by nurul 16/9/2020, brg multi sku 
 
                 //if (string.IsNullOrWhiteSpace(dataStf02h.BRG_MP))
                 //{
@@ -20131,7 +20151,7 @@ namespace MasterOnline.Controllers
             var ListBarangMarket = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == idMarket).ToList();
             var ListKodeBarangMarket = ListBarangMarket.Select(p => p.BRG).ToList();
             //var ListBarang = ErasoftDbContext.STF02.Where(p => ListKodeBarangMarket.Contains(p.BRG)).ToList(); 'change by nurul 21/1/2019
-            var ListBarang = ErasoftDbContext.STF02.Where(p => ListKodeBarangMarket.Contains(p.BRG) && p.TYPE == "3").ToList();
+            var ListBarang = ErasoftDbContext.STF02.Where(p => ListKodeBarangMarket.Contains(p.BRG) && (p.TYPE == "3" ||  p.TYPE =="6")).ToList();
             //add 16 juli 2019 by Tri, barang yg diambil dari stf02h juga yg tipe = 3
             var ListKodeBarangMarket2 = ListBarang.Select(p => p.BRG).ToList();
             ListBarangMarket = ListBarangMarket.Where(p => ListKodeBarangMarket2.Contains(p.BRG)).ToList();
@@ -20155,7 +20175,22 @@ namespace MasterOnline.Controllers
                 var dataStf02h = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h).SingleOrDefault();
 
                 var fakturInDb = ErasoftDbContext.SIT01A.SingleOrDefault(p => p.NO_BUKTI == FakturDetail.NO_BUKTI);
-                FakturDetail.BRG = dataStf02h.BRG;
+                //change by nurul 16/9/2020, brg multi sku
+                //FakturDetail.BRG = dataStf02h.BRG;
+                var cekTipeBrg = ErasoftDbContext.STF02.Where(a => a.BRG == dataStf02h.BRG).SingleOrDefault();
+                if (cekTipeBrg.TYPE == "6")
+                {
+                    if (cekTipeBrg.KUBILASI == 1 && !string.IsNullOrEmpty(cekTipeBrg.BRG_NON_OS))
+                    {
+                        FakturDetail.BRG = cekTipeBrg.BRG_NON_OS;
+                        FakturDetail.BRG_MULTISKU = dataStf02h.BRG;
+                    }
+                }
+                else
+                {
+                    FakturDetail.BRG = dataStf02h.BRG;
+                }
+                //end change by nurul 16/9/2020, brg multi sku
 
                 //if (string.IsNullOrWhiteSpace(dataStf02h.BRG_MP))
                 //{
@@ -21265,7 +21300,7 @@ namespace MasterOnline.Controllers
                     //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
                     ListPesananDetail = ListPesananDetail,
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInPesananDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                    ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInPesananDetail.Contains(a.BRG) && (a.TYPE == "3" || a.TYPE == "6")).ToList(),
                     //ADD BY NURUL 5/5/2020
                     namaMarket = GetMarket
                     //end ADD BY NURUL 5/5/2020
@@ -23491,7 +23526,9 @@ namespace MasterOnline.Controllers
                 foreach (var so in ListSot01a)
                 {
                     var detailFakturIndb = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList();
-                    var listBarangInFakturDetail = detailFakturIndb.Select(p => p.BRG).ToList();
+                    //var listBarangInFakturDetail = detailFakturIndb.Select(p => p.BRG).ToList();
+                    var listBarangInFakturDetail = (from p in detailFakturIndb
+                                                    select new { BRG_NEW = p.BRG_MULTISKU != "" && p.BRG_MULTISKU != null ? p.BRG_MULTISKU : p.BRG }).Select(a => a.BRG_NEW).ToList();
                     var al_buyer = so.so_alamat + ' ' + so.so_kota + ' ' + so.so_propinsi + ' ' + so.so_pos;
                     var resi = so.no_resi;
                     //add by nurul 26/3/2020
@@ -23525,7 +23562,7 @@ namespace MasterOnline.Controllers
 
                     if (so.namamarket.ToUpper() == "TOKOPEDIA")
                     {
-                        ketTokped = ErasoftDbContext.Database.SqlQuery<tempKetTokped>("Select no_bukti as Nobuk, brg as Brg, Ket_Detail as ketdetail from sot01b where no_bukti='" + so.so_bukti + "'").ToList();
+                        ketTokped = ErasoftDbContext.Database.SqlQuery<tempKetTokped>("Select no_bukti as Nobuk, brg as Brg, Ket_Detail as ketdetail, brg_multisku from sot01b where no_bukti='" + so.so_bukti + "'").ToList();
                     }
                     //add by nurul 15/5/2020
 
@@ -23537,7 +23574,7 @@ namespace MasterOnline.Controllers
                         Faktur = faktur.Where(a => a.NO_BUKTI == so.si_bukti).SingleOrDefault(),
                         namaPembeli = so.namapembeli,
                         tlpPembeli = so.tlppembeli,
-                        ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                        ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && (a.TYPE == "3" || a.TYPE == "6") ).ToList(),
                         ListFakturDetail = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList(),
                         AlamatToko = alamat1,
                         TlpToko = tlp,
@@ -32973,7 +33010,10 @@ namespace MasterOnline.Controllers
             var vm = new HargaJualViewModel()
             {
                 //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //change by nurul 16/9/2020, brg multi sku 
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                ListBarang = ErasoftDbContext.STF02.Where(a => (a.TYPE == "3" || a.TYPE == "6")).ToList(),
+                //END change by nurul 16/9/2020, brg multi sku 
                 ListHargaJualPerMarket = ErasoftDbContext.STF02H.ToList(),
                 ListHargaTerakhir = ErasoftDbContext.STF10.ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -33091,7 +33131,10 @@ namespace MasterOnline.Controllers
             //remark by nurul 10/2/2020, ambil harga beli terakhir dr pbt01b 
             //sSQL2 += "LEFT JOIN STF10 E ON A.BRG = E.BRG ";
             //end remark by nurul 10/2/2020, ambil harga beli terakhir dr pbt01b 
-            sSQL2 += "WHERE D.TYPE = '3' ";
+            //change by nurul 16/9/2020, brg multi sku 
+            //sSQL2 += "WHERE D.TYPE = '3' ";
+            sSQL2 += "WHERE (D.TYPE = '3' OR D.TYPE='6') ";
+            //end change by nurul 16/9/2020, brg multi sku 
             if (search != "")
             {
                 //sSQL2 += "AND (A.BRG LIKE '%" + search + "%' OR D.NAMA LIKE '%" + search + "%' OR D.NAMA2 LIKE '%" + search + "%' OR A.AKUNMARKET LIKE '%" + search + "%' OR C.NAMAMARKET LIKE '%" + search + "%' ) ";
@@ -33137,7 +33180,10 @@ namespace MasterOnline.Controllers
             var ret = new ReturnJson();
             var hJualInDb = ErasoftDbContext.STF02H.SingleOrDefault(h => h.RecNum == recNum);
             //change by nurul 18/1/2019 -- var brg = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == hJualInDb.BRG);
-            var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == hJualInDb.BRG);
+            //change by nurul 16/9/2020, brg multi sku 
+            //var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == hJualInDb.BRG);
+            var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3" || a.TYPE == "6").SingleOrDefault(b => b.BRG == hJualInDb.BRG);
+            //end change by nurul 16/9/2020, brg multi sku 
             if (hJualInDb == null)
             {
                 ret.message = "No Data Found!";
@@ -33572,7 +33618,10 @@ namespace MasterOnline.Controllers
             var ret = new ReturnJson();
             var hJualInDb = ErasoftDbContext.STF02H.SingleOrDefault(h => h.RecNum == recNum);
             //change by nurul 18/1/2019 -- var brg = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == hJualInDb.BRG);
-            var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == hJualInDb.BRG);
+            //change by nurul 16/9/2020
+            //var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == hJualInDb.BRG);
+            var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3" || a.TYPE == "6").SingleOrDefault(b => b.BRG == hJualInDb.BRG);
+            //end change by nurul 16/9/2020
             if (hJualInDb == null)
             {
                 ret.message = "No Data Found!";
@@ -33742,7 +33791,10 @@ namespace MasterOnline.Controllers
         {
             var ret = new ReturnJson();
             var hJualInDb = ErasoftDbContext.STF02H.SingleOrDefault(h => h.RecNum == recNum);
-            var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == hJualInDb.BRG);
+            //change by nurul 16/9/2020
+            //var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == hJualInDb.BRG);
+            var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3" || a.TYPE == "6").SingleOrDefault(b => b.BRG == hJualInDb.BRG);
+            //end change by nurul 16/9/2020
             if (hJualInDb == null)
             {
                 ret.message = "No Data Found!";
@@ -52373,7 +52425,11 @@ namespace MasterOnline.Controllers
                 foreach (var so in ListSot01a)
                 {
                     var detailFakturIndb = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList();
-                    var listBarangInFakturDetail = detailFakturIndb.Select(p => p.BRG).ToList();
+                    //change by nurul 16/9/2020, barang multi sku 
+                    //var listBarangInFakturDetail = detailFakturIndb.Select(p => p.BRG).ToList();
+                    var listBarangInFakturDetail = (from p in detailFakturIndb
+                                                    select new { BRG_NEW = p.BRG_MULTISKU != "" && p.BRG_MULTISKU != null ? p.BRG_MULTISKU : p.BRG }).Select(a => a.BRG_NEW).ToList();
+                    //change by nurul 16/9/2020, barang multi sku 
                     var al_buyer = so.so_alamat + ' ' + so.so_kota + ' ' + so.so_propinsi + ' ' + so.so_pos;
                     var resi = so.no_resi;
                     //add by nurul 26/3/2020
@@ -52410,7 +52466,7 @@ namespace MasterOnline.Controllers
                     if (so.namamarket.ToUpper() == "TOKOPEDIA")
                     {
                         EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in ('" + so.so_bukti + "')");
-                        ketTokped = ErasoftDbContext.Database.SqlQuery<tempKetTokped>("Select no_bukti as Nobuk, brg as Brg, Ket_Detail as ketdetail from sot01b where no_bukti='" + so.so_bukti + "'").ToList();
+                        ketTokped = ErasoftDbContext.Database.SqlQuery<tempKetTokped>("Select no_bukti as Nobuk, brg as Brg, Ket_Detail as ketdetail, brg_multisku from sot01b where no_bukti='" + so.so_bukti + "'").ToList();
                     }
                     //add by nurul 15/5/2020
 
@@ -52435,7 +52491,7 @@ namespace MasterOnline.Controllers
                         Faktur = faktur.Where(a => a.NO_BUKTI == so.si_bukti).SingleOrDefault(),
                         namaPembeli = so.namapembeli,
                         tlpPembeli = so.tlppembeli,
-                        ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                        ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && (a.TYPE == "3" || a.TYPE == "6")).ToList(),
                         ListFakturDetail = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList(),
                         AlamatToko = alamat1,
                         TlpToko = tlp,
@@ -53529,12 +53585,18 @@ namespace MasterOnline.Controllers
                         insertDetail += "   DISCOUNT_4,DISCOUNT_5,NILAI_DISC_1,NILAI_DISC_2,NILAI_DISC_3,NILAI_DISC_4,NILAI_DISC_5, ";
                         insertDetail += "   TOTAL_LOT,TOTAL_QTY,TGL_KIRIM,NO_URUT_SO,CATATAN,QTY_BESAR,QTY_KECIL,BRG_SO,TRANS_NO_URUT, ";
                         insertDetail += "   SATUAN_N,QTY_N,NTITIPAN,DISC_TITIPAN,QOH ";
+                        //ADD BY NURUL 17/9/2020, BRG MULTI SKU 
+                        insertDetail += "   , BRG_MULTISKU ";
+                        //END ADD BY NURUL 17/9/2020, BRG MULTI SKU
                         insertDetail += "   )";
                         insertDetail += "SELECT ";
                         insertDetail += "   3,'" + bukti + "', B.BRG,B.BRG_CUST,B.H_SATUAN,B.SATUAN,B.QTY,'" + gudang + "', ";
                         insertDetail += "   B.DISCOUNT,B.NILAI_DISC,B.HARGA,B.QTY_KIRIM,B.AUTO_LOAD,B.USERNAME,B.TGLINPUT,B.QTY_RETUR,B.WRITE_KONFIG,B.DISCOUNT_2, ";
                         insertDetail += "   B.DISCOUNT_3,B.DISCOUNT_4,B.DISCOUNT_5,B.NILAI_DISC_1,B.NILAI_DISC_2,B.NILAI_DISC_3,B.NILAI_DISC_4,B.NILAI_DISC_5,B.TOTAL_LOT, ";
                         insertDetail += "   B.TOTAL_QTY,B.TGL_KIRIM,B.NO_URUT_SO,B.CATATAN,B.QTY_BESAR,B.QTY_KECIL,B.BRG_SO,B.NO_URUT,B.SATUAN_N,B.QTY_N,B.NTITIPAN,B.DISC_TITIPAN,B.QOH ";
+                        //ADD BY NURUL 17/9/2020, BRG MULTI SKU
+                        insertDetail += "   ,B.BRG_MULTISKU ";
+                        //END ADD BY NURUL 17/9/2020, BRG MULTI SKU 
                         insertDetail += "FROM SIT01A A LEFT JOIN SIT01B B ON A.NO_BUKTI=B.NO_BUKTI  ";
                         insertDetail += "WHERE A.NO_BUKTI='" + noref + "' AND B.NO_URUT IN (" + temp_brg + ") ";
                         ErasoftDbContext.Database.ExecuteSqlCommand(insertDetail);
@@ -54462,7 +54524,7 @@ namespace MasterOnline.Controllers
             string sSQL2 = "";
             sSQL2 += "FROM STF02 ";
             sSQL2 += "WHERE TYPE ='3'";
-            if(id !=null && id != "" && id != "undefined")
+            if(id !=null && id != "" && id != "undefined" && id == "2")
             {
                 sSQL2 += "and brg not in (select distinct isnull(brg_non_os,'') from stf02 where isnull(brg_non_os,'')<> '') ";
             }

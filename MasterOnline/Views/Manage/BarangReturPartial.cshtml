@@ -359,6 +359,9 @@
                     <tr>
                         <th width="100">Kode Brg</th>
                         <th width="150">Nama Brg</th>
+                        @*//ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
+                        <th width="100">Kode Brg Multi SKU</th>
+                        @*//END ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
                         <th>Stn</th>
                         <th>Harga</th>
                         <th width="80">Gd</th>
@@ -414,6 +417,11 @@
                                 @nama @nama2
                                 @*@listBarang.SingleOrDefault(b => b.BRG == fakturDetail.BRG).NAMA @listBarang.SingleOrDefault(b => b.BRG == fakturDetail.BRG).NAMA2*@
                             </td>
+                            @*//ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
+                            <td class="barang-multisku">
+                                @fakturDetail.BRG_MULTISKU
+                            </td>
+                            @*//end ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
                             <td class="stn-barang">
                                 @stnBarang
                             </td>
@@ -470,6 +478,12 @@
                             @*//end add by nurul 8/6/2020*@
                         </td>
                         <td class="nama-barang">-</td>
+                        @*//ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
+                        <td class="barang-multisku">
+                            -
+                            @Html.HiddenFor(m => m.FakturDetail.BRG_MULTISKU)
+                        </td>
+                        @*//end ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
                         <td class="stn-barang">
                             -
                             @Html.HiddenFor(m => m.FakturDetail.SATUAN)

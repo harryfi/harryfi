@@ -6419,7 +6419,7 @@
             //$('#table_tambah_pesanan > tbody > tr > .ndisc1-barang').addClass('editable');
             //$('#table_tambah_pesanan > tbody > tr > .disc2-barang').addClass('editable');
             //$('#table_tambah_pesanan > tbody > tr > .ndisc2-barang').addClass('editable');
-            $('#PesananDetail_BRG > tbody > tr[data-pesanan-id="0"] > .qty-barang').addClass('editable');
+            $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > .qty-barang').addClass('editable');
             $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > .disc1-barang').addClass('editable');
             $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > .ndisc1-barang').addClass('editable');
             $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > .disc2-barang').addClass('editable');
@@ -7115,6 +7115,7 @@
                                                 '<input data-val="true" data-val-length="The field SATUAN must be a string with a maximum length of 10." data-val-length-max="10" id="PesananDetail_SATUAN" name="PesananDetail.SATUAN" type="hidden" value="">');
                                             $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) +
                                                 '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="PesananDetail_H_SATUAN" name="PesananDetail.H_SATUAN" type="hidden" value="" style="text-align:right">');
+                                            $('#PesananDetail_BRG').val(item.BRG);
                                             getBarangMultiSKUForBarang();
                                             return;
                                         }
@@ -7134,7 +7135,7 @@
 
                                 // Otomatis masuk ke field Qty setelah pilih barang
                                 //$('#table_tambah_pesanan > tbody > tr > td.qty-barang').click();
-                                $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
+                                $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > .qty-barang').click();
 
                                 hitungUlangdisc1();
                                 hitungUlangdisc2();
@@ -11372,16 +11373,16 @@
 
         function afterPromptMultiSKUPesanan(kd) {
             $('#PesananDetail_BRG_MULTISKU').val(kd);
-
             // Otomatis masuk ke field Qty setelah pilih gudang
-            $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
+            //$('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
         }
 
         function getBarangMultiSKUForBarang() {
-            if ($('#BRG').selectivity('value') != "") {
+            //if ($('#BRG').selectivity('value') != "") {
+            if ($('#PesananDetail_BRG').val() != "") {
 
                 var link = '@Url.Action("getBarangMultiSKUForBarang", "Manage", new { brgId = "replaceId" })';
-                link = link.replace("replaceId", encodeURIComponent($('#BRG').selectivity('value')));
+                link = link.replace("replaceId", encodeURIComponent($('#PesananDetail_BRG').val()));
 
                 $.ajax({
                     type: "GET",
@@ -11419,6 +11420,7 @@
                                 } else {
                                     $('#multisku-kode').text('-');
                                 }
+                                $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
                             }
                         });
 
@@ -11430,6 +11432,12 @@
 
                         barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val());
                         $('#multisku-kode').text($('#PesananDetail_BRG_MULTISKU').val());
+
+                        //$('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
+
+                        //hitungUlangdisc1();
+                        //hitungUlangdisc2();
+                        //refreshNettoBarang('0');
                         //if ($('#BRG_MULTI_SKU').selectivity('value') != null) {
                         //    $('#BRG_MULTI_SKU').trigger('change');
                         //}

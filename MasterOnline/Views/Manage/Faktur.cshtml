@@ -5841,10 +5841,11 @@
         }
 
         function getBarangMultiSKUForBarang() {
-            if ($('#BRG').selectivity('value') != "") {
+            //if ($('#BRG').selectivity('value') != "") {
+            if ($('#FakturDetail_BRG').val() != "") {
 
                 var link = '@Url.Action("getBarangMultiSKUForBarang", "Manage", new { brgId = "replaceId" })';
-                link = link.replace("replaceId", encodeURIComponent($('#BRG').selectivity('value')));
+                link = link.replace("replaceId", encodeURIComponent($('#FakturDetail_BRG').val()));
 
                 $.ajax({
                     type: "GET",

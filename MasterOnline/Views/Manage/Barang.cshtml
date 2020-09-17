@@ -4201,14 +4201,14 @@
                                 $('#cbxStf02Type').removeAttr('disabled');
                                 //jika type = 3, click dlu ( karena default adalah variasi tercentang )
                                 var $cbxTarget = $('.cbxtype[data-cbx="cbx-type"]');
-                                if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3') {
+                                if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3' || $cbxTarget.val() == '6') {
                                     $('#cbxStf02Type').click();
                                 }
                             }
                             else {
                                 //disable dan type = 3 jika tidak ada variasinya
                                 var $cbxTarget = $('.cbxtype[data-cbx="cbx-type"]');
-                                if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3') {
+                                if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3' || $cbxTarget.val() == '6') {
                                     $('#cbxStf02Type').attr('disabled', 'disabled');
                                 }
                                 else {
@@ -4216,6 +4216,11 @@
                                     $('#cbxStf02Type').click();
                                     $('#cbxStf02Type').attr('disabled', 'disabled');
                                 }
+                            }
+                            if ($("#cbxStf02Type").is(":checked") == true) {
+                                $('#multi-sku').hide();
+                            } else if ($("#cbxStf02Type").is(":checked") == false) {
+                                $('#multi-sku').show();
                             }
                         },
                         error: function (xhr, status, error) {
@@ -5069,6 +5074,13 @@
                     });
                 }
             }
+            //add by nurul 16/9/2020, brg multi sku 
+            if ($("#cbxStf02Type").is(":checked") == true) {
+                $('#multi-sku').hide();
+            } else if ($("#cbxStf02Type").is(":checked") == false) {
+                $('#multi-sku').show();
+            }
+                        //end add by nurul 16/9/2020, brg multi sku
         }
         function disableFotoProdukSection(){
             var $BOX_PANEL = $('#upload-foto-section'),
@@ -5404,11 +5416,20 @@
                             var $this = $(this);
                             $this.show();
                         });
+                        
                         enableFotoProdukSection();
                         //end checkbox on click event
                         alert(response.Errors[0]);
                     }
                     //end change by calvin 25 april 2019
+
+                    //add by nurul 16/9/2020, brg multi sku 
+                    if ($("#cbxStf02Type").is(":checked") == true) {
+                        $('#multi-sku').hide();
+                    } else if ($("#cbxStf02Type").is(":checked") == false) {
+                        $('#multi-sku').show();
+                    }
+                        //end add by nurul 16/9/2020, brg multi sku
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

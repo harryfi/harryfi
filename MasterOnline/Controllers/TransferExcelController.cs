@@ -1428,7 +1428,10 @@ namespace MasterOnline.Controllers
 
                                 var noBuktiSO = "";
 
-                                var dataMasterSTF02 = eraDB.STF02.Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3 }).ToList();
+                                //change by nurul 17/9/2020, brg multi sku 
+                                //var dataMasterSTF02 = eraDB.STF02.Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3 }).ToList();
+                                var dataMasterSTF02 = eraDB.STF02.Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3, p.TYPE, p.KUBILASI, p.BRG_NON_OS }).ToList();
+                                //end change by nurul 17/9/2020, brg multi sku 
                                 var dataMasterSTF02H = eraDB.STF02H.Select(p => new { p.BRG, p.BRG_MP, p.IDMARKET }).ToList();
                                 var dataMasterKurir = MoDbContext.Ekspedisi.ToList();
                                 var dataMasterARF01 = eraDB.ARF01.ToList();
@@ -1768,6 +1771,14 @@ namespace MasterOnline.Controllers
                                                                                                     STATUS_BRG = null,
                                                                                                     KET_DETAIL = keterangan
                                                                                                 };
+
+                                                                                                //add by nurul 17/9/2020
+                                                                                                if(checkBarang.TYPE == "6" && checkBarang.KUBILASI == 1 && !string.IsNullOrEmpty(checkBarang.BRG_NON_OS))
+                                                                                                {
+                                                                                                    sot01b.BRG = checkBarang.BRG_NON_OS;
+                                                                                                    sot01b.BRG_MULTISKU = dataBarang.BRG;
+                                                                                                }
+                                                                                                //end add by nurul 17/9/2020
 
                                                                                                 try
                                                                                                 {

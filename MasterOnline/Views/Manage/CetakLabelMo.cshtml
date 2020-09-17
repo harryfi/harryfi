@@ -323,12 +323,22 @@
                                                 <tbody class="barang-faktur" style="width:619px !important;">
                                                     @foreach (var fakturDetail in labelList.ListFakturDetail)
                                                     {
-                                                        var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
-                                                        var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
+                                                        //change by nurul 15/9/2020
+                                                        //var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
+                                                        //var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
+                                                        //var discTotal = fakturDetail.NILAI_DISC ?? 0;
+                                                        //var merk = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.Sort2;
+                                                        //var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
+                                                        //var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
+
+                                                        var tempBrgBaru = fakturDetail.BRG_MULTISKU != null && fakturDetail.BRG_MULTISKU != "" ? fakturDetail.BRG_MULTISKU : fakturDetail.BRG;
+                                                        var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
+                                                        var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
                                                         var discTotal = fakturDetail.NILAI_DISC ?? 0;
-                                                        var merk = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.Sort2;
-                                                        var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
-                                                        var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
+                                                        var merk = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.Sort2;
+                                                        var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
+                                                        var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
+                                                        //end change by nurul 15/9/2020
                                                         fakturNo = fakturNo + 1;
                                                         <tr>
                                                             <td>@fakturNo</td>
@@ -721,15 +731,25 @@
                                                     <tbody class="barang-faktur">                                                              
                                                         @foreach (var fakturDetail in labelList.ListFakturDetail)
                                                         {
-                                                            var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
-                                                            var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
-                                                            var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
-                                                            var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
+                                                            //change by nurul 15/9/2020
+                                                            //var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
+                                                            //var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
+                                                            //var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
+                                                            //var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
+
+                                                            var tempBrgBaru = fakturDetail.BRG_MULTISKU != null && fakturDetail.BRG_MULTISKU != "" ? fakturDetail.BRG_MULTISKU : fakturDetail.BRG;
+                                                            var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
+                                                            var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
+                                                            var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
+                                                            var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
+                                                            //end change by nurul 15/9/2020
+
                                                             labelNo = labelNo + 1;
                                                             <tr>
                                                                 <td>@labelNo</td>
                                                                 <td>
-                                                                    @fakturDetail.BRG
+                                                                    @*@fakturDetail.BRG*@
+                                                                    @tempBrgBaru
                                                                 </td>
                                                                 <td>
                                                                     @namaBarang1
