@@ -1647,7 +1647,8 @@ namespace MasterOnline.Controllers
                             //    ret.message = "";
                             //}
                             //if (result.data.Count() >= 100)
-                            if (result.data.Count() >= 10)
+                            //if (result.data.Count() >= 10)
+                            if (result.data.Count() > 0)//change 16 sept 2020, ambil data next page sampai return 0 karena ada bugs di tokped
                             {
                                 ret.nextPage = 1;
                             }
