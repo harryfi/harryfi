@@ -207,7 +207,7 @@ namespace MasterOnline.Controllers
                                                 insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '{13}', '{8}', '{9}', '{12}', '{11}','{10}'),",
                                                     ((nama ?? "").Replace("'", "`")),
                                                     ((order.billing_address.address1 ?? "").Replace("'", "`") + " " + (order.billing_address.address2 ?? "").Replace("'", "`")),
-                                                    ((order.billing_address.phone ?? "").Replace("'", "`")),
+                                                    ((order.billing_address.phone ?? null)),
                                                     (NAMA_CUST.Replace(',', '.')),
                                                     ((order.billing_address.address1 ?? "").Replace("'", "`") + " " + (order.billing_address.address2 ?? "").Replace("'", "`")),
                                                     DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -218,7 +218,7 @@ namespace MasterOnline.Controllers
                                                     connIdARF01C,
                                                     (order.billing_address.province ?? ""),
                                                     (order.billing_address.city ?? ""),
-                                                    (order.contact_email ?? "")
+                                                    (order.contact_email ?? null)
                                                     );
                                                 insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
                                                 EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
@@ -526,7 +526,7 @@ namespace MasterOnline.Controllers
                                                     insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '{13}', '{8}', '{9}', '{12}', '{11}','{10}'),",
                                                         ((nama ?? "").Replace("'", "`")),
                                                         ((order.billing_address.address1 ?? "").Replace("'", "`") + " " + (order.billing_address.address2 ?? "").Replace("'", "`")),
-                                                        ((order.billing_address.phone ?? "").Replace("'", "`")),
+                                                        ((order.billing_address.phone ?? null)),
                                                         (NAMA_CUST.Replace(',', '.')),
                                                         ((order.billing_address.address1 ?? "").Replace("'", "`") + " " + (order.billing_address.address2 ?? "").Replace("'", "`")),
                                                         DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -537,7 +537,7 @@ namespace MasterOnline.Controllers
                                                         connIdARF01C, 
                                                         (order.billing_address.province ?? ""),
                                                         (order.billing_address.city ?? ""),
-                                                        (order.contact_email ?? "")
+                                                        (order.contact_email ?? null)
                                                         );
                                                     insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
                                                     EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
