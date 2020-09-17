@@ -489,7 +489,8 @@ namespace MasterOnline.Controllers
                             var orderFilterPaid = listOrder.orders.Where(p => p.financial_status == "paid" && p.cancel_reason == null && p.cancelled_at == null).ToList();
                             var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
                             string ordersn = "";
-                            jmlhOrderPaid = 0;
+                            var jmlhOrderNew = 0;
+                            var jmlhOrderUpdatePaid = 0;
                             if (orderFilterPaid != null && orderFilterPaid.Count() > 0)
                             {
                                 foreach (var order in orderFilterPaid)
@@ -507,7 +508,7 @@ namespace MasterOnline.Controllers
                                             {
                                                 if (!OrderNoInDb.Contains(order.id.ToString() + ";" + Convert.ToString(order.order_number)))
                                                 {
-                                                    jmlhOrderPaid++;
+                                                    jmlhOrderNew++;
                                                     var connIdARF01C = Guid.NewGuid().ToString();
                                                     TEMP_SHOPIFY_ORDERS batchinsert = new TEMP_SHOPIFY_ORDERS();
                                                     List<TEMP_SHOPIFY_ORDERS_ITEM> batchinsertItem = new List<TEMP_SHOPIFY_ORDERS_ITEM>();
@@ -672,10 +673,10 @@ namespace MasterOnline.Controllers
 
                                             }
 
-                                            if (jmlhOrderPaid > 0)
+                                            if (jmlhOrderNew > 0)
                                             {
                                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                                contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhOrderPaid) + " Pesanan baru sudah dibayar dari Shopify.");
+                                                contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhOrderNew) + " Pesanan baru sudah dibayar dari Shopify.");
                                                 new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                                             }
                                         }
@@ -683,15 +684,15 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-                            if (orderFilterPaid.Count() > 0 && !string.IsNullOrEmpty(ordersn))
+                            if (!string.IsNullOrEmpty(ordersn))
                             {
                                 ordersn = ordersn.Substring(0, ordersn.Length - 1);
                                 var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
-                                jmlhOrderPaid = jmlhOrderPaid + rowAffected;
-                                if (jmlhOrderPaid > 0)
+                                jmlhOrderUpdatePaid = jmlhOrderUpdatePaid + rowAffected;
+                                if (jmlhOrderUpdatePaid > 0)
                                 {
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderPaid) + " Pesanan terbayar dari Shopify.");
+                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderUpdatePaid) + " Pesanan terbayar dari Shopify.");
                                 }
                             }
                         }
