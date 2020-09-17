@@ -4706,6 +4706,12 @@
             //    }
             //});
 
+            //add by nurul 17/9/2020, brg multi sku 
+            if ($('#Stf02_KUBILASI').val() != 1) {
+                $('#Stf02_KUBILASI').val(0)
+            }
+            //end add by nurul 17/9/2020, brg multi sku 
+
             //add by calvin 20 juni 2019, kasus barang dari sync lazada, ada html tag nya
             $.each($(".removeHTMLTag"),
                 function () {
@@ -4814,6 +4820,12 @@
             var angka = convertToAngka(input);
             $("#Stf02_HJUAL").val(angka);
             $('#Stf02_STN').val($('#Stf02_STN2').val());
+
+            //add by nurul 17/9/2020, brg multi sku 
+            if ($('#Stf02_KUBILASI').val() != 1) {
+                $('#Stf02_KUBILASI').val(0)
+            }
+            //end add by nurul 17/9/2020, brg multi sku 
 
             //add by calvin 20 juni 2019, kasus barang dari sync lazada, ada html tag nya
             $.each($(".removeHTMLTag"),
