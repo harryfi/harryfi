@@ -21834,27 +21834,7 @@ namespace MasterOnline.Controllers
                             new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Packing Order", pesanan.NO_REFERENSI, "3");
 #endif
                         }
-
-                        //add by fauzi for shopify
-                        if (mp.NamaMarket.ToUpper().Contains("SHOPIFY"))
-                        {
-                            var sqlStorage = new SqlServerStorage(EDBConnID);
-                            var clientJobServer = new BackgroundJobClient(sqlStorage);
-                            ShopifyControllerJob.ShopifyAPIData idenJob = new ShopifyControllerJob.ShopifyAPIData();
-                            idenJob.no_cust = marketPlace.CUST;
-                            idenJob.username = usernameLogin;
-                            idenJob.DatabasePathErasoft = dbPathEra;
-                            idenJob.account_store = marketPlace.PERSO;
-                            idenJob.API_key = marketPlace.API_KEY;
-                            idenJob.API_password = marketPlace.API_CLIENT_P;
-
-                            //add by fauzi for update status TO PACKING
-#if (DEBUG || Debug_AWS)
-                            //new ShopifyControllerJob().Shopify_SetOrderStatusCancelled(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Packing Order", idenJob);
-#else
-                            //clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusCancelled(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Packing Order", idenJob));
-#endif
-                        }
+                        
                         break;
                     case "03":
                         if (mp.NamaMarket.ToUpper().Contains("BUKALAPAK"))
@@ -22021,25 +22001,25 @@ namespace MasterOnline.Controllers
                         }
 
                         //add by fauzi for shopify
-                        else if (mp.NamaMarket.ToUpper().Contains("SHOPIFY"))
-                        {
-                            var sqlStorage = new SqlServerStorage(EDBConnID);
-                            var clientJobServer = new BackgroundJobClient(sqlStorage);
-                            ShopifyControllerJob.ShopifyAPIData idenJob = new ShopifyControllerJob.ShopifyAPIData();
-                            idenJob.no_cust = marketPlace.CUST;
-                            idenJob.username = usernameLogin;
-                            idenJob.DatabasePathErasoft = dbPathEra;
-                            idenJob.account_store = marketPlace.PERSO;
-                            idenJob.API_key = marketPlace.API_KEY;
-                            idenJob.API_password = marketPlace.API_CLIENT_P;
+//                        else if (mp.NamaMarket.ToUpper().Contains("SHOPIFY"))
+//                        {
+//                            var sqlStorage = new SqlServerStorage(EDBConnID);
+//                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+//                            ShopifyControllerJob.ShopifyAPIData idenJob = new ShopifyControllerJob.ShopifyAPIData();
+//                            idenJob.no_cust = marketPlace.CUST;
+//                            idenJob.username = usernameLogin;
+//                            idenJob.DatabasePathErasoft = dbPathEra;
+//                            idenJob.account_store = marketPlace.PERSO;
+//                            idenJob.API_key = marketPlace.API_KEY;
+//                            idenJob.API_password = marketPlace.API_CLIENT_P;
 
-                            //add by fauzi for update status TO PACKING
-#if (DEBUG || Debug_AWS)
-                            new ShopifyControllerJob().Shopify_SetOrderStatusFulfillment(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Shipped Order", idenJob);
-#else
-                            clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusFulfillment(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Shipped Order", idenJob));
-#endif
-                        }
+//                            //add by fauzi for update status TO PACKING
+//#if (DEBUG || Debug_AWS)
+//                            new ShopifyControllerJob().Shopify_SetOrderStatusFulfillment(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Shipped Order", idenJob);
+//#else
+//                            clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusFulfillment(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Shipped Order", idenJob));
+//#endif
+//                        }
                         break;
                     case "04":
                         //add by fauzi for 82Cart
@@ -22060,6 +22040,25 @@ namespace MasterOnline.Controllers
                             clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Delivered Order", pesanan.NO_REFERENSI, "5"));
 #else
                             new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Delivered Order", pesanan.NO_REFERENSI, "5");
+#endif
+                        }
+                        else if (mp.NamaMarket.ToUpper().Contains("SHOPIFY"))
+                        {
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                            ShopifyControllerJob.ShopifyAPIData idenJob = new ShopifyControllerJob.ShopifyAPIData();
+                            idenJob.no_cust = marketPlace.CUST;
+                            idenJob.username = usernameLogin;
+                            idenJob.DatabasePathErasoft = dbPathEra;
+                            idenJob.account_store = marketPlace.PERSO;
+                            idenJob.API_key = marketPlace.API_KEY;
+                            idenJob.API_password = marketPlace.API_CLIENT_P;
+
+                            //add by fauzi for update status TO DELIVERED
+#if (DEBUG || Debug_AWS)
+                            new ShopifyControllerJob().Shopify_SetOrderStatusFulfillment(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Delivered Order", idenJob);
+#else
+                            clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusFulfillment(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Delivered Order", idenJob));
 #endif
                         }
                         break;
@@ -45622,8 +45621,8 @@ namespace MasterOnline.Controllers
                     {
                         var dsSORow = dsSO.Tables[0].Rows[i];
                         var Nobuk = Convert.ToString(dsSORow["NO_BUKTI"]);
-                        //var SOA_NOREF = Convert.ToString(dsSORow["NO_REFERENSI"]);
-                        //var SOA_CUST = Convert.ToString(dsSORow["CUST"]);
+                        var SOA_NOREF = Convert.ToString(dsSORow["NO_REFERENSI"]);
+                        var SOA_CUST = Convert.ToString(dsSORow["CUST"]);
                         if (listNobuk != "")
                         {
                             listNobuk += ",";
@@ -45656,6 +45655,32 @@ namespace MasterOnline.Controllers
                         //                            }
                         //                        }
                         //end
+
+                        var kdShopify = "21";
+                        var mpCust82Cart = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopify && m.CUST == SOA_CUST).FirstOrDefault();
+                        if (mpCust82Cart != null)
+                        {
+                            if (mpCust82Cart.Sort1_Cust != "" && !string.IsNullOrEmpty(mpCust82Cart.API_KEY) && !string.IsNullOrEmpty(mpCust82Cart.PERSO))
+                            {
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                ShopifyControllerJob.ShopifyAPIData idenJob = new ShopifyControllerJob.ShopifyAPIData();
+                                idenJob.no_cust = mpCust82Cart.CUST;
+                                idenJob.username = usernameLogin;
+                                idenJob.DatabasePathErasoft = dbPathEra;
+                                idenJob.account_store = mpCust82Cart.PERSO;
+                                idenJob.API_key = mpCust82Cart.API_KEY;
+                                idenJob.API_password = mpCust82Cart.API_CLIENT_P;
+
+                                //add by fauzi for update status TO PACKING
+#if (DEBUG || Debug_AWS)
+                                new ShopifyControllerJob().Shopify_SetOrderStatusFulfillment(dbPathEra, SOA_NOREF, mpCust82Cart.CUST, "Pesanan", "Delivered Order", idenJob);
+#else
+                                clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusFulfillment(dbPathEra, SOA_NOREF, mpCust82Cart.CUST, "Pesanan", "Delivered Order", idenJob));
+
+#endif
+                            }
+                        }
                     }
                     //change by nurul 24/1/2020
                     //var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_BUKTI IN (" + listNobuk + ") AND STATUS_TRANSAKSI = '04'");
@@ -45881,31 +45906,31 @@ namespace MasterOnline.Controllers
                         ////    }
                         ////}
 
-                        var kdShopify = "21";
-                        var mpCust82Cart = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopify && m.CUST == SOA_CUST).FirstOrDefault();
-                        if (mpCust82Cart != null)
-                        {
-                            if (mpCust82Cart.Sort1_Cust != "" && !string.IsNullOrEmpty(mpCust82Cart.API_KEY) && !string.IsNullOrEmpty(mpCust82Cart.PERSO))
-                            {
-                                var sqlStorage = new SqlServerStorage(EDBConnID);
-                                var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                ShopifyControllerJob.ShopifyAPIData idenJob = new ShopifyControllerJob.ShopifyAPIData();
-                                idenJob.no_cust = mpCust82Cart.CUST;
-                                idenJob.username = usernameLogin;
-                                idenJob.DatabasePathErasoft = dbPathEra;
-                                idenJob.account_store = mpCust82Cart.PERSO;
-                                idenJob.API_key = mpCust82Cart.API_KEY;
-                                idenJob.API_password = mpCust82Cart.API_CLIENT_P;
+//                        var kdShopify = "21";
+//                        var mpCust82Cart = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopify && m.CUST == SOA_CUST).FirstOrDefault();
+//                        if (mpCust82Cart != null)
+//                        {
+//                            if (mpCust82Cart.Sort1_Cust != "" && !string.IsNullOrEmpty(mpCust82Cart.API_KEY) && !string.IsNullOrEmpty(mpCust82Cart.PERSO))
+//                            {
+//                                var sqlStorage = new SqlServerStorage(EDBConnID);
+//                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+//                                ShopifyControllerJob.ShopifyAPIData idenJob = new ShopifyControllerJob.ShopifyAPIData();
+//                                idenJob.no_cust = mpCust82Cart.CUST;
+//                                idenJob.username = usernameLogin;
+//                                idenJob.DatabasePathErasoft = dbPathEra;
+//                                idenJob.account_store = mpCust82Cart.PERSO;
+//                                idenJob.API_key = mpCust82Cart.API_KEY;
+//                                idenJob.API_password = mpCust82Cart.API_CLIENT_P;
 
-                                //add by fauzi for update status TO PACKING
-#if (DEBUG || Debug_AWS)
-                                new ShopifyControllerJob().Shopify_SetOrderStatusFulfillment(dbPathEra, dsSORow.SOA_NOREF, mpCust82Cart.CUST, "Pesanan", "Shipped Order", idenJob);
-#else                            
-                                clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusFulfillment(dbPathEra, dsSORow.SOA_NOREF, mpCust82Cart.CUST, "Pesanan", "Shipped Order", idenJob));
+//                                //add by fauzi for update status TO PACKING
+//#if (DEBUG || Debug_AWS)
+//                                new ShopifyControllerJob().Shopify_SetOrderStatusFulfillment(dbPathEra, dsSORow.SOA_NOREF, mpCust82Cart.CUST, "Pesanan", "Shipped Order", idenJob);
+//#else                            
+//                                clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusFulfillment(dbPathEra, dsSORow.SOA_NOREF, mpCust82Cart.CUST, "Pesanan", "Shipped Order", idenJob));
 
-#endif
-                            }
-                        }
+//#endif
+//                            }
+//                        }
 
                         //end by fauzi
 
