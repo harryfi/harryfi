@@ -1196,7 +1196,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
-        [NotifyOnFailed("Update Status Faktur Pesanan {obj} ke Shopify Gagal.")]
+        [NotifyOnFailed("Update Status Selesai Pesanan {obj} ke Shopify Gagal.")]
         public async Task<string> Shopify_SetOrderStatusFulfillment(string dbPathEra, string orderId, string log_CUST, string log_ActionCategory, string log_ActionName, ShopifyAPIData iden)
         {
             string ret = "";
