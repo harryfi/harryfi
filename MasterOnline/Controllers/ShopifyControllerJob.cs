@@ -216,9 +216,9 @@ namespace MasterOnline.Controllers
                                                     kabKot,
                                                     prov,
                                                     connIdARF01C,
-                                                    (order.billing_address.province.ToString() ?? ""),
-                                                    (order.billing_address.city.ToString() ?? ""),
-                                                    (order.contact_email.ToString() ?? "")
+                                                    (order.billing_address.province ?? ""),
+                                                    (order.billing_address.city ?? ""),
+                                                    (order.contact_email ?? "")
                                                     );
                                                 insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
                                                 EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
@@ -290,6 +290,7 @@ namespace MasterOnline.Controllers
                                                     Recipient_Address_name = nama,
                                                     Recipient_Address_phone = order.billing_address.phone ?? "",
                                                     Recipient_Address_zipcode = order.billing_address.zip ?? "",
+                                                    Recipient_Address_email = order.contact_email ?? "",
                                                     service_code = shippingLine,
                                                     shipping_carrier = trackingCompany,
                                                     total_amount = Convert.ToString(double.Parse(order.total_price)),
@@ -534,9 +535,9 @@ namespace MasterOnline.Controllers
                                                         kabKot,
                                                         prov,
                                                         connIdARF01C, 
-                                                        (order.billing_address.province.ToString() ?? ""),
-                                                        (order.billing_address.city.ToString() ?? ""),
-                                                        (order.contact_email.ToString() ?? "")
+                                                        (order.billing_address.province ?? ""),
+                                                        (order.billing_address.city ?? ""),
+                                                        (order.contact_email ?? "")
                                                         );
                                                     insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
                                                     EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
@@ -600,6 +601,7 @@ namespace MasterOnline.Controllers
                                                         Recipient_Address_name = nama,
                                                         Recipient_Address_phone = order.billing_address.phone ?? "",
                                                         Recipient_Address_zipcode = order.billing_address.zip ?? "",
+                                                        Recipient_Address_email = order.contact_email ?? "",
                                                         service_code = shippingLine,
                                                         shipping_carrier = trackingCompany,
                                                         total_amount = Convert.ToString(double.Parse(order.total_price)),
