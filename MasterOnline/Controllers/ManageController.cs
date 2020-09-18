@@ -46244,6 +46244,7 @@ namespace MasterOnline.Controllers
                 {
                     using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
                     {
+                        var listRecnumEnd = "";
                         using (System.Data.Entity.DbContextTransaction transaction = context.Database.BeginTransaction())
                         {
                             try
@@ -46764,10 +46765,11 @@ namespace MasterOnline.Controllers
                                 context.SOT03B.AddRange(newpackingdetail);
                                 context.SOT03C.AddRange(newpackingbrgdetail);
                                 context.SaveChanges();
-                                var sSQL3 = "update a set status_transaksi='03' ";
-                                sSQL3 += "from sot01a a inner join sit01a b on a.no_bukti=b.no_so inner join sot03b c on a.no_bukti=c.no_pesanan ";
-                                sSQL3 += "where a.status_transaksi='02' and a.recnum in (" + ListRecnum + ")";
-                                context.Database.ExecuteSqlCommand(sSQL3);
+                                //var sSQL3 = "update a set status_transaksi='03' ";
+                                //sSQL3 += "from sot01a a inner join sit01a b on a.no_bukti=b.no_so inner join sot03b c on a.no_bukti=c.no_pesanan ";
+                                //sSQL3 += "where a.status_transaksi='02' and a.recnum in (" + ListRecnum + ")";
+                                //context.Database.ExecuteSqlCommand(sSQL3);
+                                listRecnumEnd = ListRecnum;
                                 transaction.Commit();
                                 packingNo = newPackinglist.NO_BUKTI;
                             }
@@ -46776,6 +46778,19 @@ namespace MasterOnline.Controllers
                                 transaction.Rollback();
                                 return new JsonResult { Data = new { error_packing_list = true }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                             }
+                        }
+                        if (listRecnumEnd != "") {
+                            var sSQL3 = "update a set status_transaksi='03' ";
+                            sSQL3 += "from sot01a a inner join sit01a b on a.no_bukti=b.no_so inner join sot03b c on a.no_bukti=c.no_pesanan ";
+                            sSQL3 += "where a.status_transaksi='02' and a.recnum in (" + listRecnumEnd + ")";
+                            context.Database.ExecuteSqlCommand(sSQL3);
+                        }
+                        var sSQL4 = "select count(a.no_bukti)jumlah from sit01a a inner join sot01a b on a.no_so=b.no_bukti where isnull(a.no_ref,'')='' and isnull(b.no_referensi,'')<>'' ";
+                        var cekCountSINorefBlank = context.Database.SqlQuery<int>(sSQL4).SingleOrDefault();
+                        if(cekCountSINorefBlank > 0)
+                        {
+                            var sSQL5 = "update a set no_ref=b.no_referensi from sit01a a inner join sot01a b on a.no_so=b.no_bukti where isnull(a.no_ref,'')='' and isnull(b.no_referensi,'')<>''";
+                            context.Database.ExecuteSqlCommand(sSQL5);
                         }
                     }
                 }
