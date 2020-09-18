@@ -40576,8 +40576,14 @@ namespace MasterOnline.Controllers
             retData.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
             if (mode == "1")
             {
+                //CHANGE BY NURUL 17/9/2020, BRG MULTI SKU
                 //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.NO_PESANAN, A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, QTY, PEMBELI, MARKETPLACE FROM SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT03B C ON A.NO_BUKTI = C.NO_BUKTI AND A.NO_PESANAN = C.NO_PESANAN WHERE A.NO_BUKTI = '" + nobuk + "' ORDER BY A.NO_PESANAN, NAMA_BARANG");
-                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.NO_PESANAN, A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, QTY, PEMBELI, MARKETPLACE, ISNULL(D.NO_REFERENSI,'') AS NO_REFERENSI FROM SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT03B C ON A.NO_BUKTI = C.NO_BUKTI AND A.NO_PESANAN = C.NO_PESANAN INNER JOIN SOT01A D ON A.NO_PESANAN = D.NO_BUKTI WHERE A.NO_BUKTI = '" + nobuk + "' ORDER BY A.NO_PESANAN, NAMA_BARANG");
+                ////var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.NO_PESANAN, A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, QTY, PEMBELI, MARKETPLACE, ISNULL(D.NO_REFERENSI,'') AS NO_REFERENSI FROM SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT03B C ON A.NO_BUKTI = C.NO_BUKTI AND A.NO_PESANAN = C.NO_PESANAN INNER JOIN SOT01A D ON A.NO_PESANAN = D.NO_BUKTI WHERE A.NO_BUKTI = '" + nobuk + "' ORDER BY A.NO_PESANAN, NAMA_BARANG");
+                var sSQL = "SELECT A.NO_PESANAN, A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, QTY, PEMBELI, MARKETPLACE, ISNULL(D.NO_REFERENSI,'') AS NO_REFERENSI, ISNULL(E.BRG_MULTISKU,'') BRG_MULTISKU , ISNULL(E.NAMA_BRG_MULTISKU,'') NAMA_BRG_MULTISKU FROM SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT03B C ON A.NO_BUKTI = C.NO_BUKTI AND A.NO_PESANAN = C.NO_PESANAN INNER JOIN SOT01A D ON A.NO_PESANAN = D.NO_BUKTI " +
+                            "LEFT JOIN (SELECT B.NO_BUKTI, ISNULL(B.BRG_MULTISKU,'') BRG_MULTISKU, ISNULL(C.NAMA + ' ' + (ISNULL(C.NAMA2, '')),'') NAMA_BRG_MULTISKU FROM SOT03C A INNER JOIN SOT01B B ON A.NO_PESANAN = B.NO_BUKTI INNER JOIN STF02 C ON B.BRG_MULTISKU = C.BRG where A.NO_BUKTI = '" + nobuk + "')E ON A.NO_PESANAN = E.NO_BUKTI " +
+                            "WHERE A.NO_BUKTI = '" + nobuk + "' GROUP BY A.NO_PESANAN,A.BRG,B.NAMA,B.NAMA2,QTY, PEMBELI, MARKETPLACE,D.NO_REFERENSI ,E.BRG_MULTISKU,E.NAMA_BRG_MULTISKU ORDER BY A.NO_PESANAN, NAMA_BARANG";
+                var dsRekap = EDB.GetDataSet("CString", "SOT03C", sSQL);
+                //END CHANGE BY NURUL 17/9/2020, BRG MULTI SKU
                 var retRekap = new List<RekapBarang>();
                 if (dsRekap.Tables[0].Rows.Count > 0)
                 {
@@ -40592,6 +40598,11 @@ namespace MasterOnline.Controllers
                             PEMBELI = dsRekap.Tables[0].Rows[i]["PEMBELI"].ToString(),
                             MARKETPLACE = dsRekap.Tables[0].Rows[i]["MARKETPLACE"].ToString(),
                             QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
+
+                            //add BY NURUL 17/9/2020, BRG MULTI SKU
+                            BRG_MULTISKU = dsRekap.Tables[0].Rows[i]["BRG_MULTISKU"].ToString(),
+                            NAMA_BRG_MULTISKU = dsRekap.Tables[0].Rows[i]["NAMA_BRG_MULTISKU"].ToString(),
+                            //end add BY NURUL 17/9/2020, BRG MULTI SKU
                         };
                         retRekap.Add(newData);
                     }

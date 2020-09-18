@@ -770,16 +770,23 @@ namespace MasterOnline.Controllers
             {
                 listBrg_Lama.Add(item.BRG);
             }
-                        
+            
             var list_brg = "";
-            foreach (var brg in listBrg_Lama)
+            if (listBrg_Lama.Count() > 0)
             {
-                if (list_brg != "")
+                foreach (var brg in listBrg_Lama)
                 {
-                    list_brg += ",";
-                }
+                    if (list_brg != "")
+                    {
+                        list_brg += ",";
+                    }
 
-                list_brg += "'" + brg + "'";
+                    list_brg += "'" + brg + "'";
+                }
+            }
+            else
+            {
+                list_brg = "''";
             }
             var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";
             var listBrg = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
@@ -1164,14 +1171,21 @@ namespace MasterOnline.Controllers
             }
 
             var list_brg = "";
-            foreach (var brg in listBrg_Lama)
+            if (listBrg_Lama.Count() > 0)
             {
-                if (list_brg != "")
+                foreach (var brg in listBrg_Lama)
                 {
-                    list_brg += ",";
-                }
+                    if (list_brg != "")
+                    {
+                        list_brg += ",";
+                    }
 
-                list_brg += "'" + brg + "'";
+                    list_brg += "'" + brg + "'";
+                }
+            }
+            else
+            {
+                list_brg = "''";
             }
             var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";
             var listBrg = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
