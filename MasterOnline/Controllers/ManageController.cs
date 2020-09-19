@@ -33149,7 +33149,7 @@ namespace MasterOnline.Controllers
                                     newData1.HANGFIRE_JOBID = Convert.ToInt64(cekJob.Tables[0].Rows[0]["ID"].ToString());
                                 }
 
-                                await new MasterOnlineController().UpdateHJulaMassal(dbPathEra, currentData.NO_BUKTI, logCust, "Price", "Update Harga Massal", currentData.NO_BUKTI + "_1", 1, usernameLogin);
+                                //await new MasterOnlineController().UpdateHJulaMassal(dbPathEra, currentData.NO_BUKTI, logCust, "Price", "Update Harga Massal", currentData.NO_BUKTI + "_1", 1, usernameLogin);
                             }
                         }
 
@@ -33166,6 +33166,19 @@ namespace MasterOnline.Controllers
                             USERNAME = usernameLogin,
                             KET = ""
                         };
+                        var cekCust = EDB.GetDataSet("CString", "ARF01", "SELECT CUST, NAMA FROM ARF01 WHERE RECNUM IN (SELECT DISTINCT IDMARKET FROM TEMP_UPDATE_HJUAL WHERE INDEX_FILE = 2)");
+                        if (cekCust.Tables[0].Rows.Count > 0)
+                        {
+                            logCust = cekCust.Tables[0].Rows[0]["CUST"].ToString();
+                            newData2.CUST = logCust;
+                            Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(dbPathEra, currentData.NO_BUKTI, logCust, "Price", "Update Harga Massal", currentData.NO_BUKTI + "_2", 2, usernameLogin), dtProses);
+
+                            var cekJob = EDB.GetDataSet("CString", "hangfire", "SELECT [ID] FROM HANGFIRE.JOB WHERE ARGUMENTS LIKE '%" + currentData.NO_BUKTI + "_2%' AND ARGUMENTS LIKE '%Update Harga Massal%'");
+                            if (cekJob.Tables[0].Rows.Count > 0)
+                            {
+                                newData2.HANGFIRE_JOBID = Convert.ToInt64(cekJob.Tables[0].Rows[0]["ID"].ToString());
+                            }
+                        }
                         ErasoftDbContext.LOG_HARGAJUAL_B.Add(newData2);
                     }
                     if (!string.IsNullOrEmpty(currentData.FILE_3))
@@ -33179,6 +33192,19 @@ namespace MasterOnline.Controllers
                             USERNAME = usernameLogin,
                             KET = ""
                         };
+                        var cekCust = EDB.GetDataSet("CString", "ARF01", "SELECT CUST, NAMA FROM ARF01 WHERE RECNUM IN (SELECT DISTINCT IDMARKET FROM TEMP_UPDATE_HJUAL WHERE INDEX_FILE = 3)");
+                        if (cekCust.Tables[0].Rows.Count > 0)
+                        {
+                            logCust = cekCust.Tables[0].Rows[0]["CUST"].ToString();
+                            newData3.CUST = logCust;
+                            Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(dbPathEra, currentData.NO_BUKTI, logCust, "Price", "Update Harga Massal", currentData.NO_BUKTI + "_3", 3, usernameLogin), dtProses);
+
+                            var cekJob = EDB.GetDataSet("CString", "hangfire", "SELECT [ID] FROM HANGFIRE.JOB WHERE ARGUMENTS LIKE '%" + currentData.NO_BUKTI + "_3%' AND ARGUMENTS LIKE '%Update Harga Massal%'");
+                            if (cekJob.Tables[0].Rows.Count > 0)
+                            {
+                                newData3.HANGFIRE_JOBID = Convert.ToInt64(cekJob.Tables[0].Rows[0]["ID"].ToString());
+                            }
+                        }
                         ErasoftDbContext.LOG_HARGAJUAL_B.Add(newData3);
                     }
                     if (!string.IsNullOrEmpty(currentData.FILE_4))
@@ -33192,6 +33218,19 @@ namespace MasterOnline.Controllers
                             USERNAME = usernameLogin,
                             KET = ""
                         };
+                        var cekCust = EDB.GetDataSet("CString", "ARF01", "SELECT CUST, NAMA FROM ARF01 WHERE RECNUM IN (SELECT DISTINCT IDMARKET FROM TEMP_UPDATE_HJUAL WHERE INDEX_FILE = 4)");
+                        if (cekCust.Tables[0].Rows.Count > 0)
+                        {
+                            logCust = cekCust.Tables[0].Rows[0]["CUST"].ToString();
+                            newData4.CUST = logCust;
+                            Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(dbPathEra, currentData.NO_BUKTI, logCust, "Price", "Update Harga Massal", currentData.NO_BUKTI + "_4", 4, usernameLogin), dtProses);
+
+                            var cekJob = EDB.GetDataSet("CString", "hangfire", "SELECT [ID] FROM HANGFIRE.JOB WHERE ARGUMENTS LIKE '%" + currentData.NO_BUKTI + "_4%' AND ARGUMENTS LIKE '%Update Harga Massal%'");
+                            if (cekJob.Tables[0].Rows.Count > 0)
+                            {
+                                newData4.HANGFIRE_JOBID = Convert.ToInt64(cekJob.Tables[0].Rows[0]["ID"].ToString());
+                            }
+                        }
                         ErasoftDbContext.LOG_HARGAJUAL_B.Add(newData4);
                     }
                     ErasoftDbContext.SaveChanges();
@@ -33235,9 +33274,9 @@ namespace MasterOnline.Controllers
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.NO_BUKTI, HANGFIRE_JOBID, KET, b.USERNAME, dateadd(HOUR, jam_proses, tgl_proses) tgl, C.PERSO AKUNMARKET, M.NAMAMARKET, ";
             sSQLSelect += "CASE WHEN NO_FILE = '1' THEN FILE_1 WHEN NO_FILE = '2' THEN FILE_2 WHEN NO_FILE = '3' THEN FILE_3 WHEN NO_FILE = '4' THEN FILE_4 ELSE '' END 'FILE', ";
-            sSQLSelect += "CASE WHEN (SELECT COUNT(*) FROM HANGFIRE.Job WHERE ARGUMENTS LIKE '%UPDATE_MASSAL_' + B.NO_BUKTI + '_' + CONVERT(NVARCHAR,NO_FILE) AND STATENAME LIKE '%proces%') > 0 THEN 'processing' ";
-            sSQLSelect += "WHEN (SELECT COUNT(*) FROM HANGFIRE.Job WHERE ARGUMENTS LIKE '%UPDATE_MASSAL_' + B.NO_BUKTI + '_' + CONVERT(NVARCHAR,NO_FILE) AND STATENAME LIKE '%enque%') > 0 THEN 'enqueued' ";
-            sSQLSelect += "WHEN (SELECT COUNT(*) FROM HANGFIRE.Job WHERE ARGUMENTS LIKE '%UPDATE_MASSAL_' + B.NO_BUKTI + '_' + CONVERT(NVARCHAR,NO_FILE) AND STATENAME LIKE '%schedul%') > 0 THEN 'scheduled' "; 
+            sSQLSelect += "CASE WHEN (SELECT COUNT(*) FROM HANGFIRE.Job WHERE ARGUMENTS LIKE '%UPDATE_MASSAL_' + B.NO_BUKTI + '_' + CONVERT(NVARCHAR,NO_FILE) + '%' AND STATENAME LIKE '%proces%') > 0 THEN 'processing' ";
+            sSQLSelect += "WHEN (SELECT COUNT(*) FROM HANGFIRE.Job WHERE ARGUMENTS LIKE '%UPDATE_MASSAL_' + B.NO_BUKTI + '_' + CONVERT(NVARCHAR,NO_FILE) + '%' AND STATENAME LIKE '%enque%') > 0 THEN 'enqueued' ";
+            sSQLSelect += "WHEN (SELECT COUNT(*) FROM HANGFIRE.Job WHERE ARGUMENTS LIKE '%UPDATE_MASSAL_' + B.NO_BUKTI + '_' + CONVERT(NVARCHAR,NO_FILE) + '%' AND STATENAME LIKE '%schedul%') > 0 THEN 'scheduled' "; 
             sSQLSelect += "WHEN B.STATUS = 'dibatalkan' THEN (CASE WHEN ISNULL(CONVERT(NVARCHAR(50),KET), '') = '' THEN B.STATUS ELSE 'dibatalkan, sukses update : ' + CONVERT(NVARCHAR(50),KET) END) ";
             sSQLSelect += "WHEN B.STATUS = 'COMPLETE' THEN 'sukses update : ' + CONVERT(NVARCHAR(50),KET) ELSE '' END AS STATUS ";
             string sSQLCount = "";
