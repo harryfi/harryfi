@@ -33017,6 +33017,8 @@ namespace MasterOnline.Controllers
                 var logHF = EDB.GetDataSet("CString", "LOG_HF", "SELECT COUNT(*) JML FROM HANGFIRE.JOB WHERE ARGUMENTS LIKE '%" + lastData.NO_BUKTI + "%' AND ARGUMENTS LIKE '%Update%Massal%' AND STATENAME IN ('Enqueued', 'Scheduled', 'Processing')");
                 if(logHF.Tables[0].Rows[0]["JML"].ToString() == "0")//sudah tidak ada hangfire dengan status Enqueued,Scheduled,Processing
                 {
+                    lastData.STATUS = 2;
+                    ErasoftDbContext.SaveChanges();
                     lastData = createNewLogHargaMassal();
                 }
             }

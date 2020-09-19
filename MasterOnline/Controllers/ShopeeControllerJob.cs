@@ -6616,6 +6616,7 @@ namespace MasterOnline.Controllers
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                         throw new Exception(resServer.msg);
                     }
+                    //add 19 sept 2020, update harga massal
                     if (log_ActionName.Contains("UPDATE_MASSAL"))
                     {
                         var dataLog = log_ActionName.Split('_');
@@ -6634,9 +6635,8 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-
                     }
-                    
+                    //end add 19 sept 2020, update harga massal
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 }
                 catch (Exception ex2)
@@ -6819,6 +6819,7 @@ namespace MasterOnline.Controllers
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                         throw new Exception(resServer.msg);
                     }
+                    //add 19 sept 2020, update harga massal
                     if (log_ActionName.Contains("UPDATE_MASSAL"))
                     {
                         var dataLog = log_ActionName.Split('_');
@@ -6839,6 +6840,7 @@ namespace MasterOnline.Controllers
                         }
 
                     }
+                    //end add 19 sept 2020, update harga massal
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 }
                 catch (Exception ex2)

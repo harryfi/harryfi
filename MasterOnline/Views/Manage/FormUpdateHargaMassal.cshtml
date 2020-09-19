@@ -27,6 +27,7 @@
     $(document).ready(function () {
         Initialize();
         setJamProses();
+        changeStatusProcess();
     });
 
     function setJamProses() {
@@ -66,6 +67,26 @@
         });
         comboSelect[0].selectize.setValue($('#JAM_PROSES').val(), true);
     }
+
+    function changeStatusProcess() {
+        if ($('#STATUS').val() == "1") {
+            document.getElementById("file_upload_excel").disabled = true;
+            document.getElementById("cbJamProses").disabled = true;
+            document.getElementById("dtProses").disabled = true;
+            document.getElementById("btnDelFile_1").disabled = true;
+            document.getElementById("btnDelFile_2").disabled = true;
+            document.getElementById("btnDelFile_3").disabled = true;
+            document.getElementById("btnDelFile_4").disabled = true;
+        } else {
+            document.getElementById("file_upload_excel").disabled = false;
+            document.getElementById("cbJamProses").disabled = false;
+            document.getElementById("dtProses").disabled = false;
+            document.getElementById("btnDelFile_1").disabled = false;
+            document.getElementById("btnDelFile_2").disabled = false;
+            document.getElementById("btnDelFile_3").disabled = false;
+            document.getElementById("btnDelFile_4").disabled = false;
+        }
+    };
 </script>
 
 <div class="form-horizontal">
