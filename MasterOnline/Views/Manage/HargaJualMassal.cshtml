@@ -218,13 +218,15 @@
                 //Initialize();
                 refreshFormHargaMassal();
 
-
-
                 $('#updatemassal-tab').click(function () {
                     $TabAktif = 0;
                     refreshFormHargaMassal();
                 });
 
+                $('#histori-tab').click(function () {
+                    $TabAktif = 1;
+                    refreshTableHargaMassal();
+                });
 
             });
 
@@ -632,6 +634,31 @@
                     }
                 });
             }
+        }
+
+        function refreshTableHargaMassal() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableHargaJualMassal", "Manage", new { page = "replaceLastPage"}))';
+            //$link = $link.replace("replaceSearch", encodeURIComponent($('#search_hargaJual').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+            //$link = $link.replace("replaceFilter", filterBy);
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-histori').hide();
+                    $('#loading_hargaJual_tab').show();
+                },
+                success: function (response) {
+                    $('#tabel-histori').html(response);
+                    $('#loading_hargaJual_tab').hide();
+                    $('#table-histori').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
         }
     </script>
 }

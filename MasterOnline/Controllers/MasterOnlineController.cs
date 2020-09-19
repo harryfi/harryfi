@@ -66,9 +66,11 @@ namespace MasterOnline.Controllers
                 var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                 if(customer != null)
                 {
-                    var dsUpdate = EDB.GetDataSet("", "STF02H", "SELECT T.BRG, T.BRG_MP, T.HJUAL, DISPLAY " + sSQL2 + " AND ISNULL(BRG_MP, '') <> ''");
+                    var dsUpdate = EDB.GetDataSet("CString", "STF02H", "SELECT T.BRG, T.BRG_MP, T.HJUAL, DISPLAY " + sSQL2 + " AND ISNULL(BRG_MP, '') <> ''");
                     if(dsUpdate.Tables[0].Rows.Count > 0)
                     {
+                        EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE LOG_HARGAJUAL_B SET KET = '0/"+ dsUpdate.Tables[0].Rows.Count + "', STATUS = 'COMPLETE' WHERE NO_BUKTI = '"+nobuk+"' AND NO_FILE = " + indexFile);
+
                         string EDBConnID = EDB.GetConnectionString("ConnId");
                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
@@ -220,8 +222,6 @@ namespace MasterOnline.Controllers
 
                                             var ShopeeApiJob = new ShopeeControllerJob();
                                             var hargaJualBaru = Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString());
-
-
 
                                             if (brg_mp[1] == "0")
                                             {

@@ -48,6 +48,7 @@ namespace MasterOnline.Models
         [Key]
         [Column(Order = 1)]
         public int NO_FILE { get; set; }
+        public string CUST { get; set; }
         public long HANGFIRE_JOBID { get; set; }
         public string KET { get; set; }
         public DateTime TGL_INPUT { get; set; }

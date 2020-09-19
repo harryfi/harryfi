@@ -98,33 +98,19 @@
     @* add by nurul 13/6/2019, paging *@
     @if (Model.PageCount > 1)
     {
-        <div id="tabelhargaJualpartialpager" class="pager">
-            @Html.PagedListPager(Model, page => Url.Action("RefreshTableHargaJual", new
-       {
-           page,
-           search = ViewData["searchParam"],
-           filter = ViewData["filterParam"]
-       }),
-            new PagedListRenderOptions
+        <div id="tabelhargaMassalpartialpager" class="pager">
+            @Html.PagedListPager(Model, page => Url.Action("RefreshTableHargaJualMassal", new
             {
-                page,
-                search = ViewData["searchParam"],
-                filter = ViewData["filterParam"]
+                page
             }),
-                 new PagedListRenderOptions
-                 {
-            page,
-            search = ViewData["searchParam"],
-            filter = ViewData["filterParam"]
-                 }),
-            new PagedListRenderOptions
-            {
-            LinkToFirstPageFormat = "<<",
-            LinkToPreviousPageFormat = "prev",
-            LinkToNextPageFormat = "next",
-            LinkToLastPageFormat = ">>",
-            DisplayEllipsesWhenNotShowingAllPageNumbers = false
-            })
+                new PagedListRenderOptions
+                {
+                LinkToFirstPageFormat = "<<",
+                LinkToPreviousPageFormat = "prev",
+                LinkToNextPageFormat = "next",
+                LinkToLastPageFormat = ">>",
+                DisplayEllipsesWhenNotShowingAllPageNumbers = false
+                })
             Page @(Model.PageCount<Model.PageNumber? 0 : Model.PageNumber) of @Model.PageCount
 
         </div>
@@ -132,7 +118,7 @@
 </div>
 <script type="text/javascript">
     $(function () {
-        $('#tabelhargaJualpartialpager').on('click', 'a', function () {
+        $('#tabelhargaMassalpartialpager').on('click', 'a', function () {
             if (this.href != "") {
                 $.ajax({
                     url: this.href,
@@ -142,7 +128,7 @@
                         $('#loading_hargaJual_tab').show();
                     },
                     success: function (response) {
-                        $('#table-hargaJual-partial').html(response);
+                        $('#tabel-histori').html(response);
                         $('#loading_hargaJual_tab').hide();
                     }
                 });

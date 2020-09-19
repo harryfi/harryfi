@@ -6609,6 +6609,34 @@ namespace MasterOnline.Controllers
             {
                 try
                 {
+                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(GetPickupTimeSlotError)) as GetPickupTimeSlotError;
+                    if (!string.IsNullOrEmpty(resServer.error))
+                    {
+                        currentLog.REQUEST_EXCEPTION = resServer.msg;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        throw new Exception(resServer.msg);
+                    }
+                    if (log_ActionName.Contains("UPDATE_MASSAL"))
+                    {
+                        var dataLog = log_ActionName.Split('_');
+                        if (dataLog.Length >= 4)
+                        {
+                            var nobuk = dataLog[2];
+                            var indexData = Convert.ToInt32(dataLog[3]);
+                            var log_b = ErasoftDbContext.LOG_HARGAJUAL_B.Where(m => m.NO_BUKTI == nobuk && m.NO_FILE == indexData).FirstOrDefault();
+                            if (log_b != null)
+                            {
+                                var currentProgress = log_b.KET.Split('/');
+                                if (currentProgress.Length == 2)
+                                {
+                                    log_b.KET = (Convert.ToInt32(currentProgress[0]) + 1) + "/" + currentProgress[1];
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                            }
+                        }
+
+                    }
+                    
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 }
                 catch (Exception ex2)
@@ -6784,6 +6812,33 @@ namespace MasterOnline.Controllers
             {
                 try
                 {
+                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(GetPickupTimeSlotError)) as GetPickupTimeSlotError;
+                    if (!string.IsNullOrEmpty(resServer.error))
+                    {
+                        currentLog.REQUEST_EXCEPTION = resServer.msg;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        throw new Exception(resServer.msg);
+                    }
+                    if (log_ActionName.Contains("UPDATE_MASSAL"))
+                    {
+                        var dataLog = log_ActionName.Split('_');
+                        if(dataLog.Length >= 4)
+                        {
+                            var nobuk = dataLog[2];
+                            var indexData = Convert.ToInt32(dataLog[3]);
+                            var log_b = ErasoftDbContext.LOG_HARGAJUAL_B.Where(m => m.NO_BUKTI == nobuk && m.NO_FILE == indexData).FirstOrDefault();
+                            if (log_b != null)
+                            {
+                                var currentProgress = log_b.KET.Split('/');
+                                if(currentProgress.Length == 2)
+                                {
+                                    log_b.KET = (Convert.ToInt32(currentProgress[0]) + 1) + "/" + currentProgress[1];
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                            }
+                        }
+
+                    }
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 }
                 catch (Exception ex2)
