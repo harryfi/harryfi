@@ -186,22 +186,25 @@ namespace MasterOnline.Controllers
                                             kode = dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
                                             kode_mp = dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString()
                                         };
-                                        var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == dsUpdate.Tables[0].Rows[i]["BRG"].ToString());
-                                        dataJob.Price = brg.HJUAL.ToString();
-                                        if (!string.IsNullOrEmpty(brg.PART))
+                                        var brg = ErasoftDbContext.STF02.Where(a => a.TYPE != "4" && a.BRG == dataJob.kode).FirstOrDefault();
+                                        //var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == dsUpdate.Tables[0].Rows[i]["BRG"].ToString());
+                                        if (brg != null)
                                         {
-                                            brg = ErasoftDbContext.STF02.Where(m => m.BRG == brg.PART).FirstOrDefault();
-                                            if (brg != null)
+                                            dataJob.Price = brg.HJUAL.ToString();
+                                            if (!string.IsNullOrEmpty(brg.PART))
                                             {
-                                                dataJob.Price = brg.HJUAL.ToString();
+                                                brg = ErasoftDbContext.STF02.Where(m => m.BRG == brg.PART).FirstOrDefault();
+                                                if (brg != null)
+                                                {
+                                                    dataJob.Price = brg.HJUAL.ToString();
 
+                                                }
                                             }
+                                            dataJob.MarketPrice = dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString();
+                                            var displayJob = Convert.ToBoolean(dsUpdate.Tables[0].Rows[i]["DISPLAY"].ToString());
+                                            dataJob.display = displayJob ? "true" : "false";
+                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dataJob.kode_mp, idenJob, dataJob));
                                         }
-                                        dataJob.MarketPrice = dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString();
-                                        var displayJob = Convert.ToBoolean(dsUpdate.Tables[0].Rows[i]["DISPLAY"].ToString());
-                                        dataJob.display = displayJob ? "true" : "false";
-                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, dataJob.kode_mp, idenJob, dataJob));
-
                                     }
                                 }
                                 break;
@@ -249,20 +252,24 @@ namespace MasterOnline.Controllers
                                 };
                                 for (int i = 0; i < dsUpdate.Tables[0].Rows.Count; i++)
                                 {
-                                    var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == dsUpdate.Tables[0].Rows[i]["BRG"].ToString());
-                                    string hargaJualDampakBaru = "0";
-                                    if (!string.IsNullOrEmpty(brg.PART))
+                                    string kdBrg = dsUpdate.Tables[0].Rows[i]["BRG"].ToString();
+                                    //var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == dsUpdate.Tables[0].Rows[i]["BRG"].ToString());
+                                    var brg = ErasoftDbContext.STF02.Where(a => a.TYPE != "4" && a.BRG == kdBrg).FirstOrDefault();
+                                    if (brg != null)
                                     {
-                                        brg = ErasoftDbContext.STF02.Where(m => m.BRG == brg.PART).FirstOrDefault();
-                                        if (brg != null)
+                                        string hargaJualDampakBaru = "0";
+                                        if (!string.IsNullOrEmpty(brg.PART))
                                         {
-                                            hargaJualDampakBaru = (brg.HJUAL - Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString())).ToString();
+                                            brg = ErasoftDbContext.STF02.Where(m => m.BRG == brg.PART).FirstOrDefault();
+                                            if (brg != null)
+                                            {
+                                                hargaJualDampakBaru = (brg.HJUAL - Convert.ToDouble(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString())).ToString();
+                                            }
                                         }
+                                        clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(),
+                                            customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, data, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(),
+                                            Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()), hargaJualDampakBaru));
                                     }
-                                    clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, dsUpdate.Tables[0].Rows[i]["BRG"].ToString(), 
-                                        customer.CUST, "Price", "UPDATE_MASSAL_" + keyword, data, dsUpdate.Tables[0].Rows[i]["BRG_MP"].ToString(), 
-                                        Convert.ToInt32(dsUpdate.Tables[0].Rows[i]["HJUAL"].ToString()), hargaJualDampakBaru));
-
                                 }
                                 break;
                             case "21"://shopify
