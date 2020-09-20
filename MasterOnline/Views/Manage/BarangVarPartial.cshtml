@@ -718,8 +718,9 @@
                                     var ATYPE = item["ATYPE_" + (a + 1)];
                                     var ANAME = item["ANAME_" + (a + 1)];
                                     var AOPTIONS = item["AOPTIONS_" + (a + 1)];
+                                    var AVARCREATE = item["AVARCREATE_" + (a + 1)];
                                     //if (ATYPE == "DEFINING_ATTRIBUTE") {
-                                    if (ATYPE == "DEFINING_ATTRIBUTE" && ACODE != "FA-2000060") {
+                                    if ((ATYPE == "DEFINING_ATTRIBUTE" && ACODE != "FA-2000060") || AVARCREATE == "1") {
                                         if (ACODE != null && ACODE != "") {
                                             SelectList[counter] = {
                                                 id: ACODE,
@@ -748,9 +749,12 @@
                                 searchField: 'text',
                                 options: SelectList,
                                 onChange: function (value) {
+                                    if ($('#txtJudulVariantBlibliLv1').val() != '' && $('#txtJudulVariantBlibliLv1').val() != value) {
+                                        $('.txtVariantBlibliLv1_').val('');
+                                    }
                                     $('#txtJudulVariantBlibliLv1').val(value);
                                     SearchOptVariantBlibli(1, value, data.attribute_opt);
-                                    if (value == "WA-0000002") {//warna
+                                    if (value.includes("WA-")) {//warna
                                         ComboBoxColorFamilyBliBli(1, true);
                                     } else {
                                         ComboBoxColorFamilyBliBli(1, false);
@@ -782,9 +786,12 @@
                                 searchField: 'text',
                                 options: SelectList,
                                 onChange: function (value) {
+                                    if ($('#txtJudulVariantBlibliLv2').val() != '' && $('#txtJudulVariantBlibliLv2').val() != value) {
+                                        $('.txtVariantBlibliLv2_').val('');
+                                    }
                                     $('#txtJudulVariantBlibliLv2').val(value);
                                     SearchOptVariantBlibli(2, value, data.attribute_opt);
-                                    if (value == "WA-0000002") {//warna
+                                    if (value.includes("WA-")) {//warna
                                         ComboBoxColorFamilyBliBli(2, true);
                                     } else {
                                         ComboBoxColorFamilyBliBli(2, false);
@@ -868,7 +875,7 @@
                                                 //}
                                             }
                                         }
-                                //    }                                    
+                                //    }
                                 //}
                             });
                         }
@@ -967,44 +974,66 @@
                 });
             });
         } else {
+            $('.selectVariantBlibliLv' + level + '_').show();
             $(".selectVariantBlibliLv" + level + "_").each(function (i, item) {
                 //var data_recnum = $(item).attr("data-recnum");
                 var data_recnum = $($(item).closest('.tampungdatarecnum')).attr('data-recnum');
                 var len = SelectList.length;
 
-                var attributeOptSelect = $(item).selectize({
-                    maxItems: 1,
-                    valueField: 'id',
-                    searchField: 'text',
-                    options: SelectList,
-                    onChange: function (value) {
-                        $('#save_map_var_blibli').removeAttr('disabled');
-                        var input_data_recnum = $($(this.$input).closest('.tampungdatarecnum')).attr('data-recnum');
-                        $('#txtVariantBlibliLv' + level + '_' + input_data_recnum).val(value);                        
-                    }
-                });
+                if (len > 0) {
+                    $('#txtVariantBlibliLv' + level + '_' + data_recnum).attr('type', 'hidden');
+                    $('#txtVariantBlibliLv' + level + '_' + data_recnum).removeClass('form-control');
+                    $('#selectVariantBlibliLv' + level + '_' + data_recnum).hide();
+                    
+                    var attributeOptSelect = $(item).selectize({
+                        maxItems: 1,
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: SelectList,
+                        onChange: function (value) {
+                            $('#save_map_var_blibli').removeAttr('disabled');
+                            var input_data_recnum = $($(this.$input).closest('.tampungdatarecnum')).attr('data-recnum');
+                            $('#txtVariantBlibliLv' + level + '_' + input_data_recnum).val(value);
+                        }
+                    });
 
-                attributeOptSelect[0].selectize.clearOptions();
-                //attributeOptSelect[0].selectize.renderCache = {};
-                attributeOptSelect[0].selectize.load(function (callback) {
-                    callback(SelectList);
 
-                    if ($('#txtVariantBlibliLv' + level + '_' + data_recnum).val() != "") {
-                        var FoundValue = "";
-                        for (var d = 0; d < len; d++) {
-                            if (FoundValue == "") {
-                                var value = SelectList[d].id;
-                                if ($('#txtVariantBlibliLv' + level + '_' + data_recnum).val() == value) {
-                                    FoundValue = SelectList[d].id;
-                                    attributeOptSelect[0].selectize.setValue(FoundValue, true);//silent = true, agar tidak set button save_map_var_blibli enable
+                    attributeOptSelect[0].selectize.clearOptions();
+                    //attributeOptSelect[0].selectize.renderCache = {};
+                    attributeOptSelect[0].selectize.load(function (callback) {
+                        callback(SelectList);
+
+                        if ($('#txtVariantBlibliLv' + level + '_' + data_recnum).val() != "") {
+                            var FoundValue = "";
+                            for (var d = 0; d < len; d++) {
+                                if (FoundValue == "") {
+                                    var value = SelectList[d].id;
+                                    if ($('#txtVariantBlibliLv' + level + '_' + data_recnum).val() == value) {
+                                        FoundValue = SelectList[d].id;
+                                        attributeOptSelect[0].selectize.setValue(FoundValue, true);//silent = true, agar tidak set button save_map_var_blibli enable
+                                    }
                                 }
                             }
                         }
-                    }
-                });
+                    });
+                }
+                else
+                {
+                    $('#txtVariantBlibliLv' + level + '_' + data_recnum).attr('type', 'text');
+                    $('#txtVariantBlibliLv' + level + '_' + data_recnum).addClass('form-control');
+                    $('.selectVariantBlibliLv' + level + '_').hide();
+                    
+                }
             });
+            //if (showCombo == 1) {
+            //    //$('.selectVariantBlibliLv' + level + '_').show();
+            //    $('.selectize-control.selectVariantBlibliLv' + level + '_').css('display', 'block')
+            //} else {
+            //    $('.selectVariantBlibliLv' + level + '_').hide();
+
+            //}
         }
-        
+
         //    },
         //    error: function (xhr) {
         //        console.log(xhr);
@@ -1788,6 +1817,19 @@
             }
             //END 82CART
 
+            //SHOPIFY
+            var shopify_code = "";
+            var ada_shopify = false;
+            if ($('#txtshopifyCategoryCodeFound').val() != undefined) {
+                if ($('#txtshopifyCategoryCodeFound').val() > -1) {
+                    ada_shopify = true;
+                    var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtshopifyCategoryCodeFound').val() + '__CATEGORY_CODE';
+                    shopify_code = $(fieldCategoryCode).val();
+                    validasiAutoloadStf02Variantshopify();
+                }
+            }
+            //END SHOPIFY
+
             //TOKPED
             var tokped_code = "";
             var ada_tokped = false;
@@ -1924,6 +1966,19 @@
             }
         }
         //END 82CART
+
+        //SHOPIFY
+        var shopify_code = "";
+        var ada_shopify = false;
+        if ($('#txtshopifyCategoryCodeFound').val() != undefined) {
+            if ($('#txtshopifyCategoryCodeFound').val() > -1) {
+                ada_shopify = true;
+                var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtshopifyCategoryCodeFound').val() + '__CATEGORY_CODE';
+                shopify_code = $(fieldCategoryCode).val();
+                validasiAutoloadStf02Variantshopify();
+            }
+        }
+        //END SHOPIFY
 
         //TOKPED
         var tokped_code = "";
@@ -2099,6 +2154,29 @@
         if (validasi_autoloadStf02Variant) {
             if (!$('#save_map_var_82Cart').prop('disabled')) {
                 message_validasi_autoloadStf02Variant = "Mohon simpan setting Opsi 82Cart.";
+            }
+        }
+    }
+    function validasiAutoloadStf02Variantshopify() {
+        $(".txtVariantshopifyLv1_").each(function (i, item) {
+            if ($(item).val() == "") {
+                validasi_autoloadStf02Variant = false;
+            }
+        });
+        $(".txtVariantshopifyLv2_").each(function (i, item) {
+            if ($(item).val() == "") {
+                validasi_autoloadStf02Variant = false;
+            }
+        });
+        $(".txtVariantshopifyLv3_").each(function (i, item) {
+            if ($(item).val() == "") {
+                validasi_autoloadStf02Variant = false;
+            }
+        });
+        message_validasi_autoloadStf02Variant = "Mohon isi semua Opsi Shopify.";
+        if (validasi_autoloadStf02Variant) {
+            if (!$('#save_map_var_shopify').prop('disabled')) {
+                message_validasi_autoloadStf02Variant = "Mohon simpan setting Opsi Shopify.";
             }
         }
     }
@@ -2347,6 +2425,83 @@
         }
     }
 
+    //SHOPIFY
+    function SaveMapVarshopify() {
+        validasi_autoloadStf02Variant = true;
+        message_validasi_autoloadStf02Variant = "";
+
+        var shopify_code = "";
+        var ada_shopify = false;
+        if ($('#txtshopifyCategoryCodeFound').val() != undefined) {
+            if ($('#txtshopifyCategoryCodeFound').val() > -1) {
+                ada_shopify = true;
+                var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtshopifyCategoryCodeFound').val() + '__CATEGORY_CODE';
+                shopify_code = $(fieldCategoryCode).val();
+                validasiAutoloadStf02Variantshopify();
+            }
+        }
+
+        if (validasi_autoloadStf02Variant) {
+            var listVariantshopifyLv1 = [];
+            var listVariantshopifyLv2 = [];
+            var listVariantshopifyLv3 = [];
+
+            $(".txtVariantshopifyLv1_").each(function (i, item) {
+                listVariantshopifyLv1[i] = $(item).val();
+            });
+            $(".txtVariantshopifyLv2_").each(function (i, item) {
+                listVariantshopifyLv2[i] = $(item).val();
+            });
+            $(".txtVariantshopifyLv3_").each(function (i, item) {
+                listVariantshopifyLv3[i] = $(item).val();
+            });
+
+            var post_data = {
+                brg: $('#Stf02_BRG').val(),
+                code: $('#txtKodeKategori').val(),
+                opt_selected_1: $('#select_opt_level_1').val(),
+                opt_selected_2: $('#select_opt_level_2').val(),
+                opt_selected_3: $('#select_opt_level_3').val(),
+                shopify : {
+                    code: shopify_code,
+                    var_judul: {
+                        lv_1: $("#txtJudulVariantshopifyLv1").val(),
+                        lv_2: $("#txtJudulVariantshopifyLv2").val(),
+                        lv_3: $("#txtJudulVariantshopifyLv3").val()
+                    },
+                    var_detail: {
+                        lv_1: listVariantshopifyLv1,
+                        lv_2: listVariantshopifyLv2,
+                        lv_3: listVariantshopifyLv3
+                    }
+                }
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SaveMappingVarshopify", "Manage")',
+                data: post_data,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#save_map_var_shopify').attr('disabled', 'disabled');
+                    $('#loading_spinner').hide();
+                    $('#proses_detail_var_btn').removeAttr('disabled');
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                    $('#loading_spinner').hide();
+                }
+            });
+        }
+        else {
+            if (message_validasi_autoloadStf02Variant != "") {
+                alert(message_validasi_autoloadStf02Variant);
+            }
+        }
+    }
+    //SHOPIFY
+
     function SaveMapVarTokped() {
         validasi_autoloadStf02Variant = true;
         message_validasi_autoloadStf02Variant = "";
@@ -2482,7 +2637,7 @@
                         lv_3: listVariantBlibliLv3,
                         fc_lv_1: listVariantBlibliFCLv1,
                         fc_lv_2: listVariantBlibliFCLv2
-                        
+
                     }
                 }
             }
@@ -2699,6 +2854,7 @@
                             var adaTokped_variant = 0;
                             var adaJdid_variant = 0;
                             var ada82cart_variant = 0;
+                            var adashopify_variant = 0;
                         }
                         @for (var i = 0; i < listMarket.ToList().Count; i++)
             {
@@ -2735,6 +2891,10 @@
                 {
                     ada82cart_variant = 1;
                 }
+                else if (idMarket == 21)
+                {
+                    adashopify_variant = 1;
+                }
             }
                         @if (adaShopee_variant == 1)
             {
@@ -2743,6 +2903,10 @@
                          @if (ada82cart_variant == 1)
             {
                             <li><a data-toggle="tab" id="e2cart_detail_tab_variant_button" href="#e2cart_detail_tab_variant">82Cart</a></li>
+                        }
+                         @if (adashopify_variant == 1)
+            {
+                            <li><a data-toggle="tab" id="shopify_detail_tab_variant_button" href="#shopify_detail_tab_variant">Shopify</a></li>
                         }
                         @if (adaTokped_variant == 1)
             {
@@ -2776,6 +2940,7 @@
                         @{
                             var shopeeCategoryCodeFound = -1;
                             var e2cartCategoryCodeFound = -1;
+                            var shopifyCategoryCodeFound = -1;
                             var tokpedCategoryCodeFound = -1;
                             var blibliCategoryCodeFound = -1;
                             var lazadaCategoryCodeFound = -1;
@@ -2814,6 +2979,21 @@
                                         {
                                             e2cartCategoryCodeFound = i;
                                             @Html.TextBox("txt82CartCategoryCodeFound", @e2cartCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                        }
+                                    }
+                                }
+                            }
+                            if (shopifyCategoryCodeFound == -1)
+                            {
+                                if (idMarket == 21)
+                                {
+                                    if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
+                                    {
+                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault()?.DISPLAY;
+                                        if (cekDisplay ?? false)
+                                        {
+                                            shopifyCategoryCodeFound = i;
+                                            @Html.TextBox("txtshopifyCategoryCodeFound", @shopifyCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
                                         }
                                     }
                                 }

@@ -29,6 +29,7 @@ namespace MasterOnline
         public string Recipient_Address_full_address { get; set; }
         public string Recipient_Address_phone { get; set; }
         public string Recipient_Address_state { get; set; }
+        public string Recipient_Address_email { get; set; }
 
         public int days_to_ship { get; set; }
         public string tracking_no { get; set; }

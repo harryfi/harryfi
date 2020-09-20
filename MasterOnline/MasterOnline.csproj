@@ -124,6 +124,9 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>D:\Users\user\Desktop\Era Controls Dev\Interop.CRAXDRT.dll</HintPath>
     </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.1, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.13.1\lib\itextsharp.dll</HintPath>
+    </Reference>
     <Reference Include="LazopSdk">
       <HintPath>..\..\..\..\Desktop\lazop-sdk-net-20180422-1524824623939DUoW\net\LazopSdk.dll</HintPath>
     </Reference>
@@ -720,6 +723,7 @@
     <Compile Include="Models\BRAND_JDID.cs" />
     <Compile Include="Models\CATEGORY_82CART.cs" />
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
+    <Compile Include="Models\LINKFTP.cs" />
     <Compile Include="Models\LOG_HARGAJUAL.cs" />
     <Compile Include="Models\TEMP_SALDOAWAL.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS.cs" />
@@ -1390,8 +1394,10 @@
     <Compile Include="ViewModels\SubsViewModel.cs" />
     <Compile Include="ViewModels\SupplierViewModel.cs" />
     <Compile Include="ViewModels\SyncMenuViewModel.cs" />
+    <Compile Include="ViewModels\TableTransferToFTPBarang.cs" />
     <Compile Include="ViewModels\TransferExcelViewModel.cs" />
     <Compile Include="ViewModels\SettingKodeVariasiPartialViewModel.cs" />
+    <Compile Include="ViewModels\TransferMarketplace.cs" />
     <Compile Include="ViewModels\UploadBarangViewModel.cs" />
     <Compile Include="ViewModels\DashboardAdminViewModel.cs" />
     <Compile Include="ViewModels\UserViewModel.cs" />
@@ -6425,6 +6431,11 @@
     <Content Include="Views\Manage\FormUpdateHargaMassal.cshtml" />
     <Content Include="Views\Manage\HargaJualMassal.cshtml" />
     <Content Include="Views\Manage\TableHistoryHargaMassal.cshtml" />
+    <Content Include="Views\Manage\TransferMarketplaceToFTP.cshtml" />
+    <Content Include="Views\Manage\TableMarketplaceToFTP.cshtml" />
+    <Content Include="Views\Manage\TransferToFTPParameterLinkFtp.cshtml" />
+    <Content Include="Views\Manage\TransferBarangToFTP.cshtml" />
+    <Content Include="Views\Manage\TableTransferBarangToFTP.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

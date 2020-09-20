@@ -1321,8 +1321,8 @@ namespace MasterOnline.Controllers
                         connId_JobId = dbPathEra + "_shopify_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopifyControllerJob>(x => x.Shopify_GetOrderByStatusPaid(iden, ShopifyControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
 
-                        connId_JobId = dbPathEra + "_shopify_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopifyControllerJob>(x => x.Shopify_GetOrderByStatusCompleted(iden, ShopifyControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(30), recurJobOpt);
+                        //connId_JobId = dbPathEra + "_shopify_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopifyControllerJob>(x => x.Shopify_GetOrderByStatusCompleted(iden, ShopifyControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(30), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_shopify_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopifyControllerJob>(x => x.Shopify_GetOrderByStatusCancelled(iden, ShopifyControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
@@ -1332,7 +1332,7 @@ namespace MasterOnline.Controllers
 
                         new ShopifyControllerJob().Shopify_GetOrderByStatusPaid(iden, ShopifyControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
 
-                        new ShopifyControllerJob().Shopify_GetOrderByStatusCompleted(iden, ShopifyControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
+                        //new ShopifyControllerJob().Shopify_GetOrderByStatusCompleted(iden, ShopifyControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
 
                         new ShopifyControllerJob().Shopify_GetOrderByStatusCancelled(iden, ShopifyControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 #endif
@@ -1469,7 +1469,7 @@ namespace MasterOnline.Controllers
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<JDIDControllerJob>(x => x.JD_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_JDID_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<JDIDControllerJob>(x => x.JD_GetOrderByStatusRTS(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<JDIDControllerJob>(x => x.JD_GetOrderByStatusRTS(iden, JDIDControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_JDID_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<JDIDControllerJob>(x => x.JD_GetOrderByStatusComplete(iden, JDIDControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(30), recurJobOpt);
@@ -1490,7 +1490,7 @@ namespace MasterOnline.Controllers
                         
                         await new JDIDControllerJob().JD_GetOrderByStatusPaid(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 
-                        await new JDIDControllerJob().JD_GetOrderByStatusRTS(iden, JDIDControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                        await new JDIDControllerJob().JD_GetOrderByStatusRTS(iden, JDIDControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 
                         await new JDIDControllerJob().JD_GetOrderByStatusComplete(iden, JDIDControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
 

@@ -140,6 +140,8 @@
                 pesananAutoFromAPI.Add("Auto Tokped");
                 pesananAutoFromAPI.Add("Auto Shopee");
                 pesananAutoFromAPI.Add("Auto JDID");
+                pesananAutoFromAPI.Add("Auto Shopify");
+                pesananAutoFromAPI.Add("Auto 82Cart");
                 //end add by calvin 19 juni 2019
 
                 //add by nurul 22/1/2019
@@ -201,7 +203,9 @@
                     <td>@StatusTx</td>
                     @*end add by nurul 22/1/2019*@
                     <td class="edit-hapus-col">
-                        @if (StatusTx == "Belum Bayar" && !pesananAutoFromAPI.Contains(pesanan.USER_NAME))
+                        @if (StatusTx == "Belum Bayar" && !pesananAutoFromAPI.Contains(pesanan.USER_NAME) ||
+                            StatusTx == "Belum Bayar" && pesanan.USER_NAME.Contains("Auto 82Cart") ||
+                            StatusTx == "Belum Bayar" && pesanan.USER_NAME.Contains("Auto Shopify"))
                         {
                             @*<button class="btn btn-success" data-toggle="modal" data-target="#konfUbahStatus" onclick="passRecStatus(@pesanan.RecNum, '01', '@pesanan.NO_BUKTI')">*@
                             <button class="btn btn-success" data-toggle="modal" data-target="#konfUbahStatus" onclick="passRecStatus(@pesanan.RECNUM, '01', '@pesanan.NOSO')">

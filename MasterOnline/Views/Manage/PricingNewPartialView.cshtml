@@ -104,8 +104,8 @@
                                     <tr>
                                         <th scope="col" style="text-align:left;"></th>
                                         @*<th scope="col" style="text-align:center;">BASIC</th>
-                    <th scope="col" style="text-align:center;">SILVER</th>
-                    <th scope="col" style="text-align:center;">GOLD</th>*@
+                <th scope="col" style="text-align:center;">SILVER</th>
+                <th scope="col" style="text-align:center;">GOLD</th>*@
                                         @foreach (var subs in Model)
                                         {
                                             <th scope="col" style="text-align:center;">@subs.KETERANGAN</th>
@@ -116,10 +116,11 @@
                                 <tbody>
                                     <tr>
                                         @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;PLAN</th> 'change by nurul 19/2/2019*@
-                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Plan</th>
+                                        @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Plan</th> 'remark by fauzi 14/09/2020*@
+                                        <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Plan</th>
                                         <td style="text-align:center;">Free Trial<br>14hari</td>
                                         @*<td style="text-align:center;">Rp 400,000<br>per bulan</td>
-                    <td style="text-align:center;">Rp 900,000<br>per bulan</td>*@
+                <td style="text-align:center;">Rp 900,000<br>per bulan</td>*@
                                         @foreach (var subs in Model)
                                         {
                                             if (subs.KODE != "01")
@@ -130,19 +131,20 @@
                                         <td style="text-align:center;">CALL</td>
                                     </tr>
                                     <tr>
-                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Pembayaran</th>
+                                        @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Pembayaran</th> 'remark by fauzi 14/09/2020*@
+                                        <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Pembayaran</th>
                                         @*<td style="text-align:center; "><a class='btn btn-basicfree' role="button" title="Beli" href="#">DAFTAR</a></td>*@
                                         <td style="text-align:center; "></td>
                                         @*<td style="text-align:center;">
-                        <a class='btn btn-basicfree' role="button" title="Beli" href="#">
-                            Rp 1,200,000 <br>per 3 bulan
-                        </a>
-                    </td>
-                    <td style="text-align:center;">
-                        <a class='btn btn-basicfree' role="button" title="Beli" href="#">
-                            Rp 2,700,000 <br>per 3 bulan
-                        </a>
-                    </td>*@
+            <a class='btn btn-basicfree' role="button" title="Beli" href="#">
+                Rp 1,200,000 <br>per 3 bulan
+            </a>
+        </td>
+        <td style="text-align:center;">
+            <a class='btn btn-basicfree' role="button" title="Beli" href="#">
+                Rp 2,700,000 <br>per 3 bulan
+            </a>
+        </td>*@
                                         @foreach (var subs in Model)
                                         {
                                             if (subs.KODE != "01")
@@ -160,15 +162,15 @@
                                         <th scope="row"></th>
                                         <td style="text-align:center;"></td>
                                         @*<td style="text-align:center;">
-                        <a class='btn btn-basicfree' role="button" title="Beli" href="#">
-                            Rp 4,400,000 <br>per 12 bulan
-                        </a><br><p style="font-size:12px;color:#891539;">hemat 1 bulan</p>
-                    </td>
-                    <td style="text-align:center;">
-                        <a class='btn btn-basicfree' role="button" title="Beli" href="#">
-                            Rp 9,900,000 <br>per 12 bulan
-                        </a><br><p style="font-size:12px;color:#891539;">hemat 1 bulan</p>
-                    </td>*@
+                    <a class='btn btn-basicfree' role="button" title="Beli" href="#">
+                        Rp 4,400,000 <br>per 12 bulan
+                    </a><br><p style="font-size:12px;color:#891539;">hemat 1 bulan</p>
+                </td>
+                <td style="text-align:center;">
+                    <a class='btn btn-basicfree' role="button" title="Beli" href="#">
+                        Rp 9,900,000 <br>per 12 bulan
+                    </a><br><p style="font-size:12px;color:#891539;">hemat 1 bulan</p>
+                </td>*@
                                         @foreach (var subs in Model)
                                         {
                                             if (subs.KODE != "01")
@@ -184,10 +186,11 @@
                                     </tr>
                                     <tr>
                                         @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Market Place</th> 'change by nurul 19/2/2019*@
-                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Marketplace</th>
+                                        @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Marketplace</th> 'remark by fauzi 14/09/2020*@
+                                        <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Jumlah Marketplace</th>
                                         @*<td style="text-align:center;">2</td>
-                    <td style="text-align:center;">Unlimited</td>
-                    <td style="text-align:center;">Unlimited</td>*@
+        <td style="text-align:center;">Unlimited</td>
+        <td style="text-align:center;">Unlimited</td>*@
                                         @foreach (var subs in Model)
                                         {
                                             <td style="text-align:center;">@(subs.JUMLAH_MP >= 99 ? "Unlimited" : subs.JUMLAH_MP.ToString())</td>
@@ -195,10 +198,11 @@
                                         <td style="text-align:center;" rowspan="11" valign="top" class="enterpriseColumn"><h3>Enterprise <br><br>Resources <br><br>Planning <br><br>(ERP) <br><br>Features</h3></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Faktur per Bulan</th>
+                                        @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Faktur per Bulan</th>*@
+                                        <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Jumlah Pesanan per Bulan</th>
                                         @*<td style="text-align:center;">100</td>
-                    <td style="text-align:center;">300</td>
-                    <td style="text-align:center;">Unlimited</td>*@
+                <td style="text-align:center;">300</td>
+                <td style="text-align:center;">Unlimited</td>*@
                                         @foreach (var subs in Model)
                                         {
                                             <td style="text-align:center;">@(subs.JUMLAH_PESANAN >= 999 ? "Unlimited" : subs.JUMLAH_PESANAN.ToString())</td>
@@ -207,7 +211,7 @@
                                     </tr>
                                     <tr>
                                         @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;<b>Market Place Integration</b></th> 'change by nurul 19/2/2019*@
-                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;<b>Marketplace Integration</b></th>
+                                        <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;<b>Marketplace Integration</b></th>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
@@ -215,59 +219,59 @@
                                     </tr>
                                     <tr>
                                         @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Invoicing & Sale Analysis</th> 'change by nurul 19/2/2019*@
-                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Invoicing & Sales Analysis</th>
+                                        <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Invoicing & Sales Analysis</th>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Shipment Management</th>
+                                        <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Shipment Management</th>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Purchasing</th>
+                                        <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Purchasing</th>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Inventory & Warehouse Management</th>
+                                        <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Inventory & Warehouse Management</th>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Account Receivable (AR)</th>
+                                        <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Account Receivable (AR)</th>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Account Payable (AP)</th>
+                                        <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Account Payable (AP)</th>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;General Ledger (GL)</th>
+                                        <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;General Ledger (GL)</th>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-remove" style="color:#891539"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                         <td style="text-align:center;"></td>
                                     </tr>
                                     <tr>
-                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Multi User & Security</th>
+                                        <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Multi User & Security</th>
                                         <td style="text-align:center;"><span class="glyphicon glyphicon-remove" style="color:#891539"></span></td>
                                         @*<td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>*@
+                <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>*@
                                         <td style="text-align:center;">2</td>
                                         <td style="text-align:center;">
                                             <button id="btnMin" style="color:red;background-color: transparent;" onclick="changeUser(-1);"><span class="glyphicon glyphicon-minus"></span></button>
@@ -276,7 +280,58 @@
                                         </td>
                                         <td style="text-align:center;"></td>
                                     </tr>
+                                </tbody>
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="text-align:left;">ADD ON / PLUGIN</th>
+                                        <th scope="col" style="text-align:center;"></th>
+                                        <th scope="col" style="text-align:center;"></th>
+                                        <th scope="col" style="text-align:center;"></th>
+                                        <th scope="col" style="text-align:center;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">
+                                            <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;82cart
+                                        </th>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-remove" style="color:#891539"></span></td>
+                                        <td style="text-align:center;">Free</td>
+                                        <td style="text-align:center;">Free</td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
 
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">
+                                            <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Shopify
+                                        </th>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-remove" style="color:#891539"></span></td>
+                                        @*<td style="text-align:center;"><input class="cbBox02_a" id="cbBox02_silver_a" type="checkbox"><br />Rp 300.000,00</td>
+        <td style="text-align:center;"><input class="cbBox03_a" id="cbBox03_gold_a" type="checkbox"><br />Rp 300.000,00</td>*@
+                                        <td style="text-align:center;"></td>
+                                        <td style="text-align:center;"></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">
+                                            <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Multi SKU / Bundling (Coming Soon)
+                                        </th>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-remove" style="color:#891539"></span></td>
+                                        @*<td style="text-align:center;"><input class="cbBox02_b" id="cbBox02_silver_b" type="checkbox"><br />Rp 300.000,00</td>
+        <td style="text-align:center;"><input class="cbBox03_b" id="cbBox03_gold_b" type="checkbox"><br />Rp 300.000,00</td>*@
+                                        <td style="text-align:center;"></td>
+                                        <td style="text-align:center;"></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">
+                                            <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Data Transfer to FTP
+                                        </th>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-remove" style="color:#891539"></span></td>
+                                        <td style="text-align:center;">@*<input class="cbBox02_c" id="cbBox02_silver_c" type="checkbox"><br />Rp 300.000,00*@</td>
+                                        <td style="text-align:center;">@*<input class="cbBox03_c" id="cbBox03_gold_c" type="checkbox"><br />Rp 300.000,00*@</td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
