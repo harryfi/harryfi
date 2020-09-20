@@ -4155,6 +4155,12 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke Tokopedia gagal.")]
         public async Task<string> UpdatePrice_Job(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, int product_id, TokopediaAPIData iden, int price)
         {
+            //add 19 sept 2020, update harga massal
+            if (log_ActionName.Contains("UPDATE_MASSAL"))
+            {
+               await Task.Delay(1000);//delay agar tidak terkena limit
+            }
+            //end add 19 sept 2020, update harga massal
             var token = SetupContext(iden);
             iden.token = token;
 
@@ -4262,6 +4268,27 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
+                                    //add 19 sept 2020, update harga massal
+                                    if (log_ActionName.Contains("UPDATE_MASSAL"))
+                                    {
+                                        var dataLog = log_ActionName.Split('_');
+                                        if (dataLog.Length >= 4)
+                                        {
+                                            var nobuk = dataLog[2];
+                                            var indexData = Convert.ToInt32(dataLog[3]);
+                                            var log_b = ErasoftDbContext.LOG_HARGAJUAL_B.Where(m => m.NO_BUKTI == nobuk && m.NO_FILE == indexData).FirstOrDefault();
+                                            if (log_b != null)
+                                            {
+                                                var currentProgress = log_b.KET.Split('/');
+                                                if (currentProgress.Length == 2)
+                                                {
+                                                    log_b.KET = (Convert.ToInt32(currentProgress[0]) + 1) + "/" + currentProgress[1];
+                                                    ErasoftDbContext.SaveChanges();
+                                                }
+                                            }
+                                        }
+                                    }
+                                    //end add 19 sept 2020, update harga massal
                                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                                 }
                             }

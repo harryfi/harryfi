@@ -324,6 +324,7 @@
     <Compile Include="Controllers\EightTwoCartControllerJob.cs" />
     <Compile Include="Controllers\JDIDControllerJob.cs" />
     <Compile Include="Controllers\ExcelControllerJob.cs" />
+    <Compile Include="Controllers\MasterOnlineController.cs" />
     <Compile Include="Controllers\ShopifyController.cs" />
     <Compile Include="Controllers\ShopifyControllerJob.cs" />
     <Compile Include="Controllers\StokControllerJob.cs" />
@@ -723,6 +724,7 @@
     <Compile Include="Models\CATEGORY_82CART.cs" />
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
     <Compile Include="Models\LINKFTP.cs" />
+    <Compile Include="Models\LOG_HARGAJUAL.cs" />
     <Compile Include="Models\TEMP_SALDOAWAL.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS_ITEM.cs" />
@@ -1081,6 +1083,7 @@
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
     <Compile Include="Utils\XcelUtils.cs" />
+    <Compile Include="ViewModels\HargaJualMassalViewModel.cs" />
     <Compile Include="ViewModels\mdlTempBayarBlibli.cs" />
     <Compile Include="ViewModels\mdlTempBayarTokped.cs" />
     <Compile Include="ViewModels\mdlSaldoAwal.cs" />
@@ -6425,6 +6428,9 @@
     <Content Include="Views\Manage\PromptBrandJDID.cshtml" />
     <Content Include="Views\Manage\PackingListJDID.cshtml" />
     <Content Include="Views\Manage\ListDetailPackingListJDID.cshtml" />
+    <Content Include="Views\Manage\FormUpdateHargaMassal.cshtml" />
+    <Content Include="Views\Manage\HargaJualMassal.cshtml" />
+    <Content Include="Views\Manage\TableHistoryHargaMassal.cshtml" />
     <Content Include="Views\Manage\TransferMarketplaceToFTP.cshtml" />
     <Content Include="Views\Manage\TableMarketplaceToFTP.cshtml" />
     <Content Include="Views\Manage\TransferToFTPParameterLinkFtp.cshtml" />
@@ -6438,6 +6444,7 @@
     <Folder Include="Views\BCA\" />
     <Folder Include="Views\Blibli\" />
     <Folder Include="Views\Elevenia\" />
+    <Folder Include="Views\MasterOnline\" />
     <Folder Include="Views\StokOpnameViewModel\" />
   </ItemGroup>
   <ItemGroup>

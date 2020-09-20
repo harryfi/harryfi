@@ -24,4 +24,14 @@ namespace MasterOnline
         public double HPOKOK { get; set; }
         public double STF02_HJUAL { get; set; }
     }
+    public class mdlHargaJualMassal
+    {
+        public DateTime TGL { get; set; }
+        public string IDMARKET { get; set; }
+        public string USERNAME { get; set; }
+        public string FILE { get; set; }
+        public string STATUS { get; set; }
+        public string NAMAMARKET { get; set; }
+        public string AKUNMARKET { get; set; }
+    }
 }

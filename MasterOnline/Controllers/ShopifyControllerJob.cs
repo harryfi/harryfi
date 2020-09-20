@@ -1056,6 +1056,27 @@ namespace MasterOnline.Controllers
                         {
                             if (result.variant != null)
                             {
+                                //add 19 sept 2020, update harga massal
+                                if (log_ActionName.Contains("UPDATE_MASSAL"))
+                                {
+                                    var dataLog = log_ActionName.Split('_');
+                                    if (dataLog.Length >= 4)
+                                    {
+                                        var nobuk = dataLog[2];
+                                        var indexData = Convert.ToInt32(dataLog[3]);
+                                        var log_b = ErasoftDbContext.LOG_HARGAJUAL_B.Where(m => m.NO_BUKTI == nobuk && m.NO_FILE == indexData).FirstOrDefault();
+                                        if (log_b != null)
+                                        {
+                                            var currentProgress = log_b.KET.Split('/');
+                                            if (currentProgress.Length == 2)
+                                            {
+                                                log_b.KET = (Convert.ToInt32(currentProgress[0]) + 1) + "/" + currentProgress[1];
+                                                ErasoftDbContext.SaveChanges();
+                                            }
+                                        }
+                                    }
+                                }
+                                //end add 19 sept 2020, update harga massal
                                 //foreach (var item in result.product.variants)
                                 //{
                                 //    //if (item.price == Convert.ToString(price))

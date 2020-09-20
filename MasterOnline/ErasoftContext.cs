@@ -456,6 +456,11 @@ namespace MasterOnline
         public virtual DbSet<TEMP_UPLOAD_EXCEL_BAYAR> TEMP_UPLOAD_EXCEL_BAYAR { get; set; }
         //end add by nurul 9/4/2020
 
+        //add by Tri harga jual massal
+        public virtual DbSet<LOG_HARGAJUAL_A> LOG_HARGAJUAL_A { get; set; }
+        public virtual DbSet<LOG_HARGAJUAL_B> LOG_HARGAJUAL_B { get; set; }
+        //end add by Tri harga jual massal
+
         //add by otniel 10/9/2020        
         public virtual DbSet<LINKFTP> LINKFTP { get; set; }
         //end by otniel 10/9/2020
