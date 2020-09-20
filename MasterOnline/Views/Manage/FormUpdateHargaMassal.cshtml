@@ -71,7 +71,8 @@
     function changeStatusProcess() {
         if ($('#STATUS').val() == "1") {
             document.getElementById("file_upload_excel").disabled = true;
-            document.getElementById("cbJamProses").disabled = true;
+            //document.getElementById("cbJamProses").disabled = true;
+            $('#cbJamProses')[0].selectize.disable();
             document.getElementById("dtProses").disabled = true;
             document.getElementById("btnDelFile_1").disabled = true;
             document.getElementById("btnDelFile_2").disabled = true;
@@ -79,7 +80,8 @@
             document.getElementById("btnDelFile_4").disabled = true;
         } else {
             document.getElementById("file_upload_excel").disabled = false;
-            document.getElementById("cbJamProses").disabled = false;
+            //document.getElementById("cbJamProses").disabled = false;
+            $('#cbJamProses')[0].selectize.enable();
             document.getElementById("dtProses").disabled = false;
             document.getElementById("btnDelFile_1").disabled = false;
             document.getElementById("btnDelFile_2").disabled = false;
@@ -360,16 +362,19 @@
 
                 <div style="vertical-align:middle">
                     @Html.HiddenFor(m => m.STATUS)
-                    <button type="button" class="btn btn-primary" onclick="changeStatus();" data-style="expand-right">
-                        @if (Model.STATUS == 0)
-                        {
+
+                    @if (Model.STATUS == 0)
+                    {
+                        <button type="button" class="btn btn-primary" onclick="changeStatus();" data-style="expand-right">
                             <span>Proses</span>
-                        }
-                        else
-                        {
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-danger" onclick="changeStatus();" data-style="expand-right">
                             <span>Batal</span>
-                        }
-                    </button>
+                        </button>
+                    }
                 </div>
             </div>
             @*</div>*@

@@ -494,7 +494,7 @@
                         for (i = 0; i < response.Errors.length; i++) {
                             if (response.Errors[i].includes("Anda sudah mengupload excel harga jual untuk akun ini")) {
                                 alert(response.Errors[i]);
-                                $('#FILE_' + index).val();
+                                $('#FILE_' + index).val('');
                                 $('#delFile_' + index).show();
                                 $('#loading_' + index).hide();
                                 disableUpload(0);
