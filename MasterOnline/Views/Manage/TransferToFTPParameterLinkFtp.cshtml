@@ -44,9 +44,9 @@
 <div class="row" id="parameterlinkftp-section">
     <div class="col-lg-12 col-md-12">
         <div class="row parameterlinkftp_editor_section">
-            <div class="col-lg-12 col-md-12">
+            @*<div class="col-lg-12 col-md-12">
                 <button class="btn btn-primary btn_excel_stokopname" onclick="DownloadDataFakturCsv()" id="datatransfercsv">Download CSV</button>
-            </div>
+            </div>*@
             <div class="col-lg-12">
                 <div class="page-editor">
                     <h2 class="editor-title">Parameter Link FTP</h2>
@@ -83,11 +83,11 @@
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.IP, "IP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.IP, new { @class = "form-control", required = "required" })
+                                                    @Html.TextBoxFor(m => m.IP, new { @class = "form-control", @id = "IP", required = "required" })
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                @Html.LabelFor(m => m.LOGIN, "Login *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                @Html.LabelFor(m => m.LOGIN, "Username *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.TextBoxFor(m => m.LOGIN, new { @class = "form-control", required = "required" })
                                                 </div>
@@ -107,19 +107,23 @@
                                                         if (Model.STATUS_FTP == "0")
                                                         {
                                                             @Html.CheckBox("StatusFtp", true, new { @checked = true, @style = "width:30px; height:28px;" })
+                                                            @*<select style="display:none" single class="selectize-dropdown single" id="StatusFtp" placeholder="Harap pilih" required="disabled"></select>*@
                                                         }
                                                         else if (Model.STATUS_FTP == "1")
                                                         {
                                                             @Html.CheckBox("StatusFtp", false, new { @checked = false, @style = "width:30px; height:28px;" })
+                                                            @*<select style="display:none" single class="selectize-dropdown single" id="StatusFtp" placeholder="Harap pilih" required="disabled"></select>*@
                                                         }
                                                         else
                                                         {
                                                             @Html.CheckBox("StatusFtp", true, new { @checked = true, @style = "width:30px; height:28px;" })
+                                                            @*<select style="display:none" single class="selectize-dropdown single" id="StatusFtp" placeholder="Harap pilih" required="disabled"></select>*@
                                                         }
                                                     }
                                                     else
                                                     {
                                                         @Html.CheckBox("StatusFtp", true, new { @checked = true, @style = "width:30px; height:28px;" })
+                                                        @*<select style="display:none" single class="selectize-dropdown single" id="StatusFtp" placeholder="Harap pilih" required="disabled"></select>*@
                                                     }
                                                 </div>
                                             </div>
@@ -155,7 +159,7 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                @Html.LabelFor(m => m.JAM1, "Jam 1 *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                @Html.LabelFor(m => m.JAM1, "Schedule 1 *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     <div class="input-group date">
                                                         @Html.TextBoxFor(m => m.JAM1, new { @class = "form-control", required = "required" })
@@ -166,7 +170,7 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                @Html.LabelFor(m => m.JAM2, "Jam 2", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                @Html.LabelFor(m => m.JAM2, "Schedule 2", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     <div class="input-group date">
                                                         @Html.TextBoxFor(m => m.JAM2, new { @class = "form-control" })
@@ -176,7 +180,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
+                                            @*<div class="form-group">
                                                 @Html.LabelFor(m => m.JAM3, "Jam 3", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     <div class="input-group date">
@@ -208,7 +212,7 @@
                                                         </span>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div>*@
                                             <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="SimpanParameterLinkFtp(this)" />
                                         }
                                     </div>
@@ -226,6 +230,12 @@
 {
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script src="~/Content/build/js/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript" src="~/Content/build/js/jquery.maskedinput-1.2.1.pack.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $("#IP").mask("999.999.999.999");
+        });
+    </script>
 
     <script type="text/javascript">
         $supplierId = "";
@@ -238,21 +248,46 @@
             var day = d.getDate();
             var year = d.getFullYear();
             var dateNow = new Date(year, month, day, 00, 00);
-            $('#JAM1').datetimepicker({
-                format: 'HH:mm'
+            //$('#JAM1').datetimepicker({
+            //    format: 'HH:mm'
+            //});
+            //$('#JAM2').datetimepicker({
+            //    format: 'HH:mm'
+            //});
+            //$('#JAM3').datetimepicker({
+            //    format: 'HH:mm'
+            //});
+            //$('#JAM4').datetimepicker({
+            //    format: 'HH:mm'
+            //});
+            //$('#JAM5').datetimepicker({
+            //    format: 'HH:mm'
+            //});
+
+            var statusUploadFTP = $('#StatusFtp').selectize({
+                create: true,
+                maxItems: 1,
+                multiple: false,
+                addOption: false,
+                sortField: 'text',
+                valueField: 'value',
+                labelField: 'text',
+                searchField: ['text'],
+                options: [
+                    { value: "true", text: "Aktif", selected: true },
+                    { value: "false", text: "Tidak Aktif", selected: true },
+                ],
+                selectedField: "selected",
+                onChange: function (value) {
+                    if (value == "true") {
+                        statusUploadFTP[0].selectize.setValue($('#StatusFtp').val(), true);
+                    }
+                    else if (value == "false") {
+                        statusUploadFTP[0].selectize.setValue($('#StatusFtp').val(), true);
+                    }
+                }
             });
-            $('#JAM2').datetimepicker({
-                format: 'HH:mm'
-            });
-            $('#JAM3').datetimepicker({
-                format: 'HH:mm'
-            });
-            $('#JAM4').datetimepicker({
-                format: 'HH:mm'
-            });
-            $('#JAM5').datetimepicker({
-                format: 'HH:mm'
-            });
+
         });
 
         function SimpanParameterLinkFtp(btnClicked) {
@@ -283,6 +318,7 @@
                 },
                 success: function (response) {
                     if (response.Errors == null) {
+                        DownloadDataFakturCsv();
                         $('#close-editor').click();
                         $("html, body").animate({ scrollTop: 0 }, "slow");
                         $('#loading_spinner').hide();
@@ -323,8 +359,8 @@
                 success: function (response) {
                     $('#loading_spinner').hide();
                     if (response.Errors.length == 0) {
-                        var bytes = new Uint8Array(response.byteExcel);
-                        saveByteArray(response.namaFile, bytes);
+                        //var bytes = new Uint8Array(response.byteExcel);
+                        //saveByteArray(response.namaFile, bytes);
                     } else {
                         alert(response.Errors[0]);
                     }

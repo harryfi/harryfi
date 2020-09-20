@@ -23,6 +23,9 @@ using System.Data.SqlClient;
 using System.Data;
 using MasterOnline.Utils;
 using System.Text.RegularExpressions;
+using Hangfire;
+using Hangfire.Server;
+using Hangfire.SqlServer;
 
 namespace MasterOnline.Controllers
 {
@@ -1149,7 +1152,7 @@ namespace MasterOnline.Controllers
                                                     {
                                                         ret.statusLoop = true;
                                                         ret.progress = j;
-                                                        if(ret.progress == 0)
+                                                        if (ret.progress == 0)
                                                         {
                                                             ret.percent = (j * 100) / (ret.countAll);
                                                         }
@@ -1530,12 +1533,12 @@ namespace MasterOnline.Controllers
                                                                                     var dataToko = dataMasterARF01.Where(p => p.CUST == kodeCust).FirstOrDefault();
                                                                                     if (dataToko != null)
                                                                                     {
-                                                                                        if(dataToko.STATUS_API == "0" || string.IsNullOrEmpty(dataToko.STATUS_API))
+                                                                                        if (dataToko.STATUS_API == "0" || string.IsNullOrEmpty(dataToko.STATUS_API))
                                                                                         {
 
-                                                                                        var KodeBRGMP = "";
-                                                                                        //var dataBarang = ErasoftDbContext.STF02H.Where(p => p.BRG == item.KODE_BRG && p.IDMARKET == dataToko.RecNum).FirstOrDefault();
-                                                                                        var dataBarang = dataMasterSTF02H.Where(p => p.BRG == kode_brg && p.IDMARKET == dataToko.RecNum).FirstOrDefault();
+                                                                                            var KodeBRGMP = "";
+                                                                                            //var dataBarang = ErasoftDbContext.STF02H.Where(p => p.BRG == item.KODE_BRG && p.IDMARKET == dataToko.RecNum).FirstOrDefault();
+                                                                                            var dataBarang = dataMasterSTF02H.Where(p => p.BRG == kode_brg && p.IDMARKET == dataToko.RecNum).FirstOrDefault();
                                                                                             if (dataBarang != null)
                                                                                             {
                                                                                                 KodeBRGMP = "";
@@ -2811,7 +2814,7 @@ namespace MasterOnline.Controllers
                 using (var package = new OfficeOpenXml.ExcelPackage())
                 {
                     ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("PESANAN");
-                    
+
                     // SHEET 1
                     //initial for protected
                     worksheet.Protection.IsProtected = true;
@@ -2886,7 +2889,7 @@ namespace MasterOnline.Controllers
                     worksheet.Cells["A2"].Value = "Keterangan: Kolom warna kuning harus diisi.";
 
                     //add formula
-                   
+
 
                     for (int i = 0; i < 5; i++)
                     {
@@ -3025,7 +3028,7 @@ namespace MasterOnline.Controllers
                     if (dataKurir != null)
                     {
                         var j = 0;
-                        foreach(var itemKurir in dataKurir)
+                        foreach (var itemKurir in dataKurir)
                         {
                             sheet2.Cells[4 + j, 6].Value = itemKurir.RecNum;
                             sheet2.Cells[4 + j, 7].Value = itemKurir.RecNum + ";" + itemKurir.NamaEkspedisi;
@@ -3368,6 +3371,53 @@ namespace MasterOnline.Controllers
 
                         ret.byteExcel = package.GetAsByteArray();
                         ret.namaFile = username + "_faktur" + ".csv";
+                        //byte[] byteArray = Convert.FromBase64CharArray( 0, package.GetAsByteArray().Length);
+
+                        #region initial folder
+                        string messageErrorLog = "";
+                        string filename = username + "_faktur_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".csv";
+                        var path = Path.Combine(Server.MapPath("~/Content/Uploaded/UploadFTP/"), filename);
+                        #endregion
+
+                        if (!System.IO.File.Exists(path))
+                        {
+                            System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/UploadFTP/"), ""));
+                            //System.IO.File.Create(path);
+                            using (FileStream stream = System.IO.File.Create(path))
+                            {
+                                stream.Write(ret.byteExcel, 0, ret.byteExcel.Length);
+                                stream.Close();
+                            }
+
+#if (DEBUG || Debug_AWS)
+                            Task.Run(() => FTP_uploadFile(dbPathEra, ret.namaFile, "QC", "Transfer FTP", "Upload File Faktur to FTP", "139.255.17.38", path, "masteronline", "Doremi135", null).Wait());
+#else
+                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var client = new BackgroundJobClient(sqlStorage);
+
+                            RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
+                            RecurringJobOptions recurJobOpt = new RecurringJobOptions()
+                            {
+                                QueueName = "1_manage_pesanan",
+                            };
+
+                            //client.Enqueue<TransferExcelController>(x => x.FTP_uploadFile(dbPathEra, ret.namaFile, "QC", "Transfer FTP", "Upload File Faktur to FTP", "139.255.17.38", path, "masteronline", "Doremi135", null));
+
+                            var connection_id_upload_file_ftp = dbPathEra + "_job_upload_file_ftp";
+                            recurJobM.RemoveIfExists(connection_id_upload_file_ftp); //DateTime.UtcNow.AddHours(7).Year.ToString()
+                            recurJobM.AddOrUpdate(connection_id_upload_file_ftp, Hangfire.Common.Job.FromExpression<TransferExcelController>(x => x.FTP_uploadFile(dbPathEra, ret.namaFile, "QC", "Transfer FTP", "Upload File Faktur to FTP", "139.255.17.38", path, "masteronline", "Doremi135", null)), "3 * * * *", recurJobOpt);
+
+
+#endif
+                        }
+
+                        if (System.IO.File.Exists(path))
+                        {
+                            System.IO.File.Delete(path);
+                        }
+
+
                     }
                     else
                     {
@@ -3395,6 +3445,42 @@ namespace MasterOnline.Controllers
 
         }
         //end by otniel
+
+        //add by fauzi 16 September 2020 untuk Upload File ke FTP Server
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Upload file Faktur {obj} ke FTP Server gagal.")]
+        public async Task<string> FTP_uploadFile(string DatabasePathErasoft, string nama_file, string log_CUST, string log_ActionCategory, string log_ActionName, string ip_serverFTP, string locationFile, string usernameFTP, string passwordFTP, PerformContext context)
+        {
+            string ret = "";
+
+            FtpWebRequest request;
+            //string absoluteFileName = Path.GetFileName("D:\\LEE SUSANTI_faktur exclude PPN.csv");
+
+            request = WebRequest.Create(new Uri(string.Format(@"ftp://{0}/{1}", ip_serverFTP, nama_file))) as FtpWebRequest;
+            request.Method = WebRequestMethods.Ftp.UploadFile;
+            request.UseBinary = false;
+            request.UsePassive = false;
+            request.KeepAlive = false;
+            request.Timeout = 600000;
+            request.ReadWriteTimeout = 600000;
+            request.Credentials = new NetworkCredential(usernameFTP, passwordFTP);
+            request.ConnectionGroupName = "group";
+
+            using (FileStream fs = System.IO.File.OpenRead(locationFile))
+            {
+                byte[] buffer = new byte[fs.Length];
+                fs.Read(buffer, 0, buffer.Length);
+                fs.Close();
+                Stream requestStream = request.GetRequestStream();
+                requestStream.Write(buffer, 0, buffer.Length);
+                requestStream.Flush();
+                requestStream.Close();
+            }
+
+            return ret;
+        }
+        //end by fauzi 16 September 2020
 
         //add by Indra 16 apr 2020, download stokopname
         public ActionResult ListStokOpnametoExcel()
@@ -3438,7 +3524,7 @@ namespace MasterOnline.Controllers
                             table0.Columns[1].Name = "NAMA BARANG";
                             table0.Columns[2].Name = "QTY";
 
-                            #region formatting
+#region formatting
                             using (var range = worksheet.Cells[1, 1, 2, 1])
                             {
                                 range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
@@ -3455,7 +3541,7 @@ namespace MasterOnline.Controllers
                                 range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
                             }
 
-                            #endregion
+#endregion
                             table0.ShowHeader = true;
                             table0.ShowFilter = true;
                             table0.ShowRowStripes = false;

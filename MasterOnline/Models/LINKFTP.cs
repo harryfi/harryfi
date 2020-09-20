@@ -10,7 +10,8 @@
     public partial class LINKFTP
     {
         [Key]
-        [StringLength(10)]
+        [RegularExpression(@"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$")]
+        [StringLength(15)]
         public string IP { get; set; }
 
         [StringLength(50)]
