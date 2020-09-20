@@ -46785,11 +46785,11 @@ namespace MasterOnline.Controllers
                             sSQL3 += "where a.status_transaksi='02' and a.recnum in (" + listRecnumEnd + ")";
                             context.Database.ExecuteSqlCommand(sSQL3);
                         }
-                        var sSQL4 = "select count(a.no_bukti)jumlah from sit01a a inner join sot01a b on a.no_so=b.no_bukti where isnull(a.no_ref,'')='' and isnull(b.no_referensi,'')<>'' ";
+                        var sSQL4 = "select count(a.no_bukti)jumlah from sit01a a inner join sot01a b on a.no_so=b.no_bukti where (isnull(a.no_ref,'')='' or isnull(a.no_ref,'')='-') and isnull(b.no_referensi,'')<>'' ";
                         var cekCountSINorefBlank = context.Database.SqlQuery<int>(sSQL4).SingleOrDefault();
                         if(cekCountSINorefBlank > 0)
                         {
-                            var sSQL5 = "update a set no_ref=b.no_referensi from sit01a a inner join sot01a b on a.no_so=b.no_bukti where isnull(a.no_ref,'')='' and isnull(b.no_referensi,'')<>''";
+                            var sSQL5 = "update a set no_ref=b.no_referensi from sit01a a inner join sot01a b on a.no_so=b.no_bukti where (isnull(a.no_ref,'')='' or isnull(a.no_ref,'')='-') and isnull(b.no_referensi,'')<>''";
                             context.Database.ExecuteSqlCommand(sSQL5);
                         }
                     }
