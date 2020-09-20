@@ -33159,7 +33159,7 @@ namespace MasterOnline.Controllers
                     }
                     if (!string.IsNullOrEmpty(currentData.FILE_2))
                     {
-                        Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(dbPathEra, currentData.NO_BUKTI, "", "Price", "Update Harga Massal", currentData.NO_BUKTI +"_2", 2, usernameLogin), dtProses);
+                        //Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(dbPathEra, currentData.NO_BUKTI, "", "Price", "Update Harga Massal", currentData.NO_BUKTI +"_2", 2, usernameLogin), dtProses);
                         var newData2 = new LOG_HARGAJUAL_B
                         {
                             NO_BUKTI = currentData.NO_BUKTI,
@@ -33185,7 +33185,7 @@ namespace MasterOnline.Controllers
                     }
                     if (!string.IsNullOrEmpty(currentData.FILE_3))
                     {
-                        Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(dbPathEra, currentData.NO_BUKTI, "", "Price", "Update Harga Massal", currentData.NO_BUKTI +"_3", 3, usernameLogin), dtProses);
+                        //Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(dbPathEra, currentData.NO_BUKTI, "", "Price", "Update Harga Massal", currentData.NO_BUKTI +"_3", 3, usernameLogin), dtProses);
                         var newData3 = new LOG_HARGAJUAL_B
                         {
                             NO_BUKTI = currentData.NO_BUKTI,
@@ -33211,7 +33211,7 @@ namespace MasterOnline.Controllers
                     }
                     if (!string.IsNullOrEmpty(currentData.FILE_4))
                     {
-                        Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(dbPathEra, currentData.NO_BUKTI, "", "Price", "Update Harga Massal", currentData.NO_BUKTI +"_4", 4, usernameLogin), dtProses);
+                        //Jobclient.Schedule<MasterOnlineController>(x => x.UpdateHJulaMassal(dbPathEra, currentData.NO_BUKTI, "", "Price", "Update Harga Massal", currentData.NO_BUKTI +"_4", 4, usernameLogin), dtProses);
                         var newData4 = new LOG_HARGAJUAL_B
                         {
                             NO_BUKTI = currentData.NO_BUKTI,

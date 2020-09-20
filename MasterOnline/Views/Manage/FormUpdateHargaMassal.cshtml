@@ -365,13 +365,13 @@
 
                     @if (Model.STATUS == 0)
                     {
-                        <button type="button" class="btn btn-primary" onclick="changeStatus();" data-style="expand-right">
+                        <button id="btnProses" type="button" class="btn btn-primary" onclick="changeStatus();" data-style="expand-right">
                             <span>Proses</span>
                         </button>
                     }
                     else
                     {
-                        <button type="button" class="btn btn-danger" onclick="changeStatus();" data-style="expand-right">
+                        <button id="btnProses" type="button" class="btn btn-danger"  data-toggle="modal" data-target="#konfBatal" data-style="expand-right">
                             <span>Batal</span>
                         </button>
                     }
