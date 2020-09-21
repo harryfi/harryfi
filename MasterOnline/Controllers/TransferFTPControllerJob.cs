@@ -55,7 +55,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_manage_pesanan")]
-        public async Task<string> FTP_listFakturJob(string DatabasePathErasoft, string uname)
+        public async Task<string> FTP_listFakturJob(string DatabasePathErasoft, string typeFile, string cust, string logActionCategory, string logActionName, string uname)
         {
             //DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null
             string ret = "";
@@ -168,26 +168,26 @@ namespace MasterOnline.Controllers
 
                         worksheet.Cells.AutoFitColumns(0);
 
-                        byte[] byteExcel = package.GetAsByteArray();
+                        var byteExcel = package.GetAsByteArray();
 
                         #region initial folder
                         string filename = username.Replace(" ", "") + "_faktur_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".csv";
-                        var path = System.IO.Path.Combine(Server.MapPath("~/Content/Uploaded/UploadFTP/"), filename);
+                        //var path = System.IO.Path.Combine(Server.MapPath("~/Content/Uploaded/UploadFTP/"), filename);
                         #endregion
 
-                        if (!System.IO.File.Exists(path))
-                        {
-                            System.IO.Directory.CreateDirectory(System.IO.Path.Combine(Server.MapPath("~/Content/Uploaded/UploadFTP/"), ""));
+                        //if (!System.IO.File.Exists(path))
+                        //{
+                            //System.IO.Directory.CreateDirectory(System.IO.Path.Combine(Server.MapPath("~/Content/Uploaded/UploadFTP/"), ""));
                             //System.IO.File.Create(path);
-                            using (FileStream stream = System.IO.File.Create(path))
-                            {
-                                stream.Write(byteExcel, 0, byteExcel.Length);
-                                stream.Close();
-                            }
+                            //using (FileStream stream = System.IO.File.Create(path))
+                            //{
+                            //    stream.Write(byteExcel, 0, byteExcel.Length);
+                            //    stream.Close();
+                            //}
 
-                            //Task.Run(() => FTP_uploadFile(dbPathEra, namaFile, "QC", "Transfer FTP", "Upload File Faktur to FTP", "139.255.17.38", path, "masteronline", "Doremi135", null).Wait());
-                            FTP_uploadFile(filename, dataParamFTP[0].IP, path, dataParamFTP[0].LOGIN, dataParamFTP[0].PASSWORD);
-                        }
+                            Task.Run(() => FTP_uploadFile(filename, dataParamFTP[0].IP, dataParamFTP[0].LOGIN, dataParamFTP[0].PASSWORD, byteExcel).Wait());
+                            //FTP_uploadFile(filename, dataParamFTP[0].IP, dataParamFTP[0].LOGIN, dataParamFTP[0].PASSWORD, byteExcel);
+                        //}
 
                         //if (System.IO.File.Exists(path))
                         //{
@@ -198,29 +198,25 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        //ret.Errors.Add("Tidak ada data faktur");
+                        throw new Exception("Tidak ada faktur hari ini.");
                     }
-
                 }
             }
             catch (Exception ex)
             {
-                ret = ex.Message.ToString();
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
             }
 
             return ret;
         }
 
         //add by fauzi 16 September 2020 untuk Upload File ke FTP Server
-        public async Task<string> FTP_uploadFile(string nama_file, string ip_serverFTP, string locationFile, string usernameFTP, string passwordFTP)
+        public async Task<string> FTP_uploadFile(string nama_file, string ip_serverFTP, string usernameFTP, string passwordFTP, byte[] byteData)
         {
-            //public async Task<string> FTP_uploadFile(string DatabasePathErasoft, string nama_file, string log_CUST, string log_ActionCategory, string log_ActionName, string ip_serverFTP, string locationFile, string usernameFTP, string passwordFTP, PerformContext context)
-            //{
             string ret = "";
 
             FtpWebRequest request;
-            //string absoluteFileName = Path.GetFileName("D:\\LEE SUSANTI_faktur exclude PPN.csv");
-
             request = WebRequest.Create(new Uri(string.Format(@"ftp://{0}/{1}", ip_serverFTP, nama_file))) as FtpWebRequest;
             request.Method = WebRequestMethods.Ftp.UploadFile;
             request.UseBinary = false;
@@ -231,16 +227,16 @@ namespace MasterOnline.Controllers
             request.Credentials = new NetworkCredential(usernameFTP, passwordFTP);
             request.ConnectionGroupName = "group";
 
-            using (FileStream fs = System.IO.File.OpenRead(locationFile))
-            {
-                byte[] buffer = new byte[fs.Length];
-                fs.Read(buffer, 0, buffer.Length);
-                fs.Close();
-                Stream requestStream = request.GetRequestStream();
-                requestStream.Write(buffer, 0, buffer.Length);
-                requestStream.Flush();
-                requestStream.Close();
-            }
+            //using (FileStream fs = System.IO.File.OpenRead(locationFile))
+            //{
+            //    byte[] buffer = new byte[fs.Length];
+            //    fs.Read(buffer, 0, buffer.Length);
+            //    fs.Close();
+            Stream requestStream = request.GetRequestStream();
+            requestStream.Write(byteData, 0, byteData.Length);
+            requestStream.Flush();
+            requestStream.Close();
+            //}
 
             return ret;
         }
@@ -248,7 +244,5 @@ namespace MasterOnline.Controllers
 
         #endregion
         // END REGION UPLOAD FTP WITH HANGFIRE JOB by fauzi 20/09/2020
-
-
     }
 }
