@@ -30486,8 +30486,9 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public FileResult DownloadLogUploadFaktur(string filename)
         {
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename);
 
             byte[] data = System.IO.File.ReadAllBytes(path);
             string contentType = MimeMapping.GetMimeMapping(path);
