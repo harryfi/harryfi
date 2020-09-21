@@ -3281,17 +3281,16 @@ namespace MasterOnline.Controllers
                 };
 
 #if (DEBUG || Debug_AWS)
-                //Task.Run(() => FTP_listFakturJob(dbPathEra, username).Wait());
                 var job = new TransferFTPControllerJob();
-                //Task.Run(() => job.FTP_listFakturJob(dbPathEra, username).Wait());
-                new TransferFTPControllerJob().FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username);
+                Task.Run(() => job.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username).Wait());
+                //new TransferFTPControllerJob().FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username);
 #else
 
-                client.Enqueue<TransferFTPControllerJob>(x => x.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username));
+                //client.Enqueue<TransferFTPControllerJob>(x => x.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username));
 
                 var connection_id_upload_file_ftp = dbPathEra + "_job_upload_file_ftp";
                 recurJobM.RemoveIfExists(connection_id_upload_file_ftp);
-                recurJobM.AddOrUpdate(connection_id_upload_file_ftp, Hangfire.Common.Job.FromExpression<TransferFTPControllerJob>(x => x.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username)), "10 * * * *", recurJobOpt);
+                recurJobM.AddOrUpdate(connection_id_upload_file_ftp, Hangfire.Common.Job.FromExpression<TransferFTPControllerJob>(x => x.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username)), "5 * * * *", recurJobOpt);
 #endif
             }
             catch (Exception ex)
