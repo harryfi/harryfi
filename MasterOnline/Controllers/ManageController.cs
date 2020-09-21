@@ -31424,7 +31424,7 @@ namespace MasterOnline.Controllers
             #region Logging
             string message = "";
             string filename = "Log_Upload_Inv_Bukalapak_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename);
 
             LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
             {
@@ -31447,7 +31447,7 @@ namespace MasterOnline.Controllers
             {
                 if (!System.IO.File.Exists(path))
                 {
-                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), ""));
                     var asd = System.IO.File.Create(path);
                     asd.Close();
                 }
