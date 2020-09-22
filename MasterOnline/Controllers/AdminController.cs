@@ -3463,7 +3463,7 @@ namespace MasterOnline.Controllers
 
                                     if (splitArguments.Length > 0)
                                     {
-                                        var no_custShopify = splitArguments[10].ToString();
+                                        var no_custShopify = splitArguments[9].ToString();
                                         string[] apiKeyShopify = splitArguments[3].ToString().Split(':');
                                         string[] usernameShopify = splitArguments[1].ToString().Split(':');
                                         string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE API_KEY = '" + apiKeyShopify[1] + "' AND CUST = '" + no_custShopify + "'; ";
