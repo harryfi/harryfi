@@ -6178,7 +6178,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        [AutomaticRetry(Attempts = 2)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Product {obj} ke Shopee Gagal.")]
         public async Task<string> UpdateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string brg, string cust, List<ShopeeLogisticsClass> logistics)

@@ -488,7 +488,7 @@ namespace MasterOnline.Controllers
         //    public string error { get; set; }
         //}
 
-        [AutomaticRetry(Attempts = 2)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Edit Product {obj} ke Tokopedia Gagal.")]
         public async Task<string> EditProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg, string product_id)
