@@ -30486,8 +30486,9 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public FileResult DownloadLogUploadFaktur(string filename)
         {
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename);
 
             byte[] data = System.IO.File.ReadAllBytes(path);
             string contentType = MimeMapping.GetMimeMapping(path);
@@ -31228,8 +31229,8 @@ namespace MasterOnline.Controllers
         }
         public ActionResult UploadFakturBukaLapak()
         {
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            string uname = sessionData.Account.Username;
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            string uname = usernameLogin;
             UploadFakturResult result = new UploadFakturResult
             {
                 success = "0",
@@ -31305,7 +31306,8 @@ namespace MasterOnline.Controllers
                                         TotalTerbayar = dataFaktur.TotalTerbayar,
                                         TransaksiDropshipper = dataFaktur.TransaksiDropshipper,
                                         UsernamePembeli = dataFaktur.UsernamePembeli,
-                                        Varian = dataFaktur.Varian
+                                        Varian = dataFaktur.Varian,
+                                        BeratPerSKU = dataFaktur.BeratPerSKU
                                     };
                                     if (!string.IsNullOrEmpty(a.Status))
                                     {
@@ -31370,10 +31372,15 @@ namespace MasterOnline.Controllers
                                         TotalTerbayar = worksheet.Cells[i, 19].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 19].Value),
                                         JumlahProduk = worksheet.Cells[i, 20].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 20].Value),
                                         SKU = worksheet.Cells[i, 21].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 21].Value),
-                                        Varian = worksheet.Cells[i, 22].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 22].Value),
-                                        Kurir = worksheet.Cells[i, 23].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 23].Value),
-                                        KodeTracking = worksheet.Cells[i, 24].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 24].Value),
-                                        Status = worksheet.Cells[i, 25].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 25].Value),
+                                        //Varian = worksheet.Cells[i, 22].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 22].Value),
+                                        //Kurir = worksheet.Cells[i, 23].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 23].Value),
+                                        //KodeTracking = worksheet.Cells[i, 24].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 24].Value),
+                                        //Status = worksheet.Cells[i, 25].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 25].Value),
+                                        BeratPerSKU = worksheet.Cells[i, 22].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 22].Value),
+                                        Varian = worksheet.Cells[i, 22].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 23].Value),
+                                        Kurir = worksheet.Cells[i, 23].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 24].Value),
+                                        KodeTracking = worksheet.Cells[i, 24].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 25].Value),
+                                        Status = worksheet.Cells[i, 25].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 26].Value),
                                     };
                                     if (records.Where(m => m.IDTransaksi == a.IDTransaksi).ToList().Count() > 0)
                                     {
@@ -31418,7 +31425,7 @@ namespace MasterOnline.Controllers
             #region Logging
             string message = "";
             string filename = "Log_Upload_Inv_Bukalapak_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), filename);
 
             LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
             {
@@ -31441,7 +31448,7 @@ namespace MasterOnline.Controllers
             {
                 if (!System.IO.File.Exists(path))
                 {
-                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathEra + "/"), ""));
                     var asd = System.IO.File.Create(path);
                     asd.Close();
                 }

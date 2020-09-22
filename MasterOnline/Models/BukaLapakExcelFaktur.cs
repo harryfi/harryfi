@@ -32,6 +32,7 @@ namespace MasterOnline.Models
         public string Kurir { get; set; }
         public string KodeTracking { get; set; }
         public string Status { get; set; }
+        public string BeratPerSKU { get; set; }
 
     }
 }
