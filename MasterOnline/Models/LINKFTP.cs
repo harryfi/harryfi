@@ -23,6 +23,9 @@
         public string STATUS_FTP { get; set; }
         public string PPN { get; set; }
 
+        [StringLength(5)]
+        public string KODE_TRANSAKSI { get; set; }
+
         public TimeSpan? JAM1 { get; set; }
         public TimeSpan? JAM2 { get; set; }
         public TimeSpan? JAM3 { get; set; }

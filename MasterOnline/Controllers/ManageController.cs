@@ -3126,11 +3126,14 @@ namespace MasterOnline.Controllers
                 var key = Helper.GeneratePassword(10);
                 var encodingPassString = Helper.EncodePassword(dataVm.PASSWORD, key);
                 linkFtpDb.PASSWORD = encodingPassString;
+                linkFtpDb.STATUS_FTP = dataVm.STATUS_FTP;
+                linkFtpDb.PPN = dataVm.PPN;
+                linkFtpDb.KODE_TRANSAKSI = dataVm.KODE_TRANSAKSI;
                 linkFtpDb.JAM1 = dataVm.JAM1;
                 linkFtpDb.JAM2 = dataVm.JAM2;
-                linkFtpDb.JAM3 = dataVm.JAM3;
-                linkFtpDb.JAM4 = dataVm.JAM4;
-                linkFtpDb.JAM5 = dataVm.JAM5;
+                //linkFtpDb.JAM3 = dataVm.JAM3;
+                //linkFtpDb.JAM4 = dataVm.JAM4;
+                //linkFtpDb.JAM5 = dataVm.JAM5;
                 ErasoftDbContext.LINKFTP.Add(dataVm);
                 ErasoftDbContext.SaveChanges();
             }

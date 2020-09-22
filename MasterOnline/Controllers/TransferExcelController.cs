@@ -3280,18 +3280,58 @@ namespace MasterOnline.Controllers
                     QueueName = "1_manage_pesanan",
                 };
 
-#if (DEBUG || Debug_AWS)
-                var job = new TransferFTPControllerJob();
-                Task.Run(() => job.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username).Wait());
-                //new TransferFTPControllerJob().FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username);
-#else
 
-                //client.Enqueue<TransferFTPControllerJob>(x => x.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username));
+                var dataLinkFTP = ErasoftDbContext.LINKFTP.ToList();
 
                 var connection_id_upload_file_ftp = dbPathEra + "_job_upload_file_ftp";
-                recurJobM.RemoveIfExists(connection_id_upload_file_ftp);
-                recurJobM.AddOrUpdate(connection_id_upload_file_ftp, Hangfire.Common.Job.FromExpression<TransferFTPControllerJob>(x => x.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username)), "5 * * * *", recurJobOpt);
+                var connection_id_upload_file_ftp1 = dbPathEra + "_job_upload_file_ftp_1";
+                var connection_id_upload_file_ftp2 = dbPathEra + "_job_upload_file_ftp_2";
+
+                if (dataLinkFTP.Count() > 0)
+                {
+                    if (dataLinkFTP[0].STATUS_FTP == "1")
+                    {
+
+#if (DEBUG || Debug_AWS)
+                        var job = new TransferFTPControllerJob();
+                        Task.Run(() => job.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username).Wait());
+                        //new TransferFTPControllerJob().FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username);
+#else
+
+                        //client.Enqueue<TransferFTPControllerJob>(x => x.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username));
+
+
+                        if (dataLinkFTP != null)
+                        {
+                            recurJobM.RemoveIfExists(connection_id_upload_file_ftp);
+                            if (dataLinkFTP[0].JAM1 != null)
+                            {
+                                string[] splitTime = Convert.ToString(dataLinkFTP[0].JAM1).Split(':');
+                                int jam1 = Convert.ToInt32(splitTime[0]);
+                                int menit1 = Convert.ToInt32(splitTime[1]);
+                                recurJobM.RemoveIfExists(connection_id_upload_file_ftp1);
+                                recurJobM.AddOrUpdate(connection_id_upload_file_ftp1, Hangfire.Common.Job.FromExpression<TransferFTPControllerJob>(x => x.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username)), Cron.MinuteInterval(3), recurJobOpt);
+                            }
+
+                            if (dataLinkFTP[0].JAM2 != null)
+                            {
+                                string[] splitTime = Convert.ToString(dataLinkFTP[0].JAM2).Split(':');
+                                int jam2 = Convert.ToInt32(splitTime[0]);
+                                int menit2 = Convert.ToInt32(splitTime[1]);
+                                recurJobM.RemoveIfExists(connection_id_upload_file_ftp2);
+                                recurJobM.AddOrUpdate(connection_id_upload_file_ftp2, Hangfire.Common.Job.FromExpression<TransferFTPControllerJob>(x => x.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username)), Cron.Daily(jam2, menit2), recurJobOpt);
+                            }
+
+                        }
 #endif
+                    }
+                    else
+                    {
+                        recurJobM.RemoveIfExists(connection_id_upload_file_ftp);
+                        recurJobM.RemoveIfExists(connection_id_upload_file_ftp1);
+                        recurJobM.RemoveIfExists(connection_id_upload_file_ftp2);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -3311,7 +3351,7 @@ namespace MasterOnline.Controllers
 
         }
         //end by otniel
-        
+
         //add by Indra 16 apr 2020, download stokopname
         public ActionResult ListStokOpnametoExcel()
         {
