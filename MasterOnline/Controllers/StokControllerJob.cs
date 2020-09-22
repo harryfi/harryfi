@@ -3127,6 +3127,8 @@ namespace MasterOnline.Controllers
             string resultGetLocationID = Shopify_GetLocationID(iden);
             string resultGetInventoryID = Shopify_getSingleProductforUpdateStock(iden, brg_mp);
 
+            Task.Run(() => Shopify_UpdateInventoryItemSKU(iden, Convert.ToInt64(resultGetInventoryID)).Wait());
+
             var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store, Convert.ToInt64(kodeBrg));
 
             //ShopifyUpdateStockProduct putProdData = new ShopifyUpdateStockProduct
@@ -3248,6 +3250,70 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+
+        public async Task<string> Shopify_UpdateInventoryItemSKU(ShopifyAPIData iden, long inventory_item_id)
+        {
+            string ret = "";
+
+            string urll = "https://{0}:{1}@{2}.myshopify.com/admin/api/2020-07/inventory_items/{3}.json";
+
+            var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store, inventory_item_id);
+
+            ShopifyUpdateInventoryItemSKU putProdData = new ShopifyUpdateInventoryItemSKU
+            {
+                inventory_item = new ShopifyUpdateInventoryItemSKU_Inventory_Item()
+            };
+
+            putProdData.inventory_item.id = inventory_item_id;
+            //putProdData.inventory_item.sku = sku;
+            //putProdData.inventory_item.cost = null;
+            putProdData.inventory_item.tracked = true;
+            putProdData.inventory_item.requires_shipping = true;
+
+
+            string myData = JsonConvert.SerializeObject(putProdData);
+
+            string responseFromServer = "";
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", (iden.API_password));
+            var content = new StringContent(myData, Encoding.UTF8, "application/json");
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+            HttpResponseMessage clientResponse = await client.PutAsync(vformatUrl, content);
+
+            using (HttpContent responseContent = clientResponse.Content)
+            {
+                using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                {
+                    responseFromServer = await reader.ReadToEndAsync();
+                }
+            };
+
+            if (responseFromServer != "")
+            {
+                try
+                {
+                    //var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopifyUpdateInventoryItemSKUResult)) as ShopifyUpdateInventoryItemSKUResult;
+                    //if (!string.IsNullOrWhiteSpace(result.ToString()))
+                    //{
+                    //    if (result != null)
+                    //    {
+                    //        if (result.inventory_item != null)
+                    //        {
+                    //            ret = "success";
+                    //        }
+                    //    }
+                    //}
+                }
+                catch (Exception ex)
+                {
+                    string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                    throw new Exception(msg);
+                }
+            }
+            return ret;
+        }
+
+
 
         public string Shopify_getSingleProductforUpdateStock(ShopifyAPIData iden, string kode_barang)
         {
@@ -4473,6 +4539,19 @@ namespace MasterOnline.Controllers
             //public string[] enabled_presentment_currencies { get; set; }
         }
 
+        public class ShopifyUpdateInventoryItemSKU
+        {
+            public ShopifyUpdateInventoryItemSKU_Inventory_Item inventory_item { get; set; }
+        }
+
+        public class ShopifyUpdateInventoryItemSKU_Inventory_Item
+        {
+            public long id { get; set; }
+            //public string sku { get; set; }
+            //public string cost { get; set; }
+            public bool tracked { get; set; }
+            public bool requires_shipping { get; set; }
+        }
 
         public class ShopifyGetItemDetailResult
         {
