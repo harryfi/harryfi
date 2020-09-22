@@ -201,23 +201,23 @@ namespace MasterOnline.Controllers
                                                 var prov = "31";
 
 
-                                                string fullname = order.billing_address.first_name.ToString() + " " + order.billing_address.last_name.ToString();
-                                                string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.billing_address.last_name.ToString();
+                                                string fullname = order.shipping_address.first_name.ToString() + " " + order.shipping_address.last_name.ToString();
+                                                string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.shipping_address.last_name.ToString();
 
                                                 insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '{13}', '{8}', '{9}', '{12}', '{11}','{10}'),",
                                                     ((nama ?? "").Replace("'", "`")),
-                                                    ((order.billing_address.address1 ?? "").Replace("'", "`") + " " + (order.billing_address.address2 ?? "").Replace("'", "`")),
-                                                    ((order.billing_address.phone ?? "")),
+                                                    ((order.shipping_address.address1 ?? "").Replace("'", "`") + " " + (order.shipping_address.address2 ?? "").Replace("'", "`")),
+                                                    ((order.shipping_address.phone ?? "")),
                                                     (NAMA_CUST.Replace(',', '.')),
-                                                    ((order.billing_address.address1 ?? "").Replace("'", "`") + " " + (order.billing_address.address2 ?? "").Replace("'", "`")),
+                                                    ((order.shipping_address.address1 ?? "").Replace("'", "`") + " " + (order.shipping_address.address2 ?? "").Replace("'", "`")),
                                                     DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                                                     (username),
-                                                    ((order.billing_address.zip ?? "").Replace("'", "`")),
+                                                    ((order.shipping_address.zip ?? "").Replace("'", "`")),
                                                     kabKot,
                                                     prov,
                                                     connIdARF01C,
-                                                    (order.billing_address.province ?? ""),
-                                                    (order.billing_address.city ?? ""),
+                                                    (order.shipping_address.province ?? ""),
+                                                    (order.shipping_address.city ?? ""),
                                                     (order.contact_email ?? "")
                                                     );
                                                 insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
@@ -261,7 +261,7 @@ namespace MasterOnline.Controllers
                                                     actual_shipping_cost = Convert.ToString(double.Parse(order.total_shipping_price_set.shop_money.amount)),
                                                     buyer_username = nama,
                                                     cod = false,
-                                                    country = order.billing_address.country,
+                                                    country = order.shipping_address.country,
                                                     create_time = Convert.ToDateTime(dateOrder),
                                                     currency = order.currency,
                                                     days_to_ship = 0,
@@ -281,15 +281,15 @@ namespace MasterOnline.Controllers
                                                     //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
                                                     pay_time = Convert.ToDateTime(datePay),
                                                     //end change by nurul 5/12/2019, local time 
-                                                    Recipient_Address_country = order.billing_address.country_code ?? "ID",
-                                                    Recipient_Address_state = order.billing_address.province_code ?? "",
-                                                    Recipient_Address_city = order.billing_address.city ?? "",
+                                                    Recipient_Address_country = order.shipping_address.country_code ?? "ID",
+                                                    Recipient_Address_state = order.shipping_address.province_code ?? "",
+                                                    Recipient_Address_city = order.shipping_address.city ?? "",
                                                     Recipient_Address_town = "",
                                                     Recipient_Address_district = "",
-                                                    Recipient_Address_full_address = (order.billing_address.address1 ?? "").Replace("'", "`") + " " + (order.billing_address.address2 ?? "").Replace("'", "`"),
+                                                    Recipient_Address_full_address = (order.shipping_address.address1 ?? "").Replace("'", "`") + " " + (order.shipping_address.address2 ?? "").Replace("'", "`"),
                                                     Recipient_Address_name = nama,
-                                                    Recipient_Address_phone = order.billing_address.phone ?? "",
-                                                    Recipient_Address_zipcode = order.billing_address.zip ?? "",
+                                                    Recipient_Address_phone = order.shipping_address.phone ?? "",
+                                                    Recipient_Address_zipcode = order.shipping_address.zip ?? "",
                                                     Recipient_Address_email = order.contact_email ?? "",
                                                     service_code = shippingLine,
                                                     shipping_carrier = trackingCompany,
@@ -520,23 +520,23 @@ namespace MasterOnline.Controllers
                                                     var prov = "31";
 
 
-                                                    string fullname = order.billing_address.first_name.ToString() + " " + order.billing_address.last_name.ToString();
-                                                    string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.billing_address.last_name.ToString();
+                                                    string fullname = order.shipping_address.first_name.ToString() + " " + order.shipping_address.last_name.ToString();
+                                                    string nama = fullname.Length > 30 ? fullname.Substring(0, 30) : order.shipping_address.last_name.ToString();
 
                                                     insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '{13}', '{8}', '{9}', '{12}', '{11}','{10}'),",
                                                         ((nama ?? "").Replace("'", "`")),
-                                                        ((order.billing_address.address1 ?? "").Replace("'", "`") + " " + (order.billing_address.address2 ?? "").Replace("'", "`")),
-                                                        ((order.billing_address.phone ?? "")),
+                                                        ((order.shipping_address.address1 ?? "").Replace("'", "`") + " " + (order.shipping_address.address2 ?? "").Replace("'", "`")),
+                                                        ((order.shipping_address.phone ?? "")),
                                                         (NAMA_CUST.Replace(',', '.')),
-                                                        ((order.billing_address.address1 ?? "").Replace("'", "`") + " " + (order.billing_address.address2 ?? "").Replace("'", "`")),
+                                                        ((order.shipping_address.address1 ?? "").Replace("'", "`") + " " + (order.shipping_address.address2 ?? "").Replace("'", "`")),
                                                         DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                                                         (username),
-                                                        ((order.billing_address.zip ?? "").Replace("'", "`")),
+                                                        ((order.shipping_address.zip ?? "").Replace("'", "`")),
                                                         kabKot,
                                                         prov,
                                                         connIdARF01C, 
-                                                        (order.billing_address.province ?? ""),
-                                                        (order.billing_address.city ?? ""),
+                                                        (order.shipping_address.province ?? ""),
+                                                        (order.shipping_address.city ?? ""),
                                                         (order.contact_email ?? "")
                                                         );
                                                     insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
@@ -572,7 +572,7 @@ namespace MasterOnline.Controllers
                                                         actual_shipping_cost = Convert.ToString(double.Parse(order.total_shipping_price_set.shop_money.amount)),
                                                         buyer_username = nama,
                                                         cod = false,
-                                                        country = order.billing_address.country,
+                                                        country = order.shipping_address.country,
                                                         create_time = Convert.ToDateTime(dateOrder),
                                                         currency = order.currency,
                                                         days_to_ship = 0,
@@ -592,15 +592,15 @@ namespace MasterOnline.Controllers
                                                         //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
                                                         pay_time = Convert.ToDateTime(datePay),
                                                         //end change by nurul 5/12/2019, local time 
-                                                        Recipient_Address_country = order.billing_address.country_code ?? "ID",
-                                                        Recipient_Address_state = order.billing_address.province_code ?? "",
-                                                        Recipient_Address_city = order.billing_address.city ?? "",
+                                                        Recipient_Address_country = order.shipping_address.country_code ?? "ID",
+                                                        Recipient_Address_state = order.shipping_address.province_code ?? "",
+                                                        Recipient_Address_city = order.shipping_address.city ?? "",
                                                         Recipient_Address_town = "",
                                                         Recipient_Address_district = "",
-                                                        Recipient_Address_full_address = (order.billing_address.address1 ?? "").Replace("'", "`") + " " + (order.billing_address.address2 ?? "").Replace("'", "`"),
+                                                        Recipient_Address_full_address = (order.shipping_address.address1 ?? "").Replace("'", "`") + " " + (order.shipping_address.address2 ?? "").Replace("'", "`"),
                                                         Recipient_Address_name = nama,
-                                                        Recipient_Address_phone = order.billing_address.phone ?? "",
-                                                        Recipient_Address_zipcode = order.billing_address.zip ?? "",
+                                                        Recipient_Address_phone = order.shipping_address.phone ?? "",
+                                                        Recipient_Address_zipcode = order.shipping_address.zip ?? "",
                                                         Recipient_Address_email = order.contact_email ?? "",
                                                         service_code = shippingLine,
                                                         shipping_carrier = trackingCompany,
@@ -2917,7 +2917,7 @@ namespace MasterOnline.Controllers
         {
             public string first_name { get; set; }
             public string address1 { get; set; }
-            public object phone { get; set; }
+            public string phone { get; set; }
             public string city { get; set; }
             public string zip { get; set; }
             public string province { get; set; }
