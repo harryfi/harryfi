@@ -30844,11 +30844,31 @@ namespace MasterOnline.Controllers
                             QTY_RETUR = 0,
                             GUDANG = "001" //buat default gudang 001, untuk semua akun baru
                         };
+                        //add by nurul 21/9/2020, brg multi sku 
+                        var tempBrgDetail = newfakturdetail.BRG;
+                        //end add by nurul 21/9/2020, brg multi sku 
                         //ErasoftDbContext.SIT01B.Add(newfakturdetail);
                         if (!barangFakturLolosValidasi)
                         {
                             newfakturdetail.BRG = "NOT_FOUND";
                         }
+                        //add by nurul 21/9/2020, brg multi sku 
+                        else
+                        {                                  
+                            if (!string.IsNullOrEmpty(newfakturdetail.BRG))
+                            {
+                                var cekTypeBrg = ErasoftDbContext.STF02.Where(a => a.BRG == newfakturdetail.BRG).SingleOrDefault();
+                                if(cekTypeBrg.BRG != null)
+                                {
+                                    if(cekTypeBrg.TYPE == "6" && cekTypeBrg.KUBILASI == 1 && !string.IsNullOrEmpty(cekTypeBrg.BRG_NON_OS))
+                                    {
+                                        newfakturdetail.BRG = cekTypeBrg.BRG_NON_OS;
+                                        newfakturdetail.BRG_MULTISKU = cekTypeBrg.BRG;
+                                    }
+                                }
+                            }
+                        }
+                        //end add by nurul 21/9/2020, brg multi sku 
                         newfakturdetail.CATATAN = "INVOICE NO : " + faktur_invoice + "_;_" + faktur.ProductName + "_;_" + faktur.ProductID + "_;_" + (string.IsNullOrWhiteSpace(faktur.StockKeepingUnitSKU) ? "" : faktur.StockKeepingUnitSKU);
 
                         newFaktursDetails.Add(newfakturdetail);
@@ -31593,11 +31613,32 @@ namespace MasterOnline.Controllers
                             QTY_RETUR = 0,
                             GUDANG = "001" //buat default gudang 001, untuk semua akun baru
                         };
+
+                        //add by nurul 21/9/2020, brg multi sku 
+                        var tempBrgDetail = newfakturdetail.BRG;
+                        //end add by nurul 21/9/2020, brg multi sku 
                         //ErasoftDbContext.SIT01B.Add(newfakturdetail);
                         if (!barangFakturLolosValidasi)
                         {
                             newfakturdetail.BRG = "NOT_FOUND";
                         }
+                        //add by nurul 21/9/2020, brg multi sku 
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(newfakturdetail.BRG))
+                            {
+                                var cekTypeBrg = ErasoftDbContext.STF02.Where(a => a.BRG == newfakturdetail.BRG).SingleOrDefault();
+                                if (cekTypeBrg.BRG != null)
+                                {
+                                    if (cekTypeBrg.TYPE == "6" && cekTypeBrg.KUBILASI == 1 && !string.IsNullOrEmpty(cekTypeBrg.BRG_NON_OS))
+                                    {
+                                        newfakturdetail.BRG = cekTypeBrg.BRG_NON_OS;
+                                        newfakturdetail.BRG_MULTISKU = cekTypeBrg.BRG;
+                                    }
+                                }
+                            }
+                        }
+                        //end add by nurul 21/9/2020, brg multi sku 
                         newfakturdetail.CATATAN = "INVOICE NO : " + faktur_invoice + "_;_" + faktur.NamaProduk.Replace('\'', '`') + " " + faktur.Varian.Replace('\'', '`') + "_;_" + (faktur.SKU ?? "SKU_IS_EMPTY");
 
                         newFaktursDetails.Add(newfakturdetail);
@@ -32128,12 +32169,31 @@ namespace MasterOnline.Controllers
                             QTY_RETUR = 0,
                             GUDANG = "001" //buat default gudang 001, untuk semua akun baru
                         };
-
+                        //add by nurul 21/9/2020, brg multi sku 
+                        var tempBrgDetail = newfakturdetail.BRG;
+                        //end add by nurul 21/9/2020, brg multi sku 
                         if (!barangFakturLolosValidasi)
                         {
                             newfakturdetail.BRG = "NOT_FOUND";
                             newfakturdetail.CATATAN = "INVOICE NO : " + faktur_invoice + "_;_" + faktur.NamaProduk + " " + faktur.NamaVariasi + "_;_" + (string.IsNullOrWhiteSpace(faktur.NomorReferensiSKU) ? faktur.SKUInduk : faktur.NomorReferensiSKU);
                         }
+                        //add by nurul 21/9/2020, brg multi sku 
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(newfakturdetail.BRG))
+                            {
+                                var cekTypeBrg = ErasoftDbContext.STF02.Where(a => a.BRG == newfakturdetail.BRG).SingleOrDefault();
+                                if (cekTypeBrg.BRG != null)
+                                {
+                                    if (cekTypeBrg.TYPE == "6" && cekTypeBrg.KUBILASI == 1 && !string.IsNullOrEmpty(cekTypeBrg.BRG_NON_OS))
+                                    {
+                                        newfakturdetail.BRG = cekTypeBrg.BRG_NON_OS;
+                                        newfakturdetail.BRG_MULTISKU = cekTypeBrg.BRG;
+                                    }
+                                }
+                            }
+                        }
+                        //end add by nurul 21/9/2020, brg multi sku 
 
                         newFaktursDetails.Add(newfakturdetail);
 
