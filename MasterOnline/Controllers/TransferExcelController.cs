@@ -3303,23 +3303,24 @@ namespace MasterOnline.Controllers
 
                         if (dataLinkFTP != null)
                         {
+                            //var dtNow = DateTime.UtcNow.AddHours(7); //yyyyMMddhhmmss
                             recurJobM.RemoveIfExists(connection_id_upload_file_ftp);
                             if (dataLinkFTP[0].JAM1 != null)
                             {
                                 string[] splitTime = Convert.ToString(dataLinkFTP[0].JAM1).Split(':');
-                                int jam1 = Convert.ToInt32(splitTime[0]);
+                                int jam1 = Convert.ToInt32(splitTime[0]) - 7;
                                 int menit1 = Convert.ToInt32(splitTime[1]);
                                 recurJobM.RemoveIfExists(connection_id_upload_file_ftp1);
-                                recurJobM.AddOrUpdate(connection_id_upload_file_ftp1, Hangfire.Common.Job.FromExpression<TransferFTPControllerJob>(x => x.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username)), Cron.MinuteInterval(3), recurJobOpt);
+                                recurJobM.AddOrUpdate(connection_id_upload_file_ftp1, Hangfire.Common.Job.FromExpression<TransferFTPControllerJob>(x => x.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username)), Cron.Daily(jam1), recurJobOpt);
                             }
 
                             if (dataLinkFTP[0].JAM2 != null)
                             {
                                 string[] splitTime = Convert.ToString(dataLinkFTP[0].JAM2).Split(':');
-                                int jam2 = Convert.ToInt32(splitTime[0]);
+                                int jam2 = Convert.ToInt32(splitTime[0]) - 7;
                                 int menit2 = Convert.ToInt32(splitTime[1]);
                                 recurJobM.RemoveIfExists(connection_id_upload_file_ftp2);
-                                recurJobM.AddOrUpdate(connection_id_upload_file_ftp2, Hangfire.Common.Job.FromExpression<TransferFTPControllerJob>(x => x.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username)), Cron.Daily(jam2, menit2), recurJobOpt);
+                                recurJobM.AddOrUpdate(connection_id_upload_file_ftp2, Hangfire.Common.Job.FromExpression<TransferFTPControllerJob>(x => x.FTP_listFakturJob(dbPathEra, "CSV", "000000", "FTP", "UPLOADFTP", username)), Cron.Daily(jam2), recurJobOpt);
                             }
 
                         }
