@@ -26,6 +26,7 @@
 }
 @section styles
 {
+    <link href="~/Content/selectize.css" rel="stylesheet" />
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
 
     <style>
@@ -41,191 +42,20 @@
     </style>
 }
 
-<div class="row" id="parameterlinkftp-section">
-    <div class="col-lg-12 col-md-12">
-        <div class="row parameterlinkftp_editor_section">
-            <div class="col-lg-12 col-md-12">
-                <button class="btn btn-primary btn_excel_stokopname" onclick="DownloadDataFakturCsv()" id="datatransfercsv">Download CSV</button>
-            </div>
-            <div class="col-lg-12">
-                <div class="page-editor">
-                    <h2 class="editor-title">Parameter Link FTP</h2>
-                    <span class="title-accent"></span>
-                    <div class="form-horizontal">
-                        <div class="row">
-                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                <div class="x_panel">
-                                    <div class="x_title">
-                                        <h2 style="font-size: 16px">Detail Parameter Link FTP</h2>
-                                        <ul class="nav navbar-right panel_toolbox">
-                                            <li>
-                                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                                            </li>
-                                        </ul>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                    <div class="x_content">
-                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
-                                        {
-                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
-                                            {
-                                                <div class="alert alert-danger">
-                                                    <span class="message-error">@modelError.ErrorMessage</span>
-                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                            }
-                                        }
-                                        <br>
-                                        @using (Html.BeginForm("SaveLinkFtp", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-parameterlinkftp" }))
-                                        {
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.IP, "IP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.IP, new { @class = "form-control", required = "required" })
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.LOGIN, "Login *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.LOGIN, new { @class = "form-control", required = "required" })
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.PASSWORD, "Password *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.PASSWORD, new { @class = "form-control", required = "required", type = "password" })
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.STATUS_FTP, "Status FTP", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.STATUS_FTP)
-                                                    @if (Model != null)
-                                                    {
-                                                        if (Model.STATUS_FTP == "0")
-                                                        {
-                                                            @Html.CheckBox("StatusFtp", true, new { @checked = true, @style = "width:30px; height:28px;" })
-                                                        }
-                                                        else if (Model.STATUS_FTP == "1")
-                                                        {
-                                                            @Html.CheckBox("StatusFtp", false, new { @checked = false, @style = "width:30px; height:28px;" })
-                                                        }
-                                                        else
-                                                        {
-                                                            @Html.CheckBox("StatusFtp", true, new { @checked = true, @style = "width:30px; height:28px;" })
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        @Html.CheckBox("StatusFtp", true, new { @checked = true, @style = "width:30px; height:28px;" })
-                                                    }
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.PPN, "PPn", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.PPN)
-                                                    <select class="form-control" id="select_ppn" required="required">
-                                                        @if (Model != null)
-                                                        {
-                                                            switch (Model.PPN)
-                                                            {
-                                                                case "0":
-                                                                    <option value="0" selected>Exclude PPn</option>
-                                                                    <option value="1">Include PPn</option>
-                                                                    break;
-                                                                case "1":
-                                                                    <option value="0">Exclude PPn</option>
-                                                                    <option value="1" selected>Include PPn</option>
-                                                                    break;
-                                                                case null:
-                                                                    <option value="0" selected>Exclude PPn</option>
-                                                                    <option value="1">Include PPn</option>
-                                                                    break;
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            <option value="0" selected>Exclude PPn</option>
-                                                            <option value="1">Include PPn</option>
-                                                        }
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.JAM1, "Jam 1 *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    <div class="input-group date">
-                                                        @Html.TextBoxFor(m => m.JAM1, new { @class = "form-control", required = "required" })
-                                                        <span class="input-group-addon">
-                                                            <span class="glyphicon glyphicon-time"></span>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.JAM2, "Jam 2", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    <div class="input-group date">
-                                                        @Html.TextBoxFor(m => m.JAM2, new { @class = "form-control" })
-                                                        <span class="input-group-addon">
-                                                            <span class="glyphicon glyphicon-time"></span>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.JAM3, "Jam 3", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    <div class="input-group date">
-                                                        @Html.TextBoxFor(m => m.JAM3, new { @class = "form-control" })
-                                                        <span class="input-group-addon">
-                                                            <span class="glyphicon glyphicon-time"></span>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.JAM4, "Jam 4", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    <div class="input-group date">
-                                                        @Html.TextBoxFor(m => m.JAM4, new { @class = "form-control" })
-                                                        <span class="input-group-addon">
-                                                            <span class="glyphicon glyphicon-time"></span>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.JAM5, "Jam 5", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    <div class="input-group date">
-                                                        @Html.TextBoxFor(m => m.JAM5, new { @class = "form-control" })
-                                                        <span class="input-group-addon">
-                                                            <span class="glyphicon glyphicon-time"></span>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="SimpanParameterLinkFtp(this)" />
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 @section scripts
 {
+    @*@Scripts.Render("~/bundles/jqueryval")
+        @Scripts.Render("~/bundles/jquerymask")*@
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script src="~/Content/build/js/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery.maskedinput-1.2.1.pack.js"></script>
+    <script type="text/javascript" src="~/bundles/jquerymask"></script>
+    @*<script type="text/javascript">
+            $(function () {
+                $("#IPADDRESS").mask("999.999.999.999");
+            });
+        </script>*@
 
     <script type="text/javascript">
         $supplierId = "";
@@ -238,22 +68,168 @@
             var day = d.getDate();
             var year = d.getFullYear();
             var dateNow = new Date(year, month, day, 00, 00);
-            $('#JAM1').datetimepicker({
-                format: 'HH:mm'
-            });
-            $('#JAM2').datetimepicker({
-                format: 'HH:mm'
-            });
-            $('#JAM3').datetimepicker({
-                format: 'HH:mm'
-            });
-            $('#JAM4').datetimepicker({
-                format: 'HH:mm'
-            });
-            $('#JAM5').datetimepicker({
-                format: 'HH:mm'
-            });
+
+            setSchedule();
+
+            //$('#JAM1').datetimepicker({
+            //    format: 'HH:mm'
+            //});
+            //$('#JAM2').datetimepicker({
+            //    format: 'HH:mm'
+            //});
+            //$('#JAM3').datetimepicker({
+            //    format: 'HH:mm'
+            //});
+            //$('#JAM4').datetimepicker({
+            //    format: 'HH:mm'
+            //});
+            //$('#JAM5').datetimepicker({
+            //    format: 'HH:mm'
+            //});
+
+            //var statusUploadFTP = $('#StatusFtp').selectize({
+            //    create: true,
+            //    maxItems: 1,
+            //    multiple: false,
+            //    addOption: false,
+            //    sortField: 'text',
+            //    valueField: 'value',
+            //    labelField: 'text',
+            //    searchField: ['text'],
+            //    options: [
+            //        { value: "true", text: "Aktif", selected: true },
+            //        { value: "false", text: "Tidak Aktif", selected: true },
+            //    ],
+            //    selectedField: "selected",
+            //    onChange: function (value) {
+            //        if (value == "true") {
+            //            statusUploadFTP[0].selectize.setValue($('#StatusFtp').val(), true);
+            //        }
+            //        else if (value == "false") {
+            //            statusUploadFTP[0].selectize.setValue($('#StatusFtp').val(), true);
+            //        }
+            //    }
+            //});
+
         });
+
+
+        function setSchedule() {
+            var listTime = [];
+            listTime[0] = {
+                id: "01",
+                text: "01:00:00"
+            };
+            listTime[1] = {
+                id: "02",
+                text: "02:00:00"
+            };
+            listTime[2] = {
+                id: "03",
+                text: "03:00:00"
+            };
+            listTime[3] = {
+                id: "04",
+                text: "04:00:00"
+            };
+            listTime[4] = {
+                id: "05",
+                text: "05:00:00"
+            };
+            listTime[5] = {
+                id: "06",
+                text: "06:00:00"
+            };
+            listTime[6] = {
+                id: "07",
+                text: "07:00:00"
+            };
+            listTime[7] = {
+                id: "08",
+                text: "08:00:00"
+            };
+            listTime[8] = {
+                id: "09",
+                text: "09:00:00"
+            };
+            listTime[9] = {
+                id: "10",
+                text: "10:00:00"
+            };
+            listTime[10] = {
+                id: "11",
+                text: "11:00:00"
+            };
+            listTime[11] = {
+                id: "12",
+                text: "12:00:00"
+            };
+            listTime[12] = {
+                id: "13",
+                text: "13:00:00"
+            };
+            listTime[13] = {
+                id: "14",
+                text: "14:00:00"
+            };
+            listTime[14] = {
+                id: "15",
+                text: "15:00:00"
+            };
+            listTime[15] = {
+                id: "16",
+                text: "16:00:00"
+            };
+            listTime[16] = {
+                id: "17",
+                text: "17:00:00"
+            };
+            listTime[17] = {
+                id: "18",
+                text: "18:00:00"
+            };
+            listTime[18] = {
+                id: "19",
+                text: "19:00:00"
+            };
+            listTime[19] = {
+                id: "20",
+                text: "20:00:00"
+            };
+            listTime[20] = {
+                id: "21",
+                text: "21:00:00"
+            };
+            listTime[21] = {
+                id: "22",
+                text: "22:00:00"
+            };
+            listTime[22] = {
+                id: "23",
+                text: "23:00:00"
+            };
+            var selectize1 = $('#selectizeJAM1').selectize({
+                valueField: 'text',
+                searchField: 'text',
+                options: listTime,
+                onChange: function (value) {
+                    $('#JAM1').val(value);
+
+                }
+            });
+            selectize1[0].selectize.setValue($('#JAM1').val(), true);
+
+            var selectize2 = $('#selectizeJAM2').selectize({
+                valueField: 'text',
+                searchField: 'text',
+                options: listTime,
+                onChange: function (value) {
+                    $('#JAM2').val(value);
+
+                }
+            });
+            selectize2[0].selectize.setValue($('#JAM2').val(), true);
+        }
 
         function SimpanParameterLinkFtp(btnClicked) {
             if (!validateForm()) {
@@ -264,15 +240,16 @@
 
             var $form = $(btnClicked).parents('form');
 
-            if ($("#StatusFtp").is(":checked") == true) {
-                $('#STATUS_FTP').val("0");
-                $('#linkMP').val("0");
-            } else {
-                $('#STATUS_FTP').val("1");
-                $('#linkMP').val("1");
-            }
+            //if ($("#StatusFtp").is(":checked") == true) {
+            //    $('#STATUS_FTP').val("0");
+            //    $('#linkMP').val("0");
+            //} else {
+            //    $('#STATUS_FTP').val("1");
+            //    $('#linkMP').val("1");
+            //}
 
-            $('#PPN').val($("#select_ppn option:selected").val());;
+            $('#STATUS_FTP').val($("#StatusFtp option:selected").val());
+            $('#PPN').val($("#select_ppn option:selected").val());
 
             $.ajax({
                 type: "POST",
@@ -283,6 +260,7 @@
                 },
                 success: function (response) {
                     if (response.Errors == null) {
+                        DownloadDataFakturCsv();
                         $('#close-editor').click();
                         $("html, body").animate({ scrollTop: 0 }, "slow");
                         $('#loading_spinner').hide();
@@ -323,8 +301,8 @@
                 success: function (response) {
                     $('#loading_spinner').hide();
                     if (response.Errors.length == 0) {
-                        var bytes = new Uint8Array(response.byteExcel);
-                        saveByteArray(response.namaFile, bytes);
+                        //var bytes = new Uint8Array(response.byteExcel);
+                        //saveByteArray(response.namaFile, bytes);
                     } else {
                         alert(response.Errors[0]);
                     }
@@ -346,3 +324,188 @@
         }
     </script>
 }
+
+<div class="row" id="parameterlinkftp-section">
+    <div class="col-lg-12 col-md-12">
+        <div class="row parameterlinkftp_editor_section">
+            @*<div class="col-lg-12 col-md-12">
+                    <button class="btn btn-primary btn_excel_stokopname" onclick="DownloadDataFakturCsv()" id="datatransfercsv">Download CSV</button>
+                </div>*@
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">Parameter Link FTP</h2>
+                    <span class="title-accent"></span>
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <h2 style="font-size: 16px">Detail Parameter Link FTP</h2>
+                                        <ul class="nav navbar-right panel_toolbox">
+                                            <li>
+                                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                            </li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="x_content">
+                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                        {
+                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                            {
+                                                <div class="alert alert-danger">
+                                                    <span class="message-error">@modelError.ErrorMessage</span>
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            }
+                                        }
+                                        <br>
+                                        @using (Html.BeginForm("SaveLinkFtp", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-parameterlinkftp" }))
+                                        {
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.IP, "IP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.IP, new { @class = "form-control", @id = "IPADDRESS", required = "required", mask = "999.999.999.999" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.LOGIN, "Username *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.LOGIN, new { @class = "form-control", required = "required" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.PASSWORD, "Password *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.PASSWORD, new { @class = "form-control", required = "required", type = "password" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.STATUS_FTP, "Status FTP", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.STATUS_FTP)
+                                                    <select class="form-control" id="StatusFtp" required="required">
+                                                        @if (Model != null)
+                                                        {
+                                                            switch (Model.STATUS_FTP)
+                                                            {
+                                                                case "0":
+                                                                    <option value="1">Aktif</option>
+                                                                    <option value="0" selected>Tidak Aktif</option>
+                                                                    break;
+                                                                case "1":
+                                                                    <option value="1" selected>Aktif</option>
+                                                                    <option value="0">Tidak Aktif</option>
+                                                                    break;
+                                                                case null:
+                                                                    <option value="1">Aktif</option>
+                                                                    <option value="0" selected>Tidak Aktif</option>
+                                                                    break;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="1">Aktif</option>
+                                                            <option value="0" selected>Tidak Aktif</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.PPN, "PPn", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.PPN)
+                                                    <select class="form-control" id="select_ppn" required="required">
+                                                        @if (Model != null)
+                                                        {
+                                                            switch (Model.PPN)
+                                                            {
+                                                                case "0":
+                                                                    <option value="0" selected>Exclude PPn</option>
+                                                                    <option value="1">Include PPn</option>
+                                                                    break;
+                                                                case "1":
+                                                                    <option value="0">Exclude PPn</option>
+                                                                    <option value="1" selected>Include PPn</option>
+                                                                    break;
+                                                                case null:
+                                                                    <option value="0" selected>Exclude PPn</option>
+                                                                    <option value="1">Include PPn</option>
+                                                                    break;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="0" selected>Exclude PPn</option>
+                                                            <option value="1">Include PPn</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.KODE_TRANSAKSI, "Kode Transaksi ", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.KODE_TRANSAKSI, new { @class = "form-control" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.JAM1, "Schedule 1 *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.JAM1)
+                                                    <select id="selectizeJAM1" placeholder="Harap Pilih" required="required"></select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.JAM2, "Schedule 2", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.JAM2)
+                                                    <select id="selectizeJAM2" placeholder="Harap Pilih" required="disabled"></select>
+                                                </div>
+                                            </div>
+                                            @*<div class="form-group">
+                                                    @Html.LabelFor(m => m.JAM3, "Jam 3", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        <div class="input-group date">
+                                                            @Html.TextBoxFor(m => m.JAM3, new { @class = "form-control" })
+                                                            <span class="input-group-addon">
+                                                                <span class="glyphicon glyphicon-time"></span>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.JAM4, "Jam 4", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        <div class="input-group date">
+                                                            @Html.TextBoxFor(m => m.JAM4, new { @class = "form-control" })
+                                                            <span class="input-group-addon">
+                                                                <span class="glyphicon glyphicon-time"></span>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.JAM5, "Jam 5", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        <div class="input-group date">
+                                                            @Html.TextBoxFor(m => m.JAM5, new { @class = "form-control" })
+                                                            <span class="input-group-addon">
+                                                                <span class="glyphicon glyphicon-time"></span>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>*@
+                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="SimpanParameterLinkFtp(this)" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

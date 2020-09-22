@@ -19,7 +19,7 @@
         <tr role="row">
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 115px;">Kode Barang</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Nama Barang</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Kode Barang SAP</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Kode Barang FTP</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Edit</th>
         </tr>
     </thead>
@@ -30,7 +30,7 @@
                 <td>@rec.BRG</td>
                 <td>@rec.NAMA</td>
                 <td>
-                    <input type="text" class="kodesap-input-box" style="display: none; width: 150px;" />
+                    <input type="text" class="kodesap-input-box" maxlength="35" style="display: none; width: 150px;" />
                     <span class="kodesap-initial">@rec.BRG_SAP</span>
                 </td>
                 <td class="edit-hapus-col">

@@ -10,7 +10,8 @@
     public partial class LINKFTP
     {
         [Key]
-        [StringLength(10)]
+        [RegularExpression(@"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$")]
+        [StringLength(15)]
         public string IP { get; set; }
 
         [StringLength(50)]
@@ -21,6 +22,9 @@
 
         public string STATUS_FTP { get; set; }
         public string PPN { get; set; }
+
+        [StringLength(5)]
+        public string KODE_TRANSAKSI { get; set; }
 
         public TimeSpan? JAM1 { get; set; }
         public TimeSpan? JAM2 { get; set; }
