@@ -54945,6 +54945,67 @@ namespace MasterOnline.Controllers
                 return Json(listGudang, JsonRequestBehavior.AllowGet);
             }
         }
+
+        public ActionResult RefreshTableMultiSKUDetail(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+            string[] getkata = search.Split(' ');
+            string sSQLnama = "";
+            string sSQLkode = "";
+            string sSQLnamaMulti = "";
+            string sSQLkodeMulti = "";
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLkode += " and ";
+                            sSQLnama += " and ";
+                        }
+
+                        sSQLkode += " ( a.BRG_ACUAN like '%" + getkata[i] + "%' ) ";
+                        sSQLnama += "  ( (ISNULL(c.NAMA,'') + ' ' + (ISNULL(c.NAMA2, ''))) like '%" + getkata[i] + "%' ) ";
+                        sSQLkodeMulti += " ( a.BRG like '%" + getkata[i] + "%' ) ";
+                        sSQLnamaMulti += "  ( (ISNULL(b.NAMA,'') + ' ' + (ISNULL(b.NAMA2, ''))) like '%" + getkata[i] + "%' ) ";
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "select a.brg, (ISNULL(b.NAMA,'') + ' ' + (ISNULL(b.NAMA2, ''))) as nama, a.brg_acuan, (ISNULL(c.NAMA,'') + ' ' + (ISNULL(c.NAMA2, ''))) as nama_acuan ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.brg) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "from stf03c a left join stf02 b on a.brg=b.brg left join stf02 c on a.brg_acuan=c.brg ";
+            if (search != "")
+            {
+                sSQL2 += " WHERE ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLkodeMulti + " or " + sSQLnamaMulti + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY brg_acuan,brg ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListMultiSKU = ErasoftDbContext.Database.SqlQuery<mdlMultiSKUDetail>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<mdlMultiSKUDetail> pageOrders = new StaticPagedList<mdlMultiSKUDetail>(ListMultiSKU, pagenumber + 1, 10, totalCount.JUMLAH);
+
+            return PartialView("TableMultiSKUDetailPartial", pageOrders);
+        }
         //end add by nurul 19/8/2020
     }
     public class smolSTF02

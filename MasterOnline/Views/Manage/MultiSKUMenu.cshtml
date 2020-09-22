@@ -32,6 +32,7 @@
             color: orange;
             font-weight: bold;
         }
+
         #nm-brg-sku {
             color: orange;
             font-weight: bold;
@@ -40,121 +41,156 @@
 }
 
 <div class="row" id="MultiSKU-section">
-    <div class="col-lg-12 col-md-12">
-        <div class="row MultiSKU_table_section">
-            <div class="col-lg-4 col-sm-6">
-                <div class="input-group">
-                    <input id="search_MultiSKU" type="text" class="form-control" placeholder="Pencarian">
-                    <span class="input-group-btn">
-                        <button type="button" id="search_MultiSKU_click" class="btn btn-primary">
-                            <i class="fa fa-search"></i>
-                        </button>
-                    </span>
-                </div>
-            </div>
-            <div class="col-lg-8 col-sm-6">
-                <div class="pull-right">
-                    <button class="btn btn-primary btn_tambah_data" id="tambah_MultiSKU">Tambah Baru</button>
-                </div>
-            </div>
-        </div>
-        <div class="row MultiSKU_table_section" style="margin-top: 5px;">
-            <div class="col-sm-12">
-                <div id="table-MultiSKU-partial">
-                    @*@Html.Partial("TableMultiSKUPartial")*@
-                </div>
-            </div>
-        </div>
-        <div class="row MultiSKU_editor_section" style="display: none;">
-            <div class="col-lg-12">
-                <div class="page-editor">
-                    <h2 class="editor-title">Multi SKU</h2>
-                    <span class="title-accent"></span>
-                    <button id="close-editor" type="button" class="pull-right page-close">
-                        <span class="close-btn thick"></span>
-                    </button>
-                    <div class="form-horizontal">
-                        <div class="row">
-                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                <div class="x_panel">
-                                    <div class="x_title">
-                                        <h2 style="font-size: 16px">Detail Multi SKU</h2>
-                                        <ul class="nav navbar-right panel_toolbox">
-                                            <li>
-                                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                                            </li>
-                                        </ul>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                    <div class="x_content">
-                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
-                                        {
-                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
-                                            {
-                                                <div class="alert alert-danger">
-                                                    <span class="message-error">@modelError.ErrorMessage</span>
-                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
+    @*<div class="col-lg-12 col-md-12">*@
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tab_content1" id="multisku-tab" role="tab" data-toggle="tab" aria-expanded="true">Multi SKU</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content2" id="multisku-detail-tab" role="tab" data-toggle="tab" aria-expanded="false">Detail Multi SKU</a>
+                </li>
+            </ul>
+            <div id="myTabContent" class="tab-content" style="padding-top:10px;">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="multisku-tab">
+                    <div class="row MultiSKU_table_section">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_MultiSKU" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_MultiSKU_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6">
+                            <div class="pull-right">
+                                <button class="btn btn-primary btn_tambah_data" id="tambah_MultiSKU">Tambah Baru</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row MultiSKU_table_section" style="margin-top: 5px;">
+                        <div class="col-sm-12">
+                            <div id="table-MultiSKU-partial">
+                                @*@Html.Partial("TableMultiSKUPartial")*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row MultiSKU_editor_section" style="display: none;">
+                        <div class="col-lg-12">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Multi SKU</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-editor" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                <div class="form-horizontal">
+                                    <div class="row">
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="x_panel">
+                                                <div class="x_title">
+                                                    <h2 style="font-size: 16px">Detail Multi SKU</h2>
+                                                    <ul class="nav navbar-right panel_toolbox">
+                                                        <li>
+                                                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                        </li>
+                                                    </ul>
+                                                    <div class="clearfix"></div>
                                                 </div>
-                                            }
-                                        }
-                                        <br>
-                                        @using (Html.BeginForm("SaveMultiSKU", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-sku" }))
-                                        {
-                                            <div id="form-partial">
-                                                @*@Html.Partial("FormMultiSKUPartial")*@
+                                                <div class="x_content">
+                                                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                                    {
+                                                        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                                        {
+                                                            <div class="alert alert-danger">
+                                                                <span class="message-error">@modelError.ErrorMessage</span>
+                                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    <br>
+                                                    @using (Html.BeginForm("SaveMultiSKU", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-sku" }))
+                                                    {
+                                                        <div id="form-partial">
+                                                            @*@Html.Partial("FormMultiSKUPartial")*@
+                                                        </div>
+                                                    }
+                                                </div>
                                             </div>
-                                        }
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="multisku-detail-tab">
+                    <div class="row MultiSKU_table_section">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_MultiSKU_detail" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_MultiSKU_detail_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row MultiSKU_table_section" style="margin-top: 5px;">
+                        <div class="col-sm-12" id="table-MultiSKU-detail-partial">
+                            @*@Html.Partial("TableMultiSKUDetailPartial")*@
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modal Hapus MultiSKU -->
-<div class="modal fade" id="konfHapusMultiSKU" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin menghapus semua barang multi sku dr barang acuan <span id="nm-brg-acuan"></span> ini?</h4>
+    <!-- Modal Hapus MultiSKU -->
+    <div class="modal fade" id="konfHapusMultiSKU" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" id="btn-delete-acuan" class="btn btn-success">Ya</button>
+                <div class="modal-body">
+                    <div class="row text-center">
+                        <h4>Apakah Anda yakin ingin menghapus semua barang multi sku dr barang acuan <span id="nm-brg-acuan"></span> ini?</h4>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                    <button type="button" id="btn-delete-acuan" class="btn btn-success">Ya</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content modalresponsivetrmsk2">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin menghapus barang <span id="nm-brg-sku"></span> ?</h4>
+    <div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content modalresponsivetrmsk2">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" id="btn-delete-sku" class="btn btn-success">Ya</button>
+                <div class="modal-body">
+                    <div class="row text-center">
+                        <h4>Apakah Anda yakin ingin menghapus barang <span id="nm-brg-sku"></span> ?</h4>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                    <button type="button" id="btn-delete-sku" class="btn btn-success">Ya</button>
+                </div>
             </div>
         </div>
     </div>
+
 </div>
 
 @section scripts
@@ -209,8 +245,37 @@
                     $(this).removeAttr('disabled');
                 });
                 refreshTableMultiSKU();
+                });
+
+                $('#search_MultiSKU_detail').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTableMultiSKUDetail();
+                        return false;
+                    }
+                });
+                $('#search_MultiSKU_detail_click').click(function () {
+                    searchTableMultiSKUDetail();
+                });
+
+                $('#multisku-tab').click(function () {
+                    //$TabAktif = 0;
+                    refreshTableMultiSKU();
+
+                    $('#tambah_MultiSKU').show();
+                    $page = 0;
+                });
+
+                $('#multisku-detail-tab').click(function () {
+                    //$TabAktif = 1;
+                    refreshTableMultiSKUDetail();
+
+                    $('#tambah_MultiSKU').hide();
+                });
             });
-            });
+
+
 
         function Initialize() {
             $('#search_MultiSKU').keypress(function (e) {
@@ -402,7 +467,7 @@
 
                 if (!validasi()) return false;
 
-                
+
 
                 //var $form = $(btnClicked).parents('form');
 
@@ -764,7 +829,7 @@
                 //var tempSKU = $('#nama-acuan').val(nama);
                 $('#multiSKU_BRG_ACUAN').val(kd);
                 $('#nama-acuan').val(nama);
-                //getBuyerPrompt(kd);                
+                //getBuyerPrompt(kd);
             //}
             //promptSKU = "";
         }
@@ -778,7 +843,7 @@
             $($trElement + ' .nama-barang').text(nama);
             //$($trElement + 'save-btn-cls . #save-btn').removeAttr('disabled');
             $($trElement + ' .btn-primary').removeAttr('disabled');
-                //getBuyerPrompt(kd);                
+                //getBuyerPrompt(kd);
             //}
             //promptSKU = "";
         }
@@ -787,7 +852,7 @@
 
         //function passBarangInDb($brg) {
         //    this.$brg = $brg;
-            
+
         //}
         function deleteDetailSKUKlik($id,$acuan) {
             if ($id != null && $id != "" && $id != undefined && $acuan != null && $acuan != "" && $acuan != undefined) {
@@ -844,6 +909,51 @@
                     }
                 });
             }
+        }
+
+        function refreshTableMultiSKUDetail() {
+                var $link = '@Html.Raw(Url.Action("RefreshTableMultiSKUDetail", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+                $link = $link.replace("replaceSearch", encodeURIComponent($('#search_MultiSKU_detail').val()));
+                $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page2').val()));
+
+                $.ajax({
+                    type: "GET",
+                    url: $link,
+                    beforeSend: function () {
+                        $('#table-MultiSKU-detail-partial').hide();
+                        $('#loading_MultiSKU_detail_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-MultiSKU-detail-partial').html(response);
+                        $('#loading_MultiSKU_detail_tab').hide();
+                        $('#table-MultiSKU-detail-partial').show();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+        }
+        function searchTableMultiSKUDetail(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableMultiSKUDetail", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_MultiSKU_detail').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_MultiSKU_detail_click')[0].disabled = true;
+                    $('#loading_MultiSKU_detail_tab').show();
+                },
+                success: function (response) {
+                    $('#search_MultiSKU_detail_click')[0].disabled = false;
+                    $('#table-MultiSKU-detail-partial').html(response);
+                    $('#loading_MultiSKU_detail_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_MultiSKU_detail_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
         }
     </script>
 }

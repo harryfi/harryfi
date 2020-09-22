@@ -6424,6 +6424,7 @@
     <Content Include="Views\Manage\PromptBarangSKU.cshtml" />
     <Content Include="Views\Manage\PromptBarangMultiSKUInvoice.cshtml" />
     <Content Include="Views\Manage\TablePromptBarangMultiSKUInvoicePartial.cshtml" />
+    <Content Include="Views\Manage\TableMultiSKUDetailPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

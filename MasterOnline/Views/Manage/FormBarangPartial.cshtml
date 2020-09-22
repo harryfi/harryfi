@@ -239,11 +239,11 @@
         //        $('#multi-sku').show();
         //    }
         //});
-        if ($("#cbxStf02Type").is(":checked") == true) {
-            $('#multi-sku').hide();
-        } else if ($("#cbxStf02Type").is(":checked") == false) {
-            $('#multi-sku').show();
-        }
+        //if ($("#cbxStf02Type").is(":checked") == true) {
+        //    $('#multi-sku').hide();
+        //} else if ($("#cbxStf02Type").is(":checked") == false) {
+        //    $('#multi-sku').show();
+        //}
         //end add by nurul 28/8/2020
 
         $('#Stf02_HJUAL').change(function () {
@@ -442,7 +442,7 @@
                                             </div>
                                         </div>
                                         @*add by nurul 19/8/2020*@
-                                        <div class="form-group" id="multi-sku">
+                                        <div class="form-group" id="multi-sku" hidden>
                                             @Html.LabelFor(m => m.Stf02.KUBILASI, "Barang ini merupakan barang Multi SKU", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             @Html.HiddenFor(m => m.Stf02.KUBILASI, new { data_cbx_sku = $"cbx-MultiSKU", @class = "cbxMultiSKU" })
                                             <div class="col-md-1 col-sm-1 col-xs-6">

@@ -48,14 +48,14 @@
         @*<div class="x_panel">*@
         <div class="">
             @*<div class="x_title">
-                <h2 style="font-size: 16px">Form Multi SKU</h2>
-                <ul class="nav navbar-right panel_toolbox">
-                    <li>
-                        @*<a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                    </li>
-                </ul>
-                <div class="clearfix"></div>
-            </div>*@
+                    <h2 style="font-size: 16px">Form Multi SKU</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            @*<a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>*@
             <div class="form-horizontal">
                 <div class="">
                     <br>
@@ -64,10 +64,13 @@
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="input-group">
                                 <span class="input-group-btn">
-                                    @Html.TextBoxFor(m => m.multiSKU.BRG_ACUAN, new { @class = "form-control", maxlength = 20, @data_val_length_max = 20, required = "required", style="width: 428px !important", @readonly = "readonly" })
-                                    <button id="brg-acuan" class="btn btn-default" style="margin-right:0px" type="button" onclick="promptBarangAcuan()">
-                                        <span class="glyphicon glyphicon-option-horizontal"></span>
-                                    </button>
+                                    @Html.TextBoxFor(m => m.multiSKU.BRG_ACUAN, new { @class = "form-control", maxlength = 20, @data_val_length_max = 20, required = "required", style = "width: 445px !important", @readonly = "readonly" })
+                                    @if (Model.multiSKU == null)
+                                    {
+                                        <button id="brg-acuan" class="btn btn-default" style="margin-right:0px" type="button" onclick="promptBarangAcuan()">
+                                            <span class="glyphicon glyphicon-option-horizontal"></span>
+                                        </button>
+                                    }
                                 </span>
                             </div>
                         </div>
@@ -79,7 +82,7 @@
                                 @*@Html.TextBox("nama-acuan", "", new { @class = "form-control", maxlength = 30, @disabled = "disabled" })*@
                                 @if (Model.Brg_Acuan != "" && Model.Brg_Acuan != null)
                                 {
-                                    var namaBrgAcuan = Model.listDetailSKU.Where(a => a.BRG == Model.Brg_Acuan).SingleOrDefault().NAMA + ' ' + Model.listDetailSKU.Where(a => a.BRG == Model.Brg_Acuan).SingleOrDefault().NAMA2;                                    
+                                    var namaBrgAcuan = Model.listDetailSKU.Where(a => a.BRG == Model.Brg_Acuan).SingleOrDefault().NAMA + ' ' + Model.listDetailSKU.Where(a => a.BRG == Model.Brg_Acuan).SingleOrDefault().NAMA2;
                                     @Html.TextArea("nama-acuan", namaBrgAcuan, new { @class = "form-control col-md-12 col-sm-12 col-xs-12", style = "resize: none; overflow-y: scroll; height: 80px; width: 100%;", @disabled = "disabled" })
                                 }
                                 else
@@ -95,20 +98,20 @@
             <hr />
             <div class="form-horizontal">
                 @*<div>
-                    <div class="clearfix"></div>
-                    <br />
-                    <br />
-                    <br />
-                </div>
-                <div class="x_title">
-                    <h2 style="font-size: 16px">Multi SKU</h2>
-                    <ul class="nav navbar-right panel_toolbox">
-                        <li>
-                            @*<a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                        </li>
-                    </ul>
-                    <div class="clearfix"></div>
-                </div>*@
+                        <div class="clearfix"></div>
+                        <br />
+                        <br />
+                        <br />
+                    </div>
+                    <div class="x_title">
+                        <h2 style="font-size: 16px">Multi SKU</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                @*<a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>*@
                 <div class="">
                     <br>
                     <table id="table_brg_sku" class="table table-bordered" role="grid">
@@ -117,7 +120,7 @@
                                 <th style="width: 150px !important; max-width: 150px !important;padding:5px !important">Kode Barang Multi SKU</th>
                                 <th width="250px">Nama Barang Multi SKU</th>
                                 <th width="40px">Simpan</th>
-                                <th width="40px">Hapus</th>
+                                @*<th width="40px">Hapus</th>*@
                             </tr>
                         </thead>
                         <tbody>
@@ -148,12 +151,11 @@
                                             <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                                         </button>
                                     </td>
-                                    <td class="edit-hapus-col">
-                                        @*<button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@sku_multi.BRG')">*@
-                                        <button class="btn btn-danger" type="button" onclick="deleteDetailSKUKlik('@sku_multi.BRG','@sku_multi.BRG_ACUAN')">
-                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                        </button>
-                                    </td>
+                                    @*<td class="edit-hapus-col">
+                                            <button class="btn btn-danger" type="button" onclick="deleteDetailSKUKlik('@sku_multi.BRG','@sku_multi.BRG_ACUAN')">
+                                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                            </button>
+                                        </td>*@
                                 </tr>
                                 iPd = iPd + 1;
                             }
@@ -167,21 +169,20 @@
                                     </button>
                                 </td>
                                 @*<td style="width: 150px; max-width: 150px;">
-                                    <div id="BRG" class="selectivity-input" tabindex="0"></div>
-                                    @Html.HiddenFor(m => m.BarangStok.Kobar)
-                                </td>*@
+                                        <div id="BRG" class="selectivity-input" tabindex="0"></div>
+                                        @Html.HiddenFor(m => m.BarangStok.Kobar)
+                                    </td>*@
                                 <td class="nama-barang">-</td>
                                 <td class="edit-hapus-col">
                                     <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanMultiSKU()">
                                         <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                                     </button>
                                 </td>
-                                <td class="edit-hapus-col">
-                                    @*<button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang">*@
-                                    <button class="btn btn-danger" disabled="disabled">
-                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                    </button>
-                                </td>
+                                @*<td class="edit-hapus-col">
+                                        <button class="btn btn-danger" disabled="disabled">
+                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                        </button>
+                                    </td>*@
                             </tr>
                         </tbody>
                     </table>

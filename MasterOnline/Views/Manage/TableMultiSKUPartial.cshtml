@@ -46,7 +46,7 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Nama Barang</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Terakhir Edit</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Edit</th>
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus</th>
+                @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus</th>*@
             </tr>
         </thead>
         <tbody>
@@ -71,21 +71,11 @@
                             </button>
                         @*}*@
                     </td>
-                    <td class="edit-hapus-col">
-                        @*@if (Convert.ToString(MultiSKU.POSTING) == "Y")
-                        {
-                            <button class="btn btn-danger" onclick="undeleteableMultiSKU()">
-                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                            </button>
-                        }
-                        else
-                        {*@
-                            @*<button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusMultiSKU" onclick="pass('@MultiSKU.brg_acuan')">*@
+                    @*<td class="edit-hapus-col">
                         <button class="btn btn-danger" onclick="deleteSKUKlik('@MultiSKU.brg_acuan')">
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                         </button>
-                        @*}*@
-                    </td>
+                    </td>*@
                 </tr>
             }
         </tbody>
