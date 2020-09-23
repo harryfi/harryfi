@@ -1448,6 +1448,67 @@ namespace MasterOnline.Controllers
                                 int iProcess = 0;
                                 int success = 0;
 
+
+                                // validasi jika file baru lagi dengan no referensi dan no cust sama tidak boleh proses
+                                // add by fauzi 23/09/2020
+                                #region validasi duplicate dari file berbeda
+                                var dataNoReferensiNoCust = new List<string>();
+
+                                for (int i = Convert.ToInt32(prog[0]); i <= worksheet.Dimension.End.Row; i++)
+                                {
+                                    string no_referensi = worksheet.Cells[i, 2].Value == null ? "" : worksheet.Cells[i, 2].Value.ToString();
+                                    string marketplace = worksheet.Cells[i, 4].Value == null ? "" : worksheet.Cells[i, 4].Value.ToString();
+                                    if (!string.IsNullOrEmpty(no_referensi)) 
+                                    {
+                                        if(!string.IsNullOrEmpty(marketplace))
+                                        {
+                                            string[] no_cust = marketplace.Split(';');
+                                            var noCust = no_cust[0].ToString();
+                                            dataNoReferensiNoCust.Add(no_referensi + ";" + noCust);
+                                        }
+                                    }
+                                }
+
+                                if(dataNoReferensiNoCust.Count() > 0)
+                                {
+                                    var dataFilterRef = dataNoReferensiNoCust.Distinct().ToList();
+                                    if(dataFilterRef.Count() > 0)
+                                    {
+                                        foreach(var refCheck in dataFilterRef)
+                                        {
+                                            string[] splitRef = refCheck.Split(';');
+                                            var resNoref = splitRef[0].ToString();
+                                            var resNocust = splitRef[1].ToString();
+                                            var checkDB = eraDB.SOT01A.Where(c => c.NO_REFERENSI == resNoref && c.CUST == resNocust).SingleOrDefault();
+                                            if(checkDB != null)
+                                            {
+                                                messageErrorLog = "No Referensi pesanan " + resNoref + " dan Kode Customer toko " + resNocust + " sudah pernah dimasukan.Proses Upload Pesanan dibatalkan.";
+                                                tw.WriteLine(messageErrorLog);
+
+                                                var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                if (cekLog == null)
+                                                {
+                                                    string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
+                                                (resNocust),
+                                                (connID),
+                                                ("Upload Excel Pesanan"),
+                                                (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
+                                                ("FAILED"),
+                                                (success + " / " + Convert.ToInt32(ret.countAll - 1)),
+                                                (username),
+                                                (filename));
+                                                    var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
+                                                    // error log terjadi error pada insert header pesanan
+                                                }
+                                                ret.Errors.Add("No Referensi pesanan " + resNoref + " dan Kode Customer toko " + resNocust + " sudah pernah dimasukan. Proses Upload Pesanan dibatalkan.");
+                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                            }
+                                        }
+                                    }
+                                }
+                                #endregion
+                                // end add by fauzi 23/09/2020
+
                                 // start looping
                                 for (int i = Convert.ToInt32(prog[0]); i <= worksheet.Dimension.End.Row; i++)
                                 {
