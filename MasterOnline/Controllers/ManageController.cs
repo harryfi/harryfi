@@ -46165,6 +46165,9 @@ namespace MasterOnline.Controllers
                                         newSIT01B.NILAI_DISC_1 = nilai_disc_1;
                                         newSIT01B.NILAI_DISC_2 = nilai_disc_2;
                                         newSIT01B.HARGA = harga;
+                                        //add by nurul 24/9/2020, brg multi sku 
+                                        newSIT01B.BRG_MULTISKU = pesananDetail.BRG_MULTISKU;
+                                        //end add by nurul 24/9/2020, brg, multi sku 
 
                                         if (string.IsNullOrEmpty(Convert.ToString(newSIT01B.QTY_KIRIM)))
                                         {
@@ -54944,6 +54947,21 @@ namespace MasterOnline.Controllers
                 var listGudang = ErasoftDbContext.STF18.ToList();
                 return Json(listGudang, JsonRequestBehavior.AllowGet);
             }
+        }
+
+        [HttpGet]
+        public ActionResult getBarangMultiSKU()
+        {
+            //var listBarang = (from a in ErasoftDbContext.STF03C
+            //                  join b in ErasoftDbContext.STF02 on a.BRG equals b.BRG
+            //                  where a.BRG_ACUAN == brgId
+            //                  select new { BRG = b.BRG, NAMA = b.NAMA, NAMA2 = b.NAMA2 == null ? "" : b.NAMA2 }).ToList();
+            var listBarang = (from a in ErasoftDbContext.STF02 
+                              where a.TYPE == "6"
+                              select new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, BRG_ACUAN = a.BRG_NON_OS }).ToList();
+            //select new { BRG = b.BRG, NAMA = b.NAMA + ' ' + b.NAMA2 == null ? "" : b.NAMA2 });
+
+            return Json(listBarang, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult RefreshTableMultiSKUDetail(int? page, string search = "")

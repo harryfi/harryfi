@@ -3749,6 +3749,7 @@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script type="text/javascript">
+        var selectBrg = $('#BRG').selectivity();
         var $statusAPI = window.text;
         var $modeEditPesanan = 0;
         var $modeEditDibayar = 0;
@@ -5840,7 +5841,7 @@
                                         //getBuyer();
                                         getGudang();
                                         getDataBarang();
-
+                                        //getBarangMultiSKUForBarang();
                                         //refreshInputan();
                                         //refreshNetto();
 
@@ -6816,6 +6817,9 @@
 
                                 getTanggal();
                                 getDataBarang();
+                                $('#multisku-select').show();
+                                $('#multisku-kode').hide();
+                                getBarangMultiSKUForBarang();
                             }
                             $('#btn-simpan-perubahan-row').show();
                         }
@@ -7091,7 +7095,8 @@
                                 };
                             });
 
-                        $('#BRG').selectivity({
+                        //$('#BRG').selectivity({
+                        selectBrg = $('#BRG').selectivity({
                             allowClear: true,
                             items: listKodeBarang,
                             placeholder: 'Harap pilih',
@@ -7288,6 +7293,9 @@
                     getDataBarang();
                     getMarketplaceSOT01A();
                     getExpedisi();
+                    $('#multisku-select').show();
+                    $('#multisku-kode').hide();
+                    getBarangMultiSKUForBarang();
                     //change by nurul 19/2/2019
                     //$('#tambah_pesanan').click();
                     $('.pesanan_table_section').hide();
@@ -7482,6 +7490,9 @@
                     getExpedisi();
                     //getBuyer();
                     getDataBarang();
+                    $('#multisku-select').show();
+                    $('#multisku-kode').hide();
+                    getBarangMultiSKUForBarang();
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
                 },
@@ -11149,6 +11160,9 @@
 
                                 getTanggal();
                                 getDataBarang();
+                                $('#multisku-select').show();
+                                $('#multisku-kode').hide();
+                                getBarangMultiSKUForBarang();
                             }
                             $('#btn-simpan-perubahan-row').show();
                         }
@@ -11229,6 +11243,9 @@
                             getExpedisi();
                             //getBuyer();
                             getDataBarang();
+                            $('#multisku-select').show();
+                            $('#multisku-kode').hide();
+                            getBarangMultiSKUForBarang();
                             $('#loading_spinner').hide();
                         },
                         error: function(xhr) {
@@ -11444,6 +11461,69 @@
                         //if ($('#PesananDetail_BRG_MULTISKU').val() != "") {
                         //    $('#BRG_MULTI_SKU')[0].trigger.change();
                         //}
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            } else {
+                var link = '@Url.Action("getBarangMultiSKU", "Manage")';
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var listBarang = [];
+                        $.each(data,
+                            function (i, item) {
+
+                                var nama2 = "";
+                                if (item.NAMA2 != null && item.NAMA2 != "null") {
+                                    nama2 = item.NAMA2;
+                                }
+
+                                listBarang[i] = {
+                                    id: item.BRG,
+                                    text: item.BRG + ' (' + item.NAMA + ' ' + nama2 + ')',
+                                    acuan: item.BRG_ACUAN,
+                                };
+                            });
+
+                        var barangSelect = $('#BRG_MULTI_SKU').selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: listBarang,
+                            onChange: function (value) {
+                                var $objSup = $.grep(listBarang, function (data) { return data.id == value });
+                                if (value != null) {
+                                    $('#multisku-kode').text(value);
+                                    $("#PesananDetail_BRG_MULTISKU").val(value).trigger('change');
+                                    //$('#BRG').selectivity('value');
+                                    //$('#BRG').selectivity[0].selectize.setValue(acuan, true);
+                                    //$('#BRG')[0].va(acuan);
+                                    
+                                    if ($objSup[0] != null) {
+                                        //$("#Pesanan_TERM").val($objSup[0].term).change();
+                                        selectBrg.change($objSup[0].acuan);
+                                        //$('#BRG > selectivity > options[item=' + $objSup[0].acuan + ']').prop('selected', 'selected').change();
+                                    }
+                                } else {
+                                    $('#multisku-kode').text('-');
+                                }
+                                $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
+                            }
+                        });
+
+                        barangSelect[0].selectize.clearOptions();
+                        barangSelect[0].selectize.renderCache = {};
+                        barangSelect[0].selectize.load(function (callback) {
+                            callback(listBarang);
+                        });
+
+                        barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val());
+                        $('#multisku-kode').text($('#PesananDetail_BRG_MULTISKU').val());
                     },
                     error: function (xhr) {
                         console.log(xhr);

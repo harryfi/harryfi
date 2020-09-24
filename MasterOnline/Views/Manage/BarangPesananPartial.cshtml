@@ -25,7 +25,7 @@
 }
 
 <style>
-    @@media screen and (max-width: 767px) {
+    /*@@media screen and (max-width: 767px) {
         .addmarginLeft {
             margin-left: -20px;
         }
@@ -44,6 +44,33 @@
     @@media screen and (max-width: 325px) {
         .patdualimatpesanan {
             width: 27%;
+        }
+    }*/
+    @@media screen and (max-width: 767px) {
+        .patdualimatpesanan {
+            width: 71%;
+            margin-left: -20px;
+        }
+    }
+
+    @@media screen and (max-width: 445px) {
+        .patdualimatpesanan {
+            width: 33%;
+            margin-left: -20px;
+        }
+    }
+
+    @@media screen and (max-width: 375px) {
+        .patdualimatpesanan {
+            width: 28%;
+            margin-left: -20px;
+        }
+    }
+
+    @@media screen and (max-width: 325px) {
+        .patdualimatpesanan {
+            width: 22%;
+            margin-left: -20px;
         }
     }
 
@@ -372,7 +399,9 @@
 @Html.HiddenFor(m => m.PesananDetail.DISC_TITIPAN, new { Value = 0 })
 @Html.HiddenFor(m => m.PesananDetail.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
 <div class="row" style="margin-top: 15px;">
-    <div class="col-lg-12 addmarginLeft">
+    @*<div class="col-lg-12 addmarginLeft">*@
+    <div class="col-lg-12">
+        @*<div class="hscroll table-responsive patdualimatpesanan">*@
         <div class="hscroll table-responsive patdualimatpesanan">
             <table id="table_tambah_pesanan" class="table table-bordered" role="grid">
                 <thead>
@@ -475,15 +504,15 @@
                         <td class="nama-barang" style="width: 200px; max-width: 200px;">-</td>
                         @*//ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
                         @*<td class="barang-multisku" style="width: 120px !important; max-width: 120px !important;padding:1px !important">
-                            @Html.TextBoxFor(m => m.PesananDetail.BRG_MULTISKU, new { @readonly = "readonly", placeholder = "Pilih Barang", @style = "background-color : #eee; cursor :not-allowed; height: 34px; width: 80px !important; ; margin-right:0px", @class = "nbrg-class" })
-                            <button id="tambah-brg" class="btn btn-default" type="button" style="height: 34px;margin:0px;width:21px !important;padding:unset" onclick="PromptMultiSKUPesanan()">
-                                <span class="glyphicon glyphicon-option-horizontal center-block"></span>
-                            </button>
-                        </td>*@
+                                @Html.TextBoxFor(m => m.PesananDetail.BRG_MULTISKU, new { @readonly = "readonly", placeholder = "Pilih Barang", @style = "background-color : #eee; cursor :not-allowed; height: 34px; width: 80px !important; ; margin-right:0px", @class = "nbrg-class" })
+                                <button id="tambah-brg" class="btn btn-default" type="button" style="height: 34px;margin:0px;width:21px !important;padding:unset" onclick="PromptMultiSKUPesanan()">
+                                    <span class="glyphicon glyphicon-option-horizontal center-block"></span>
+                                </button>
+                            </td>*@
                         <td class="barang-multisku">
                             <span id="multisku-kode">-</span>
                             <div id="multisku-select" style="display: none;">
-                                <select id="BRG_MULTI_SKU" placeholder="Pilih Barang"  class="barang_multisku"></select>
+                                <select id="BRG_MULTI_SKU" placeholder="Pilih Barang" class="barang_multisku"></select>
                             </div>
                             @Html.HiddenFor(m => m.PesananDetail.BRG_MULTISKU)
                         </td>
