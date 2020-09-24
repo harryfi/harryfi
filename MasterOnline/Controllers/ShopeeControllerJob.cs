@@ -9075,22 +9075,22 @@ namespace MasterOnline.Controllers
         {
             public float original_price { get; set; }
             public int quantity_purchased { get; set; }
-            public object deal_price { get; set; }
-            public object credit_card_promotion { get; set; }
+            //public object deal_price { get; set; }
+            //public object credit_card_promotion { get; set; }
             public string item_name { get; set; }
-            public object discount_from_coin { get; set; }
+            //public object discount_from_coin { get; set; }
             public string item_sku { get; set; }
             public long variation_id { get; set; }
             public string variation_name { get; set; }
-            public int add_on_deal_id { get; set; }
+            public long add_on_deal_id { get; set; }
             public bool is_add_on_deal { get; set; }
             public long item_id { get; set; }
-            public object discounted_price { get; set; }
+            //public object discounted_price { get; set; }
             public int discount_from_voucher_seller { get; set; }
             public string variation_sku { get; set; }
             public int discount_from_voucher { get; set; }
             public bool is_main_item { get; set; }
-            public object seller_rebate { get; set; }
+            //public object seller_rebate { get; set; }
         }
 
     }
