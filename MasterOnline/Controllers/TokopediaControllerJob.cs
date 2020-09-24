@@ -3645,6 +3645,7 @@ namespace MasterOnline.Controllers
                     var orderRefund = result.data.Where(p => p.order_status == 800).ToList();
                     var orderRollback = result.data.Where(p => p.order_status == 801).ToList();
                     var orderCancelBySeller = result.data.Where(p => p.order_status == 10).ToList();
+                    var orderCancelByBuyer = result.data.Where(p => p.order_status == 15).ToList();//add 22 sept 2020
                     var connIdARF01C = Guid.NewGuid().ToString();
                     rowCount = result.data.Count();
 
@@ -3665,6 +3666,12 @@ namespace MasterOnline.Controllers
                     {
                         ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
                     }
+                    //add 22 sept 2020
+                    foreach (var item in orderCancelByBuyer)
+                    {
+                        ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
+                    }
+                    //end add 22 sept 2020
 
                     if (ordersn != "")
                     {
