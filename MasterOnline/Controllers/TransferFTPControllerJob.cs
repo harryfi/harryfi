@@ -87,7 +87,9 @@ namespace MasterOnline.Controllers
                         "LEFT JOIN (SELECT DISTINCT NO_BUKTI FROM SIT01A A INNER JOIN ART03B B ON A.NO_BUKTI = B.NFAKTUR)E ON A.NO_BUKTI = E.NO_BUKTI " +
                         "LEFT JOIN (select ret.jenis_form,ret.no_bukti as bukti_ret,ret.no_ref as no_si,fkt.no_bukti as bukti_faktur from sit01a ret inner join sit01a fkt on fkt.no_bukti=ret.no_ref where ret.jenis_form='3') F ON A.NO_BUKTI=F.BUKTI_FAKTUR " +
                         "LEFT JOIN ARF01C I ON A.PEMESAN = I.BUYER_CODE " +
-                        "WHERE A.TGL = '" + dt1 + "'" +
+                        //"WHERE A.TGL = '" + dt1 + "'" +
+                        "WHERE A.TGL_KIRIM = '" + dt1 + "'" +
+                        "AND D.STATUS_TRANSAKSI = '04' " +
                         "AND A.JENIS_FORM = '2' " +
                         "ORDER BY A.TGL DESC, A.NO_BUKTI DESC";
 
