@@ -45996,6 +45996,15 @@ namespace MasterOnline.Controllers
                         //                        }
                         //end
 
+                        //update tanggal selesai pesanan
+                        var dataFaktur = ErasoftDbContext.SIT01A.Where(p => p.NO_SO == Nobuk).SingleOrDefault();
+                        if (dataFaktur != null)
+                        {
+                            dataFaktur.TGL_KIRIM = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
+                            ErasoftDbContext.SaveChanges();
+                        }
+                        //update tanggal selesai pesanan
+
                         var kdShopify = "21";
                         var mpCust82Cart = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopify && m.CUST == SOA_CUST).FirstOrDefault();
                         if (mpCust82Cart != null)
