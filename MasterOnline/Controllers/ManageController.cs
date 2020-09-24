@@ -19497,6 +19497,17 @@ namespace MasterOnline.Controllers
                     vmError.Errors.Add("Gd & Qty belum lengkap");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
+                else // add by fauzi 23/09/2020 untuk update tanggal selesai TGL_KIRIM di table faktur fitur Upload faktru via FTP
+                {
+                    //update tanggal selesai pesanan
+                    var dataFaktur = ErasoftDbContext.SIT01A.Where(p => p.NO_SO == pesananInDb.NO_BUKTI).SingleOrDefault();
+                    if(dataFaktur != null)
+                    {
+                        dataFaktur.TGL_KIRIM = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
+                        ErasoftDbContext.SaveChanges();
+                    }
+                    //update tanggal selesai pesanan
+                }
             }
 
             //add by nurul 4/1/2019 (tambah validasi jika gudang belum diisi)
@@ -19517,6 +19528,17 @@ namespace MasterOnline.Controllers
                     var vmError = new StokViewModel();
                     vmError.Errors.Add("Isi semua gudang / qty terlebih dahulu!");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    //update tanggal selesai pesanan
+                    var dataFaktur = ErasoftDbContext.SIT01A.Where(p => p.NO_SO == pesananInDb.NO_BUKTI).SingleOrDefault();
+                    if (dataFaktur != null)
+                    {
+                        dataFaktur.TGL_KIRIM = null;
+                        ErasoftDbContext.SaveChanges();
+                    }
+                    //update tanggal selesai pesanan
                 }
             }
             //end add
