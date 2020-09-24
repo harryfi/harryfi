@@ -66,7 +66,7 @@ namespace MasterOnline.Controllers
                 var dataParamFTP = ErasoftDbContext.LINKFTP.ToList();
                 string filename = username.Replace(" ", "") + "_faktur_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".csv";
                 //string dt1 = DateTime.ParseExact(DateTime.Now.ToString("dd/MM/yyyy"), "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd 23:59:59.999");
-                string dt1 = DateTime.ParseExact(DateTime.Now.ToString("dd/MM/yyyy"), "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd");
+                string dt1 = DateTime.ParseExact(DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy"), "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd");
 
                 string sSQL = "SELECT ISNULL(A.NO_BUKTI,'') AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, A.STATUS AS STATUS_FAKTUR, " +
                         "ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, ISNULL(A.NO_REF, '') AS NO_REFERENSI, ISNULL(D.TGL, '') AS TGL_PESANAN, " +
