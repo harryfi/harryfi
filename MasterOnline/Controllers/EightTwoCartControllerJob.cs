@@ -1303,7 +1303,7 @@ namespace MasterOnline.Controllers
                                                 {
                                                     try
                                                     {
-                                                        if (!OrderNoInDb.Contains(order.id_order))
+                                                        if (!OrderNoInDb.Contains(order.id_order + ";" + order.reference))
                                                         {
                                                             jmlhNewOrder++;
                                                             var connIdARF01C = Guid.NewGuid().ToString();
@@ -1369,7 +1369,7 @@ namespace MasterOnline.Controllers
                                                                 message_to_seller = "",
                                                                 note = "",
                                                                 note_update_time = Convert.ToDateTime(dateOrder),
-                                                                ordersn = order.id_order,
+                                                                ordersn = order.id_order + ";" + order.reference ?? "",
                                                                 //order_status = order.current_state_name,
                                                                 order_status = "UNPAID",
                                                                 payment_method = order.payment,
@@ -1415,7 +1415,7 @@ namespace MasterOnline.Controllers
 
                                                                 TEMP_82CART_ORDERS_ITEM newOrderItem = new TEMP_82CART_ORDERS_ITEM()
                                                                 {
-                                                                    ordersn = order.id_order,
+                                                                    ordersn = order.id_order + ";" + order.reference ?? "",
                                                                     is_wholesale = false,
                                                                     item_id = item.product_id,
                                                                     item_name = item.product_name,
@@ -1511,10 +1511,10 @@ namespace MasterOnline.Controllers
                                 {
                                     foreach (var order in orderFilterExisting)
                                     {
-                                        if (!OrderNoInDb.Contains(order.id_order))
+                                        if (!OrderNoInDb.Contains(order.id_order + ";" + order.reference))
                                         {
                                             jmlhPesananDibayar++;
-                                            ordersn = ordersn + "'" + order.id_order + "',";
+                                            ordersn = ordersn + "'" + order.id_order + ";" + order.reference + "',";
                                             var statusOrderSP = "";
 
                                             if (statusCAP[itemOrderExisting].ToString() == "2")
@@ -1590,7 +1590,7 @@ namespace MasterOnline.Controllers
                                                 message_to_seller = "",
                                                 note = "",
                                                 note_update_time = Convert.ToDateTime(dateOrder),
-                                                ordersn = order.id_order,
+                                                ordersn = order.id_order + ";" + order.reference ?? "",
                                                 //order_status = order.current_state_name,
                                                 order_status = statusOrderSP,
                                                 payment_method = order.payment,
@@ -1636,7 +1636,7 @@ namespace MasterOnline.Controllers
 
                                                 TEMP_82CART_ORDERS_ITEM newOrderItem = new TEMP_82CART_ORDERS_ITEM()
                                                 {
-                                                    ordersn = order.id_order,
+                                                    ordersn = order.id_order + ";" + order.reference ?? "",
                                                     is_wholesale = false,
                                                     item_id = item.product_id,
                                                     item_name = item.product_name,
@@ -1691,7 +1691,7 @@ namespace MasterOnline.Controllers
                                         }
                                         else
                                         {
-                                            ordersn2 = ordersn2 + "'" + order.id_order + "',";
+                                            ordersn2 = ordersn2 + "'" + order.id_order + ";" + order.reference + "',";
                                         }
 
                                     }
@@ -1808,9 +1808,9 @@ namespace MasterOnline.Controllers
                         {
                             foreach (var item in orderFilterCompleted)
                             {
-                                if (OrderNoInDb.Contains(item.id_order))
+                                if (OrderNoInDb.Contains(item.id_order + ";" + item.reference))
                                 {
-                                    ordersn = ordersn + "'" + item.id_order + "',";
+                                    ordersn = ordersn + "'" + item.id_order + ";" + item.reference + "',";
                                 }
                             }
                         }
@@ -1904,9 +1904,9 @@ namespace MasterOnline.Controllers
                         {
                             foreach (var item in orderFilterCancel)
                             {
-                                if (OrderNoInDb.Contains(item.id_order))
+                                if (OrderNoInDb.Contains(item.id_order + ";" + item.reference))
                                 {
-                                    ordersn = ordersn + "'" + item.id_order + "',";
+                                    ordersn = ordersn + "'" + item.id_order + ";" + item.reference + "',";
                                 }
                             }
                         }
@@ -1929,13 +1929,13 @@ namespace MasterOnline.Controllers
                                 foreach (var order in listOrder.data)
                                 {
                                     string reasonValue;
-                                    if (listReason.TryGetValue(order.id_order, out reasonValue))
+                                    if (listReason.TryGetValue(order.id_order + ";" + order.reference, out reasonValue))
                                     {
                                         if (!string.IsNullOrEmpty(sSQL1))
                                         {
                                             sSQL1 += " UNION ALL ";
                                         }
-                                        sSQL1 += " SELECT '" + order.id_order + "' NO_REFERENSI, '" + listReason[order.id_order] + "' ALASAN ";
+                                        sSQL1 += " SELECT '" + order.id_order + ";" + order.reference + "' NO_REFERENSI, '" + listReason[order.id_order + ";" + order.reference] + "' ALASAN ";
                                     }
                                 }
                                 sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
