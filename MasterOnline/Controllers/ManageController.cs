@@ -31380,10 +31380,10 @@ namespace MasterOnline.Controllers
                                         //KodeTracking = worksheet.Cells[i, 24].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 24].Value),
                                         //Status = worksheet.Cells[i, 25].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 25].Value),
                                         BeratPerSKU = worksheet.Cells[i, 22].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 22].Value),
-                                        Varian = worksheet.Cells[i, 22].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 23].Value),
-                                        Kurir = worksheet.Cells[i, 23].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 24].Value),
-                                        KodeTracking = worksheet.Cells[i, 24].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 25].Value),
-                                        Status = worksheet.Cells[i, 25].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 26].Value),
+                                        Varian = worksheet.Cells[i, 23].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 23].Value),
+                                        Kurir = worksheet.Cells[i, 24].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 24].Value),
+                                        KodeTracking = worksheet.Cells[i, 25].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 25].Value),
+                                        Status = worksheet.Cells[i, 26].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 26].Value),
                                     };
                                     if (records.Where(m => m.IDTransaksi == a.IDTransaksi).ToList().Count() > 0)
                                     {
