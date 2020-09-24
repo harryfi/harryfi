@@ -8227,6 +8227,9 @@ namespace MasterOnline.Controllers
                 }
 
                 ErasoftDbContext.SaveChanges();
+                //add by Tri, 24 sept 2020
+                cekStf02hDuplikat(dataBarang.Stf02);
+                //end add by Tri, 24 sept 2020
 
                 //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
                 //bool doAPI = false;
@@ -9402,6 +9405,9 @@ namespace MasterOnline.Controllers
 
                 ErasoftDbContext.SaveChanges();
 
+                //add by Tri, 24 sept 2020
+                cekStf02hDuplikat(dataBarang.Stf02);
+                //end add by Tri, 24 sept 2020
                 ModelState.Clear();
 
                 //var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == dataBarang.Stf02.Sort1);
@@ -55746,6 +55752,36 @@ namespace MasterOnline.Controllers
             return PartialView("PostingView", vm);
         }
         //end add by nurul 5/8/2020
+
+        //add by Tri, 24 sept 2020
+        public string cekStf02hDuplikat(STF02 dataBarang)
+        {
+            string kdBrg = dataBarang.BRG;
+            if (string.IsNullOrEmpty(kdBrg))
+            {
+                var brgInDB = ErasoftDbContext.STF02.Where(m => m.ID == dataBarang.ID).FirstOrDefault();
+                if(brgInDB == null)
+                {
+                    return "";
+                }
+                kdBrg = brgInDB.BRG;
+            }
+            var sSQL = "select * from ( ";
+            sSQL += "select BRG, IDMARKET, count(recnum) JML from stf02h where brg in ( ";
+            sSQL += "select brg from stf02 where brg = '" + kdBrg + "' or part = '" + kdBrg + "')  group by brg,idmarket";
+            sSQL += ") qry where jml > 1";
+            var dsBarang = EDB.GetDataSet("CString", "STF02H", sSQL);
+            if(dsBarang.Tables[0].Rows.Count > 0)
+            {
+                for(int i =0;i < dsBarang.Tables[0].Rows.Count; i++)
+                {
+                    sSQL = "delete from stf02h where recnum in (select top " + (Convert.ToInt32(dsBarang.Tables[0].Rows[i]["JML"].ToString()) - 1) ;
+                    sSQL += " recnum from stf02h where brg = '"+dsBarang.Tables[0].Rows[i]["BRG"].ToString()+ "' and idmarket = " + dsBarang.Tables[0].Rows[i]["IDMARKET"].ToString() + " order by brg_mp)";
+                }
+            }
+            return "";
+        }
+        //end add by Tri, 24 sept 2020
     }
     public class smolSTF02
     {
