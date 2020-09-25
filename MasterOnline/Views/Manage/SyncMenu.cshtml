@@ -910,8 +910,13 @@
                                     //    //UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
                                     //}
                                     var total = parseInt(response.Total);
-                                    maxPage = parseInt(total / 100);
-                                    dataPerPage = 100;
+                                    //maxPage = parseInt(total / 100);
+                                    //dataPerPage = 100;
+                                    //lastPage = 0;
+                                    //loop = 1;
+                                    //UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
+                                    maxPage = parseInt(total / 10);
+                                    dataPerPage = 10;
                                     lastPage = 0;
                                     loop = 1;
                                     UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
