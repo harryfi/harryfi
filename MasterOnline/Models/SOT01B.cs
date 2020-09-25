@@ -98,5 +98,10 @@ namespace MasterOnline
         [Column(TypeName = "text")]
         public string KET_DETAIL { get; set; }
         //end add by nurul 5/5/2020, temp ket tokped
+
+        //ADD BY NURUL 9/9/2020
+        [StringLength(20)]
+        public string BRG_MULTISKU { get; set; }
+        //END ADD BY NURUL 9/9/2020
     }
 }

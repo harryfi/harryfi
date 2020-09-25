@@ -31,6 +31,18 @@
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <link href="~/Content/selectize.css" rel="stylesheet" />
     <style>
+        /*add by nurul 9/9/2020*/
+        #BRG_MULTI_SKU,
+        #BRG_MULTI_SKU .selectivity-single-select-input,
+        #table_tambah_faktur > tbody > tr > .barang-multisku {
+            width: 50px !important;
+        }
+
+            #table_tambah_faktur > tbody > tr > .barang-multisku .selectize-dropdown {
+                width: 250px !important;
+            }
+        /*end add by nurul 9/9/2020*/
+
         .input-group {
             margin-bottom: 0;
         }
@@ -4279,6 +4291,9 @@
                                 }
                                 //add by nurul 2/10/2018
                                 getDataBarang();
+                                $('#multisku-select').show();
+                                $('#multisku-kode').hide();
+                                getBarangMultiSKUForBarang();
                                 //end add
                             }
                             getTanggal();
@@ -4652,6 +4667,15 @@
                                             $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
                                             //add by nurul 13/12/2018
                                             $('#FakturDetail_BRG').val(item.BRG);
+                                            
+
+                                            if ($('#FakturDetail_BRG_MULTISKU').val() != null && $('#FakturDetail_BRG_MULTISKU').val() != "") {
+                                                var tempMultiSKU = $('#BRG_MULTI_SKU').val();
+                                                //$('#BRG_MULTI_SKU')[0].selectize.setValue(tempMultiSKU);
+                                                getBarangMultiSKUForBarang(tempMultiSKU);
+                                            } else {
+                                                getBarangMultiSKUForBarang();
+                                            }
                                             getGudangForBarang();
                                             //end add
                                             return;
@@ -4667,6 +4691,8 @@
                                 $($trElement + ' .btn-primary').removeAttr('disabled');
                                 $('#gudang-select').show();
                                 $('#gudang-kode').hide();
+                                $('#multisku-select').show();
+                                $('#multisku-kode').hide();
                                 offTab();
                                 modeEditTd();
 
@@ -4676,6 +4702,7 @@
                                 refreshNettoBarang('0');
                                 //end add
                             } else {
+                                
                                 //add by nurul 1/10/2018
                                 $('#CUSTOMER')[0].selectize.enable();
                                 //end add
@@ -4689,10 +4716,12 @@
                                 $($trElement + ' .ndisc2-barang').html('0,00' + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
                                 $($trElement + ' .netto-barang').html('0,00' + '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="FakturDetail_HARGA" name="FakturDetail.HARGA" type="hidden" value="">');
 
-                                $($trElement + ' .btn-primary').attr('disabled', 'disabled');
+                                $($trElement + ' .btn-primary').attr('disabled', 'disabled');                                                           
                                 $('#gudang-select').hide();
                                 $('#gudang-kode').show();
-
+                                $('#multisku-select').show();
+                                $('#multisku-kode').hide();
+                                
                                 //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0
                                 $beforeState.brutto = $('#Faktur_BRUTO').val();
                                 $beforeState.netto = $('#Faktur_NETTO').val();
@@ -4723,6 +4752,9 @@
                                 //add by nurul 2/10/2018
                                 refreshNettoBarang('0');
                                 //end add
+
+                                $('#FakturDetail_BRG').val('');
+                                getBarangMultiSKUForBarang();
                             }
                         });
 
@@ -4809,6 +4841,10 @@
                     getMarketplace();
                     getDataBarang();
                     //getGudang();
+                    
+                    $('#multisku-select').show();
+                    $('#multisku-kode').hide();
+                    getBarangMultiSKUForBarang();
                     getGudangForBarang();
                     getExpedisi();
                     //$('#EXPEDISI').attr('disabled', 'disabled');
@@ -4922,8 +4958,12 @@
                     getBuyer();
                     getDataBarang();
                     //getGudang();
-                    getGudangForBarang();
+                    
                     getExpedisi();
+                    $('#multisku-select').show();
+                    $('#multisku-kode').hide();
+                    getBarangMultiSKUForBarang();
+                    getGudangForBarang();
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
                 },
@@ -5184,9 +5224,13 @@
                                 getBuyer();
                                 getDataBarang();
                                 //getGudang();
-                                getGudangForBarang();
+                                
                                 getMarketplace();
                                 getExpedisi();
+                                $('#multisku-select').show();
+                                $('#multisku-kode').hide();
+                                getBarangMultiSKUForBarang();
+                                getGudangForBarang();
                                 //$('#EXPEDISI').attr('disabled', 'disabled');
                                 $('#btn-simpan-perubahan-row').show();
                             } else {
@@ -5458,7 +5502,7 @@
                             getBuyer();
                             getDataBarang();
                             getMarketplace();
-
+                            getBarangMultiSKUForBarang();
                             $('.faktur_table_section').hide();
                             $('.faktur_editor_section').show();
 
@@ -5794,6 +5838,172 @@
             });
         }
         //end add by nurul 4/3/2020
+
+        //add by nurul 9/9/2020
+        function PromptMultiSKUFaktur() { 
+            //if ($('#FakturDetail_BRG').val() != '') {
+            if ($('#BRG').selectivity('value') != "") {
+                var link = '@Url.Action("PromptBarangMultiSKUInvoice", "Manage", new { id = "replaceId", kdBrg = "replaceBrg" })';
+                link = link.replace("replaceId", "2");
+                link = link.replace("replaceBrg", $('#BRG').selectivity('value'));
+                @*window.open('@Url.Action("PromptBarangAcuan", "Manage")',*@
+                window.open(link,
+                    "popupWindow",
+                    "width=850, height=400, scrollbars=yes, resizable=no");
+            }
+        }
+
+        function afterPromptMultiSKUFaktur(kd) {
+            //var $trId = $('#multiSKU_BRG').closest('tr').attr('data-barang-id');
+            //var $trElement = 'tr[data-barang-id="' + $trId + '"]';
+            //$('#multiSKU_BRG').val(kd);
+            //$($trElement + ' .nama-barang').text(nama);
+            //$($trElement + ' .btn-primary').removeAttr('disabled');
+
+            $('#FakturDetail_BRG_MULTISKU').val(kd);
+
+            // Otomatis masuk ke field Qty setelah pilih gudang
+            $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.qty-barang').click();
+        }
+
+        function getBarangMultiSKUForBarang($tempBrg) {
+            //if ($('#BRG').selectivity('value') != "") {
+            if ($('#FakturDetail_BRG').val() != "") {
+
+                var link = '@Url.Action("getBarangMultiSKUForBarang", "Manage", new { brgId = "replaceId" })';
+                link = link.replace("replaceId", encodeURIComponent($('#FakturDetail_BRG').val()));
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var listBarang = [];
+                        $.each(data,
+                            function (i, item) {
+
+                                var nama2 = "";
+                                if (item.NAMA2 != null && item.NAMA2 != "null") {
+                                    nama2 = item.NAMA2;
+                                }
+
+                                listBarang[i] = {
+                                    id: item.BRG,
+                                    //change by nurul 27/11/2018 (tampilin nama barang 2) -- text: item.BRG + ' (' + item.NAMA + ')'
+                                    text: item.BRG + ' (' + item.NAMA + ' ' + nama2 + ')',
+                                };
+                            });
+
+                        var barangSelect = $('#BRG_MULTI_SKU').selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: listBarang,
+                            onChange: function (value) {
+                                var $objSup = $.grep(listBarang, function (data) { return data.id == value });
+                                
+                                if (value != null) {
+                                    $('#multisku-kode').text(value);
+                                    $('#FakturDetail_BRG_MULTISKU').val(value);
+                                } else {
+                                    $('#multisku-kode').text('-');
+                                }
+                            }
+                        });
+
+                        barangSelect[0].selectize.clearOptions();
+                        barangSelect[0].selectize.renderCache = {};
+                        barangSelect[0].selectize.load(function (callback) {
+                            callback(listBarang);
+                        });
+
+                        if ($tempBrg != "" && $tempBrg != null && $tempBrg != undefined) {
+                            barangSelect[0].selectize.setValue($tempBrg, true);
+                            $('#FakturDetail_BRG_MULTISKU').val($tempBrg);
+                        } else {
+                            barangSelect[0].selectize.setValue($('#FakturDetail_BRG_MULTISKU').val(), true);
+                        }
+                        $('#multisku-kode').text($('#FakturDetail_BRG_MULTISKU').val());
+                        //if ($('#BRG_MULTI_SKU').selectivity('value') != null) {
+                        //    $('#BRG_MULTI_SKU').trigger('change');
+                        //}
+
+                        //if ($('#FakturDetail_BRG_MULTISKU').val() != "") {
+                        //    $('#BRG_MULTI_SKU')[0].trigger.change();
+                        //}
+
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            } else {
+                var link = '@Url.Action("getBarangMultiSKU", "Manage")';
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var listBarang = [];
+                        $.each(data,
+                            function (i, item) {
+
+                                var nama2 = "";
+                                if (item.NAMA2 != null && item.NAMA2 != "null") {
+                                    nama2 = item.NAMA2;
+                                }
+
+                                listBarang[i] = {
+                                    id: item.BRG,
+                                    text: item.BRG + ' (' + item.NAMA + ' ' + nama2 + ')',
+                                    acuan: item.BRG_ACUAN,
+                                };
+                            });
+
+                        var barangSelect = $('#BRG_MULTI_SKU').selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: listBarang,
+                            onChange: function (value) {
+                                var $objSup = $.grep(listBarang, function (data) { return data.id == value });
+                                
+                                if (value != null) {
+                                    $('#multisku-kode').text(value);
+                                    $('#FakturDetail_BRG_MULTISKU').val(value);
+                                    if ($objSup[0] != null) {
+                                        $('#BRG').selectivity('value', $objSup[0].acuan);
+                                    }
+                                } else {
+                                    $('#multisku-kode').text('-');
+                                }
+                            }
+                        });
+
+                        barangSelect[0].selectize.clearOptions();
+                        barangSelect[0].selectize.renderCache = {};
+                        barangSelect[0].selectize.load(function (callback) {
+                            callback(listBarang);
+                        });
+
+                        //barangSelect[0].selectize.setValue($('#FakturDetail_BRG_MULTISKU').val(), true);
+                        if ($tempBrg != "" && $tempBrg != null && $tempBrg != undefined) {
+                            barangSelect[0].selectize.setValue($tempBrg, true);
+                            $('#FakturDetail_BRG_MULTISKU').val($tempBrg);
+                        } else {
+                            barangSelect[0].selectize.setValue($('#FakturDetail_BRG_MULTISKU').val(), true);
+                        }
+                        $('#multisku-kode').text($('#FakturDetail_BRG_MULTISKU').val());
+
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+        //end add by nurul 9/9/2020
     </script>
     <script>
         //Disable Enter Key Submit Form

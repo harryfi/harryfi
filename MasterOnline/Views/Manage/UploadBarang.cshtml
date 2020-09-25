@@ -1678,7 +1678,10 @@
                         $('#txtBrgInduk').val(data.PART);
                         $("#cmbVar").val('1').change();//brg varian
                     }
-                } else if (data.TYPE == "3") {
+                //change by nurul 16/9/2020, brg multi sku 
+                //} else if (data.TYPE == "3" ) {
+                } else if (data.TYPE == "3" || data.TYPE == "6") {
+                //end change by nurul 16/9/2020, brg multi sku 
                     $("#cmbVar").val('0').change();
                 } else if (data.TYPE == "4") {
                     $("#cmbVar").val('2').change();

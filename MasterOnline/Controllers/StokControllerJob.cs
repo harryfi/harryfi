@@ -833,6 +833,15 @@ namespace MasterOnline.Controllers
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
 
+            //ADD BY NURUL 4/9/2020, handle cek stok brg multi sku 
+            var cekBrgMultiSKU = ErasoftDbContext.STF02.Where(a => a.BRG == Barang).SingleOrDefault();
+            var tempBrgAwal = Barang;
+            if(cekBrgMultiSKU.TYPE == "6" && cekBrgMultiSKU.KUBILASI == 1 && cekBrgMultiSKU.BRG_NON_OS != "" && cekBrgMultiSKU.BRG_NON_OS != null)
+            {
+                Barang = cekBrgMultiSKU.BRG_NON_OS;
+            }
+            //END ADD BY NURUL 4/9/2020, handle cek stok brg multi sku 
+
             double qtyOnHand = 0d;
             {
                 object[] spParams = {
@@ -935,12 +944,39 @@ namespace MasterOnline.Controllers
             var client = new BackgroundJobClient(sqlStorage);
 
             var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT DISTINCT BRG, 'ALL_ITEM_WITH_MUTATION' AS CONN_ID FROM STF08A").ToList();
-
-            List<string> listBrg = new List<string>();
+            
+            //change by nurul 14/9/2020, handle barang multi sku 
+            //List<string> listBrg = new List<string>();
+            //foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
+            //{
+            //    listBrg.Add(item.BRG);
+            //}
+            List<string> listBrg_Lama = new List<string>();
             foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
             {
-                listBrg.Add(item.BRG);
+                listBrg_Lama.Add(item.BRG);
             }
+            
+            var list_brg = "";
+            if (listBrg_Lama.Count() > 0)
+            {
+                foreach (var brg in listBrg_Lama)
+                {
+                    if (list_brg != "")
+                    {
+                        list_brg += ",";
+                    }
+
+                    list_brg += "'" + brg + "'";
+                }
+            }
+            else
+            {
+                list_brg = "''";
+            }
+            var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";
+            var listBrg = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
+            //end change by nurul 14/9/2020, handle barang multi sku
 
             var ListARF01 = ErasoftDbContext.ARF01.ToList();
             foreach (string kdBrg in listBrg)
@@ -1274,15 +1310,24 @@ namespace MasterOnline.Controllers
 
             var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT * FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connId + "'").ToList();
 
-            List<string> listBrg = new List<string>();
+            //change by nurul 14/9/2020, handle barang multi sku 
+            //List<string> listBrg = new List<string>();
+            //foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
+            //{
+            //    listBrg.Add(item.BRG);
+            //}
+            List<string> listBrg_Lama = new List<string>();
             foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
             {
-                listBrg.Add(item.BRG);
+                listBrg_Lama.Add(item.BRG);
             }
+             
             if (connId == "MANUAL")
             {
-                listBrg.Add("03.MIC00.00");
-                listBrg.Add("17.TTOT00.00.6m");
+                //listBrg.Add("03.MIC00.00");
+                //listBrg.Add("17.TTOT00.00.6m");
+                listBrg_Lama.Add("03.MIC00.00");
+                listBrg_Lama.Add("17.TTOT00.00.6m");
                 //listBrg.Add("1578");
                 //listBrg.Add("2004");
                 //listBrg.Add("2495");
@@ -1311,6 +1356,27 @@ namespace MasterOnline.Controllers
                 //listBrg.Add("SP1939.08.05");
                 //listBrg.Add("SP1939.08.06");
             }
+
+            var list_brg = "";
+            if (listBrg_Lama.Count() > 0)
+            {
+                foreach (var brg in listBrg_Lama)
+                {
+                    if (list_brg != "")
+                    {
+                        list_brg += ",";
+                    }
+
+                    list_brg += "'" + brg + "'";
+                }
+            }
+            else
+            {
+                list_brg = "''";
+            }
+            var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";
+            var listBrg = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
+            //end change by nurul 14/9/2020, handle barang multi sku
 
             foreach (string kdBrg in listBrg)
             {
