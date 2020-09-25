@@ -1979,7 +1979,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
-        [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke 82Cart Gagal.")]
+        [NotifyOnFailed("Update Status Pesanan {obj} ke 82Cart Gagal.")]
         public async Task<string> E2Cart_SetOrderStatus(E2CartAPIData iden, string dbPathEra, string log_CUST, string log_ActionCategory, string log_ActionName, string orderId, string codeStatus)
         {
             string ret = "";
@@ -1991,9 +1991,22 @@ namespace MasterOnline.Controllers
 
             string urll = string.Format("{0}/api/v1/editOrder", iden.API_url);
 
+            var orderIdFix = "";
+            //handle orderid reference
+            if (orderId.Contains(";"))
+            {
+                string[] splitOrderID = orderId.Split(';');
+                orderIdFix = splitOrderID[0];
+            }
+            else
+            {
+                orderIdFix = orderId;
+            }
+            //end handle orderid reference
+
             var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
-            postData += "&id_order=" + Uri.EscapeDataString(orderId);
+            postData += "&id_order=" + Uri.EscapeDataString(orderIdFix);
             postData += "&current_state=" + Uri.EscapeDataString(codeStatus);
 
             var data = Encoding.ASCII.GetBytes(postData);
