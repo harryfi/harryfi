@@ -7094,9 +7094,8 @@
                                     text: item.BRG + ' (' + item.NAMA + ' ' + nama2 + ')'
                                 };
                             });
-
-                        //$('#BRG').selectivity({
-                        selectBrg = $('#BRG').selectivity({
+                        
+                        $('#BRG').selectivity({
                             allowClear: true,
                             items: listKodeBarang,
                             placeholder: 'Harap pilih',
@@ -7121,7 +7120,14 @@
                                             $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) +
                                                 '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="PesananDetail_H_SATUAN" name="PesananDetail.H_SATUAN" type="hidden" value="" style="text-align:right">');
                                             $('#PesananDetail_BRG').val(item.BRG);
-                                            getBarangMultiSKUForBarang();
+
+                                            if ($('#PesananDetail_BRG_MULTISKU').val() != null && $('#PesananDetail_BRG_MULTISKU').val() != "") {
+                                                var tempMultiSKU = $('#BRG_MULTI_SKU').val();
+                                                //$('#BRG_MULTI_SKU')[0].selectize.setValue(tempMultiSKU);
+                                                getBarangMultiSKUForBarang(tempMultiSKU);
+                                            } else {
+                                                getBarangMultiSKUForBarang();
+                                            }
                                             return;
                                         }
                                     });
@@ -7146,6 +7152,7 @@
                                 hitungUlangdisc2();
                                 refreshNettoBarang('0');
                             } else {
+                                
                                 $('#CUSTOMER')[0].selectize.enable();
 
                                 $($trElement + ' .nama-barang').text('-');
@@ -7168,8 +7175,8 @@
 
                                 $($trElement + ' .btn-primary').attr('disabled', 'disabled');
 
-                                $('#multisku-select').hide();
-                                $('#multisku-kode').show();
+                                $('#multisku-select').show();
+                                $('#multisku-kode').hide();
 
                                 //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0
                                 $beforeState.brutto = $('#Pesanan_BRUTO').val();
@@ -7199,6 +7206,9 @@
                                 onTab();
                                 modeEditOff();
                                 refreshNettoBarang('0');
+
+                                $('#PesananDetail_BRG').val('');
+                                getBarangMultiSKUForBarang();
                             }
                         });
 
@@ -11394,7 +11404,7 @@
             //$('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
         }
 
-        function getBarangMultiSKUForBarang() {
+        function getBarangMultiSKUForBarang($tempBrg) {
             //if ($('#BRG').selectivity('value') != "") {
             if ($('#PesananDetail_BRG').val() != "") {
 
@@ -11447,7 +11457,12 @@
                             callback(listBarang);
                         });
 
-                        barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val());
+                        //barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val());
+                        if ($tempBrg != "" && $tempBrg != null && $tempBrg != undefined) {
+                            barangSelect[0].selectize.setValue($tempBrg, true);
+                        } else {
+                            barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val(), true);
+                        }
                         $('#multisku-kode').text($('#PesananDetail_BRG_MULTISKU').val());
 
                         //$('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
@@ -11500,14 +11515,9 @@
                                 if (value != null) {
                                     $('#multisku-kode').text(value);
                                     $("#PesananDetail_BRG_MULTISKU").val(value).trigger('change');
-                                    //$('#BRG').selectivity('value');
-                                    //$('#BRG').selectivity[0].selectize.setValue(acuan, true);
-                                    //$('#BRG')[0].va(acuan);
                                     
                                     if ($objSup[0] != null) {
-                                        //$("#Pesanan_TERM").val($objSup[0].term).change();
-                                        selectBrg.change($objSup[0].acuan);
-                                        //$('#BRG > selectivity > options[item=' + $objSup[0].acuan + ']').prop('selected', 'selected').change();
+                                        $('#BRG').selectivity('value', $objSup[0].acuan);
                                     }
                                 } else {
                                     $('#multisku-kode').text('-');
@@ -11522,7 +11532,12 @@
                             callback(listBarang);
                         });
 
-                        barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val());
+                        //barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val());
+                        if ($tempBrg != "" && $tempBrg != null && $tempBrg != undefined) {
+                            barangSelect[0].selectize.setValue($tempBrg, true);
+                        } else {
+                            barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val(), true);
+                        }
                         $('#multisku-kode').text($('#PesananDetail_BRG_MULTISKU').val());
                     },
                     error: function (xhr) {
