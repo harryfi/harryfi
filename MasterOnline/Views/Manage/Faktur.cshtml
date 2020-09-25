@@ -4667,7 +4667,7 @@
                                             $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
                                             //add by nurul 13/12/2018
                                             $('#FakturDetail_BRG').val(item.BRG);
-                                            getGudangForBarang();
+                                            
 
                                             if ($('#FakturDetail_BRG_MULTISKU').val() != null && $('#FakturDetail_BRG_MULTISKU').val() != "") {
                                                 var tempMultiSKU = $('#BRG_MULTI_SKU').val();
@@ -4676,6 +4676,7 @@
                                             } else {
                                                 getBarangMultiSKUForBarang();
                                             }
+                                            getGudangForBarang();
                                             //end add
                                             return;
                                         }
@@ -4840,10 +4841,11 @@
                     getMarketplace();
                     getDataBarang();
                     //getGudang();
-                    getGudangForBarang();
+                    
                     $('#multisku-select').show();
                     $('#multisku-kode').hide();
                     getBarangMultiSKUForBarang();
+                    getGudangForBarang();
                     getExpedisi();
                     //$('#EXPEDISI').attr('disabled', 'disabled');
 
@@ -4956,11 +4958,12 @@
                     getBuyer();
                     getDataBarang();
                     //getGudang();
-                    getGudangForBarang();
+                    
                     getExpedisi();
                     $('#multisku-select').show();
                     $('#multisku-kode').hide();
                     getBarangMultiSKUForBarang();
+                    getGudangForBarang();
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
                 },
@@ -5221,12 +5224,13 @@
                                 getBuyer();
                                 getDataBarang();
                                 //getGudang();
-                                getGudangForBarang();
+                                
                                 getMarketplace();
                                 getExpedisi();
                                 $('#multisku-select').show();
                                 $('#multisku-kode').hide();
                                 getBarangMultiSKUForBarang();
+                                getGudangForBarang();
                                 //$('#EXPEDISI').attr('disabled', 'disabled');
                                 $('#btn-simpan-perubahan-row').show();
                             } else {
@@ -5915,6 +5919,7 @@
 
                         if ($tempBrg != "" && $tempBrg != null && $tempBrg != undefined) {
                             barangSelect[0].selectize.setValue($tempBrg, true);
+                            $('#FakturDetail_BRG_MULTISKU').val($tempBrg);
                         } else {
                             barangSelect[0].selectize.setValue($('#FakturDetail_BRG_MULTISKU').val(), true);
                         }
@@ -5985,6 +5990,7 @@
                         //barangSelect[0].selectize.setValue($('#FakturDetail_BRG_MULTISKU').val(), true);
                         if ($tempBrg != "" && $tempBrg != null && $tempBrg != undefined) {
                             barangSelect[0].selectize.setValue($tempBrg, true);
+                            $('#FakturDetail_BRG_MULTISKU').val($tempBrg);
                         } else {
                             barangSelect[0].selectize.setValue($('#FakturDetail_BRG_MULTISKU').val(), true);
                         }
