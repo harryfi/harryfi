@@ -55777,6 +55777,7 @@ namespace MasterOnline.Controllers
                 {
                     sSQL = "delete from stf02h where recnum in (select top " + (Convert.ToInt32(dsBarang.Tables[0].Rows[i]["JML"].ToString()) - 1) ;
                     sSQL += " recnum from stf02h where brg = '"+dsBarang.Tables[0].Rows[i]["BRG"].ToString()+ "' and idmarket = " + dsBarang.Tables[0].Rows[i]["IDMARKET"].ToString() + " order by brg_mp)";
+                    EDB.ExecuteSQL("CString",CommandType.Text, sSQL);
                 }
             }
             return "";
