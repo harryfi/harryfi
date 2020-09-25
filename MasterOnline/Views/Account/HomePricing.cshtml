@@ -697,62 +697,64 @@
         .hscroll {
             overflow-x: auto; /* Horizontal */
         }
-        
+
         #soc-med-btn-nav {
-            margin-right:0px;
+            margin-right: 0px;
         }
-        
-            @@media (min-width: 320px) and (max-width: 480px) {
-                #cover {
-                    margin-top: 51px !important;
-                }
-                .videoWrapper iframe {
-                    top: -90px;
-                }
-                .header_images2 {
-                    margin-top: -85px;
-                }
 
-                .modal-content {
-                    margin-top: 225px !important;
-                }
-
-                .modal-dialog {
-                    height: auto !important;
-                }
-
-                .title-features-mobile {
-                    font-size: 10px !important;
-                }
-
-                .sub-title-features-mobile {
-                    font-size: 9px !important;
-                }
-
-                .feature-mobile-row {
-                    margin-bottom: 25px !important;
-                }
-
-                #top a span {
-                    font-size: 12px !important;
-                }
-
-                h2.mobile-title {
-                    padding-top: 20px;
-                    line-height:30px;
-                    font-size: 16px !important;
-                }
-
-                #cover p {
-                    font-size: 14px !important;
-                }
-
-                #mobile-app-section {
-                    margin-top: 25px !important;
-                }
+        @@media (min-width: 320px) and (max-width: 480px) {
+            #cover {
+                margin-top: 51px !important;
             }
+
+            .videoWrapper iframe {
+                top: -90px;
+            }
+
+            .header_images2 {
+                margin-top: -85px;
+            }
+
+            .modal-content {
+                margin-top: 225px !important;
+            }
+
+            .modal-dialog {
+                height: auto !important;
+            }
+
+            .title-features-mobile {
+                font-size: 10px !important;
+            }
+
+            .sub-title-features-mobile {
+                font-size: 9px !important;
+            }
+
+            .feature-mobile-row {
+                margin-bottom: 25px !important;
+            }
+
+            #top a span {
+                font-size: 12px !important;
+            }
+
+            h2.mobile-title {
+                padding-top: 20px;
+                line-height: 30px;
+                font-size: 16px !important;
+            }
+
+            #cover p {
+                font-size: 14px !important;
+            }
+
+            #mobile-app-section {
+                margin-top: 25px !important;
+            }
+        }
     </style>
-}
+}x
 <div class="container-fluid" style="margin-top:12%">
     <div class="col-md-12 text-center">
         <h2 style="color: #993554; font-size: 25px;">DAFTAR HARGA BERLANGGANAN</h2>
@@ -830,7 +832,8 @@
                                     <td style="text-align:center;">Unlimited</td>
                                 </tr>
                                 <tr>
-                                    <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Jumlah Faktur per Bulan</th>
+                                    @*<th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Jumlah Faktur per Bulan</th>*@
+                                    <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Jumlah Pesanan per Bulan</th>
                                     @foreach (var subs in Model?.ListSubs)
                                     {
                                         <td style="text-align:center;">@(subs.JUMLAH_PESANAN >= 999 ? "Unlimited" : subs.JUMLAH_PESANAN.ToString())</td>
@@ -911,7 +914,7 @@
                                     <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Multi User & Security</th>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
                                     @*<td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>*@
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>*@
                                     <td style="text-align:center;">2</td>
                                     <td style="text-align:center;">
                                         <button id="btnMin" style="color:red" onclick="changeUser(-1);"><span class="glyphicon glyphicon-minus"></span></button>
@@ -919,6 +922,58 @@
                                         <button id="btnPlus" style="color:green" onclick="changeUser(1);"><span class="glyphicon glyphicon-plus"></span></button>
                                     </td>
                                     <td style="text-align:center;">CALL</td>
+                                </tr>
+                            </tbody>
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="text-align:left;">ADD ON / PLUGIN</th>
+                                    <th scope="col" style="text-align:center;"></th>
+                                    <th scope="col" style="text-align:center;"></th>
+                                    <th scope="col" style="text-align:center;"></th>
+                                    <th scope="col" style="text-align:center;"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">
+                                        <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;82cart
+                                    </th>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
+                                    <td style="text-align:center;">Free</td>
+                                    <td style="text-align:center;">Free</td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+
+                                </tr>
+                                <tr>
+                                    <th scope="row">
+                                        <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Shopify
+                                    </th>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
+                                    @*<td style="text-align:center;"><input class="cbBox02_a" id="cbBox02_silver_a" type="checkbox"><br />Rp 300.000,00</td>
+            <td style="text-align:center;"><input class="cbBox03_a" id="cbBox03_gold_a" type="checkbox"><br />Rp 300.000,00</td>*@
+                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">
+                                        <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Multi SKU / Bundling (Coming Soon)
+                                    </th>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
+                                    @*<td style="text-align:center;"><input class="cbBox02_b" id="cbBox02_silver_b" type="checkbox"><br />Rp 300.000,00</td>
+            <td style="text-align:center;"><input class="cbBox03_b" id="cbBox03_gold_b" type="checkbox"><br />Rp 300.000,00</td>*@
+                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">
+                                        <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Data Transfer to FTP
+                                    </th>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
+                                    <td style="text-align:center;">@*<input class="cbBox02_c" id="cbBox02_silver_c" type="checkbox"><br />Rp 300.000,00*@</td>
+                                    <td style="text-align:center;">@*<input class="cbBox03_c" id="cbBox03_gold_c" type="checkbox"><br />Rp 300.000,00*@</td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -930,7 +985,7 @@
 
 </div>
 <div class="text-center" style="margin-top: -15px; border-radius: 10px; padding-top: 40px; padding-bottom: 10px; background: #ffffff6b;">
-    <div class="row"><input id="ckBox" type="checkbox" checked="checked">Saya setuju dengan <a href="/Content/Static/termsandconditions.html#terms"><u>Syarat & Ketentuan</u></a></div>
+    <div class="row"><input id="ckBox" type="checkbox" checked="checked" />&nbsp;Saya setuju dengan <a href="/Content/Static/termsandconditions.html#terms"><u>Syarat & Ketentuan</u></a></div>
     <br />
     <img src="~/Content/Images/payment_logo.png" width="25%" />
 </div>
@@ -999,6 +1054,57 @@
 @*<script type="text/javascript" src="https://code.jquery.com/jquery-1.10.2.js"></script>*@
 @*<script src="~/Scripts/jquery-1.10.2.js"></script>*@
 <script type="text/javascript">
+    $(document).ready(function () {
+        $(".cbBox02_a").change(function () {
+            if ($("#cbBox02_silver_a")[0].checked == true) {
+                $("#cbBox02_silver_a").prop('checked', true);
+                $(this).prop('checked', true);
+                checkPlugin02(300000);
+            } else if ($("#cbBox02_silver_a")[0].checked == false) {
+                $("#cbBox02_silver_a").prop('checked', false);
+                $(this).prop('checked', false);
+                checkPlugin02(-300000);
+            }           
+        });
+
+        $(".cbBox02_b").change(function () {
+            if ($("#cbBox02_silver_b")[0].checked == true) {
+                $("#cbBox02_silver_b").prop('checked', true);
+                $(this).prop('checked', true);
+                checkPlugin02(300000);
+            } else if ($("#cbBox02_silver_b")[0].checked == false) {
+                $("#cbBox02_silver_b").prop('checked', false);
+                $(this).prop('checked', false);
+                checkPlugin02(-300000);
+            }
+        });
+
+        $(".cbBox03_a").change(function () {
+            if ($("#cbBox03_gold_a")[0].checked == true) {
+                $("#cbBox03_gold_a").prop('checked', true);
+                $(this).prop('checked', true);
+                checkPlugin03(300000);
+            } else if ($("#cbBox03_gold_a")[0].checked == false) {
+                $("#cbBox03_gold_a").prop('checked', false);
+                $(this).prop('checked', false);
+                checkPlugin03(-300000);
+            }
+        });
+
+        $(".cbBox03_b").change(function () {
+            if ($("#cbBox03_gold_b")[0].checked == true) {
+                $("#cbBox03_gold_b").prop('checked', true);
+                $(this).prop('checked', true);
+                checkPlugin03(300000);
+            } else if ($("#cbBox03_gold_b")[0].checked == false) {
+                $("#cbBox03_gold_b").prop('checked', false);
+                $(this).prop('checked', false);
+                checkPlugin03(-300000);
+            }
+        });
+        
+    });
+
     function convertToRupiah(angka) {
         //change by calvin 26 september 2018
         var rupiah = '';
@@ -1047,6 +1153,29 @@
         } else {
             alert('Anda harus menyetujui Syarat & Ketentuan');
         }
+    }
+
+    function checkPlugin02(value) {
+        var plugins = [];
+        plugins.push(value);
+        var sum = plugins.reduce(function (a, b) { return a + b; }, 0);
+        var costAddons = convertToAngka($('#lbl_0_02')[0].innerText);
+        var newCostAddons = (costAddons + sum);
+        $('#lbl_0_02')[0].innerText = convertToRupiah(newCostAddons);
+        $('#btnPay_3_02')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 3) + '\n per 3 bulan';
+        $('#btnPay_12_02')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 10) + '\n per 12 bulan';
+    }
+
+    function checkPlugin03(value) {
+        var jmlUser = $('#txtJmlUser').val();
+        var plugins = [];
+        plugins.push(value);
+        var sum = plugins.reduce(function (a, b) { return a + b; }, 0);
+        var costAddons = convertToAngka($('#lbl_0_03')[0].innerText);
+        var newCostAddons = costAddons + (100000 * jmlUser) + sum;
+        $('#lbl_0_03')[0].innerText = convertToRupiah(newCostAddons);
+        $('#btnPay_3_03')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 3) + '\n per 3 bulan';
+        $('#btnPay_12_03')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 10) + '\n per 12 bulan';
     }
 
 </script>

@@ -42,6 +42,9 @@ namespace MasterOnline
         public DbSet<ATTRIBUTE_UNIT_TOKPED> AttributeUnitTokped { get; set; }
         public DbSet<CATEGORY_BUKALAPAK> CATEGORY_BUKALAPAKs { get; set; }
         public DbSet<BRAND_LAZADA> BrandLazada { get; set; }
+        //add by fauzi for JDID
+        public DbSet<BRAND_JDID> BrandJDID { get; set; }
+        //end by fauzi
 
 
         public DbSet<CATEGORY_SHOPIFY> CategoryShopify { get; set; }

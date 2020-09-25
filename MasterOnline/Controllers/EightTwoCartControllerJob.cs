@@ -613,7 +613,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        [AutomaticRetry(Attempts = 2)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Product {obj} ke 82Cart Gagal.")]
         public async Task<string> E2Cart_UpdateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, E2CartAPIData iden)
@@ -1303,7 +1303,7 @@ namespace MasterOnline.Controllers
                                                 {
                                                     try
                                                     {
-                                                        if (!OrderNoInDb.Contains(order.id_order))
+                                                        if (!OrderNoInDb.Contains(order.id_order + ";" + order.reference))
                                                         {
                                                             jmlhNewOrder++;
                                                             var connIdARF01C = Guid.NewGuid().ToString();
@@ -1369,7 +1369,7 @@ namespace MasterOnline.Controllers
                                                                 message_to_seller = "",
                                                                 note = "",
                                                                 note_update_time = Convert.ToDateTime(dateOrder),
-                                                                ordersn = order.id_order,
+                                                                ordersn = order.id_order + ";" + order.reference ?? "",
                                                                 //order_status = order.current_state_name,
                                                                 order_status = "UNPAID",
                                                                 payment_method = order.payment,
@@ -1415,7 +1415,7 @@ namespace MasterOnline.Controllers
 
                                                                 TEMP_82CART_ORDERS_ITEM newOrderItem = new TEMP_82CART_ORDERS_ITEM()
                                                                 {
-                                                                    ordersn = order.id_order,
+                                                                    ordersn = order.id_order + ";" + order.reference ?? "",
                                                                     is_wholesale = false,
                                                                     item_id = item.product_id,
                                                                     item_name = item.product_name,
@@ -1511,10 +1511,10 @@ namespace MasterOnline.Controllers
                                 {
                                     foreach (var order in orderFilterExisting)
                                     {
-                                        if (!OrderNoInDb.Contains(order.id_order))
+                                        if (!OrderNoInDb.Contains(order.id_order + ";" + order.reference))
                                         {
                                             jmlhPesananDibayar++;
-                                            ordersn = ordersn + "'" + order.id_order + "',";
+                                            ordersn = ordersn + "'" + order.id_order + ";" + order.reference + "',";
                                             var statusOrderSP = "";
 
                                             if (statusCAP[itemOrderExisting].ToString() == "2")
@@ -1590,7 +1590,7 @@ namespace MasterOnline.Controllers
                                                 message_to_seller = "",
                                                 note = "",
                                                 note_update_time = Convert.ToDateTime(dateOrder),
-                                                ordersn = order.id_order,
+                                                ordersn = order.id_order + ";" + order.reference ?? "",
                                                 //order_status = order.current_state_name,
                                                 order_status = statusOrderSP,
                                                 payment_method = order.payment,
@@ -1636,7 +1636,7 @@ namespace MasterOnline.Controllers
 
                                                 TEMP_82CART_ORDERS_ITEM newOrderItem = new TEMP_82CART_ORDERS_ITEM()
                                                 {
-                                                    ordersn = order.id_order,
+                                                    ordersn = order.id_order + ";" + order.reference ?? "",
                                                     is_wholesale = false,
                                                     item_id = item.product_id,
                                                     item_name = item.product_name,
@@ -1691,7 +1691,7 @@ namespace MasterOnline.Controllers
                                         }
                                         else
                                         {
-                                            ordersn2 = ordersn2 + "'" + order.id_order + "',";
+                                            ordersn2 = ordersn2 + "'" + order.id_order + ";" + order.reference + "',";
                                         }
 
                                     }
@@ -1808,9 +1808,9 @@ namespace MasterOnline.Controllers
                         {
                             foreach (var item in orderFilterCompleted)
                             {
-                                if (OrderNoInDb.Contains(item.id_order))
+                                if (OrderNoInDb.Contains(item.id_order + ";" + item.reference))
                                 {
-                                    ordersn = ordersn + "'" + item.id_order + "',";
+                                    ordersn = ordersn + "'" + item.id_order + ";" + item.reference + "',";
                                 }
                             }
                         }
@@ -1904,19 +1904,23 @@ namespace MasterOnline.Controllers
                         {
                             foreach (var item in orderFilterCancel)
                             {
-                                if (OrderNoInDb.Contains(item.id_order))
+                                if (OrderNoInDb.Contains(item.id_order + ";" + item.reference))
                                 {
-                                    ordersn = ordersn + "'" + item.id_order + "',";
+                                    ordersn = ordersn + "'" + item.id_order + ";" + item.reference + "',";
                                 }
                             }
                         }
                         if (orderFilterCancel.Count() > 0 && !string.IsNullOrEmpty(ordersn))
                         {
                             ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                            var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND'");
-                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11'");
+                            var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "'");
+                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
                             if (rowAffected > 0)
                             {
+                                //add by Tri 1 sep 2020, hapus packing list
+                                var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
+                                var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
+                                //end add by Tri 1 sep 2020, hapus packing list
                                 //add by Tri 4 Des 2019, isi cancel reason
                                 var sSQL1 = "";
                                 var sSQL2 = "SELECT * INTO #TEMP FROM (";
@@ -1925,13 +1929,13 @@ namespace MasterOnline.Controllers
                                 foreach (var order in listOrder.data)
                                 {
                                     string reasonValue;
-                                    if (listReason.TryGetValue(order.id_order, out reasonValue))
+                                    if (listReason.TryGetValue(order.id_order + ";" + order.reference, out reasonValue))
                                     {
                                         if (!string.IsNullOrEmpty(sSQL1))
                                         {
                                             sSQL1 += " UNION ALL ";
                                         }
-                                        sSQL1 += " SELECT '" + order.id_order + "' NO_REFERENSI, '" + listReason[order.id_order] + "' ALASAN ";
+                                        sSQL1 += " SELECT '" + order.id_order + ";" + order.reference + "' NO_REFERENSI, '" + listReason[order.id_order + ";" + order.reference] + "' ALASAN ";
                                     }
                                 }
                                 sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
@@ -1949,7 +1953,7 @@ namespace MasterOnline.Controllers
                                 //}
                                 //end add by Tri 4 Des 2019, isi cancel reason
 
-                                var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
+                                var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
 
                                 new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                             }
@@ -1975,7 +1979,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
-        [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke 82Cart Gagal.")]
+        [NotifyOnFailed("Update Status Pesanan {obj} ke 82Cart Gagal.")]
         public async Task<string> E2Cart_SetOrderStatus(E2CartAPIData iden, string dbPathEra, string log_CUST, string log_ActionCategory, string log_ActionName, string orderId, string codeStatus)
         {
             string ret = "";
@@ -1987,9 +1991,22 @@ namespace MasterOnline.Controllers
 
             string urll = string.Format("{0}/api/v1/editOrder", iden.API_url);
 
+            var orderIdFix = "";
+            //handle orderid reference
+            if (orderId.Contains(";"))
+            {
+                string[] splitOrderID = orderId.Split(';');
+                orderIdFix = splitOrderID[0];
+            }
+            else
+            {
+                orderIdFix = orderId;
+            }
+            //end handle orderid reference
+
             var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
-            postData += "&id_order=" + Uri.EscapeDataString(orderId);
+            postData += "&id_order=" + Uri.EscapeDataString(orderIdFix);
             postData += "&current_state=" + Uri.EscapeDataString(codeStatus);
 
             var data = Encoding.ASCII.GetBytes(postData);
@@ -2138,6 +2155,27 @@ namespace MasterOnline.Controllers
                     var resultAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ResultUpdatePrice)) as ResultUpdatePrice;
                     if (resultAPI.error == "none" && resultAPI.data.Length > 0)
                     {
+                        //add 19 sept 2020, update harga massal
+                        if (log_ActionName.Contains("UPDATE_MASSAL"))
+                        {
+                            var dataLog = log_ActionName.Split('_');
+                            if (dataLog.Length >= 4)
+                            {
+                                var nobuk = dataLog[2];
+                                var indexData = Convert.ToInt32(dataLog[3]);
+                                var log_b = ErasoftDbContext.LOG_HARGAJUAL_B.Where(m => m.NO_BUKTI == nobuk && m.NO_FILE == indexData).FirstOrDefault();
+                                if (log_b != null)
+                                {
+                                    var currentProgress = log_b.KET.Split('/');
+                                    if (currentProgress.Length == 2)
+                                    {
+                                        log_b.KET = (Convert.ToInt32(currentProgress[0]) + 1) + "/" + currentProgress[1];
+                                        ErasoftDbContext.SaveChanges();
+                                    }
+                                }
+                            }
+                        }
+                        //end add 19 sept 2020, update harga massal
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                     }
                     else

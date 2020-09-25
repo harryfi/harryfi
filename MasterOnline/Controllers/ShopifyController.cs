@@ -139,7 +139,8 @@ namespace MasterOnline.Controllers
 
                         if (!String.IsNullOrWhiteSpace(result.ToString()))
                         {
-                            if (result.shop != null && result.errors == null)
+                            //if (result.shop != null && result.errors == null)
+                            if (result.shop != null)
                             {
                                 if (result.shop.email == dataAPI.email || result.shop.customer_email == dataAPI.email)
                                 {
@@ -183,6 +184,64 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public string Shopify_GetLocationID(ShopifyAPIData dataAPI)
+        {
+            var result = "";
+            var vurl = "https://{0}:{1}@{2}.myshopify.com/admin/shop.json";
+            var vformatUrl = String.Format(vurl, dataAPI.API_key, dataAPI.API_password, dataAPI.account_store);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "GET";
+            myReq.Headers.Add("X-Shopify-Access-Token", dataAPI.API_password);
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != "")
+            {
+                try
+                {
+                    var resultAPI = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopifyGetLocationID)) as ShopifyGetLocationID;
+
+                    if (!String.IsNullOrWhiteSpace(resultAPI.ToString()))
+                    {
+                        //if (result.shop != null && result.errors == null)
+                        if (resultAPI.shop != null)
+                        {
+                            //if (resultAPI.shop.email == dataAPI.email || resultAPI.shop.customer_email == dataAPI.email)
+                            //{
+                                if (resultAPI.shop.primary_location_id != 0)
+                                {
+                                    result = Convert.ToString(resultAPI.shop.primary_location_id);
+                                }
+                            //}
+                        }
+                    }
+                }
+                catch (Exception ex2)
+                {
+
+                }
+            }
+
+            return result;
+        }
+
         public async Task<BindingBase> Shopify_GetProductList_Sync(ShopifyAPIData iden, int IdMarket, int page, int recordCount, int totalData)
         {
             var ret = new BindingBase
@@ -207,8 +266,8 @@ namespace MasterOnline.Controllers
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
 
-            string urll = "https://{0}:{1}@{2}.myshopify.com/admin/product_listings.json?limit={3}&page={4}";
-            var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store, 10, page);
+            string urll = "https://{0}:{1}@{2}.myshopify.com/admin/product_listings.json?limit={3}";
+            var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store, 250);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
             myReq.Method = "GET";
@@ -355,7 +414,14 @@ namespace MasterOnline.Controllers
                                                 {
                                                     if (varID.sku != null)
                                                     {
-                                                        newrecord.SELLER_SKU = varID.sku;
+                                                        if (varID.sku.Length > 50)
+                                                        {
+                                                            newrecord.SELLER_SKU = varID.sku.Substring(0, 49);
+                                                        }
+                                                        else
+                                                        {
+                                                            newrecord.SELLER_SKU = varID.sku;
+                                                        }
                                                     }
                                                     else
                                                     {
@@ -383,6 +449,9 @@ namespace MasterOnline.Controllers
                                                 {
                                                     typeBrg = 1;
                                                     newrecord.TYPE = "4";
+                                                    newrecord.BRG_MP = brgMp;
+                                                    newrecord.HJUAL = Convert.ToDouble(item.variants[0].price);
+                                                    newrecord.HJUAL_MP = Convert.ToDouble(item.variants[0].price);
                                                     foreach (var varID in item.variants)
                                                     {
                                                         var brg_mp_variant = Convert.ToString(item.product_id) + ";" + varID.id.ToString();
@@ -401,6 +470,9 @@ namespace MasterOnline.Controllers
                                                     //newrecord.TYPE = "3";
                                                     //newrecord.KODE_BRG_INDUK = Convert.ToString(item.id_product);
                                                     typeBrg = 2;
+                                                    newrecord.BRG_MP = brgMp;
+                                                    newrecord.HJUAL = Convert.ToDouble(item.variants[0].price);
+                                                    newrecord.HJUAL_MP = Convert.ToDouble(item.variants[0].price);
                                                 }
                                             }
                                             //if (Convert.ToDouble(item.weight) >= 0)
@@ -583,7 +655,14 @@ namespace MasterOnline.Controllers
             var skuBRG = "";
             if (!string.IsNullOrEmpty(product_varian.sku))
             {
-                skuBRG = product_varian.sku;
+                if (product_varian.sku.Length > 50)
+                {
+                    skuBRG = product_varian.sku.Substring(0, 49);
+                }
+                else
+                {
+                    skuBRG = product_varian.sku;
+                }
             }
             else
             {
@@ -832,7 +911,75 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        
+
+
+        public string Shopify_getSingleProductforUpdateStock(ShopifyAPIData iden, string kode_barang)
+        {
+            string result = "";
+            var kodeBrg = "";
+            string[] brg_mp = kode_barang.Split(';');
+
+            string urll = "https://{0}:{1}@{2}.myshopify.com/admin/products/{3}.json";
+            var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store, brg_mp[0].ToString());
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            myReq.Method = "GET";
+            myReq.Headers.Add("X-Shopify-Access-Token", iden.API_password);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    var detailBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopifyGetItemDetailResult)) as ShopifyGetItemDetailResult;
+                    if (detailBrg != null)
+                    {
+                        if (detailBrg.product != null)
+                        {
+                            if (Convert.ToString(detailBrg.product.id) != null)
+                            {
+                                if (detailBrg.product.variants.Count() > 0)
+                                {
+                                    foreach (var itemVar in detailBrg.product.variants)
+                                    {
+                                        if (itemVar.product_id.ToString() == brg_mp[0] && itemVar.id.ToString() == brg_mp[1])
+                                        {
+                                            result = itemVar.inventory_item_id.ToString();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+                catch (Exception ex2)
+                {
+
+                }
+            }
+
+            return result;
+        }
+
 
         public class ShopifyUpdateHarga
         {
@@ -1529,9 +1676,9 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        
-        
-        
+
+
+
         protected void RecursiveInsertCategory(SqlCommand oCommand, ShopifyGetCategoryCategory[] categories, long parent, long master_category_code)
         {
             foreach (var child in categories.Where(p => p.parent_id == parent))
@@ -1560,7 +1707,7 @@ namespace MasterOnline.Controllers
                 }
             }
         }
-        
+
         public async Task<string> UpdateProduct(ShopifyAPIData iden, string brg, string cust)
         {
             string ret = "";
@@ -1782,7 +1929,7 @@ namespace MasterOnline.Controllers
             Failed = 3,
             Exception = 4
         }
-        
+
         protected void manageAPI_LOG_MARKETPLACE(api_status action, ErasoftContext db, ShopifyAPIData iden, API_LOG_MARKETPLACE data)
         {
             try
@@ -1916,6 +2063,7 @@ namespace MasterOnline.Controllers
             public string API_password { get; set; }
             public string DatabasePathErasoft { get; set; }
             public string email { get; set; }
+            public string username { get; set; }
             public int rec_num { get; set; }
         }
 
@@ -1938,7 +2086,7 @@ namespace MasterOnline.Controllers
         public class ShopifyGetShopAccount
         {
             public ShopifyGetShopAccountResultAttribute shop { get; set; }
-            public string errors { get; set; }
+            //public string errors { get; set; }
         }
 
         public class ShopifyGetShopAccountResultAttribute
@@ -1946,58 +2094,125 @@ namespace MasterOnline.Controllers
             public long id { get; set; }
             public string name { get; set; }
             public string email { get; set; }
-            public string domain { get; set; }
-            public string province { get; set; }
-            public string country { get; set; }
+            //public string domain { get; set; }
+            //public string province { get; set; }
+            //public string country { get; set; }
             public string address1 { get; set; }
-            public string zip { get; set; }
-            public string city { get; set; }
-            public object source { get; set; }
-            public string phone { get; set; }
-            public float latitude { get; set; }
-            public float longitude { get; set; }
-            public string primary_locale { get; set; }
-            public string address2 { get; set; }
-            public DateTime created_at { get; set; }
-            public DateTime updated_at { get; set; }
-            public string country_code { get; set; }
-            public string country_name { get; set; }
-            public string currency { get; set; }
+            //public string zip { get; set; }
+            //public string city { get; set; }
+            //public object source { get; set; }
+            //public string phone { get; set; }
+            //public object latitude { get; set; }
+            //public object longitude { get; set; }
+            //public string primary_locale { get; set; }
+            //public string address2 { get; set; }
+            //public DateTime created_at { get; set; }
+            //public DateTime updated_at { get; set; }
+            //public string country_code { get; set; }
+            //public string country_name { get; set; }
+            //public string currency { get; set; }
             public string customer_email { get; set; }
-            public string timezone { get; set; }
-            public string iana_timezone { get; set; }
-            public string shop_owner { get; set; }
-            public string money_format { get; set; }
-            public string money_with_currency_format { get; set; }
-            public string weight_unit { get; set; }
-            public string province_code { get; set; }
-            public bool taxes_included { get; set; }
-            public object tax_shipping { get; set; }
-            public bool county_taxes { get; set; }
-            public string plan_display_name { get; set; }
-            public string plan_name { get; set; }
-            public bool has_discounts { get; set; }
-            public bool has_gift_cards { get; set; }
-            public string myshopify_domain { get; set; }
-            public object google_apps_domain { get; set; }
-            public object google_apps_login_enabled { get; set; }
-            public string money_in_emails_format { get; set; }
-            public string money_with_currency_in_emails_format { get; set; }
-            public bool eligible_for_payments { get; set; }
-            public bool requires_extra_payments_agreement { get; set; }
-            public bool password_enabled { get; set; }
-            public bool has_storefront { get; set; }
-            public bool eligible_for_card_reader_giveaway { get; set; }
-            public bool finances { get; set; }
-            public long primary_location_id { get; set; }
-            public string cookie_consent_level { get; set; }
-            public bool force_ssl { get; set; }
-            public bool checkout_api_supported { get; set; }
-            public bool multi_location_enabled { get; set; }
-            public bool setup_required { get; set; }
-            public bool pre_launch_enabled { get; set; }
-            public string[] enabled_presentment_currencies { get; set; }
+            //public string timezone { get; set; }
+            //public string iana_timezone { get; set; }
+            //public string shop_owner { get; set; }
+            //public string money_format { get; set; }
+            //public string money_with_currency_format { get; set; }
+            //public string weight_unit { get; set; }
+            //public string province_code { get; set; }
+            //public bool taxes_included { get; set; }
+            //public object tax_shipping { get; set; }
+            //public bool county_taxes { get; set; }
+            //public string plan_display_name { get; set; }
+            //public string plan_name { get; set; }
+            //public bool has_discounts { get; set; }
+            //public bool has_gift_cards { get; set; }
+            //public string myshopify_domain { get; set; }
+            //public string google_apps_domain { get; set; }
+            //public bool google_apps_login_enabled { get; set; }
+            //public string money_in_emails_format { get; set; }
+            //public string money_with_currency_in_emails_format { get; set; }
+            //public bool eligible_for_payments { get; set; }
+            //public bool requires_extra_payments_agreement { get; set; }
+            //public bool password_enabled { get; set; }
+            //public bool has_storefront { get; set; }
+            //public bool eligible_for_card_reader_giveaway { get; set; }
+            //public bool finances { get; set; }
+            //public long primary_location_id { get; set; }
+            //public string cookie_consent_level { get; set; }
+            //public string visitor_tracking_consent_preference { get; set; }
+            //public bool force_ssl { get; set; }
+            //public bool checkout_api_supported { get; set; }
+            //public bool multi_location_enabled { get; set; }
+            //public bool setup_required { get; set; }
+            //public bool pre_launch_enabled { get; set; }
+            //public string[] enabled_presentment_currencies { get; set; }
         }
+
+
+        public class ShopifyGetLocationID
+        {
+            public ShopifyGetShopAccountResultLocationID shop { get; set; }
+        }
+
+        public class ShopifyGetShopAccountResultLocationID
+        {
+            public long id { get; set; }
+            public string name { get; set; }
+            public string email { get; set; }
+            //public string domain { get; set; }
+            //public string province { get; set; }
+            //public string country { get; set; }
+            //public string address1 { get; set; }
+            //public string zip { get; set; }
+            //public string city { get; set; }
+            //public object source { get; set; }
+            //public string phone { get; set; }
+            //public float latitude { get; set; }
+            //public float longitude { get; set; }
+            public string primary_locale { get; set; }
+            //public string address2 { get; set; }
+            //public DateTime created_at { get; set; }
+            //public DateTime updated_at { get; set; }
+            //public string country_code { get; set; }
+            //public string country_name { get; set; }
+            //public string currency { get; set; }
+            public string customer_email { get; set; }
+            //public string timezone { get; set; }
+            //public string iana_timezone { get; set; }
+            //public string shop_owner { get; set; }
+            //public string money_format { get; set; }
+            //public string money_with_currency_format { get; set; }
+            //public string weight_unit { get; set; }
+            //public string province_code { get; set; }
+            //public bool taxes_included { get; set; }
+            //public object tax_shipping { get; set; }
+            //public bool county_taxes { get; set; }
+            //public string plan_display_name { get; set; }
+            //public string plan_name { get; set; }
+            //public bool has_discounts { get; set; }
+            //public bool has_gift_cards { get; set; }
+            //public string myshopify_domain { get; set; }
+            //public object google_apps_domain { get; set; }
+            //public object google_apps_login_enabled { get; set; }
+            //public string money_in_emails_format { get; set; }
+            //public string money_with_currency_in_emails_format { get; set; }
+            //public bool eligible_for_payments { get; set; }
+            //public bool requires_extra_payments_agreement { get; set; }
+            //public bool password_enabled { get; set; }
+            //public bool has_storefront { get; set; }
+            //public bool eligible_for_card_reader_giveaway { get; set; }
+            //public bool finances { get; set; }
+            public long primary_location_id { get; set; }
+            //public string cookie_consent_level { get; set; }
+            //public string visitor_tracking_consent_preference { get; set; }
+            //public bool force_ssl { get; set; }
+            //public bool checkout_api_supported { get; set; }
+            //public bool multi_location_enabled { get; set; }
+            //public bool setup_required { get; set; }
+            //public bool pre_launch_enabled { get; set; }
+            //public string[] enabled_presentment_currencies { get; set; }
+        }
+
 
         public class ShopifyGetAttributeData
         {

@@ -757,7 +757,14 @@ namespace MasterOnline.Controllers
             foreach (var lzdAttr in lzdAttrWithVal)
             {
                 xmlString += "<" + lzdAttr.Key + ">";
-                xmlString += XmlEscape(lzdAttr.Value.ToString());
+                if (lzdAttr.Value.ToString().Contains("<p>"))
+                {
+                    xmlString += "<![CDATA[" + lzdAttr.Value.ToString().Replace("\r\n", "").Replace("&nbsp;", " ").Replace("<em>", "<i>").Replace("</em>", "</i>").Replace(System.Environment.NewLine, "<br>") + "]]>";
+                }
+                else
+                {
+                    xmlString += XmlEscape(lzdAttr.Value.ToString());
+                }
                 xmlString += "</" + lzdAttr.Key + ">";
             }
             //end change 16 Mei 2019, get attr from api

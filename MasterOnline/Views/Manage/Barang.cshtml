@@ -1630,7 +1630,8 @@
                                         else {
                                             //textbox
                                             if (AMANDATORY == "1") {
-                                                if (ANAME == 'short_description') {
+                                                //if (ANAME == 'short_description') {
+                                                if (AINPUT_TYPE == "richText") {
                                                     //fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control removeHTMLTag" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + removeTag(adaValue) + '"></div>';
                                                     fieldAVALUE += '<div class="col-md-4 form-group"><textarea cols="20" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required." class="form-control make_ckeditor" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" rows="2" style="resize: none; width:100%;">' + (adaValue) + '</textarea></div>';
                                                     setCKEditor = true;
@@ -1640,10 +1641,17 @@
                                                     fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control removeHTMLTag" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                                 }
                                             } else {
-                                                fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-val-length-max="250"  class="form-control removeHTMLTag" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                if (AINPUT_TYPE == "richText") {
+                                                    fieldAVALUE += '<div class="col-md-4 form-group"><textarea cols="20" data-val="true" class="form-control make_ckeditor" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" rows="2" style="resize: none; width:100%;">' + (adaValue) + '</textarea></div>';
+                                                    setCKEditor = true;
+                                                    CKEditorInstanceName = fieldAVALUE_ID;
+                                                    CKEditorAdaValue = adaValue;
+                                                }
+                                                else {
+                                                    fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-val-length-max="250"  class="form-control removeHTMLTag" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                }
                                             }
                                         }
-
 
                                         if (loop == 0) {
                                             loop = 1;
@@ -1665,6 +1673,13 @@
                                     else {
                                         if (loop == 1) {
                                             $('#attribute_lazada_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
+                                            if (setCKEditor) {
+                                                initCKEditor();
+                                                CKEDITOR.instances[CKEditorInstanceName].setData(CKEditorAdaValue);
+                                                setCKEditor = false;
+                                                CKEditorInstanceName = "";
+                                                CKEditorAdaValue = "";
+                                            }
                                             fieldAVALUE = "";
                                             loop = 2;
                                             for (var i = 0; i < (SelectList.length / 6); i++) {
@@ -1752,6 +1767,33 @@
             });
         }
         //jd.id
+        var PromptBrandJDIDTextBox = "";
+        function PromptBrandJDID(i, r) {
+            PromptBrandJDIDTextBox = i;
+            //debugger;
+            var getCategory = $('#ListHargaJualPermarket_' + i + '__CATEGORY_CODE');
+            if ($(getCategory).val() != "" && $(getCategory).val() != null && $(getCategory).val() != undefined) {
+                var ValueCategory = $(getCategory).val();
+                showPromptBrandJDIDTextBoxWindow(ValueCategory, r);
+            }
+            else {
+                alert('Silahkan pilih kategori JDID terlebih dahulu.');
+            }
+        }
+
+        function showPromptBrandJDIDTextBoxWindow(valueCategory, val) {
+            var $link = '@Html.Raw(Url.Action("PromptBrandJDID", "Manage", new { merchant_code = "replaceKodeMerchant", category = "replaceCategory" }))';
+
+            $link = $link.replace("replaceCategory", valueCategory);
+            $link = $link.replace("replaceKodeMerchant", val);
+            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+        }
+        function afterPromptBrandJDID(val,name) {
+            $('#Brand' + PromptBrandJDIDTextBox + 'JDID').val(name);
+            $('#ListHargaJualPermarket_' + PromptBrandJDIDTextBox + '__AVALUE_38').val(val);
+            $('#ListHargaJualPermarket_' + PromptBrandJDIDTextBox + '__ANAME_38').val(name);
+        }
+
         function ClearCategoryJD(divIDpertama, divIDselanjutnya, divIDattribute, i, undoing) {
             var fieldCategoryCode = '#ListHargaJualPermarket_' + i + '__CATEGORY_CODE';
             var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
@@ -2014,6 +2056,7 @@
                                         //fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                                         //if (AMANDATORY == "1") {
                                         fieldAVALUE += '<div id="parent_' + selectID + '"><div id="div_' + selectID + '" class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div></div>';
+                                        //fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                                         //}
                                         //else {
                                         //    fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
@@ -2742,7 +2785,8 @@
                                 if (ACODE != null) {
                                     //change by calvin 15 maret 2019, munculkan semua attribute, tetapi untuk defining attribute hanya bisa select 1, jika mau select bnyk, hari tipe variasi
                                     //if (ACODE != "" && (!(ATYPE == "DEFINING_ATTRIBUTE" && $('#Stf02_TYPE').val() == "4") || ACODE == "WA-0000002")) {
-                                    if (ACODE != "" && (!$('#cbxStf02Type').is(':checked') || ACODE != "FA-2000060")) {
+                                    //if (ACODE != "" && (!$('#cbxStf02Type').is(':checked') || ACODE != "FA-2000060")) {
+                                    if (ACODE != "") {
                                         //end change by calvin 15 maret 2019
 
                                         var label = '<label class="control-label">'+ ANAME +'</label>';
@@ -4801,6 +4845,10 @@
             for(var i in CKEDITOR.instances) {
                 CKEDITOR.instances[i].updateElement();
             }
+            //$('.make_ckeditor').each(function () {
+            //    var $textarea = $(this);
+            //    $textarea.val(CKEDITOR.instances[$textarea.attr('id')].getData());
+            //});
         }
 
         function simpanBarangInduk(btnClicked) {

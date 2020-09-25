@@ -488,7 +488,7 @@ namespace MasterOnline.Controllers
         //    public string error { get; set; }
         //}
 
-        [AutomaticRetry(Attempts = 2)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Edit Product {obj} ke Tokopedia Gagal.")]
         public async Task<string> EditProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg, string product_id)
@@ -3645,6 +3645,7 @@ namespace MasterOnline.Controllers
                     var orderRefund = result.data.Where(p => p.order_status == 800).ToList();
                     var orderRollback = result.data.Where(p => p.order_status == 801).ToList();
                     var orderCancelBySeller = result.data.Where(p => p.order_status == 10).ToList();
+                    var orderCancelByBuyer = result.data.Where(p => p.order_status == 15).ToList();//add 22 sept 2020
                     var connIdARF01C = Guid.NewGuid().ToString();
                     rowCount = result.data.Count();
 
@@ -3665,17 +3666,27 @@ namespace MasterOnline.Controllers
                     {
                         ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
                     }
+                    //add 22 sept 2020
+                    foreach (var item in orderCancelByBuyer)
+                    {
+                        ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
+                    }
+                    //end add 22 sept 2020
 
                     if (ordersn != "")
                     {
                         ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                        var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND'");
-                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11'");
+                        var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND' AND CUST = '" + CUST + "'");
+                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
                         //var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
                         jmlhOrder = jmlhOrder + rowAffected;
                         if (rowAffected > 0)
                         {
-                            var dsOrders = EDB.GetDataSet("MOConnectionString", "SOT01", "SELECT A.NO_BUKTI, A.NO_REFERENSI FROM SOT01A A LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = '' AND NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '11'");
+                            //add by Tri 1 sep 2020, hapus packing list
+                            var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
+                            var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN (" + ordersn + ")  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
+                            //end add by Tri 1 sep 2020, hapus packing list
+                            var dsOrders = EDB.GetDataSet("MOConnectionString", "SOT01", "SELECT A.NO_BUKTI, A.NO_REFERENSI FROM SOT01A A LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = '' AND NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "'");
                             if (dsOrders.Tables[0].Rows.Count > 0)
                             {
                                 string sSQL = "INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) VALUES ";
@@ -3709,7 +3720,7 @@ namespace MasterOnline.Controllers
                                 listFaktur += "'" + dsFaktur.Tables[0].Rows[j]["NO_REF"].ToString() + "',";
                             }
                             listFaktur = listFaktur.Substring(0, listFaktur.Length - 1);
-                            var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + listFaktur + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
+                            var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + listFaktur + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
                         }
                         new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);
                     }
@@ -4151,6 +4162,12 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke Tokopedia gagal.")]
         public async Task<string> UpdatePrice_Job(string dbPathEra, string kdbrgMO, string log_CUST, string log_ActionCategory, string log_ActionName, int product_id, TokopediaAPIData iden, int price)
         {
+            //add 19 sept 2020, update harga massal
+            if (log_ActionName.Contains("UPDATE_MASSAL"))
+            {
+               await Task.Delay(1000);//delay agar tidak terkena limit
+            }
+            //end add 19 sept 2020, update harga massal
             var token = SetupContext(iden);
             iden.token = token;
 
@@ -4258,6 +4275,27 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
+                                    //add 19 sept 2020, update harga massal
+                                    if (log_ActionName.Contains("UPDATE_MASSAL"))
+                                    {
+                                        var dataLog = log_ActionName.Split('_');
+                                        if (dataLog.Length >= 4)
+                                        {
+                                            var nobuk = dataLog[2];
+                                            var indexData = Convert.ToInt32(dataLog[3]);
+                                            var log_b = ErasoftDbContext.LOG_HARGAJUAL_B.Where(m => m.NO_BUKTI == nobuk && m.NO_FILE == indexData).FirstOrDefault();
+                                            if (log_b != null)
+                                            {
+                                                var currentProgress = log_b.KET.Split('/');
+                                                if (currentProgress.Length == 2)
+                                                {
+                                                    log_b.KET = (Convert.ToInt32(currentProgress[0]) + 1) + "/" + currentProgress[1];
+                                                    ErasoftDbContext.SaveChanges();
+                                                }
+                                            }
+                                        }
+                                    }
+                                    //end add 19 sept 2020, update harga massal
                                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                                 }
                             }
@@ -4524,7 +4562,8 @@ namespace MasterOnline.Controllers
                             }
                         }
 
-                        if (rows > result.data.Count())
+                        //if (rows > result.data.Count())
+                        if (result.data.Count() <= 0)//change 16 sept 2020, ambil data next page sampai return 0 karena ada bugs di tokped
                         {
                             stop = true;
                         }

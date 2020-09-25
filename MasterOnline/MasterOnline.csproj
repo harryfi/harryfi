@@ -124,6 +124,9 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>D:\Users\user\Desktop\Era Controls Dev\Interop.CRAXDRT.dll</HintPath>
     </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.1, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.13.1\lib\itextsharp.dll</HintPath>
+    </Reference>
     <Reference Include="LazopSdk">
       <HintPath>..\..\..\..\Desktop\lazop-sdk-net-20180422-1524824623939DUoW\net\LazopSdk.dll</HintPath>
     </Reference>
@@ -321,6 +324,7 @@
     <Compile Include="Controllers\EightTwoCartControllerJob.cs" />
     <Compile Include="Controllers\JDIDControllerJob.cs" />
     <Compile Include="Controllers\ExcelControllerJob.cs" />
+    <Compile Include="Controllers\MasterOnlineController.cs" />
     <Compile Include="Controllers\ShopifyController.cs" />
     <Compile Include="Controllers\ShopifyControllerJob.cs" />
     <Compile Include="Controllers\StokControllerJob.cs" />
@@ -342,6 +346,7 @@
     <Compile Include="Controllers\TokopediaControllerJob.cs" />
     <Compile Include="Controllers\TokopediaController.cs" />
     <Compile Include="Controllers\TransferExcelController.cs" />
+    <Compile Include="Controllers\TransferFTPControllerJob.cs" />
     <Compile Include="Controllers\WebApiController.cs" />
     <Compile Include="ErasoftContext.cs" />
     <Compile Include="ErasoftContextMigrations\201804020753069_InitialCreate.cs" />
@@ -716,8 +721,11 @@
     <Compile Include="Models\ATTRIBUTE_OPT_SHOPEE.cs" />
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
+    <Compile Include="Models\BRAND_JDID.cs" />
     <Compile Include="Models\CATEGORY_82CART.cs" />
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
+    <Compile Include="Models\LINKFTP.cs" />
+    <Compile Include="Models\LOG_HARGAJUAL.cs" />
     <Compile Include="Models\STF03C.cs" />
     <Compile Include="Models\TEMP_SALDOAWAL.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS.cs" />
@@ -1077,6 +1085,7 @@
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
     <Compile Include="Utils\XcelUtils.cs" />
+    <Compile Include="ViewModels\HargaJualMassalViewModel.cs" />
     <Compile Include="ViewModels\mdlTempBayarBlibli.cs" />
     <Compile Include="ViewModels\mdlTempBayarTokped.cs" />
     <Compile Include="ViewModels\mdlSaldoAwal.cs" />
@@ -1387,8 +1396,10 @@
     <Compile Include="ViewModels\SubsViewModel.cs" />
     <Compile Include="ViewModels\SupplierViewModel.cs" />
     <Compile Include="ViewModels\SyncMenuViewModel.cs" />
+    <Compile Include="ViewModels\TableTransferToFTPBarang.cs" />
     <Compile Include="ViewModels\TransferExcelViewModel.cs" />
     <Compile Include="ViewModels\SettingKodeVariasiPartialViewModel.cs" />
+    <Compile Include="ViewModels\TransferMarketplace.cs" />
     <Compile Include="ViewModels\UploadBarangViewModel.cs" />
     <Compile Include="ViewModels\DashboardAdminViewModel.cs" />
     <Compile Include="ViewModels\UserViewModel.cs" />
@@ -6415,6 +6426,18 @@
     <Content Include="Views\Manage\ListDetailPackingListBlibli.cshtml" />
     <Content Include="Views\Manage\ListDetailPackingList.cshtml" />
     <Content Include="Views\Manage\PostingView.cshtml" />
+    <Content Include="Views\Manage\TablePromptBrandJDID.cshtml" />
+    <Content Include="Views\Manage\PromptBrandJDID.cshtml" />
+    <Content Include="Views\Manage\PackingListJDID.cshtml" />
+    <Content Include="Views\Manage\ListDetailPackingListJDID.cshtml" />
+    <Content Include="Views\Manage\FormUpdateHargaMassal.cshtml" />
+    <Content Include="Views\Manage\HargaJualMassal.cshtml" />
+    <Content Include="Views\Manage\TableHistoryHargaMassal.cshtml" />
+    <Content Include="Views\Manage\TransferMarketplaceToFTP.cshtml" />
+    <Content Include="Views\Manage\TableMarketplaceToFTP.cshtml" />
+    <Content Include="Views\Manage\TransferToFTPParameterLinkFtp.cshtml" />
+    <Content Include="Views\Manage\TransferBarangToFTP.cshtml" />
+    <Content Include="Views\Manage\TableTransferBarangToFTP.cshtml" />
     <Content Include="Views\Manage\MultiSKUMenu.cshtml" />
     <Content Include="Views\Manage\TableMultiSKUPartial.cshtml" />
     <Content Include="Views\Manage\FormMultiSKUPartial.cshtml" />
@@ -6433,6 +6456,7 @@
     <Folder Include="Views\BCA\" />
     <Folder Include="Views\Blibli\" />
     <Folder Include="Views\Elevenia\" />
+    <Folder Include="Views\MasterOnline\" />
     <Folder Include="Views\StokOpnameViewModel\" />
   </ItemGroup>
   <ItemGroup>

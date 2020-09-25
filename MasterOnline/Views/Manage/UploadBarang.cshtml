@@ -1391,13 +1391,13 @@
                 addError($("#Stf02_BRG").parent().parent(), "Kode barang maksimal 20 karakter.");
                 ret = false;
             }
-            else if ($("#txtBrg").val().length > 11 && $('#cmbVar').val() == "2") {
-                addError($("#Stf02_BRG").parent().parent(), "Kode barang untuk Barang Induk maksimal 11 karakter.");
-                ret = false;
-            }
-            else {
-                $("#Stf02_BRG").closest('div').append('<span class="text-danger"></span>');
-            }
+            //else if ($("#txtBrg").val().length > 11 && $('#cmbVar').val() == "2") {
+            //    addError($("#Stf02_BRG").parent().parent(), "Kode barang untuk Barang Induk maksimal 11 karakter.");
+            //    ret = false;
+            //}
+            //else {
+            //    $("#Stf02_BRG").closest('div').append('<span class="text-danger"></span>');
+            //}
             //if ($("#Stf02_Deskripsi").val().length < 30) {
             //    addError($("#Stf02_Deskripsi").parent().parent(), "Deskripsi barang minimal 30 karakter.");
             //    ret = false;
@@ -1411,8 +1411,8 @@
                     addError($("#txtBrgInduk").parent().parent(), "Kode Barang Induk harus diisi.");
                     ret = false;
                 }
-                else if ($("#txtBrgInduk").val().length > 11) {
-                    addError($("#TempBrg_KODE_BRG_INDUK").parent().parent(), "Kode barang Induk maksimal 11 karakter.");
+                else if ($("#txtBrgInduk").val().length > 20) {
+                    addError($("#TempBrg_KODE_BRG_INDUK").parent().parent(), "Kode barang Induk maksimal 20 karakter.");
                     ret = false;
                 } else if ($('#txtBrgInduk').val() == $('#txtBrg').val()) {
                     addError($("#txtBrgInduk").parent().parent(), "Kode Barang Induk tidak boleh sama dengan Kode Barang MO.");
@@ -1460,9 +1460,9 @@
                 var enc_desc = $('<div/>').text(desc).html();
                 $('#TempBrg_Deskripsi').val(enc_desc);
 
-                var desc2 = $('#TempBrg_AVALUE_1').val();
-                var enc_desc2 = $('<div/>').text(desc2).html();
-                $('#TempBrg_AVALUE_1').val(enc_desc2);
+                //var desc2 = $('#TempBrg_AVALUE_1').val();
+                //var enc_desc2 = $('<div/>').text(desc2).html();
+                //$('#TempBrg_AVALUE_1').val(enc_desc2);
 
                 //if ($("#TempBrg_KODE_BRG_INDUK").val() != '' || $("#TempBrg_KODE_BRG_INDUK").val() != null) {
                     $('#TempBrg_KODE_BRG_INDUK').val($('#txtBrgInduk').val());

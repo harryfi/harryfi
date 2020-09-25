@@ -38,6 +38,7 @@
         RefreshPackingPesananLazada1();
         RefreshPackingPesananShopee1();
         RefreshPackingPesananBlibli1();
+        RefreshPackingPesananJDID1();
     }
 
     function RefreshPackingPesananTokped1() {
@@ -286,6 +287,26 @@
     }
     //end add by nurul 23/7/2020
 
+    function RefreshPackingPesananJDID1() {
+        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "19", bukti = "replaceBuktiPacking" }))';
+        $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                //$('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                $('#packing_pesanan_jdid_content').html(response);
+                //$('#loading_barang_tab').hide();
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+    
 </script>
 <div class="form-horizontal" id="header-packing">
     <div class="row">
@@ -375,26 +396,28 @@
     <div class="x_content">
         <ul id="detail-packinglist-tabs" class="nav nav-tabs">
             @{
-                var totalPesanan = Model.listDetailPacking.Count();
+            var totalPesanan = Model.listDetailPacking.Count();
             }
             <li class="active"><a data-toggle="tab" id="pesanan_detail_tab_focus" href="#pesanan_detail_tab" aria-expanded="true" onclick="refreshTablePackingListTabPesanan('@Model.packingList.NO_BUKTI')">Pesanan<span>(@totalPesanan)</span></a></li>
             @if (Model.listRekapBarang.Count > 0)
             {
-                var totalRekap = Model.listRekapBarang.Count();
-                var totalTokopedia = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Tokopedia")).Count();
-                var totalLazada = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Lazada")).Count();
-                var totalShopee = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Shopee")).Count();
-                var totalBlibli = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Blibli")).Count();
+            var totalRekap = Model.listRekapBarang.Count();
+            var totalTokopedia = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Tokopedia")).Count();
+            var totalLazada = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Lazada")).Count();
+            var totalShopee = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Shopee")).Count();
+            var totalBlibli = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Blibli")).Count();
+            var totalJDID = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("JD.ID")).Count();
 
-                <li><a data-toggle="tab" id="rekap_barang_tab_focus" href="#rekap_barang_tab" aria-expanded="false">Rekap Barang(<span>@totalRekap</span>)</a></li>
-                <li id="li_pesanan_tokped_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_tokped_tab_focus" href="#packing_pesanan_tokped" aria-expanded="false">Tokopedia(<span>@totalTokopedia</span>)</a></li>
-                <li id="li_pesanan_lazada_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_lazada_tab_focus" href="#packing_pesanan_lazada" aria-expanded="false">Lazada(<span>@totalLazada</span>)</a></li>
-                <li id="li_pesanan_shopee_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopee_tab_focus" href="#packing_pesanan_shopee" aria-expanded="false">Shopee(<span>@totalShopee</span>)</a></li>
-                <li id="li_pesanan_blibli_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_blibli_tab_focus" href="#packing_pesanan_blibli" aria-expanded="false">Blibli(<span>@totalBlibli</span>)</a></li>
+            <li><a data-toggle="tab" id="rekap_barang_tab_focus" href="#rekap_barang_tab" aria-expanded="false">Rekap Barang(<span>@totalRekap</span>)</a></li>
+            <li id="li_pesanan_tokped_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_tokped_tab_focus" href="#packing_pesanan_tokped" aria-expanded="false">Tokopedia(<span>@totalTokopedia</span>)</a></li>
+            <li id="li_pesanan_lazada_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_lazada_tab_focus" href="#packing_pesanan_lazada" aria-expanded="false">Lazada(<span>@totalLazada</span>)</a></li>
+            <li id="li_pesanan_shopee_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopee_tab_focus" href="#packing_pesanan_shopee" aria-expanded="false">Shopee(<span>@totalShopee</span>)</a></li>
+            <li id="li_pesanan_blibli_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_blibli_tab_focus" href="#packing_pesanan_blibli" aria-expanded="false">Blibli(<span>@totalBlibli</span>)</a></li>
+            <li id="li_pesanan_jdid_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_jdid_tab_focus" href="#packing_pesanan_jdid" aria-expanded="false">JD.ID(<span>@totalJDID</span>)</a></li>
             }
             else
             {
-                <li><a data-toggle="tab tooltip" id="rekap_barang_tab_focus" href="#rekap_barang_tab" aria-expanded="false" class="disabled-tab" title="Pilih pesanan yang akan masuk packing list terlebih dahulu">Rekap Barang</a></li>
+            <li><a data-toggle="tab tooltip" id="rekap_barang_tab_focus" href="#rekap_barang_tab" aria-expanded="false" class="disabled-tab" title="Pilih pesanan yang akan masuk packing list terlebih dahulu">Rekap Barang</a></li>
             }
             @*@if (Model.listRekapBarang.Count > 0)
                 {
@@ -577,11 +600,11 @@
                     <div class="col-lg-12">
                         @if (Model.listRekapBarang.Count > 0)
                         {
-                            <button id="btnPrint" type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalPrint">Print</button>
+                        <button id="btnPrint" type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalPrint">Print</button>
                         }
                         else
                         {
-                            <button id="btnPrint" type="button" class="btn btn-primary pull-right" disabled data-toggle="modal" data-target="#modalPrint">Print</button>
+                        <button id="btnPrint" type="button" class="btn btn-primary pull-right" disabled data-toggle="modal" data-target="#modalPrint">Print</button>
                         }
                     </div>
                 </div>
@@ -600,12 +623,12 @@
                                 <tbody>
                                     @foreach (var rekapPackinglist in Model?.listRekapBarang?.ToList())
                                     {
-                                        <tr>
-                                            <td>@rekapPackinglist.BRG</td>
-                                            <td>@rekapPackinglist.BARCODE</td>
-                                            <td>@rekapPackinglist.NAMA_BARANG</td>
-                                            <td>@rekapPackinglist.QTY</td>
-                                        </tr>
+                                    <tr>
+                                        <td>@rekapPackinglist.BRG</td>
+                                        <td>@rekapPackinglist.BARCODE</td>
+                                        <td>@rekapPackinglist.NAMA_BARANG</td>
+                                        <td>@rekapPackinglist.QTY</td>
+                                    </tr>
                                     }
                                 </tbody>
                             </table>
@@ -625,6 +648,11 @@
             </div>
             <div id="packing_pesanan_shopee" class="tab-pane fade in">
                 <div class="col-lg-12" id="packing_pesanan_shopee_content">
+
+                </div>
+            </div>
+            <div id="packing_pesanan_jdid" class="tab-pane fade in">
+                <div class="col-lg-12" id="packing_pesanan_jdid_content">
 
                 </div>
             </div>

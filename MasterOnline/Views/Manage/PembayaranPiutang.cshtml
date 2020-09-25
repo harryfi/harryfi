@@ -2229,13 +2229,19 @@
         }
 
         function validasiCreatePot() {
+            var dateNow = new Date();
             if ($('tr[data-piutang-id != "0"] .potongan-piutang').length <= 0) {
                 $('#progressBarPot').hide();
                 alert('Tidak ada detail pembayaran');
             } else if (convertToAngka($('#TOTALSELISIH').val()) == 0) {
                 $('#progressBarPot').hide();
                 alert('Tidak ada selisih !');
-            }else if ($('#Piutang_TGL').val() != null &&
+            }
+            //else if (dateNow.getHours() < 17) {
+            //    $('#progressBarPot').hide();
+            //    alert("Mohon maaf, pelunasan saat ini hanya dapat dilakukan di atas jam 17.00.");
+            //}
+            else if ($('#Piutang_TGL').val() != null &&
                 $('#Piutang_CUST').val() != '') {
                 $("#konfCreatePot").modal('show');
                 $('#create-pot').click(function () {
@@ -2291,7 +2297,7 @@
                 alert("Invalid file size, valid size is lower than 4Mb/4000Kb. File size " + sizeFile + " Kb.");
             }
             else {
-                if ($tempMP1.toUpperCase() == "SHOPEE" || $tempMP1.toUpperCase() == "LAZADA" || $tempMP1.toUpperCase() == "TOKOPEDIA" || $tempMP1.toUpperCase() == "BLIBLI") {
+                if ($tempMP1.toUpperCase() == "SHOPEE" || $tempMP1.toUpperCase() == "LAZADA" || $tempMP1.toUpperCase() == "TOKOPEDIA") {
                     $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
                     $('#pBar_uploadFile').html('0% Complete');
                     //$('#progressBarUpload').modal('show');
@@ -2310,7 +2316,14 @@
                     $('#progressBarTemp').show();
                     //uploadFileExcelPiutang(null, 0, "0;0", "false;false", null, false);
                     uploadFileExcelPiutang(null, 0, "0;0", "false;false", null, false, "0;0", "false;false", "0;0", "false;false", null);
-                } else {
+                } 
+                else if ($tempMP1.toUpperCase() == "BLIBLI") {
+                    $('#progressBarDownload').hide();
+                    $('#progressBarUpload').hide();
+                    $('#progressBarTemp').hide();
+                    alert("Mohon maaf, saat ini ada perubahan format file dari Blibli dan sedang kami sesuaikan. Terima kasih.");
+                }
+                else {
                     $('#progressBarDownload').hide();
                     $('#progressBarUpload').hide();
                     $('#progressBarTemp').hide();

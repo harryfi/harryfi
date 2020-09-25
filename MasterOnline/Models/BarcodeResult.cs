@@ -33,7 +33,7 @@ namespace MasterOnline.Models
                     //bitmap.Save(context.HttpContext.Response.OutputStream, ImageFormat.Jpeg);
                     try
                     {
-                        Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 250, 60));
+                        Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 350, 75));
                         context.HttpContext.Response.ContentType = "image/jpg";
                         bitmap.Save(context.HttpContext.Response.OutputStream, ImageFormat.Jpeg);
                     }
@@ -41,19 +41,19 @@ namespace MasterOnline.Models
                     {
                         if (_text.Length <= 25)
                         {
-                            Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 350, 60));
+                            Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 400, 75));
                             context.HttpContext.Response.ContentType = "image/jpg";
                             bitmap.Save(context.HttpContext.Response.OutputStream, ImageFormat.Jpeg);
                         }
                         else if (_text.Length <= 32)
                         {
-                            Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 400, 60));
+                            Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 450, 75));
                             context.HttpContext.Response.ContentType = "image/jpg";
                             bitmap.Save(context.HttpContext.Response.OutputStream, ImageFormat.Jpeg);
                         }
                         else
                         {
-                            Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 450, 60));
+                            Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 450, 75));
                             context.HttpContext.Response.ContentType = "image/jpg";
                             bitmap.Save(context.HttpContext.Response.OutputStream, ImageFormat.Jpeg);
                         }

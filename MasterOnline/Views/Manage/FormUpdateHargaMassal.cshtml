@@ -1,0 +1,385 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model MasterOnline.ViewModels.HargaJualMassalViewModel
+@{
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    var context = new MoDbContext("");
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        //context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
+}
+@Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.NO_BUKTI)
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        Initialize();
+        setJamProses();
+        changeStatusProcess();
+    });
+
+    function setJamProses() {
+        var listTime = [];
+        listTime[0] = {
+            id: "18",
+            text: "18:00"
+        };
+        listTime[1] = {
+            id: "19",
+            text: "19:00"
+        };
+        listTime[2] = {
+            id: "20",
+            text: "20:00"
+        };
+        listTime[3] = {
+            id: "21",
+            text: "21:00"
+        };
+        listTime[4] = {
+            id: "22",
+            text: "22:00"
+        };
+        listTime[5] = {
+            id: "23",
+            text: "23:00"
+        };
+        var comboSelect = $('#cbJamProses').selectize({
+            valueField: 'id',
+            searchField: 'text',
+            options: listTime,
+            onChange: function (value) {
+                $('#JAM_PROSES').val(value);
+
+            }
+        });
+        comboSelect[0].selectize.setValue($('#JAM_PROSES').val(), true);
+    }
+
+    function changeStatusProcess() {
+        if ($('#STATUS').val() == "1") {
+            document.getElementById("file_upload_excel").disabled = true;
+            //document.getElementById("cbJamProses").disabled = true;
+            $('#cbJamProses')[0].selectize.disable();
+            document.getElementById("dtProses").disabled = true;
+            document.getElementById("btnDelFile_1").disabled = true;
+            document.getElementById("btnDelFile_2").disabled = true;
+            document.getElementById("btnDelFile_3").disabled = true;
+            document.getElementById("btnDelFile_4").disabled = true;
+        } else {
+            document.getElementById("file_upload_excel").disabled = false;
+            //document.getElementById("cbJamProses").disabled = false;
+            $('#cbJamProses')[0].selectize.enable();
+            document.getElementById("dtProses").disabled = false;
+            document.getElementById("btnDelFile_1").disabled = false;
+            document.getElementById("btnDelFile_2").disabled = false;
+            document.getElementById("btnDelFile_3").disabled = false;
+            document.getElementById("btnDelFile_4").disabled = false;
+        }
+    };
+</script>
+
+<div class="form-horizontal">
+    <div class="row">
+        <div class="col-md-8 col-sm-8 col-xs-12">
+            @*<div class="x_panel">*@
+            @*<div class="x_title">
+                    <h2 style="font-size: 16px">Update Massal</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>*@
+            @*<div class="x_content">*@
+            <br>
+            <div class="form-group">
+                <div class="col-md-8 col-sm-8 col-xs-8"><label>1. Pilih Akun Marketplace</label></div>
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                    <input style="display:none;" id="txtCust" />
+                    <select id="CUSTOMER" placeholder="Harap Pilih" required="required"></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-8 col-sm-8 col-xs-8"><label>2. Download Excel Harga Jual</label></div>
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                    <button type="button" class="btn btn-primary" id="btnDownload" onclick="DownloadExcelHJual();"><span>Download</span></button>
+                </div>
+            </div>
+            <hr />
+            <div class="form-group">
+                <div class="col-md-8 col-sm-8 col-xs-8"><label>3. Upload Excel Harga Jual (Max 4 excel)</label></div>
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                    <button type="button" class="btn btn-primary" id="btnUpload" onclick="UploadExcelHargaJual();" style="display:none;"><span>Upload</span></button>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-8 file_upload_section">
+                    <input type='file' id='file_upload_excel' name="file_upload_excel" onchange="checkfile(this, 0);"
+                           accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                </div>
+
+            </div>
+            <br />
+            <br />
+            <div class="form-group">
+                <div class="col-md-8 file_upload_section">
+                    @*@Html.HiddenFor(m => m.FILE_1)*@
+                    <table class="col-md-12">
+                        <tr>
+                            <th>
+                                <label>File 1 : </label>
+                            </th>
+                            <th>
+                                <div>
+                                    @Html.TextBoxFor(m => m.FILE_1, new { @class = "form-control", @readonly = "true" })
+                                    <input type='file' id='file_upload_excel_1' name="file_upload_excel" onchange="checkfile(this, 1);" style="display:none"
+                                           accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                                </div>
+
+                            </th>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-4" id="delFile_1">
+                    <button type="button" id="btnDelFile_1" class="btn btn-danger" onclick="deletefileexcel(1);" data-style="expand-right">
+                        <span>Hapus</span>
+                    </button>
+                </div>
+                <div id="loading_1" style="display:none;">
+                    <img src="~/Content/Images/spinner.gif" style="width:25px;height:25px;" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang diproses ke marketplace : </label>
+                    <label id="lblJml1">@Model.JML_BRG_1</label>
+                </div>
+            </div>
+            @*<div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang tidak diisi harga jual baru : </label>
+                    <label id="lblJml_tidakdiisi_1">@Model.JML_BRG_NH_1</label>
+                </div>
+            </div>*@
+            <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang diproses offline : </label>
+                    <label id="lblJml_tidaklink_1">@Model.JML_BRG_NL_1</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-8 file_upload_section">
+                    @*@Html.HiddenFor(m => m.FILE_2)*@
+                    <table class="col-md-12">
+                        <tr>
+                            <th>
+                                <label>File 2 : </label>
+                            </th>
+                            <th>
+                                <div>
+                                    @Html.TextBoxFor(m => m.FILE_2, new { @class = "form-control", @readonly = "true" })
+                                    <input type='file' id='file_upload_excel_2' name="file_upload_excel" onchange="checkfile(this, 2);" style="display:none"
+                                           accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                                </div>
+                                
+                            </th>
+                        </tr>                        
+                    </table>                    
+                </div>
+                <div class="col-md-4" id="delFile_2">
+                    <button type="button" id="btnDelFile_2" class="btn btn-danger" onclick="deletefileexcel(2);" data-style="expand-right">
+                        <span>Hapus</span>
+                    </button>
+                </div>
+                <div id="loading_2" style="display:none;">
+                    <img src="~/Content/Images/spinner.gif" style="width:25px;height:25px;" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang diproses ke marketplace : </label>
+                    <label id="lblJml2">@Model.JML_BRG_2</label>
+                </div>
+            </div>
+            @*<div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang tidak diisi harga jual baru : </label>
+                    <label id="lblJml_tidakdiisi_2">@Model.JML_BRG_NH_2</label>
+                </div>
+            </div>*@
+            <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang diproses offline : </label>
+                    <label id="lblJml_tidaklink_2">@Model.JML_BRG_NL_2</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-8 file_upload_section">
+                    @*@Html.HiddenFor(m => m.FILE_3)*@
+                    <table class="col-md-12">
+                        <tr>
+                            <th>
+                                <label>File 3 : </label>
+                            </th>
+                            <th>
+                                <div>
+                                    @Html.TextBoxFor(m => m.FILE_3, new { @class = "form-control", @readonly = "true" })
+                                    <input type='file' id='file_upload_excel_3' name="file_upload_excel" onchange="checkfile(this, 3);" style="display:none"
+                                           accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                                </div>
+
+                            </th>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-4" id="delFile_3">
+                    <button type="button" id="btnDelFile_3" class="btn btn-danger" onclick="deletefileexcel(3);" data-style="expand-right">
+                        <span>Hapus</span>
+                    </button>
+                </div>
+                <div id="loading_3" style="display:none;">
+                    <img src="~/Content/Images/spinner.gif" style="width:25px;height:25px;" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang diproses ke marketplace : </label>
+                    <label id="lblJml3">@Model.JML_BRG_3</label>
+                </div>
+            </div>
+            @*<div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang tidak diisi harga jual baru : </label>
+                    <label id="lblJml_tidakdiisi_3">@Model.JML_BRG_NH_3</label>
+                </div>
+            </div>*@
+            <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang diproses offline : </label>
+                    <label id="lblJml_tidaklink_3">@Model.JML_BRG_NL_3</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-8 file_upload_section">
+                    @*@Html.HiddenFor(m => m.FILE_4)*@
+                    <table class="col-md-12">
+                        <tr>
+                            <th>
+                                <label>File 4 : </label>
+                            </th>
+                            <th>
+                                <div>
+                                    @Html.TextBoxFor(m => m.FILE_4, new { @class = "form-control", @readonly = "true" })
+                                    <input type='file' id='file_upload_excel_4' name="file_upload_excel" onchange="checkfile(this, 4);" style="display:none"
+                                           accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                                </div>
+
+                            </th>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-4" id="delFile_4">
+                    <button type="button" id="btnDelFile_4" class="btn btn-danger" onclick="deletefileexcel(4);" data-style="expand-right">
+                        <span>Hapus</span>
+                    </button>
+                </div>
+                <div id="loading_4" style="display:none;">
+                    <img src="~/Content/Images/spinner.gif" style="width:25px;height:25px;" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang diproses ke marketplace : </label>
+                    <label id="lblJml4">@Model.JML_BRG_4</label>
+                </div>
+            </div>
+            @*<div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang tidak diisi harga jual baru : </label>
+                    <label id="lblJml_tidakdiisi_4">@Model.JML_BRG_NH_4</label>
+                </div>
+            </div>*@
+            <div class="form-group">
+                <div class="col-md-1"></div>
+                <div class="row">
+                    <label>Jumlah barang yang diproses offline : </label>
+                    <label id="lblJml_tidaklink_4">@Model.JML_BRG_NL_4</label>
+                </div>
+            </div>
+            <hr />
+            <div class="form-group">
+                <div class="col-md-8 col-sm-8 col-xs-8">
+                    <label>4. Pilih Tanggal</label>
+                    @*@Html.LabelFor(m => m.TGL_PROSES, "4. Pilih Tanggal", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })*@
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                    @Html.HiddenFor(m => m.TGL_PROSES)
+                    <div class="input-group date">
+                        <input type="text" id="dtProses" class="form-control" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-8 col-sm-8 col-xs-8">
+                    <label>5. Pilih Jam</label>
+                    @*@Html.LabelFor(m => m.JAM_PROSES, "5. Pilih Jam", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })*@
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                    @Html.HiddenFor(m => m.JAM_PROSES)
+                    <select id="cbJamProses" placeholder="Harap Pilih" required="required"></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-1"><label>6.</label></div>
+
+                <div style="vertical-align:middle">
+                    @Html.HiddenFor(m => m.STATUS)
+
+                    @if (Model.STATUS == 0)
+                    {
+                        <button id="btnProses" type="button" class="btn btn-primary" onclick="changeStatus();" data-style="expand-right">
+                            <span>Proses</span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button id="btnProses" type="button" class="btn btn-danger"  data-toggle="modal" data-target="#konfBatal" data-style="expand-right">
+                            <span>Batal</span>
+                        </button>
+                    }
+                </div>
+            </div>
+            @*</div>*@
+
+            @*</div>*@
+        </div>
+    </div>
+</div>

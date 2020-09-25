@@ -15,6 +15,7 @@ namespace MasterOnline.ViewModels
         public STF02 Stf02 { get; set; }
         public List<TEMP_BRG_MP> ListTempBrg { get; set; } = new List<TEMP_BRG_MP>();
         public TEMP_BRG_MP TempBrg { get; set; }
+        public ARF01 TempArf01 { get; set; }
         public List<string> Errors { get; set; } = new List<string>();
 
         public int failedRecord { get; set; }

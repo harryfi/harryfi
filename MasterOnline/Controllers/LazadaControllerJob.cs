@@ -382,7 +382,15 @@ namespace MasterOnline.Controllers
             {
                 xmlString += "<" + lzdAttr.Key + ">";
                 //xmlString += XmlEscape(lzdAttr.Value.ToString());
-                xmlString += "<![CDATA[" + XmlEscape(Convert.ToString(lzdAttr.Value).Replace(System.Environment.NewLine, "<br>")) + "]]>";
+                //xmlString += "<![CDATA[" + XmlEscape(Convert.ToString(lzdAttr.Value).Replace(System.Environment.NewLine, "<br>")) + "]]>";
+                if (lzdAttr.Value.ToString().Contains("<p>"))
+                {
+                    xmlString += "<![CDATA[" + lzdAttr.Value.ToString().Replace("\r\n", "").Replace("&nbsp;", " ").Replace("<em>", "<i>").Replace("</em>", "</i>").Replace(System.Environment.NewLine, "<br>") + "]]>";
+                }
+                else
+                {
+                    xmlString += XmlEscape(lzdAttr.Value.ToString());
+                }
                 xmlString += "</" + lzdAttr.Key + ">";
             }
             //end change 8 Apriil 2019, get attr from api
@@ -1369,6 +1377,27 @@ namespace MasterOnline.Controllers
                 if (res.code.Equals("0"))
                 {
                     //ret.status = 1;
+                    //add 19 sept 2020, update harga massal
+                    if (log_ActionName.Contains("UPDATE_MASSAL"))
+                    {
+                        var dataLog = log_ActionName.Split('_');
+                        if (dataLog.Length >= 4)
+                        {
+                            var nobuk = dataLog[2];
+                            var indexData = Convert.ToInt32(dataLog[3]);
+                            var log_b = ErasoftDbContext.LOG_HARGAJUAL_B.Where(m => m.NO_BUKTI == nobuk && m.NO_FILE == indexData).FirstOrDefault();
+                            if (log_b != null)
+                            {
+                                var currentProgress = log_b.KET.Split('/');
+                                if (currentProgress.Length == 2)
+                                {
+                                    log_b.KET = (Convert.ToInt32(currentProgress[0]) + 1) + "/" + currentProgress[1];
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                            }
+                        }
+                    }
+                    //end add 19 sept 2020, update harga massal
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, token, currentLog);
                 }
                 else
@@ -3293,10 +3322,14 @@ namespace MasterOnline.Controllers
                     {
                         if (orderUnpaidList.Contains(order.order_id))
                         {
-                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI <> '11'");
+                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
 
                             if (rowAffected > 0)
                             {
+                                //add by Tri 1 sep 2020, hapus packing list
+                                var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.order_id + "')  AND STATUS_TRANSAKSI = '11' AND CUST = '" + cust + "')");
+                                var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.order_id + "')  AND STATUS_TRANSAKSI = '11' AND CUST = '" + cust + "')");
+                                //end add by Tri 1 sep 2020, hapus packing list
                                 jmlhOrder = jmlhOrder + rowAffected;
                                 //add by Tri 4 Des 2019, isi cancel reason
                                 var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == order.order_id && m.CUST == cust).Select(m => m.NO_BUKTI).FirstOrDefault();
@@ -3320,7 +3353,7 @@ namespace MasterOnline.Controllers
                                     var returFaktur = ErasoftDbContext.SIT01A.Where(m => m.JENIS_FORM == "3" && m.NO_REF == fakturInDB.NO_BUKTI).FirstOrDefault();
                                     if(returFaktur == null)
                                     {
-                                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.order_id + "') AND STATUS <> '2' AND ST_POSTING = 'T'");
+                                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.order_id + "') AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + cust + "'");
                                     }
 
                                 }
@@ -3328,7 +3361,7 @@ namespace MasterOnline.Controllers
                                 var orderDetail = (from a in ErasoftDbContext.SOT01A
                                                    join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
                                                    //where a.NO_REFERENSI == order.order_id
-                                                   where a.NO_REFERENSI == order.order_id && b.BRG != "NOT_FOUND"
+                                                   where a.NO_REFERENSI == order.order_id && b.BRG != "NOT_FOUND" && a.CUST == cust
                                                    select new { b.BRG }).ToList();
                                 foreach (var item in orderDetail)
                                 {
