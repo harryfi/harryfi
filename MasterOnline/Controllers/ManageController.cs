@@ -8645,6 +8645,9 @@ namespace MasterOnline.Controllers
                         List<string> listError = new List<string>();
                         int i = 0;
                         List<int> processedIdMarket = new List<int>();
+                        //add by Tri, 24 sept 2020
+                        cekStf02hDuplikat(dataBarang.Stf02);
+                        //end add by Tri, 24 sept 2020
                         foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
                         {
                             if (hargaPerMarket.DISPLAY)
@@ -8877,6 +8880,9 @@ namespace MasterOnline.Controllers
                         {
                             List<string> listError = new List<string>();
                             int i = 0;
+                            //add by Tri, 24 sept 2020
+                            cekStf02hDuplikat(dataBarang.Stf02);
+                            //end add by Tri, 24 sept 2020
                             foreach (var dataBaru in dataBarang.ListHargaJualPermarket)
                             {
                                 //add validasi harga per marketplace
@@ -9445,7 +9451,7 @@ namespace MasterOnline.Controllers
 
                 //add by nurul 21/6/2019, validasi berat,p,l,t
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return View("Error");
             }
