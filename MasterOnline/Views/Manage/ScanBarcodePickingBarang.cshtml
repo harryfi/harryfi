@@ -1,0 +1,43 @@
+﻿@using System.Globalization
+@model MasterOnline.ViewModels.ScanBarcodePickingBarangViewModel
+
+    <div class="">
+        <div class="row">
+            <label class="">No PL :</label>
+            <label class="" id="txtNoPL">@Model.NO_PL</label>
+        </div>
+        <div class="row">
+            <label class="">Total BRG :</label>
+            <label class="" id="txtJmlBrg">@Model.jmlBrg</label>
+            <label class="">/</label>
+            <label class="" id="txtMaxBrg">@Model.maxBrg</label>
+        </div>
+        <div class="row">
+            <label class="">Total QTY :</label>
+            <label class="" id="txtJmlQty">@Model.jmlQty</label>
+            <label class="">/</label>
+            <label class="" id="txtMaxQty">@Model.maxQty</label>
+        </div>
+    </div>
+    <div>
+        <table class="table table-striped table-bordered" id="">
+            <thead>
+                <tr role="row">
+                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">Scan Barcode</th>
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">QTY</th>
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Valid</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var brgScan in Model.dataScan)
+                {
+                    <tr>
+                        <td class="get_data_picking">@brgScan.code</td>
+                        <td class="get_data_picking">@brgScan.qty</td>
+                        <td class="get_data_picking">@brgScan.isValid</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
