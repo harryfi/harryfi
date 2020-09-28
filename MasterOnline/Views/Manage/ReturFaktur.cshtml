@@ -1909,7 +1909,8 @@
                 var splitValue = tempValue.split('|');
                 var get_gudang = splitValue[0];
                 var get_brg = splitValue[1];
-                if (get_gudang != "" && get_brg != "") {
+                var get_qty = splitValue[2];
+                if (get_gudang != "" && get_brg != "" && get_qty != "") {
                     $('#FakturDetail_QTY').val(0);
                     $("#Faktur_BRUTO").val(convertToAngka($("#Faktur_BRUTO").val()));
                     $("#Faktur_NILAI_DISC").val(convertToAngka($("#Faktur_NILAI_DISC").val()));
@@ -1935,7 +1936,7 @@
                                     $.ajax({
                                         type: "POST",
                                         url: link,
-                                        data: JSON.stringify({ get_selected: get_brg, bukti: response.mo_bukti, noref: response.mo_ref, gudang: get_gudang }),
+                                        data: JSON.stringify({ get_selected: get_brg, bukti: response.mo_bukti, noref: response.mo_ref, gudang: get_gudang, get_selected_qty: get_qty }),
                                         contentType: 'application/json; charset=UTF-8',
                                         cache: false,
                                         beforeSend: function () {
