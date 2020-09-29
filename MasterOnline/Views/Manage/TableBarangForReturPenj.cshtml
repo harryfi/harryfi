@@ -26,17 +26,18 @@
                 <td>
                     @Html.TextBox($"Qty-{barang.recnum}", barang.qty, new { @class = "form-control qty-brg-num-only", Value = barang.qty, @style = "width:50px;" })
                 </td>
-                @*//end add by nurul 28/9/2020*@
+                @*//end add by nurul 28/9/2020 num-only*@
             </tr>
         }
     </tbody>
 </table>
 @*//add by nurul 28/9/2020*@
 <script type="text/javascript">
-    $(".gudang-qty-num-only").on('keydown',
+    $(".qty-brg-num-only").on('keydown',
         function (e) {
-            // Allow: backspace, delete, tab, escape, enter and .
-            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+            // Allow: backspace, delete, tab, escape, enter 
+            //if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+            if ($.inArray(e.keyCode, [8, 9, 27, 13, 110]) !== -1 ||
                 // Allow: Ctrl+A, Command+A
                 (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
                 // Allow: home, end, left, right, down, up
@@ -49,7 +50,7 @@
                 e.preventDefault();
             }
         });
-    $(".gudang-qty-num-only").on('blur',
+    $(".qty-brg-num-only").on('blur',
         function (e) {
             if ($(this).val().trim() == '') {
                 $(this).val(0);
