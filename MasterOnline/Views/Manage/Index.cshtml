@@ -329,6 +329,7 @@
                     margin-right: 10px;
                     width: 10px;
                 }
+
         [class$="-legendPie"] {
             list-style: none;
             cursor: pointer;
@@ -1028,8 +1029,8 @@
                             @Html.Label("", "Faktur")
                         </div>
                         @*<div class="col-md-1" style="padding-top: 7px;">
-                        Faktur
-                    </div>*@
+                                Faktur
+                            </div>*@
                     </div>
 
                     <div class="col-md-4" style="padding-bottom:10px">
@@ -1042,8 +1043,8 @@
                         </div>
                     </div>
                     @*<div class="col-md-1" style="padding-top: 7px;">
-                    Retur
-                </div>*@
+                            Retur
+                        </div>*@
                 </div>
                 @*<div class="col-md-1"></div>*@
                 <div class="col-md-1" style="padding-top: 7px;">
@@ -1061,8 +1062,8 @@
                 <div class="col-md-4"></div>
             </div>
             @*<div id="loading_dashboard_line" class="row col-md-12 text-center">
-                <img src="~/Content/Images/spinner.gif" width="100" />
-            </div>*@
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>*@
             <div class="row col-md-12" id="grafik-line-section">
                 @*<canvas id="chartMingguan" height="400"></canvas>*@
                 @*<canvas id="chart-mingguan" height="200"></canvas>*@
@@ -1124,6 +1125,8 @@
     <script src="js/jquery.min.js"></script>
     <script src="js/Chart.min.js"></script>
     <script src="js/line.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="~/Scripts/jquery.number.js"></script>
 
     @*//add by nurul 22/2/2019*@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
@@ -1137,9 +1140,83 @@
         var $href = "";
 
         $(document).ready(function () {
-            getTanggal();            
+            getTanggal();
             $('#TGL').datepicker('setDate', '0');
             //getDashboard();
+
+            //add by fauzi for add on
+            $(".cbBox02_a").change(function () {
+                if ($("#cbBox02_silver_a")[0].checked == true) {
+                    $("#cbBox02_silver_a").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin02(300000);
+                } else if ($("#cbBox02_silver_a")[0].checked == false) {
+                    $("#cbBox02_silver_a").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin02(-300000);
+                }
+            });
+
+            $(".cbBox02_b").change(function () {
+                if ($("#cbBox02_silver_b")[0].checked == true) {
+                    $("#cbBox02_silver_b").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin02(300000);
+                } else if ($("#cbBox02_silver_b")[0].checked == false) {
+                    $("#cbBox02_silver_b").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin02(-300000);
+                }
+            });
+
+            $(".cbBox02_c").change(function () {
+                if ($("#cbBox02_silver_c")[0].checked == true) {
+                    $("#cbBox02_silver_c").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin02(300000);
+                } else if ($("#cbBox02_silver_c")[0].checked == false) {
+                    $("#cbBox02_silver_c").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin02(-300000);
+                }
+            });
+
+            $(".cbBox03_a").change(function () {
+                if ($("#cbBox03_gold_a")[0].checked == true) {
+                    $("#cbBox03_gold_a").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin03(300000);
+                } else if ($("#cbBox03_gold_a")[0].checked == false) {
+                    $("#cbBox03_gold_a").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin03(-300000);
+                }
+            });
+
+            $(".cbBox03_b").change(function () {
+                if ($("#cbBox03_gold_b")[0].checked == true) {
+                    $("#cbBox03_gold_b").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin03(300000);
+                } else if ($("#cbBox03_gold_b")[0].checked == false) {
+                    $("#cbBox03_gold_b").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin03(-300000);
+                }
+            });
+
+            $(".cbBox03_c").change(function () {
+                if ($("#cbBox03_gold_c")[0].checked == true) {
+                    $("#cbBox03_gold_c").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin03(300000);
+                } else if ($("#cbBox03_gold_c")[0].checked == false) {
+                    $("#cbBox03_gold_c").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin03(-300000);
+                }
+            });
+            //end add
 
             //add by nurul 22/7/2019
             $('#ctk_pesanan').prop('checked', true);
@@ -1219,6 +1296,30 @@
             //end add 09-10-2018, function button di subscription
             //add by nurul 22/2/2019
         });
+
+
+        function checkPlugin02(value) {
+            var plugins = [];
+            plugins.push(value);
+            var sum = plugins.reduce(function (a, b) { return a + b; }, 0);
+            var costAddons = convertToAngka($('#lbl_0_02')[0].innerText);
+            var newCostAddons = (costAddons + sum);
+            $('#lbl_0_02')[0].innerText = convertToRupiah(newCostAddons);
+            $('#btnPay_3_02')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 3) + '\n per 3 bulan';
+            $('#btnPay_12_02')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 10) + '\n per 12 bulan';
+        }
+
+        function checkPlugin03(value) {
+            var jmlUser = $('#txtJmlUser').val();
+            var plugins = [];
+            plugins.push(value);
+            var sum = plugins.reduce(function (a, b) { return a + b; }, 0);
+            var costAddons = convertToAngka($('#lbl_0_03')[0].innerText);
+            var newCostAddons = costAddons + (100000 * jmlUser) + sum;
+            $('#lbl_0_03')[0].innerText = convertToRupiah(newCostAddons);
+            $('#btnPay_3_03')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 3) + '\n per 3 bulan';
+            $('#btnPay_12_03')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 10) + '\n per 12 bulan';
+        }
 
         //add by nurul 22/2/2019
         function showSubsMenu(type) {
@@ -1609,8 +1710,18 @@
             });
         }
 
+        //function convertToRupiah(angka) {
+        //    return $.number(angka, 2, ',', '.');
+        //}
+
         function convertToRupiah(angka) {
-            return $.number(angka, 2, ',', '.');
+        //change by calvin 26 september 2018
+        var rupiah = '';
+        var angkarev = angka.toString().split('').reverse().join('');
+        for (var i = 0; i < angkarev.length; i++) if (i % 3 === 0) rupiah += angkarev.substr(i, 3) + '.';
+        return rupiah.split('', rupiah.length - 1).reverse().join('') + ',00';
+        //return $.number(angka, 2, ',', '.');
+        //end change by calvin 26 september 2018
         }
 
         function convertToAngka(rupiah) {
@@ -1831,7 +1942,7 @@
                         });
                     RefreshTableDashboardArusKas();
                     //end add by nurul 18/11/2019
-                                        
+
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -2059,7 +2170,7 @@
                         jumlahreturMingguan.push(listDataReturM[i].Jumlah);
                         nilaireturMingguan.push(listDataReturM[i].Nilai);
                     }
-                    
+
                     var maxJumlahPesananMingguan = Math.max.apply(Math, jumlahpesananMingguan);
                     var maxJumlahFakturMingguan = Math.max.apply(Math, jumlahfakturMingguan);
                     var maxJumlahReturMingguan = Math.max.apply(Math, jumlahreturMingguan);
@@ -4038,13 +4149,13 @@
                         jumlahpesananTahunan.push(listDataPesananT[i].Jumlah);
                         nilaipesananTahunan.push(listDataPesananT[i].Nilai);
                     }
-                                        
+
                     var maxJumlahPesananTahunan = Math.max.apply(Math, jumlahpesananTahunan);
                     var dataMaxJumlahPesananTahunan = [maxJumlahPesananTahunan];
                     var maxJumlahPT = Math.max.apply(Math, dataMaxJumlahPesananTahunan);
                     var maxTicksBasicPesananTahunan = Math.ceil(maxJumlahPT / 10) * 10;
                     var steppingBasicPesananTahunan = (Math.ceil(maxJumlahPT / 10) * 10) / 5;
-                    
+
                     var ctxPesananTahunan = document.getElementById("chartPesananTahunan").getContext('2d');
 
                     var dataPesananTahunan = {
@@ -5750,7 +5861,7 @@
                 $('#PesananReturTahunan').hide();
                 $('#FakturReturTahunan').show();
             } else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "1" || $('#periode').val() == "2" || $('#periode').val() == "3") {
-                
+
                 $('#allMingguan').hide();
                 $('#PesananMingguan').hide();
                 $('#FakturMingguan').hide();
@@ -9898,7 +10009,7 @@
                 },
                 success: function (response) {
                     $('#table-barang-tidaklaku-partial').html(response);
-                    
+
                     $('#loading_barang_tidaklaku').hide();
                     $('#table-barang-tidaklaku-partial').show();
                 },
@@ -9943,7 +10054,7 @@
                 },
                 success: function (response) {
                     $('#table-aruskas-partial').html(response);
-                    
+
                     $('#loading_aruskas').hide();
                     $('#table-aruskas-partial').show();
                 },

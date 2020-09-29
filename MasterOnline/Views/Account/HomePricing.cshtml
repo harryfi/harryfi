@@ -942,17 +942,16 @@
                                     <td style="text-align:center;">Free</td>
                                     <td style="text-align:center;">Free</td>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-
                                 </tr>
                                 <tr>
                                     <th scope="row">
                                         <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Shopify
                                     </th>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
-                                    @*<td style="text-align:center;"><input class="cbBox02_a" id="cbBox02_silver_a" type="checkbox"><br />Rp 300.000,00</td>
-            <td style="text-align:center;"><input class="cbBox03_a" id="cbBox03_gold_a" type="checkbox"><br />Rp 300.000,00</td>*@
-                                    <td style="text-align:center;"></td>
-                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"><input class="cbBox02_a" id="cbBox02_silver_a" type="checkbox"><br />Rp 300.000,00</td>
+                                    <td style="text-align:center;"><input class="cbBox03_a" id="cbBox03_gold_a" type="checkbox"><br />Rp 300.000,00</td>
+                                    @*<td style="text-align:center;"></td>
+                                    <td style="text-align:center;"></td>*@
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                 </tr>
                                 <tr>
@@ -960,10 +959,10 @@
                                         <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Multi SKU / Bundling (Coming Soon)
                                     </th>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
-                                    @*<td style="text-align:center;"><input class="cbBox02_b" id="cbBox02_silver_b" type="checkbox"><br />Rp 300.000,00</td>
-            <td style="text-align:center;"><input class="cbBox03_b" id="cbBox03_gold_b" type="checkbox"><br />Rp 300.000,00</td>*@
-                                    <td style="text-align:center;"></td>
-                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"><input class="cbBox02_b" id="cbBox02_silver_b" type="checkbox"><br />Rp 300.000,00</td>
+                                    <td style="text-align:center;"><input class="cbBox03_b" id="cbBox03_gold_b" type="checkbox"><br />Rp 300.000,00</td>
+                                    @*<td style="text-align:center;"></td>
+                                    <td style="text-align:center;"></td>*@
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                 </tr>
                                 <tr>
@@ -971,8 +970,8 @@
                                         <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Data Transfer to FTP
                                     </th>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
-                                    <td style="text-align:center;">@*<input class="cbBox02_c" id="cbBox02_silver_c" type="checkbox"><br />Rp 300.000,00*@</td>
-                                    <td style="text-align:center;">@*<input class="cbBox03_c" id="cbBox03_gold_c" type="checkbox"><br />Rp 300.000,00*@</td>
+                                    <td style="text-align:center;"><input class="cbBox02_c" id="cbBox02_silver_c" type="checkbox"><br />Rp 300.000,00</td>
+                                    <td style="text-align:center;"><input class="cbBox03_c" id="cbBox03_gold_c" type="checkbox"><br />Rp 300.000,00</td>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                 </tr>
                             </tbody>
@@ -1079,6 +1078,18 @@
             }
         });
 
+        $(".cbBox02_c").change(function () {
+            if ($("#cbBox02_silver_c")[0].checked == true) {
+                $("#cbBox02_silver_c").prop('checked', true);
+                $(this).prop('checked', true);
+                checkPlugin02(300000);
+            } else if ($("#cbBox02_silver_c")[0].checked == false) {
+                $("#cbBox02_silver_c").prop('checked', false);
+                $(this).prop('checked', false);
+                checkPlugin02(-300000);
+            }
+        });
+
         $(".cbBox03_a").change(function () {
             if ($("#cbBox03_gold_a")[0].checked == true) {
                 $("#cbBox03_gold_a").prop('checked', true);
@@ -1098,6 +1109,18 @@
                 checkPlugin03(300000);
             } else if ($("#cbBox03_gold_b")[0].checked == false) {
                 $("#cbBox03_gold_b").prop('checked', false);
+                $(this).prop('checked', false);
+                checkPlugin03(-300000);
+            }
+        });
+
+        $(".cbBox03_c").change(function () {
+            if ($("#cbBox03_gold_c")[0].checked == true) {
+                $("#cbBox03_gold_c").prop('checked', true);
+                $(this).prop('checked', true);
+                checkPlugin03(300000);
+            } else if ($("#cbBox03_gold_c")[0].checked == false) {
+                $("#cbBox03_gold_c").prop('checked', false);
                 $(this).prop('checked', false);
                 checkPlugin03(-300000);
             }
