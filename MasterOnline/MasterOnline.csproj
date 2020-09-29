@@ -6405,6 +6405,7 @@
     <Content Include="Views\Manage\TableFakturBelumLunasPopUp.cshtml" />
     <Content Include="Views\Manage\ListDetailPesananBarang.cshtml" />
     <Content Include="Views\Manage\PackingList82Cart.cshtml" />
+    <Content Include="Views\Manage\PackingListShopify.cshtml" />
     <Content Include="Views\Admin\TablePesananHangfireJob.cshtml" />
     <Content Include="Views\Manage\ListDetailStokBarang.cshtml" />
     <Content Include="Views\Manage\CetakLabelTokped.cshtml" />
@@ -6430,6 +6431,8 @@
     <Content Include="Views\Manage\PromptBrandJDID.cshtml" />
     <Content Include="Views\Manage\PackingListJDID.cshtml" />
     <Content Include="Views\Manage\ListDetailPackingListJDID.cshtml" />
+    <Content Include="Views\Manage\ListDetailPackingList82cart.cshtml" />
+    <Content Include="Views\Manage\ListDetailPackingListShopify.cshtml" />
     <Content Include="Views\Manage\FormUpdateHargaMassal.cshtml" />
     <Content Include="Views\Manage\HargaJualMassal.cshtml" />
     <Content Include="Views\Manage\TableHistoryHargaMassal.cshtml" />
