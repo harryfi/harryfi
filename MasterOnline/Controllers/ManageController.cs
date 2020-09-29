@@ -48104,6 +48104,26 @@ namespace MasterOnline.Controllers
                             ret.TidakLanjutProses = true;
                             return Json(ret, JsonRequestBehavior.AllowGet);
                         }
+
+                        if (recordsLazada.Count() <= 0)
+                        {
+                            ret.Errors.Add("File " + ret.TipeData + "  tidak ada data pembayaran.<br />");
+                            ret.adaError = true;
+                            TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                            {
+                                LOG_FILE = ret.buktiLog,
+                                VARIABLE_1 = ret.nobuk,
+                                VARIABLE_2 = ret.TipeData,
+                                TEXT_1 = "File " + ret.TipeData + "  tidak ada data pembayaran.<br />",
+                                TEXT_2 = "",
+                                TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                USERNAME = uname
+                            };
+                            ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                            ErasoftDbContext.SaveChanges();
+                            ret.TidakLanjutProses = true;
+                            return Json(ret, JsonRequestBehavior.AllowGet);
+                        }
                     }
                 }
                 else
@@ -48519,6 +48539,7 @@ namespace MasterOnline.Controllers
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
                                 }
+                                
 
                                 if (ret.statusLoopDownload == true && ret.statusSuccessDownload == false && ret.selesaiProsesDownload == false)
                                 {
@@ -49980,6 +50001,26 @@ namespace MasterOnline.Controllers
                                         ret.TidakLanjutProses = true;
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
+
+                                    if (recordsTokped.Count() <= 0)
+                                    {
+                                        ret.Errors.Add("File " + ret.TipeData + "  tidak ada data pembayaran.<br />");
+                                        ret.adaError = true;
+                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        {
+                                            LOG_FILE = ret.buktiLog,
+                                            VARIABLE_1 = ret.nobuk,
+                                            VARIABLE_2 = ret.TipeData,
+                                            TEXT_1 = "File " + ret.TipeData + "  tidak ada data pembayaran.<br />",
+                                            TEXT_2 = "",
+                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                            USERNAME = uname
+                                        };
+                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        ErasoftDbContext.SaveChanges();
+                                        ret.TidakLanjutProses = true;
+                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                                    }
                                 }
                             }
                         }
@@ -50448,6 +50489,7 @@ namespace MasterOnline.Controllers
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
                                 }
+                                
 
                                 if (ret.statusLoopDownload == true && ret.statusSuccessDownload == false && ret.selesaiProsesDownload == false)
                                 {
@@ -52341,6 +52383,8 @@ namespace MasterOnline.Controllers
                                     //loop all worksheets
                                     var worksheet = excelPackage.Workbook.Worksheets[1];
                                     string cekCol2 = worksheet.Cells[1, 2].Value == null ? "" : worksheet.Cells[1, 2].Value.ToString();
+                                    string cekCol14 = worksheet.Cells[1, 14].Value == null ? "" : worksheet.Cells[1, 14].Value.ToString();
+                                    string cekCol15 = worksheet.Cells[1, 15].Value == null ? "" : worksheet.Cells[1, 15].Value.ToString();
                                     if (!string.IsNullOrEmpty(cekCol2))
                                     {
                                         if (cekCol2 == "Order ID")
@@ -52369,13 +52413,69 @@ namespace MasterOnline.Controllers
                                                         {
                                                             tempData.HARGA = Convert.ToDouble(worksheet.Cells[i, 9].Value);
                                                         }
+                                                        
+                                                        //change by nurul 29/9/2020
+                                                        //if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 11].Value)))
+                                                        //{
+                                                        //    tempData.POTONGAN = Convert.ToDouble(worksheet.Cells[i, 11].Value);
+                                                        //}
+                                                        var promosi_merchant = 0d;
+                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 10].Value)))
+                                                        {
+                                                            if (Convert.ToString(worksheet.Cells[i, 10].Value) != "-"){
+                                                                promosi_merchant = Convert.ToDouble(worksheet.Cells[i, 10].Value) * (-1);
+                                                            }
+                                                        }
+                                                        var fee = 0d;
                                                         if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 11].Value)))
                                                         {
-                                                            tempData.POTONGAN = Convert.ToDouble(worksheet.Cells[i, 11].Value);
+                                                            if (Convert.ToString(worksheet.Cells[i, 11].Value) != "-")
+                                                            {
+                                                                fee = Convert.ToDouble(worksheet.Cells[i, 11].Value);
+                                                            }
                                                         }
-                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 14].Value)))
+                                                        var biaya_tx = 0d;
+                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 12].Value)))
                                                         {
-                                                            tempData.TOTAL = Convert.ToDouble(worksheet.Cells[i, 14].Value);
+                                                            if (Convert.ToString(worksheet.Cells[i, 12].Value) != "-")
+                                                            {
+                                                                biaya_tx = Convert.ToDouble(worksheet.Cells[i, 12].Value);
+                                                            }
+                                                        }
+                                                        var pph_23 = 0d;
+                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 13].Value)))
+                                                        {
+                                                            if (Convert.ToString(worksheet.Cells[i, 13].Value) != "-")
+                                                            {
+                                                                pph_23 = Convert.ToDouble(worksheet.Cells[i, 13].Value);
+                                                            }
+                                                        }
+                                                        var biaya_kirim_seller = 0d;
+                                                        if (!string.IsNullOrEmpty(cekCol14) && cekCol14 == "Biaya Kirim Seller")
+                                                        {
+                                                            if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 14].Value)))
+                                                            {
+                                                                if (Convert.ToString(worksheet.Cells[i, 14].Value) != "-")
+                                                                {
+                                                                    biaya_kirim_seller = Convert.ToDouble(worksheet.Cells[i, 14].Value);
+                                                                }
+                                                            }
+                                                        }
+                                                        tempData.POTONGAN = promosi_merchant + fee + biaya_tx + pph_23 + biaya_kirim_seller;
+                                                        //end change by nurul 29/9/2020
+                                                        if (!string.IsNullOrEmpty(cekCol14) && cekCol14 == "Total")
+                                                        {
+                                                            if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 14].Value)))
+                                                            {
+                                                                tempData.TOTAL = Convert.ToDouble(worksheet.Cells[i, 14].Value);
+                                                            }
+                                                        }
+                                                        else if (!string.IsNullOrEmpty(cekCol15) && cekCol15 == "Total")
+                                                        {
+                                                            if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 15].Value)))
+                                                            {
+                                                                tempData.TOTAL = Convert.ToDouble(worksheet.Cells[i, 15].Value);
+                                                            }
                                                         }
                                                         recordsBlibli.Add(tempData);
                                                         ret.sudahSimpanTemp = true;
@@ -52413,6 +52513,26 @@ namespace MasterOnline.Controllers
                                             VARIABLE_1 = ret.nobuk,
                                             VARIABLE_2 = ret.TipeData,
                                             TEXT_1 = "File bukan data pembayaran Blibli.<br />",
+                                            TEXT_2 = "",
+                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                            USERNAME = uname
+                                        };
+                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        ErasoftDbContext.SaveChanges();
+                                        ret.TidakLanjutProses = true;
+                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                                    }
+
+                                    if(recordsBlibli.Count() <= 0)
+                                    {
+                                        ret.Errors.Add("File " + ret.TipeData + "  tidak ada data pembayaran.<br />");
+                                        ret.adaError = true;
+                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        {
+                                            LOG_FILE = ret.buktiLog,
+                                            VARIABLE_1 = ret.nobuk,
+                                            VARIABLE_2 = ret.TipeData,
+                                            TEXT_1 = "File " + ret.TipeData + "  tidak ada data pembayaran.<br />",
                                             TEXT_2 = "",
                                             TGL_INPUT = DateTime.UtcNow.AddHours(7),
                                             USERNAME = uname
@@ -52848,6 +52968,7 @@ namespace MasterOnline.Controllers
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
                                 }
+                                
 
                                 if (ret.statusLoopDownload == true && ret.statusSuccessDownload == false && ret.selesaiProsesDownload == false)
                                 {
