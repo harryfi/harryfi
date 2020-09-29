@@ -726,6 +726,7 @@
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
     <Compile Include="Models\LINKFTP.cs" />
     <Compile Include="Models\LOG_HARGAJUAL.cs" />
+    <Compile Include="Models\STF03C.cs" />
     <Compile Include="Models\TEMP_SALDOAWAL.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS_ITEM.cs" />
@@ -6437,6 +6438,16 @@
     <Content Include="Views\Manage\TransferToFTPParameterLinkFtp.cshtml" />
     <Content Include="Views\Manage\TransferBarangToFTP.cshtml" />
     <Content Include="Views\Manage\TableTransferBarangToFTP.cshtml" />
+    <Content Include="Views\Manage\MultiSKUMenu.cshtml" />
+    <Content Include="Views\Manage\TableMultiSKUPartial.cshtml" />
+    <Content Include="Views\Manage\FormMultiSKUPartial.cshtml" />
+    <Content Include="Views\Manage\PromptBarangAcuan.cshtml" />
+    <Content Include="Views\Manage\TablePromptBarangAcuanPartial.cshtml" />
+    <Content Include="Views\Manage\TablePromptBarangSKUPartial.cshtml" />
+    <Content Include="Views\Manage\PromptBarangSKU.cshtml" />
+    <Content Include="Views\Manage\PromptBarangMultiSKUInvoice.cshtml" />
+    <Content Include="Views\Manage\TablePromptBarangMultiSKUInvoicePartial.cshtml" />
+    <Content Include="Views\Manage\TableMultiSKUDetailPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

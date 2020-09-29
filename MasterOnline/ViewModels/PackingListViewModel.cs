@@ -61,6 +61,11 @@ namespace MasterOnline.ViewModels
         public string BARCODE { get; set; }
         public string NO_REFERENSI { get; set; }
         //end add by nurul 22/7/2020
+
+        //add by nurul 17/9/2020
+        public string BRG_MULTISKU { get; set; }
+        public string NAMA_BRG_MULTISKU { get; set; }
+        //end add by nurul 17/9/2020
     }
 
     public class templistDetailPacking

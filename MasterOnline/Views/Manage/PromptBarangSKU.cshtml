@@ -1,0 +1,133 @@
+﻿@using PagedList
+@using System.Globalization
+@using MasterOnline.ViewModels
+@model PromptBrg
+
+@{
+
+    ViewBag.Title = "Prompt Barang";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+
+}
+@section styles
+{
+    <style>
+        .top_nav {
+            display: none !important;
+        }
+
+        .close-btn {
+            display: none;
+        }
+    </style>
+}
+<div>
+    <div class="col-lg-4 col-sm-6" id="div_search">
+        <div class="input-group">
+            @*<input id="txt_Cust" value="@(Model.cust)" type="hidden" />
+                <input id="txt_Type" value="@(Model.typeBrg)" type="hidden" />*@
+            <input id="search_promptbarangSKU" type="text" value="@(Model.NAMA_BRG)" class="form-control" placeholder="Pencarian">
+            <span class="input-group-btn">
+                <button type="button" id="search_promptbarangSKU_click" class="btn btn-primary">
+                    <i class="fa fa-search"></i>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="row" style="padding-left:10px; padding-right:10px;">
+        <div id="table-prompt-barang-sku-partial">
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            refreshTablePromptBarangSKU();
+        
+
+            $('#search_promptbarangSKU').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTablePromptBarangSKU();
+                    return false;
+                }
+            });
+            $('#search_promptbarangSKU_click').click(function () {
+                searchTablePromptBarangSKU();
+            });
+        });
+
+
+        function pilihPromptBrgSKU($value, $nama) {
+            self.window.close();
+            window.onunload = refreshTextBoxAcuan;
+            function refreshTextBoxAcuan() {
+                window.opener.afterPromptBarangAcuan($value, $nama);
+            }
+        }
+
+        function refreshTablePromptBarangSKU() {
+                var $link = '@Html.Raw(Url.Action("TablePromptBarangSKUPartial", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+                //$link = $link.replace("replaceCust", encodeURIComponent($('#txt_Cust').val()));
+                //$link = $link.replace("replaceType", encodeURIComponent($('#txt_Type').val()));
+                $link = $link.replace("replaceSearch", encodeURIComponent($('#search_promptbarangSKU').val()));
+                $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_sku').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-prompt-barang-sku-partial').hide();
+                    $('#loading_promptbarang_sku_tab').show();
+                },
+                success: function (response) {
+                    $('#table-prompt-barang-sku-partial').html(response);
+
+                    $('#table-prompt-barang-sku-partial').show();
+
+                    $('#loading_promptbarang_sku_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function searchTablePromptBarangSKU() {
+
+            var $link = '@Html.Raw(Url.Action("TablePromptBarangSKUPartial", "Manage", new { search = "replaceNama" }))';
+            //$link = $link.replace("replaceCust", encodeURIComponent($('#txt_Cust').val()));
+            $link = $link.replace("replaceNama", encodeURIComponent($('#search_promptbarangSKU').val()));
+            //$link = $link.replace("replaceType", encodeURIComponent($('#txt_Type').val()));
+            //$link = $link.replace("replaceUlang", "1");
+
+            $.ajax({
+                url: $link,
+                type: "GET",
+                cache: false,
+                beforeSend: function () {
+                    //$('#search_promptbarang_click')[0].disabled = true;
+                    $('#loading_promptbarang_sku_tab').show();
+                    $('#table-prompt-barang-sku-partial').hide();
+                },
+                success: function (response) {
+
+                    //$('#search_promptbarang_click')[0].disabled = false;
+                    $('#table-prompt-barang-sku-partial').html(response);
+                    $('#table-prompt-barang-sku-partial').show();
+                    //$FOOTER.hide()
+                    $('#loading_promptbarang_sku_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    //$('#search_promptbarang_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
+    </script>
+}

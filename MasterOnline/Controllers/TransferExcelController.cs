@@ -1432,7 +1432,10 @@ namespace MasterOnline.Controllers
 
                                 var noBuktiSO = "";
 
-                                var dataMasterSTF02 = eraDB.STF02.Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3 }).ToList();
+                                //change by nurul 17/9/2020, brg multi sku 
+                                //var dataMasterSTF02 = eraDB.STF02.Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3 }).ToList();
+                                var dataMasterSTF02 = eraDB.STF02.Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3, p.TYPE, p.KUBILASI, p.BRG_NON_OS }).ToList();
+                                //end change by nurul 17/9/2020, brg multi sku 
                                 var dataMasterSTF02H = eraDB.STF02H.Select(p => new { p.BRG, p.BRG_MP, p.IDMARKET }).ToList();
                                 var dataMasterKurir = MoDbContext.Ekspedisi.ToList();
                                 var dataMasterARF01 = eraDB.ARF01.ToList();
@@ -1833,6 +1836,14 @@ namespace MasterOnline.Controllers
                                                                                                     STATUS_BRG = null,
                                                                                                     KET_DETAIL = keterangan
                                                                                                 };
+
+                                                                                                //add by nurul 17/9/2020
+                                                                                                if(checkBarang.TYPE == "6" && checkBarang.KUBILASI == 1 && !string.IsNullOrEmpty(checkBarang.BRG_NON_OS))
+                                                                                                {
+                                                                                                    sot01b.BRG = checkBarang.BRG_NON_OS;
+                                                                                                    sot01b.BRG_MULTISKU = dataBarang.BRG;
+                                                                                                }
+                                                                                                //end add by nurul 17/9/2020
 
                                                                                                 try
                                                                                                 {
@@ -3850,11 +3861,24 @@ namespace MasterOnline.Controllers
                         if (mode == "1")
                         {
                             ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Packing List");
-                            string sSQL = "SELECT A.NO_PESANAN, A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, QTY, PEMBELI, MARKETPLACE, ISNULL(D.NO_REFERENSI,'') AS NO_REFERENSI " +
-                                "FROM SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG " +
-                                "INNER JOIN SOT03B C ON A.NO_BUKTI = C.NO_BUKTI AND A.NO_PESANAN = C.NO_PESANAN " +
-                                "INNER JOIN SOT01A D ON A.NO_PESANAN = D.NO_BUKTI  " +
-                                "WHERE A.NO_BUKTI = '" + noPackingList + "' ORDER BY A.NO_PESANAN, NAMA_BARANG ";
+                            //change by nurul 27/9/2020
+                            //string sSQL = "SELECT A.NO_PESANAN, A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, QTY, PEMBELI, MARKETPLACE, ISNULL(D.NO_REFERENSI,'') AS NO_REFERENSI " +
+                            //    //add by nurul 18/9/2020, Barang Multi SKU
+                            //    ", ISNULL(E.BRG_MULTISKU,'') BRG_MULTISKU , ISNULL(E.NAMA_BRG_MULTISKU,'') NAMA_BRG_MULTISKU " +
+                            //    //end add by nurul 18/9/2020, Barang Multi SKU
+                            //    "FROM SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG " +
+                            //    "INNER JOIN SOT03B C ON A.NO_BUKTI = C.NO_BUKTI AND A.NO_PESANAN = C.NO_PESANAN " +
+                            //    "INNER JOIN SOT01A D ON A.NO_PESANAN = D.NO_BUKTI  " +
+                            //    //add by nurul 18/9/2020, Barang Multi SKU
+                            //    "LEFT JOIN (SELECT B.NO_BUKTI, ISNULL(B.BRG_MULTISKU,'') BRG_MULTISKU, ISNULL(C.NAMA + ' ' + (ISNULL(C.NAMA2, '')),'') NAMA_BRG_MULTISKU FROM SOT03C A INNER JOIN SOT01B B ON A.NO_PESANAN = B.NO_BUKTI INNER JOIN STF02 C ON B.BRG_MULTISKU = C.BRG where A.NO_BUKTI = '" + noPackingList + "')E ON A.NO_PESANAN = E.NO_BUKTI " +
+                            //    //end add by nurul 18/9/2020, Barang Multi SKU
+                            //    "WHERE A.NO_BUKTI = '" + noPackingList + "' GROUP BY A.NO_PESANAN,A.BRG,B.NAMA,B.NAMA2,QTY, PEMBELI, MARKETPLACE,D.NO_REFERENSI ,E.BRG_MULTISKU,E.NAMA_BRG_MULTISKU ORDER BY A.NO_PESANAN, NAMA_BARANG ";
+
+                            string sSQL = "SELECT A.NO_BUKTI AS NO_PESANAN, B.BRG,C.NAMA + ' ' + (ISNULL(C.NAMA2, '')) NAMA_BARANG,B.QTY,A.NAMAPEMESAN AS PEMBELI,F.NAMAMARKET + ' (' + E.PERSO +')' AS MARKETPLACE, ISNULL(A.NO_REFERENSI,'')NO_REFERENSI, ISNULL(B.BRG_MULTISKU,'')BRG_MULTISKU, ISNULL(D.NAMA + ' ' + (ISNULL(D.NAMA2, '')),'') NAMA_BRG_MULTISKU " +
+                            "FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI=B.NO_BUKTI LEFT JOIN STF02 C ON B.BRG=C.BRG LEFT JOIN STF02 D ON D.BRG=B.BRG_MULTISKU  " +
+                            "LEFT JOIN ARF01 E ON A.CUST=E.CUST LEFT JOIN MO..MARKETPLACE F ON E.NAMA=F.IDMARKET " +
+                            "WHERE A.NO_BUKTI IN (SELECT NO_PESANAN FROM SOT03C WHERE NO_BUKTI='" + noPackingList + "')";
+                            //end change by nurul 27/9/2020
                             var lsPacking = EDB.GetDataSet("CString", "SO", sSQL);
                             if (lsPacking.Tables[0].Rows.Count > 0)
                             {
@@ -3867,30 +3891,36 @@ namespace MasterOnline.Controllers
                                     worksheet.Cells[6 + i, 2].Value = lsPacking.Tables[0].Rows[i]["NO_REFERENSI"];
                                     worksheet.Cells[6 + i, 3].Value = lsPacking.Tables[0].Rows[i]["BRG"];
                                     worksheet.Cells[6 + i, 4].Value = lsPacking.Tables[0].Rows[i]["NAMA_BARANG"];
-                                    worksheet.Cells[6 + i, 5].Value = lsPacking.Tables[0].Rows[i]["QTY"];
-                                    worksheet.Cells[6 + i, 6].Value = lsPacking.Tables[0].Rows[i]["PEMBELI"];
-                                    worksheet.Cells[6 + i, 7].Value = lsPacking.Tables[0].Rows[i]["MARKETPLACE"];
+                                    //add by nurul 18/9/2020, Barang Multi SKU
+                                    worksheet.Cells[6 + i, 5].Value = lsPacking.Tables[0].Rows[i]["BRG_MULTISKU"];
+                                    worksheet.Cells[6 + i, 6].Value = lsPacking.Tables[0].Rows[i]["NAMA_BRG_MULTISKU"];
+                                    //end add by nurul 18/9/2020, Barang Multi SKU
+                                    worksheet.Cells[6 + i, 7].Value = lsPacking.Tables[0].Rows[i]["QTY"];
+                                    worksheet.Cells[6 + i, 8].Value = lsPacking.Tables[0].Rows[i]["PEMBELI"];
+                                    worksheet.Cells[6 + i, 9].Value = lsPacking.Tables[0].Rows[i]["MARKETPLACE"];
 
                                 }
-                                ExcelRange rg0 = worksheet.Cells[5, 1, worksheet.Dimension.End.Row, 7];
-                                string tableName0 = "TablePackingList";
-                                ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+                                    ExcelRange rg0 = worksheet.Cells[5, 1, worksheet.Dimension.End.Row, 9];
+                                    string tableName0 = "TablePackingList";
+                                    ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
 
-                                table0.Columns[0].Name = "NO PESANAN";
-                                table0.Columns[1].Name = "NO REFERENSI";
-                                table0.Columns[2].Name = "KODE BARANG";
-                                table0.Columns[3].Name = "NAMA BARANG";
-                                table0.Columns[4].Name = "QTY";
-                                table0.Columns[5].Name = "PEMBELI";
-                                table0.Columns[6].Name = "MARKETPLACE";
+                                    table0.Columns[0].Name = "NO PESANAN";
+                                    table0.Columns[1].Name = "NO REFERENSI";
+                                    table0.Columns[2].Name = "KODE BARANG";
+                                    table0.Columns[3].Name = "NAMA BARANG";
+                                    table0.Columns[4].Name = "KODE BARANG MULTI SKU";
+                                    table0.Columns[5].Name = "NAMA BARANG MULTI SKU";
+                                    table0.Columns[6].Name = "QTY";
+                                    table0.Columns[7].Name = "PEMBELI";
+                                    table0.Columns[8].Name = "MARKETPLACE";
 
-                                using (var range = worksheet.Cells[5, 1, 5, 7])
-                                {
-                                    range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                                    range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                                    range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                                    range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                                }
+                                    using (var range = worksheet.Cells[5, 1, 5, 9])
+                                    {
+                                        range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                                        range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                                        range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                                        range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                                    }
 
                                 table0.ShowHeader = true;
                                 table0.ShowFilter = true;

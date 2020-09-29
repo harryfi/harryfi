@@ -347,7 +347,10 @@ namespace MasterOnline.Controllers
             xmlString += "</Attributes>";
 
             var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
-            if (Convert.ToString(stf02.TYPE) == "3")
+            //change by nurul 14/9/2020, handle barang multi sku juga 
+            //if (Convert.ToString(stf02.TYPE) == "3")
+            if (Convert.ToString(stf02.TYPE) == "3" || Convert.ToString(stf02.TYPE) == "6")
+            //change by nurul 14/9/2020, handle barang multi sku juga 
             {
 
                 xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
@@ -769,7 +772,10 @@ namespace MasterOnline.Controllers
             xmlString += "</Attributes>";
 
             var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
-            if (Convert.ToString(stf02.TYPE) == "3")
+            //change by nurul 14/9/2020, handle barang multi sku juga 
+            //if (Convert.ToString(stf02.TYPE) == "3")
+            if (Convert.ToString(stf02.TYPE) == "3" || Convert.ToString(stf02.TYPE) == "6")
+            //change by nurul 14/9/2020, handle barang multi sku juga 
             {
                 //xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
                 xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(stf02h.BRG_MP) + "</SellerSku>";

@@ -113,5 +113,10 @@ namespace MasterOnline
 
         [JsonIgnore]
         public virtual SIT01A SIT01A { get; set; }
+
+        //ADD BY NURUL 9/9/2020
+        [StringLength(20)]
+        public string BRG_MULTISKU { get; set; }
+        //END ADD BY NURUL 9/9/2020
     }
 }

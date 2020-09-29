@@ -266,7 +266,7 @@ namespace MasterOnline.Controllers
                                                     currency = order.currency,
                                                     days_to_ship = 0,
                                                     dropshipper = "",
-                                                    escrow_amount = "",
+                                                    escrow_amount = order.total_discounts,
                                                     estimated_shipping_fee = Convert.ToString(double.Parse(order.total_shipping_price_set.shop_money.amount)),
                                                     goods_to_declare = false,
                                                     message_to_seller = order.note ?? "",
@@ -577,7 +577,7 @@ namespace MasterOnline.Controllers
                                                         currency = order.currency,
                                                         days_to_ship = 0,
                                                         dropshipper = "",
-                                                        escrow_amount = "",
+                                                        escrow_amount = order.total_discounts,
                                                         estimated_shipping_fee = Convert.ToString(double.Parse(order.total_shipping_price_set.shop_money.amount)),
                                                         goods_to_declare = false,
                                                         message_to_seller = order.note ?? "",
@@ -1582,7 +1582,10 @@ namespace MasterOnline.Controllers
                 sku = detailBrg.BRG
             };
 
-            if (brgInDb.TYPE == "3")
+            //change by nurul 14/9/2020, handle barang multi sku juga 
+            //if (brgInDb.TYPE == "3")
+            if (brgInDb.TYPE == "3" || brgInDb.TYPE == "6")
+            //end change by nurul 14/9/2020, handle barang multi sku juga 
             {
                 variants.option1 = null;
                 variants.title = null;
@@ -1982,8 +1985,11 @@ namespace MasterOnline.Controllers
                 unit_weight = "kg",
                 sku = detailBrg.BRG
             };
-
-            if (brgInDb.TYPE == "3")
+                        
+            //change by nurul 14/9/2020, handle barang multi sku juga 
+            //if (brgInDb.TYPE == "3")
+            if (brgInDb.TYPE == "3" || brgInDb.TYPE == "6")
+            //end change by nurul 14/9/2020, handle barang multi sku juga 
             {
                 variantsData.option1 = "Default Title";
                 variantsData.title = "Default Title";

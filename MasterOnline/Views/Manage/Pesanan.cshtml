@@ -42,9 +42,22 @@
     @*<link href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.dataTables.min.css" rel="stylesheet" />*@
     @*//add by nurul 24/3/2020*@
     <style>
+        /*add by nurul 9/9/2020*/
+        #BRG_MULTI_SKU,
+        #BRG_MULTI_SKU .selectivity-single-select-input,
+        #table_tambah_pesanan > tbody > tr > .barang-multisku {
+            width: 50px !important;
+        }
+
+            #table_tambah_pesanan > tbody > tr > .barang-multisku .selectize-dropdown {
+                width: 250px !important;
+            }
+        /*end add by nurul 9/9/2020*/
+
         .user-link {
             text-decoration: underline;
         }
+
         [data-tip] {
             position: relative;
             white-space: pre-line;
@@ -89,7 +102,7 @@
                 /*white-space: normal;*/
                 word-wrap: normal;
                 width: 250%;
-                white-space: pre-line;                
+                white-space: pre-line;
             }
 
             [data-tip]:hover:before,
@@ -98,7 +111,7 @@
                 white-space: pre-line;
             }
 
-            
+
 
         #loading_pesanan_NotFound {
             display: none;
@@ -1770,20 +1783,20 @@
                         </div>
                         <div class="col-lg-1 col-sm-12"></div>
                         @*<div class="col-lg-6 col-sm-6" style="margin-top:13px;">
-                            <div class="pull-right" id="tambah_baru_tombol_section">
-                                <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>
-                                <button id="excelPesanan" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Excel Pesanan <span class="caret"></span>
-                                </button>
-                                <div class="dropdown-menu" style="right: 130px">
-                                    <button type="button" onclick="$('#downloadPesanan').modal('show');" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right" style="width:100%; background-color:white; border-color:Highlight; color:black !important">
-                                        <span>Download Pesanan</span>
+                                <div class="pull-right" id="tambah_baru_tombol_section">
+                                    <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
+                                        <span>Refresh</span>
                                     </button>
+                                    <button id="excelPesanan" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Excel Pesanan <span class="caret"></span>
+                                    </button>
+                                    <div class="dropdown-menu" style="right: 130px">
+                                        <button type="button" onclick="$('#downloadPesanan').modal('show');" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right" style="width:100%; background-color:white; border-color:Highlight; color:black !important">
+                                            <span>Download Pesanan</span>
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>*@
+                            </div>*@
                         <div class="col-lg-6 col-sm-6" style="margin-top:13px;">
                             @*<div class="col-lg-8 col-sm-6">*@
                             <div class="pull-right" id="tambah_baru_tombol_section">
@@ -1796,8 +1809,8 @@
                                 </button>
                                 <div class="dropdown-menu">
                                     @*<button type="button" onclick="$('#downloadPesanan').modal('show');" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right" style="width:100%; background-color:white; border-color:Highlight; color:black !important">
-            <span>Download Pesanan</span>
-            </button>*@
+                                        <span>Download Pesanan</span>
+                                        </button>*@
                                     <button type="button" style="width:100%;background-color:white; border-color:Highlight; color:black !important" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right" data-toggle="modal" onclick="$('#downloadPesanan').modal('show');">
                                         <span> Download Pesanan</span>
                                     </button>
@@ -2427,7 +2440,7 @@
                                            accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
                                 </div>
                                 <div class="col-md-2">
-                                    <button type="button" class="btn btn-primary"  style="width:88.67px;" id="btnUploadExcelPesanan" onclick="uploadExcelPesanan();" data-style="expand-right">
+                                    <button type="button" class="btn btn-primary" style="width:88.67px;" id="btnUploadExcelPesanan" onclick="uploadExcelPesanan();" data-style="expand-right">
                                         <span>Upload</span>
                                     </button>
                                 </div>
@@ -3555,9 +3568,9 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="modalPackingPengiriman" tabindex="-1" role="dialog" aria-labelledby="PackingMulti" >
+<div class="modal fade" id="modalPackingPengiriman" tabindex="-1" role="dialog" aria-labelledby="PackingMulti">
     <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document" style="width: 1100px; margin:auto">
-        <div class="modal-content" >
+        <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="PackingMulti">Pengiriman</h4>
             </div>
@@ -3570,47 +3583,47 @@
                 <div class="row" style="margin-top: 15px;">
                     <div id="show_packing_list"></div>
                     @*<div class="x_content">
-                        <ul id="detail-packinglist-tabs" class="nav nav-tabs">
-                            <li id="li_pesanan_tokped_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_tokped_tab_focus" href="#packing_pesanan_tokped" aria-expanded="false">Tokopedia</a></li>
-                            <li id="li_pesanan_lazada_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_lazada_tab_focus" href="#packing_pesanan_lazada" aria-expanded="false">Lazada</a></li>
-                            <li id="li_pesanan_shopee_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopee_tab_focus" href="#packing_pesanan_shopee" aria-expanded="false">Shopee</a></li>
-                            <li id="li_pesanan_blibli_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_blibli_tab_focus" href="#packing_pesanan_blibli" aria-expanded="false">Blibli</a></li>
-                            <li id="li_pesanan_82cart_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_82cart_tab_focus" href="#packing_pesanan_82cart" aria-expanded="false">82Cart</a></li>
-                            <li id="li_pesanan_shopify_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopify_tab_focus" href="#packing_pesanan_shopify" aria-expanded="false">Shopify</a></li>
-                        </ul>
-                        <div class="tab-content">
-                            <div id="packing_pesanan_tokped" class="tab-pane fade in">
-                                <div class="col-lg-12" id="packing_pesanan_tokped_content">
+                            <ul id="detail-packinglist-tabs" class="nav nav-tabs">
+                                <li id="li_pesanan_tokped_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_tokped_tab_focus" href="#packing_pesanan_tokped" aria-expanded="false">Tokopedia</a></li>
+                                <li id="li_pesanan_lazada_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_lazada_tab_focus" href="#packing_pesanan_lazada" aria-expanded="false">Lazada</a></li>
+                                <li id="li_pesanan_shopee_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopee_tab_focus" href="#packing_pesanan_shopee" aria-expanded="false">Shopee</a></li>
+                                <li id="li_pesanan_blibli_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_blibli_tab_focus" href="#packing_pesanan_blibli" aria-expanded="false">Blibli</a></li>
+                                <li id="li_pesanan_82cart_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_82cart_tab_focus" href="#packing_pesanan_82cart" aria-expanded="false">82Cart</a></li>
+                                <li id="li_pesanan_shopify_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopify_tab_focus" href="#packing_pesanan_shopify" aria-expanded="false">Shopify</a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div id="packing_pesanan_tokped" class="tab-pane fade in">
+                                    <div class="col-lg-12" id="packing_pesanan_tokped_content">
 
+                                    </div>
+                                </div>
+                                <div id="packing_pesanan_lazada" class="tab-pane fade in">
+                                    <div class="col-lg-12" id="packing_pesanan_lazada_content">
+
+                                    </div>
+                                </div>
+                                <div id="packing_pesanan_shopee" class="tab-pane fade in">
+                                    <div class="col-lg-12" id="packing_pesanan_shopee_content">
+
+                                    </div>
+                                </div>
+                                <div id="packing_pesanan_blibli" class="tab-pane fade in">
+                                    <div class="col-lg-12" id="packing_pesanan_blibli_content">
+
+                                    </div>
+                                </div>
+                                <div id="packing_pesanan_82cart" class="tab-pane fade in">
+                                    <div class="col-lg-12" id="packing_pesanan_82cart_content">
+
+                                    </div>
+                                </div>
+                                <div id="packing_pesanan_shopify" class="tab-pane fade in">
+                                    <div class="col-lg-12" id="packing_pesanan_shopify_content">
+
+                                    </div>
                                 </div>
                             </div>
-                            <div id="packing_pesanan_lazada" class="tab-pane fade in">
-                                <div class="col-lg-12" id="packing_pesanan_lazada_content">
-
-                                </div>
-                            </div>
-                            <div id="packing_pesanan_shopee" class="tab-pane fade in">
-                                <div class="col-lg-12" id="packing_pesanan_shopee_content">
-
-                                </div>
-                            </div>
-                            <div id="packing_pesanan_blibli" class="tab-pane fade in">
-                                <div class="col-lg-12" id="packing_pesanan_blibli_content">
-
-                                </div>
-                            </div>
-                            <div id="packing_pesanan_82cart" class="tab-pane fade in">
-                                <div class="col-lg-12" id="packing_pesanan_82cart_content">
-
-                                </div>
-                            </div>
-                            <div id="packing_pesanan_shopify" class="tab-pane fade in">
-                                <div class="col-lg-12" id="packing_pesanan_shopify_content">
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>*@
+                        </div>*@
                 </div>
             </div>
             <br />
@@ -3741,7 +3754,8 @@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
-<script type="text/javascript">
+    <script type="text/javascript">
+        var selectBrg = $('#BRG').selectivity();
         var $statusAPI = window.text;
         var $modeEditPesanan = 0;
         var $modeEditDibayar = 0;
@@ -5930,7 +5944,7 @@
                                         //getBuyer();
                                         getGudang();
                                         getDataBarang();
-
+                                        //getBarangMultiSKUForBarang();
                                         //refreshInputan();
                                         //refreshNetto();
 
@@ -6906,6 +6920,9 @@
 
                                 getTanggal();
                                 getDataBarang();
+                                $('#multisku-select').show();
+                                $('#multisku-kode').hide();
+                                getBarangMultiSKUForBarang();
                             }
                             $('#btn-simpan-perubahan-row').show();
                         }
@@ -7180,7 +7197,7 @@
                                     text: item.BRG + ' (' + item.NAMA + ' ' + nama2 + ')'
                                 };
                             });
-
+                        
                         $('#BRG').selectivity({
                             allowClear: true,
                             items: listKodeBarang,
@@ -7205,6 +7222,15 @@
                                                 '<input data-val="true" data-val-length="The field SATUAN must be a string with a maximum length of 10." data-val-length-max="10" id="PesananDetail_SATUAN" name="PesananDetail.SATUAN" type="hidden" value="">');
                                             $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) +
                                                 '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="PesananDetail_H_SATUAN" name="PesananDetail.H_SATUAN" type="hidden" value="" style="text-align:right">');
+                                            $('#PesananDetail_BRG').val(item.BRG);
+
+                                            if ($('#PesananDetail_BRG_MULTISKU').val() != null && $('#PesananDetail_BRG_MULTISKU').val() != "") {
+                                                var tempMultiSKU = $('#BRG_MULTI_SKU').val();
+                                                //$('#BRG_MULTI_SKU')[0].selectize.setValue(tempMultiSKU);
+                                                getBarangMultiSKUForBarang(tempMultiSKU);
+                                            } else {
+                                                getBarangMultiSKUForBarang();
+                                            }
                                             return;
                                         }
                                     });
@@ -7216,17 +7242,20 @@
                                 $beforeState.nppn = $('#Pesanan_NILAI_PPN').val();
                                 $beforeState.ongkir = $('#Pesanan_ONGKOS_KIRIM').val();
                                 $($trElement + ' .btn-primary').removeAttr('disabled');
+                                $('#multisku-select').show();
+                                $('#multisku-kode').hide();
                                 offTab();
                                 modeEditTd();
 
                                 // Otomatis masuk ke field Qty setelah pilih barang
                                 //$('#table_tambah_pesanan > tbody > tr > td.qty-barang').click();
-                                $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
+                                $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > .qty-barang').click();
 
                                 hitungUlangdisc1();
                                 hitungUlangdisc2();
                                 refreshNettoBarang('0');
                             } else {
+                                
                                 $('#CUSTOMER')[0].selectize.enable();
 
                                 $($trElement + ' .nama-barang').text('-');
@@ -7248,6 +7277,9 @@
                                     '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="PesananDetail_HARGA" name="PesananDetail.HARGA" type="hidden" value="" style="text-align:right">');
 
                                 $($trElement + ' .btn-primary').attr('disabled', 'disabled');
+
+                                $('#multisku-select').show();
+                                $('#multisku-kode').hide();
 
                                 //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0
                                 $beforeState.brutto = $('#Pesanan_BRUTO').val();
@@ -7277,6 +7309,9 @@
                                 onTab();
                                 modeEditOff();
                                 refreshNettoBarang('0');
+
+                                $('#PesananDetail_BRG').val('');
+                                getBarangMultiSKUForBarang();
                             }
                         });
 
@@ -7371,6 +7406,9 @@
                     getDataBarang();
                     getMarketplaceSOT01A();
                     getExpedisi();
+                    $('#multisku-select').show();
+                    $('#multisku-kode').hide();
+                    getBarangMultiSKUForBarang();
                     //change by nurul 19/2/2019
                     //$('#tambah_pesanan').click();
                     $('.pesanan_table_section').hide();
@@ -7565,6 +7603,9 @@
                     getExpedisi();
                     //getBuyer();
                     getDataBarang();
+                    $('#multisku-select').show();
+                    $('#multisku-kode').hide();
+                    getBarangMultiSKUForBarang();
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
                 },
@@ -11232,6 +11273,9 @@
 
                                 getTanggal();
                                 getDataBarang();
+                                $('#multisku-select').show();
+                                $('#multisku-kode').hide();
+                                getBarangMultiSKUForBarang();
                             }
                             $('#btn-simpan-perubahan-row').show();
                         }
@@ -11312,6 +11356,9 @@
                             getExpedisi();
                             //getBuyer();
                             getDataBarang();
+                            $('#multisku-select').show();
+                            $('#multisku-kode').hide();
+                            getBarangMultiSKUForBarang();
                             $('#loading_spinner').hide();
                         },
                         error: function(xhr) {
@@ -11439,7 +11486,173 @@
             });
     }
     //end add by nurul 27/7/2020
-</script>
+
+    //add by nurul 9/9/2020
+        function PromptMultiSKUPesanan() {
+            //if ($('#PesananDetail_BRG').val() != '') {
+            if ($('#BRG').selectivity('value') != "") {
+                var link = '@Url.Action("PromptBarangMultiSKUInvoice", "Manage", new { id = "replaceId", kdBrg = "replaceBrg" })';
+                link = link.replace("replaceId", "1");
+                link = link.replace("replaceBrg", $('#BRG').selectivity('value'));
+                @*window.open('@Url.Action("PromptBarangAcuan", "Manage")',*@
+                window.open(link,
+                    "popupWindow",
+                    "width=850, height=400, scrollbars=yes, resizable=no");
+            }
+        }
+
+        function afterPromptMultiSKUPesanan(kd) {
+            $('#PesananDetail_BRG_MULTISKU').val(kd);
+            // Otomatis masuk ke field Qty setelah pilih gudang
+            //$('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
+        }
+
+        function getBarangMultiSKUForBarang($tempBrg) {
+            //if ($('#BRG').selectivity('value') != "") {
+            if ($('#PesananDetail_BRG').val() != "") {
+
+                var link = '@Url.Action("getBarangMultiSKUForBarang", "Manage", new { brgId = "replaceId" })';
+                link = link.replace("replaceId", encodeURIComponent($('#PesananDetail_BRG').val()));
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var listBarang = [];
+                        $.each(data,
+                            function (i, item) {
+
+                                var nama2 = "";
+                                if (item.NAMA2 != null && item.NAMA2 != "null") {
+                                    nama2 = item.NAMA2;
+                                }
+
+                                listBarang[i] = {
+                                    id: item.BRG,
+                                    //change by nurul 27/11/2018 (tampilin nama barang 2) -- text: item.BRG + ' (' + item.NAMA + ')'
+                                    text: item.BRG + ' (' + item.NAMA + ' ' + nama2 + ')',
+                                };
+                            });
+
+                        var barangSelect = $('#BRG_MULTI_SKU').selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: listBarang,
+                            onChange: function (value) {
+                                var $objSup = $.grep(listBarang, function (data) { return data.id == value });
+                                //$('#PesananDetail_BRG_MULTISKU').val(value);
+                                if (value != null) {
+                                    $('#multisku-kode').text(value);
+                                    $("#PesananDetail_BRG_MULTISKU").val(value).trigger('change');
+
+                                } else {
+                                    $('#multisku-kode').text('-');
+                                }
+                                $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
+                            }
+                        });
+
+                        barangSelect[0].selectize.clearOptions();
+                        barangSelect[0].selectize.renderCache = {};
+                        barangSelect[0].selectize.load(function (callback) {
+                            callback(listBarang);
+                        });
+
+                        //barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val());
+                        if ($tempBrg != "" && $tempBrg != null && $tempBrg != undefined) {
+                            barangSelect[0].selectize.setValue($tempBrg, true);
+                            $('#PesananDetail_BRG_MULTISKU').val($tempBrg);
+                        } else {
+                            barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val(), true);
+                        }
+                        $('#multisku-kode').text($('#PesananDetail_BRG_MULTISKU').val());
+
+                        //$('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
+
+                        //hitungUlangdisc1();
+                        //hitungUlangdisc2();
+                        //refreshNettoBarang('0');
+                        //if ($('#BRG_MULTI_SKU').selectivity('value') != null) {
+                        //    $('#BRG_MULTI_SKU').trigger('change');
+                        //}
+                        //if ($('#PesananDetail_BRG_MULTISKU').val() != "") {
+                        //    $('#BRG_MULTI_SKU')[0].trigger.change();
+                        //}
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            } else {
+                var link = '@Url.Action("getBarangMultiSKU", "Manage")';
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var listBarang = [];
+                        $.each(data,
+                            function (i, item) {
+
+                                var nama2 = "";
+                                if (item.NAMA2 != null && item.NAMA2 != "null") {
+                                    nama2 = item.NAMA2;
+                                }
+
+                                listBarang[i] = {
+                                    id: item.BRG,
+                                    text: item.BRG + ' (' + item.NAMA + ' ' + nama2 + ')',
+                                    acuan: item.BRG_ACUAN,
+                                };
+                            });
+
+                        var barangSelect = $('#BRG_MULTI_SKU').selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: listBarang,
+                            onChange: function (value) {
+                                var $objSup = $.grep(listBarang, function (data) { return data.id == value });
+                                if (value != null) {
+                                    $('#multisku-kode').text(value);
+                                    $("#PesananDetail_BRG_MULTISKU").val(value).trigger('change');
+                                    
+                                    if ($objSup[0] != null) {
+                                        $('#BRG').selectivity('value', $objSup[0].acuan);
+                                    }
+                                } else {
+                                    $('#multisku-kode').text('-');
+                                }
+                                $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
+                            }
+                        });
+
+                        barangSelect[0].selectize.clearOptions();
+                        barangSelect[0].selectize.renderCache = {};
+                        barangSelect[0].selectize.load(function (callback) {
+                            callback(listBarang);
+                        });
+
+                        //barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val());
+                        if ($tempBrg != "" && $tempBrg != null && $tempBrg != undefined) {
+                            barangSelect[0].selectize.setValue($tempBrg, true);
+                            $('#PesananDetail_BRG_MULTISKU').val($tempBrg);
+                        } else {
+                            barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val(), true);
+                        }
+                        $('#multisku-kode').text($('#PesananDetail_BRG_MULTISKU').val());
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+        //end add by nurul 9/9/2020
+    </script>
     <script>
         //Disable Enter Key Submit Form
         function stopRKey(evt) {

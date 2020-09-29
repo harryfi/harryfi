@@ -424,6 +424,7 @@
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
     <script type="text/javascript">
+        var promptSKU = "";
         var tempImageProduk = [];
         var tempSizeImageProduk = [];
         var tempImageProdukBlibli = [];
@@ -735,11 +736,38 @@
                 }
             });
 
+            //add by nurul 7/9/2020
+            $('#cbxMultiSKU').each(function () {
+                var $this = $(this);
+
+                $this.click(function () {
+                    var $cbxTarget = $('#cbxMultiSKU[data_cbx_sku="cbx-MultiSKU"]');
+                    if ($cbxTarget.val() == "1" && $("#cbxStf02MultiSKU").is(":checked") == true) {
+                        $('#sku-acuan').show();
+                        $('#Stf02_KUBILASI').val(1);
+                    } else {
+                        $('#Stf02_KUBILASI').val(0);
+                        $('#sku-acuan').hide();
+                    }
+                });
+            });
+                    $('#pilih-sku').click(function() {
+                        promptSKU = "1";
+                        var link = '@Url.Action("PromptBarangAcuan", "Manage", new { id = "replaceId" })';
+                        link = link.replace("replaceId", "1");
+                        @*window.open('@Url.Action("PromptBarangAcuan", "Manage")',*@
+                        window.open(link,
+                        "popupWindow",
+                        "width=850, height=400, scrollbars=yes, resizable=no");
+                    });
+            //end add by nurul 7/9/2020
+
             $('.cbxtype').each(function () {
                 var $this = $(this);
 
                 $this.click(function () {
                     var $cbxTarget = $('.cbxtype[data-cbx="cbx-type"]');
+
 
                     if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3') {
                         $cbxTarget.val('4');
@@ -751,7 +779,8 @@
                             var $this = $(this);
                             $this.hide();
                         });
-                    } else {
+                    }
+                    else {
                         $cbxTarget.val('3');
                         $('#var-structure-partial').html('');
                         $('#var-detail-variant-partial').html('');
@@ -4216,14 +4245,14 @@
                                 $('#cbxStf02Type').removeAttr('disabled');
                                 //jika type = 3, click dlu ( karena default adalah variasi tercentang )
                                 var $cbxTarget = $('.cbxtype[data-cbx="cbx-type"]');
-                                if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3') {
+                                if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3' || $cbxTarget.val() == '6') {
                                     $('#cbxStf02Type').click();
                                 }
                             }
                             else {
                                 //disable dan type = 3 jika tidak ada variasinya
                                 var $cbxTarget = $('.cbxtype[data-cbx="cbx-type"]');
-                                if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3') {
+                                if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3' || $cbxTarget.val() == '6') {
                                     $('#cbxStf02Type').attr('disabled', 'disabled');
                                 }
                                 else {
@@ -4232,6 +4261,11 @@
                                     $('#cbxStf02Type').attr('disabled', 'disabled');
                                 }
                             }
+                            //if ($("#cbxStf02Type").is(":checked") == true) {
+                            //    $('#multi-sku').hide();
+                            //} else if ($("#cbxStf02Type").is(":checked") == false) {
+                            //    $('#multi-sku').show();
+                            //}
                         },
                         error: function (xhr, status, error) {
                             console.log(error);
@@ -4573,6 +4607,18 @@
             if (!validCategory)
                 alert('Anda belum memilih Kategori barang di tab per marketplace.');
             //end add by Tri 08-10-2018, validasi category per marketplace blm dipilih*@
+
+            //add by nurul 28/8/2020
+            if ($("#cbxStf02Type").is(":checked") == false) {
+                if ($('#cbxStf02MultiSKU').is(":checked") == true) {
+                    if ($('#Stf02_BRG_NON_OS').val() == null || $('#Stf02_BRG_NON_OS').val() == "") {
+                        addError($("#Stf02_BRG_NON_OS").parent().parent(), "Kode barang acuan harus diisi.");
+                        document.getElementById("Stf02_BRG_NON_OS").focus();
+                    }
+                }
+            }
+            //end add by nurul 28/8/2020
+
             return ret;
         }
         function addError(obj, msg) {
@@ -4704,6 +4750,12 @@
             //    }
             //});
 
+            //add by nurul 17/9/2020, brg multi sku 
+            if ($('#Stf02_KUBILASI').val() != 1) {
+                $('#Stf02_KUBILASI').val(0)
+            }
+            //end add by nurul 17/9/2020, brg multi sku 
+
             //add by calvin 20 juni 2019, kasus barang dari sync lazada, ada html tag nya
             $.each($(".removeHTMLTag"),
                 function () {
@@ -4816,6 +4868,12 @@
             var angka = convertToAngka(input);
             $("#Stf02_HJUAL").val(angka);
             $('#Stf02_STN').val($('#Stf02_STN2').val());
+
+            //add by nurul 17/9/2020, brg multi sku 
+            if ($('#Stf02_KUBILASI').val() != 1) {
+                $('#Stf02_KUBILASI').val(0)
+            }
+            //end add by nurul 17/9/2020, brg multi sku 
 
             //add by calvin 20 juni 2019, kasus barang dari sync lazada, ada html tag nya
             $.each($(".removeHTMLTag"),
@@ -4947,6 +5005,18 @@
                         });
                     }
 
+                    //add by nurul 24/8/2020
+                    $('#pilih-sku').click(function() {
+                        promptSKU = "1";
+                        var link = '@Url.Action("PromptBarangAcuan", "Manage", new { id = "replaceId" })';
+                        link = link.replace("replaceId", "1");
+                        @*window.open('@Url.Action("PromptBarangAcuan", "Manage")',*@
+                        window.open(link,
+                        "popupWindow",
+                        "width=850, height=400, scrollbars=yes, resizable=no");
+                    });
+                    //end add by nurul 24/8/2020
+
                     //remark by calvin 23 april 2019
                     //Initialize();
                     //initRequired();
@@ -5026,7 +5096,25 @@
                         var $this = $(this);
                         $this.show();
                     });
-                } else {
+                }
+                //add by nurul 7/9/2020
+                else if ($('#Stf02_TYPE').val() == '6') {
+                    //remark by calvin 22 agustus 2019, dibuat selalu disabled
+                    ////disable Tab Variant
+                    //$('#variant-induk-tab').removeAttr('data-toggle');
+                    //$('#variant-induk-tab').addClass('disabled-tab');
+                    enableFotoProdukSection();
+                    $('#simpan_btn').show();
+                    $('#next_btn').hide();
+                    $('#div_info_harga_variant').hide();
+
+                    $('.detail_mp_blibli_gambar').each(function () {
+                        var $this = $(this);
+                        $this.show();
+                    });
+                }
+                //end add by nurul 7/9/2020
+                else {
                     //ada Variant
                     //remark by calvin 22 agustus 2019, dibuat selalu disabled
                     ////enable Tab Variant
@@ -5046,6 +5134,13 @@
                     });
                 }
             }
+            //add by nurul 16/9/2020, brg multi sku 
+            //if ($("#cbxStf02Type").is(":checked") == true) {
+            //    $('#multi-sku').hide();
+            //} else if ($("#cbxStf02Type").is(":checked") == false) {
+            //    $('#multi-sku').show();
+            //}
+                        //end add by nurul 16/9/2020, brg multi sku
         }
         function disableFotoProdukSection(){
             var $BOX_PANEL = $('#upload-foto-section'),
@@ -5381,11 +5476,20 @@
                             var $this = $(this);
                             $this.show();
                         });
+                        
                         enableFotoProdukSection();
                         //end checkbox on click event
                         alert(response.Errors[0]);
                     }
                     //end change by calvin 25 april 2019
+
+                    //add by nurul 16/9/2020, brg multi sku 
+                    //if ($("#cbxStf02Type").is(":checked") == true) {
+                    //    $('#multi-sku').hide();
+                    //} else if ($("#cbxStf02Type").is(":checked") == false) {
+                    //    $('#multi-sku').show();
+                    //}
+                        //end add by nurul 16/9/2020, brg multi sku
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -5394,6 +5498,51 @@
             }
         }
         //end add by Tri, validasi ubah brg non varian menjadi varian
+
+        //ADD BY NURUL 19/8/2020
+        function validateCkMultiSKU() {
+            if ($("#cbxStf02MultiSKU").is(":checked") == true) {
+                $('#sku-acuan').show();
+                $('#Stf02_KUBILASI').val(1);
+            } else {
+                $('#Stf02_KUBILASI').val(0);
+                $('#sku-acuan').hide();
+            }
+
+        }
+
+        function afterPromptSKU(kd) {
+            if (promptSKU == "1") {
+                var tempSKU = $('#Stf02_BRG_NON_OS').val();
+                $('#Stf02_BRG_NON_OS').val(kd);
+                //getBuyerPrompt(kd);
+            }
+            promptSKU = "";
+        }
+
+        @*function getBuyerPrompt(kd) {
+            var link = '';
+
+            link = '@Url.Action("GetPembeliPesanan", "Manage", new { kode = "replaceKode" })';
+            link = link.replace("replaceKode", encodeURIComponent($('#Faktur_PEMESAN').val()));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (res) {
+                    $('#Faktur_PEMESAN').val(res.BUYER_CODE);
+                    $('#Faktur_NAMAPEMESAN').val(res.NAMA);
+
+                    //$('#Pesanan_ALAMAT_KIRIM').val(res.AL);
+                    ////$("#MARKETPEMESAN").val(res.NAMA);
+                    //$('#btn-simpan-perubahan-row').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }*@
+        //END ADD BY NURUL 19/8/2020
     </script>
     <script>
         var mimes = {

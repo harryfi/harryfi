@@ -110,6 +110,7 @@ namespace MasterOnline.ViewModels
         public string Nobuk { get; set; }
         public string Brg { get; set; }
         public string KetDetail { get; set; }
+        public string brg_multisku { get; set; }
     }
 
     //add by nurul 8/6/2020

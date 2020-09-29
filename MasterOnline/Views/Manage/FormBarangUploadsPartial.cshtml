@@ -405,6 +405,22 @@
                         </div>
                     </div>
                     @*  }*@
+                    @*//add by nurul 17/9/2020*@
+                    <div class="form-group" id="divBrgMultiSKU">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang Acuan</label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <table>
+                                <tr>
+                                    <td>
+                                        @Html.HiddenFor(m => m.TempBrg.KODE_BRG_INDUK)
+                                        <input maxlength="20" value="" class="form-control" id="txtBrgInduk" name="txtBrgInduk" type="text">
+                                        <label>**Kode Barang Induk wajib diisi untuk barang varian</label>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    @*//end add by nurul 17/9/2020*@
                     <div class="form-group">
                         @Html.LabelFor(m => m.Stf02.Sort1, "Kategori Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-6 col-sm-6 col-xs-12">

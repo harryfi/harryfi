@@ -230,6 +230,22 @@
         //    }
         //});
         //end remark by nurul 21/7/2020
+
+        //add by nurul 28/8/2020
+        //$('#cbxStf02Type').off('click').on('click', function () {
+        //    if ($("#cbxStf02Type").is(":checked") == true) {
+        //        $('#multi-sku').hide();
+        //    } else if ($("#cbxStf02Type").is(":checked") == false) {
+        //        $('#multi-sku').show();
+        //    }
+        //});
+        //if ($("#cbxStf02Type").is(":checked") == true) {
+        //    $('#multi-sku').hide();
+        //} else if ($("#cbxStf02Type").is(":checked") == false) {
+        //    $('#multi-sku').show();
+        //}
+        //end add by nurul 28/8/2020
+
         $('#Stf02_HJUAL').change(function () {
         if (convertToAngka($("#Stf02_HJUAL").val()) > 0) {
             RemoveError($("#Stf02_HJUAL").parent().parent(), "Harga Jual harus lebih dari 0.", "span-error");
@@ -316,17 +332,17 @@
                                         </div>
                                         @*//CHANGE BY NURUL 10/9/2019, buat preview nama barang*@
                                         @*<div class="form-group">
-                                                @Html.LabelFor(m => m.Stf02.NAMA, "Nama Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Stf02.NAMA, new { @class = "form-control", maxlength = 30, required = "required" })
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <div class="col-md-3 col-sm-3 col-xs-12"></div>
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Stf02.NAMA2, new { @class = "form-control", type = "text", @maxlength = 40, @data_val_length_max = 40 })
-                                                </div>
-                                            </div>*@
+            @Html.LabelFor(m => m.Stf02.NAMA, "Nama Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.TextBoxFor(m => m.Stf02.NAMA, new { @class = "form-control", maxlength = 30, required = "required" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-3 col-sm-3 col-xs-12"></div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.TextBoxFor(m => m.Stf02.NAMA2, new { @class = "form-control", type = "text", @maxlength = 40, @data_val_length_max = 40 })
+            </div>
+        </div>*@
                                         <div class="form-group">
                                             <div>
                                                 <div class="col-md-9 col-sm-9 col-xs-12">
@@ -369,8 +385,8 @@
                                             </div>
                                         </div>
                                         @*<div class="checkbox">
-                                            <label><input type="checkbox" value="" /></label>
-                                        </div>*@
+            <label><input type="checkbox" value="" /></label>
+        </div>*@
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.Stf02.STN2, "Satuan Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
@@ -388,16 +404,16 @@
                                             </div>
                                         </div>
                                         @*<div class="form-group">
-                                                @Html.LabelFor(m => m.Stf02.MAXI, "Stok Maksimum *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-2 col-sm-2 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 999, maxlength = 3 })
-                                                </div>
-                                            </div>
-                                            <br />
-                                            <div class="text-left">
-                                                <h5>Maximum Stok adalah quantity maksimal yang boleh ada di gudang.</h5>
-                                            </div>
-                                            <br />*@
+            @Html.LabelFor(m => m.Stf02.MAXI, "Stok Maksimum *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+            <div class="col-md-2 col-sm-2 col-xs-12">
+                @Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 999, maxlength = 3 })
+            </div>
+        </div>
+        <br />
+        <div class="text-left">
+            <h5>Maximum Stok adalah quantity maksimal yang boleh ada di gudang.</h5>
+        </div>
+        <br />*@
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.Stf02.Deskripsi, "Deskripsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
@@ -425,6 +441,55 @@
                                                 }
                                             </div>
                                         </div>
+                                        @*add by nurul 19/8/2020*@
+                                        <div class="form-group" id="multi-sku" hidden>
+                                            @Html.LabelFor(m => m.Stf02.KUBILASI, "Barang ini merupakan barang Multi SKU", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            @Html.HiddenFor(m => m.Stf02.KUBILASI, new { data_cbx_sku = $"cbx-MultiSKU", @class = "cbxMultiSKU" })
+                                            <div class="col-md-1 col-sm-1 col-xs-6">
+                                                @if ((Model.Stf02 == null ? "" : Model.Stf02.KUBILASI.ToString()) == "1")
+                                                {
+                                                    //barang multi sku
+                                                    <label class="checkbox-container">
+                                                        <input type="checkbox" id="cbxStf02MultiSKU" class="cbxMultiSKU" name="@($"cbx-sf02-multiSKU")" checked onclick="validateCkMultiSKU($('#cbxStf02MultiSKU'));" />
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                }
+                                                else
+                                                {
+                                                    <label class="checkbox-container">
+                                                        <input type="checkbox" id="cbxStf02MultiSKU" class="cbxMultiSKU" name="@($"cbx-sf02-multiSKU")" onclick="validateCkMultiSKU($('#cbxStf02MultiSKU'));" />
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                }
+                                            </div>
+                                            <div class="col-md-5 col-sm-5 col-xs-6">
+                                                @if ((Model.Stf02 == null ? "" : Model.Stf02.KUBILASI.ToString()) == "1")
+                                                {
+                                                <div id="sku-acuan">
+                                                    @Html.LabelFor(m => m.Stf02.BRG_NON_OS, "Kode Barang Acuan", new { @class = "control-label col-md-4 col-sm-4" })
+                                                    @Html.TextBoxFor(m => m.Stf02.BRG_NON_OS, new { @readonly = "readonly", placeholder = "Pilih SKU", @style = "background-color : #eee; cursor :not-allowed; width: 200px;", @class = "form-control col-md-4 col-sm-4" })
+                                                    <span class="input-group-btn">
+                                                        <button id="pilih-sku" class="btn btn-default" style="margin-right:0px" type="button">
+                                                            <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                        </button>
+                                                    </span>
+                                                </div>
+                                                }
+                                                else
+                                                {
+                                                    <div id="sku-acuan" hidden="hidden">
+                                                        @Html.LabelFor(m => m.Stf02.BRG_NON_OS, "Kode Barang Acuan", new { @class = "control-label col-md-4 col-sm-4" })
+                                                        @Html.TextBoxFor(m => m.Stf02.BRG_NON_OS, new { @readonly = "readonly", placeholder = "Pilih Barang", @style = "background-color : #eee; cursor :not-allowed; width: 200px;", @class = "form-control col-md-4 col-sm-4" })
+                                                        <span class="input-group-btn">
+                                                            <button id="pilih-sku" class="btn btn-default" style="margin-right:0px" type="button">
+                                                                <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                            </button>
+                                                        </span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                        @*end add by nurul 19/8/2020*@
                                         @*add by nurul 31/1/2019*@
                                         <br />
                                         <hr />

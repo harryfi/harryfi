@@ -465,6 +465,10 @@ namespace MasterOnline
         public virtual DbSet<LINKFTP> LINKFTP { get; set; }
         //end by otniel 10/9/2020
 
+        //add by nurul 19/8/2020
+        public virtual DbSet<STF03C> STF03C { get; set; }
+        //end add by nurul 19/8/2020
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
 

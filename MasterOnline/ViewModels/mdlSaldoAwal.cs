@@ -22,4 +22,20 @@ namespace MasterOnline
         public string POSTING { get; set; }
         public double TOTAL { get; set; }
     }
+
+    public class mdlMultiSKU
+    {
+        public int? recnum { get; set; }
+        public string brg_acuan { get; set; }
+        public string nama { get; set; }
+        public DateTime? tgl_edit { get; set; }
+    }
+
+    public class mdlMultiSKUDetail
+    {
+        public string brg { get; set; }
+        public string nama { get; set; }
+        public string brg_acuan { get; set; }
+        public string nama_acuan { get; set; }
+    }
 }
