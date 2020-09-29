@@ -656,7 +656,10 @@
                                     var listAnak = context.FormMoses.Where(m => m.ParentId != 0).OrderBy(m => m.ScrId);
                                     //end change by Tri, sort by scrid
                                     var listChild = listAnak.ToList();
-                                    var listChildFromChild = context.FormMoses.Where(m => m.ParentId != 0 && m.HaveChildFromChild).ToList();
+                                    //change by nurul 28/9/2020
+                                    //var listChildFromChild = context.FormMoses.Where(m => m.ParentId != 0 && m.HaveChildFromChild).ToList();
+                                    var listChildFromChild = context.FormMoses.Where(m => m.ParentId != 0 && m.HaveChildFromChild).OrderBy(a => a.ScrId).ToList();
+                                    //end change by nurul 28/9/2020
 
                                     var listSec = new List<SecUser>();
 
