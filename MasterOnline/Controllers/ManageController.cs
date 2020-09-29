@@ -103,6 +103,238 @@ namespace MasterOnline.Controllers
 
         }
 
+
+        #region Bagian Tutorial_Detail (START)
+
+        public List<SelectTutorialDetail> listViewModel()
+        {
+            var mvm = (from d in MoDbContext.Tutorial_Detail
+                       join h in MoDbContext.Tutorial_Header on d.CategoryId equals h.IdKategori
+                       orderby d.CategoryId
+                       select new SelectTutorialDetail
+                       {
+                           DetailId = (int)d.DetailId,
+                           CategoryId = (int)d.CategoryId,
+                           Kategori = h.Nama_Kategori,
+                           Judul = d.Judul,
+                           Konten = d.Konten,
+                           CreatedBy = d.CreatedBy,
+                           CreatedDate = (DateTime)d.ModifiedDate == null ? (DateTime)d.CreatedDate : (DateTime)d.ModifiedDate
+                       }).ToList();
+
+            return mvm;
+        }
+
+        public List<SelectTutorialHeader> headerViewModel()
+        {
+            var vm =
+                MoDbContext.Tutorial_Detail
+                .Join(
+                    MoDbContext.Tutorial_Header,
+                    b => b.CategoryId,
+                    c => c.IdKategori,
+                    (b, c) => new SelectTutorialHeader
+                    {
+                        IdKategori = (int)b.CategoryId,
+                        NamaKategori = c.Nama_Kategori,
+                    })
+                .Distinct().ToList();
+
+            return vm;
+        }
+
+        public ActionResult Tutorial(int? eksId)
+        {
+            var listDetail = listViewModel().Where(a => a.DetailId == eksId).ToList();
+            List<SelectTutorialDetail> std = new List<SelectTutorialDetail>();
+            std = listDetail;
+
+            return View(std);
+        }
+
+        public ActionResult Tutorial_List()
+        {
+            var vm = new TutorialDetailViewModel()
+            {
+                selectTutorialHeaders = headerViewModel(),
+                selectTutorialDetails = listViewModel()
+            };
+            return View(vm);
+        }
+
+        [Route("manage/tutorialdetail")]
+        [SessionAdminCheck]
+        public ActionResult Tutorial_Detail()
+        {
+            TutorialDetailViewModel tdvm = new TutorialDetailViewModel
+            {
+                ListTutorialDetail = MoDbContext.Tutorial_Detail.ToList(),
+                selectTutorialDetails = listViewModel()
+            };
+
+            return View(tdvm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveTutorDetail(TutorialDetailViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("Tutorial_Detail", vm);
+            }
+
+            if (vm.Tutorial_Detail.DetailId == null)
+            {
+                var accInDb = MoDbContext.Tutorial_Detail.SingleOrDefault(a => a.DetailId == vm.Tutorial_Detail.DetailId);
+                if (accInDb != null)
+                {
+                    ModelState.AddModelError("", @"Konten ini sudah ada!");
+                    return View("Tutorial_Detail", vm);
+                }
+
+                vm.Tutorial_Detail.CreatedBy = usernameLogin;
+                vm.Tutorial_Detail.CreatedDate = DateTime.Now;
+                MoDbContext.Tutorial_Detail.Add(vm.Tutorial_Detail);
+            }
+            else
+            {
+                vm.selectTutorialDetails = listViewModel();
+                //var accInDb = MoDbContext.Tutorial_Detail.SingleOrDefault(a => a.DetailId == vm.Tutorial_Detail.DetailId);
+                //if (accInDb != null)
+                //{
+                //    ModelState.AddModelError("", @"Konten ini sudah ada!");
+                //    return View("Tutorial_Detail", vm);
+                //}
+                var eksInDb = MoDbContext.Tutorial_Detail.SingleOrDefault(e => e.DetailId == vm.Tutorial_Detail.DetailId);
+                eksInDb.CategoryId = vm.Tutorial_Detail.CategoryId;
+                eksInDb.Judul = vm.Tutorial_Detail.Judul;
+                eksInDb.Konten = vm.Tutorial_Detail.Konten;
+                eksInDb.ModifiedBy = usernameLogin;
+                eksInDb.ModifiedDate = DateTime.Now;
+            }
+
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
+
+            return RedirectToAction("Tutorial_Detail");
+        }
+
+        [HttpGet]
+        public ActionResult GetCategory()
+        {
+            var head = MoDbContext.Tutorial_Header.ToList();
+
+            return Json(head, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult EditTutorDetail(int? eksId)
+        {
+            var vm = new TutorialDetailViewModel()
+            {
+                Tutorial_Detail = MoDbContext.Tutorial_Detail.SingleOrDefault(e => e.DetailId == eksId),
+                selectTutorialDetails = listViewModel()
+            };
+
+            ViewData["Editing"] = 1;
+
+            return View("Tutorial_Detail", vm);
+        }
+
+        public ActionResult DeleteTutorDetail(int? eksId)
+        {
+            var vm = new TutorialDetailViewModel()
+            {
+                Tutorial_Detail = MoDbContext.Tutorial_Detail.Single(e => e.DetailId == eksId),
+                ListTutorialDetail = MoDbContext.Tutorial_Detail.ToList()
+            };
+
+            MoDbContext.Tutorial_Detail.Remove(vm.Tutorial_Detail);
+            MoDbContext.SaveChanges();
+
+            return RedirectToAction("Tutorial_Detail");
+        }
+
+        #endregion
+
+        #region Bagian Tutorial_Header (START)
+
+        [Route("manage/tutorialheader")]
+        [SessionAdminCheck]
+        public ActionResult Tutorial_Header()
+        {
+            var vm = new TutorialHeaderViewModel()
+            {
+                ListTutorialHeader = MoDbContext.Tutorial_Header.ToList()
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveTutorHeader(TutorialHeaderViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("Tutorial_Header", vm);
+            }
+
+            if (vm.Tutorial_Header.IdKategori == null)
+            {
+                var accInDb = MoDbContext.Tutorial_Header.SingleOrDefault(a => a.Nama_Kategori == vm.Tutorial_Header.Nama_Kategori);
+                if (accInDb != null)
+                {
+                    ModelState.AddModelError("", @"Kategori ini sudah ada!");
+                    return View("Tutorial_Header", vm);
+                }
+
+                MoDbContext.Tutorial_Header.Add(vm.Tutorial_Header);
+            }
+            else
+            {
+                var eksInDb = MoDbContext.Tutorial_Header.SingleOrDefault(e => e.IdKategori == vm.Tutorial_Header.IdKategori);
+                eksInDb.Nama_Kategori = vm.Tutorial_Header.Nama_Kategori;
+            }
+
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
+
+            return RedirectToAction("Tutorial_Header");
+
+        }
+
+        [HttpGet]
+        public ActionResult EditTutorHeader(int? eksId)
+        {
+            var vm = new TutorialHeaderViewModel()
+            {
+                Tutorial_Header = MoDbContext.Tutorial_Header.SingleOrDefault(e => e.IdKategori == eksId)
+            };
+
+            ViewData["Editing"] = 1;
+
+            return View("Tutorial_Header", vm);
+        }
+
+        public ActionResult DeleteTutorHeader(int? eksId)
+        {
+            var vm = new TutorialHeaderViewModel()
+            {
+                Tutorial_Header = MoDbContext.Tutorial_Header.Single(e => e.IdKategori == eksId),
+                ListTutorialHeader = MoDbContext.Tutorial_Header.ToList()
+            };
+
+            MoDbContext.Tutorial_Header.Remove(vm.Tutorial_Header);
+            MoDbContext.SaveChanges();
+
+            return RedirectToAction("Tutorial_Header");
+        }
+
+        #endregion
+
+
         [HttpGet]
         [Route("manage/keepsession")]
         public JsonResult KeepSessionAlive()

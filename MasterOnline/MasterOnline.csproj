@@ -1065,10 +1065,13 @@
     <Compile Include="Models\Subscription.cs" />
     <Compile Include="Models\TEMP_BRG_MP.cs" />
     <Compile Include="Models\TransaksiMidtrans.cs" />
+    <Compile Include="Models\Tutorial_Detail.cs" />
+    <Compile Include="Models\Tutorial_Header.cs" />
     <Compile Include="Models\UpdateDataBayarPiutang.cs" />
     <Compile Include="Models\UploadFakturShopeeData.cs" />
     <Compile Include="Models\UploadFakturTokpedData.cs" />
     <Compile Include="Models\ValidasiSubs.cs" />
+    
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -1400,6 +1403,8 @@
     <Compile Include="ViewModels\TransferExcelViewModel.cs" />
     <Compile Include="ViewModels\SettingKodeVariasiPartialViewModel.cs" />
     <Compile Include="ViewModels\TransferMarketplace.cs" />
+    <Compile Include="ViewModels\TutorialDetailViewModel.cs" />
+    <Compile Include="ViewModels\TutorialHeaderViewModel.cs" />    
     <Compile Include="ViewModels\UploadBarangViewModel.cs" />
     <Compile Include="ViewModels\DashboardAdminViewModel.cs" />
     <Compile Include="ViewModels\UserViewModel.cs" />
@@ -6438,6 +6443,9 @@
     <Content Include="Views\Manage\TransferToFTPParameterLinkFtp.cshtml" />
     <Content Include="Views\Manage\TransferBarangToFTP.cshtml" />
     <Content Include="Views\Manage\TableTransferBarangToFTP.cshtml" />
+    <Content Include="Views\Manage\Tutorial_List.cshtml" />
+    <Content Include="Views\Manage\Tutorial.cshtml" />
+    <Content Include="Views\Manage\Tutorial_Detail.cshtml" />
     <Content Include="Views\Manage\MultiSKUMenu.cshtml" />
     <Content Include="Views\Manage\TableMultiSKUPartial.cshtml" />
     <Content Include="Views\Manage\FormMultiSKUPartial.cshtml" />
