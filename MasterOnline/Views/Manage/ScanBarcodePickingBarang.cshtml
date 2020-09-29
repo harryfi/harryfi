@@ -29,13 +29,43 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var brgScan in Model.dataScan)
+                @*@foreach (var brgScan in Model.dataScan)
+        {
+        <tr>
+            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].RecNum)
+            <td class="get_data_picking kode_barcode" id-brg="@brgScan.brg">@brgScan.code</td>
+            <td class="get_data_picking" id-brg="@brgScan.brg">
+                <input value="@brgScan.qty" />
+            </td>
+            @if (@brgScan.isValid)
+            {
+                <td class="get_data_picking">VALID</td>
+            }
+            else
+            {
+                <td class="get_data_picking">TIDAK VALID</td>
+            }
+        </tr>
+        }*@
+                @for (int i = 0; i < Model.dataScan.Count; i++)
                 {
-                    <tr>
-                        <td class="get_data_picking">@brgScan.code</td>
-                        <td class="get_data_picking">@brgScan.qty</td>
-                        <td class="get_data_picking">@brgScan.isValid</td>
-                    </tr>
+                <tr>
+                    @Html.HiddenFor(m => m.dataScan[i].code)
+                    @Html.HiddenFor(m => m.dataScan[i].brg)
+                    @Html.HiddenFor(m => m.dataScan[i].isValid)
+                    <td class="get_data_picking kode_barcode" id-brg="@Model.dataScan[i].brg">@Model.dataScan[i].code</td>
+                    <td class="get_data_picking" id-brg="@Model.dataScan[i].brg">
+                        @Html.TextBoxFor(m => m.dataScan[i].qty, new { @class = "form-control limited_number_textbox num-only", min = 1, max = 99999999, maxlength = 8 })
+                    </td>
+                    @if (Model.dataScan[i].isValid)
+                    {
+                        <td class="get_data_picking">VALID</td>
+                    }
+                    else
+                    {
+                        <td class="get_data_picking">TIDAK VALID</td>
+                    }
+                </tr>
                 }
             </tbody>
         </table>

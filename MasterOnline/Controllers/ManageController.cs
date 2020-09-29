@@ -41228,6 +41228,41 @@ namespace MasterOnline.Controllers
             return PartialView("FormPackinglistPartial", vm);
         }
 
+        //add by Tri, 29 sept 2020
+        public ActionResult OpenModalPickingBarang(string nobuk)
+        {
+            var vm = new ScanBarcodePickingBarangViewModel
+            {
+                NO_PL = nobuk,
+            };
+            var listBrg = new List<ScanBarcodePickingBarang>();
+            var dsBarang = EDB.GetDataSet("CString", "SOT03C", "SELECT BRG, SUM(QTY) TOTAL, ISNULL(BARCODE, '') BARCODE FROM SOT03C WHERE NO_BUKTI = '"+nobuk+"' GROUP BY BRG, BARCODE");
+            if(dsBarang.Tables[0].Rows.Count > 0)
+            {
+                vm.maxBrg = dsBarang.Tables[0].Rows.Count;
+                for (int i = 0; i < dsBarang.Tables[0].Rows.Count; i++)
+                {
+                    vm.maxQty += Convert.ToInt32(dsBarang.Tables[0].Rows[i]["TOTAL"].ToString());
+                    if (!string.IsNullOrEmpty(dsBarang.Tables[0].Rows[i]["BARCODE"].ToString()))
+                    {
+                        vm.jmlBrg++;
+                        vm.jmlQty += Convert.ToInt32(dsBarang.Tables[0].Rows[i]["TOTAL"].ToString());
+                        var barang = new ScanBarcodePickingBarang
+                        {
+                            brg = dsBarang.Tables[0].Rows[i]["BRG"].ToString(),
+                            code = dsBarang.Tables[0].Rows[i]["BARCODE"].ToString(),
+                            qty = Convert.ToInt32(dsBarang.Tables[0].Rows[i]["TOTAL"].ToString()),
+                            isValid = true,
+                        };
+                    }
+                    
+                }
+            }
+            vm.dataScan = listBrg;
+            return PartialView("ScanBarcodePickingBarang", vm);
+        }
+        //add by Tri, 29 sept 2020
+
         public ActionResult SavePackinglist(PackingListViewModel dataVm)
         {
             if (!ModelState.IsValid)
