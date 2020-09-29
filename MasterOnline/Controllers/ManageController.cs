@@ -52437,7 +52437,14 @@ namespace MasterOnline.Controllers
                                                         if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 10].Value)))
                                                         {
                                                             if (Convert.ToString(worksheet.Cells[i, 10].Value) != "-"){
-                                                                promosi_merchant = Convert.ToDouble(worksheet.Cells[i, 10].Value) * (-1);
+                                                                if (Convert.ToDouble(worksheet.Cells[i, 10].Value) < 0)
+                                                                {
+                                                                    promosi_merchant = Convert.ToDouble(worksheet.Cells[i, 10].Value) * (-1);
+                                                                }
+                                                                else
+                                                                {
+                                                                    promosi_merchant = Convert.ToDouble(worksheet.Cells[i, 10].Value);
+                                                                }
                                                             }
                                                         }
                                                         var fee = 0d;
@@ -52445,7 +52452,14 @@ namespace MasterOnline.Controllers
                                                         {
                                                             if (Convert.ToString(worksheet.Cells[i, 11].Value) != "-")
                                                             {
-                                                                fee = Convert.ToDouble(worksheet.Cells[i, 11].Value);
+                                                                if (Convert.ToDouble(worksheet.Cells[i, 11].Value) < 0)
+                                                                {
+                                                                    fee = Convert.ToDouble(worksheet.Cells[i, 11].Value) * (-1);
+                                                                }
+                                                                else
+                                                                {
+                                                                    fee = Convert.ToDouble(worksheet.Cells[i, 11].Value);
+                                                                }
                                                             }
                                                         }
                                                         var biaya_tx = 0d;
@@ -52453,7 +52467,14 @@ namespace MasterOnline.Controllers
                                                         {
                                                             if (Convert.ToString(worksheet.Cells[i, 12].Value) != "-")
                                                             {
-                                                                biaya_tx = Convert.ToDouble(worksheet.Cells[i, 12].Value);
+                                                                if (Convert.ToDouble(worksheet.Cells[i, 12].Value) < 0)
+                                                                {
+                                                                    biaya_tx = Convert.ToDouble(worksheet.Cells[i, 12].Value) * (-1);
+                                                                }
+                                                                else
+                                                                {
+                                                                    biaya_tx = Convert.ToDouble(worksheet.Cells[i, 12].Value);
+                                                                }
                                                             }
                                                         }
                                                         var pph_23 = 0d;
@@ -52461,7 +52482,14 @@ namespace MasterOnline.Controllers
                                                         {
                                                             if (Convert.ToString(worksheet.Cells[i, 13].Value) != "-")
                                                             {
-                                                                pph_23 = Convert.ToDouble(worksheet.Cells[i, 13].Value);
+                                                                if (Convert.ToDouble(worksheet.Cells[i, 13].Value) < 0)
+                                                                {
+                                                                    pph_23 = Convert.ToDouble(worksheet.Cells[i, 13].Value) * (-1);
+                                                                }
+                                                                else
+                                                                {
+                                                                    pph_23 = Convert.ToDouble(worksheet.Cells[i, 13].Value);
+                                                                }
                                                             }
                                                         }
                                                         var biaya_kirim_seller = 0d;
@@ -52471,7 +52499,14 @@ namespace MasterOnline.Controllers
                                                             {
                                                                 if (Convert.ToString(worksheet.Cells[i, 14].Value) != "-")
                                                                 {
-                                                                    biaya_kirim_seller = Convert.ToDouble(worksheet.Cells[i, 14].Value);
+                                                                    if (Convert.ToDouble(worksheet.Cells[i, 14].Value) < 0)
+                                                                    {
+                                                                        biaya_kirim_seller = Convert.ToDouble(worksheet.Cells[i, 14].Value) * (-1);
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        biaya_kirim_seller = Convert.ToDouble(worksheet.Cells[i, 14].Value);
+                                                                    }
                                                                 }
                                                             }
                                                         }
