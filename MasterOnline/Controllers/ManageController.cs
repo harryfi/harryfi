@@ -55217,15 +55217,17 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public ActionResult SaveDetailReturFaktur(string get_selected, string bukti, string noref, string gudang)
+        public ActionResult SaveDetailReturFaktur(string get_selected, string bukti, string noref, string gudang, string get_selected_qty)
         {
             try
             {
                 bool returBaru = false;
                 var temp_brg = "";
+                var rec_qty = new List<string>();
+                var rec_detail = new List<string>();
                 if (get_selected != null && get_selected != "")
                 {
-                    var rec_detail = get_selected.Split(',');
+                    rec_detail = get_selected.Split(',').ToList();
                     foreach (var rec in rec_detail)
                     {
                         if (temp_brg != "")
@@ -55273,6 +55275,23 @@ namespace MasterOnline.Controllers
                     return new JsonResult { Data = new { mo_error = "Gagal memproses retur. Mohon hubungi support.", mo_success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
 
+                //add by nurul 26/8/2020
+                if (get_selected_qty != null && get_selected_qty != "")
+                {
+                    rec_qty = get_selected_qty.Split(';').ToList();
+                    //foreach (var rec in rec_qty)
+                    //{
+                    //    if (temp_brg != "")
+                    //    {
+                    //        temp_brg += ",";
+                    //    }
+
+                    //    temp_brg += "'" + rec + "'";
+                    //}
+                    //returBaru = true;
+                }
+                //end add by nurul 26/8/2020
+
                 if (returBaru)
                 {
                     //change proses save detail
@@ -55285,9 +55304,33 @@ namespace MasterOnline.Controllers
 
                     //ErasoftDbContext.Database.ExecuteSqlCommand("exec [SP_AUTOLOADRETUR_PENJUALAN] @NOBUK, @NO_REF, @REC_DETAIL, @GD", spParams);
 
+
+                    //END CHANGE BY NURUL 26/8/2020
                     if (temp_brg.Count() > 0)
                     {
                         //insert detail
+                        //CHANGE BY NURUL 26/8/2020
+                        //string insertDetail = "INSERT INTO SIT01B (JENIS_FORM,NO_BUKTI,BRG,BRG_CUST,H_SATUAN,SATUAN,QTY,GUDANG,DISCOUNT,NILAI_DISC, ";
+                        //insertDetail += "   HARGA,QTY_KIRIM,AUTO_LOAD,USERNAME,TGLINPUT,QTY_RETUR,WRITE_KONFIG,DISCOUNT_2,DISCOUNT_3, ";
+                        //insertDetail += "   DISCOUNT_4,DISCOUNT_5,NILAI_DISC_1,NILAI_DISC_2,NILAI_DISC_3,NILAI_DISC_4,NILAI_DISC_5, ";
+                        //insertDetail += "   TOTAL_LOT,TOTAL_QTY,TGL_KIRIM,NO_URUT_SO,CATATAN,QTY_BESAR,QTY_KECIL,BRG_SO,TRANS_NO_URUT, ";
+                        //insertDetail += "   SATUAN_N,QTY_N,NTITIPAN,DISC_TITIPAN,QOH ";
+                        ////ADD BY NURUL 17/9/2020, BRG MULTI SKU 
+                        //insertDetail += "   , BRG_MULTISKU ";
+                        ////END ADD BY NURUL 17/9/2020, BRG MULTI SKU
+                        //insertDetail += "   )";
+                        //insertDetail += "SELECT ";
+                        //insertDetail += "   3,'" + bukti + "', B.BRG,B.BRG_CUST,B.H_SATUAN,B.SATUAN,B.QTY,'" + gudang + "', ";
+                        //insertDetail += "   B.DISCOUNT,B.NILAI_DISC,B.HARGA,B.QTY_KIRIM,B.AUTO_LOAD,B.USERNAME,B.TGLINPUT,B.QTY_RETUR,B.WRITE_KONFIG,B.DISCOUNT_2, ";
+                        //insertDetail += "   B.DISCOUNT_3,B.DISCOUNT_4,B.DISCOUNT_5,B.NILAI_DISC_1,B.NILAI_DISC_2,B.NILAI_DISC_3,B.NILAI_DISC_4,B.NILAI_DISC_5,B.TOTAL_LOT, ";
+                        //insertDetail += "   B.TOTAL_QTY,B.TGL_KIRIM,B.NO_URUT_SO,B.CATATAN,B.QTY_BESAR,B.QTY_KECIL,B.BRG_SO,B.NO_URUT,B.SATUAN_N,B.QTY_N,B.NTITIPAN,B.DISC_TITIPAN,B.QOH ";
+                        ////ADD BY NURUL 17/9/2020, BRG MULTI SKU
+                        //insertDetail += "   ,B.BRG_MULTISKU ";
+                        ////END ADD BY NURUL 17/9/2020, BRG MULTI SKU 
+                        //insertDetail += "FROM SIT01A A LEFT JOIN SIT01B B ON A.NO_BUKTI=B.NO_BUKTI  ";
+                        //insertDetail += "WHERE A.NO_BUKTI='" + noref + "' AND B.NO_URUT IN (" + temp_brg + ") ";
+                        //ErasoftDbContext.Database.ExecuteSqlCommand(insertDetail);
+
                         string insertDetail = "INSERT INTO SIT01B (JENIS_FORM,NO_BUKTI,BRG,BRG_CUST,H_SATUAN,SATUAN,QTY,GUDANG,DISCOUNT,NILAI_DISC, ";
                         insertDetail += "   HARGA,QTY_KIRIM,AUTO_LOAD,USERNAME,TGLINPUT,QTY_RETUR,WRITE_KONFIG,DISCOUNT_2,DISCOUNT_3, ";
                         insertDetail += "   DISCOUNT_4,DISCOUNT_5,NILAI_DISC_1,NILAI_DISC_2,NILAI_DISC_3,NILAI_DISC_4,NILAI_DISC_5, ";
@@ -55296,18 +55339,46 @@ namespace MasterOnline.Controllers
                         //ADD BY NURUL 17/9/2020, BRG MULTI SKU 
                         insertDetail += "   , BRG_MULTISKU ";
                         //END ADD BY NURUL 17/9/2020, BRG MULTI SKU
-                        insertDetail += "   )";
-                        insertDetail += "SELECT ";
-                        insertDetail += "   3,'" + bukti + "', B.BRG,B.BRG_CUST,B.H_SATUAN,B.SATUAN,B.QTY,'" + gudang + "', ";
-                        insertDetail += "   B.DISCOUNT,B.NILAI_DISC,B.HARGA,B.QTY_KIRIM,B.AUTO_LOAD,B.USERNAME,B.TGLINPUT,B.QTY_RETUR,B.WRITE_KONFIG,B.DISCOUNT_2, ";
-                        insertDetail += "   B.DISCOUNT_3,B.DISCOUNT_4,B.DISCOUNT_5,B.NILAI_DISC_1,B.NILAI_DISC_2,B.NILAI_DISC_3,B.NILAI_DISC_4,B.NILAI_DISC_5,B.TOTAL_LOT, ";
-                        insertDetail += "   B.TOTAL_QTY,B.TGL_KIRIM,B.NO_URUT_SO,B.CATATAN,B.QTY_BESAR,B.QTY_KECIL,B.BRG_SO,B.NO_URUT,B.SATUAN_N,B.QTY_N,B.NTITIPAN,B.DISC_TITIPAN,B.QOH ";
-                        //ADD BY NURUL 17/9/2020, BRG MULTI SKU
-                        insertDetail += "   ,B.BRG_MULTISKU ";
-                        //END ADD BY NURUL 17/9/2020, BRG MULTI SKU 
-                        insertDetail += "FROM SIT01A A LEFT JOIN SIT01B B ON A.NO_BUKTI=B.NO_BUKTI  ";
-                        insertDetail += "WHERE A.NO_BUKTI='" + noref + "' AND B.NO_URUT IN (" + temp_brg + ") ";
+                        insertDetail += "   ) ";
+                        for (int i = 0; i < rec_detail.Count(); i++)
+                        {
+                            var qtyBrg = Convert.ToDouble(rec_qty[i]);
+                            var detail = rec_detail[i];
+                            if (rec_detail.Count() > 0)
+                            {
+                                if (rec_detail[i] == rec_detail.First())
+                                {
+                                    insertDetail += " ( ";
+                                }
+                            }
+                            insertDetail += "SELECT ";
+                            insertDetail += "   '3','" + bukti + "',B.BRG,B.BRG_CUST,B.H_SATUAN,B.SATUAN,'" + qtyBrg + "','" + gudang + "',B.DISCOUNT,B.NILAI_DISC, ";
+                            insertDetail += "   ((" + qtyBrg + " * B.H_SATUAN) - (B.NILAI_DISC_1 + B.NILAI_DISC_2)) AS HARGA, ";
+                            insertDetail += "   B.QTY_KIRIM,B.AUTO_LOAD,B.USERNAME,B.TGLINPUT,B.QTY_RETUR,B.WRITE_KONFIG,B.DISCOUNT_2, ";
+                            insertDetail += "   B.DISCOUNT_3,B.DISCOUNT_4,B.DISCOUNT_5,B.NILAI_DISC_1,B.NILAI_DISC_2,B.NILAI_DISC_3,B.NILAI_DISC_4,B.NILAI_DISC_5,B.TOTAL_LOT, ";
+                            insertDetail += "   B.TOTAL_QTY,B.TGL_KIRIM,B.NO_URUT_SO,B.CATATAN,B.QTY_BESAR,B.QTY_KECIL,B.BRG_SO,B.NO_URUT,B.SATUAN_N,B.QTY_N,B.NTITIPAN,B.DISC_TITIPAN,B.QOH ";
+                            //ADD BY NURUL 17/9/2020, BRG MULTI SKU
+                            insertDetail += "   ,B.BRG_MULTISKU ";
+                            //END ADD BY NURUL 17/9/2020, BRG MULTI SKU 
+                            insertDetail += "FROM SIT01A A LEFT JOIN SIT01B B ON A.NO_BUKTI=B.NO_BUKTI  ";
+                            insertDetail += "WHERE A.NO_BUKTI='" + noref + "' AND B.NO_URUT IN (" + rec_detail[i] + ")  ";
+                            if (rec_detail.Count() > 0)
+                            {
+                                if (rec_detail[i] != rec_detail.Last())
+                                {
+                                    insertDetail += " union ";
+                                }
+                                if (rec_detail[i] == rec_detail.Last())
+                                {
+                                    insertDetail += ")";
+                                }
+                            }
+
+                        }
                         ErasoftDbContext.Database.ExecuteSqlCommand(insertDetail);
+                        //END CHANGE BY NURUL 26/8/2020
+
+
                         //update header
                         string updateHeader = "UPDATE A SET ";
                         updateHeader += "A.MATERAI=ISNULL(B.MATERAI,0), ";
@@ -55331,10 +55402,40 @@ namespace MasterOnline.Controllers
                         updateHeader += "- ISNULL(B.NILAI_DISC,0) + ISNULL(B.MATERAI,0) ";
                         updateHeader += "+ ISNULL( (ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.H_SATUAN,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) - ISNULL(B.NILAI_DISC,0)) * ISNULL(B.PPN,0) /100 ,0) ";
                         updateHeader += ",0) AS NETTO FROM SIT01A B INNER JOIN SIT01B C ON C.NO_BUKTI=B.NO_BUKTI ";
-                        updateHeader += "WHERE B.NO_BUKTI='" + noref + "' AND C.NO_URUT in (" + temp_brg + ") ";
+                        //updateHeader += "WHERE B.NO_BUKTI='" + noref + "' AND C.NO_URUT in (" + temp_brg + ") ";
+                        updateHeader += "WHERE B.NO_BUKTI='" + bukti + "' ";
                         updateHeader += "GROUP BY B.NO_BUKTI, B.MATERAI,B.DISCOUNT,B.NILAI_DISC,B.PPN,B.NILAI_PPN ";
-                        updateHeader += ")B ON A.NO_REF=B.NO_BUKTI WHERE A.NO_BUKTI='" + bukti + "'";
+                        updateHeader += ")B ON A.NO_BUKTI=B.NO_BUKTI WHERE A.NO_BUKTI='" + bukti + "'";
                         ErasoftDbContext.Database.ExecuteSqlCommand(updateHeader);
+
+
+
+                        ////update header
+                        //string updateHeader = "UPDATE A SET ";
+                        //updateHeader += "A.BRUTO=ISNULL(B.BRUTO,0), ";
+                        //updateHeader += "A.DISC1=ISNULL(B.DISC1,0), ";
+                        //updateHeader += "A.NDISC1=ISNULL(B.NDISC1,0), ";
+                        //updateHeader += "A.NPPN=ISNULL(B.NPPN, 0), ";
+                        //updateHeader += "A.NETTO=ISNULL(B.NETTO,0) ";
+                        //updateHeader += "FROM PBT01A A ";
+                        //updateHeader += "INNER JOIN ( ";
+                        //updateHeader += "select B.INV, ISNULL(B.BIAYA_LAIN,0) AS BIAYA_LAIN, ";
+                        //updateHeader += "ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.HBELI,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) AS BRUTO, ";
+                        //updateHeader += "ISNULL(B.DISC1,0) AS DISC1,ISNULL(B.NDISC1,0) AS NDISC1,ISNULL(B.PPN,0) AS PPN,";
+                        ////updateHeader += "ISNULL(B.NPPN,0) AS NPPN, ";
+                        ////nppn
+                        //updateHeader += "ISNULL( (ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.HBELI,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) - ISNULL(B.NDISC1,0)) * ISNULL(B.PPN,0) /100 ,0) AS NPPN,";
+                        ////netto
+                        //updateHeader += "ISNULL(";
+                        //updateHeader += "ISNULL(SUM(ISNULL(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.HBELI,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0),0)),0) ";
+                        //updateHeader += "- ISNULL(B.NDISC1,0) + ISNULL(B.BIAYA_LAIN,0) ";
+                        //updateHeader += "+ ISNULL( (ISNULL(SUM(ISNULL(ISNULL(C.QTY,0) * ISNULL(C.HBELI,0),0) - ISNULL(ISNULL(C.NILAI_DISC_1,0) + ISNULL(C.NILAI_DISC_2,0),0)),0) - ISNULL(B.NDISC1,0)) * ISNULL(B.PPN,0) /100 ,0) ";
+                        //updateHeader += ",0) AS NETTO FROM PBT01A B INNER JOIN PBT01B C ON C.INV=B.INV ";
+                        ////updateHeader += "WHERE B.INV='" + noref + "' AND C.NO in (" + temp_brg + ") ";
+                        //updateHeader += "WHERE B.INV='" + bukti + "' ";
+                        //updateHeader += "GROUP BY B.INV, B.BIAYA_LAIN,B.DISC1,B.NDISC1,B.PPN,B.NPPN  ";
+                        //updateHeader += ")B ON A.INV=B.INV WHERE A.INV='" + bukti + "'";
+                        //ErasoftDbContext.Database.ExecuteSqlCommand(updateHeader);
                     }
 
                     //end change proses save detail
