@@ -43980,6 +43980,8 @@ namespace MasterOnline.Controllers
             BindUploadExcelBayar ret = new BindUploadExcelBayar();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string uname = sessionData.Account.Username;
+            if (uname.Length > 20)
+                uname = uname.Substring(0, 17) + "...";
             string cust_id = Request["cust"];
             string market = Request["market"];
             //string dataVm = Request["dataVm"];
@@ -47807,6 +47809,8 @@ namespace MasterOnline.Controllers
             BindUploadExcelBayar ret = new BindUploadExcelBayar();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string uname = sessionData.Account.Username;
+            if (uname.Length > 20)
+                uname = uname.Substring(0, 17) + "...";
             string cust_id = Request["cust"];
             string market = Request["market"];
             string tgl = Request["tgl"];
@@ -49313,6 +49317,8 @@ namespace MasterOnline.Controllers
             BindUploadExcel ret = new BindUploadExcel();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string uname = sessionData.Account.Username;
+            if (uname.Length > 20)
+                uname = uname.Substring(0, 17) + "...";
             string cust_id = Request["cust"];
             string market = Request["market"];
             string tgl = Request["tgl"];
@@ -49767,6 +49773,8 @@ namespace MasterOnline.Controllers
             BindUploadExcelBayar ret = new BindUploadExcelBayar();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string uname = sessionData.Account.Username;
+            if (uname.Length > 20)
+                uname = uname.Substring(0, 17) + "...";
             string cust_id = Request["cust"];
             string market = Request["market"];
             string tgl = Request["tgl"];
@@ -51212,6 +51220,8 @@ namespace MasterOnline.Controllers
             BindUploadExcel ret = new BindUploadExcel();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string uname = sessionData.Account.Username;
+            if (uname.Length > 20)
+                uname = uname.Substring(0, 17) + "...";
             string cust_id = Request["cust"];
             string market = Request["market"];
             string tgl = Request["tgl"];
@@ -51816,6 +51826,8 @@ namespace MasterOnline.Controllers
             BindUploadExcel ret = new BindUploadExcel();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string uname = sessionData.Account.Username;
+            if (uname.Length > 20)
+                uname = uname.Substring(0, 17) + "...";
             string cust_id = Request["cust"];
             string market = Request["market"];
             string tgl = Request["tgl"];
@@ -52270,6 +52282,8 @@ namespace MasterOnline.Controllers
             BindUploadExcelBayar ret = new BindUploadExcelBayar();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string uname = sessionData.Account.Username;
+            if (uname.Length > 20)
+                uname = uname.Substring(0, 17) + "...";
             string cust_id = Request["cust"];
             string market = Request["market"];
             string tgl = Request["tgl"];
