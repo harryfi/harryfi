@@ -41368,12 +41368,12 @@ namespace MasterOnline.Controllers
                 case "19":
                     viewName = "PackingListJDID";
                     break;
-                //case "20":
-                //    viewName = "PackingList82Cart";
-                //    break;
-                //case "21":
-                //    viewName = "PackingListShopify";
-                //    break;
+                case "20":
+                    viewName = "PackingList82Cart";
+                    break;
+                case "21":
+                    viewName = "PackingListShopify";
+                    break;
                 default:
                     viewName = "";
                     break;
@@ -55454,12 +55454,12 @@ namespace MasterOnline.Controllers
                 case "JDID":
                     viewName = "ListDetailPackingListJDID";
                     break;
-                //case "20":
-                //    viewName = "PackingList82Cart";
-                //    break;
-                //case "21":
-                //    viewName = "PackingListShopify";
-                //    break;
+                case "82CART":
+                    viewName = "ListDetailPackingList82cart";
+                    break;
+                case "SHOPIFY":
+                    viewName = "ListDetailPackingListShopify";
+                    break;
                 default:
                     viewName = "";
                     break;
