@@ -321,7 +321,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-success" onclick="">Simpan</button>
+                <button type="button" class="btn btn-success" onclick="SimpanPickingBarang();">Simpan</button>
             </div>
         </div>
     </div>
@@ -484,7 +484,15 @@
             if (qs.nobuk != undefined) {
                 editPackinglist1(qs.nobuk);
             }
+
+
+            $('#pesanan_detail_tab_focus').click();
         });
+
+        function clickAllPicking() {
+                    $(".checkbox_delete_picking_barang").prop('checked',
+                        $("#checkbox_all_delete_picking_barang").prop('checked'));
+        }
 
         function parse_query_string(query) {
             var vars = query.split("&");
@@ -1143,6 +1151,28 @@
             });
         }
 
+        function SimpanPickingBarang() {
+            listBrg = [];
+            for (i = 0; i < $('#maxDataPicking').val(); i++) {
+                listBrg[i] = {
+                    brg: $('#dataScan_' + i + '__brg').val(),
+                    code: $('#dataScan_'+i+'__code').val(),
+                    qty: $('#dataScan_' + i + '__code').val(),
+                    isValid: $('#dataScan_' + i + '__isValid').val(),
+                    input_qty: $('#data_qty_' + i).val(),
+                };
+                
+            }
+            $postdata = {
+                NO_PL: document.getElementById('txtNoPL').innerText,
+                maxBrg: document.getElementById('txtMaxBrg').innerText,
+                jmlBrg: document.getElementById('txtJmlBrg').innerText,
+                maxQty: document.getElementById('txtMaxQty').innerText,
+                jmlQty: document.getElementById('txtJmlQty').innerText,
+                dataScan : listBrg,
+            };
+            debugger;
+        }
     </script>
     <script>
         //Disable Enter Key Submit Form

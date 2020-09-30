@@ -41252,8 +41252,10 @@ namespace MasterOnline.Controllers
                             brg = dsBarang.Tables[0].Rows[i]["BRG"].ToString(),
                             code = dsBarang.Tables[0].Rows[i]["BARCODE"].ToString(),
                             qty = Convert.ToInt32(dsBarang.Tables[0].Rows[i]["TOTAL"].ToString()),
+                            input_qty = Convert.ToInt32(dsBarang.Tables[0].Rows[i]["TOTAL"].ToString()),
                             isValid = true,
                         };
+                        listBrg.Add(barang);
                     }
                     
                 }

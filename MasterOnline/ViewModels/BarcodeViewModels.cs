@@ -16,6 +16,7 @@ namespace MasterOnline.ViewModels
         public string brg { get; set; }
         public string code { get; set; }
         public int qty { get; set; }
+        public int input_qty { get; set; }
         public bool isValid { get; set; }
     }
     public class ScanBarcodePickingBarangViewModel
