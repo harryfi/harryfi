@@ -1143,81 +1143,7 @@
             getTanggal();
             $('#TGL').datepicker('setDate', '0');
             //getDashboard();
-
-            //add by fauzi for add on
-            $(".cbBox02_a").change(function () {
-                if ($("#cbBox02_silver_a")[0].checked == true) {
-                    $("#cbBox02_silver_a").prop('checked', true);
-                    $(this).prop('checked', true);
-                    checkPlugin02(300000);
-                } else if ($("#cbBox02_silver_a")[0].checked == false) {
-                    $("#cbBox02_silver_a").prop('checked', false);
-                    $(this).prop('checked', false);
-                    checkPlugin02(-300000);
-                }
-            });
-
-            $(".cbBox02_b").change(function () {
-                if ($("#cbBox02_silver_b")[0].checked == true) {
-                    $("#cbBox02_silver_b").prop('checked', true);
-                    $(this).prop('checked', true);
-                    checkPlugin02(300000);
-                } else if ($("#cbBox02_silver_b")[0].checked == false) {
-                    $("#cbBox02_silver_b").prop('checked', false);
-                    $(this).prop('checked', false);
-                    checkPlugin02(-300000);
-                }
-            });
-
-            $(".cbBox02_c").change(function () {
-                if ($("#cbBox02_silver_c")[0].checked == true) {
-                    $("#cbBox02_silver_c").prop('checked', true);
-                    $(this).prop('checked', true);
-                    checkPlugin02(300000);
-                } else if ($("#cbBox02_silver_c")[0].checked == false) {
-                    $("#cbBox02_silver_c").prop('checked', false);
-                    $(this).prop('checked', false);
-                    checkPlugin02(-300000);
-                }
-            });
-
-            $(".cbBox03_a").change(function () {
-                if ($("#cbBox03_gold_a")[0].checked == true) {
-                    $("#cbBox03_gold_a").prop('checked', true);
-                    $(this).prop('checked', true);
-                    checkPlugin03(300000);
-                } else if ($("#cbBox03_gold_a")[0].checked == false) {
-                    $("#cbBox03_gold_a").prop('checked', false);
-                    $(this).prop('checked', false);
-                    checkPlugin03(-300000);
-                }
-            });
-
-            $(".cbBox03_b").change(function () {
-                if ($("#cbBox03_gold_b")[0].checked == true) {
-                    $("#cbBox03_gold_b").prop('checked', true);
-                    $(this).prop('checked', true);
-                    checkPlugin03(300000);
-                } else if ($("#cbBox03_gold_b")[0].checked == false) {
-                    $("#cbBox03_gold_b").prop('checked', false);
-                    $(this).prop('checked', false);
-                    checkPlugin03(-300000);
-                }
-            });
-
-            $(".cbBox03_c").change(function () {
-                if ($("#cbBox03_gold_c")[0].checked == true) {
-                    $("#cbBox03_gold_c").prop('checked', true);
-                    $(this).prop('checked', true);
-                    checkPlugin03(300000);
-                } else if ($("#cbBox03_gold_c")[0].checked == false) {
-                    $("#cbBox03_gold_c").prop('checked', false);
-                    $(this).prop('checked', false);
-                    checkPlugin03(-300000);
-                }
-            });
-            //end add
-
+            
             //add by nurul 22/7/2019
             $('#ctk_pesanan').prop('checked', true);
             $('#ctk_faktur').prop('checked', true);
@@ -1972,10 +1898,10 @@
             var currentUser = parseInt($('#txtJmlUser')[0].innerText);
             var cost = convertToAngka($('#lbl_0_03')[0].innerText);
             var newCost = cost + (100000 * val);
-            $('#txtJmlUser')[0].innerText = currentUser + val;
-            $('#lbl_0_03')[0].innerText = convertToRupiah(newCost);
-            $('#btnPay_3_03')[0].innerText = 'Rp ' + convertToRupiah(newCost * 3) + '\n per 3 bulan';
-            $('#btnPay_12_03')[0].innerText = 'Rp ' + convertToRupiah(newCost * 10) + '\n per 12 bulan';
+            $('#txtJmlUser1')[0].innerText = currentUser + val;
+            $('#lbl_0_031')[0].innerText = convertToRupiah(newCost);
+            $('#btnPay_3_031')[0].innerText = 'Rp ' + convertToRupiah(newCost * 3) + '\n per 3 bulan';
+            $('#btnPay_12_031')[0].innerText = 'Rp ' + convertToRupiah(newCost * 10) + '\n per 12 bulan';
 
         }
 

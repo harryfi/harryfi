@@ -968,7 +968,107 @@
             $('#divSubsExpand').hide();
             $('#divSubExpired').hide();
 
+            //ONCHANGE CHECKBOX ADD ON
+
+            //add by fauzi for add on
+            $(".cbBox02_a").change(function () {
+                if ($("#cbBox02_silver_a")[0].checked == true) {
+                    $("#cbBox02_silver_a").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin02(300000);
+                } else if ($("#cbBox02_silver_a")[0].checked == false) {
+                    $("#cbBox02_silver_a").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin02(-300000);
+                }
+            });
+
+            $(".cbBox02_b").change(function () {
+                if ($("#cbBox02_silver_b")[0].checked == true) {
+                    $("#cbBox02_silver_b").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin02(300000);
+                } else if ($("#cbBox02_silver_b")[0].checked == false) {
+                    $("#cbBox02_silver_b").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin02(-300000);
+                }
+            });
+
+            $(".cbBox02_c").change(function () {
+                if ($("#cbBox02_silver_c")[0].checked == true) {
+                    $("#cbBox02_silver_c").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin02(300000);
+                } else if ($("#cbBox02_silver_c")[0].checked == false) {
+                    $("#cbBox02_silver_c").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin02(-300000);
+                }
+            });
+
+            $(".cbBox03_a").change(function () {
+                if ($("#cbBox03_gold_a")[0].checked == true) {
+                    $("#cbBox03_gold_a").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin03(300000);
+                } else if ($("#cbBox03_gold_a")[0].checked == false) {
+                    $("#cbBox03_gold_a").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin03(-300000);
+                }
+            });
+
+            $(".cbBox03_b").change(function () {
+                if ($("#cbBox03_gold_b")[0].checked == true) {
+                    $("#cbBox03_gold_b").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin03(300000);
+                } else if ($("#cbBox03_gold_b")[0].checked == false) {
+                    $("#cbBox03_gold_b").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin03(-300000);
+                }
+            });
+
+            $(".cbBox03_c").change(function () {
+                if ($("#cbBox03_gold_c")[0].checked == true) {
+                    $("#cbBox03_gold_c").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin03(300000);
+                } else if ($("#cbBox03_gold_c")[0].checked == false) {
+                    $("#cbBox03_gold_c").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin03(-300000);
+                }
+            });
+            //end add
+            //END
+
         });
+
+        function checkPlugin02(value) {
+            var plugins = [];
+            plugins.push(value);
+            var sum = plugins.reduce(function (a, b) { return a + b; }, 0);
+            var costAddons = convertToAngka($('#lbl_0_02')[0].innerText);
+            var newCostAddons = (costAddons + sum);
+            $('#lbl_0_02')[0].innerText = convertToRupiah(newCostAddons);
+            $('#btnPay_3_02')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 3) + '\n per 3 bulan';
+            $('#btnPay_12_02')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 10) + '\n per 12 bulan';
+        }
+
+        function checkPlugin03(value) {
+            var jmlUser = $('#txtJmlUser').val();
+            var plugins = [];
+            plugins.push(value);
+            var sum = plugins.reduce(function (a, b) { return a + b; }, 0);
+            var costAddons = convertToAngka($('#lbl_0_03')[0].innerText);
+            var newCostAddons = costAddons + (100000 * jmlUser) + sum;
+            $('#lbl_0_03')[0].innerText = convertToRupiah(newCostAddons);
+            $('#btnPay_3_03')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 3) + '\n per 3 bulan';
+            $('#btnPay_12_03')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 10) + '\n per 12 bulan';
+        }
 
         function convertToRupiah(angka) {
             //change by calvin 26 september 2018
