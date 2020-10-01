@@ -41263,7 +41263,24 @@ namespace MasterOnline.Controllers
             vm.dataScan = listBrg;
             return PartialView("ScanBarcodePickingBarang", vm);
         }
-        //add by Tri, 29 sept 2020
+
+        public ActionResult SimpanPickingBarang(ScanBarcodePickingBarangViewModel data)
+        {
+            foreach(var dataTemp in data.dataScan)
+            {
+                if(dataTemp.input_qty == dataTemp.qty)//input valid
+                {
+                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT03C SET BARCODE = '"+dataTemp.code+"' WHERE NO_BUKTI = '" + data.NO_PL + "' AND BRG = '" + dataTemp.brg + "'");
+                }
+                else
+                {
+                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT03C SET BARCODE = '' WHERE NO_BUKTI = '" + data.NO_PL + "' AND BRG = '" + dataTemp.brg + "'");                                
+                }
+            }
+             
+            return JsonErrorMessage(data.NO_PL);
+        }
+        //end add by Tri, 29 sept 2020
 
         public ActionResult SavePackinglist(PackingListViewModel dataVm)
         {

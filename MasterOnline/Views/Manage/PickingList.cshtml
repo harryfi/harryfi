@@ -307,7 +307,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalPickingBarang" tabindex="-1" role="dialog" aria-labelledby="modalPickingBarangLabel">
+<div class="modal fade" id="modalPickingBarang" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modalPickingBarangLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -320,8 +320,8 @@
                 <div id="modal-picking"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-success" onclick="SimpanPickingBarang();">Simpan</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id="btnCancelPickingBrg">Batal</button>
+                <button type="button" class="btn btn-success" onclick="SimpanPickingBarang();" id="btnSimpanPickingBrg">Simpan</button>
             </div>
         </div>
     </div>
@@ -1157,11 +1157,11 @@
                 listBrg[i] = {
                     brg: $('#dataScan_' + i + '__brg').val(),
                     code: $('#dataScan_'+i+'__code').val(),
-                    qty: $('#dataScan_' + i + '__code').val(),
+                    qty: $('#dataScan_' + i + '__qty').val(),
                     isValid: $('#dataScan_' + i + '__isValid').val(),
                     input_qty: $('#data_qty_' + i).val(),
                 };
-                
+
             }
             $postdata = {
                 NO_PL: document.getElementById('txtNoPL').innerText,
@@ -1171,7 +1171,33 @@
                 jmlQty: document.getElementById('txtJmlQty').innerText,
                 dataScan : listBrg,
             };
-            debugger;
+
+            var $link = '@Url.Action("SimpanPickingBarang", "Manage")';
+                $.ajax({
+                    type: "POST",
+                    url: $link,
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    data: JSON.stringify($postdata),
+                    beforeSend: function () {
+                        document.getElementById("btnCancelPickingBrg").disabled = true;
+                        document.getElementById("btnSimpanPickingBrg").disabled = true;
+                    },
+                    success: function (response) {
+                        document.getElementById("btnCancelPickingBrg").disabled = false;
+                        document.getElementById("btnSimpanPickingBrg").disabled = false;
+                        $('#modalPickingBarang').modal('hide');
+                        if (response != null) {
+                            editPackinglist1(response.Errors[0]);
+                        }
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        document.getElementById("btnCancelPickingBrg").disabled = false;
+                        document.getElementById("btnSimpanPickingBrg").disabled = false;
+                    }
+                });
         }
     </script>
     <script>
