@@ -16717,6 +16717,10 @@ namespace MasterOnline.Controllers
                         //end remark by nurul 29/8/2019
                         dataVm.Faktur.PEMESAN = fakturInDb.PEMESAN;
                         dataVm.Faktur.NAMAPEMESAN = fakturInDb.NAMAPEMESAN;
+
+                        //add by nurul 30/9/2020, simpan no retur k no fakturnya 
+                        fakturInDb.NO_FA_OUTLET = noOrder;
+                        //end add by nurul 30/9/2020, simpan no retur k no fakturnya 
                     }
 
                     //var recNumCust = ParseInt(dataVm.Faktur.CUST);
@@ -16908,6 +16912,12 @@ namespace MasterOnline.Controllers
         //    return PartialView("TableFakturPartial", vm);
         //}
 
+        public class tempTambahan
+        {
+            public string NO_BUKTI { get; set; }
+            public string STATUS { get; set; }
+        }
+
         public ActionResult RefreshTableFaktur1(int? page, string search = "", string filter = "", string filtervalue = "")
         {
             int pagenumber = (page ?? 1) - 1;
@@ -16957,18 +16967,62 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+
+            //ADD BY NURUL 30/9/2020
+            string sSQLkode2 = "";
+            string sSQLmarket2 = "";
+            string sSQLref2 = "";
+            string sSQLpembeli2 = "";
+            string sSQLnetto2 = "";
+            string sSQLkurir2 = "";
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLkode2 += " and ";
+                            sSQLmarket2 += " and ";
+                            sSQLref2 += " and ";
+                            sSQLpembeli2 += " and ";
+                            sSQLnetto2 += " and ";
+                            sSQLkurir2 += " and ";
+                        }
+                                                
+                        sSQLkode2 += " ( A.NO_BUKTI like '%" + getkata[i] + "%' ) ";
+                        sSQLmarket2 += "  ( (isnull(B.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ) ";
+                        sSQLref2 += " ( A.NO_REF like '%" + getkata[i] + "%' ) ";
+                        sSQLpembeli2 += "  ( A.NAMAPEMESAN like '%" + getkata[i] + "%' ) ";
+                        sSQLnetto2 += " ( A.NETTO like '%" + getkata[i] + "%' ) ";
+                        sSQLkurir2 += " ( ISNULL(A.NAMAPENGIRIM,'') LIKE '%" + getkata[i] + "%' ) ";
+                    }
+                }
+            }
+            //END ADD BY NURUL 30/9/2020
+
             //sSQL2 += " AND ( " + sSQLkode + " or " + sSQLmarket + " or " + sSQLperso + " or " + sSQLpembeli + " ) ";
             //END ADD BY NURUL 27/9/2019
             string sSQLFirstSelect = "select * from ( ";
             string sSQLSelect = "";
-            //sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(D.STATUS_TRANSAKSI,'') AS [STATUS], ISNULL(A.NO_SO,'') AS NOSO, ISNULL(E.NO_BUKTI,'') AS PEMBAYARAN, ISNULL(A.STATUS,'') AS STATUS_FAKTUR, ISNULL(F.BUKTI_RET,'') AS FKT_RETUR ";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(D.STATUS_TRANSAKSI,'') AS [STATUS], ISNULL(A.NO_SO,'') AS NOSO, ISNULL(E.NO_BUKTI,'') AS PEMBAYARAN, ISNULL(F.BUKTI_RET,'') AS FKT_RETUR ";
-            //ADD BY NURUL 4/3/2020
-            sSQLSelect += ",ISNULL(A.NAMAPENGIRIM,'') AS KURIR ";
-            //END ADD BY NURUL 4/3/2020
-            //ADD BY NURUL 16/6/2020
-            sSQLSelect += ",CASE WHEN ISNULL(A.STATUS,'')='2' THEN 'BATAL' WHEN ISNULL(F.BUKTI_RET,'') <> '' THEN 'RETUR' ELSE 'SELESAI' END AS STATUS_FAKTUR ";
-            //END ADD BY NURUL 16/6/2020
+
+            //CHANGE BY NURUL 30/9/2020
+            ////sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(D.STATUS_TRANSAKSI,'') AS [STATUS], ISNULL(A.NO_SO,'') AS NOSO, ISNULL(E.NO_BUKTI,'') AS PEMBAYARAN, ISNULL(A.STATUS,'') AS STATUS_FAKTUR, ISNULL(F.BUKTI_RET,'') AS FKT_RETUR ";
+            //sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(D.STATUS_TRANSAKSI,'') AS [STATUS], ISNULL(A.NO_SO,'') AS NOSO, ISNULL(E.NO_BUKTI,'') AS PEMBAYARAN, ISNULL(F.BUKTI_RET,'') AS FKT_RETUR ";
+            ////ADD BY NURUL 4/3/2020
+            //sSQLSelect += ",ISNULL(A.NAMAPENGIRIM,'') AS KURIR ";
+            ////END ADD BY NURUL 4/3/2020
+            ////ADD BY NURUL 16/6/2020
+            //sSQLSelect += ",CASE WHEN ISNULL(A.STATUS,'')='2' THEN 'BATAL' WHEN ISNULL(F.BUKTI_RET,'') <> '' THEN 'RETUR' ELSE 'SELESAI' END AS STATUS_FAKTUR ";
+            ////END ADD BY NURUL 16/6/2020
+            
+            
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(B.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING ";
+            sSQLSelect += ", ISNULL(A.NO_SO,'') AS NOSO, ISNULL(A.NAMAPENGIRIM,'') AS KURIR ";
+            sSQLSelect += ",ISNULL(A.NO_FA_OUTLET,'') AS FKT_RETUR ,CASE WHEN ISNULL(A.STATUS,'')='2' THEN 'BATAL' WHEN ISNULL(A.NO_FA_OUTLET,'') <> '' AND ISNULL(A.NO_FA_OUTLET,'') <> '-' THEN 'RETUR' ELSE 'SELESAI' END AS STATUS_FAKTUR ";
+            //END CHANGE BY NURUL 30/9/2020
+
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH FROM ( ";
             string sSQL2 = "";
@@ -16987,7 +17041,7 @@ namespace MasterOnline.Controllers
                                 if (queryfilter != "") { queryfilter += ","; }
                                 queryfilter += "'" + item + "'";
                             }
-                            sSQLTemp = "SELECT * INTO #SIT01A FROM SIT01A WHERE ";
+                            sSQLTemp = "SELECT * INTO #SIT01A FROM SIT01A (nolock) WHERE ";
                             if (queryfilter != "")
                             {
                                 sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
@@ -17000,27 +17054,37 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            sSQL2 += "FROM SIT01A A ";
+                            sSQL2 += "FROM SIT01A A (nolock) ";
                         }
                     }
                     break;
                 default:
                     {
-                        sSQL2 += "FROM SIT01A A ";
+                        sSQL2 += "FROM SIT01A A (nolock) ";
                     }
                     break;
             }
             //end add by nurul 16/6/2020
             //sSQL2 += "FROM SIT01A A ";
-            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
-            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
-            sSQL2 += "LEFT JOIN SOT01A D ON A.NO_SO = D.NO_BUKTI ";
-            //sSQL2 += "LEFT JOIN ART03B E ON A.NO_BUKTI = E.NFAKTUR ";
-            sSQL2 += "LEFT JOIN (SELECT DISTINCT NO_BUKTI FROM SIT01A A INNER JOIN ART03B B ON A.NO_BUKTI = B.NFAKTUR)E ON A.NO_BUKTI = E.NO_BUKTI ";
-            sSQL2 += "LEFT JOIN (select ret.jenis_form,ret.no_bukti as bukti_ret,ret.no_ref as no_si,fkt.no_bukti as bukti_faktur from sit01a ret inner join sit01a fkt on fkt.no_bukti=ret.no_ref where ret.jenis_form='3') F ON A.NO_BUKTI=F.BUKTI_FAKTUR ";
+
+            //CHANGE BY NURUL 30/9/2020
+            //sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
+            //sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            //sSQL2 += "LEFT JOIN SOT01A D ON A.NO_SO = D.NO_BUKTI ";
+            ////sSQL2 += "LEFT JOIN ART03B E ON A.NO_BUKTI = E.NFAKTUR ";
+            //sSQL2 += "LEFT JOIN (SELECT DISTINCT NO_BUKTI FROM SIT01A A INNER JOIN ART03B B ON A.NO_BUKTI = B.NFAKTUR)E ON A.NO_BUKTI = E.NO_BUKTI ";
+            //sSQL2 += "LEFT JOIN (select ret.jenis_form,ret.no_bukti as bukti_ret,ret.no_ref as no_si,fkt.no_bukti as bukti_faktur from sit01a ret inner join sit01a fkt on fkt.no_bukti=ret.no_ref where ret.jenis_form='3') F ON A.NO_BUKTI=F.BUKTI_FAKTUR ";
+            sSQL2 += "LEFT JOIN (SELECT A.CUST,A.PERSO,B.NAMAMARKET FROM ARF01 A (nolock) INNER JOIN MO.dbo.MARKETPLACE B (nolock) ON A.NAMA =B.IDMARKET) B ON A.CUST=B.CUST ";
+            //END CHANGE BY NURUL 30/9/2020
+
             string sSQLWhere = "";
             //string sSQLWhere2 = "";
-            sSQLWhere += "WHERE A.JENIS_FORM = '2')A ";
+            sSQLWhere += "WHERE A.JENIS_FORM = '2' ";
+            //if (search != "")
+            //{
+            //    sSQLWhere += " AND ( " + sSQLkode2 + " or " + sSQLmarket2 + " or " + sSQLref2 + " or " + sSQLpembeli2 + " or " + sSQLnetto2 + " OR " + sSQLkurir2 + " ) ";
+            //}
+            sSQLWhere += " )A ";
             string sSQLEndSelect = "";
             if (search != "")
             {
@@ -17070,6 +17134,29 @@ namespace MasterOnline.Controllers
 
             var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLTemp + sSQLFirstSelect + sSQLSelect + sSQL2 + sSQLWhere + sSQLEndSelect + sSQLSelect2).ToList();
             //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            if (listFakturNew.Count() > 0)
+            {
+                var string_nobuk = "";
+                foreach (var nobuk in listFakturNew)
+                {
+                    if (string_nobuk != "")
+                    {
+                        string_nobuk += ",";
+                    }
+                    string_nobuk += "'" + nobuk.NO_FAKTUR + "'";
+                }
+            
+                var getStatusPesananSql = "SELECT A.NO_BUKTI,ISNULL(STATUS_TRANSAKSI,'') AS [STATUS] FROM SIT01A A (nolock) LEFT JOIN SOT01A B ON A.NO_SO=B.NO_BUKTI WHERE A.NO_BUKTI IN (" + string_nobuk + ")";
+                var getStatusPesanan = ErasoftDbContext.Database.SqlQuery<tempTambahan>(getStatusPesananSql).ToList();
+                var getPembayaranSql = "SELECT A.NO_BUKTI,ISNULL(B.NFAKTUR,'') AS [STATUS] FROM SIT01A A (nolock) LEFT JOIN ART03B B (nolock) ON A.NO_BUKTI = B.NFAKTUR WHERE A.NO_BUKTI IN (" + string_nobuk + ")";
+                var getPembayaran = ErasoftDbContext.Database.SqlQuery<tempTambahan>(getPembayaranSql).ToList();
+                for (int i = 0; i < listFakturNew.Count(); i++)
+                {
+                    listFakturNew[i].STATUS = getStatusPesanan[i].STATUS;
+                    listFakturNew[i].PEMBAYARAN = getPembayaran[i].STATUS;
+                }
+            }
 
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TableFakturPartial", pageOrders);
@@ -55330,6 +55417,7 @@ namespace MasterOnline.Controllers
                         {
                             dataVm.Faktur.PEMESAN = fakturInDb.PEMESAN;
                             dataVm.Faktur.NAMAPEMESAN = fakturInDb.NAMAPEMESAN;
+                            fakturInDb.NO_FA_OUTLET = noOrder;
                         }
 
                         var CustInDb = ErasoftDbContext.ARF01.SingleOrDefault(p => p.CUST == dataVm.Faktur.CUST);
