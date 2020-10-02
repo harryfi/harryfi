@@ -9160,6 +9160,13 @@ namespace MasterOnline.Controllers
             //end add by nurul 21/6/2019, validasi berat,p,l,t
         }
 
+        public ActionResult HitungCharDeskripsi(string deskripsi)
+        {
+            var count = deskripsi.Replace("<p>", "").Replace("</p>\n", "").Replace("</ul>\r\n\r\n", "</ul>").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").Replace("\r\n", "").Length;
+
+            return JsonErrorMessage(count.ToString());
+        }
+
         protected void createBarangLazadaVariant(string brg)
         {
             //var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");

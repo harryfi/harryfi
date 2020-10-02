@@ -94,16 +94,28 @@
 
         $('.make_ckeditor').each(function (i, item) {
             if ($('#cke_' + item.id).length == 0) {
-                CKEDITOR.replace(item.id, {
-                    extraPlugins: 'wordcount',
-                    wordcount: {
-                        showCharCount: true,
-                        showWordCount: false,
-                        showParagraphs: false,
-                        countSpacesAsChars: true,
-                    }
-                });
+                //CKEDITOR.replace(item.id, {
+                //    extraPlugins: 'wordcount',
+                //    wordcount: {
+                //        showCharCount: true,
+                //        showWordCount: false,
+                //        showParagraphs: false
+                //    }
+                //});
+                CKEDITOR.replace(item.id);
             }
+        });
+
+        var e = CKEDITOR.instances['Stf02_Deskripsi'];
+
+        e.on('key', function (event) {
+            //alert(e.getData());
+            //getValueFromCKEditor();
+            setTimeout(function () {
+                CheckCharCount();
+            }, 10);
+            //document.getElementById('txtCharCount').innerHTML = "Jumlah karakter :" ;
+            //$("#divCharCount").show();
         });
     }
 
@@ -273,6 +285,31 @@
         //end add by nurul 11/2/2020
     });
 
+    function CheckCharCount() {
+       
+        var aa = CKEDITOR.instances["Stf02_Deskripsi"].getData();
+        $formData = {
+            deskripsi: aa,
+        }
+        $.ajax({
+                type: "POST",
+                url: '@Url.Action("HitungCharDeskripsi", "Manage")',
+                data: JSON.stringify($formData),
+                processData: false,  // tell jQuery not to process the data
+                contentType: "application/json; charset=UTF-8",  // tell jQuery not to set contentType
+                beforeSend: function () {
+                },
+                success: function (response) {
+                    document.getElementById('txtCharCount').innerHTML = "Jumlah karakter :" + response.Errors[0];
+                    $("#divCharCount").show();
+                },
+                error: function (xhr, status, error) {
+
+                    console.log(error);
+                }
+            });
+    }
+
     function getFotoProdukBlibli() {
         $('.hidden_url_gambar_blibli').each(function (i, item) {
             var data_barang_level = $(item).attr("data-barang-level");
@@ -418,6 +455,10 @@
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @Html.TextAreaFor(m => m.Stf02.Deskripsi, new { @class = "form-control make_ckeditor", required = "required", minlength = 30 })
                                             </div>
+                                        </div>
+                                        <div class="form-group" id="divCharCount" style="display:none">
+                                            <div class="col-md-6 col-sm-6"></div>
+                                            <div class="col-md-6 col-sm-6 col-xs-12"><span id="txtCharCount" class="text-danger span-error"></span></div>
                                         </div>
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.Stf02.TYPE, "Barang ini memiliki Variasi", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
@@ -1724,3 +1765,16 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    //$("#textarea").keyup(function () {
+    //    document.getElementById('txtCharCount').innerHTML = "Test tampil text";
+    //    $("#divCharCount").show();
+    //});
+    //var e = CKEditor.instances['Stf02_Deskripsi'];
+
+    //e.on('key', function (event) {
+    //    alert(e.getData());
+    //});
+
+</script>
