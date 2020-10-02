@@ -45595,6 +45595,14 @@ namespace MasterOnline.Controllers
             return new EmptyResult();
         }
 
+        public class tempDetailPiutang
+        {
+            public int? NO { get; set; } 
+            public string NFAKTUR { get; set; }
+            public double SISA { get; set; }
+            public double BAYAR { get; set; }
+            public double POT { get; set; }
+        }
         [HttpPost]
         public ActionResult UpdatePotonganBayarPiutang1(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess)
         {
@@ -45617,8 +45625,9 @@ namespace MasterOnline.Controllers
                 var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
                 if (piutangInDb != null)
                 {
-                    var ssql2 = "select * from ART03B where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
-                    var piutangDetaiInDb = ErasoftDbContext.Database.SqlQuery<ART03B>(ssql2).ToList();
+                    //var ssql2 = "select * from ART03B where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
+                    var ssql2 = "select [NO],NFAKTUR,SISA,BAYAR,POT from ART03B where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
+                    var piutangDetaiInDb = ErasoftDbContext.Database.SqlQuery<tempDetailPiutang>(ssql2).ToList();
                     ret.countAll = piutangDetaiInDb.Count();
                     if (ret.statusLoop == true)
                     {
