@@ -191,14 +191,14 @@
                         //    totalBayar = Model.Piutang.TBAYAR;
                         //}
                         var totalBayar = 0d;
-                        //foreach (var detailPiutang in listPiutangDetail)
-                        //{
-                        //    totalBayar += detailPiutang.SISA;
-                        //}
-                        if(Model.tempHitungHeader.TotalFaktur > 0)
+                        foreach (var detailPiutang in listPiutangDetail)
                         {
-                            totalBayar = Model.tempHitungHeader.TotalFaktur;
+                            totalBayar += detailPiutang.SISA;
                         }
+                        //if (Model?.tempHitungHeader?.TotalFaktur > 0)
+                        //{
+                        //    totalBayar = Model.tempHitungHeader.TotalFaktur;
+                        //}
                     }
                     @Html.TextBox("TOTALBYR", (totalBayar >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalBayar) : "0,00"), new { @class = "form-control", @style = "text-align:right", @readonly = "readonly" })
                 </div>
@@ -218,14 +218,14 @@
                         //    totalRef += detailPiutang.BAYAR;
                         //}
                         var totalRef = 0d;
-                        //if (Model.Piutang != null)
-                        //{
-                        //    totalRef = Model.Piutang.TBAYAR;
-                        //}
-                        if(Model.tempHitungHeader.TotalBayar > 0)
+                        if (Model.Piutang != null)
                         {
-                            totalRef = Model.tempHitungHeader.TotalBayar;
+                            totalRef = Model.Piutang.TBAYAR;
                         }
+                        //if (Model?.tempHitungHeader?.TotalBayar > 0)
+                        //{
+                        //    totalRef = Model.tempHitungHeader.TotalBayar;
+                        //}
                     }
                     @Html.TextBox("TOTALREF", (totalRef >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalRef) : "0,00"), new { @class = "form-control", @style = "text-align:right", @readonly = "readonly" })
                 </div>
@@ -239,19 +239,19 @@
                 <div class="col-md-6">
                     @{
                         var totalPot = 0d;
-                        //if (Model.Piutang != null)
-                        //{
-                        //    totalPot = Model.Piutang.TPOT;
-                        //}
+                        if (Model.Piutang != null)
+                        {
+                            totalPot = Model.Piutang.TPOT;
+                        }
                         ////var totalPot = 0d;
                         ////foreach (var detailPiutang in listPiutangDetail)
                         ////{
                         ////    totalPot += detailPiutang.POT;
                         ////}
-                        if(Model.tempHitungHeader.TotalPotongan > 0)
-                        {
-                            totalPot = Model.tempHitungHeader.TotalPotongan;
-                        }
+                        //if (Model?.tempHitungHeader?.TotalPotongan > 0)
+                        //{
+                        //    totalPot = Model.tempHitungHeader.TotalPotongan;
+                        //}
                     }
                     @Html.TextBox("TOTALPOT", (totalPot >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalPot) : "0,00"), new { @class = "form-control", @style = "text-align:right", @readonly = "readonly" })
                 </div>
@@ -267,16 +267,16 @@
                         var totalLunas = 0d;
                         var ttlRef = 0d;
                         var ttlPot = 0d;
-                        //foreach (var detailPiutang in listPiutangDetail)
-                        //{
-                        //    ttlRef += (detailPiutang.BAYAR);
-                        //    ttlPot += (detailPiutang.POT);
-                        //}
-                        //totalLunas = (ttlRef + ttlPot);
-                        if(Model.tempHitungHeader.TotalPelunasan > 0)
+                        foreach (var detailPiutang in listPiutangDetail)
                         {
-                            totalLunas = Model.tempHitungHeader.TotalPelunasan;
+                            ttlRef += (detailPiutang.BAYAR);
+                            ttlPot += (detailPiutang.POT);
                         }
+                        totalLunas = (ttlRef + ttlPot);
+                        //if (Model?.tempHitungHeader?.TotalPelunasan > 0)
+                        //{
+                        //    totalLunas = Model.tempHitungHeader.TotalPelunasan;
+                        //}
                     }
                     @Html.TextBox("TOTALLUNAS", (totalLunas >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalLunas) : "0,00"), new { @class = "form-control", @style = "text-align:right", @readonly = "readonly" })
                 </div>
@@ -309,20 +309,20 @@
                 <div class="col-md-6">
                     @{
                         var totalSlsh = 0d;
-                        //var ttlFaktur = 0d;
-                        //var ttlRef1 = 0d;
-                        //var ttlPot1 = 0d;
-                        //foreach (var detailPiutang in listPiutangDetail)
-                        //{
-                        //    ttlFaktur += (detailPiutang.SISA);
-                        //    ttlRef1 += (detailPiutang.BAYAR);
-                        //    ttlPot1 += (detailPiutang.POT);
-                        //}
-                        //totalSlsh = (ttlFaktur - ttlRef1 - ttlPot1);
-                        if(Model.tempHitungHeader.Selisih > 0)
+                        var ttlFaktur = 0d;
+                        var ttlRef1 = 0d;
+                        var ttlPot1 = 0d;
+                        foreach (var detailPiutang in listPiutangDetail)
                         {
-                            totalSlsh = Model.tempHitungHeader.Selisih;
+                            ttlFaktur += (detailPiutang.SISA);
+                            ttlRef1 += (detailPiutang.BAYAR);
+                            ttlPot1 += (detailPiutang.POT);
                         }
+                        totalSlsh = (ttlFaktur - ttlRef1 - ttlPot1);
+                        //if (Model?.tempHitungHeader?.Selisih > 0)
+                        //{
+                        //    totalSlsh = Model.tempHitungHeader.Selisih;
+                        //}
                     }
                     @Html.TextBox("TOTALSELISIH", (totalSlsh >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalSlsh) : "0,00"), new { @class = "form-control", @style = "text-align:right", @readonly = "readonly" })
                 </div>
@@ -354,14 +354,14 @@
                 <div class="col-md-6">
                     @{
                         var totalLebih = 0d;
-                        //if (Model.Piutang != null)
-                        //{
-                        //    totalLebih = Convert.ToDouble(Model?.Piutang?.TLEBIH_BAYAR == null || Model?.Piutang?.TLEBIH_BAYAR == 0 ? 0 : Model?.Piutang?.TLEBIH_BAYAR);
-                        //}
-                        if(Model.tempHitungHeader.TotalLebihBayar > 0)
+                        if (Model.Piutang != null)
                         {
-                            totalLebih = Model.tempHitungHeader.TotalLebihBayar;
+                            totalLebih = Convert.ToDouble(Model?.Piutang?.TLEBIH_BAYAR == null || Model?.Piutang?.TLEBIH_BAYAR == 0 ? 0 : Model?.Piutang?.TLEBIH_BAYAR);
                         }
+                        //if (Model?.tempHitungHeader?.TotalLebihBayar > 0)
+                        //{
+                        //    totalLebih = Model.tempHitungHeader.TotalLebihBayar;
+                        //}
                     }
                     @Html.TextBox("TOTALLEBIH", (totalLebih >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalLebih) : "0,00"), new { @class = "form-control", @style = "text-align:right", @readonly = "readonly" })
                 </div>
