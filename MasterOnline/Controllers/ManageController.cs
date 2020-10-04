@@ -27673,7 +27673,7 @@ namespace MasterOnline.Controllers
                     adaErr = true;
                 }
                 var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a where no_bukti in (select NFAKTUR from art03b where bukti='" + piutangInDb.BUKTI + "')").ToList();
-                var getHitungHeader = ErasoftDbContext.Database.SqlQuery<tempHitungHeader>("select a.BUKTI, ISNULL(sum(SISA),0) as TotalFaktur, ISNULL(a.TBAYAR,0) as TotalBayar, ISNULL(a.TPOT,0) as TotalPotongan, ISNULL((sum(BAYAR) + sum(POT)),0) as TotalPelunasan, ISNULL((sum(SISA) - sum(BAYAR) - sum(POT)),0) as Selisih, ISNULL(TLEBIH_BAYAR,0) AS TotalLebihBayar from art03a a inner join art03b b on a.bukti=b.bukti where a.bukti='" + piutangInDb.BUKTI + "' group by a.BUKTI,TBAYAR,TPOT,TLEBIH_BAYAR").SingleOrDefault();
+                //var getHitungHeader = ErasoftDbContext.Database.SqlQuery<tempHitungHeader>("select a.BUKTI, ISNULL(sum(SISA),0) as TotalFaktur, ISNULL(a.TBAYAR,0) as TotalBayar, ISNULL(a.TPOT,0) as TotalPotongan, ISNULL((sum(BAYAR) + sum(POT)),0) as TotalPelunasan, ISNULL((sum(SISA) - sum(BAYAR) - sum(POT)),0) as Selisih, ISNULL(TLEBIH_BAYAR,0) AS TotalLebihBayar from art03a a inner join art03b b on a.bukti=b.bukti where a.bukti='" + piutangInDb.BUKTI + "' group by a.BUKTI,TBAYAR,TPOT,TLEBIH_BAYAR").SingleOrDefault();
                 var vm = new BayarPiutangViewModel()
                 {
                     Piutang = piutangInDb,
@@ -27682,7 +27682,7 @@ namespace MasterOnline.Controllers
                     //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
                     adaError = adaErr,
                     ListOngkir = getOngkir,
-                    tempHitungHeader = getHitungHeader
+                    //tempHitungHeader = getHitungHeader
                 };
 
                 //add by nurul 21/4/2020
