@@ -50,7 +50,7 @@
     <table class="table table-striped table-bordered" id="tblScan">
         <thead>
             <tr role="row">
-                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; border-left:hidden; align-self:flex-start"><input type="checkbox" onclick="clickAllPicking();" class="dt-checkboxes-select-all center" id="checkbox_all_delete_picking_barang" style="margin-top: 20px; border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; align-self:flex-start"><input type="checkbox" onclick="clickAllPicking();" class="dt-checkboxes-select-all center" id="checkbox_all_delete_picking_barang" style="margin-top: 20px; border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">Scan Barcode</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">QTY</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Valid</th>
@@ -82,7 +82,7 @@
                 @Html.HiddenFor(m => m.dataScan[i].brg)
                 @Html.HiddenFor(m => m.dataScan[i].qty)
                 @Html.HiddenFor(m => m.dataScan[i].isValid)
-                <td style="width: 40px; max-width: 40px; align-self:flex-start; border-left:hidden">
+                <td style="width: 40px; max-width: 40px; align-self:flex-start;">
                     <input type="checkbox" class="dt-checkboxes checkbox_delete_picking_barang center" id-brg="@Model.dataScan[i].brg" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
                 </td>
                 <td class="get_data_picking kode_barcode" id-brg="@Model.dataScan[i].brg">@Model.dataScan[i].code</td>
@@ -103,6 +103,15 @@
                 }
             </tr>
             }
+        <tr>
+            <td style="width: 40px; max-width: 40px; align-self:flex-start;">
+            </td>
+            <td>
+                <input class="form-control" data-val="true" id="txtScanBarcode" id-brg="0" autofocus />
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
         </tbody>
     </table>
 </div>
@@ -135,5 +144,74 @@
         else {
             document.getElementById('data_isvalid_' + id.split('_')[2]).innerText = "VALID";
         }
+    }
+
+    $("#txtScanBarcode").keyup(function (event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+            if ($("#txtScanBarcode").val() == '') {
+                alert('Silahkan scan barcode barang.');
+            }
+            else {
+                ScanBarcodeBarang();
+            }
+        }
+        return false;
+    });
+
+    function ScanBarcodeBarang() {
+        listBrg = [];
+            for (i = 0; i < $('#maxDataPicking').val(); i++) {
+                listBrg[i] = {
+                    brg: $('#dataScan_' + i + '__brg').val(),
+                    code: $('#dataScan_'+i+'__code').val(),
+                    qty: $('#dataScan_' + i + '__qty').val(),
+                    isValid: $('#dataScan_' + i + '__isValid').val(),
+                    input_qty: $('#data_qty_' + i).val(),
+                };
+
+            }
+            $postdata = {
+                NO_PL: document.getElementById('txtNoPL').innerText,
+                maxBrg: document.getElementById('txtMaxBrg').innerText,
+                jmlBrg: document.getElementById('txtJmlBrg').innerText,
+                maxQty: document.getElementById('txtMaxQty').innerText,
+                jmlQty: document.getElementById('txtJmlQty').innerText,
+                dataScan: listBrg,
+                currentScan: $("#txtScanBarcode").val(),
+            };
+
+            var $link = '@Url.Action("ScanBarcodeBarang", "Manage")';
+                $.ajax({
+                    type: "POST",
+                    url: $link,
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    data: JSON.stringify($postdata),
+                    beforeSend: function () {
+                        document.getElementById("btnCancelPickingBrg").disabled = true;
+                        document.getElementById("btnSimpanPickingBrg").disabled = true;
+                    },
+                    success: function (response) {
+                        document.getElementById("btnCancelPickingBrg").disabled = false;
+                        document.getElementById("btnSimpanPickingBrg").disabled = false;
+                        //$('#modalPickingBarang').modal('hide');
+                        if (response.Errors == undefined) {
+                            //editPackinglist1(response.Errors[0]);
+                            $('#modal-picking').html(response);
+                        }
+                        else {
+                            alert(response.Errors[0]);
+                            $("#txtScanBarcode").val('');
+                            $("#txtScanBarcode").focus();
+                        }
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        document.getElementById("btnCancelPickingBrg").disabled = false;
+                        document.getElementById("btnSimpanPickingBrg").disabled = false;
+                    }
+                });
     }
 </script>

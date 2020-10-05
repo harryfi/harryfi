@@ -41280,6 +41280,42 @@ namespace MasterOnline.Controllers
              
             return JsonErrorMessage(data.NO_PL);
         }
+        public ActionResult ScanBarcodeBarang(ScanBarcodePickingBarangViewModel data)
+        {
+            if(data.dataScan.Count > 0)
+            {
+                var cekDuplikat = data.dataScan.Where(m => m.code == data.currentScan).ToList();
+                if(cekDuplikat.Count > 0)
+                {
+                    return JsonErrorMessage("Anda sudah scan kode barcode : " + data.currentScan);
+                }
+            }
+            var sSQL = "select a.brg, ket_sort7, sum(qty) total ";
+            sSQL += "from stf02 a inner join sot03c c on a.brg = c.brg ";
+            sSQL += "where no_bukti = '"+data.NO_PL+ "' and ISNULL(ket_sort7, '') = '" + data.currentScan + "' group by a.brg, ket_sort7 ";
+            var cekBarcode = EDB.GetDataSet("CString", "BARANG", sSQL);
+
+            if(cekBarcode.Tables[0].Rows.Count == 0)
+            {
+                return JsonErrorMessage("Barang dengan kode barcode : " + data.currentScan + " tidak ada di packing list ini.");
+            }
+            else
+            {
+                var newScan = new ScanBarcodePickingBarang
+                {
+                    brg = cekBarcode.Tables[0].Rows[0]["brg"].ToString(),
+                    code = data.currentScan,
+                    qty = Convert.ToInt32(cekBarcode.Tables[0].Rows[0]["total"].ToString()),
+                    input_qty = Convert.ToInt32(cekBarcode.Tables[0].Rows[0]["total"].ToString()),
+                    isValid = true
+                };
+                data.dataScan.Add(newScan);
+                data.jmlBrg++;
+                data.jmlQty += newScan.qty;
+            }
+
+            return PartialView("ScanBarcodePickingBarang", data);
+        }
         //end add by Tri, 29 sept 2020
 
         public ActionResult SavePackinglist(PackingListViewModel dataVm)

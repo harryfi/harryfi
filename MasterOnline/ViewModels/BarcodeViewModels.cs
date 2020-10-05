@@ -27,5 +27,6 @@ namespace MasterOnline.ViewModels
         public int jmlQty { get; set; }
         public int maxQty { get; set; }
         public List<ScanBarcodePickingBarang> dataScan { get; set; }
+        public string currentScan { get; set; }
     }
 }
