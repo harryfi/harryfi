@@ -15,6 +15,7 @@ namespace MasterOnline.ViewModels
     {
         public string brg { get; set; }
         public string code { get; set; }
+        public string rak { get; set; }
         public int qty { get; set; }
         public int input_qty { get; set; }
         public bool isValid { get; set; }
@@ -28,5 +29,6 @@ namespace MasterOnline.ViewModels
         public int maxQty { get; set; }
         public List<ScanBarcodePickingBarang> dataScan { get; set; }
         public string currentScan { get; set; }
+        public List<string> listDelete { get; set; }
     }
 }

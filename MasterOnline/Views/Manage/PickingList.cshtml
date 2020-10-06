@@ -308,7 +308,7 @@
 </div>
 
 <div class="modal fade" id="modalPickingBarang" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modalPickingBarangLabel">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog" role="document" style="width:70%;">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>               
@@ -1134,6 +1134,7 @@
                         //$modeEdit = 1;
                         $('#modal-picking').html(response);
                         $('#modalPickingBarang').modal('show');
+                        $("#txtScanBarcode").focus();
                         //refreshInputan();
                         //getTanggal();
                         //GetDataPesananPackinglist();
@@ -1152,6 +1153,10 @@
         }
 
         function SimpanPickingBarang() {
+            if ($('#maxDataPicking').val() == "0") {
+                alert('Silahkan scan barcode barang terlebih dahulu.');
+                return false;
+            }
             listBrg = [];
             for (i = 0; i < $('#maxDataPicking').val(); i++) {
                 listBrg[i] = {
@@ -1160,6 +1165,7 @@
                     qty: $('#dataScan_' + i + '__qty').val(),
                     isValid: $('#dataScan_' + i + '__isValid').val(),
                     input_qty: $('#data_qty_' + i).val(),
+                    rak: $('#dataScan_' + i + '__rak').val(),
                 };
 
             }

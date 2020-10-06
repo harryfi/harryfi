@@ -66,6 +66,10 @@ namespace MasterOnline.ViewModels
         public string BRG_MULTISKU { get; set; }
         public string NAMA_BRG_MULTISKU { get; set; }
         //end add by nurul 17/9/2020
+
+        //ADD BY TRI 6 OKT 2020
+        public string RAK { get; set; }
+        //END ADD BY TRI 6 OKT 2020
     }
 
     public class templistDetailPacking

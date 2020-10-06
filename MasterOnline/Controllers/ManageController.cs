@@ -41208,7 +41208,8 @@ namespace MasterOnline.Controllers
             //CHANGE BY NURUL 22/7/2020
             //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
             //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(A.QTY) QTY, ISNULL(C.BRG_CUST,'') AS BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT01B C ON A.NO_PESANAN=C.NO_BUKTI AND A.BRG=C.BRG WHERE A.NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, C.BRG_CUST");
-            var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(B.WARNA,'') as BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, B.WARNA");
+            //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(B.WARNA,'') as BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, B.WARNA");
+            var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(A.RAK,'') as RAK from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE,A.RAK");
             //END CHANGE BY NURUL 22/7/2020
             for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
             {
@@ -41220,6 +41221,7 @@ namespace MasterOnline.Controllers
                     //ADD BY NURUL 22/7/2020
                     BARCODE = dsRekap.Tables[0].Rows[i]["BARCODE"].ToString(),
                     //END ADD BY NURUL 22/7/2020
+                    RAK = dsRekap.Tables[0].Rows[i]["RAK"].ToString(),
                 };
                 vm.listRekapBarang.Add(newData);
             }
@@ -41236,7 +41238,7 @@ namespace MasterOnline.Controllers
                 NO_PL = nobuk,
             };
             var listBrg = new List<ScanBarcodePickingBarang>();
-            var dsBarang = EDB.GetDataSet("CString", "SOT03C", "SELECT BRG, SUM(QTY) TOTAL, ISNULL(BARCODE, '') BARCODE FROM SOT03C WHERE NO_BUKTI = '"+nobuk+"' GROUP BY BRG, BARCODE");
+            var dsBarang = EDB.GetDataSet("CString", "SOT03C", "SELECT BRG, SUM(QTY) TOTAL, ISNULL(BARCODE, '') BARCODE, ISNULL(RAK, '') RAK FROM SOT03C WHERE NO_BUKTI = '" + nobuk+"' GROUP BY BRG, BARCODE, RAK");
             if(dsBarang.Tables[0].Rows.Count > 0)
             {
                 vm.maxBrg = dsBarang.Tables[0].Rows.Count;
@@ -41253,6 +41255,7 @@ namespace MasterOnline.Controllers
                             code = dsBarang.Tables[0].Rows[i]["BARCODE"].ToString(),
                             qty = Convert.ToInt32(dsBarang.Tables[0].Rows[i]["TOTAL"].ToString()),
                             input_qty = Convert.ToInt32(dsBarang.Tables[0].Rows[i]["TOTAL"].ToString()),
+                            rak = dsBarang.Tables[0].Rows[i]["RAK"].ToString(),
                             isValid = true,
                         };
                         listBrg.Add(barang);
@@ -41270,11 +41273,11 @@ namespace MasterOnline.Controllers
             {
                 if(dataTemp.input_qty == dataTemp.qty)//input valid
                 {
-                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT03C SET BARCODE = '"+dataTemp.code+"' WHERE NO_BUKTI = '" + data.NO_PL + "' AND BRG = '" + dataTemp.brg + "'");
+                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT03C SET BARCODE = '"+dataTemp.code+ "', RAK = '" + dataTemp.rak + "' WHERE NO_BUKTI = '" + data.NO_PL + "' AND BRG = '" + dataTemp.brg + "'");
                 }
                 else
                 {
-                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT03C SET BARCODE = '' WHERE NO_BUKTI = '" + data.NO_PL + "' AND BRG = '" + dataTemp.brg + "'");                                
+                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT03C SET BARCODE = '', RAK = '' WHERE NO_BUKTI = '" + data.NO_PL + "' AND BRG = '" + dataTemp.brg + "'");                                
                 }
             }
              
@@ -41282,6 +41285,10 @@ namespace MasterOnline.Controllers
         }
         public ActionResult ScanBarcodeBarang(ScanBarcodePickingBarangViewModel data)
         {
+            if(data.dataScan == null)
+            {
+                data.dataScan = new List<ScanBarcodePickingBarang>();
+            }
             if(data.dataScan.Count > 0)
             {
                 var cekDuplikat = data.dataScan.Where(m => m.code == data.currentScan).ToList();
@@ -41290,9 +41297,9 @@ namespace MasterOnline.Controllers
                     return JsonErrorMessage("Anda sudah scan kode barcode : " + data.currentScan);
                 }
             }
-            var sSQL = "select a.brg, ket_sort7, sum(qty) total ";
+            var sSQL = "select a.brg, ket_sort7, lks, sum(qty) total ";
             sSQL += "from stf02 a inner join sot03c c on a.brg = c.brg ";
-            sSQL += "where no_bukti = '"+data.NO_PL+ "' and ISNULL(ket_sort7, '') = '" + data.currentScan + "' group by a.brg, ket_sort7 ";
+            sSQL += "where no_bukti = '"+data.NO_PL+ "' and ISNULL(ket_sort7, '') = '" + data.currentScan + "' group by a.brg, ket_sort7, lks ";
             var cekBarcode = EDB.GetDataSet("CString", "BARANG", sSQL);
 
             if(cekBarcode.Tables[0].Rows.Count == 0)
@@ -41307,11 +41314,37 @@ namespace MasterOnline.Controllers
                     code = data.currentScan,
                     qty = Convert.ToInt32(cekBarcode.Tables[0].Rows[0]["total"].ToString()),
                     input_qty = Convert.ToInt32(cekBarcode.Tables[0].Rows[0]["total"].ToString()),
+                    rak = cekBarcode.Tables[0].Rows[0]["lks"].ToString(),
                     isValid = true
                 };
                 data.dataScan.Add(newScan);
                 data.jmlBrg++;
                 data.jmlQty += newScan.qty;
+            }
+
+            return PartialView("ScanBarcodePickingBarang", data);
+        }
+
+        public ActionResult HapusPickingBarang(ScanBarcodePickingBarangViewModel data)
+        {
+            if (data.listDelete.Count == 0)
+            {
+                return JsonErrorMessage("Silahkan pilih data yang anda ingin hapus.");                
+            }
+
+            foreach(var kdBrg in data.listDelete)
+            {
+                var delRow = data.dataScan.Where(m => m.brg == kdBrg).FirstOrDefault();
+                if(delRow != null)
+                {
+                    if(delRow.isValid)
+                    {
+                        data.jmlBrg = data.jmlBrg - 1;
+                        data.jmlQty = data.jmlQty - delRow.qty;
+                    }
+                    var result = EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT03C SET BARCODE = '', RAK = '' WHERE NO_BUKTI = '"+data.NO_PL+"' AND BRG = '"+delRow.brg+"'");
+                    data.dataScan.Remove(delRow);
+                }
             }
 
             return PartialView("ScanBarcodePickingBarang", data);
