@@ -1050,7 +1050,7 @@
 @*<script src="~/Scripts/jquery-1.10.2.js"></script>*@
 <script type="text/javascript">
     //var addonsArray = [{ "addons": "82Cart", "harga": 0 }];
-    var addonsArray = ["4002"];
+    var addonsArray = ["2"]; //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
     $(document).ready(function () {
         $(".cbBox02_a").change(function () {
             if ($("#cbBox02_silver_a")[0].checked == true) {
@@ -1058,13 +1058,13 @@
                 $(this).prop('checked', true);
                 checkPlugin02(300000);
                 //addonsArray.push({ "addons": "Shopify", "harga": 300000 });
-                addonsArray.push("5002");
+                addonsArray.push("3"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox02_silver_a")[0].checked == false) {
                 $("#cbBox02_silver_a").prop('checked', false);
                 $(this).prop('checked', false);
                 checkPlugin02(-300000);
                 //addonsArray.splice(addonsArray.indexOf("Shopify"), 1);
-                addonsArray.splice(addonsArray.indexOf("5002"), 1);
+                addonsArray.splice(addonsArray.indexOf("3"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             }
         });
 
@@ -1074,13 +1074,13 @@
                 $(this).prop('checked', true);
                 checkPlugin02(300000);
                 //addonsArray.push({ "addons": "Multi SKU", "harga": 300000 });
-                addonsArray.push("1");
+                addonsArray.push("4"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox02_silver_b")[0].checked == false) {
                 $("#cbBox02_silver_b").prop('checked', false);
                 $(this).prop('checked', false);
                 checkPlugin02(-300000);
                 //addonsArray.splice(addonsArray.indexOf("Multi SKU"), 1);
-                addonsArray.splice(addonsArray.indexOf("1"), 1);
+                addonsArray.splice(addonsArray.indexOf("4"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             }
         });
 
@@ -1090,13 +1090,13 @@
                 $(this).prop('checked', true);
                 checkPlugin02(300000);
                 //addonsArray.push({ "addons": "Shopify", "harga": 300000 });
-                addonsArray.push("6002");
+                addonsArray.push("5"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox02_silver_c")[0].checked == false) {
                 $("#cbBox02_silver_c").prop('checked', false);
                 $(this).prop('checked', false);
                 checkPlugin02(-300000);
                 //addonsArray.splice(addonsArray.indexOf("Shopify"), 1);
-                addonsArray.splice(addonsArray.indexOf("6002"), 1);
+                addonsArray.splice(addonsArray.indexOf("5"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             }
         });
 
@@ -1106,13 +1106,13 @@
                 $(this).prop('checked', true);
                 checkPlugin03(300000);
                 //addonsArray.push({ "addons": "Shopify", "harga": 300000 });
-                addonsArray.push("5002");
+                addonsArray.push("3"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox03_gold_a")[0].checked == false) {
                 $("#cbBox03_gold_a").prop('checked', false);
                 $(this).prop('checked', false);
                 checkPlugin03(-300000);
                 //addonsArray.splice(addonsArray.indexOf("Shopify"), 1);
-                addonsArray.splice(addonsArray.indexOf("5002"), 1);
+                addonsArray.splice(addonsArray.indexOf("3"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             }
         });
 
@@ -1122,13 +1122,13 @@
                 $(this).prop('checked', true);
                 checkPlugin03(300000);
                 //addonsArray.push({ "addons": "Multi SKU", "harga": 300000 });
-                addonsArray.push("1");
+                addonsArray.push("4"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox03_gold_b")[0].checked == false) {
                 $("#cbBox03_gold_b").prop('checked', false);
                 $(this).prop('checked', false);
                 checkPlugin03(-300000);
                 //addonsArray.splice(addonsArray.indexOf("Multi SKU"), 1);
-                addonsArray.splice(addonsArray.indexOf("1"), 1);
+                addonsArray.splice(addonsArray.indexOf("4"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             }
         });
 
@@ -1138,13 +1138,13 @@
                 $(this).prop('checked', true);
                 checkPlugin03(300000);
                 //addonsArray.push({ "addons": "Multi SKU", "harga": 300000 });
-                addonsArray.push("6002");
+                addonsArray.push("5"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox03_gold_c")[0].checked == false) {
                 $("#cbBox03_gold_c").prop('checked', false);
                 $(this).prop('checked', false);
                 checkPlugin03(-300000);
                 //addonsArray.splice(addonsArray.indexOf("Multi SKU"), 1);
-                addonsArray.splice(addonsArray.indexOf("6002"), 1);
+                addonsArray.splice(addonsArray.indexOf("5"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             }
         });
 
@@ -1193,7 +1193,7 @@
     function clickSub(kode, bln) {
         if ($('#ckBox')[0].checked) {
             var queryString = "";
-            queryString = addonsArray.join(',')
+            queryString = addonsArray.join(',');
             //var arrStr = encodeURIComponent(JSON.stringify(addonsArray));
             //for (var i = 0; i < addonsArray.length; ++i) {
             //    queryString += addonsArray[i] + "&";

@@ -941,6 +941,7 @@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script>
+        var addonsArray = ["2"]; //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
         $(document).ready(function () {
             //$('.btn-subs').click(function () {
 
@@ -976,10 +977,12 @@
                     $("#cbBox02_silver_a").prop('checked', true);
                     $(this).prop('checked', true);
                     checkPlugin02(300000);
+                    addonsArray.push("3"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 } else if ($("#cbBox02_silver_a")[0].checked == false) {
                     $("#cbBox02_silver_a").prop('checked', false);
                     $(this).prop('checked', false);
                     checkPlugin02(-300000);
+                    addonsArray.splice(addonsArray.indexOf("3"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 }
             });
 
@@ -988,10 +991,12 @@
                     $("#cbBox02_silver_b").prop('checked', true);
                     $(this).prop('checked', true);
                     checkPlugin02(300000);
+                    addonsArray.push("4"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 } else if ($("#cbBox02_silver_b")[0].checked == false) {
                     $("#cbBox02_silver_b").prop('checked', false);
                     $(this).prop('checked', false);
                     checkPlugin02(-300000);
+                    addonsArray.splice(addonsArray.indexOf("4"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 }
             });
 
@@ -1000,10 +1005,12 @@
                     $("#cbBox02_silver_c").prop('checked', true);
                     $(this).prop('checked', true);
                     checkPlugin02(300000);
+                    addonsArray.push("5"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 } else if ($("#cbBox02_silver_c")[0].checked == false) {
                     $("#cbBox02_silver_c").prop('checked', false);
                     $(this).prop('checked', false);
                     checkPlugin02(-300000);
+                    addonsArray.splice(addonsArray.indexOf("5"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 }
             });
 
@@ -1012,10 +1019,12 @@
                     $("#cbBox03_gold_a").prop('checked', true);
                     $(this).prop('checked', true);
                     checkPlugin03(300000);
+                    addonsArray.push("3"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 } else if ($("#cbBox03_gold_a")[0].checked == false) {
                     $("#cbBox03_gold_a").prop('checked', false);
                     $(this).prop('checked', false);
                     checkPlugin03(-300000);
+                    addonsArray.splice(addonsArray.indexOf("3"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 }
             });
 
@@ -1024,10 +1033,12 @@
                     $("#cbBox03_gold_b").prop('checked', true);
                     $(this).prop('checked', true);
                     checkPlugin03(300000);
+                    addonsArray.push("4"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 } else if ($("#cbBox03_gold_b")[0].checked == false) {
                     $("#cbBox03_gold_b").prop('checked', false);
                     $(this).prop('checked', false);
                     checkPlugin03(-300000);
+                    addonsArray.splice(addonsArray.indexOf("4"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 }
             });
 
@@ -1036,10 +1047,12 @@
                     $("#cbBox03_gold_c").prop('checked', true);
                     $(this).prop('checked', true);
                     checkPlugin03(300000);
+                    addonsArray.push("5"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 } else if ($("#cbBox03_gold_c")[0].checked == false) {
                     $("#cbBox03_gold_c").prop('checked', false);
                     $(this).prop('checked', false);
                     checkPlugin03(-300000);
+                    addonsArray.splice(addonsArray.indexOf("5"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 }
             });
             //end add
@@ -1117,6 +1130,8 @@
 
         function clickSub(kode, bln) {
             if ($('#ckBox')[0].checked) {
+                var queryStringAddon = "";
+                queryStringAddon = addonsArray.join(',');
                 //var bln = 0;
                 //switch (kode) {
                 //    case "01":
@@ -1150,6 +1165,7 @@
 
                 $('#txtCode').val(kode);
                 $('#txtBulan').val(bln);
+                $('#txtAddon').val(queryStringAddon);
                 if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.today()) {
 
                     //tglSub.setMonth(tglSub.getMonth() + bln);
@@ -1218,9 +1234,11 @@
             }
         }
 
-        function snapMidtrans(kode, bln) {
+        function snapMidtrans(kode, bln, addon) {
+            alert("tes addon=" + addon);
+
             var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-            link += '?code=' + encodeURIComponent(kode) + '&bulan=' + encodeURIComponent(bln) + '&accId=0' + '&accCount=' + encodeURIComponent($('#txtJmlUser')[0].innerText);
+            link += '?code=' + encodeURIComponent(kode) + '&bulan=' + encodeURIComponent(bln) + '&addon=' + encodeURIComponent(addon) + '&accId=0' + '&accCount=' + encodeURIComponent($('#txtJmlUser')[0].innerText);
 
             $.ajax({
                 type: "GET",

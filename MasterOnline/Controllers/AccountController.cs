@@ -1790,7 +1790,7 @@ namespace MasterOnline.Controllers
             if (userSubs != "01")
             {
                 var midtrans = new MidtransController();
-                return await midtrans.PaymentMidtrans(userSubs, account.DatabasePathMo, Convert.ToInt32(account.AccountId), account.jumlahUser);
+                return await midtrans.PaymentMidtrans(userSubs, account.DatabasePathMo, "", Convert.ToInt32(account.AccountId), account.jumlahUser);
             }
 
             //ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> melalui email dari admin kami, terima kasih.";

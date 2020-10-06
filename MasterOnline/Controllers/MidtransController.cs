@@ -19,7 +19,7 @@ namespace MasterOnline.Controllers
         public MoDbContext MoDbContext { get; set; }
         // GET: Midtrans
         [System.Web.Mvc.HttpGet]
-        public async System.Threading.Tasks.Task<ActionResult> PaymentMidtrans(string code, string bulan, int accId, int? accCount)
+        public async System.Threading.Tasks.Task<ActionResult> PaymentMidtrans(string code, string bulan, string addon, int accId, int? accCount)
         {
             MoDbContext = new MoDbContext("");
             var accInDB = new Account();
@@ -37,6 +37,14 @@ namespace MasterOnline.Controllers
 
                     //dataClass.urlView = "http://localhost:50108/midtrans/PaymentMidtrans";
                     string currentYear = DateTime.Today.ToString("yy");
+
+                    #region ADDON by fauzi
+                    var priceAddon = "";
+                    if (!string.IsNullOrEmpty(addon))
+                    {
+                        string[] splitAddon = addon.Split(',');
+                    }
+                    #endregion
 
                     #region auto number no_transaksi
                     var listTrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI.Substring(0, 2).Equals(currentYear)).OrderBy(t => t.RECNUM).ToList();
