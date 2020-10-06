@@ -38,11 +38,17 @@ namespace MasterOnline.Controllers
                     //dataClass.urlView = "http://localhost:50108/midtrans/PaymentMidtrans";
                     string currentYear = DateTime.Today.ToString("yy");
 
-                    #region ADDON by fauzi
-                    var priceAddon = "";
+                    #region FITUR ADDON by fauzi
+                    var priceAddon = 0;
                     if (!string.IsNullOrEmpty(addon))
                     {
-                        string[] splitAddon = addon.Split(',');
+                        string[] splitAddon = addon.Split(',');                        
+                        foreach(var dataAddon in splitAddon)
+                        {
+                            int idAddon = Convert.ToInt32(dataAddon);
+                            var dataDBAddon = MoDbContext.Addons.Where(p => p.RecNum == idAddon).SingleOrDefault();
+                            priceAddon += dataDBAddon.Harga;
+                        }
                     }
                     #endregion
 
@@ -84,11 +90,11 @@ namespace MasterOnline.Controllers
                         //user_id = sessionData.User.NoHp,
                     };
                     data.transaction_details = new TransactionDetail();
-                    data.transaction_details.gross_amount = Convert.ToInt64(price) * bln;
+                    data.transaction_details.gross_amount = (Convert.ToInt64(price) + Convert.ToInt64(priceAddon)) * bln;
                     //add 3 Maret 2019, handle jumlah user
                     if(code == "03" && accCount > 5)
                     {
-                        data.transaction_details.gross_amount = ((Convert.ToInt64(price) + 100000 * (accCount - 5)) * bln) ?? 0;
+                        data.transaction_details.gross_amount = ((Convert.ToInt64(price) + Convert.ToInt64(priceAddon) + 100000 * (accCount - 5)) * bln) ?? 0;
                     }
                     //add change 3 Maret 2019, handle jumlah user
                     data.transaction_details.order_id = noTrans;

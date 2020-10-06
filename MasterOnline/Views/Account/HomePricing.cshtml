@@ -954,11 +954,11 @@
                                 </tr>
                                 <tr>
                                     <th scope="row">
-                                        <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Multi SKU / Bundling (Coming Soon)
+                                        <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Multi SKU
                                     </th>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
-                                    <td style="text-align:center;"><input class="cbBox02_b" id="cbBox02_silver_b" type="checkbox"><br />Rp 300.000,00</td>
-                                    <td style="text-align:center;"><input class="cbBox03_b" id="cbBox03_gold_b" type="checkbox"><br />Rp 300.000,00</td>
+                                    <td style="text-align:center;"><input class="cbBox02_b" id="cbBox02_silver_b" type="checkbox"><br />Rp 200.000,00</td>
+                                    <td style="text-align:center;"><input class="cbBox03_b" id="cbBox03_gold_b" type="checkbox"><br />Rp 200.000,00</td>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                 </tr>
                                 <tr>
@@ -968,6 +968,15 @@
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
                                     <td style="text-align:center;"><input class="cbBox02_c" id="cbBox02_silver_c" type="checkbox"><br />Rp 300.000,00</td>
                                     <td style="text-align:center;"><input class="cbBox03_c" id="cbBox03_gold_c" type="checkbox"><br />Rp 300.000,00</td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">
+                                        <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Bundling (Coming Soon)
+                                    </th>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
+                                    <td style="text-align:center;">@*<input class="cbBox02_d" id="cbBox02_silver_d" type="checkbox"><br />Rp 300.000,00*@</td>
+                                    <td style="text-align:center;">@*<input class="cbBox03_d" id="cbBox03_gold_d" type="checkbox"><br />Rp 300.000,00*@</td>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                 </tr>
                             </tbody>
@@ -1072,13 +1081,13 @@
             if ($("#cbBox02_silver_b")[0].checked == true) {
                 $("#cbBox02_silver_b").prop('checked', true);
                 $(this).prop('checked', true);
-                checkPlugin02(300000);
+                checkPlugin02(200000);
                 //addonsArray.push({ "addons": "Multi SKU", "harga": 300000 });
                 addonsArray.push("4"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox02_silver_b")[0].checked == false) {
                 $("#cbBox02_silver_b").prop('checked', false);
                 $(this).prop('checked', false);
-                checkPlugin02(-300000);
+                checkPlugin02(-200000);
                 //addonsArray.splice(addonsArray.indexOf("Multi SKU"), 1);
                 addonsArray.splice(addonsArray.indexOf("4"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             }
@@ -1120,13 +1129,13 @@
             if ($("#cbBox03_gold_b")[0].checked == true) {
                 $("#cbBox03_gold_b").prop('checked', true);
                 $(this).prop('checked', true);
-                checkPlugin03(300000);
+                checkPlugin03(200000);
                 //addonsArray.push({ "addons": "Multi SKU", "harga": 300000 });
                 addonsArray.push("4"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox03_gold_b")[0].checked == false) {
                 $("#cbBox03_gold_b").prop('checked', false);
                 $(this).prop('checked', false);
-                checkPlugin03(-300000);
+                checkPlugin03(-200000);
                 //addonsArray.splice(addonsArray.indexOf("Multi SKU"), 1);
                 addonsArray.splice(addonsArray.indexOf("4"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             }

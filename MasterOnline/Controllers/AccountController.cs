@@ -100,7 +100,7 @@ namespace MasterOnline.Controllers
         }
 
         [System.Web.Mvc.Route("loginSubs")]
-        public ActionResult LoginSubs(string Ref, string kode, string bln, int jmlUser)
+        public ActionResult LoginSubs(string Ref, string kode, string bln, int jmlUser, string addons)
         {
             var partnerInDb = MoDbContext.Partner.FirstOrDefault(p => p.KodeRefPilihan == Ref);
 
@@ -121,7 +121,8 @@ namespace MasterOnline.Controllers
             {
                 DatabasePathMo = bln,
                 KODE_SUBSCRIPTION = kode,
-                jumlahUser = jmlUser
+                jumlahUser = jmlUser,
+                confirm_broadcast = addons
             };
             return View("Register", vm);
         }
@@ -1790,7 +1791,7 @@ namespace MasterOnline.Controllers
             if (userSubs != "01")
             {
                 var midtrans = new MidtransController();
-                return await midtrans.PaymentMidtrans(userSubs, account.DatabasePathMo, "", Convert.ToInt32(account.AccountId), account.jumlahUser);
+                return await midtrans.PaymentMidtrans(userSubs, account.DatabasePathMo, account.confirm_broadcast, Convert.ToInt32(account.AccountId), account.jumlahUser);
             }
 
             //ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> melalui email dari admin kami, terima kasih.";

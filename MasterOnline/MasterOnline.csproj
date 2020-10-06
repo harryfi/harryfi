@@ -704,6 +704,8 @@
     <Compile Include="Migrations\201812110628511_AddCategoryShopeeAndAttributeAndAttributeOpt.Designer.cs">
       <DependentUpon>201812110628511_AddCategoryShopeeAndAttributeAndAttributeOpt.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\Addons.cs" />
+    <Compile Include="Models\Addons_Customer.cs" />
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\Api\ResultDataFaktur.cs" />

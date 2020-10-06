@@ -990,12 +990,12 @@
                 if ($("#cbBox02_silver_b")[0].checked == true) {
                     $("#cbBox02_silver_b").prop('checked', true);
                     $(this).prop('checked', true);
-                    checkPlugin02(300000);
+                    checkPlugin02(200000);
                     addonsArray.push("4"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 } else if ($("#cbBox02_silver_b")[0].checked == false) {
                     $("#cbBox02_silver_b").prop('checked', false);
                     $(this).prop('checked', false);
-                    checkPlugin02(-300000);
+                    checkPlugin02(-200000);
                     addonsArray.splice(addonsArray.indexOf("4"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 }
             });
@@ -1032,12 +1032,12 @@
                 if ($("#cbBox03_gold_b")[0].checked == true) {
                     $("#cbBox03_gold_b").prop('checked', true);
                     $(this).prop('checked', true);
-                    checkPlugin03(300000);
+                    checkPlugin03(200000);
                     addonsArray.push("4"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 } else if ($("#cbBox03_gold_b")[0].checked == false) {
                     $("#cbBox03_gold_b").prop('checked', false);
                     $(this).prop('checked', false);
-                    checkPlugin03(-300000);
+                    checkPlugin03(-200000);
                     addonsArray.splice(addonsArray.indexOf("4"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
                 }
             });
@@ -1235,8 +1235,6 @@
         }
 
         function snapMidtrans(kode, bln, addon) {
-            alert("tes addon=" + addon);
-
             var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
             link += '?code=' + encodeURIComponent(kode) + '&bulan=' + encodeURIComponent(bln) + '&addon=' + encodeURIComponent(addon) + '&accId=0' + '&accCount=' + encodeURIComponent($('#txtJmlUser')[0].innerText);
 

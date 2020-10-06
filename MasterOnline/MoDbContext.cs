@@ -53,6 +53,9 @@ namespace MasterOnline
         public DbSet<CATEGORY_82CART> Category82Cart { get; set; }
         public DbSet<ATTRIBUTE_82CART> Attribute82Cart { get; set; }
 
+
+        public DbSet<Addons> Addons { get; set; }
+
         public MoDbContext()
             : base("name=MoDbContext")
         {
