@@ -19,6 +19,7 @@ namespace MasterOnline
         public string EMAIL { get; set; }
         public string PERSO { get; set; }
         public string KODE_SAP { get; set; }
+        public string KODE_TRANSAKSI { get; set; }
 
     }
 }

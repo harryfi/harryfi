@@ -64,7 +64,8 @@ namespace MasterOnline.Controllers
             try
             {
                 var dataParamFTP = ErasoftDbContext.LINKFTP.ToList();
-                string filename = username.Replace(" ", "") + "_faktur_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".csv";
+                //string filename = username.Replace(" ", "") + "_faktur_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".csv";
+                string filename = "aros" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".csv";
                 //string dt1 = DateTime.ParseExact(DateTime.Now.ToString("dd/MM/yyyy"), "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd 23:59:59.999");
                 string dt1 = DateTime.ParseExact(DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy"), "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd");
 

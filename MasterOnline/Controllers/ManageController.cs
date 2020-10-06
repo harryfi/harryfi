@@ -2883,6 +2883,8 @@ namespace MasterOnline.Controllers
             string[] getkata = search.Split(' ');
             string sSQLnama = "";
             string sSQLemail = "";
+            string sSQLkodeFTP = "";
+            string sSQLkodeTransaksi = "";
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -2893,6 +2895,8 @@ namespace MasterOnline.Controllers
                         {
                             sSQLnama += " ( C.NamaMarket like '%" + getkata[i] + "%' )";
                             sSQLemail += " ( A.EMAIL like '%" + getkata[i] + "%' )";
+                            sSQLkodeFTP += " ( A.ATTR5_AREA like '%" + getkata[i] + "%' )";
+                            sSQLkodeTransaksi += " ( A.ATTR1_AREA like '%" + getkata[i] + "%' )";
                         }
                         else
                         {
@@ -2900,16 +2904,22 @@ namespace MasterOnline.Controllers
                             {
                                 sSQLnama += " ( C.NamaMarket like '%" + getkata[i] + "%'";
                                 sSQLemail += " ( A.EMAIL like '%" + getkata[i] + "%'";
+                                sSQLkodeFTP += " ( A.ATTR5_AREA like '%" + getkata[i] + "%'";
+                                sSQLkodeTransaksi += " ( A.ATTR1_AREA like '%" + getkata[i] + "%'";
                             }
                             else if (getkata[i] == getkata.Last())
                             {
                                 sSQLnama += " and C.NamaMarket like '%" + getkata[i] + "%' )";
                                 sSQLemail += " and A.EMAIL like '%" + getkata[i] + "%' )";
+                                sSQLkodeFTP += " and A.ATTR5_AREA like '%" + getkata[i] + "%' )";
+                                sSQLkodeTransaksi += " and A.ATTR1_AREA like '%" + getkata[i] + "%' )";
                             }
                             else
                             {
                                 sSQLnama += " and C.NamaMarket like '%" + getkata[i] + "%' ";
                                 sSQLemail += " and A.EMAIL like '%" + getkata[i] + "%' ";
+                                sSQLkodeFTP += " and A.ATTR5_AREA like '%" + getkata[i] + "%' ";
+                                sSQLkodeTransaksi += " and A.ATTR1_AREA like '%" + getkata[i] + "%' ";
                             }
                         }
                     }
@@ -2917,7 +2927,7 @@ namespace MasterOnline.Controllers
             }
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.CUST AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, A.EMAIL AS EMAIL, A.PERSO AS PERSO, A.ATTR5_AREA AS KODE_SAP ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.CUST AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, A.EMAIL AS EMAIL, A.PERSO AS PERSO, A.ATTR5_AREA AS KODE_SAP, A.ATTR1_AREA AS KODE_TRANSAKSI ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -2925,7 +2935,7 @@ namespace MasterOnline.Controllers
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON A.NAMA = C.IdMarket ";
             if (search != "")
             {
-                sSQL2 += " WHERE ( " + sSQLemail + " or " + sSQLnama + " ) ";
+                sSQL2 += " WHERE ( " + sSQLemail + " or " + sSQLnama + " or  " + sSQLkodeFTP + " or " + sSQLkodeTransaksi + " ) ";
             }
 
             var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
@@ -2946,30 +2956,54 @@ namespace MasterOnline.Controllers
             IPagedList<TransferMarketplace> pageOrders = new StaticPagedList<TransferMarketplace>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TableMarketplaceToFTP", pageOrders);
         }
-        public ActionResult SaveKodeFTPMarketplace(string kodecust, string kodesap)
+        public ActionResult SaveKodeFTPMarketplace(string kodecust, string kodesap, string kodetransaksi)
         {
             try
             {
                 var listErrors = new List<PackingListErrors>();
                 var listSuccess = new List<listSuccessPrintLabel>();
 
-                if (kodesap != null && kodecust != null)
+                if (!string.IsNullOrEmpty(kodesap) && kodecust != null || kodecust != null && !string.IsNullOrEmpty(kodetransaksi))
                 {
                     var vmError = new CustomerViewModel() { };
+                    var dataArf01 = ErasoftDbContext.ARF01.Where(p => p.CUST == kodecust).SingleOrDefault();
+
                     var cekKodeSap = ErasoftDbContext.ARF01.Where(x => x.Attr5_Area == kodesap).ToList();
                     if (cekKodeSap.Count > 0)
                     {
-                        vmError.Errors.Add("Kode SAP ( " + kodesap + " ) sudah ada yang menggunakan !");
-                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                        if(cekKodeSap[0].RecNum != dataArf01.RecNum)
+                        {
+                            vmError.Errors.Add("Kode FTP ( " + kodesap + " ) sudah ada yang menggunakan !");
+                            return Json(vmError, JsonRequestBehavior.AllowGet);
+                        }
                     }
 
-                    var dataPesanan = ErasoftDbContext.ARF01.Where(p => p.CUST == kodecust).SingleOrDefault();
-                    dataPesanan.Attr5_Area = kodesap.ToString();
+                    var cekKodeTrans = ErasoftDbContext.ARF01.Where(x => x.Attr1_Area == kodetransaksi).ToList();
+                    if (cekKodeTrans.Count > 0)
+                    {
+                        if (cekKodeTrans[0].RecNum != dataArf01.RecNum)
+                        {
+                            vmError.Errors.Add("Kode Transaksi ( " + kodetransaksi + " ) sudah ada yang menggunakan !");
+                            return Json(vmError, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(kodesap))
+                    {
+                        dataArf01.Attr5_Area = kodesap.ToString();
+                    }
+                    if (!string.IsNullOrEmpty(kodetransaksi))
+                    {
+                        dataArf01.Attr1_Area = kodetransaksi.ToString();
+                    }
                     ErasoftDbContext.SaveChanges();
                     var successCount = listSuccess.Count();
                     return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
-                return new JsonResult { Data = new { mo_error = "Kode Sap Kosong." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Kode Sap Kosong." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
             }
             catch (Exception ex)
             {
@@ -2997,6 +3031,7 @@ namespace MasterOnline.Controllers
             string[] getkata = search.Split(' ');
             string sSQLnama = "";
             string sSQLemail = "";
+            string sSQLKodeBarangFTP = "";
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -3007,6 +3042,7 @@ namespace MasterOnline.Controllers
                         {
                             sSQLnama += " ( A.BRG like '%" + getkata[i] + "%' )";
                             sSQLemail += " ( A.NAMA like '%" + getkata[i] + "%' )";
+                            sSQLKodeBarangFTP += " ( A.BRG_SAP like '%" + getkata[i] + "%' )";
                         }
                         else
                         {
@@ -3014,16 +3050,19 @@ namespace MasterOnline.Controllers
                             {
                                 sSQLnama += " ( A.BRG like '%" + getkata[i] + "%'";
                                 sSQLemail += " ( A.NAMA like '%" + getkata[i] + "%'";
+                                sSQLKodeBarangFTP += " ( A.BRG_SAP like '%" + getkata[i] + "%'";
                             }
                             else if (getkata[i] == getkata.Last())
                             {
                                 sSQLnama += " and A.BRG like '%" + getkata[i] + "%' )";
                                 sSQLemail += " and A.NAMA like '%" + getkata[i] + "%' )";
+                                sSQLKodeBarangFTP += " and A.BRG_SAP like '%" + getkata[i] + "%' )";
                             }
                             else
                             {
                                 sSQLnama += " and A.BRG like '%" + getkata[i] + "%' ";
                                 sSQLemail += " and A.NAMA like '%" + getkata[i] + "%' ";
+                                sSQLKodeBarangFTP += " and A.BRG_SAP like '%" + getkata[i] + "%' ";
                             }
                         }
                     }
@@ -3038,7 +3077,7 @@ namespace MasterOnline.Controllers
             sSQL2 += "FROM STF02 A ";
             if (search != "")
             {
-                sSQL2 += " WHERE ( " + sSQLemail + " or " + sSQLnama + " ) ";
+                sSQL2 += " WHERE ( " + sSQLemail + " or " + sSQLnama + " or " + sSQLKodeBarangFTP + " ) ";
             }
 
             var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
@@ -3069,15 +3108,19 @@ namespace MasterOnline.Controllers
                 if (brg != null && brgsap != null)
                 {
                     var vmError = new CustomerViewModel() { };
+                    var dataSTF02 = ErasoftDbContext.STF02.Where(p => p.BRG == brg).SingleOrDefault();
+
                     var cekKodeSap = ErasoftDbContext.STF02.Where(x => x.BRG_SAP == brgsap).ToList();
                     if (cekKodeSap.Count > 0)
                     {
-                        vmError.Errors.Add("Kode SAP ( " + brgsap + " ) sudah ada yang menggunakan !");
-                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                        if (cekKodeSap[0].BRG != dataSTF02.BRG)
+                        {
+                            vmError.Errors.Add("Kode Barang FTP ( " + brgsap + " ) sudah ada yang menggunakan !");
+                            return Json(vmError, JsonRequestBehavior.AllowGet);
+                        }
                     }
 
-                    var dataPesanan = ErasoftDbContext.STF02.Where(p => p.BRG == brg).SingleOrDefault();
-                    dataPesanan.BRG_SAP = brgsap.ToString();
+                    dataSTF02.BRG_SAP = brgsap.ToString();
                     ErasoftDbContext.SaveChanges();
                     var successCount = listSuccess.Count();
                     return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
@@ -3109,32 +3152,34 @@ namespace MasterOnline.Controllers
                 return View("TransferToFTPParameterLinkFtp", dataVm);
             }
 
-            var linkFtpDb = ErasoftDbContext.LINKFTP.FirstOrDefault(s => s.IP == dataVm.IP);
+            var linkFtpDb = ErasoftDbContext.LINKFTP.ToList();
 
-            if (linkFtpDb == null)
+            if (linkFtpDb.Count() == 0)
             {
                 ErasoftDbContext.LINKFTP.Add(dataVm);
                 ErasoftDbContext.SaveChanges();
             }
-            else
+            else if (linkFtpDb.Count() == 1)
             {
-                ErasoftDbContext.LINKFTP.Remove(linkFtpDb);
-                ErasoftDbContext.SaveChanges();
+                //ErasoftDbContext.LINKFTP.Remove(linkFtpDb[0]);
+                //ErasoftDbContext.SaveChanges();
+                int recNum = Convert.ToInt32(linkFtpDb[0].RecNum);
+                var dataLastLinkFTP = ErasoftDbContext.LINKFTP.Where(p => p.RecNum == recNum).SingleOrDefault();
 
-                linkFtpDb.IP = dataVm.IP;
-                linkFtpDb.LOGIN = dataVm.LOGIN;
-                var key = Helper.GeneratePassword(10);
-                var encodingPassString = Helper.EncodePassword(dataVm.PASSWORD, key);
-                linkFtpDb.PASSWORD = encodingPassString;
-                linkFtpDb.STATUS_FTP = dataVm.STATUS_FTP;
-                linkFtpDb.PPN = dataVm.PPN;
-                linkFtpDb.KODE_TRANSAKSI = dataVm.KODE_TRANSAKSI;
-                linkFtpDb.JAM1 = dataVm.JAM1;
-                linkFtpDb.JAM2 = dataVm.JAM2;
+                dataLastLinkFTP.IP = dataVm.IP;
+                dataLastLinkFTP.LOGIN = dataVm.LOGIN;
+                //var key = Helper.GeneratePassword(10);
+                //var encodingPassString = Helper.EncodePassword(dataVm.PASSWORD, key);
+                dataLastLinkFTP.PASSWORD = dataVm.PASSWORD;
+                dataLastLinkFTP.STATUS_FTP = dataVm.STATUS_FTP;
+                dataLastLinkFTP.PPN = dataVm.PPN;
+                //dataLastLinkFTP.KODE_TRANSAKSI = dataVm.KODE_TRANSAKSI;
+                dataLastLinkFTP.JAM1 = dataVm.JAM1;
+                dataLastLinkFTP.JAM2 = dataVm.JAM2;
                 //linkFtpDb.JAM3 = dataVm.JAM3;
                 //linkFtpDb.JAM4 = dataVm.JAM4;
                 //linkFtpDb.JAM5 = dataVm.JAM5;
-                ErasoftDbContext.LINKFTP.Add(dataVm);
+                //ErasoftDbContext.LINKFTP.Add(dataVm);
                 ErasoftDbContext.SaveChanges();
             }
             ModelState.Clear();
