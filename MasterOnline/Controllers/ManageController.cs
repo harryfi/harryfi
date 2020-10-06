@@ -37936,6 +37936,35 @@ namespace MasterOnline.Controllers
             }
         }
 
+        [Route("manage/PromptPesananPL")]
+        public ActionResult PromptPesananPL(string nobuk)
+        {
+            try
+            {
+                var PromptModel = new List<PromptPesananPLViewModel>();
+                var listPesanan = EDB.GetDataSet("CString", "PESANAN", "SELECT ISNULL(A.NO_REFERENSI, '') NO_REFERENSI, B.NO_PESANAN FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN WHERE B.NO_BUKTI = '"+nobuk+ "' AND ISNULL(B.SCAN_BARCODE, 0) <> 1");
+                if(listPesanan.Tables[0].Rows.Count > 0)
+                {
+                    for (int i =0;i < listPesanan.Tables[0].Rows.Count;i++)
+                    {
+                        PromptModel.Add(
+                            new PromptPesananPLViewModel
+                            {
+                                NO_BUKTI = listPesanan.Tables[0].Rows[i]["NO_PESANAN"].ToString(),
+                                NO_REF = listPesanan.Tables[0].Rows[i]["NO_REFERENSI"].ToString(),
+                            }
+                            );
+                    }
+                }
+                
+                return View("PromptPesananPL", PromptModel);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+
         [Route("manage/PromptCustomer")]
         public ActionResult PromptCustomer()
         {
@@ -41348,6 +41377,56 @@ namespace MasterOnline.Controllers
             }
 
             return PartialView("ScanBarcodePickingBarang", data);
+        }
+        public ActionResult OpenModalPackingPesanan(string nobuk, string no_pesanan)
+        {
+            var vm = new ScanBarcodePackingPesananViewModel
+            {
+                NO_PL = nobuk,
+            };
+            var listPesanan = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == nobuk).ToList();
+            var listBrg = new List<ScanBarcodePackingPesanan>();
+            if(listPesanan.Count > 0)
+            {
+                vm.maxOrder = listPesanan.Count;
+                foreach(var order in listPesanan)
+                {
+                    if (!string.IsNullOrEmpty(order.SCAN_BARCODE))
+                    {
+                        vm.jmlOrder++;
+                    }
+                }
+            }
+            if (!string.IsNullOrEmpty(no_pesanan))
+            {
+                vm.nobuk = no_pesanan;
+                var sSQL = "SELECT C.BRG, ISNULL(C.BARCODE, '') BARCODE, ISNULL(C.RAK, '') RAK, C.QTY, A.NAMA + ' ' + ISNULL(A.NAMA2, '') NAMA ";
+                sSQL += "FROM SOT03C C INNER JOIN STF02 A ON C.BRG = A.BRG ";
+                sSQL += "WHERE NO_BUKTI = '" + nobuk + "' AND NO_PESANAN = '" + no_pesanan + "' ORDER BY C.BRG ";
+                var listBarang = EDB.GetDataSet("CString", "BARANG", sSQL);
+                if(listBarang.Tables[0].Rows.Count > 0)
+                {
+                    for(int i=0; i < listBarang.Tables[0].Rows.Count; i++)
+                    {
+                        var dataBarang = new ScanBarcodePackingPesanan
+                        {
+                            brg = listBarang.Tables[0].Rows[i]["BRG"].ToString(),
+                            code = listBarang.Tables[0].Rows[i]["BARCODE"].ToString(),
+                            rak = listBarang.Tables[0].Rows[i]["RAK"].ToString(),
+                            qty = Convert.ToInt32(listBarang.Tables[0].Rows[i]["QTY"].ToString()),
+                            nama = listBarang.Tables[0].Rows[i]["NAMA"].ToString(),
+                            isValid = false
+                        };
+                        if (!string.IsNullOrEmpty(dataBarang.code))
+                        {
+                            dataBarang.isValid = true;
+                        }
+                        listBrg.Add(dataBarang);
+                    }
+                }
+            }
+            vm.dataScan = listBrg;
+            return PartialView("ScanBarcodePacking", vm);
         }
         //end add by Tri, 29 sept 2020
 

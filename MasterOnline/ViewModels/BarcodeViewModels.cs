@@ -31,4 +31,23 @@ namespace MasterOnline.ViewModels
         public string currentScan { get; set; }
         public List<string> listDelete { get; set; }
     }
+
+    public class ScanBarcodePackingPesananViewModel
+    {
+        public string NO_PL { get; set; }
+        public string nobuk { get; set; }
+        public int jmlOrder { get; set; }
+        public int maxOrder { get; set; }
+        public List<ScanBarcodePackingPesanan> dataScan { get; set; }
+    }
+
+    public class ScanBarcodePackingPesanan
+    {
+        public string brg { get; set; }
+        public string nama { get; set; }
+        public string code { get; set; }
+        public string rak { get; set; }
+        public int qty { get; set; }
+        public bool isValid { get; set; }
+    }
 }

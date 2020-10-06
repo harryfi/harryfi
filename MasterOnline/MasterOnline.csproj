@@ -6450,6 +6450,8 @@
     <Content Include="Views\Manage\TablePromptBarangMultiSKUInvoicePartial.cshtml" />
     <Content Include="Views\Manage\TableMultiSKUDetailPartial.cshtml" />
     <Content Include="Views\Manage\ScanBarcodePickingBarang.cshtml" />
+    <Content Include="Views\Manage\ScanBarcodePacking.cshtml" />
+    <Content Include="Views\Manage\PromptPesananPL.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
