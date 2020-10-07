@@ -60,8 +60,8 @@ namespace MasterOnline.Controllers
                         lastNum = listTrans.Last().RECNUM.Value;
                     }
                     lastNum = lastNum + 1;
-                    //string noTrans = currentYear + lastNum.ToString().PadLeft(10, '0');
-                    string noTrans = currentYear + "addon" + lastNum.ToString().PadLeft(6, '0');
+                    //string noTrans = currentYear + lastNum.ToString().PadLeft(10, '0'); // remark add prefix MT for ID auto number Midtrans by fauzi 07-10-2020
+                    string noTrans = "MT" + currentYear + lastNum.ToString().PadLeft(8, '0');
                     #endregion
 
                     int bln = string.IsNullOrEmpty(bulan) ? 3 : Convert.ToInt32(bulan);
