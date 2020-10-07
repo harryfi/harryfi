@@ -43,8 +43,9 @@ namespace MasterOnline.ViewModels
         //add by nurul 22/7/2020
         public string NO_REFERENSI { get; set; }
         public string STATUS_PRINT { get; set; }
-        public double? BARCODE { get; set; }
+        //public double? BARCODE { get; set; }
         //end add by nurul 22/7/2020
+        public bool? BARCODE { get; set; }
 
     }
 

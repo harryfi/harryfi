@@ -505,7 +505,7 @@
             }
             $('#modalPackingPesanan').on('hidden.bs.modal', function (e) {
                 CloseModalPacking();
-            })
+            });
 
             $('#pesanan_detail_tab_focus').click();
         });
@@ -1260,7 +1260,51 @@
             });
         }
         function CloseModalPacking() {
-            $('#txtNoPesanan').val('');
+            //$('#txtNoPesanan').val('');
+            editPackinglist1($('#packingList_NO_BUKTI').val());
+        }
+
+        function SimpanPackingPesanan() {
+            if ($('#txtNoPesanan').val() == undefined || $('#txtNoPesanan').val() == "") {
+                alert('Silahkan pilih pesanan terlebih dahulu.');
+                return false;
+            }
+            for (i = 0; i < $('#maxDataPacking').val(); i++) {
+                if (document.getElementById('txtIsValid_' + i).innerText != "VALID") {
+                    alert('Ada data barang yang tidak valid, Silahkan perbaiki terlebih dahulu.');
+                    $("#txtScanBarcodePacking").focus();
+                    return false;
+                }
+            }
+            var link = '@Html.Raw(Url.Action("SimpanScanPackingPesanan", "Manage", new { nobuk = "replaceId", no_pesanan = "replaceNoPesanan" }))';
+            link = link.replace("replaceId", $('#packingList_NO_BUKTI').val());
+            link = link.replace("replaceNoPesanan", $('#txtNoPesanan').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors != null) {
+                        alert(response.Errors[0]);
+                        if (response.Errors[0].includes("sudah valid")) {
+                            //editPackinglist1($('#packingList_NO_BUKTI').val());
+                            $('#modalPackingPesanan').modal('hide');
+                        }
+                    } else {
+                        $('#modal-packing').html(response);
+                        $('#modalPackingPesanan').modal('show');
+                    }
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
         }
     </script>
     <script>

@@ -174,7 +174,7 @@
 
     $("#txtScanBarcode").keyup(function (event) {
         event.preventDefault();
-        if (event.keyCode === 13) {
+        if (event.keyCode === 13 || event.keyCode === 9) {
             if ($("#txtScanBarcode").val() == '') {
                 alert('Silahkan scan barcode barang.');
             }

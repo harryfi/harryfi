@@ -41216,6 +41216,7 @@ namespace MasterOnline.Controllers
                     NO_PESANAN = detil.NO_PESANAN,
                     TGL_PESANAN = detil.TGL_PESANAN,
                     MARKETPLACE = detil.MARKETPLACE,
+                    BARCODE = detil.SCAN_BARCODE
                 };
                 isiDetailpacking.SO_STATUS_KIRIM = "0";
                 isiDetailpacking.SO_TRACKING_NUMBER = "";
@@ -41227,7 +41228,7 @@ namespace MasterOnline.Controllers
                     //ADD BY NURUL 22/7/2020
                     isiDetailpacking.NO_REFERENSI = cariSO.NO_REFERENSI;
                     isiDetailpacking.STATUS_PRINT = cariSO.status_print;
-                    isiDetailpacking.BARCODE = cariSO.TIPE_KIRIM;
+                    //isiDetailpacking.BARCODE = cariSO.TIPE_KIRIM;
                     //END ADD BY NURUL 22/7/2020
                 }
                 vm.listDetailPacking.Add(isiDetailpacking);
@@ -41384,25 +41385,44 @@ namespace MasterOnline.Controllers
             {
                 NO_PL = nobuk,
             };
-            var listPesanan = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == nobuk).ToList();
-            var listBrg = new List<ScanBarcodePackingPesanan>();
+            var listPesanan = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == nobuk).OrderBy(m => m.NO_PESANAN).ToList();
+            if (!string.IsNullOrEmpty(no_pesanan))
+            {
+                var cekValid = listPesanan.Where(m => m.NO_PESANAN == no_pesanan).FirstOrDefault();
+                if(cekValid != null)
+                {
+                    if (cekValid.SCAN_BARCODE ?? false)//pesanan sudah valid, cek no pesanan selanjutnya
+                    {
+                        no_pesanan = "";
+                    }
+                }
+                else
+                {
+                    no_pesanan = "";
+                }
+            }
+                var listBrg = new List<ScanBarcodePackingPesanan>();
             if(listPesanan.Count > 0)
             {
                 vm.maxOrder = listPesanan.Count;
                 foreach(var order in listPesanan)
                 {
-                    if (!string.IsNullOrEmpty(order.SCAN_BARCODE))
+                    if (order.SCAN_BARCODE ?? false)
                     {
                         vm.jmlOrder++;
+                    }
+                    else if (string.IsNullOrEmpty(no_pesanan))
+                    {
+                        no_pesanan = order.NO_PESANAN;
                     }
                 }
             }
             if (!string.IsNullOrEmpty(no_pesanan))
             {
                 vm.nobuk = no_pesanan;
-                var sSQL = "SELECT C.BRG, ISNULL(C.BARCODE, '') BARCODE, ISNULL(C.RAK, '') RAK, C.QTY, A.NAMA + ' ' + ISNULL(A.NAMA2, '') NAMA ";
+                var sSQL = "SELECT C.BRG, ISNULL(A.KET_SORT7, '') BARCODE, ISNULL(A.LKS, '') RAK, SUM(C.QTY) QTY, A.NAMA + ' ' + ISNULL(A.NAMA2, '') NAMA ";
                 sSQL += "FROM SOT03C C INNER JOIN STF02 A ON C.BRG = A.BRG ";
-                sSQL += "WHERE NO_BUKTI = '" + nobuk + "' AND NO_PESANAN = '" + no_pesanan + "' ORDER BY C.BRG ";
+                sSQL += "WHERE NO_BUKTI = '" + nobuk + "' AND NO_PESANAN = '" + no_pesanan + "' GROUP BY C.BRG, A.KET_SORT7, A.LKS, A.NAMA, A.NAMA2 ORDER BY C.BRG ";
                 var listBarang = EDB.GetDataSet("CString", "BARANG", sSQL);
                 if(listBarang.Tables[0].Rows.Count > 0)
                 {
@@ -41417,16 +41437,28 @@ namespace MasterOnline.Controllers
                             nama = listBarang.Tables[0].Rows[i]["NAMA"].ToString(),
                             isValid = false
                         };
-                        if (!string.IsNullOrEmpty(dataBarang.code))
-                        {
-                            dataBarang.isValid = true;
-                        }
+                        //if (!string.IsNullOrEmpty(dataBarang.code))
+                        //{
+                        //    dataBarang.isValid = true;
+                        //}
                         listBrg.Add(dataBarang);
                     }
                 }
             }
+            else
+            {
+                return JsonErrorMessage("Semua data pesanan untuk packing list ini sudah valid.");
+            }
             vm.dataScan = listBrg;
             return PartialView("ScanBarcodePacking", vm);
+        }
+
+        public ActionResult SimpanScanPackingPesanan(string nobuk, string no_pesanan)
+        {
+            var result = EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT03B SET SCAN_BARCODE = 1 WHERE NO_BUKTI = '" + nobuk + "' AND NO_PESANAN = '" + no_pesanan + "'");
+
+            return OpenModalPackingPesanan(nobuk, no_pesanan);
+
         }
         //end add by Tri, 29 sept 2020
 
@@ -56171,7 +56203,7 @@ namespace MasterOnline.Controllers
 
                 string sSQLSelect = "";
                 sSQLSelect += "select a.RecNum, a.NO_BUKTI, a.PEMBELI, a.TGL_INPUT, a.USERNAME, a.NO_PESANAN, a.TGL_PESANAN, a.MARKETPLACE, ";
-                sSQLSelect += "ISNULL(b.STATUS_KIRIM,'0') AS SO_STATUS_KIRIM, ISNULL(b.TRACKING_SHIPMENT,'') AS SO_TRACKING_NUMBER, ISNULL(b.NO_REFERENSI,'') AS NO_REFERENSI, ISNULL(b.STATUS_PRINT,'0') AS STATUS_PRINT, ISNULL(b.TIPE_KIRIM,0) AS BARCODE  ";
+                sSQLSelect += "ISNULL(b.STATUS_KIRIM,'0') AS SO_STATUS_KIRIM, ISNULL(b.TRACKING_SHIPMENT,'') AS SO_TRACKING_NUMBER, ISNULL(b.NO_REFERENSI,'') AS NO_REFERENSI, ISNULL(b.STATUS_PRINT,'0') AS STATUS_PRINT, ISNULL(a.SCAN_BARCODE,0) AS BARCODE  ";
                 string sSQLCount = "";
                 sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
                 string sSQL2 = "";
