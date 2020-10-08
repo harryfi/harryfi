@@ -40,14 +40,16 @@ namespace MasterOnline.Controllers
 
                     #region FITUR ADDON by fauzi
                     var priceAddon = 0;
+                    var emailAddon = "";
+                    var idAccount = "";
                     if (!string.IsNullOrEmpty(addon))
                     {
                         string[] splitAddon = addon.Split(',');                        
                         foreach(var dataAddon in splitAddon)
                         {
                             int idAddon = Convert.ToInt32(dataAddon);
-                            var dataDBAddon = MoDbContext.Addons.Where(p => p.RecNum == idAddon).SingleOrDefault();
-                            priceAddon += dataDBAddon.Harga;
+                            var hargaAddon = MoDbContext.Addons.Where(p => p.RecNum == idAddon).Select(p => p.Harga).SingleOrDefault();
+                            priceAddon += hargaAddon;
                         }
                     }
                     #endregion
@@ -113,6 +115,8 @@ namespace MasterOnline.Controllers
                             data.customer_details.email = accInDB.Email;
                             data.customer_details.phone = accInDB.NoHp;
                             data.user_id = accId.ToString();
+                            emailAddon = accInDB.Email;
+                            idAccount = accId.ToString();
                         }
                     }
                     else if (sessionData?.Account != null)
@@ -122,6 +126,8 @@ namespace MasterOnline.Controllers
                         data.customer_details.email = sessionData.Account.Email;
                         data.customer_details.phone = sessionData.Account.NoHp;
                         data.user_id = sessionData.Account.AccountId.ToString();
+                        emailAddon = sessionData.Account.Email;
+                        idAccount = sessionData.Account.AccountId.ToString();
                     }
                     else
                     {
@@ -131,6 +137,8 @@ namespace MasterOnline.Controllers
                             data.customer_details.email = sessionData.User.Email;
                             data.customer_details.phone = sessionData.User.NoHp;
                             data.user_id = sessionData.User.UserId.ToString();
+                            emailAddon = sessionData.User.Email;
+                            idAccount = sessionData.User.UserId.ToString();
                         }
                     }
 
@@ -138,17 +146,18 @@ namespace MasterOnline.Controllers
                     Utils.HttpRequest req = new Utils.HttpRequest();
                     System.Net.Http.HttpContent content = new System.Net.Http.StringContent(dataPost);
                     BindResSnap bindTransferCharge = await req.RequestJSONObject(Utils.HttpRequest.RESTServices.v1, "transactions", content, typeof(BindResSnap), Base64Encode()) as BindResSnap;
-                    if (bindTransferCharge != null)
-                    {
-                        if (!string.IsNullOrEmpty(bindTransferCharge.token))
-                        {
+                    //if (bindTransferCharge != null)
+                    //{
+                        //if (!string.IsNullOrEmpty(bindTransferCharge.token))
+                        //{
                             MoDbContext = new MoDbContext("");
 
                             var dataTrans = new TransaksiMidtrans();
                             dataTrans.NO_TRANSAKSI = noTrans;
                             dataTrans.TGL_INPUT = dtNow;
                             dataTrans.TYPE = code;
-                            dataTrans.VALUE = MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).HARGA;
+                            //dataTrans.VALUE = MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).HARGA; // remark by fauzi for add price addon
+                            dataTrans.VALUE = MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).HARGA + Convert.ToInt64(priceAddon);
                             dataTrans.BULAN = string.IsNullOrEmpty(bulan) ? 0 : Convert.ToInt32(bulan);
                             //add 1 Maret 2019, jumlah user
                             if (code == "03")
@@ -175,6 +184,42 @@ namespace MasterOnline.Controllers
                             }
 
                             MoDbContext.TransaksiMidtrans.Add(dataTrans);
+
+                            #region save to table ADDON_CUSTOMER for fiture ADDON by fauzi 07/10/2020
+                            if (!string.IsNullOrEmpty(addon))
+                            {
+                                var dataAccountInDB = MoDbContext.Account.Where(a => a.AccountId == Convert.ToInt64(idAccount)).FirstOrDefault();
+                                string[] splitAddon = addon.Split(',');
+
+                                    DateTime? drTgl = DateTime.Today.AddHours(7);
+                                    DateTime? sdTgl = DateTime.Today.AddHours(7);
+
+                                    if (dataAccountInDB.TGL_SUBSCRIPTION > DateTime.Today.AddHours(7))
+                                    {
+                                        drTgl = dataAccountInDB?.TGL_SUBSCRIPTION;
+                                    }
+                                    sdTgl = drTgl.Value.AddMonths(bln);
+
+                                foreach (var dataAddon in splitAddon)
+                                {
+                                    int idAddon = Convert.ToInt32(dataAddon);
+                                    var dataDBAddon = MoDbContext.Addons.Where(p => p.RecNum == idAddon).SingleOrDefault();
+
+                                    var dataAddCust = new Addons_Customer();
+                                    dataAddCust.NamaAddons = dataDBAddon.Fitur.ToString();
+                                    dataAddCust.Account = emailAddon.ToString();
+                                    dataAddCust.NamaTokoOnline = dataAccountInDB.NamaTokoOnline.ToString();
+                                    dataAddCust.TGL_DAFTAR = dtNow.AddHours(7);
+                                    dataAddCust.TglSubscription = sdTgl;
+                                    dataAddCust.Harga = dataDBAddon.Harga;
+                                    dataAddCust.ID_ADDON = dataDBAddon.RecNum.ToString();
+                                    dataAddCust.ID_TRANS_MIDTRANS = noTrans;
+                                    dataAddCust.STATUS = "0";
+                                    MoDbContext.Addons_Customer.Add(dataAddCust);
+                                }
+                            }
+
+                            #endregion
 
                             //var dataSub = new AktivitasSubscription();
                             //dataSub.Account = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
@@ -203,19 +248,19 @@ namespace MasterOnline.Controllers
                             //    }
                             //}
                             MoDbContext.SaveChanges();
-                            retError.token = bindTransferCharge.token;
+                            //retError.token = bindTransferCharge.token;
                             return Json(retError, JsonRequestBehavior.AllowGet);
-                        }
-                        else
-                        {
-                            retError.error = bindTransferCharge.error_messages;
-                            return Json(retError, JsonRequestBehavior.AllowGet);
+                        //}
+                        //else
+                        //{
+                        //    retError.error = bindTransferCharge.error_messages;
+                        //    return Json(retError, JsonRequestBehavior.AllowGet);
 
-                        }
-                    }
+                        //}
+                    //}
                     //return View(data);
-                    retError.error = "failed to connect to midtrans";
-                    return Json(retError, JsonRequestBehavior.AllowGet);
+                    //retError.error = "failed to connect to midtrans";
+                    //return Json(retError, JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
@@ -446,7 +491,7 @@ namespace MasterOnline.Controllers
                 MoDbContext.SaveChanges();
 
                 //var listAcc = MoDbContext.Account.ToList();
-                sendEmail(accInDb.Email, accInDb.Password, accInDb.Username);
+                //sendEmail(accInDb.Email, accInDb.Password, accInDb.Username);
                 //return View("AccountMenu", listAcc);
                 ret.status = 1;
             }

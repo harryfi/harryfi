@@ -27,5 +27,16 @@ namespace MasterOnline.Models
         public DateTime? TglSubscription { get; set; }
 
         public int Harga { get; set; }
+
+        public DateTime? TGL_DAFTAR { get; set; }
+
+        [StringLength(50)]
+        public string ID_ADDON { get; set; }
+
+        [StringLength(50)]
+        public string ID_TRANS_MIDTRANS { get; set; }
+
+        [StringLength(1)]
+        public string STATUS { get; set; }
     }
 }
