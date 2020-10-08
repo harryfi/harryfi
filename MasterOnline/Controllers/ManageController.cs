@@ -17473,8 +17473,8 @@ namespace MasterOnline.Controllers
                 var getPembayaran = ErasoftDbContext.Database.SqlQuery<tempTambahan>(getPembayaranSql).ToList();
                 for (int i = 0; i < listFakturNew.Count(); i++)
                 {
-                    listFakturNew[i].STATUS = getStatusPesanan[i].STATUS;
-                    listFakturNew[i].PEMBAYARAN = getPembayaran[i].STATUS;
+                    listFakturNew[i].STATUS = getStatusPesanan.Where(a => a.NO_BUKTI == listFakturNew[i].NO_FAKTUR).Select(a => a.STATUS).FirstOrDefault();
+                    listFakturNew[i].PEMBAYARAN = getPembayaran.Where(a => a.NO_BUKTI == listFakturNew[i].NO_FAKTUR).Select(a => a.STATUS).FirstOrDefault();
                 }
             }
 
