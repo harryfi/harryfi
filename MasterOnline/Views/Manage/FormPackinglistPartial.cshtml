@@ -187,6 +187,10 @@
                     SearchTablePackingListTabPesanan();
                 });
                 //end add by nurul 23/7/2020
+
+                if ($FocusTab == 2) {
+                    $('rekap_barang_tab_focus').click();
+                }
             },
             error: function (xhr, status, error) {
                 console.log(error);
@@ -445,11 +449,15 @@
                             </span>
                         </div>
                     </div>
-                    <div class="col-lg-6">
-                        <button type="button" id="btnPackingPesanan" class="btn btn-primary" onclick="openModalPacking();">Scan Packing</button>
+                    <div class="col-lg-5">
                     </div>
-                    <div class="col-lg-2 pull-right" style="padding-right:10px">
-                        <button id="btnRefreshTabPesanan" type="button" class="btn btn-default pull-right" onclick="RefreshPackingTabPesanan()" style="width:75px">Refresh</button>
+                    <div class="col-lg-1">
+                        
+                            <button id="btnRefreshTabPesanan" type="button" class="btn btn-default" onclick="RefreshPackingTabPesanan()" style="width:75px">Refresh</button>
+                        
+                    </div>
+                    <div class="col-lg-2">
+                        <button type="button" id="btnPackingPesanan" class="btn btn-primary" onclick="openModalPacking();">Scan Barcode Packing</button>
                     </div>
                 </div>
                 <div class="row">
@@ -600,15 +608,20 @@
             <div id="rekap_barang_tab" class="tab-pane fade in">
                 <div class="row">
                     <div class="col-lg-12">
-                        <button type="button" id="btnPickingBarang" class="btn btn-primary" onclick="openModalPicking();">Scan Picking Barang</button>
-                        @if (Model.listRekapBarang.Count > 0)
-                        {
-                        <button id="btnPrint" type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalPrint">Print</button>
-                        }
-                        else
-                        {
-                        <button id="btnPrint" type="button" class="btn btn-primary pull-right" disabled data-toggle="modal" data-target="#modalPrint">Print</button>
-                        }
+                        <div class="col-md-9"></div>
+                        <div class="col-md-2">
+                            <button type="button" id="btnPickingBarang" class="btn btn-primary pull-right" onclick="openModalPicking();">Scan Barcode Picking</button>
+                        </div>
+                        <div class="col-md-1">
+                            @if (Model.listRekapBarang.Count > 0)
+                            {
+                                <button id="btnPrint" type="button" class="btn btn-primary pull-left" data-toggle="modal" data-target="#modalPrint">Print</button>
+                            }
+                            else
+                            {
+                                <button id="btnPrint" type="button" class="btn btn-primary pull-left" disabled data-toggle="modal" data-target="#modalPrint">Print</button>
+                            }
+                        </div>
                     </div>
                 </div>
                 <div class="row">

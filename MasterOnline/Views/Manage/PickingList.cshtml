@@ -312,6 +312,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Scan Barcode Packing</h4>
             </div>
             <div class="modal-body">
                 @*<div class="row text-center">
@@ -331,6 +332,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Scan Barcode Picking</h4>
             </div>
             <div class="modal-body">
                 @*<div class="row text-center">
@@ -501,13 +503,17 @@
             var qs = parse_query_string(query);
             //alert(qs.nobuk);
             if (qs.nobuk != undefined) {
-                editPackinglist1(qs.nobuk);
+                editPackinglist1(qs.nobuk, 1);
             }
             $('#modalPackingPesanan').on('hidden.bs.modal', function (e) {
                 CloseModalPacking();
             });
-
-            $('#pesanan_detail_tab_focus').click();
+            $('#modalPickingBarang').on('hidden.bs.modal', function (e) {
+                CloseModalPicking();
+            });
+            
+                $('#pesanan_detail_tab_focus').click();
+            
         });
 
         function clickAllPicking() {
@@ -773,8 +779,8 @@
                 }
             });
         }
-
-        function editPackinglist1(idPackinglist) {
+        $FocusTab = 1;
+        function editPackinglist1(idPackinglist, tab) {
             var link = '@Url.Action("EditPackinglist", "Manage", new { nobuk = "replaceId" })';
             link = link.replace("replaceId", idPackinglist);
 
@@ -798,7 +804,7 @@
                     //$('#tambah_promosi').click();
                     $('.packinglist_table_section').hide();
                     $('.packinglist_editor_section').show();
-
+                    $FocusTab = tab;
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -1214,9 +1220,9 @@
                         document.getElementById("btnCancelPickingBrg").disabled = false;
                         document.getElementById("btnSimpanPickingBrg").disabled = false;
                         $('#modalPickingBarang').modal('hide');
-                        if (response != null) {
-                            editPackinglist1(response.Errors[0]);
-                        }
+                        //if (response != null) {
+                        //    editPackinglist1(response.Errors[0]);
+                        //}
 
                     },
                     error: function (xhr, status, error) {
@@ -1261,9 +1267,11 @@
         }
         function CloseModalPacking() {
             //$('#txtNoPesanan').val('');
-            editPackinglist1($('#packingList_NO_BUKTI').val());
+            editPackinglist1($('#packingList_NO_BUKTI').val(), 1);
         }
-
+        function CloseModalPicking() {
+            editPackinglist1($('#packingList_NO_BUKTI').val(), 2);
+        }
         function SimpanPackingPesanan() {
             if ($('#txtNoPesanan').val() == undefined || $('#txtNoPesanan').val() == "") {
                 alert('Silahkan pilih pesanan terlebih dahulu.');

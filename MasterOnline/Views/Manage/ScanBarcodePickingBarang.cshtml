@@ -6,11 +6,10 @@
     <div class="row">
         <div class="col-3">
             <div class="col-md-3">
+                <label>No PL</label>
             </div>
             <div class="col-md-3">
-                <label>No PL :</label>
-            </div>
-            <div class="col-md-3">
+                <label>:</label>
                 <label id="txtNoPL">@Model.NO_PL</label>
             </div>
         </div>
@@ -18,11 +17,10 @@
     <div class="row">
         <div class="col-3">
             <div class="col-md-3">
+                <label>Total BRG </label>
             </div>
             <div class="col-md-3">
-                <label>Total BRG :</label>
-            </div>
-            <div class="col-md-3">
+                <label>:</label>
                 <label id="txtJmlBrg">@Model.jmlBrg</label>
                 <label>/</label>
                 <label id="txtMaxBrg">@Model.maxBrg</label>
@@ -33,11 +31,10 @@
     <div class="row">
         <div class="col-3">
             <div class="col-md-3">
+                <label>Total QTY </label>
             </div>
             <div class="col-md-3">
-                <label>Total QTY :</label>
-            </div>
-            <div class="col-md-3">
+                <label>:</label>
                 <label id="txtJmlQty">@Model.jmlQty</label>
                 <label>/</label>
                 <label id="txtMaxQty">@Model.maxQty</label>
@@ -49,7 +46,7 @@
 <div class="row">
     <div class="col-md-9">
     </div>
-    <div class="col-md-3">
+    <div class="col-md-3" style="text-align:right;">
         <button type="button" class="btn btn-danger" id="btnHapusPickingBarang" onclick="HapusPickingBarang();">Hapus</button>
     </div>
 </div>
@@ -59,7 +56,7 @@
             <tr role="row">
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; align-self:flex-start"><input type="checkbox" onclick="clickAllPicking();" class="dt-checkboxes-select-all center" id="checkbox_all_delete_picking_barang" style="margin-top: 20px; border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">Scan Barcode</th>
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 50px;">QTY</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 50px;">Qty</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 70px;">Lokasi Rak</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 120px;">Valid</th>
             </tr>
@@ -91,7 +88,7 @@
                 @Html.HiddenFor(m => m.dataScan[i].qty)
                 @Html.HiddenFor(m => m.dataScan[i].isValid)
                 @Html.HiddenFor(m => m.dataScan[i].rak)
-                <td style="width: 40px; max-width: 40px; align-self:flex-start;">
+                <td style="width: 40px; max-width: 40px; align-self:center; text-align:center;">
                     <input type="checkbox" class="dt-checkboxes checkbox_delete_picking_barang center" id-brg="@Model.dataScan[i].brg" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
                 </td>
                 <td class="get_data_picking kode_barcode" id-brg="@Model.dataScan[i].brg">@Model.dataScan[i].code</td>

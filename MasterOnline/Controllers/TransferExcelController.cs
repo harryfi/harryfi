@@ -3944,9 +3944,9 @@ namespace MasterOnline.Controllers
                         else
                         {
                             ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Picking List");
-                            string sSQL = "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY " +
+                            string sSQL = "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(A.RAK,'') as RAK " +
                                 "from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG " +
-                                "WHERE NO_BUKTI = '" + noPackingList + "' GROUP BY A.BRG, B.NAMA, B.NAMA2 ";
+                                "WHERE NO_BUKTI = '" + noPackingList + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE, A.RAK ";
                             var lsPicking = EDB.GetDataSet("CString", "SO", sSQL);
                             if (lsPicking.Tables[0].Rows.Count > 0)
                             {
@@ -3956,18 +3956,22 @@ namespace MasterOnline.Controllers
                                 for (int i = 0; i < lsPicking.Tables[0].Rows.Count; i++)
                                 {
                                     worksheet.Cells[6 + i, 1].Value = lsPicking.Tables[0].Rows[i]["BRG"];
-                                    worksheet.Cells[6 + i, 2].Value = lsPicking.Tables[0].Rows[i]["NAMA_BARANG"];
-                                    worksheet.Cells[6 + i, 3].Value = lsPicking.Tables[0].Rows[i]["QTY"];
+                                    worksheet.Cells[6 + i, 2].Value = lsPicking.Tables[0].Rows[i]["BARCODE"];
+                                    worksheet.Cells[6 + i, 3].Value = lsPicking.Tables[0].Rows[i]["NAMA_BARANG"];
+                                    worksheet.Cells[6 + i, 4].Value = lsPicking.Tables[0].Rows[i]["RAK"];
+                                    worksheet.Cells[6 + i, 5].Value = lsPicking.Tables[0].Rows[i]["QTY"];
                                 }
-                                ExcelRange rg0 = worksheet.Cells[5, 1, worksheet.Dimension.End.Row, 3];
+                                ExcelRange rg0 = worksheet.Cells[5, 1, worksheet.Dimension.End.Row, 5];
                                 string tableName0 = "TablePackingList";
                                 ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
 
                                 table0.Columns[0].Name = "KODE BARANG";
-                                table0.Columns[1].Name = "NAMA BARANG";
-                                table0.Columns[2].Name = "QTY";
+                                table0.Columns[1].Name = "KODE BARCODE";
+                                table0.Columns[2].Name = "NAMA BARANG";
+                                table0.Columns[3].Name = "LOKASI RAK";
+                                table0.Columns[4].Name = "QTY";
 
-                                using (var range = worksheet.Cells[5, 1, 5, 3])
+                                using (var range = worksheet.Cells[5, 1, 5, 5])
                                 {
                                     range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
                                     range.Style.Border.Left.Style = ExcelBorderStyle.Thin;

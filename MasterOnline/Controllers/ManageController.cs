@@ -41866,7 +41866,7 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
+                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(A.RAK,'') as RAK from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE, A.RAK");
                 for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
                 {
                     var newData = new RekapBarang
@@ -41874,6 +41874,8 @@ namespace MasterOnline.Controllers
                         BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
                         NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
                         QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
+                        BARCODE = dsRekap.Tables[0].Rows[i]["BARCODE"].ToString(),
+                        RAK = dsRekap.Tables[0].Rows[i]["RAK"].ToString(),
                     };
                     retData.listRekapBarang.Add(newData);
                 }
