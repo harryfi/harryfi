@@ -56,4 +56,10 @@ namespace MasterOnline.ViewModels
         //public string ulang { get; set; }
     }
     //END ADD BY NURUL 19/6/2019
+
+    public class PromptPesananPLViewModel
+    {
+        public string NO_BUKTI { get; set; }
+        public string NO_REF { get; set; }
+    }
 }

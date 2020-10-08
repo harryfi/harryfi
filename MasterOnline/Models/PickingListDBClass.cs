@@ -51,6 +51,7 @@ namespace MasterOnline.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RecNum { get; set; }
 
+        public bool? SCAN_BARCODE { get; set; }
     }
 
     public partial class SOT03C
@@ -76,6 +77,10 @@ namespace MasterOnline.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RecNum { get; set; }
+
+        public string BARCODE { get; set; }
+
+        public string RAK { get; set; }
 
     }
 }
