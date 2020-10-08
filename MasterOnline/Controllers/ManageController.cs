@@ -3372,9 +3372,44 @@ namespace MasterOnline.Controllers
         [Route("manage/transfer/transfertoftpparameterlinkftp")]
         public ActionResult TransferToFTPParameterLinkFtp()
         {
-            var linkftpVm = ErasoftDbContext.LINKFTP.FirstOrDefault();
+            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            var emailAccount = "";
+            if (sessionData?.Account != null)
+            {
+                emailAccount = sessionData.Account.Email.ToString();
+            }
+            else
+            {
+                if (sessionData?.User != null)
+                {
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    emailAccount = accFromUser.Email.ToString();
+                }
+            }
 
-            return View(linkftpVm);
+            var linkftpVm = ErasoftDbContext.LINKFTP.SingleOrDefault();
+            var checkSubAddonFTP = MoDbContext.Addons_Customer.Where(p => p.Account == emailAccount && p.ID_ADDON == "5").SingleOrDefault(); // ID 5 = Data Transfer FTP
+            var statusAktifSubAddonFTP = 2; // status expired Addon FTP DEFAULT
+
+            if (checkSubAddonFTP != null)
+            {
+                if (checkSubAddonFTP.TglSubscription > DateTime.Today.AddHours(7))
+                {
+                    statusAktifSubAddonFTP = 1; // registered Addon FTP
+                }
+            }
+            else
+            {
+                statusAktifSubAddonFTP = 0; // not registered Addon FTP
+            }
+
+            var vm = new TransferToFTPParameterLinkFtpViewModel()
+            {
+                LINKFTP = linkftpVm,
+                statusAddonFTP = statusAktifSubAddonFTP.ToString()
+            };
+
+            return View(vm);
         }
 
         [HttpPost]

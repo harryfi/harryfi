@@ -56,6 +56,10 @@ namespace MasterOnline
         public DbSet<Tutorial_Detail> Tutorial_Detail { get; set; }
 
 
+
+        public DbSet<Addons> Addons { get; set; }
+        public DbSet<Addons_Customer> Addons_Customer { get; set; }
+
         public MoDbContext()
             : base("name=MoDbContext")
         {

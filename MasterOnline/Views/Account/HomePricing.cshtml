@@ -832,8 +832,7 @@
                                     <td style="text-align:center;">Unlimited</td>
                                 </tr>
                                 <tr>
-                                    @*<th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Jumlah Faktur per Bulan</th>*@
-                                    <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Jumlah Pesanan per Bulan</th>
+                                    <th scope="row"><span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Jumlah Faktur per Bulan</th>
                                     @foreach (var subs in Model?.ListSubs)
                                     {
                                         <td style="text-align:center;">@(subs.JUMLAH_PESANAN >= 999 ? "Unlimited" : subs.JUMLAH_PESANAN.ToString())</td>
@@ -949,21 +948,17 @@
                                         <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Shopify
                                     </th>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
-                                    @*<td style="text-align:center;"><input class="cbBox02_a" id="cbBox02_silver_a" type="checkbox"><br />Rp 300.000,00</td>
-            <td style="text-align:center;"><input class="cbBox03_a" id="cbBox03_gold_a" type="checkbox"><br />Rp 300.000,00</td>*@
-                                    <td style="text-align:center;"></td>
-                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"><input class="cbBox02_a" id="cbBox02_silver_a" type="checkbox"><br />Rp 300.000,00</td>
+                                    <td style="text-align:center;"><input class="cbBox03_a" id="cbBox03_gold_a" type="checkbox"><br />Rp 300.000,00</td>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                 </tr>
                                 <tr>
                                     <th scope="row">
-                                        <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Multi SKU / Bundling (Coming Soon)
+                                        <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Multi SKU
                                     </th>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
-                                    @*<td style="text-align:center;"><input class="cbBox02_b" id="cbBox02_silver_b" type="checkbox"><br />Rp 300.000,00</td>
-            <td style="text-align:center;"><input class="cbBox03_b" id="cbBox03_gold_b" type="checkbox"><br />Rp 300.000,00</td>*@
-                                    <td style="text-align:center;"></td>
-                                    <td style="text-align:center;"></td>
+                                    <td style="text-align:center;"><input class="cbBox02_b" id="cbBox02_silver_b" type="checkbox"><br />Rp 200.000,00</td>
+                                    <td style="text-align:center;"><input class="cbBox03_b" id="cbBox03_gold_b" type="checkbox"><br />Rp 200.000,00</td>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                 </tr>
                                 <tr>
@@ -971,8 +966,17 @@
                                         <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Data Transfer to FTP
                                     </th>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
-                                    <td style="text-align:center;">@*<input class="cbBox02_c" id="cbBox02_silver_c" type="checkbox"><br />Rp 300.000,00*@</td>
-                                    <td style="text-align:center;">@*<input class="cbBox03_c" id="cbBox03_gold_c" type="checkbox"><br />Rp 300.000,00*@</td>
+                                    <td style="text-align:center;"><input class="cbBox02_c" id="cbBox02_silver_c" type="checkbox"><br />Rp 300.000,00</td>
+                                    <td style="text-align:center;"><input class="cbBox03_c" id="cbBox03_gold_c" type="checkbox"><br />Rp 300.000,00</td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">
+                                        <span class="glyphicon glyphicon-ok-sign" style="color:#B11339; font-size: 18px;"></span>&nbsp;&nbsp;Bundling (Coming Soon)
+                                    </th>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
+                                    <td style="text-align:center;">@*<input class="cbBox02_d" id="cbBox02_silver_d" type="checkbox"><br />Rp 300.000,00*@</td>
+                                    <td style="text-align:center;">@*<input class="cbBox03_d" id="cbBox03_gold_d" type="checkbox"><br />Rp 300.000,00*@</td>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                 </tr>
                             </tbody>
@@ -1054,28 +1058,54 @@
 @*<script type="text/javascript" src="https://code.jquery.com/jquery-1.10.2.js"></script>*@
 @*<script src="~/Scripts/jquery-1.10.2.js"></script>*@
 <script type="text/javascript">
+    //var addonsArray = [{ "addons": "82Cart", "harga": 0 }];
+    var addonsArray = ["2"]; //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
     $(document).ready(function () {
         $(".cbBox02_a").change(function () {
             if ($("#cbBox02_silver_a")[0].checked == true) {
                 $("#cbBox02_silver_a").prop('checked', true);
                 $(this).prop('checked', true);
                 checkPlugin02(300000);
+                //addonsArray.push({ "addons": "Shopify", "harga": 300000 });
+                addonsArray.push("3"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox02_silver_a")[0].checked == false) {
                 $("#cbBox02_silver_a").prop('checked', false);
                 $(this).prop('checked', false);
                 checkPlugin02(-300000);
-            }           
+                //addonsArray.splice(addonsArray.indexOf("Shopify"), 1);
+                addonsArray.splice(addonsArray.indexOf("3"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+            }
         });
 
         $(".cbBox02_b").change(function () {
             if ($("#cbBox02_silver_b")[0].checked == true) {
                 $("#cbBox02_silver_b").prop('checked', true);
                 $(this).prop('checked', true);
-                checkPlugin02(300000);
+                checkPlugin02(200000);
+                //addonsArray.push({ "addons": "Multi SKU", "harga": 300000 });
+                addonsArray.push("4"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox02_silver_b")[0].checked == false) {
                 $("#cbBox02_silver_b").prop('checked', false);
                 $(this).prop('checked', false);
+                checkPlugin02(-200000);
+                //addonsArray.splice(addonsArray.indexOf("Multi SKU"), 1);
+                addonsArray.splice(addonsArray.indexOf("4"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+            }
+        });
+
+        $(".cbBox02_c").change(function () {
+            if ($("#cbBox02_silver_c")[0].checked == true) {
+                $("#cbBox02_silver_c").prop('checked', true);
+                $(this).prop('checked', true);
+                checkPlugin02(300000);
+                //addonsArray.push({ "addons": "Shopify", "harga": 300000 });
+                addonsArray.push("5"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+            } else if ($("#cbBox02_silver_c")[0].checked == false) {
+                $("#cbBox02_silver_c").prop('checked', false);
+                $(this).prop('checked', false);
                 checkPlugin02(-300000);
+                //addonsArray.splice(addonsArray.indexOf("Shopify"), 1);
+                addonsArray.splice(addonsArray.indexOf("5"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             }
         });
 
@@ -1084,10 +1114,14 @@
                 $("#cbBox03_gold_a").prop('checked', true);
                 $(this).prop('checked', true);
                 checkPlugin03(300000);
+                //addonsArray.push({ "addons": "Shopify", "harga": 300000 });
+                addonsArray.push("3"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox03_gold_a")[0].checked == false) {
                 $("#cbBox03_gold_a").prop('checked', false);
                 $(this).prop('checked', false);
                 checkPlugin03(-300000);
+                //addonsArray.splice(addonsArray.indexOf("Shopify"), 1);
+                addonsArray.splice(addonsArray.indexOf("3"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             }
         });
 
@@ -1095,14 +1129,34 @@
             if ($("#cbBox03_gold_b")[0].checked == true) {
                 $("#cbBox03_gold_b").prop('checked', true);
                 $(this).prop('checked', true);
-                checkPlugin03(300000);
+                checkPlugin03(200000);
+                //addonsArray.push({ "addons": "Multi SKU", "harga": 300000 });
+                addonsArray.push("4"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             } else if ($("#cbBox03_gold_b")[0].checked == false) {
                 $("#cbBox03_gold_b").prop('checked', false);
                 $(this).prop('checked', false);
-                checkPlugin03(-300000);
+                checkPlugin03(-200000);
+                //addonsArray.splice(addonsArray.indexOf("Multi SKU"), 1);
+                addonsArray.splice(addonsArray.indexOf("4"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
             }
         });
-        
+
+        $(".cbBox03_c").change(function () {
+            if ($("#cbBox03_gold_c")[0].checked == true) {
+                $("#cbBox03_gold_c").prop('checked', true);
+                $(this).prop('checked', true);
+                checkPlugin03(300000);
+                //addonsArray.push({ "addons": "Multi SKU", "harga": 300000 });
+                addonsArray.push("5"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+            } else if ($("#cbBox03_gold_c")[0].checked == false) {
+                $("#cbBox03_gold_c").prop('checked', false);
+                $(this).prop('checked', false);
+                checkPlugin03(-300000);
+                //addonsArray.splice(addonsArray.indexOf("Multi SKU"), 1);
+                addonsArray.splice(addonsArray.indexOf("5"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+            }
+        });
+
     });
 
     function convertToRupiah(angka) {
@@ -1147,8 +1201,20 @@
 
     function clickSub(kode, bln) {
         if ($('#ckBox')[0].checked) {
+            var queryString = "";
+            queryString = addonsArray.join(',');
+            //var arrStr = encodeURIComponent(JSON.stringify(addonsArray));
+            //for (var i = 0; i < addonsArray.length; ++i) {
+            //    queryString += addonsArray[i] + "&";
+            //}
+            //queryString = queryString.substr(0, queryString.length - 1);
+            //$.each(addonsArray, function(i, v) {
+            //    var queryString = Object.keys(addonsArray[i]).map(key => key + '=' + addonsArray[i][key]).join('&');
+            //});
+
+            debugger;
             var url = '@Url.Action("loginSubs", "Account")';
-            url += "?Ref=" + '@referral' + "&kode=" + kode + "&bln=" + bln + "&jmlUser=" + $('#txtJmlUser')[0].innerText;
+            url += "?Ref=" + '@referral' + "&kode=" + kode + "&bln=" + bln + "&jmlUser=" + $('#txtJmlUser')[0].innerText + "&addons=" + queryString;
             window.location.href = url;
         } else {
             alert('Anda harus menyetujui Syarat & Ketentuan');

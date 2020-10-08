@@ -329,6 +329,7 @@
                     margin-right: 10px;
                     width: 10px;
                 }
+
         [class$="-legendPie"] {
             list-style: none;
             cursor: pointer;
@@ -1028,8 +1029,8 @@
                             @Html.Label("", "Faktur")
                         </div>
                         @*<div class="col-md-1" style="padding-top: 7px;">
-                        Faktur
-                    </div>*@
+                                Faktur
+                            </div>*@
                     </div>
 
                     <div class="col-md-4" style="padding-bottom:10px">
@@ -1042,8 +1043,8 @@
                         </div>
                     </div>
                     @*<div class="col-md-1" style="padding-top: 7px;">
-                    Retur
-                </div>*@
+                            Retur
+                        </div>*@
                 </div>
                 @*<div class="col-md-1"></div>*@
                 <div class="col-md-1" style="padding-top: 7px;">
@@ -1061,8 +1062,8 @@
                 <div class="col-md-4"></div>
             </div>
             @*<div id="loading_dashboard_line" class="row col-md-12 text-center">
-                <img src="~/Content/Images/spinner.gif" width="100" />
-            </div>*@
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>*@
             <div class="row col-md-12" id="grafik-line-section">
                 @*<canvas id="chartMingguan" height="400"></canvas>*@
                 @*<canvas id="chart-mingguan" height="200"></canvas>*@
@@ -1137,7 +1138,7 @@
         var $href = "";
 
         $(document).ready(function () {
-            getTanggal();            
+            getTanggal();
             $('#TGL').datepicker('setDate', '0');
             //getDashboard();
 
@@ -1831,7 +1832,7 @@
                         });
                     RefreshTableDashboardArusKas();
                     //end add by nurul 18/11/2019
-                                        
+
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -2059,7 +2060,7 @@
                         jumlahreturMingguan.push(listDataReturM[i].Jumlah);
                         nilaireturMingguan.push(listDataReturM[i].Nilai);
                     }
-                    
+
                     var maxJumlahPesananMingguan = Math.max.apply(Math, jumlahpesananMingguan);
                     var maxJumlahFakturMingguan = Math.max.apply(Math, jumlahfakturMingguan);
                     var maxJumlahReturMingguan = Math.max.apply(Math, jumlahreturMingguan);
@@ -4038,13 +4039,13 @@
                         jumlahpesananTahunan.push(listDataPesananT[i].Jumlah);
                         nilaipesananTahunan.push(listDataPesananT[i].Nilai);
                     }
-                                        
+
                     var maxJumlahPesananTahunan = Math.max.apply(Math, jumlahpesananTahunan);
                     var dataMaxJumlahPesananTahunan = [maxJumlahPesananTahunan];
                     var maxJumlahPT = Math.max.apply(Math, dataMaxJumlahPesananTahunan);
                     var maxTicksBasicPesananTahunan = Math.ceil(maxJumlahPT / 10) * 10;
                     var steppingBasicPesananTahunan = (Math.ceil(maxJumlahPT / 10) * 10) / 5;
-                    
+
                     var ctxPesananTahunan = document.getElementById("chartPesananTahunan").getContext('2d');
 
                     var dataPesananTahunan = {
@@ -5750,7 +5751,7 @@
                 $('#PesananReturTahunan').hide();
                 $('#FakturReturTahunan').show();
             } else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "1" || $('#periode').val() == "2" || $('#periode').val() == "3") {
-                
+
                 $('#allMingguan').hide();
                 $('#PesananMingguan').hide();
                 $('#FakturMingguan').hide();
@@ -9898,7 +9899,7 @@
                 },
                 success: function (response) {
                     $('#table-barang-tidaklaku-partial').html(response);
-                    
+
                     $('#loading_barang_tidaklaku').hide();
                     $('#table-barang-tidaklaku-partial').show();
                 },
@@ -9943,7 +9944,7 @@
                 },
                 success: function (response) {
                     $('#table-aruskas-partial').html(response);
-                    
+
                     $('#loading_aruskas').hide();
                     $('#table-aruskas-partial').show();
                 },

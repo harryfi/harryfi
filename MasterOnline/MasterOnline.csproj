@@ -704,6 +704,8 @@
     <Compile Include="Migrations\201812110628511_AddCategoryShopeeAndAttributeAndAttributeOpt.Designer.cs">
       <DependentUpon>201812110628511_AddCategoryShopeeAndAttributeAndAttributeOpt.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\Addons.cs" />
+    <Compile Include="Models\Addons_Customer.cs" />
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\Api\ResultDataFaktur.cs" />
@@ -1105,6 +1107,7 @@
     <Compile Include="ViewModels\GudangViewModel.cs" />
     <Compile Include="ViewModels\HargaJualViewModel.cs" />
     <Compile Include="ViewModels\JurnalViewModel.cs" />
+    <Compile Include="ViewModels\TransferToFTPParameterLinkFtpViewModel.cs" />
     <Compile Include="Models\KabupatenKota.cs" />
     <Compile Include="Models\Marketplace.cs" />
     <Compile Include="Models\MetodaHpp.cs" />
