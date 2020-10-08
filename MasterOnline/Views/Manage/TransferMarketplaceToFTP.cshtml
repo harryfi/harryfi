@@ -893,26 +893,34 @@
             var $tr = 'tr[data-barang-id="' + $kodecust + '"]';
             var $kodesapInitialSpan = $($tr + ' .kodesap-initial');
             var $kodesapInputBox = $($tr + ' .kodesap-input-box');
+            var $kodeTransaksiInitialSpan = $($tr + ' .kodetransaksi-initial');
+            var $kodeTransaksiInputBox = $($tr + ' .kodetransaksi-input-box');
             var $btnEdit = $($tr + ' .icon-btn-edit');
             var $kodesapAwal = $kodesapInitialSpan.text();
+            var $kodeTransaksiAwal = $kodeTransaksiInitialSpan.text();
 
             if ($btnEdit.hasClass('glyphicon-pencil')) {
                 $btnEdit.parent().removeClass('btn-primary').addClass('btn-success');
                 $btnEdit.removeClass('glyphicon-pencil').addClass('glyphicon-floppy-disk');
                 $kodesapInitialSpan.hide();
+                $kodeTransaksiInitialSpan.hide();
                 $kodesapInputBox.val($kodesapAwal).show();
+                $kodeTransaksiInputBox.val($kodeTransaksiAwal).show();
             } else {
                 var kodesapInitialBeforeValidation = $kodesapInitialSpan.val();
+                var kodeTransaksiInitialBeforeValidation = $kodeTransaksiInitialSpan.val();
                 $kodesapInitialSpan.text($kodesapInputBox.val());
-                simpanKodeSap($kodecust, $kodesapInputBox, $btnEdit, $kodesapInitialSpan, kodesapInitialBeforeValidation);
+                $kodeTransaksiInitialSpan.text($kodeTransaksiInputBox.val());
+                simpanKodeSap($kodecust, $kodesapInputBox, $kodeTransaksiInputBox, $btnEdit, $kodesapInitialSpan, $kodeTransaksiInitialSpan, kodesapInitialBeforeValidation, kodeTransaksiInitialBeforeValidation );
             }
         }
 
-        function simpanKodeSap($kodecust, $kodesapInputBox, $btnEdit, $kodesapInitialSpan, kodesapInitialBeforeValidation) {
+        function simpanKodeSap($kodecust, $kodesapInputBox, $kodeTransaksiInputBox, $btnEdit, $kodesapInitialSpan, $kodeTransaksiInitialSpan, kodesapInitialBeforeValidation, kodeTransaksiInitialBeforeValidation) {
 
             $postdata = {
                 kodecust: $kodecust,
-                kodesap : $kodesapInputBox.val()
+                kodesap: $kodesapInputBox.val(),
+                kodetransaksi: $kodeTransaksiInputBox.val()
             };
 
             $.ajax({
@@ -931,10 +939,13 @@
                         $btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
                         $btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
                         $kodesapInitialSpan.show();
+                        $kodeTransaksiInitialSpan.show();
                         $kodesapInputBox.hide();
+                        $kodeTransaksiInputBox.hide();
                         $('#loading_spinner').hide();
                     } else {
                         $kodesapInitialSpan.text(kodesapInitialBeforeValidation);
+                        $kodeTransaksiInitialSpan.text(kodeTransaksiInitialBeforeValidation);
                         console.log(response.Errors);
                         alert(response.Errors);
                         $('#loading_spinner').hide();

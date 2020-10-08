@@ -1,6 +1,6 @@
 ﻿@using System.Globalization
 @using MasterOnline.ViewModels
-@model LINKFTP
+@model TransferToFTPParameterLinkFtpViewModel
 @{
     ViewBag.Title = "Parameter Link FTP";
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
@@ -322,6 +322,14 @@
             link.download = fileName;
             link.click();
         }
+
+        function notifExpired(status) {
+            if (status == 0) {
+                alert("Fitur ini belum terdaftar pada account Anda. Terima kasih.");
+            } else if (status == 2) {
+                alert("Fitur Addon Data Transfer FTP Anda sudah expired. Harap untuk perpanjang masa berlangganan fitur Anda. Terima kasih.");
+            }            
+        }
     </script>
 }
 
@@ -365,62 +373,71 @@
                                         @using (Html.BeginForm("SaveLinkFtp", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-parameterlinkftp" }))
                                         {
                                             <div class="form-group">
-                                                @Html.LabelFor(m => m.IP, "IP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                @Html.LabelFor(m => m.LINKFTP.IP, "IP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.IP, new { @class = "form-control", @id = "IPADDRESS", required = "required", mask = "999.999.999.999" })
+                                                    @Html.TextBoxFor(m => m.LINKFTP.IP, new { @class = "form-control", @id = "IPADDRESS", required = "required", mask = "999.999.999.999" })
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                @Html.LabelFor(m => m.LOGIN, "Username *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                @Html.LabelFor(m => m.LINKFTP.LOGIN, "Username *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.LOGIN, new { @class = "form-control", required = "required" })
+                                                    @Html.TextBoxFor(m => m.LINKFTP.LOGIN, new { @class = "form-control", required = "required" })
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                @Html.LabelFor(m => m.PASSWORD, "Password *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                @Html.LabelFor(m => m.LINKFTP.PASSWORD, "Password *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.PASSWORD, new { @class = "form-control", required = "required", type = "password" })
+                                                    @Html.TextBoxFor(m => m.LINKFTP.PASSWORD, new { @class = "form-control", required = "required", type = "password" })
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                @Html.LabelFor(m => m.STATUS_FTP, "Status FTP", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
+                                                @Html.LabelFor(m => m.LINKFTP.STATUS_FTP, "Status FTP", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.STATUS_FTP)
-                                                    <select class="form-control" id="StatusFtp" required="required">
-                                                        @if (Model != null)
-                                                        {
-                                                            switch (Model.STATUS_FTP)
+                                                    @Html.HiddenFor(m => m.LINKFTP.STATUS_FTP)
+                                                    @if (Model.statusAddonFTP == "1")
+                                                    {
+                                                        <select class="form-control" id="StatusFtp" required="required">
+                                                            @if (Model.LINKFTP != null)
                                                             {
-                                                                case "0":
-                                                                    <option value="1">Aktif</option>
-                                                                    <option value="0" selected>Tidak Aktif</option>
-                                                                    break;
-                                                                case "1":
-                                                                    <option value="1" selected>Aktif</option>
-                                                                    <option value="0">Tidak Aktif</option>
-                                                                    break;
-                                                                case null:
-                                                                    <option value="1">Aktif</option>
-                                                                    <option value="0" selected>Tidak Aktif</option>
-                                                                    break;
+                                                                switch (Model.LINKFTP.STATUS_FTP)
+                                                                {
+                                                                    case "0":
+                                                                        <option value="1">Aktif</option>
+                                                                        <option value="0" selected>Tidak Aktif</option>
+                                                                        break;
+                                                                    case "1":
+                                                                        <option value="1" selected>Aktif</option>
+                                                                        <option value="0">Tidak Aktif</option>
+                                                                        break;
+                                                                    case null:
+                                                                        <option value="1">Aktif</option>
+                                                                        <option value="0" selected>Tidak Aktif</option>
+                                                                        break;
+                                                                }
                                                             }
-                                                        }
-                                                        else
-                                                        {
-                                                            <option value="1">Aktif</option>
+                                                            else
+                                                            {
+                                                                <option value="1">Aktif</option>
+                                                                <option value="0" selected>Tidak Aktif</option>
+                                                            }
+                                                        </select>
+                                                    }
+                                                    else
+                                                    {
+                                                        <select class="form-control" id="StatusFtp">
                                                             <option value="0" selected>Tidak Aktif</option>
-                                                        }
-                                                    </select>
+                                                        </select>
+                                                    }
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                @Html.LabelFor(m => m.PPN, "PPn", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
+                                                @Html.LabelFor(m => m.LINKFTP.PPN, "PPn", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.PPN)
+                                                    @Html.HiddenFor(m => m.LINKFTP.PPN)
                                                     <select class="form-control" id="select_ppn" required="required">
-                                                        @if (Model != null)
+                                                        @if (Model.LINKFTP != null)
                                                         {
-                                                            switch (Model.PPN)
+                                                            switch (Model.LINKFTP.PPN)
                                                             {
                                                                 case "0":
                                                                     <option value="0" selected>Exclude PPn</option>
@@ -445,59 +462,37 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                @Html.LabelFor(m => m.KODE_TRANSAKSI, "Kode Transaksi ", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                @Html.LabelFor(m => m.LINKFTP.KODE_TRANSAKSI, "Kode Transaksi ", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.KODE_TRANSAKSI, new { @class = "form-control" })
+                                                    @Html.TextBoxFor(m => m.LINKFTP.KODE_TRANSAKSI, new { @class = "form-control" })
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                @Html.LabelFor(m => m.JAM1, "Schedule 1 *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                @Html.LabelFor(m => m.LINKFTP.JAM1, "Schedule 1 *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.JAM1)
+                                                    @Html.HiddenFor(m => m.LINKFTP.JAM1)
                                                     <select id="selectizeJAM1" placeholder="Harap Pilih" required="required"></select>
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                @Html.LabelFor(m => m.JAM2, "Schedule 2", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                @Html.LabelFor(m => m.LINKFTP.JAM2, "Schedule 2", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.JAM2)
+                                                    @Html.HiddenFor(m => m.LINKFTP.JAM2)
                                                     <select id="selectizeJAM2" placeholder="Harap Pilih" required="disabled"></select>
                                                 </div>
                                             </div>
-                                            @*<div class="form-group">
-                                                    @Html.LabelFor(m => m.JAM3, "Jam 3", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        <div class="input-group date">
-                                                            @Html.TextBoxFor(m => m.JAM3, new { @class = "form-control" })
-                                                            <span class="input-group-addon">
-                                                                <span class="glyphicon glyphicon-time"></span>
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.JAM4, "Jam 4", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        <div class="input-group date">
-                                                            @Html.TextBoxFor(m => m.JAM4, new { @class = "form-control" })
-                                                            <span class="input-group-addon">
-                                                                <span class="glyphicon glyphicon-time"></span>
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.JAM5, "Jam 5", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        <div class="input-group date">
-                                                            @Html.TextBoxFor(m => m.JAM5, new { @class = "form-control" })
-                                                            <span class="input-group-addon">
-                                                                <span class="glyphicon glyphicon-time"></span>
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>*@
-                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="SimpanParameterLinkFtp(this)" />
+                                            if (Model?.statusAddonFTP == "1")
+                                            {
+                                                <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="SimpanParameterLinkFtp(this)" />
+                                            }
+                                            else if(Model?.statusAddonFTP == "0")
+                                            {
+                                                <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="notifExpired(0)" />
+                                            }
+                                            else
+                                            {
+                                                <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="notifExpired(2)" />
+                                            }
                                         }
                                     </div>
                                 </div>

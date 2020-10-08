@@ -195,6 +195,10 @@
                         {
                             totalBayar += detailPiutang.SISA;
                         }
+                        //if (Model?.tempHitungHeader?.TotalFaktur > 0)
+                        //{
+                        //    totalBayar = Model.tempHitungHeader.TotalFaktur;
+                        //}
                     }
                     @Html.TextBox("TOTALBYR", (totalBayar >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalBayar) : "0,00"), new { @class = "form-control", @style = "text-align:right", @readonly = "readonly" })
                 </div>
@@ -218,6 +222,10 @@
                         {
                             totalRef = Model.Piutang.TBAYAR;
                         }
+                        //if (Model?.tempHitungHeader?.TotalBayar > 0)
+                        //{
+                        //    totalRef = Model.tempHitungHeader.TotalBayar;
+                        //}
                     }
                     @Html.TextBox("TOTALREF", (totalRef >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalRef) : "0,00"), new { @class = "form-control", @style = "text-align:right", @readonly = "readonly" })
                 </div>
@@ -235,10 +243,14 @@
                         {
                             totalPot = Model.Piutang.TPOT;
                         }
-                        //var totalPot = 0d;
-                        //foreach (var detailPiutang in listPiutangDetail)
+                        ////var totalPot = 0d;
+                        ////foreach (var detailPiutang in listPiutangDetail)
+                        ////{
+                        ////    totalPot += detailPiutang.POT;
+                        ////}
+                        //if (Model?.tempHitungHeader?.TotalPotongan > 0)
                         //{
-                        //    totalPot += detailPiutang.POT;
+                        //    totalPot = Model.tempHitungHeader.TotalPotongan;
                         //}
                     }
                     @Html.TextBox("TOTALPOT", (totalPot >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalPot) : "0,00"), new { @class = "form-control", @style = "text-align:right", @readonly = "readonly" })
@@ -261,6 +273,10 @@
                             ttlPot += (detailPiutang.POT);
                         }
                         totalLunas = (ttlRef + ttlPot);
+                        //if (Model?.tempHitungHeader?.TotalPelunasan > 0)
+                        //{
+                        //    totalLunas = Model.tempHitungHeader.TotalPelunasan;
+                        //}
                     }
                     @Html.TextBox("TOTALLUNAS", (totalLunas >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalLunas) : "0,00"), new { @class = "form-control", @style = "text-align:right", @readonly = "readonly" })
                 </div>
@@ -303,6 +319,10 @@
                             ttlPot1 += (detailPiutang.POT);
                         }
                         totalSlsh = (ttlFaktur - ttlRef1 - ttlPot1);
+                        //if (Model?.tempHitungHeader?.Selisih > 0)
+                        //{
+                        //    totalSlsh = Model.tempHitungHeader.Selisih;
+                        //}
                     }
                     @Html.TextBox("TOTALSELISIH", (totalSlsh >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalSlsh) : "0,00"), new { @class = "form-control", @style = "text-align:right", @readonly = "readonly" })
                 </div>
@@ -338,6 +358,10 @@
                         {
                             totalLebih = Convert.ToDouble(Model?.Piutang?.TLEBIH_BAYAR == null || Model?.Piutang?.TLEBIH_BAYAR == 0 ? 0 : Model?.Piutang?.TLEBIH_BAYAR);
                         }
+                        //if (Model?.tempHitungHeader?.TotalLebihBayar > 0)
+                        //{
+                        //    totalLebih = Model.tempHitungHeader.TotalLebihBayar;
+                        //}
                     }
                     @Html.TextBox("TOTALLEBIH", (totalLebih >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalLebih) : "0,00"), new { @class = "form-control", @style = "text-align:right", @readonly = "readonly" })
                 </div>

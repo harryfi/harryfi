@@ -4693,13 +4693,22 @@ namespace MasterOnline.Controllers
                     }
                     if (list_04.Count > 0)
                     {
+                        string noBuktiSO = "";
                         string sSQL = "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_BUKTI IN (";
                         foreach (var nobuk in list_04)
                         {
                             sSQL += "'" + nobuk + "' ,";
+                            noBuktiSO += "'" + nobuk + "' ,";
                         }
                         sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
                         var result = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+
+                        //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                        var dateTimeNow = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
+                        noBuktiSO = noBuktiSO.Substring(0, noBuktiSO.Length - 2) + ")";
+                        string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_SO IN (" + noBuktiSO;
+                        var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                        //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
                     }
                     //remark by calvin, approve by pak dani, MO hanya ubah jika statusnya sudah delivered / shipped
                     //if (list_03.Count > 0)

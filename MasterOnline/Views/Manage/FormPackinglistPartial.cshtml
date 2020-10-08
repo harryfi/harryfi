@@ -39,6 +39,8 @@
         RefreshPackingPesananShopee1();
         RefreshPackingPesananBlibli1();
         RefreshPackingPesananJDID1();
+        RefreshPackingPesanan82cart1();
+        RefreshPackingPesananShopify1();
     }
 
     function RefreshPackingPesananTokped1() {
@@ -310,6 +312,46 @@
             }
         });
     }
+
+    function RefreshPackingPesanan82cart1() {
+        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "20", bukti = "replaceBuktiPacking" }))';
+        $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                //$('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                $('#packing_pesanan_82cart_content').html(response);
+                //$('#loading_barang_tab').hide();
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function RefreshPackingPesananShopify1() {
+        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "21", bukti = "replaceBuktiPacking" }))';
+        $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                //$('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                $('#packing_pesanan_shopify_content').html(response);
+                //$('#loading_barang_tab').hide();
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
     
 </script>
 <div class="form-horizontal" id="header-packing">
@@ -400,41 +442,46 @@
     <div class="x_content">
         <ul id="detail-packinglist-tabs" class="nav nav-tabs">
             @{
-            var totalPesanan = Model.listDetailPacking.Count();
+                var totalPesanan = Model.listDetailPacking.Count();
             }
             <li class="active"><a data-toggle="tab" id="pesanan_detail_tab_focus" href="#pesanan_detail_tab" aria-expanded="true" onclick="refreshTablePackingListTabPesanan('@Model.packingList.NO_BUKTI')">Pesanan<span>(@totalPesanan)</span></a></li>
             @if (Model.listRekapBarang.Count > 0)
             {
-            var totalRekap = Model.listRekapBarang.Count();
-            var totalTokopedia = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Tokopedia")).Count();
-            var totalLazada = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Lazada")).Count();
-            var totalShopee = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Shopee")).Count();
-            var totalBlibli = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Blibli")).Count();
-            var totalJDID = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("JD.ID")).Count();
+                var totalRekap = Model.listRekapBarang.Count();
+                var totalTokopedia = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Tokopedia")).Count();
+                var totalLazada = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Lazada")).Count();
+                var totalShopee = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Shopee")).Count();
+                var totalBlibli = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Blibli")).Count();
+                var totalJDID = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("JD.ID")).Count();
+                var total82cart = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("82Cart")).Count();
+                var totalShopify = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Shopify")).Count();
 
-            <li><a data-toggle="tab" id="rekap_barang_tab_focus" href="#rekap_barang_tab" aria-expanded="false">Rekap Barang(<span>@totalRekap</span>)</a></li>
-            <li id="li_pesanan_tokped_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_tokped_tab_focus" href="#packing_pesanan_tokped" aria-expanded="false">Tokopedia(<span>@totalTokopedia</span>)</a></li>
-            <li id="li_pesanan_lazada_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_lazada_tab_focus" href="#packing_pesanan_lazada" aria-expanded="false">Lazada(<span>@totalLazada</span>)</a></li>
-            <li id="li_pesanan_shopee_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopee_tab_focus" href="#packing_pesanan_shopee" aria-expanded="false">Shopee(<span>@totalShopee</span>)</a></li>
-            <li id="li_pesanan_blibli_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_blibli_tab_focus" href="#packing_pesanan_blibli" aria-expanded="false">Blibli(<span>@totalBlibli</span>)</a></li>
-            <li id="li_pesanan_jdid_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_jdid_tab_focus" href="#packing_pesanan_jdid" aria-expanded="false">JD.ID(<span>@totalJDID</span>)</a></li>
+
+                <li><a data-toggle="tab" id="rekap_barang_tab_focus" href="#rekap_barang_tab" aria-expanded="false">Rekap Barang(<span>@totalRekap</span>)</a></li>
+                <li id="li_pesanan_tokped_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_tokped_tab_focus" href="#packing_pesanan_tokped" aria-expanded="false">Tokopedia(<span>@totalTokopedia</span>)</a></li>
+                <li id="li_pesanan_lazada_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_lazada_tab_focus" href="#packing_pesanan_lazada" aria-expanded="false">Lazada(<span>@totalLazada</span>)</a></li>
+                <li id="li_pesanan_shopee_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopee_tab_focus" href="#packing_pesanan_shopee" aria-expanded="false">Shopee(<span>@totalShopee</span>)</a></li>
+                <li id="li_pesanan_blibli_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_blibli_tab_focus" href="#packing_pesanan_blibli" aria-expanded="false">Blibli(<span>@totalBlibli</span>)</a></li>
+                <li id="li_pesanan_jdid_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_jdid_tab_focus" href="#packing_pesanan_jdid" aria-expanded="false">JD.ID(<span>@totalJDID</span>)</a></li>
+                <li id="li_pesanan_82cart_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_82cart_tab_focus" href="#packing_pesanan_82cart" aria-expanded="false">82Cart(<span>@total82cart</span>)</a></li>
+                <li id="li_pesanan_shopify_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopify_tab_focus" href="#packing_pesanan_shopify" aria-expanded="false">Shopify(<span>@totalShopify</span>)</a></li>
             }
             else
             {
-            <li><a data-toggle="tab tooltip" id="rekap_barang_tab_focus" href="#rekap_barang_tab" aria-expanded="false" class="disabled-tab" title="Pilih pesanan yang akan masuk packing list terlebih dahulu">Rekap Barang</a></li>
+                <li><a data-toggle="tab tooltip" id="rekap_barang_tab_focus" href="#rekap_barang_tab" aria-expanded="false" class="disabled-tab" title="Pilih pesanan yang akan masuk packing list terlebih dahulu">Rekap Barang</a></li>
             }
             @*@if (Model.listRekapBarang.Count > 0)
-                {
-                    <li style="margin-left:650px;">
-                        <button id="btnPrint" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrint">Print</button>
-                    </li>
-                }
-                else
-                {
-                    <li style="margin-left:650px;">
-                        <button id="btnPrint" type="button" class="btn btn-primary" disabled data-toggle="modal" data-target="#modalPrint">Print</button>
-                    </li>
-                }*@
+        {
+            <li style="margin-left:650px;">
+                <button id="btnPrint" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrint">Print</button>
+            </li>
+        }
+        else
+        {
+            <li style="margin-left:650px;">
+                <button id="btnPrint" type="button" class="btn btn-primary" disabled data-toggle="modal" data-target="#modalPrint">Print</button>
+            </li>
+        }*@
         </ul>
         <div class="tab-content">
             <div id="pesanan_detail_tab" class="tab-pane fade active in">
@@ -493,115 +540,115 @@
                     <div class="col-lg-12">
                         <div id="table-packing-tab-pesanan"></div>
                         @*<div class="hscroll table-responsive brgtblpromofrm">
-                                <table id="table_tambah_packinglist" class="table table-bordered" role="grid">
-                                    <thead>
-                                        <tr>
-                                            <th width="70">No. Pesanan</th>
-                                            <th width="100">No. Referensi</th>
-                                            <th width="80">Tanggal Pesanan</th>
-                                            <th width="90">Marketplace</th>
-                                            <th width="120">Pembeli</th>
-                                            <th width="80">Status Kirim</th>
-                                            <th width="80">Status Print</th>
-                                            <th width="100">Scan Barcode</th>
-                                            @*<th width="80">No. Resi</th>
-                                            @*<th width="45">Simpan</th>
-                                            @* <th width="45">Hapus</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var detPackinglist in Model?.listDetailPacking.Where(pb => pb.NO_BUKTI == Model?.packingList?.NO_BUKTI)?.ToList())
-                                        {
-                                            var status_kirim = "Dalam Proses";
-                                            var status_print = "";
+                        <table id="table_tambah_packinglist" class="table table-bordered" role="grid">
+                            <thead>
+                                <tr>
+                                    <th width="70">No. Pesanan</th>
+                                    <th width="100">No. Referensi</th>
+                                    <th width="80">Tanggal Pesanan</th>
+                                    <th width="90">Marketplace</th>
+                                    <th width="120">Pembeli</th>
+                                    <th width="80">Status Kirim</th>
+                                    <th width="80">Status Print</th>
+                                    <th width="100">Scan Barcode</th>
+                                    @*<th width="80">No. Resi</th>
+                                    @*<th width="45">Simpan</th>
+                                    @* <th width="45">Hapus</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var detPackinglist in Model?.listDetailPacking.Where(pb => pb.NO_BUKTI == Model?.packingList?.NO_BUKTI)?.ToList())
+                                {
+                                    var status_kirim = "Dalam Proses";
+                                    var status_print = "";
 
-                                            switch (detPackinglist.SO_STATUS_KIRIM)
-                                            {
-                                                case "0":
-                                                    status_kirim = "Dalam Proses";
-                                                    break;
-                                                case "1":
-                                                    status_kirim = "Gagal Proses";
-                                                    break;
-                                                case "2":
-                                                    status_kirim = "Siap Kirim";
-                                                    break;
-                                                default:
-                                                    status_kirim = "";
-                                                    break;
-                                            }
-                                            switch (detPackinglist.STATUS_PRINT)
-                                            {
-                                                case "1":
-                                                    status_print = "Sudah";
-                                                    break;
-                                                default:
-                                                    status_print = "Belum";
-                                                    break;
-                                            }
-                                            <tr data-packing-id="brg-@detPackinglist.RecNum">
-                                                <td>
-                                                    @detPackinglist.NO_PESANAN
-                                                </td>
-                                                <td>@detPackinglist.NO_REFERENSI</td>
-                                                <td>
-                                                    @detPackinglist.TGL_PESANAN.Value.ToString("dd/MM/yyyy")
-                                                </td>
-                                                <td>
-                                                    @detPackinglist.MARKETPLACE
-                                                </td>
-                                                <td>
-                                                    @detPackinglist.PEMBELI
-                                                </td>
-                                                @*<td>
-                                                        @detPackinglist.SO_TRACKING_NUMBER
-                                                    </td>
-                                                <td>
-                                                    @status_kirim
-                                                </td>
-                                                <td>@status_print</td>
-                                                <td>@detPackinglist.BARCODE</td>
-
-                                                @*<td class="edit-hapus-col">
-                                                        <button type="button" class="btn btn-primary" disabled="disabled">
-                                                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-                                                        </button>
-                                                    </td>
-                                                @* <td class="edit-hapus-col">
-                                                @*     <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusPesanan" onclick="passKodeInDb('@detPackinglist.RecNum')">
-                                                @*         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                                @*     </button>
-                                                @* </td>
-                                            </tr>
-                                        }
-                                        <tr data-packing-id="0" id="trNewData" style="display:none">
-                                            @Html.HiddenFor(m => m.detailPackingList.NO_BUKTI)
-                                            @Html.HiddenFor(m => m.detailPackingList.RecNum)
-                                            @Html.HiddenFor(m => m.detailPackingList.TGL_PESANAN)
-                                            @Html.HiddenFor(m => m.detailPackingList.PEMBELI)
-                                            @Html.HiddenFor(m => m.detailPackingList.MARKETPLACE)
-                                            <td style="width: 140px; max-width: 140px;">
-                                                @*<div id="BRG" class="selectivity-input" tabindex="0" style="width: 200px; max-width: 200px;"></div>
-                                                <div id="PESANAN" class="selectivity-input" tabindex="0"></div>
-                                                @Html.HiddenFor(m => m.detailPackingList.NO_PESANAN)
+                                    switch (detPackinglist.SO_STATUS_KIRIM)
+                                    {
+                                        case "0":
+                                            status_kirim = "Dalam Proses";
+                                            break;
+                                        case "1":
+                                            status_kirim = "Gagal Proses";
+                                            break;
+                                        case "2":
+                                            status_kirim = "Siap Kirim";
+                                            break;
+                                        default:
+                                            status_kirim = "";
+                                            break;
+                                    }
+                                    switch (detPackinglist.STATUS_PRINT)
+                                    {
+                                        case "1":
+                                            status_print = "Sudah";
+                                            break;
+                                        default:
+                                            status_print = "Belum";
+                                            break;
+                                    }
+                                    <tr data-packing-id="brg-@detPackinglist.RecNum">
+                                        <td>
+                                            @detPackinglist.NO_PESANAN
+                                        </td>
+                                        <td>@detPackinglist.NO_REFERENSI</td>
+                                        <td>
+                                            @detPackinglist.TGL_PESANAN.Value.ToString("dd/MM/yyyy")
+                                        </td>
+                                        <td>
+                                            @detPackinglist.MARKETPLACE
+                                        </td>
+                                        <td>
+                                            @detPackinglist.PEMBELI
+                                        </td>
+                                        @*<td>
+                                                @detPackinglist.SO_TRACKING_NUMBER
                                             </td>
-                                            <td class="tgl-pesanan" style="width: 130px; max-width: 130px;"></td>
-                                            <td class="pembeli-pesanan" style="width: 130px; max-width: 130px;"></td>
-                                            <td class="marketplace-pesanan" style="width: 30px; max-width: 30px;"></td>
-                                            <td class="edit-hapus-col">
-                                                <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanpesanan('pesanan-0')">
+                                        <td>
+                                            @status_kirim
+                                        </td>
+                                        <td>@status_print</td>
+                                        <td>@detPackinglist.BARCODE</td>
+
+                                        @*<td class="edit-hapus-col">
+                                                <button type="button" class="btn btn-primary" disabled="disabled">
                                                     <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                                                 </button>
                                             </td>
-                                            <td class="edit-hapus-col">
-                                                <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang">
-                                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>*@
+                                        @* <td class="edit-hapus-col">
+                                        @*     <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusPesanan" onclick="passKodeInDb('@detPackinglist.RecNum')">
+                                        @*         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                        @*     </button>
+                                        @* </td>
+                                    </tr>
+                                }
+                                <tr data-packing-id="0" id="trNewData" style="display:none">
+                                    @Html.HiddenFor(m => m.detailPackingList.NO_BUKTI)
+                                    @Html.HiddenFor(m => m.detailPackingList.RecNum)
+                                    @Html.HiddenFor(m => m.detailPackingList.TGL_PESANAN)
+                                    @Html.HiddenFor(m => m.detailPackingList.PEMBELI)
+                                    @Html.HiddenFor(m => m.detailPackingList.MARKETPLACE)
+                                    <td style="width: 140px; max-width: 140px;">
+                                        @*<div id="BRG" class="selectivity-input" tabindex="0" style="width: 200px; max-width: 200px;"></div>
+                                        <div id="PESANAN" class="selectivity-input" tabindex="0"></div>
+                                        @Html.HiddenFor(m => m.detailPackingList.NO_PESANAN)
+                                    </td>
+                                    <td class="tgl-pesanan" style="width: 130px; max-width: 130px;"></td>
+                                    <td class="pembeli-pesanan" style="width: 130px; max-width: 130px;"></td>
+                                    <td class="marketplace-pesanan" style="width: 30px; max-width: 30px;"></td>
+                                    <td class="edit-hapus-col">
+                                        <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanpesanan('pesanan-0')">
+                                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                    <td class="edit-hapus-col">
+                                        <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang">
+                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>*@
                     </div>
                 </div>
             </div>
@@ -676,6 +723,16 @@
             </div>
             <div id="packing_pesanan_blibli" class="tab-pane fade in">
                 <div class="col-lg-12" id="packing_pesanan_blibli_content">
+
+                </div>
+            </div>
+            <div id="packing_pesanan_82cart" class="tab-pane fade in">
+                <div class="col-lg-12" id="packing_pesanan_82cart_content">
+
+                </div>
+            </div>
+            <div id="packing_pesanan_shopify" class="tab-pane fade in">
+                <div class="col-lg-12" id="packing_pesanan_shopify_content">
 
                 </div>
             </div>

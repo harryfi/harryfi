@@ -941,6 +941,7 @@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script>
+        var addonsArray = ["2"]; //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
         $(document).ready(function () {
             //$('.btn-subs').click(function () {
 
@@ -968,7 +969,119 @@
             $('#divSubsExpand').hide();
             $('#divSubExpired').hide();
 
+            //ONCHANGE CHECKBOX ADD ON
+
+            //add by fauzi for add on
+            $(".cbBox02_a").change(function () {
+                if ($("#cbBox02_silver_a")[0].checked == true) {
+                    $("#cbBox02_silver_a").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin02(300000);
+                    addonsArray.push("3"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                } else if ($("#cbBox02_silver_a")[0].checked == false) {
+                    $("#cbBox02_silver_a").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin02(-300000);
+                    addonsArray.splice(addonsArray.indexOf("3"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                }
+            });
+
+            $(".cbBox02_b").change(function () {
+                if ($("#cbBox02_silver_b")[0].checked == true) {
+                    $("#cbBox02_silver_b").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin02(200000);
+                    addonsArray.push("4"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                } else if ($("#cbBox02_silver_b")[0].checked == false) {
+                    $("#cbBox02_silver_b").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin02(-200000);
+                    addonsArray.splice(addonsArray.indexOf("4"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                }
+            });
+
+            $(".cbBox02_c").change(function () {
+                if ($("#cbBox02_silver_c")[0].checked == true) {
+                    $("#cbBox02_silver_c").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin02(300000);
+                    addonsArray.push("5"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                } else if ($("#cbBox02_silver_c")[0].checked == false) {
+                    $("#cbBox02_silver_c").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin02(-300000);
+                    addonsArray.splice(addonsArray.indexOf("5"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                }
+            });
+
+            $(".cbBox03_a").change(function () {
+                if ($("#cbBox03_gold_a")[0].checked == true) {
+                    $("#cbBox03_gold_a").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin03(300000);
+                    addonsArray.push("3"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                } else if ($("#cbBox03_gold_a")[0].checked == false) {
+                    $("#cbBox03_gold_a").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin03(-300000);
+                    addonsArray.splice(addonsArray.indexOf("3"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                }
+            });
+
+            $(".cbBox03_b").change(function () {
+                if ($("#cbBox03_gold_b")[0].checked == true) {
+                    $("#cbBox03_gold_b").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin03(200000);
+                    addonsArray.push("4"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                } else if ($("#cbBox03_gold_b")[0].checked == false) {
+                    $("#cbBox03_gold_b").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin03(-200000);
+                    addonsArray.splice(addonsArray.indexOf("4"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                }
+            });
+
+            $(".cbBox03_c").change(function () {
+                if ($("#cbBox03_gold_c")[0].checked == true) {
+                    $("#cbBox03_gold_c").prop('checked', true);
+                    $(this).prop('checked', true);
+                    checkPlugin03(300000);
+                    addonsArray.push("5"); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                } else if ($("#cbBox03_gold_c")[0].checked == false) {
+                    $("#cbBox03_gold_c").prop('checked', false);
+                    $(this).prop('checked', false);
+                    checkPlugin03(-300000);
+                    addonsArray.splice(addonsArray.indexOf("5"), 1); //2	82Cart, 3	Shopify, 4	Multi SKU, 5	Data Transfer FTP, 6	Bundling
+                }
+            });
+            //end add
+            //END
+
         });
+
+        function checkPlugin02(value) {
+            var plugins = [];
+            plugins.push(value);
+            var sum = plugins.reduce(function (a, b) { return a + b; }, 0);
+            var costAddons = convertToAngka($('#lbl_0_02')[0].innerText);
+            var newCostAddons = (costAddons + sum);
+            $('#lbl_0_02')[0].innerText = convertToRupiah(newCostAddons);
+            $('#btnPay_3_02')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 3) + '\n per 3 bulan';
+            $('#btnPay_12_02')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 10) + '\n per 12 bulan';
+        }
+
+        function checkPlugin03(value) {
+            var jmlUser = $('#txtJmlUser').val();
+            var plugins = [];
+            plugins.push(value);
+            var sum = plugins.reduce(function (a, b) { return a + b; }, 0);
+            var costAddons = convertToAngka($('#lbl_0_03')[0].innerText);
+            var newCostAddons = costAddons + (100000 * jmlUser) + sum;
+            $('#lbl_0_03')[0].innerText = convertToRupiah(newCostAddons);
+            $('#btnPay_3_03')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 3) + '\n per 3 bulan';
+            $('#btnPay_12_03')[0].innerText = 'Rp ' + convertToRupiah(newCostAddons * 10) + '\n per 12 bulan';
+        }
 
         function convertToRupiah(angka) {
             //change by calvin 26 september 2018
@@ -1017,6 +1130,8 @@
 
         function clickSub(kode, bln) {
             if ($('#ckBox')[0].checked) {
+                var queryStringAddon = "";
+                queryStringAddon = addonsArray.join(',');
                 //var bln = 0;
                 //switch (kode) {
                 //    case "01":
@@ -1050,6 +1165,7 @@
 
                 $('#txtCode').val(kode);
                 $('#txtBulan').val(bln);
+                $('#txtAddon').val(queryStringAddon);
                 if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.today()) {
 
                     //tglSub.setMonth(tglSub.getMonth() + bln);
@@ -1118,9 +1234,9 @@
             }
         }
 
-        function snapMidtrans(kode, bln) {
+        function snapMidtrans(kode, bln, addon) {
             var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-            link += '?code=' + encodeURIComponent(kode) + '&bulan=' + encodeURIComponent(bln) + '&accId=0' + '&accCount=' + encodeURIComponent($('#txtJmlUser')[0].innerText);
+            link += '?code=' + encodeURIComponent(kode) + '&bulan=' + encodeURIComponent(bln) + '&addon=' + encodeURIComponent(addon) + '&accId=0' + '&accCount=' + encodeURIComponent($('#txtJmlUser')[0].innerText);
 
             $.ajax({
                 type: "GET",
