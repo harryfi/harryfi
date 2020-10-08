@@ -64,9 +64,10 @@ namespace MasterOnline.Controllers
             try
             {
                 var dataParamFTP = ErasoftDbContext.LINKFTP.ToList();
-                string filename = username.Replace(" ", "") + "_faktur_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".csv";
+                //string filename = username.Replace(" ", "") + "_faktur_" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".csv";
+                string filename = "aros" + DateTime.Now.AddHours(7).ToString("yyyyMMddhhmmss") + ".csv";
                 //string dt1 = DateTime.ParseExact(DateTime.Now.ToString("dd/MM/yyyy"), "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd 23:59:59.999");
-                string dt1 = DateTime.ParseExact(DateTime.Now.ToString("dd/MM/yyyy"), "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd");
+                string dt1 = DateTime.ParseExact(DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy"), "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd");
 
                 string sSQL = "SELECT ISNULL(A.NO_BUKTI,'') AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, A.STATUS AS STATUS_FAKTUR, " +
                         "ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, ISNULL(A.NO_REF, '') AS NO_REFERENSI, ISNULL(D.TGL, '') AS TGL_PESANAN, " +
@@ -87,7 +88,9 @@ namespace MasterOnline.Controllers
                         "LEFT JOIN (SELECT DISTINCT NO_BUKTI FROM SIT01A A INNER JOIN ART03B B ON A.NO_BUKTI = B.NFAKTUR)E ON A.NO_BUKTI = E.NO_BUKTI " +
                         "LEFT JOIN (select ret.jenis_form,ret.no_bukti as bukti_ret,ret.no_ref as no_si,fkt.no_bukti as bukti_faktur from sit01a ret inner join sit01a fkt on fkt.no_bukti=ret.no_ref where ret.jenis_form='3') F ON A.NO_BUKTI=F.BUKTI_FAKTUR " +
                         "LEFT JOIN ARF01C I ON A.PEMESAN = I.BUYER_CODE " +
-                        "WHERE A.TGL = '" + dt1 + "'" +
+                        //"WHERE A.TGL = '" + dt1 + "'" +
+                        "WHERE A.TGL_KIRIM = '" + dt1 + "'" +
+                        "AND D.STATUS_TRANSAKSI = '04' " +
                         "AND A.JENIS_FORM = '2' " +
                         "ORDER BY A.TGL DESC, A.NO_BUKTI DESC";
 

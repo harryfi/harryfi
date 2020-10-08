@@ -27,6 +27,9 @@ namespace MasterOnline.ViewModels
         public List<tempOngkirFaktur> ListOngkir = new List<tempOngkirFaktur>();
 
         public List<TEMP_UPLOAD_EXCEL_BAYAR> listDetailBayar = new List<TEMP_UPLOAD_EXCEL_BAYAR>();
+        //ADD BY NURUL 2/10/2020
+        public tempHitungHeader tempHitungHeader { get; set; }
+        //END ADD BY NURUL 2/10/2020
     }
 
     public class BindUploadExcelBayar
@@ -118,4 +121,17 @@ namespace MasterOnline.ViewModels
         public string NOBUK_FAKTUR { get; set; }
         public double ONGKIR { get; set; }
     }
+
+    //ADD BY NURUL 2/10/2020
+    public class tempHitungHeader
+    {
+        public string BUKTI { get; set; }
+        public double TotalFaktur { get; set; }
+        public double TotalBayar { get; set; }
+        public double TotalPotongan { get; set; }
+        public double TotalPelunasan { get; set; }
+        public double Selisih { get; set; }
+        public double TotalLebihBayar { get; set; }
+    }
+    //END ADD BY NURUL 2/10/2020
 }

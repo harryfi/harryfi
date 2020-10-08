@@ -3524,6 +3524,8 @@ namespace MasterOnline.Controllers
             //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             //}
+
+            string ordersn = "";
             int rowCount = 0;
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
@@ -3536,8 +3538,8 @@ namespace MasterOnline.Controllers
 
                     var connIdARF01C = Guid.NewGuid().ToString();
                     rowCount = result.data.Count();
-
-                    string ordersn = "";
+                    
+                    //string ordersn = "";
                     foreach (var item in orderCompleted)
                     {
                         ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
@@ -3568,6 +3570,15 @@ namespace MasterOnline.Controllers
                 {
                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderComplete) + " Pesanan dari Tokopedia sudah selesai.");
+
+                    //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                    if (!string.IsNullOrEmpty(ordersn))
+                    {
+                        var dateTimeNow = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
+                        string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + ordersn + ")";
+                        var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                    }
+                    //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
                 }
                 //end add by calvin 1 april 2019
             }

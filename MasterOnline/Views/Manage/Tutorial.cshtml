@@ -1,0 +1,100 @@
+﻿@model List<MasterOnline.ViewModels.SelectTutorialDetail>
+
+@{
+    ViewBag.Title = "Tutorial";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+
+<style>
+    .page-close {
+        background: transparent;
+        border: 0;
+        position: absolute;
+        right: 22px;
+        top: 10px;
+        display: block;
+    }
+
+    .btn-danger {
+        color: #fff;
+        background-color: #d9534f;
+        border-color: #d43f3a;
+    }
+
+    .footer-content {
+        padding: 15px;
+        text-align: right;
+        border-top: 1px solid #e5e5e5;
+    }
+
+    body {
+        color: #73879C;
+        font-family: "Helvetica Neue",Roboto,Arial,"Droid Sans",sans-serif;
+        line-height: 1.471;
+    }
+
+        body p {
+            font-size: 16px;
+            display: block;
+            font-weight: bold;
+        }
+
+        body h5 {
+            font-size: 13px;
+            font-weight: 400;
+        }
+</style>
+
+<div class="row tutor_editor_section">
+    <div class="col-lg-12">
+        @foreach (var item in Model)
+        {
+            <div class="page-editor col-md-8">
+                <h2 class="editor-title text-wrap"><strong>@item.Judul</strong> </h2>
+                <button type="button" class="pull-right page-close">
+                    <span class="close-btn thick"></span>
+                </button>
+                @*Created By : @item.CreatedBy <br />*@
+                <h5>
+                    Terakhir Edit : @item.CreatedDate.ToString("dd/MM/yyyy")<br />
+                    Fitur : @item.Kategori
+                </h5>
+                <br />
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="x_panel">
+                            <div class="x_content">
+                                <br>
+                                @Html.Raw(System.Web.HttpUtility.HtmlDecode(item.Konten))
+                                <div class="footer-content">
+                                    <button type="button" class="btn btn-danger">Tutup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function(){
+            @*$('a').on('click', function () {
+                $('.addons_table_section').toggle('display');
+                $('.tutor_editor_section').toggle('display');
+            });
+
+            $('button>.close-btn').on('click', function () {
+                $('.addons_table_section').toggle('display');
+                $('.tutor_editor_section').toggle('display');
+            });
+            *@
+            $('.close-btn, .btn').click(function() {
+                location.href = '@Url.Action("Tutorial_List")';
+            });
+        });
+    </script>
+} 
