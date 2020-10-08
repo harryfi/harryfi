@@ -7689,9 +7689,9 @@ namespace MasterOnline.Controllers
                                 var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == cekBarang);
                                 var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == cekBarang);
                                 var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == cekBarang);
-                                var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
+                                //var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
 
-                                if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
+                                if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 )
                                 {
                                     List<string> listError = new List<string>();
                                     listError.Add("Barang " + cekBarang + " sudah dipakai di transaksi tidak bisa dijadikan barang multi SKU !");
@@ -7789,9 +7789,9 @@ namespace MasterOnline.Controllers
                                         var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == cekBarang);
                                         var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == cekBarang);
                                         var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == cekBarang);
-                                        var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
+                                        //var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
 
-                                        if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
+                                        if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0)
                                         {
                                             List<string> listError = new List<string>();
                                             listError.Add("Barang " + cekBarang + " sudah dipakai di transaksi tidak bisa dijadikan barang multi SKU !");
@@ -56888,9 +56888,9 @@ namespace MasterOnline.Controllers
                                     var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == cekBarang);
                                     var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == cekBarang);
                                     var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == cekBarang);
-                                    var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
+                                    //var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
 
-                                    if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
+                                    if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0)
                                     {
                                         dataVm.Errors.Add("Barang " + cekBarang + " sudah dipakai di transaksi tidak bisa dijadikan barang multi SKU !");
                                         return Json(dataVm, JsonRequestBehavior.AllowGet);
