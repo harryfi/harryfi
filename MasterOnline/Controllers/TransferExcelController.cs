@@ -2573,7 +2573,7 @@ namespace MasterOnline.Controllers
                                                 var listCurrentBrg = new List<string>();
                                                 for (int j = 19 + (page * dataPerPage); j <= maxData; j++)
                                                 {
-                                                    var brg_mp = worksheet.Cells[j, 11].Value == null ? "" : worksheet.Cells[j, 11].Value.ToString();
+                                                    var brg_mp = worksheet.Cells[j, 13].Value == null ? "" : worksheet.Cells[j, 13].Value.ToString();
                                                     if (!string.IsNullOrEmpty(brg_mp))
                                                     {
                                                         //if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[j, 3].Value)))
