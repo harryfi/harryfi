@@ -3113,7 +3113,7 @@ namespace MasterOnline.Controllers
 
             var linkftpVm = ErasoftDbContext.LINKFTP.FirstOrDefault();
             var checkSubAddonFTP = MoDbContext.Addons_Customer.Where(p => p.Account == emailAccount && p.ID_ADDON == "5").SingleOrDefault(); // ID 5 = Data Transfer FTP
-            var statusAktifSubAddonFTP = 0; // not registered Addon FTP DEFAULT
+            var statusAktifSubAddonFTP = 2; // status expired Addon FTP DEFAULT
 
             if (checkSubAddonFTP != null)
             {
@@ -3124,7 +3124,7 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                statusAktifSubAddonFTP = 2; // status expired Addon FTP
+                statusAktifSubAddonFTP = 0; // not registered Addon FTP
             }
 
             var vm = new TransferToFTPParameterLinkFtpViewModel()

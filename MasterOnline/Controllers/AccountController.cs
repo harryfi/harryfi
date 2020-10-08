@@ -1768,7 +1768,7 @@ namespace MasterOnline.Controllers
             //}
 
             //clientKirimEmail.Enqueue(() => TesSendEmail(email, account.Email, originPassword, nama));
-            //Task.Run(() => TesSendEmail(email, account.Email, originPassword, nama));
+            Task.Run(() => TesSendEmail(email, account.Email, originPassword, nama));
 
             //ViewData["SuccessMessage"] = $"Selamat, akun Anda berhasil didaftarkan! Klik <a href=\"{Url.Action("Login")}\">di sini</a> untuk login!";
             ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> melalui email dari admin kami, terima kasih.";

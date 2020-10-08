@@ -55,7 +55,7 @@ namespace MasterOnline.Controllers
                     #endregion
 
                     #region auto number no_transaksi
-                    var listTrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI.Substring(0, 2).Equals(currentYear)).OrderBy(t => t.RECNUM).ToList();
+                    var listTrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI.Substring(2, 2).Equals(currentYear)).OrderBy(t => t.RECNUM).ToList();
                     int lastNum = 0;
                     if (listTrans.Count > 0)
                     {
@@ -63,7 +63,7 @@ namespace MasterOnline.Controllers
                     }
                     lastNum = lastNum + 1;
                     //string noTrans = currentYear + lastNum.ToString().PadLeft(10, '0'); // remark add prefix MT for ID auto number Midtrans by fauzi 07-10-2020
-                    string noTrans = "MT" + currentYear + lastNum.ToString().PadLeft(8, '0');
+                    string noTrans = "MD" + currentYear + lastNum.ToString().PadLeft(8, '0');
                     #endregion
 
                     int bln = string.IsNullOrEmpty(bulan) ? 3 : Convert.ToInt32(bulan);
@@ -146,10 +146,10 @@ namespace MasterOnline.Controllers
                     Utils.HttpRequest req = new Utils.HttpRequest();
                     System.Net.Http.HttpContent content = new System.Net.Http.StringContent(dataPost);
                     BindResSnap bindTransferCharge = await req.RequestJSONObject(Utils.HttpRequest.RESTServices.v1, "transactions", content, typeof(BindResSnap), Base64Encode()) as BindResSnap;
-                    //if (bindTransferCharge != null)
-                    //{
-                        //if (!string.IsNullOrEmpty(bindTransferCharge.token))
-                        //{
+                    if (bindTransferCharge != null)
+                    {
+                        if (!string.IsNullOrEmpty(bindTransferCharge.token))
+                        {
                             MoDbContext = new MoDbContext("");
 
                             var dataTrans = new TransaksiMidtrans();
@@ -188,7 +188,8 @@ namespace MasterOnline.Controllers
                             #region save to table ADDON_CUSTOMER for fiture ADDON by fauzi 07/10/2020
                             if (!string.IsNullOrEmpty(addon))
                             {
-                                var dataAccountInDB = MoDbContext.Account.Where(a => a.AccountId == Convert.ToInt64(idAccount)).FirstOrDefault();
+                                long idAc = Convert.ToInt64(idAccount);
+                                var dataAccountInDB = MoDbContext.Account.Where(a => a.AccountId == idAc).FirstOrDefault();
                                 string[] splitAddon = addon.Split(',');
 
                                     DateTime? drTgl = DateTime.Today.AddHours(7);
@@ -205,17 +206,38 @@ namespace MasterOnline.Controllers
                                     int idAddon = Convert.ToInt32(dataAddon);
                                     var dataDBAddon = MoDbContext.Addons.Where(p => p.RecNum == idAddon).SingleOrDefault();
 
-                                    var dataAddCust = new Addons_Customer();
-                                    dataAddCust.NamaAddons = dataDBAddon.Fitur.ToString();
-                                    dataAddCust.Account = emailAddon.ToString();
-                                    dataAddCust.NamaTokoOnline = dataAccountInDB.NamaTokoOnline.ToString();
-                                    dataAddCust.TGL_DAFTAR = dtNow.AddHours(7);
-                                    dataAddCust.TglSubscription = sdTgl;
-                                    dataAddCust.Harga = dataDBAddon.Harga;
-                                    dataAddCust.ID_ADDON = dataDBAddon.RecNum.ToString();
-                                    dataAddCust.ID_TRANS_MIDTRANS = noTrans;
-                                    dataAddCust.STATUS = "0";
-                                    MoDbContext.Addons_Customer.Add(dataAddCust);
+                                    var dataAddonCheck = MoDbContext.Addons_Customer.Where(p => p.Account == emailAddon && p.ID_ADDON == dataAddon).SingleOrDefault();
+                                    if (dataAddonCheck != null)
+                                    {
+                                        dataAddonCheck.NamaAddons = dataDBAddon.Fitur.ToString();
+                                        dataAddonCheck.TGL_DAFTAR = dtNow.AddHours(7);
+                                        dataAddonCheck.TglSubscription = sdTgl;
+                                        dataAddonCheck.Harga = dataDBAddon.Harga;
+                                        dataAddonCheck.ID_TRANS_MIDTRANS = noTrans;
+                                    }
+                                    else
+                                    {
+                                        var dataAddCust = new Addons_Customer();
+                                        dataAddCust.NamaAddons = dataDBAddon.Fitur.ToString();
+                                        dataAddCust.Account = emailAddon.ToString();
+                                        dataAddCust.NamaTokoOnline = dataAccountInDB.NamaTokoOnline.ToString();
+                                        dataAddCust.TGL_DAFTAR = dtNow.AddHours(7);
+                                        dataAddCust.TglSubscription = sdTgl;
+                                        dataAddCust.Harga = dataDBAddon.Harga;
+                                        dataAddCust.ID_ADDON = dataDBAddon.RecNum.ToString();
+                                        dataAddCust.ID_TRANS_MIDTRANS = noTrans;
+                                        if(dataDBAddon.RecNum == 2) //82cart FREE
+                                        {
+                                            dataAddCust.STATUS = "1";
+                                        }
+                                        else
+                                        {
+                                            dataAddCust.STATUS = "0";
+                                        }
+                                        MoDbContext.Addons_Customer.Add(dataAddCust);
+                                    }
+
+                                    
                                 }
                             }
 
@@ -248,19 +270,19 @@ namespace MasterOnline.Controllers
                             //    }
                             //}
                             MoDbContext.SaveChanges();
-                            //retError.token = bindTransferCharge.token;
+                            retError.token = bindTransferCharge.token;
                             return Json(retError, JsonRequestBehavior.AllowGet);
-                        //}
-                        //else
-                        //{
-                        //    retError.error = bindTransferCharge.error_messages;
-                        //    return Json(retError, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            retError.error = bindTransferCharge.error_messages;
+                            return Json(retError, JsonRequestBehavior.AllowGet);
 
-                        //}
-                    //}
+                        }
+                    }
                     //return View(data);
-                    //retError.error = "failed to connect to midtrans";
-                    //return Json(retError, JsonRequestBehavior.AllowGet);
+                    retError.error = "failed to connect to midtrans";
+                    return Json(retError, JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
@@ -396,6 +418,14 @@ namespace MasterOnline.Controllers
                                     userData.jumlahUser = insertTrans.jumlahUser;
                                     //end add 1 Maret 2019, jumlah user
                                     MoDbContext.AktivitasSubscription.Add(insertTrans);
+
+                                    #region Save Active for Addon Fiture
+                                    var dataAddonCheck = MoDbContext.Addons_Customer.Where(p => p.Account == userData.Email && p.ID_TRANS_MIDTRANS == tranMidtrans.NO_TRANSAKSI).ToList();
+                                    if(dataAddonCheck != null)
+                                    {
+                                        dataAddonCheck.ForEach(p => p.STATUS = "1");
+                                    }
+                                    #endregion
                                 }
 
                             }
@@ -491,7 +521,7 @@ namespace MasterOnline.Controllers
                 MoDbContext.SaveChanges();
 
                 //var listAcc = MoDbContext.Account.ToList();
-                //sendEmail(accInDb.Email, accInDb.Password, accInDb.Username);
+                sendEmail(accInDb.Email, accInDb.Password, accInDb.Username);
                 //return View("AccountMenu", listAcc);
                 ret.status = 1;
             }
