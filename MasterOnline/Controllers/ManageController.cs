@@ -35455,6 +35455,17 @@ namespace MasterOnline.Controllers
                                     }
                                     //end add 10 Juni 2019, update panjang/lebar/tinggi
 
+                                    //ADD 7 okt 2020, barcode
+                                    if (!string.IsNullOrEmpty(data.Stf02.Ket_Sort7))
+                                    {
+                                        barangInDB.Ket_Sort7 = data.Stf02.Ket_Sort7;
+                                    }
+                                    if (!string.IsNullOrEmpty(data.Stf02.LKS))
+                                    {
+                                        barangInDB.LKS = data.Stf02.LKS;
+                                    }
+                                    //end ADD 7 okt 2020, barcode
+
                                     //brgMp.HJUAL = data.TempBrg.HJUAL_MP;
                                     brgMp.HJUAL = data.Stf02.HJUAL;
                                     brgMp.DISPLAY = data.TempBrg.DISPLAY;
@@ -35643,6 +35654,35 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
+                                //add by nurul 27/11/2019, add tgl last edit
+                                barangInDB.Tgl_Input = DateTime.Today;
+                                //end add by nurul 27/11/2019, add tgl last edit
+                                //add 10 Juni 2019, update panjang/lebar/tinggi
+                                if (barangInDB.PANJANG == 0 && data.Stf02.PANJANG > 0)
+                                {
+                                    barangInDB.PANJANG = data.Stf02.PANJANG;
+                                }
+                                if (barangInDB.LEBAR == 0 && data.Stf02.LEBAR > 0)
+                                {
+                                    barangInDB.LEBAR = data.Stf02.LEBAR;
+                                }
+                                if (barangInDB.TINGGI == 0 && data.Stf02.TINGGI > 0)
+                                {
+                                    barangInDB.TINGGI = data.Stf02.TINGGI;
+                                }
+                                //end add 10 Juni 2019, update panjang/lebar/tinggi
+
+                                //ADD 7 okt 2020, barcode
+                                if (!string.IsNullOrEmpty(data.Stf02.Ket_Sort7))
+                                {
+                                    barangInDB.Ket_Sort7 = data.Stf02.Ket_Sort7;
+                                }
+                                if (!string.IsNullOrEmpty(data.Stf02.LKS))
+                                {
+                                    barangInDB.LKS = data.Stf02.LKS;
+                                }
+                                //end ADD 7 okt 2020, barcode
+
                                 brgMp = new STF02H();
                                 brgMp.BRG = data.Stf02.BRG;
                                 brgMp.BRG_MP = data.TempBrg.BRG_MP;
@@ -36895,6 +36935,17 @@ namespace MasterOnline.Controllers
                                             }
                                             //end add 10 Juni 2019, update panjang/lebar/tinggi
 
+                                            //ADD 7 okt 2020, barcode
+                                            if (!string.IsNullOrEmpty(item.BARCODE))
+                                            {
+                                                barangInDB.Ket_Sort7 = item.BARCODE;
+                                            }
+                                            if (!string.IsNullOrEmpty(item.RAK))
+                                            {
+                                                barangInDB.LKS = item.RAK;
+                                            }
+                                            //end ADD 7 okt 2020, barcode
+
                                             //brgMp.HJUAL = item.HJUAL_MP;
                                             brgMp.HJUAL = item.HJUAL;
                                             brgMp.DISPLAY = item.DISPLAY;
@@ -37109,6 +37160,18 @@ namespace MasterOnline.Controllers
                                         {
                                             barangInDB.TINGGI = item.TINGGI;
                                         }
+
+                                        //ADD 7 okt 2020, barcode
+                                        if (!string.IsNullOrEmpty(item.BARCODE))
+                                        {
+                                            barangInDB.Ket_Sort7 = item.BARCODE;
+                                        }
+                                        if (!string.IsNullOrEmpty(item.RAK))
+                                        {
+                                            barangInDB.LKS = item.RAK;
+                                        }
+                                        //end ADD 7 okt 2020, barcode
+
                                         brgMp = new STF02H();
                                         //change stf02h brg = seller sku
                                         //brgMp.BRG = string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP : brgBlibli;
@@ -37529,6 +37592,17 @@ namespace MasterOnline.Controllers
                                     {
                                         stf02.LINK_GAMBAR_5 = UploadImageService.UploadSingleImageToImgurFromUrl(item.IMAGE5, "uploaded-image").data.link_l;
                                     }
+
+                                    //ADD 7 okt 2020, barcode
+                                    if (!string.IsNullOrEmpty(item.BARCODE))
+                                    {
+                                        stf02.Ket_Sort7 = item.BARCODE;
+                                    }
+                                    if (!string.IsNullOrEmpty(item.RAK))
+                                    {
+                                        stf02.LKS = item.RAK;
+                                    }
+                                    //end ADD 7 okt 2020, barcode
 
                                     eraDB.STF02.Add(stf02);
                                     var brgMp = new STF02H();

@@ -534,6 +534,9 @@ namespace MasterOnline.Models
 
         [StringLength(1)]
         public string TYPE { get; set; }
+
+        public string BARCODE { get; set; }
+        public string RAK { get; set; }
     }
     
 }

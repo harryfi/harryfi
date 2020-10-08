@@ -201,11 +201,11 @@ namespace MasterOnline.Controllers
                                 worksheet.Cells[19 + i, 4].Value = dsBarang.Tables[0].Rows[i]["KODE_BRG_INDUK"].ToString();
                                 //worksheet.Cells[10 + i, 5].Value = "KODE_KATEGORI_MO";
                                 //worksheet.Cells[10 + i, 6].Value = "KODE_MEREK_MO";
-                                worksheet.Cells[19 + i, 7].Value = dsBarang.Tables[0].Rows[i]["HJUAL"].ToString();
-                                worksheet.Cells[19 + i, 8].Value = dsBarang.Tables[0].Rows[i]["HJUAL_MP"].ToString();
-                                worksheet.Cells[19 + i, 9].Value = dsBarang.Tables[0].Rows[i]["BERAT"].ToString();
-                                worksheet.Cells[19 + i, 10].Value = dsBarang.Tables[0].Rows[i]["IMAGE"].ToString();
-                                worksheet.Cells[19 + i, 11].Value = dsBarang.Tables[0].Rows[i]["BRG_MP"].ToString();
+                                worksheet.Cells[19 + i, 9].Value = dsBarang.Tables[0].Rows[i]["HJUAL"].ToString();
+                                worksheet.Cells[19 + i, 10].Value = dsBarang.Tables[0].Rows[i]["HJUAL_MP"].ToString();
+                                worksheet.Cells[19 + i, 11].Value = dsBarang.Tables[0].Rows[i]["BERAT"].ToString();
+                                worksheet.Cells[19 + i, 12].Value = dsBarang.Tables[0].Rows[i]["IMAGE"].ToString();
+                                worksheet.Cells[19 + i, 13].Value = dsBarang.Tables[0].Rows[i]["BRG_MP"].ToString();
                             }
 
                             #region formatting
@@ -243,7 +243,7 @@ namespace MasterOnline.Controllers
                                 //range.Style.Font.Color.SetColor(Color.White);
                             }
 
-                            using (var range = worksheet.Cells[18, 1, 18, 11])
+                            using (var range = worksheet.Cells[18, 1, 18, 13])
                             {
                                 range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
                                 range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
@@ -252,20 +252,22 @@ namespace MasterOnline.Controllers
                             }
                             #endregion
 
-                            ExcelRange rg0 = worksheet.Cells[18, 1, worksheet.Dimension.End.Row, 11];
+                            ExcelRange rg0 = worksheet.Cells[18, 1, worksheet.Dimension.End.Row, 13];
                             string tableName0 = "TableBarang";
                             ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
                             table0.Columns[0].Name = "NAMA1";
                             table0.Columns[1].Name = "NAMA2";
                             table0.Columns[2].Name = "KODE_BRG_MO";
                             table0.Columns[3].Name = "KODE_BRG_INDUK_MO (diisi khusus untuk barang variasi)";
-                            table0.Columns[4].Name = "KODE_KATEGORI_MO";
-                            table0.Columns[5].Name = "KODE_MEREK_MO";
-                            table0.Columns[6].Name = "HJUAL";
-                            table0.Columns[7].Name = "HJUAL_MARKETPLACE";
-                            table0.Columns[8].Name = "BERAT";
-                            table0.Columns[9].Name = "IMAGE";
-                            table0.Columns[10].Name = "KODE_BRG_MARKETPLACE";
+                            table0.Columns[4].Name = "KODE_BARCODE";
+                            table0.Columns[5].Name = "LOKASI_RAK";
+                            table0.Columns[6].Name = "KODE_KATEGORI_MO";
+                            table0.Columns[7].Name = "KODE_MEREK_MO";
+                            table0.Columns[8].Name = "HJUAL";
+                            table0.Columns[9].Name = "HJUAL_MARKETPLACE";
+                            table0.Columns[10].Name = "BERAT";
+                            table0.Columns[11].Name = "IMAGE";
+                            table0.Columns[12].Name = "KODE_BRG_MARKETPLACE";
                             table0.ShowHeader = true;
                             table0.ShowFilter = true;
                             table0.ShowRowStripes = false;
@@ -302,7 +304,7 @@ namespace MasterOnline.Controllers
 
                             if (dsBarang.Tables[0].Rows.Count > 0)
                             {
-                                var validation = worksheet.DataValidations.AddListValidation(worksheet.Cells[19, 5, worksheet.Dimension.End.Row, 5].Address);
+                                var validation = worksheet.DataValidations.AddListValidation(worksheet.Cells[19, 7, worksheet.Dimension.End.Row, 7].Address);
                                 validation.ShowErrorMessage = true;
                                 validation.ErrorStyle = ExcelDataValidationWarningStyle.warning;
                                 validation.ErrorTitle = "An invalid value was entered";
@@ -321,7 +323,7 @@ namespace MasterOnline.Controllers
                             //var a = new OfficeOpenXml.ExcelTableAddress[3, 1, 3, 2];
                             if (dsBarang.Tables[0].Rows.Count > 0)
                             {
-                                var validation2 = worksheet.DataValidations.AddListValidation(worksheet.Cells[19, 6, worksheet.Dimension.End.Row, 6].Address);
+                                var validation2 = worksheet.DataValidations.AddListValidation(worksheet.Cells[19, 8, worksheet.Dimension.End.Row, 8].Address);
                                 validation2.ShowErrorMessage = true;
                                 validation2.ErrorStyle = ExcelDataValidationWarningStyle.warning;
                                 validation2.ErrorTitle = "An invalid value was entered";
@@ -2619,14 +2621,17 @@ namespace MasterOnline.Controllers
                                                                         current_brg.KODE_BRG_INDUK = worksheet.Cells[i, 4].Value == null ? "" : worksheet.Cells[i, 4].Value.ToString().Trim();
                                                                         //change 14 juni 2019, kode kategori mo disimpan di avalue_40, kode kategory mp tetap di category_code
                                                                         //current_brg.CATEGORY_CODE = worksheet.Cells[i, 5].Value == null ? "" : worksheet.Cells[i, 5].Value.ToString();
-                                                                        current_brg.AVALUE_40 = worksheet.Cells[i, 5].Value == null ? "" : worksheet.Cells[i, 5].Value.ToString().Trim();
+                                                                        current_brg.AVALUE_40 = worksheet.Cells[i, 7].Value == null ? "" : worksheet.Cells[i, 7].Value.ToString().Trim();
                                                                         //end change 14 juni 2019, kode kategori mo disimpan di avalue_40, kode kategory mp tetap di category_code
-                                                                        current_brg.MEREK = worksheet.Cells[i, 6].Value == null ? "" : worksheet.Cells[i, 6].Value.ToString().Trim();
+                                                                        current_brg.MEREK = worksheet.Cells[i, 8].Value == null ? "" : worksheet.Cells[i, 8].Value.ToString().Trim();
                                                                         //current_brg.HJUAL_MP = Convert.ToDouble(worksheet.Cells[i, 7].Value == null ? "0" : worksheet.Cells[i, 7].Value.ToString());
-                                                                        current_brg.HJUAL = Convert.ToDouble(worksheet.Cells[i, 7].Value == null ? "0" : worksheet.Cells[i, 7].Value.ToString());
+                                                                        //current_brg.HJUAL = Convert.ToDouble(worksheet.Cells[i, 7].Value == null ? "0" : worksheet.Cells[i, 7].Value.ToString());
                                                                         //current_brg.BERAT = Convert.ToDouble(worksheet.Cells[i, 9].Value == null ? "0" : worksheet.Cells[i, 9].Value.ToString());
                                                                         //current_brg.IMAGE = worksheet.Cells[i, 10].Value == null ? "" : worksheet.Cells[i, 10].Value.ToString();
                                                                         current_brg.AVALUE_36 = "Auto Process";// barang yg akan di transfer ke master hasil upload excel saja
+                                                                        current_brg.BARCODE = worksheet.Cells[i, 5].Value == null ? "" : worksheet.Cells[i, 5].Value.ToString().Trim();
+                                                                        current_brg.RAK = worksheet.Cells[i, 6].Value == null ? "" : worksheet.Cells[i, 6].Value.ToString().Trim();
+
                                                                         try
                                                                         {
                                                                             eraDB.SaveChanges();
