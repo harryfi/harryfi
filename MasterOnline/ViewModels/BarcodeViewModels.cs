@@ -50,4 +50,17 @@ namespace MasterOnline.ViewModels
         public int qty { get; set; }
         public bool isValid { get; set; }
     }
+
+    public class BarcodedanRakModel
+    {
+        public List<DataBarcodeVarian> listBrg { get; set; }
+    }
+
+    public class DataBarcodeVarian
+    {
+        public string barcode { get; set; }
+        public string rak { get; set; }
+        public int id { get; set; }
+
+    }
 }

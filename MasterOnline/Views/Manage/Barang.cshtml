@@ -5049,6 +5049,7 @@
                     $('#form-partial').html(response);
 
                     $('#Stf02_BRG').attr('disabled', 'disabled');
+                    hideAttrParent();
 
                     //remark by calvin 23 april 2019
                     //Initialize();
@@ -5460,7 +5461,7 @@
                 url: link,
                 success: function (response) {
                     if (response.Errors == null) {
-
+                        //hideAttrParent();
                     } else {
                         $('#cbxStf02Type').prop('checked', false);
                         //checkbox on click event
@@ -5499,6 +5500,14 @@
         }
         //end add by Tri, validasi ubah brg non varian menjadi varian
 
+        function hideAttrParent() {
+            if ($('#cbxStf02Type').is(':checked')) {
+                $('.not_parent_attr').hide();
+            }
+            else {
+                $('.not_parent_attr').show();
+            }
+        }
         //ADD BY NURUL 19/8/2020
         function validateCkMultiSKU() {
             if ($("#cbxStf02MultiSKU").is(":checked") == true) {

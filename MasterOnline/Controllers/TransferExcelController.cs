@@ -2590,7 +2590,7 @@ namespace MasterOnline.Controllers
                                                     //for (int i = 19; i <= worksheet.Dimension.End.Row; i++)
                                                     for (int i = 19 + (page * dataPerPage); i <= maxData; i++)
                                                     {
-                                                        var kd_brg_mp = worksheet.Cells[i, 11].Value == null ? "" : worksheet.Cells[i, 11].Value.ToString();
+                                                        var kd_brg_mp = worksheet.Cells[i, 13].Value == null ? "" : worksheet.Cells[i, 13].Value.ToString();
                                                         if (!string.IsNullOrEmpty(kd_brg_mp))
                                                         {
                                                             ////loop all columns in a row

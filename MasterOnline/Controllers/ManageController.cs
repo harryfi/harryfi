@@ -7747,7 +7747,8 @@ namespace MasterOnline.Controllers
                         barangInDb.TINGGI = dataBarang.Stf02.TINGGI;
                         barangInDb.HJUAL = dataBarang.Stf02.HJUAL;
                         //barangInDb.TYPE = "3";
-
+                        barangInDb.Ket_Sort7 = dataBarang.Stf02.Ket_Sort7;
+                        barangInDb.LKS = dataBarang.Stf02.LKS;
                         //add by nurul 28/8/2020
                         var tempType = barangInDb.TYPE;
                         barangInDb.TYPE = "3";
@@ -9641,6 +9642,17 @@ namespace MasterOnline.Controllers
             //end add by nurul 21/6/2019, validasi berat,p,l,t
         }
 
+        public ActionResult UpdateBarcodedanRakVarian(BarcodedanRakModel data)
+        {
+            if(data.listBrg.Count > 0)
+            {
+                foreach(var barang in data.listBrg)
+                {
+                    var result = EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE STF02 SET Ket_Sort7 = '" + barang.barcode + "', LKS = '" + barang.rak + "' WHERE ID = " + barang.id);
+                }
+            }
+            return JsonErrorMessage("");
+        }
         protected void createBarangLazadaVariant(string brg)
         {
             //var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
