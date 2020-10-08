@@ -28129,58 +28129,84 @@ namespace MasterOnline.Controllers
             string sSQLpot = "";
             string sSQLbayar = "";
             string sSQLnetto = "";
+            string sSQLmarket = "";
+            //if (getkata.Length > 0)
+            //{
+            //    if (search != "")
+            //    {
+            //        for (int i = 0; i < getkata.Length; i++)
+            //        {
+            //            if (getkata.Length == 1)
+            //            {
+            //                sSQLkode += "( BUKTI like '%" + getkata[i] + "%' )";
+            //                sSQLpot += " ( TPOT like '%" + getkata[i] + "%' )";
+            //                sSQLbayar += " ( TBAYAR like '%" + getkata[i] + "%' )";
+            //                sSQLnetto += " ( (TPOT + TBAYAR) like '%" + getkata[i] + "%' )";
+            //            }
+            //            else
+            //            {
+            //                if (getkata[i] == getkata.First())
+            //                {
+            //                    sSQLkode += " ( BUKTI like '%" + getkata[i] + "%'";
+            //                    sSQLpot += " ( TPOT like '%" + getkata[i] + "%'";
+            //                    sSQLbayar += "( TBAYAR like '%" + getkata[i] + "%'";
+            //                    sSQLnetto += " ( (TPOT + TBAYAR) like '%" + getkata[i] + "%' ";
+            //                }
+            //                else if (getkata[i] == getkata.Last())
+            //                {
+            //                    sSQLkode += " and BUKTI like '%" + getkata[i] + "%' )";
+            //                    sSQLpot += " and TPOT like '%" + getkata[i] + "%' )";
+            //                    sSQLbayar += " and TBAYAR like '%" + getkata[i] + "%' )";
+            //                    sSQLnetto += " and (TPOT + TBAYAR) like '%" + getkata[i] + "%' )";
+            //                }
+            //                else
+            //                {
+            //                    sSQLkode += " and BUKTI like '%" + getkata[i] + "%' ";
+            //                    sSQLpot += " and TPOT like '%" + getkata[i] + "%' ";
+            //                    sSQLbayar += " and TBAYAR like '%" + getkata[i] + "%' ";
+            //                    sSQLnetto += " and (TPOT + TBAYAR) like '%" + getkata[i] + "%' ";
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+
             if (getkata.Length > 0)
             {
                 if (search != "")
                 {
                     for (int i = 0; i < getkata.Length; i++)
                     {
-                        if (getkata.Length == 1)
+                        if (i > 0)
                         {
-                            sSQLkode += "( BUKTI like '%" + getkata[i] + "%' )";
-                            sSQLpot += " ( TPOT like '%" + getkata[i] + "%' )";
-                            sSQLbayar += " ( TBAYAR like '%" + getkata[i] + "%' )";
-                            sSQLnetto += " ( (TPOT + TBAYAR) like '%" + getkata[i] + "%' )";
+                            sSQLkode += " AND ";
+                            sSQLbayar += " AND ";
+                            sSQLpot += " AND ";
+                            sSQLnetto += " AND ";
+                            sSQLmarket += " AND ";
                         }
-                        else
-                        {
-                            if (getkata[i] == getkata.First())
-                            {
-                                sSQLkode += " ( BUKTI like '%" + getkata[i] + "%'";
-                                sSQLpot += " ( TPOT like '%" + getkata[i] + "%'";
-                                sSQLbayar += "( TBAYAR like '%" + getkata[i] + "%'";
-                                sSQLnetto += " ( (TPOT + TBAYAR) like '%" + getkata[i] + "%' ";
-                            }
-                            else if (getkata[i] == getkata.Last())
-                            {
-                                sSQLkode += " and BUKTI like '%" + getkata[i] + "%' )";
-                                sSQLpot += " and TPOT like '%" + getkata[i] + "%' )";
-                                sSQLbayar += " and TBAYAR like '%" + getkata[i] + "%' )";
-                                sSQLnetto += " and (TPOT + TBAYAR) like '%" + getkata[i] + "%' )";
-                            }
-                            else
-                            {
-                                sSQLkode += " and BUKTI like '%" + getkata[i] + "%' ";
-                                sSQLpot += " and TPOT like '%" + getkata[i] + "%' ";
-                                sSQLbayar += " and TBAYAR like '%" + getkata[i] + "%' ";
-                                sSQLnetto += " and (TPOT + TBAYAR) like '%" + getkata[i] + "%' ";
-                            }
-                        }
+
+                        sSQLkode += "  BUKTI like '%" + getkata[i] + "%' ";
+                        sSQLbayar += "  TBAYAR like '%" + getkata[i] + "%' ";
+                        sSQLpot += "  TPOT like '%" + getkata[i] + "%' ";
+                        sSQLnetto += "  (TPOT + TBAYAR) like '%" + getkata[i] + "%' ";
+                        sSQLmarket += "  isnull((b.namamarket + ' (' + a.perso + ')'),'') like '%" + getkata[i] + "%' ";
                     }
                 }
             }
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT * ";
+            sSQLSelect += "SELECT isnull((b.namamarket + ' (' + a.perso + ')'),'') as MARKETPLACE, C.* ";
             string sSQLCount = "";
-            sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+            sSQLCount += "SELECT COUNT(C.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
-            sSQL2 += "FROM ART03A ";
+            sSQL2 += "FROM ART03A C ";
+            sSQL2 += "LEFT JOIN arf01 a ON A.CUST=C.CUST LEFT JOIN mo..marketplace b on a.nama=b.idmarket ";
             if (search != "")
             {
                 //sSQL2 += "WHERE (BUKTI LIKE '%" + search + "%' OR TGL LIKE '%" + search + "%' ) ";
-                sSQL2 += " WHERE ( " + sSQLkode + " or " + sSQLpot + " or " + sSQLbayar + " or " + sSQLnetto + " ) ";
+                sSQL2 += " WHERE ( " + sSQLkode + " or " + sSQLpot + " or " + sSQLbayar + " or " + sSQLnetto + " or " + sSQLmarket + " ) ";
             }
 
             var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
@@ -28195,10 +28221,10 @@ namespace MasterOnline.Controllers
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
-            var ListArt03a = ErasoftDbContext.Database.SqlQuery<ART03A>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var ListArt03a = ErasoftDbContext.Database.SqlQuery<mdlBayarPiutang>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
-            IPagedList<ART03A> pageOrders = new StaticPagedList<ART03A>(ListArt03a, pagenumber + 1, 10, totalCount.JUMLAH);
+            IPagedList<mdlBayarPiutang> pageOrders = new StaticPagedList<mdlBayarPiutang>(ListArt03a, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TableBayarPiutangPartial", pageOrders);
         }
 

@@ -1,7 +1,7 @@
 ﻿@using System.Globalization
 @*@model MasterOnline.ViewModels.BayarPiutangViewModel*@
 @using PagedList.Mvc
-@model PagedList.IPagedList<ART03A>
+@model PagedList.IPagedList<mdlBayarPiutang>
 @{
     string currentFilter = ViewBag.CurrentFilter;
     string currentSort = ViewBag.CurrentSort;
@@ -66,12 +66,13 @@
         @*<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">*@
         <thead>
             <tr role="row">
-                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Bukti</th>
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal</th>
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 95px;">No. Bukti</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 85px;">Tanggal</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px;">Marketplace</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total Bayar</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total Potongan</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total Pelunasan</th>
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total Lebih Bayar</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 110px;">Total Lebih Bayar</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Posting</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Edit</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>
@@ -84,6 +85,7 @@
             <tr>
                 <td>@piutang.BUKTI</td>
                 <td>@piutang.TGL.ToString("dd/MM/yyyy")</td>
+                <td>@piutang.MARKETPLACE</td>
                 <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR)</td>
                 <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TPOT)</td>
                 @*change by nurul 10/10/2018   <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR - piutang.TPOT)</td>*@

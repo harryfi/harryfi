@@ -298,4 +298,32 @@ namespace MasterOnline
         public double JumlahGabung { get; set; }
     }
     //end add by fauzi 14/07/2020
+
+    //add by nurul 6/10/2020
+    public class mdlBayarPiutang
+    {
+        public string BUKTI { get; set; }
+        public int? RecNum { get; set; }
+        public DateTime TGL { get; set; }
+        public string CUST { get; set; }
+        public string KET { get; set; }
+        public string POSTING { get; set; }
+        public string VLT { get; set; }
+        public double TUKAR { get; set; }
+        public double MUKA1 { get; set; }
+        public double MUKA2 { get; set; }
+        public double KONTAN { get; set; }
+        public double TBAYAR { get; set; }
+        public double TPOT { get; set; }
+        public string NCUST { get; set; }
+        public double TOTAL_DEBET_GL { get; set; }
+        public double TOTAL_KREDIT_GL { get; set; }
+        public string USERNAME { get; set; }
+        public DateTime? TGLINPUT { get; set; }
+        public double? TLEBIH_BAYAR { get; set; }
+        public string log_file { get; set; }
+
+        public string MARKETPLACE { get; set; }
+    }
+    //end add by nurul 6/10/2020
 }
