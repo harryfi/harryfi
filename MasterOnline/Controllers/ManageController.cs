@@ -30314,7 +30314,7 @@ namespace MasterOnline.Controllers
 
                         //add by nurul 5/10/2020, set harga dr pb atau st
                         var sSQL1 = "select isnull((select top 1 isnull(hbeli,0) harga_pb from pbt01a a inner join pbt01b b on a.inv=b.inv where brg='" + item.Brg + "' and hbeli > 0 order by a.tgl desc, a.inv desc),0) harga_pb " +
-                                    ", isnull((select top 1 isnull(harsat, 0) harga_st from stt01a a inner join stt01b b on a.nobuk = b.nobuk where kobar = '" + item.Brg + "' and harsat > 0 order by a.tgl desc, a.nobuk desc),0) harga_st ";
+                                    ", isnull((select top 1 isnull(harsat, 0) harga_st from stt01a a inner join stt01b b on a.nobuk = b.nobuk where kobar = '" + item.Brg + "' and harsat > 0 order by a.tgl desc, b.no desc),0) harga_st ";
                         var cekPb_St = ErasoftDbContext.Database.SqlQuery<tempHargaPbSt>(sSQL1).SingleOrDefault();
                         if(cekPb_St.harga_pb > 0)
                         {
