@@ -1823,6 +1823,15 @@ namespace MasterOnline.Controllers
                             {
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                 contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderCompeleted) + " Pesanan dari 82Cart sudah selesai.");
+
+                                //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                                if (!string.IsNullOrEmpty(ordersn))
+                                {
+                                    var dateTimeNow = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
+                                    string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + ordersn + ")";
+                                    var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                                }
+                                //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
                             }
                         }
                     }

@@ -48,6 +48,7 @@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 115px;">Nama Marketplace</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Kode FTP</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Kode Transaksi</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Edit</th>
         </tr>
     </thead>
@@ -61,6 +62,10 @@
                 <td>
                     <input type="text" class="kodesap-input-box" maxlength="35" style="display: none; width: 150px;" />
                     <span class="kodesap-initial">@rec.KODE_SAP</span>
+                </td>
+                <td>
+                    <input type="text" class="kodetransaksi-input-box" maxlength="5" style="display: none; width: 150px;" />
+                    <span class="kodetransaksi-initial">@rec.KODE_TRANSAKSI</span>
                 </td>
                 <td class="edit-hapus-col">
                     <button type="button" data-tip="Edit Resi" class="btn btn-primary" onclick="editKodeSap('@rec.KODE')">

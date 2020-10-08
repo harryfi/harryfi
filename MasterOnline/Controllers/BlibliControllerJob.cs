@@ -883,6 +883,9 @@ namespace MasterOnline.Controllers
                         {
                             if (stat == StatusOrder.Completed)
                             {
+                                //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                                string noBuktiRef = "";
+                                //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
                                 var jmlhSuccessOrder = 0;
                                 foreach (var item in result.content)
                                 {
@@ -901,6 +904,7 @@ namespace MasterOnline.Controllers
                                             if (affected == 1)
                                             {
                                                 jmlhSuccessOrder++;
+                                                noBuktiRef += "'" + item.orderNo + "' ,";
                                             }
                                         }
                                     }
@@ -909,7 +913,18 @@ namespace MasterOnline.Controllers
                                 {
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                     contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification(Convert.ToString(jmlhSuccessOrder) + " Pesanan dari Blibli sudah selesai.");
+
+                                    //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                                    if (!string.IsNullOrEmpty(noBuktiRef))
+                                    {
+                                        var dateTimeNow = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
+                                        noBuktiRef = noBuktiRef.Substring(0, noBuktiRef.Length - 2) + ")";
+                                        string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + noBuktiRef;
+                                        var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                                    }
+                                    //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
                                 }
+
                             }
                         }
                     }
