@@ -152,6 +152,7 @@ namespace MasterOnline.Controllers
             return View(std);
         }
 
+        [Route("manage/tutorial_list")]
         public ActionResult Tutorial_List()
         {
             var vm = new TutorialDetailViewModel()

@@ -1,7 +1,7 @@
 ﻿@model MasterOnline.ViewModels.TutorialDetailViewModel
 @{
     ViewBag.Title = "Tutorial_List";
-    //Layout = "~/Views/Shared/_LayoutAdminCS.cshtml";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
 }
 
 <style>
@@ -78,7 +78,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="x_panel">
-                            <a href="@Url.Action(" Tutorial", "Manage" , new { eksId=list.DetailId })">
+                            <a href="@Url.Action("Tutorial", "Manage" , new { eksId=list.DetailId })">
                                 <h4 id="judul">
                                     @list.Judul
                                 </h4>
