@@ -548,8 +548,8 @@ namespace MasterOnline.Controllers
                                                     batchinsertItem = new List<TEMP_SHOPIFY_ORDERS_ITEM>();
 
                                                     //2020-04-08T05:12:41
-                                                    var dateOrder = Convert.ToDateTime(order.created_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                                                    var datePay = Convert.ToDateTime(order.processed_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                                                    var dateOrder = Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss");
+                                                    var datePay = Convert.ToDateTime(order.processed_at).ToString("yyyy-MM-dd HH:mm:ss");
                         
                                                     var shippingLine = "";
                                                     var trackingCompany = "";
