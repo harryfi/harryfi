@@ -41767,7 +41767,7 @@ namespace MasterOnline.Controllers
             };
             vm.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
             vm.listDetailPacking = new List<SOT03BDetailPacking>();
-            var listSOT03B = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == vm.packingList.NO_BUKTI).ToList();
+            var listSOT03B = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == vm.packingList.NO_BUKTI).OrderBy(m => m.NO_PESANAN).ToList();
 
             var listPesanan = listSOT03B.Select(p => p.NO_PESANAN).ToList();
             var listSO = ErasoftDbContext.SOT01A.Where(p => listPesanan.Contains(p.NO_BUKTI)).ToList();
@@ -41806,7 +41806,7 @@ namespace MasterOnline.Controllers
             //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
             //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(A.QTY) QTY, ISNULL(C.BRG_CUST,'') AS BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT01B C ON A.NO_PESANAN=C.NO_BUKTI AND A.BRG=C.BRG WHERE A.NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, C.BRG_CUST");
             //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(B.WARNA,'') as BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, B.WARNA");
-            var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE,B.LKS");
+            var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE,B.LKS ORDER BY B.LKS");
             //END CHANGE BY NURUL 22/7/2020
             for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
             {
@@ -42347,7 +42347,7 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE, B.LKS");
+                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE, B.LKS ORDER BY B.LKS");
                 for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
                 {
                     var newData = new RekapBarang
@@ -57093,7 +57093,8 @@ namespace MasterOnline.Controllers
                     sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLpembeli + ") or (" + sSQLmarket + ") or (" + sSQLreferensi + ") ) ";
                 }
                 string sSQLSelect2 = "";
-                sSQLSelect2 += "ORDER BY A.RecNum asc ";
+                //sSQLSelect2 += "ORDER BY A.RecNum asc ";
+                sSQLSelect2 += "ORDER BY a.no_pesanan asc ";
 
                 var listOrder = ErasoftDbContext.Database.SqlQuery<SOT03BDetailPacking>(sSQLSelect + sSQL2 + sSQLTemp + sSQLSelect2).ToList();
                 listData.listDetail.AddRange(listOrder);
