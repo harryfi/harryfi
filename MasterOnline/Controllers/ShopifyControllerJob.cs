@@ -229,8 +229,8 @@ namespace MasterOnline.Controllers
                                                 batchinsertItem = new List<TEMP_SHOPIFY_ORDERS_ITEM>();
 
                                                 //2020-04-08T05:12:41
-                                                var dateOrder = Convert.ToDateTime(order.created_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                                                var datePay = Convert.ToDateTime(order.processed_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                                                var dateOrder = Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss");
+                                                var datePay = Convert.ToDateTime(order.processed_at).ToString("yyyy-MM-dd HH:mm:ss");
                                                 //if (order.processed_at == "0000-00-00 00:00:00")
                                                 //{
                                                 //    datePay = dateOrder;
@@ -548,8 +548,8 @@ namespace MasterOnline.Controllers
                                                     batchinsertItem = new List<TEMP_SHOPIFY_ORDERS_ITEM>();
 
                                                     //2020-04-08T05:12:41
-                                                    var dateOrder = Convert.ToDateTime(order.created_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                                                    var datePay = Convert.ToDateTime(order.processed_at).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                                                    var dateOrder = Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss");
+                                                    var datePay = Convert.ToDateTime(order.processed_at).ToString("yyyy-MM-dd HH:mm:ss");
                         
                                                     var shippingLine = "";
                                                     var trackingCompany = "";
@@ -2710,6 +2710,86 @@ namespace MasterOnline.Controllers
 
         // result order shopify
 
+        //public class ResultOrderShopify
+        //{
+        //    public ResultOrderShopifyData[] orders { get; set; }
+        //}
+
+        //public class ResultOrderShopifyData
+        //{
+        //    public long id { get; set; }
+        //    public string email { get; set; }
+        //    public object closed_at { get; set; }
+        //    public DateTime created_at { get; set; }
+        //    public DateTime updated_at { get; set; }
+        //    public int number { get; set; }
+        //    public string note { get; set; }
+        //    public string token { get; set; }
+        //    public string gateway { get; set; }
+        //    public bool test { get; set; }
+        //    public string total_price { get; set; }
+        //    public string subtotal_price { get; set; }
+        //    public int total_weight { get; set; }
+        //    public string total_tax { get; set; }
+        //    public bool taxes_included { get; set; }
+        //    public string currency { get; set; }
+        //    public string financial_status { get; set; }
+        //    public bool confirmed { get; set; }
+        //    public string total_discounts { get; set; }
+        //    public string total_line_items_price { get; set; }
+        //    public string cart_token { get; set; }
+        //    public bool buyer_accepts_marketing { get; set; }
+        //    public string name { get; set; }
+        //    public string referring_site { get; set; }
+        //    public string landing_site { get; set; }
+        //    public object cancelled_at { get; set; }
+        //    public object cancel_reason { get; set; }
+        //    public string total_price_usd { get; set; }
+        //    public string checkout_token { get; set; }
+        //    public object reference { get; set; }
+        //    public long? user_id { get; set; }
+        //    public long? location_id { get; set; }
+        //    public object source_identifier { get; set; }
+        //    public object source_url { get; set; }
+        //    public DateTime processed_at { get; set; }
+        //    public object device_id { get; set; }
+        //    public object phone { get; set; }
+        //    public string customer_locale { get; set; }
+        //    public int app_id { get; set; }
+        //    public string browser_ip { get; set; }
+        //    public object landing_site_ref { get; set; }
+        //    public int order_number { get; set; }
+        //    public object[] discount_applications { get; set; }
+        //    public object[] discount_codes { get; set; }
+        //    public object[] note_attributes { get; set; }
+        //    public string[] payment_gateway_names { get; set; }
+        //    public string processing_method { get; set; }
+        //    public long? checkout_id { get; set; }
+        //    public string source_name { get; set; }
+        //    public string fulfillment_status { get; set; }
+        //    public Tax_Lines[] tax_lines { get; set; }
+        //    public string tags { get; set; }
+        //    public string contact_email { get; set; }
+        //    public string order_status_url { get; set; }
+        //    public string presentment_currency { get; set; }
+        //    public Total_Line_Items_Price_Set total_line_items_price_set { get; set; }
+        //    public Total_Discounts_Set total_discounts_set { get; set; }
+        //    public Total_Shipping_Price_Set total_shipping_price_set { get; set; }
+        //    public Subtotal_Price_Set subtotal_price_set { get; set; }
+        //    public Total_Price_Set total_price_set { get; set; }
+        //    public Total_Tax_Set total_tax_set { get; set; }
+        //    public Line_Items[] line_items { get; set; }
+        //    public Fulfillment[] fulfillments { get; set; }
+        //    public object[] refunds { get; set; }
+        //    public string total_tip_received { get; set; }
+        //    public string admin_graphql_api_id { get; set; }
+        //    public Shipping_Lines[] shipping_lines { get; set; }
+        //    public Billing_Address billing_address { get; set; }
+        //    public Shipping_Address shipping_address { get; set; }
+        //    public Client_Details client_details { get; set; }
+        //    public Customer customer { get; set; }
+        //}
+
         public class ResultOrderShopify
         {
             public ResultOrderShopifyData[] orders { get; set; }
@@ -2719,14 +2799,14 @@ namespace MasterOnline.Controllers
         {
             public long id { get; set; }
             public string email { get; set; }
-            public object closed_at { get; set; }
+            //public DateTime closed_at { get; set; }
             public DateTime created_at { get; set; }
             public DateTime updated_at { get; set; }
             public int number { get; set; }
             public string note { get; set; }
-            public string token { get; set; }
+            //public string token { get; set; }
             public string gateway { get; set; }
-            public bool test { get; set; }
+            //public bool test { get; set; }
             public string total_price { get; set; }
             public string subtotal_price { get; set; }
             public int total_weight { get; set; }
@@ -2737,59 +2817,70 @@ namespace MasterOnline.Controllers
             public bool confirmed { get; set; }
             public string total_discounts { get; set; }
             public string total_line_items_price { get; set; }
-            public string cart_token { get; set; }
-            public bool buyer_accepts_marketing { get; set; }
+            //public string cart_token { get; set; }
+            //public bool buyer_accepts_marketing { get; set; }
             public string name { get; set; }
-            public string referring_site { get; set; }
-            public string landing_site { get; set; }
+            //public string referring_site { get; set; }
+            //public string landing_site { get; set; }
             public object cancelled_at { get; set; }
             public object cancel_reason { get; set; }
             public string total_price_usd { get; set; }
-            public string checkout_token { get; set; }
-            public object reference { get; set; }
+            //public string checkout_token { get; set; }
+            public string reference { get; set; }
             public long? user_id { get; set; }
             public long? location_id { get; set; }
-            public object source_identifier { get; set; }
-            public object source_url { get; set; }
+            //public object source_identifier { get; set; }
+            //public object source_url { get; set; }
             public DateTime processed_at { get; set; }
-            public object device_id { get; set; }
+            //public object device_id { get; set; }
             public object phone { get; set; }
             public string customer_locale { get; set; }
             public int app_id { get; set; }
             public string browser_ip { get; set; }
-            public object landing_site_ref { get; set; }
+            //public object landing_site_ref { get; set; }
             public int order_number { get; set; }
-            public object[] discount_applications { get; set; }
-            public object[] discount_codes { get; set; }
-            public object[] note_attributes { get; set; }
+            public Discount_Applications[] discount_applications { get; set; }
+            //public object[] discount_codes { get; set; }
+            //public object[] note_attributes { get; set; }
             public string[] payment_gateway_names { get; set; }
             public string processing_method { get; set; }
-            public long? checkout_id { get; set; }
-            public string source_name { get; set; }
+            //public long? checkout_id { get; set; }
+            //public string source_name { get; set; }
             public string fulfillment_status { get; set; }
-            public Tax_Lines[] tax_lines { get; set; }
+            //public Tax_Lines[] tax_lines { get; set; }
             public string tags { get; set; }
             public string contact_email { get; set; }
-            public string order_status_url { get; set; }
+            //public string order_status_url { get; set; }
             public string presentment_currency { get; set; }
-            public Total_Line_Items_Price_Set total_line_items_price_set { get; set; }
-            public Total_Discounts_Set total_discounts_set { get; set; }
+            //public Total_Line_Items_Price_Set total_line_items_price_set { get; set; }
+            //public Total_Discounts_Set total_discounts_set { get; set; }
             public Total_Shipping_Price_Set total_shipping_price_set { get; set; }
-            public Subtotal_Price_Set subtotal_price_set { get; set; }
-            public Total_Price_Set total_price_set { get; set; }
-            public Total_Tax_Set total_tax_set { get; set; }
+            //public Subtotal_Price_Set subtotal_price_set { get; set; }
+            //public Total_Price_Set total_price_set { get; set; }
+            //public Total_Tax_Set total_tax_set { get; set; }
             public Line_Items[] line_items { get; set; }
             public Fulfillment[] fulfillments { get; set; }
             public object[] refunds { get; set; }
-            public string total_tip_received { get; set; }
-            public string admin_graphql_api_id { get; set; }
+            //public string total_tip_received { get; set; }
+            //public string admin_graphql_api_id { get; set; }
             public Shipping_Lines[] shipping_lines { get; set; }
-            public Billing_Address billing_address { get; set; }
+            //public Billing_Address billing_address { get; set; }
             public Shipping_Address shipping_address { get; set; }
-            public Client_Details client_details { get; set; }
-            public Customer customer { get; set; }
+            //public Client_Details client_details { get; set; }
+            //public Customer customer { get; set; }
         }
 
+        public class Discount_Applications
+        {
+            public string type { get; set; }
+            public string value { get; set; }
+            public string value_type { get; set; }
+            public string allocation_method { get; set; }
+            public string target_selection { get; set; }
+            public string target_type { get; set; }
+            public string description { get; set; }
+            public string title { get; set; }
+        }
 
 
         public class Total_Line_Items_Price_Set
@@ -2900,6 +2991,44 @@ namespace MasterOnline.Controllers
             public string currency_code { get; set; }
         }
 
+        //public class Billing_Address
+        //{
+        //    public string first_name { get; set; }
+        //    public string address1 { get; set; }
+        //    public string phone { get; set; }
+        //    public string city { get; set; }
+        //    public string zip { get; set; }
+        //    public string province { get; set; }
+        //    public string country { get; set; }
+        //    public string last_name { get; set; }
+        //    public string address2 { get; set; }
+        //    public object company { get; set; }
+        //    public float latitude { get; set; }
+        //    public float longitude { get; set; }
+        //    public string name { get; set; }
+        //    public string country_code { get; set; }
+        //    public string province_code { get; set; }
+        //}
+
+        //public class Shipping_Address
+        //{
+        //    public string first_name { get; set; }
+        //    public string address1 { get; set; }
+        //    public string phone { get; set; }
+        //    public string city { get; set; }
+        //    public string zip { get; set; }
+        //    public string province { get; set; }
+        //    public string country { get; set; }
+        //    public string last_name { get; set; }
+        //    public string address2 { get; set; }
+        //    public object company { get; set; }
+        //    public float latitude { get; set; }
+        //    public float longitude { get; set; }
+        //    public string name { get; set; }
+        //    public string country_code { get; set; }
+        //    public string province_code { get; set; }
+        //}
+
         public class Billing_Address
         {
             public string first_name { get; set; }
@@ -2912,8 +3041,8 @@ namespace MasterOnline.Controllers
             public string last_name { get; set; }
             public string address2 { get; set; }
             public object company { get; set; }
-            public float latitude { get; set; }
-            public float longitude { get; set; }
+            //public float latitude { get; set; }
+            //public float longitude { get; set; }
             public string name { get; set; }
             public string country_code { get; set; }
             public string province_code { get; set; }
@@ -2931,8 +3060,8 @@ namespace MasterOnline.Controllers
             public string last_name { get; set; }
             public string address2 { get; set; }
             public object company { get; set; }
-            public float latitude { get; set; }
-            public float longitude { get; set; }
+            //public float latitude { get; set; }
+            //public float longitude { get; set; }
             public string name { get; set; }
             public string country_code { get; set; }
             public string province_code { get; set; }
