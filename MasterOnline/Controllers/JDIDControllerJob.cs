@@ -2405,21 +2405,21 @@ namespace MasterOnline.Controllers
                                             break;
                                     }
 
-                                    var nama = order.customerName != null ? order.customerName.Replace('\'', '`') : "";
+                                    var nama = order.customerName != null ? order.customerName.Replace('\'', '`').Replace("'", "") : "";
                                     if (nama.Length > 30)
                                         nama = nama.Substring(0, 30);
 
-                                    var vOrderAddress = order.address != null ? order.address.Replace('\'', '`') : "";
-                                    var vDeliveryAddress = order.deliveryAddr != null ? order.deliveryAddr.Replace('\'', '`') : "";
-                                    var vArea = order.area != null ? order.area.Replace('\'', '`') : "";
-                                    var vCity = order.city != null ? order.city.Replace('\'', '`') : "";
-                                    var vState = order.state != null ? order.state.Replace('\'', '`') : "";
-                                    var messageCustomer = order.buyerMessage ?? "";
+                                    var vOrderAddress = order.address != null ? order.address.Replace('\'', '`').Replace("'", "") : "";
+                                    var vDeliveryAddress = order.deliveryAddr != null ? order.deliveryAddr.Replace('\'', '`').Replace("'", "") : "";
+                                    var vArea = order.area != null ? order.area.Replace('\'', '`').Replace("'", "") : "";
+                                    var vCity = order.city != null ? order.city.Replace('\'', '`').Replace("'", "") : "";
+                                    var vState = order.state != null ? order.state.Replace('\'', '`').Replace("'", "") : "";
+                                    var messageCustomer = order.buyerMessage != null ? order.buyerMessage.Replace("'", "") : "";
 
                                     //insertQ += "('" + order.address.Replace('\'', '`') + "','" + order.area.Replace('\'', '`') + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + order.city.Replace('\'', '`') + "'," + order.couponAmount + ",'" + order.customerName + "','";
                                     //var insertQValue = "('" + vOrderAddress + "','" + vArea + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + vCity + "'," + order.couponAmount + ",'" + nama + "','";
                                     var insertQValue = "('" + vOrderAddress + "','" + vArea + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','" + vCity + "'," + order.couponAmount + ",'" + nama + "','";
-                                    insertQValue += vDeliveryAddress + "'," + order.deliveryType + ",'" + order.email + "'," + order.freightAmount + "," + order.fullCutAmount + "," + order.installmentFee + ",'" + DateTimeOffset.FromUnixTimeSeconds(order.orderCompleteTime / 1000).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','";
+                                    insertQValue += vDeliveryAddress + "'," + order.deliveryType + ",'" + order.email.Replace("'", "") + "'," + order.freightAmount + "," + order.fullCutAmount + "," + order.installmentFee + ",'" + DateTimeOffset.FromUnixTimeSeconds(order.orderCompleteTime / 1000).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','";
                                     insertQValue += order.orderId + "'," + order.orderSkuNum + "," + statusEra + "," + order.orderType + "," + order.paySubtotal + "," + order.paymentType + ",'" + order.phone + "','" + order.postCode + "'," + order.promotionAmount + ",'";
                                     insertQValue += order.sendPay + "','" + vState + "'," + order.totalPrice + ",'" + order.userPin + "','" + data.no_cust + "','" + username + "','" + conn_id_order + "', '" + messageCustomer + "', '" + order.carrierCode + "', '" + order.carrierCompany + "', '" + order.expressNo + "', '" + data.nama_cust + "') ,";
 
@@ -2430,7 +2430,7 @@ namespace MasterOnline.Controllers
                                         foreach (var ordItem in order.orderSkuinfos)
                                         {
                                             insertOrderItemsValue += "('" + order.orderId + "'," + ordItem.commission + "," + ordItem.costPrice + "," + ordItem.couponAmount + "," + ordItem.fullCutAmount + ",";
-                                            insertOrderItemsValue += ordItem.hasPromo + "," + ordItem.jdPrice + "," + ordItem.promotionAmount + ",'" + ordItem.skuId + "','" + ordItem.skuName + "',";
+                                            insertOrderItemsValue += ordItem.hasPromo + "," + ordItem.jdPrice + "," + ordItem.promotionAmount + ",'" + ordItem.skuId + "','" + ordItem.skuName.Replace("'", "") + "',";
                                             insertOrderItemsValue += ordItem.skuNumber + ",'" + ordItem.spuId + "'," + ordItem.weight + ",'" + username + "','" + conn_id_order + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','" + data.no_cust + "','" + data.nama_cust + "') ,";
                                         }
                                     }
@@ -2447,8 +2447,8 @@ namespace MasterOnline.Controllers
                                         kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
 
 
-                                    var vAddress = order.address != null ? order.address.Replace('\'', '`') : "";
-                                    var vEmail = order.email != null ? order.email.Replace('\'', '`') : "";
+                                    var vAddress = order.address != null ? order.address.Replace('\'', '`').Replace("'", "") : "";
+                                    var vEmail = order.email != null ? order.email.Replace('\'', '`').Replace("'", "") : "";
                                     var vPostCode = order.postCode != null ? order.postCode.Replace('\'', '`') : "";
 
                                     //insertPembeli += "('" + order.customerName.Replace('\'', '`') + "','" + order.address.Replace('\'', '`') + "','" + order.phone + "','" + order.email.Replace('\'', '`') + "',0,0,'0','01',";
