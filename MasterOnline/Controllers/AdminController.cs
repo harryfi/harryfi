@@ -869,6 +869,165 @@ namespace MasterOnline.Controllers
 
         // =============================================== Bagian Marketplace (END)
 
+        // =============================================== Bagian Addons (START)
+        #region Bagian Addons (START)
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveAddons(AddonsViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("AddonsMenu", vm);
+            }
+
+            if (vm.Addons.RecNum == null)
+            {
+                var eksInDb = MoDbContext.Addons.SingleOrDefault(e => e.Fitur == vm.Addons.Fitur);
+
+                if (eksInDb != null)
+                {
+                    ModelState.AddModelError("", @"Ekspedisi sudah terdaftar!");
+                    return View("AddonsMenu", vm);
+                }
+
+                MoDbContext.Addons.Add(vm.Addons);
+            }
+            else
+            {
+                var eksInDb = MoDbContext.Addons.Single(e => e.RecNum == vm.Addons.RecNum);
+                eksInDb.Fitur = vm.Addons.Fitur;
+                eksInDb.Harga = vm.Addons.Harga;
+            }
+
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
+
+            return RedirectToAction("AddonsMenu");
+        }
+
+        public ActionResult EditAddons(int? eksId)
+        {
+            var vm = new AddonsViewModel()
+            {
+                Addons = MoDbContext.Addons.Single(e => e.RecNum == eksId)
+            };
+
+            ViewData["Editing"] = 1;
+
+            return View("AddonsMenu", vm);
+        }
+
+        public ActionResult DeleteAddons(int? eksId)
+        {
+            var vm = new AddonsViewModel()
+            {
+                Addons = MoDbContext.Addons.Single(e => e.RecNum == eksId),
+                ListAddons = MoDbContext.Addons.ToList()
+            };
+
+            MoDbContext.Addons.Remove(vm.Addons);
+            MoDbContext.SaveChanges();
+
+            return RedirectToAction("AddonsMenu");
+        }
+
+        #endregion
+        // =============================================== Bagian Addons (END)
+
+        // =============================================== Bagian CustomerAddons (START)
+        #region Bagian CustomerAddons (START)
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveCustAddons(AddonsCustomerViewModel vm)
+        {
+            //if (!ModelState.IsValid)
+            //{
+            //    return View("AddonsCustMenu", vm);
+            //}
+
+            if (vm.Accounts.Email == null)
+            {
+                var eksInDb = MoDbContext.Addons_Customer.SingleOrDefault(e => e.Account == vm.Accounts.Email);
+
+                if (eksInDb != null)
+                {
+                    ModelState.AddModelError("", @"Email masih kosong!");
+                    return View("AddonsCustMenu", vm);
+                }
+            }
+            else
+            {
+                var eksInDb = MoDbContext.Addons_Customer.SingleOrDefault(e => e.RecNum == vm.Addons_Customer.RecNum);
+                if (eksInDb == null)
+                {
+                    eksInDb = new Addons_Customer
+                    {
+                        TglSubscription = vm.Accounts.TGL_SUBSCRIPTION,
+                        Account = vm.Accounts.Email,
+                        NamaTokoOnline = vm.Accounts.NamaTokoOnline,
+                        Harga = vm.Addons.Harga,
+                        NamaAddons = vm.Addons.Fitur
+                    };
+                    MoDbContext.Addons_Customer.Add(eksInDb);
+                }
+                else
+                {
+                    eksInDb.TglSubscription = vm.Addons_Customer.TglSubscription;
+                    eksInDb.Account = vm.Addons_Customer.Account;
+                    eksInDb.NamaTokoOnline = vm.Addons_Customer.NamaTokoOnline;
+                    eksInDb.Harga = vm.Addons_Customer.Harga;
+                    eksInDb.NamaAddons = vm.Addons_Customer.NamaAddons;
+                }
+            }
+
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
+
+            return RedirectToAction("AddonsCustMenu");
+
+        }
+
+        [HttpGet]
+        public ActionResult GetAddons()
+        {
+            var addons = MoDbContext.Addons.ToList();
+
+            return Json(addons, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult EditCustAddons(int? eksId)
+        {
+            var vm = new AddonsCustomerViewModel()
+            {
+                Addons_Customer = MoDbContext.Addons_Customer.SingleOrDefault(e => e.RecNum == eksId)
+            };
+
+            //ViewData["Editing"] = 1;
+
+            return Json(vm, JsonRequestBehavior.AllowGet);
+            //return View("AddonsCustMenu", vm);
+        }
+
+        public ActionResult DeleteCustAddons(int? eksId)
+        {
+            var vm = new AddonsCustomerViewModel()
+            {
+                Addons_Customer = MoDbContext.Addons_Customer.Single(e => e.RecNum == eksId),
+                ListCustAddons = MoDbContext.Addons_Customer.ToList()
+            };
+
+            MoDbContext.Addons_Customer.Remove(vm.Addons_Customer);
+            MoDbContext.SaveChanges();
+
+            return RedirectToAction("AddonsCustMenu");
+        }
+
+        #endregion
+        // =============================================== Bagian CustomerAddons (END)
+
         // =============================================== Bagian Ekpedisi (START)
 
         [HttpPost]
@@ -1377,6 +1536,32 @@ namespace MasterOnline.Controllers
             var vm = new CourierViewModel()
             {
                 ListEkspedisi = MoDbContext.Ekspedisi.ToList()
+            };
+
+            return View(vm);
+        }
+
+        [Route("admin/manage/addons")]
+        [SessionAdminCheck]
+        public ActionResult AddonsMenu()
+        {
+            var vm = new AddonsViewModel()
+            {
+                ListAddons = MoDbContext.Addons.ToList()
+            };
+
+            return View(vm);
+        }
+
+        [Route("admin/manage/custaddons")]
+        [SessionAdminCheck]
+        public ActionResult AddonsCustMenu()
+        {
+            var vm = new AddonsCustomerViewModel()
+            {
+                ListCustAddons = MoDbContext.Addons_Customer.ToList()
+                //,
+                //ListAddons = MoDbContext.Addons.ToList()
             };
 
             return View(vm);
