@@ -277,6 +277,12 @@
             //alert($('#ListHargaJualPermarket_' + i + '__AVALUE_35').val());
         }
     }
+
+    function setCODJDID(i, value) {
+        if (value != null) {
+            $('#ListHargaJualPermarket_' + i + '__AVALUE_35').val(value);
+        }
+    }
 </script>
 <div class="form-horizontal">
     <div class="row">
@@ -1557,24 +1563,25 @@
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
-                                                                                    @Html.Label("Cash on Delivery ", new { @class = "control-label" })
+                                                                                    @Html.Label("Cash on Delivery", new { @class = "control-label" })
                                                                                 </div>
-                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
-                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_18, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_18 })
-                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_18, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_18 })
-                                                                                    <div class="input-group text">
-                                                                                        <table>
-                                                                                            <tr>
-                                                                                                <td>
-                                                                                                    @*@Html.TextBox("Subtitle Url" + i + "JDID", "", new { @class = "form-control", id = "JDID_subtitleurl", @MaxLength = "10", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_18 })*@
-                                                                                                    <label class="checkbox-container">
-                                                                                                        <input type="checkbox" id="cbxCOD123" class="cbxtype123" name="cbxCOD123" />
-                                                                                                        <span class="checkmark"></span>
-                                                                                                    </label>
-                                                                                                </td>
-                                                                                            </tr>
-                                                                                        </table>
-                                                                                    </div>
+                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group" style="padding-top:10px">
+                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_35, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.AVALUE_35 })
+                                                                                    @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_35 == "1")
+                                                                                    {
+                                                                                        <input type="radio" id="rdoCODJDID1_@Convert.ToString(recnumArf01)" name="CODJDID_@Convert.ToString(recnumArf01)" value="1" checked onclick="setCODJDID('@i','1')">
+                                                                                        <label for="rdoCODJDID1_@Convert.ToString(recnumArf01)">Ya</label>
+                                                                                        <input type="radio" id="rdoCODJDID2_@Convert.ToString(recnumArf01)" name="CODJDID_@Convert.ToString(recnumArf01)" value="0" onclick="setCODJDID('@i','0')">
+                                                                                        <label for="rdoCODJDID2_@Convert.ToString(recnumArf01)">Tidak</label>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <input type="radio" id="rdoCODJDID1_@Convert.ToString(recnumArf01)" name="CODJDID_@Convert.ToString(recnumArf01)" value="1" onclick="setCODJDID('@i','1')">
+                                                                                        <label for="rdoCODJDID1_@Convert.ToString(recnumArf01)">Ya</label>
+                                                                                        <input type="radio" id="rdoCODJDID2_@Convert.ToString(recnumArf01)" name="CODJDID_@Convert.ToString(recnumArf01)" value="0" checked onclick="setCODJDID('@i','0')">
+                                                                                        <label for="rdoCODJDID2_@Convert.ToString(recnumArf01)">Tidak</label>
+                                                                                    }
+
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row">
