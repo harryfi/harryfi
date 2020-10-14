@@ -5,7 +5,7 @@
 @Html.HiddenFor(m => m.Promosi.RecNum)
 @Html.HiddenFor(m => m.Promosi.MP_PROMO_ID)
 @Html.HiddenFor(m => m.Promosi.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
-
+    <link rel="stylesheet" type="text/css" href="~/Scripts/clockpicker/dist/bootstrap-clockpicker.min.css">
 <style>
     @@media screen and (max-width: 445px) {
         .brgtblpromofrm {
@@ -43,16 +43,24 @@
         </div>
         <div class="col-md-6">
             <div class="form-group">
-                @Html.LabelFor(m => m.Promosi.TGL_MULAI, "Tanggal Mulai", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                    @Html.HiddenFor(m => m.Promosi.TGL_MULAI)
-                    <div class="input-group date">
-                        <input type="text" id="TGL_MULAI" class="form-control" />
-                        <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                        </span>
+                    @Html.LabelFor(m => m.Promosi.TGL_MULAI, "Tanggal Mulai", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                    <div class="col-md-5 col-sm-5 col-xs-9">
+                        @Html.HiddenFor(m => m.Promosi.TGL_MULAI)
+                        <div class="input-group date">
+                            <input type="text" id="TGL_MULAI" class="form-control" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
                     </div>
-                </div>
+                    <div class="col-md-3 col-sm-3 col-xs-3">
+                        <div class="input-group clockpicker" data-placement="left" data-align="top" data-autoclose="true">
+                            <input type="text" class="form-control" id="txtDrJam" value="@Model.jamMulaiPromosi">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-time"></span>
+                            </span>
+                        </div>
+                    </div>
             </div>
         </div>
     </div>
@@ -69,12 +77,20 @@
         <div class="col-md-6">
             <div class="form-group">
                 @Html.LabelFor(m => m.Promosi.TGL_AKHIR, "Tanggal Akhir", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
-                <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="col-md-5 col-sm-5 col-xs-9">
                     @Html.HiddenFor(m => m.Promosi.TGL_AKHIR)
                     <div class="input-group date">
                         <input type="text" id="TGL_AKHIR" class="form-control" />
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-3 col-xs-3">
+                    <div class="input-group clockpicker" data-placement="left" data-align="top" data-autoclose="true">
+                        <input type="text" class="form-control" id="txtSdJam" value="@Model.jamAkhirPromosi">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-time"></span>
                         </span>
                     </div>
                 </div>
@@ -207,4 +223,7 @@
         </div>
     </div>
 </div>
-
+<script type="text/javascript" src="~/Scripts/clockpicker/dist/bootstrap-clockpicker.min.js"></script>
+<script type="text/javascript">
+    $('.clockpicker').clockpicker();
+</script>

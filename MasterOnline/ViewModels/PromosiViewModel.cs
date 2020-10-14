@@ -16,5 +16,8 @@ namespace MasterOnline.ViewModels
         public List<ARF01> ListPelanggan { get; set; } = new List<ARF01>();
         public List<Marketplace> ListMarketplace { get; set; } = new List<Marketplace>();
         public List<String> Errors { get; set; } = new List<String>();
+
+        public string jamMulaiPromosi { get; set; }
+        public string jamAkhirPromosi { get; set; }
     }
 }

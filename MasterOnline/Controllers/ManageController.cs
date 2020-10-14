@@ -33301,9 +33301,11 @@ namespace MasterOnline.Controllers
             {
                 var vm = new PromosiViewModel()
                 {
-                    ListPromosi = ErasoftDbContext.PROMOSI.ToList(),
+                    ListPromosi = new List<Promosi>(),
+                    //ListPromosi = ErasoftDbContext.PROMOSI.ToList(),
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    ListBarang = new List<STF02>(),
                     ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                     ListMarketplace = MoDbContext.Marketplaces.ToList()
                 };
@@ -33536,8 +33538,12 @@ namespace MasterOnline.Controllers
                 ListPromosi = ErasoftDbContext.PROMOSI.ToList(),
                 ListPromosiDetail = ErasoftDbContext.DETAILPROMOSI.Where(pd => pd.RecNumPromosi == promosiInDb.RecNum).ToList(),
                 //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList()
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
+                ListBarang = new List<STF02>()
+
             };
+            vm.jamMulaiPromosi = promosiInDb.TGL_MULAI?.ToString("HH:mm");
+            vm.jamAkhirPromosi = promosiInDb.TGL_AKHIR?.ToString("HH:mm");
 
             return PartialView("BarangPromosiPartial", vm);
         }
