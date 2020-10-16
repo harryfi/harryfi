@@ -45136,7 +45136,7 @@ namespace MasterOnline.Controllers
                                                     ErasoftDbContext.Database.ExecuteSqlCommand("delete from TEMP_UPLOAD_EXCEL_BAYAR");
                                                 }
                                             }
-                                            ret.countAllTemp = worksheet.Dimension.End.Row - 8;
+                                            ret.countAllTemp = worksheet.Dimension.End.Row - 7; //tadinya 8
                                             //for (int i = 8; i <= worksheet.Dimension.End.Row; i++)
                                             if (ret.countAllTemp > 0)
                                             {
@@ -45155,7 +45155,7 @@ namespace MasterOnline.Controllers
                                                 var cekPer10 = (ret.countAllTemp / 4);
                                                 var temp40 = Convert.ToInt32(progTemp[1]) + 1000;
 
-                                                for (int i = Convert.ToInt32(progTemp[1]) + 8; i < worksheet.Dimension.End.Row; i++)
+                                                for (int i = Convert.ToInt32(progTemp[1]) + 8; i <= worksheet.Dimension.End.Row; i++)
                                                 {
                                                     ret.TidakLanjutProses = false;
                                                     ret.statusLoopTemp = true;
