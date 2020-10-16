@@ -1461,13 +1461,11 @@
                                                                                     @Html.Label("Video Url ", new { @class = "control-label" })
                                                                                 </div>
                                                                                 <div class="col-md-4 col-sm-4 col-xs-12 form-group">
-                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_42, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_42 })
-                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_42, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_42 })
                                                                                     <div class="input-group text">
                                                                                         <table>
                                                                                             <tr>
                                                                                                 <td>
-                                                                                                    @Html.TextBox("Video Url" + i + "JDID", "", new { @class = "form-control", style = "width:300px" , id = "JDID_videourl_" + i, @MaxLength = "100", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_42 })
+                                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].AVALUE_42, new { @class = "form-control", style = "width:300px", @MaxLength = "100", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_42 })
                                                                                                 </td>
                                                                                             </tr>
                                                                                         </table>
@@ -1496,13 +1494,11 @@
                                                                                     @Html.Label("Promo Wording ", new { @class = "control-label" })
                                                                                 </div>
                                                                                 <div class="col-md-4 col-sm-4 col-xs-12 form-group">
-                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_43, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_43 })
-                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_43, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_43 })
                                                                                     <div class="input-group text">
                                                                                         <table>
                                                                                             <tr>
                                                                                                 <td>
-                                                                                                    @Html.TextBox("Promo Wording" + i + "JDID", "", new { @class = "form-control", style = "width:300px", id = "JDID_promowording_" + i, @MaxLength = "100", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_43 })
+                                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].AVALUE_43, new { @class = "form-control", style = "width:300px", id = "JDID_promowording_" + i, @MaxLength = "100", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_43 })
                                                                                                 </td>
                                                                                             </tr>
                                                                                         </table>
@@ -1531,13 +1527,11 @@
                                                                                     @Html.Label("Subtitle Url ", new { @class = "control-label" })
                                                                                 </div>
                                                                                 <div class="col-md-4 col-sm-4 col-xs-12 form-group">
-                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_44, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_44 })
-                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_44, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_44 })
                                                                                     <div class="input-group text">
                                                                                         <table>
                                                                                             <tr>
                                                                                                 <td>
-                                                                                                    @Html.TextBox("Subtitle Url" + i + "JDID", "", new { @class = "form-control", style = "width:300px" , id = "JDID_subtitleurl_" + i, @MaxLength = "100", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_44 })
+                                                                                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].AVALUE_44, new { @class = "form-control", style = "width:300px", id = "JDID_subtitleurl_" + i, @MaxLength = "100", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_44 })
                                                                                                 </td>
                                                                                             </tr>
                                                                                         </table>
@@ -1589,8 +1583,6 @@
                                                                                     @Html.Label("Keywords *", new { @class = "control-label" })
                                                                                 </div>
                                                                                 <div class="col-md-4 col-sm-4 col-xs-12 form-group">
-                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_47, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_47 })
-                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_47, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_47 })
                                                                                     <div class="input-group text">
                                                                                         <table>
                                                                                             <tr>
