@@ -46,18 +46,26 @@
                     @Html.LabelFor(m => m.Promosi.TGL_MULAI, "Tanggal Mulai", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
                     <div class="col-md-5 col-sm-5 col-xs-9">
                         @Html.HiddenFor(m => m.Promosi.TGL_MULAI)
-                        <div class="input-group date">
-                            <input type="text" id="TGL_MULAI" class="form-control" />
+                        <div class="input-group date header-promo">
+                            <input type="text" id="TGL_MULAI" class="form-control header-promo" />
                             <span class="input-group-addon">
                                 <span class="glyphicon glyphicon-calendar"></span>
                             </span>
                         </div>
                     </div>
                     <div class="col-md-3 col-sm-3 col-xs-3">
+                        @Html.HiddenFor(m => m.jamMulaiPromosi)
                         <div class="input-group clockpicker" data-placement="left" data-align="top" data-autoclose="true">
-                            <input type="text" class="form-control" id="txtDrJam" value="@Model.jamMulaiPromosi">
-                            <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-time"></span>
+                            @if (!string.IsNullOrEmpty(Model.jamAkhirPromosi))
+                            {
+                                <input type="text" class="form-control header-promo" id="txtDrJam" value="@Model.jamMulaiPromosi" style="width:70px;">
+                            }
+                            else
+                            {
+                                <input type="text" class="form-control header-promo" id="txtDrJam" value="00:00" style="width:70px;">
+                            }
+                            <span class="input-group-addon header-promo" style="background-color:white;display:none;">
+                                <span class="glyphicon glyphicon-time header-promo"></span>
                             </span>
                         </div>
                     </div>
@@ -79,18 +87,26 @@
                 @Html.LabelFor(m => m.Promosi.TGL_AKHIR, "Tanggal Akhir", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
                 <div class="col-md-5 col-sm-5 col-xs-9">
                     @Html.HiddenFor(m => m.Promosi.TGL_AKHIR)
-                    <div class="input-group date">
-                        <input type="text" id="TGL_AKHIR" class="form-control" />
+                    <div class="input-group date header-promo">
+                        <input type="text" id="TGL_AKHIR" class="form-control header-promo" />
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-3 col-xs-3">
+                    @Html.HiddenFor(m => m.jamAkhirPromosi)
                     <div class="input-group clockpicker" data-placement="left" data-align="top" data-autoclose="true">
-                        <input type="text" class="form-control" id="txtSdJam" value="@Model.jamAkhirPromosi">
-                        <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-time"></span>
+                        @if (!string.IsNullOrEmpty(Model.jamAkhirPromosi))
+                        {
+                            <input type="text" class="form-control header-promo" id="txtSdJam" value="@Model.jamAkhirPromosi" style="width:70px;">
+                        }
+                        else
+                        {
+                            <input type="text" class="form-control header-promo" id="txtSdJam" value="00:00" style="width:70px;">
+                        }
+                        <span class="input-group-addon header-promo" style="background-color:white;display:none;">
+                            <span class="glyphicon glyphicon-time header-promo"></span>
                         </span>
                     </div>
                 </div>
@@ -98,7 +114,7 @@
         </div>
     </div>
     @if (Model?.Promosi?.RecNum != null)
-    {
+                                {
         <div id="btn-simpan-perubahan-row" class="row" style="display: none;">
             <div class="col-lg-4"></div>
             <div class="col-lg-4"></div>

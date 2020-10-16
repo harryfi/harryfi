@@ -1102,7 +1102,15 @@
                         .css('cursor', 'not-allowed');
                     $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
                         .css('cursor', 'not-allowed');
-
+                    $('#txtDrJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    $('#txtSdJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    //clock.find('input').off('focus.clockpicker click.clockpicker');
+                    $('.header-promo').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
+                    $('.header-promo').unbind('click');
                     //END ADD
                     //$('#tambah_promosi').click();
                     $('.promosi_table_section').hide();
@@ -1176,7 +1184,14 @@
                         .css('cursor', 'not-allowed');
                     $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
                         .css('cursor', 'not-allowed');
-
+                    $('#txtDrJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    $('#txtSdJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    $('.header-promo').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
+                    $('.header-promo').unbind('click');
                                 //END ADD
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
@@ -1372,6 +1387,12 @@
                     alert('Tanggal Akhir harus lebih besar dari Tanggal Mulai');
                     return false;
                 }
+                else if ($('#Promosi_TGL_AKHIR').val() == $('#Promosi_TGL_MULAI').val()) {
+                    if ($('#txtSdJam').val() <= $('#txtDrJam').val()) {
+                        alert('Tanggal Akhir harus lebih besar dari Tanggal Mulai');
+                        return false;
+                    }
+                }
                 if ($('#CUSTOMER').text().toUpperCase().includes('LAZADA (')) {
                     var dtMonth = new Date().getMonth() + 1;
                     var bln = getTwoDigitDateFormat(dtMonth);
@@ -1417,10 +1438,13 @@
                     alert('Harga promosi harus lebih kecil dari harga normal');
                     return false;
                 }
+                $('#jamMulaiPromosi').val($('#txtDrJam').val());
+                $('#jamAkhirPromosi').val($('#txtSdJam').val());
+                var $postData = $('#form-promosi').serialize();
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("SavePromosi", "Manage")',
-                        data: $('#form-promosi').serialize(),
+                        data: $postData,
                         beforeSend: function() {
                             $('#loading_spinner').show();
                         },
@@ -1443,6 +1467,14 @@
                                     .css('cursor', 'not-allowed');
                                 $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
                                     .css('cursor', 'not-allowed');
+                                $('#txtDrJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                                    .css('cursor', 'not-allowed');
+                                $('#txtSdJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                                    .css('cursor', 'not-allowed');
+                                $('.header-promo').each(function () {
+                                    $(this).attr('disabled', 'disabled');
+                                });
+                                $('.header-promo').unbind('click');
                                 //END ADD
                             } else {
                                 console.log(response.Errors);
