@@ -710,7 +710,36 @@ namespace MasterOnline.Controllers
             xmlString = "<Request><Product><PrimaryCategory>" + primCategory + "</PrimaryCategory>";
             xmlString += "<Attributes><name>" + XmlEscape(data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2)) + "</name>";
             //xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
-            xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+            //change 16 okt 2020
+            var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
+            var cekBrg = GetItemDetail(stf02h.BRG_MP, data.token, stf02.TYPE);
+            if (cekBrg != null)
+            {
+                if (!string.IsNullOrEmpty(cekBrg.code))
+                {
+                    if (cekBrg.code.Equals("0"))
+                    {
+                        if (!cekBrg.data.attributes.description.Contains("img src="))
+                        {
+                            xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+                        }
+                    }
+                    else
+                    {
+                        xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+
+                    }
+                }
+                else
+                {
+                    xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+                }
+            }
+            else
+            {
+                xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+            }
+            //xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
             //xmlString += "<brand>No Brand</brand>";
             xmlString += "<brand><![CDATA[" + stf02h.ANAME_38 + "]]></brand>";
 
@@ -771,7 +800,7 @@ namespace MasterOnline.Controllers
 
             xmlString += "</Attributes>";
 
-            var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
+            //var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
             //change by nurul 14/9/2020, handle barang multi sku juga 
             //if (Convert.ToString(stf02.TYPE) == "3")
             if (Convert.ToString(stf02.TYPE) == "3" || Convert.ToString(stf02.TYPE) == "6")
@@ -1072,7 +1101,42 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        public LazadaItemDetailResponse GetItemDetail(string sellerSku, string token, string type)
+        {
+            var ret = new LazadaItemDetailResponse();
+            //ret.status = 0;
 
+
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/product/item/get");
+            request.SetHttpMethod("GET");
+            if(type != "4")
+            {
+                request.AddApiParameter("seller_sku", sellerSku);
+            }
+            else
+            {
+                request.AddApiParameter("item_id", sellerSku);
+            }
+
+            //LazopResponse response = client.Execute(request, data.token);
+            try
+            {
+                LazopResponse response = client.Execute(request, token);
+                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaItemDetailResponse)) as LazadaItemDetailResponse;
+                if (res.code.Equals("0"))
+                {
+                    ret = res;
+                }
+                
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return ret;
+        }
         public BindingBase setDisplay(string kdBrg, bool display, string token)
         {
             var ret = new BindingBase();
