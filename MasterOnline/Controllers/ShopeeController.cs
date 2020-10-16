@@ -4435,7 +4435,18 @@ namespace MasterOnline.Controllers
                         if (string.IsNullOrEmpty(resServer.error))
                         {
                             EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE PROMOSIS SET MP_PROMO_ID = '" + resServer.discount_id + "' WHERE RECNUM = " + recNumPromosi);
-                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            if(resServer.errors.Count == 0)
+                            {
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }
+                            else
+                            {
+                                foreach(var err in resServer.errors)
+                                {
+                                    currentLog.REQUEST_RESULT += "brg_mp:" + err.item_id + ";" + err.variation_id + ",error:" + err.error_msg + "\n";
+                                }
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            }
                         }
                         else
                         {
@@ -4583,7 +4594,19 @@ namespace MasterOnline.Controllers
                     {
                         if (string.IsNullOrEmpty(resServer.error))
                         {
-                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            if (resServer.errors.Count == 0)
+                            {
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }
+                            else
+                            {
+                                foreach (var err in resServer.errors)
+                                {
+                                    currentLog.REQUEST_RESULT += "brg_mp:" + err.item_id + ";" + err.variation_id + ",error:" + err.error_msg + "\n";
+                                }
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            }
                         }
                         else
                         {
@@ -5947,11 +5970,20 @@ namespace MasterOnline.Controllers
         {
             public long discount_id { get; set; }
             public int count { get; set; }
+            public List<ShopeePromoErrors> errors { get; set; }
+        }
+        public class ShopeePromoErrors
+        {
+            public long item_id { get; set; }
+            public long variation_id { get; set; }
+            public string error_msg { get; set; }
+
         }
         public class ShopeeDeletePromo : ShopeeError
         {
             public UInt64 discount_id { get; set; }
             public DateTime modify_time { get; set; }
+            public List<ShopeePromoErrors> errors { get; set; }
         }
         public class Item
         {
