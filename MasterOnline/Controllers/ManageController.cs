@@ -5876,6 +5876,19 @@ namespace MasterOnline.Controllers
             sSQL0 += "SELECT B.BRG, B.NAMA, B.HJUAL, B.ID, B.KET_SORT1, B.KET_SORT2, B.LINK_GAMBAR_1, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI INTO #A FROM (SELECT BRG, (isnull(NAMA, '') + ' ' + ISNULL(NAMA2, '')) AS NAMA, HJUAL, ID, KET_SORT1, KET_SORT2, LINK_GAMBAR_1,MINI FROM STF02(NOLOCK) WHERE TYPE='3') B LEFT JOIN 	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, 	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO 	FROM [QOH_QOO_ALL_ITEM]	GROUP BY BRG 	) A ON A.BRG = B.BRG WHERE (ISNULL(QOH,0) - ISNULL(QOO,0)) <= B.MINI; " + System.Environment.NewLine;
             sSQL2 += "SELECT COUNT(BRG) AS COUNT_TRANSAKSI  ";
             sSQL += "SELECT JENIS, BRG, NAMA, HJUAL, ID, KET_SORT1, KET_SORT2, LINK_GAMBAR_1, QOH, QOO , SISA, MINI, QTY_JUAL, (MINI - SISA) AS SELISIH  ";
+            //add by nurul 16/10/2020
+            //sSQL += ",NO = CONVERT(INT, ROW_NUMBER() OVER (ORDER BY JENIS, QTY_JUAL DESC, (MINI - SISA) DESC)) ";
+            sSQL += ",NO = CONVERT(INT, ROW_NUMBER() OVER ( ";
+            if (order == "2")
+            {
+                sSQL += "ORDER BY SISA ASC ";
+            }
+            else
+            {
+                sSQL += "ORDER BY JENIS ASC, QTY_JUAL DESC, (MINI - SISA) DESC ";
+            }
+            sSQL += ")) ";
+            //end add by nurul 16/10/2020
             sSql1 += "FROM ( ";
             //1. CARI YANG BARANG NYA ADA PENJUALAN DAN SISA KURANG DR MINIMAL STOK
             sSql1 += "SELECT 'ADA' AS JENIS, A.BRG, A.NAMA, A.HJUAL, A.ID, A.KET_SORT1, A.KET_SORT2, A.LINK_GAMBAR_1, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY AS QTY_JUAL FROM #B B ";
@@ -5901,14 +5914,17 @@ namespace MasterOnline.Controllers
             {
                 sSql1 += " WHERE ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLkategori + " or " + sSQLmerk + " or " + sSQLharga + " ) ";
             }
-            if (order == "2")
-            {
-                sSQL3 += "ORDER BY SISA ASC ";
-            }
-            else
-            {
-                sSQL3 += "ORDER BY JENIS ASC, QTY_JUAL DESC, SELISIH DESC ";
-            }
+            //change by nurul 16/10/2020
+            //if (order == "2")
+            //{
+            //    sSQL3 += "ORDER BY SISA ASC ";
+            //}
+            //else
+            //{
+            //    sSQL3 += "ORDER BY JENIS ASC, QTY_JUAL DESC, SELISIH DESC ";
+            //}
+            sSQL3 += "ORDER BY NO ";
+            //end change by nurul 16/10/2020
             sSQL3 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQL3 += "FETCH NEXT 10 ROWS ONLY ";
 
