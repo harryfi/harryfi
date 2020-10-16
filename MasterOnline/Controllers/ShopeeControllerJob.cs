@@ -2139,7 +2139,8 @@ namespace MasterOnline.Controllers
 
             long seconds = CurrentTimeSecond();
             //long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-10).ToUnixTimeSeconds();
-            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-14).ToUnixTimeSeconds();//change by Tri 25 aug 2020, pesanan bisa selesai lebih dari 10hari
+            //long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-14).ToUnixTimeSeconds();//change by Tri 25 aug 2020, pesanan bisa selesai lebih dari 10hari
+            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-5).ToUnixTimeSeconds();//change by Fauzi 17 Oktober 2020, pesanan bisa selesai lebih dari -5hari
             long timeStampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
