@@ -28,6 +28,7 @@ namespace MasterOnline.Controllers
         //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
         public string imageUrl = "https://img20.jd.id/Indonesia/s300x300_/";
         public string ServerUrl = "https://open.jd.id/api";
+        public string ServerUrlBigData = "https://open.jd.id/api_bigdata";
         public string AccessToken = "";
         public string AppKey = "";
         public string AppSecret = "";
@@ -111,22 +112,22 @@ namespace MasterOnline.Controllers
             return content;
         }
 
-        public string Call4BigData(string sappSecret)
+        public string Call4BigData(string sappKey, string saccessToken, string sappSecret, string sMethod, string sParamJson, string sParamFile)
         {
             //construct system parameters
             var sysParams = new Dictionary<string, string>();
-            sysParams.Add("app_key", this.AppKey);
+            sysParams.Add("app_key", sappKey);
             sysParams.Add("v", this.Version);
             sysParams.Add("format", this.Format);
             sysParams.Add("sign_method", this.SignMethod);
-            sysParams.Add("method", this.Method);
+            sysParams.Add("method", sMethod);
             sysParams.Add("timestamp", this.getCurrentTimeFormatted());
-            sysParams.Add("access_token", this.AccessToken);
+            sysParams.Add("access_token", saccessToken);
 
             //get business parameters
-            if (null != this.ParamJson && this.ParamJson.Length > 0)
+            if (null != sParamJson && sParamJson.Length > 0)
             {
-                sysParams.Add("param_json", this.ParamJson);
+                sysParams.Add("param_json", sParamJson);
             }
             else
             {
@@ -134,9 +135,9 @@ namespace MasterOnline.Controllers
             }
 
             //get business file which would upload
-            if (null != this.ParamFile && this.ParamFile.Length > 0)
+            if (null != sParamFile && sParamFile.Length > 0)
             {
-                sysParams.Add("param_file_md5", this.GetMD5HashFromFile(this.ParamFile));
+                sysParams.Add("param_file_md5", this.GetMD5HashFromFile(sParamFile));
             }
             else
             {
@@ -152,7 +153,7 @@ namespace MasterOnline.Controllers
             {
                 postDatas.Add(item.Key, item.Value);
             }
-            var content = this.curl(this.ServerUrl, new string[] { this.ParamFile }, sysParams);
+            var content = this.curl(this.ServerUrlBigData, new string[] { sParamFile }, sysParams);
             return content;
         }
 
@@ -469,13 +470,29 @@ namespace MasterOnline.Controllers
             {
                 if (ret.openapi_msg.ToLower() == "success")
                 {
-                    var retPrice = JsonConvert.DeserializeObject(ret.openapi_data, typeof(Data_UpPriceJob)) as Data_UpPriceJob;
-                    if (retPrice != null)
+                    var retData = JsonConvert.DeserializeObject(ret.openapi_data, typeof(JDID_DetailResultCreateProduct)) as JDID_DetailResultCreateProduct;
+                    if (retData != null)
                     {
-                        if (retPrice.success)
+                        if (retData.success)
                         {
                             try
                             {
+                                if(retData.model != null)
+                                {
+                                    var retSubData = JsonConvert.DeserializeObject(retData.model, typeof(JDID_SubDetailResultCreateProduct)) as JDID_SubDetailResultCreateProduct;
+
+                                    if(retSubData.skuIdList != null)
+                                    {
+                                        var tes = retSubData.skuIdList.Replace('\"', '"');
+                                        var retSubSKUData = JsonConvert.DeserializeObject(tes, typeof(JDID_SubSKUListDetailResultCreateProduct)) as JDID_SubSKUListDetailResultCreateProduct;
+
+                                        //foreach (var itemSKU in tes)
+                                        //{
+                                        //    //var isss = itemSKU
+                                            
+                                        //}
+                                    }
+                                }
                                 //                                if (!string.IsNullOrEmpty(responseFromServer))
                                 //                                {
                                 //                                    var resultAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ResultCreateProduct82Cart)) as ResultCreateProduct82Cart;
@@ -629,6 +646,53 @@ namespace MasterOnline.Controllers
             return "";
         }
 
+        public async Task<string> JD_addSKUMainPicture(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string skuID, string fileNamePicture, string urlPicture, string uname)
+        {
+            //SetupContext(DatabasePathErasoft, uname);
+            try
+            {
+                string sMethod = "epi.ware.openapi.SkuApi.saveSkuMainPic";
+                string sParamJson = "{\"skuId\":\"" + skuID + "\",\"fileName\":\"" + fileNamePicture + "\"}";
+                string sParamFile = urlPicture;
+
+                var response = Call4BigData(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson, sParamFile);
+                var ret = JsonConvert.DeserializeObject(response, typeof(JDID_ResultAddSKUMainPicture)) as JDID_ResultAddSKUMainPicture;
+                if (ret != null)
+                {
+                    if (ret.openapi_msg.ToLower() == "success")
+                    {
+                        if (ret.openapi_data != null)
+                        {
+                            var result = JsonConvert.DeserializeObject(response, typeof(JDID_DetailResultAddSKUMainPicture)) as JDID_DetailResultAddSKUMainPicture;
+                            if (result.success == true)
+                            {
+
+                            }
+                            else
+                            {
+                                throw new Exception(result.message.ToString());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(ret.openapi_msg.ToString());
+                    }
+                }
+                else
+                {
+                    throw new Exception("Tidak ada respon dari API.");
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
+            }
+
+            return "";
+        }
+
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke JD.ID gagal.")]
@@ -636,7 +700,8 @@ namespace MasterOnline.Controllers
         {
             SetupContext(DatabasePathErasoft, uname);
 
-            try {
+            try
+            {
 
                 string sMethod = "epi.ware.openapi.SkuApi.updateSkuInfo";
                 string sParamJson = "{\"skuInfo\":{\"skuId\":" + id + ", \"jdPrice\":" + price + "}}";
@@ -1513,7 +1578,7 @@ namespace MasterOnline.Controllers
                     {
                         var listPrintLabel = JsonConvert.DeserializeObject(result.openapi_data, typeof(Data_PrintLabel)) as Data_PrintLabel;
                         var str = "{\"data\":" + listPrintLabel.model + "}";
-                        foreach(var dataDetail in listPrintLabel.model.data)
+                        foreach (var dataDetail in listPrintLabel.model.data)
                         {
                             ret = dataDetail.PDF.ToString();
                         }
@@ -1543,7 +1608,7 @@ namespace MasterOnline.Controllers
             try
             {
                 string sMethod = "epi.popOrder.sendGoods.uat";
-                string sParamJson = "{\"orderId\":"+ noref + ", \"expressNo\":\""+ noresi +"\"}";
+                string sParamJson = "{\"orderId\":" + noref + ", \"expressNo\":\"" + noresi + "\"}";
 
                 var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
                 var result = JsonConvert.DeserializeObject(response, typeof(JDID_RESJob)) as JDID_RESJob;
@@ -1552,7 +1617,7 @@ namespace MasterOnline.Controllers
                     if (result.openapi_msg.ToLower() == "success")
                     {
                         var listRTS = JsonConvert.DeserializeObject(result.openapi_data, typeof(Data_ReadyToShip)) as Data_ReadyToShip;
-                        if(listRTS.success == true)
+                        if (listRTS.success == true)
                         {
                             ret = listRTS.message.ToString();
                         }
@@ -2324,7 +2389,7 @@ namespace MasterOnline.Controllers
                                 {
                                     if (OrderNoInDb.Contains(Convert.ToString(order.orderId)))
                                     {
-                                        idOrderComplete = idOrderComplete + "'" + order.orderId + "',";                                
+                                        idOrderComplete = idOrderComplete + "'" + order.orderId + "',";
                                     }
                                     doInsert = false;
                                 }
@@ -2347,7 +2412,8 @@ namespace MasterOnline.Controllers
                                     {
                                         doInsert = false;
                                     }
-                                    else {
+                                    else
+                                    {
                                         doInsert = false;
                                     }
                                 }
@@ -2438,7 +2504,7 @@ namespace MasterOnline.Controllers
 
                                     if (!OrderNoInDb.Contains(Convert.ToString(order.orderId)))
                                     {
-                                        if(string.IsNullOrEmpty(idOrderRTS))
+                                        if (string.IsNullOrEmpty(idOrderRTS))
                                         {
                                             jmlhNewOrder++;
                                         }
@@ -2844,6 +2910,45 @@ namespace MasterOnline.Controllers
         }
 
 
+        public class JDID_ResultAddSKUMainPicture
+        {
+            public int openapi_code { get; set; }
+            public string openapi_data { get; set; }
+            public string openapi_msg { get; set; }
+        }
+
+
+        public class JDID_DetailResultAddSKUMainPicture
+        {
+            public int code { get; set; }
+            public string model { get; set; }
+            public bool success { get; set; }
+            public string message { get; set; }
+        }
+
+        public class JDID_DetailResultCreateProduct
+        {
+            public int code { get; set; }
+            public string model { get; set; }
+            public bool success { get; set; }
+            public string message { get; set; }
+        }
+
+        public class JDID_SubDetailResultCreateProduct
+        {
+            public string skuIdList { get; set; }
+            public string spuId { get; set; }
+            public string venderId { get; set; }
+        }
+
+        public class JDID_SubSKUListDetailResultCreateProduct
+        {
+            public int skuId { get; set; }
+            public string skuName { get; set; }
+            public int status { get; set; }
+            public int stock { get; set; }
+        }
+        
         public class JDID_RESJob
         {
             public string openapi_data { get; set; }

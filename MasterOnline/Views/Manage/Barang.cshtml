@@ -1845,20 +1845,39 @@
                 text: "Big item > 20KG"
             };
 
-            var comboSelect = $('#JDID_tipe_barang').selectize({
-                valueField: 'id',
-                searchField: 'text',
-                options: listReason,
-                onChange: function (value) {
-                    //$('#txtCancelReason').val(value);
-                    //if (value.includes("STOCK")) {
-                    //    $('#ckBrg').show();
-                    //} else {
-                    //    $('#ckBrg').hide();
-                    //}
+            var idMarketJD = "19";
+            var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+            for (var i = 0; i < listMarket.length; i++) {
+                if (listMarket[i].NAMA == idMarketJD.toString()){
 
+                    var comboSelect = $('#JDID_tipe_barang_' + i).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listReason,
+                        onChange: function (value) {
+                            //$('#txtCancelReason').val(value);
+                            //if (value.includes("STOCK")) {
+                            //    $('#ckBrg').show();
+                            //} else {
+                            //    $('#ckBrg').hide();
+                            //}
+                            $('#ListHargaJualPermarket_' + i + '__ACODE_39').val(value);
+                            for (var z = 0; z < listReason.length; z++) {
+                                if (listReason[z].id == value) {
+                                    $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(listReason[z].text.toString());
+                                }
+                            }
+
+                        }
+                    });
+
+                    if (comboSelect[0] != undefined) {
+                        comboSelect[0].selectize.setValue($('#ListHargaJualPermarket_' + i + '__ACODE_39').val(), true);
+                    }
                 }
-            });
+            }
+
+            
         }
     // end add
 
@@ -1883,21 +1902,38 @@
                 text: "Only Support 15 Days Exchange"
             };
 
+            var idMarketJD = "19";
+            var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+            for (var i = 0; i < listMarket.length; i++) {
+                if (listMarket[i].NAMA == idMarketJD.toString()) {
 
-            var comboSelect = $('#JDID_after_sale').selectize({
-                valueField: 'id',
-                searchField: 'text',
-                options: listReason,
-                onChange: function (value) {
-                    //$('#txtCancelReason').val(value);
-                    //if (value.includes("STOCK")) {
-                    //    $('#ckBrg').show();
-                    //} else {
-                    //    $('#ckBrg').hide();
-                    //}
+                    var comboSelect = $('#JDID_after_sale_' + i).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listReason,
+                        onChange: function (value) {
+                            //$('#txtCancelReason').val(value);
+                            //if (value.includes("STOCK")) {
+                            //    $('#ckBrg').show();
+                            //} else {
+                            //    $('#ckBrg').hide();
+                            //}
 
+                            $('#ListHargaJualPermarket_' + i + '__ACODE_40').val(value);
+                            for (var z = 0; z < listReason.length; z++) {
+                                if (listReason[z].id == value) {
+                                    $('#ListHargaJualPermarket_' + i + '__AVALUE_40').val(listReason[z].text.toString());
+                                }
+                            }
+
+                        }
+                    });
+
+                    if (comboSelect[0] != undefined) {
+                        comboSelect[0].selectize.setValue($('#ListHargaJualPermarket_' + i + '__ACODE_40').val(), true);
+                    }
                 }
-            });
+            }
         }
     // end add
 
@@ -2006,21 +2042,36 @@
                 text: "Lifetime warranty"
             };
 
+            var idMarketJD = "19";
+            var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+            for (var i = 0; i < listMarket.length; i++) {
+                if (listMarket[i].NAMA == idMarketJD.toString()) {
+                    var comboSelect = $('#JDID_warranty_' + i).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listReason,
+                        onChange: function (value) {
+                            $('#ListHargaJualPermarket_' + i + '__ACODE_41').val(value);
+                            for (var z = 0; z < listReason.length; z++) {
+                                if (listReason[z].id == value ) {
+                                    $('#ListHargaJualPermarket_' + i + '__AVALUE_41').val(listReason[z].text.toString());
+                                }
+                            }
+                            //$('#txtCancelReason').val(value);
+                            //if (value.includes("STOCK")) {
+                            //    $('#ckBrg').show();
+                            //} else {
+                            //    $('#ckBrg').hide();
+                            //}
 
-            var comboSelect = $('#JDID_warranty').selectize({
-                valueField: 'id',
-                searchField: 'text',
-                options: listReason,
-                onChange: function (value) {
-                    //$('#txtCancelReason').val(value);
-                    //if (value.includes("STOCK")) {
-                    //    $('#ckBrg').show();
-                    //} else {
-                    //    $('#ckBrg').hide();
-                    //}
+                        }
+                    });
 
+                    if (comboSelect[0] != undefined) {
+                        comboSelect[0].selectize.setValue($('#ListHargaJualPermarket_' + i + '__ACODE_41').val(), true);
+                    }
                 }
-            });
+            }            
         }
         
     // end add
