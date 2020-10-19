@@ -19,5 +19,6 @@ namespace MasterOnline.ViewModels
 
         public string jamMulaiPromosi { get; set; }
         public string jamAkhirPromosi { get; set; }
+        public string errorAPI { get; set; }
     }
 }

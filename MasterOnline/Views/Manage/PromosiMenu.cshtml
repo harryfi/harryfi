@@ -1140,8 +1140,11 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    $('#table-promosi-partial').html(response);
+                    //$('#table-promosi-partial').html(response);
                     //Initialize();
+                    if (response.errorAPI != "") {
+                        alert(response.errorAPI);
+                    }
                     refreshTablePromosi1($savePage);
                     $('#loading_spinner').hide();
                     $('#konfHapusPromosi').modal('hide');
@@ -1195,6 +1198,11 @@
                                 //END ADD
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
+
+                    if ($('#errorAPI').val() != "") {
+                        alert($('#errorAPI').val());
+                        $('#errorAPI').val('');
+                    }
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -1476,6 +1484,11 @@
                                 });
                                 $('.header-promo').unbind('click');
                                 //END ADD
+
+                                if ($('#errorAPI').val() != "") {
+                                    alert($('#errorAPI').val());
+                                    $('#errorAPI').val('');
+                                }
                             } else {
                                 console.log(response.Errors);
                                 alert(response.Errors[0]);
