@@ -4038,7 +4038,14 @@ namespace MasterOnline.Controllers
                     sSQL += "replace(replace(S.NAMA, char(10), ''), char(13), '') + ISNULL(replace(replace(S.NAMA2, char(10), ''), char(13), ''), '') AS NAMA, ";
                     sSQL += "H.HJUAL, ISNULL(BRG_MP, '') BRG_MP, ISNULL(E.KET, '') KET ";
                     sSQL += "FROM STF02 S INNER JOIN STF02H H ON S.BRG = H.BRG INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM ";
-                    sSQL += "LEFT JOIN STF02E E ON S.SORT1 = E.KODE AND E.LEVEL = 1 WHERE TYPE in ('3', '6') AND CUST = '" + cust + "' ORDER BY NAMA";
+                    //CHANGE BY NURUL 16/10/2020, BRG BUNDLING TIDAK BOLEH UBAH HARGA JUAL DARI SINI
+                    //sSQL += "LEFT JOIN STF02E E ON S.SORT1 = E.KODE AND E.LEVEL = 1 WHERE TYPE in ('3', '6') AND CUST = '" + cust + "' ORDER BY NAMA";
+                    sSQL += "LEFT JOIN STF02E E ON S.SORT1 = E.KODE AND E.LEVEL = 1 ";
+                    sSQL += "LEFT JOIN (SELECT DISTINCT UNIT FROM STF03) B ON S.BRG=B.UNIT ";
+                    sSQL += "WHERE TYPE in ('3', '6') AND CUST = '" + cust + "' AND ISNULL(B.UNIT,'')='' ";
+                    sSQL += "ORDER BY NAMA";
+
+                    //CHANGE BY NURUL 16/10/2020, BRG BUNDLING TIDAK BOLEH UBAH HARGA JUAL DARI SINI
                     var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
 
                     worksheet.Cells["A1"].Value = "Akun Marketplace :";
