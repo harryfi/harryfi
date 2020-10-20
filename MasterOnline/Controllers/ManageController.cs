@@ -57225,9 +57225,41 @@ namespace MasterOnline.Controllers
         [Route("manage/MultiSKUMenu")]
         public ActionResult MultiSKUMenu()
         {
+            //add by nurul 20/10/2020
+            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            var emailAccount = "";
+            if (sessionData?.Account != null)
+            {
+                emailAccount = sessionData.Account.Email.ToString();
+            }
+            else
+            {
+                if (sessionData?.User != null)
+                {
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    emailAccount = accFromUser.Email.ToString();
+                }
+            }
+            
+            var checkSubAddonMultiSKU = MoDbContext.Addons_Customer.Where(p => p.Account == emailAccount && p.ID_ADDON == "4").OrderByDescending(a => a.RecNum).FirstOrDefault(); // ID 4 = Multi SKU
+            var statusAktifSubAddonMultiSKU = 2; // status expired Addon MultiSKU DEFAULT
+
+            if (checkSubAddonMultiSKU != null)
+            {
+                if (checkSubAddonMultiSKU.TglSubscription > DateTime.Today.AddHours(7))
+                {
+                    statusAktifSubAddonMultiSKU = 1; // registered Addon FTP
+                }
+            }
+            else
+            {
+                statusAktifSubAddonMultiSKU = 0; // not registered Addon FTP
+            }
+            //end add by nurul 20/10/2020
             var vm = new multiSKUViewModel()
             {
                 //ListPiutang = ErasoftDbContext.STF03C.Where(b => b.RANGKA == "1").ToList()
+                statusAddonMultiSKU = statusAktifSubAddonMultiSKU.ToString()
             };
 
             return View(vm);

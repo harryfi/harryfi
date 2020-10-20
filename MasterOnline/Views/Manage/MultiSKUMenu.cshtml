@@ -4,6 +4,28 @@
     ViewBag.Title = "Multi SKU";
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
     var context = new MoDbContext("");
+
+    //add by nurul 20/10/2020
+    long accId;
+    var username = "";    
+    var statusAddOns = Model.statusAddonMultiSKU;
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    if (dataSession?.User != null)
+    {
+        accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+        accId = (dataSession?.Account?.AccountId ?? 0);
+    }
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
+    //end add by nurul 20/10/2020
 }
 
 @section styles
@@ -201,6 +223,7 @@
     <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
 
     <script type="text/javascript">
+        var statusAddOns = @Html.Raw(Json.Encode(statusAddOns));
         $MultiSKUId = "";
         var $page = window.text;
 
@@ -211,16 +234,22 @@
                 //Initialize();
                 refreshTableMultiSKU();
                 $('#tambah_MultiSKU').off('click').on('click', function () {
-
-                    refreshForm();
-                    $("#MultiSKU_TERM").keydown(
-                        function () {
-                            validateInput($(this), 'TOP');
-                        });
-                    $("#MultiSKU_TOTAL").keydown(
-                        function () {
-                            validateInput($(this), 'ANGKA');
-                        });
+                    if (statusAddOns == "1") {
+                        refreshForm();
+                    } else if (statusAddOns == "2") {
+                        alert("Masa subscription anda sudah berakhir, untuk ketentuan lebih lanjut silahkan hubungi tim support.");
+                    }
+                    else {
+                        alert("Fitur ini termasuk fitur ADD ON, untuk ketentuan lebih lanjut silahkan hubungi tim support.");
+                    }
+                    //$("#MultiSKU_TERM").keydown(
+                    //    function () {
+                    //        validateInput($(this), 'TOP');
+                    //    });
+                    //$("#MultiSKU_TOTAL").keydown(
+                    //    function () {
+                    //        validateInput($(this), 'ANGKA');
+                    //    });
                 });
 
                 $('#search_MultiSKU').keypress(function (e) {
