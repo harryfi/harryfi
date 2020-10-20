@@ -6034,6 +6034,10 @@
     <Content Include="Scripts\clockpicker\src\clockpicker.css" />
     <Content Include="Scripts\clockpicker\src\clockpicker.js" />
     <Content Include="Scripts\clockpicker\src\standalone.css" />
+    <Content Include="Scripts\datetimepicker\bootstrap-datetimepicker-standalone.css" />
+    <Content Include="Scripts\datetimepicker\bootstrap-datetimepicker.css" />
+    <Content Include="Scripts\datetimepicker\bootstrap-datetimepicker.min.css" />
+    <Content Include="Scripts\datetimepicker\bootstrap-datetimepicker.min.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />

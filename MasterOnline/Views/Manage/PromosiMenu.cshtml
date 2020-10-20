@@ -1102,10 +1102,12 @@
                         .css('cursor', 'not-allowed');
                     $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
                         .css('cursor', 'not-allowed');
-                    $('#txtDrJam').attr('readonly', 'readonly').css('background-color', '#eee')
-                        .css('cursor', 'not-allowed');
-                    $('#txtSdJam').attr('readonly', 'readonly').css('background-color', '#eee')
-                        .css('cursor', 'not-allowed');
+                    //$('#txtDrJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                    //    .css('cursor', 'not-allowed');
+                    //$('#txtSdJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                    //    .css('cursor', 'not-allowed');
+                    $('#datetimepicker3').data("DateTimePicker").disable();
+                    $('#datetimepicker4').data("DateTimePicker").disable();
                     //clock.find('input').off('focus.clockpicker click.clockpicker');
                     $('.header-promo').each(function () {
                         $(this).attr('disabled', 'disabled');
@@ -1187,10 +1189,12 @@
                         .css('cursor', 'not-allowed');
                     $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
                         .css('cursor', 'not-allowed');
-                    $('#txtDrJam').attr('readonly', 'readonly').css('background-color', '#eee')
-                        .css('cursor', 'not-allowed');
-                    $('#txtSdJam').attr('readonly', 'readonly').css('background-color', '#eee')
-                        .css('cursor', 'not-allowed');
+                    //$('#txtDrJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                    //    .css('cursor', 'not-allowed');
+                    //$('#txtSdJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                    //    .css('cursor', 'not-allowed');
+                    $('#datetimepicker3').data("DateTimePicker").disable();
+                    $('#datetimepicker4').data("DateTimePicker").disable();
                     $('.header-promo').each(function () {
                         $(this).attr('disabled', 'disabled');
                     });
@@ -1277,7 +1281,7 @@
                 }
             });
         }
-        
+
         function refreshTablePromosi2($savePage) {
             var $tpPage = "";
             if ($savePage == undefined) {
@@ -1336,7 +1340,7 @@
                 }
             });
         }
-        
+
         function searchTablePromosi2(){
             var $link = '@Html.Raw(Url.Action("RefreshTableBarangPromosi", "Manage", new { search = "replaceSearch" }))';
             $link = $link.replace("replaceSearch", $('#search_barang_promosi').val());
@@ -1475,10 +1479,12 @@
                                     .css('cursor', 'not-allowed');
                                 $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
                                     .css('cursor', 'not-allowed');
-                                $('#txtDrJam').attr('readonly', 'readonly').css('background-color', '#eee')
-                                    .css('cursor', 'not-allowed');
-                                $('#txtSdJam').attr('readonly', 'readonly').css('background-color', '#eee')
-                                    .css('cursor', 'not-allowed');
+                                //$('#txtDrJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                                //    .css('cursor', 'not-allowed');
+                                //$('#txtSdJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                                //    .css('cursor', 'not-allowed');
+                                $('#datetimepicker3').data("DateTimePicker").disable();
+                                $('#datetimepicker4').data("DateTimePicker").disable();
                                 $('.header-promo').each(function () {
                                     $(this).attr('disabled', 'disabled');
                                 });
