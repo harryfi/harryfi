@@ -2135,7 +2135,7 @@ namespace MasterOnline.Controllers
             int todt = 0;
             SetupContext(iden);
 
-            while(fromdt <= -14)
+            while(fromdt >= -14)
             {
                 await GetOrderByStatusCompletedPer3Day(iden, stat, CUST, NAMA_CUST, page, jmlhNewOrder, fromdt, todt);
                 fromdt = fromdt - 2;
