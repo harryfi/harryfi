@@ -46459,7 +46459,7 @@ namespace MasterOnline.Controllers
                     {
                         var tempPercent = Convert.ToInt32(prog[0]);
                         var cekPer10 = (ret.countAll / 10);
-                        var temp40 = Convert.ToInt32(prog[1]) + 35;
+                        var temp40 = Convert.ToInt32(prog[1]) + 10;
                         List<double> Pot = new List<double>();
                         List<int> recnum = new List<int>();
                         for (int i = Convert.ToInt32(prog[1]); i < piutangDetaiInDb.Count(); i++)
@@ -46479,7 +46479,7 @@ namespace MasterOnline.Controllers
                                 ret.Errors.Add("Detail dengan faktur " + piutangDetaiInDb[i].NFAKTUR + "  tidak ditemukan./n");
                             }
 
-                            if (cekPer10 > 35)
+                            if (cekPer10 > 10)
                             {
                                 if ((ret.progress == temp40) || ret.percent == 100)
                                 {
