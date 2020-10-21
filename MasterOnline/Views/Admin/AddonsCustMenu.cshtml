@@ -468,7 +468,7 @@
                 data: $('#form-addon-cust').serialize(),
                 success: function (response) {
                     alert('Data berhasil tersimpan');
-                    $('#form-addon-cust').html(response);
+                    location.href = '@Url.Action("AddonsCustMenu")';
                     //if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
                     //     $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
                     //}

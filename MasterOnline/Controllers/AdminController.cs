@@ -1019,7 +1019,7 @@ namespace MasterOnline.Controllers
             MoDbContext.SaveChanges();
             ModelState.Clear();
 
-            return RedirectToAction("FormAddonsCustPartial");
+            return new EmptyResult(); 
             //var vmNew = new AddonsCustomerViewModel()
             //{
             //    Addons_Customer = MoDbContext.Addons_Customer.SingleOrDefault(e => e.TGL_DAFTAR == tglDaftar)
