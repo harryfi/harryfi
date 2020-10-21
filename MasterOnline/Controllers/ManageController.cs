@@ -33317,9 +33317,11 @@ namespace MasterOnline.Controllers
             {
                 var vm = new PromosiViewModel()
                 {
-                    ListPromosi = ErasoftDbContext.PROMOSI.ToList(),
+                    ListPromosi = new List<Promosi>(),
+                    //ListPromosi = ErasoftDbContext.PROMOSI.ToList(),
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    ListBarang = new List<STF02>(),
                     ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                     ListMarketplace = MoDbContext.Marketplaces.ToList()
                 };
@@ -33552,17 +33554,25 @@ namespace MasterOnline.Controllers
                 ListPromosi = ErasoftDbContext.PROMOSI.ToList(),
                 ListPromosiDetail = ErasoftDbContext.DETAILPROMOSI.Where(pd => pd.RecNumPromosi == promosiInDb.RecNum).ToList(),
                 //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList()
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
+
             };
+            var listBrg = vm.ListPromosiDetail.Select(m => m.KODE_BRG).ToList();
+            if(listBrg.Count > 0)
+            {
+                vm.ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE != "4" && listBrg.Contains(a.BRG)).ToList();
+            }
+            vm.jamMulaiPromosi = promosiInDb.TGL_MULAI?.ToString("HH:mm");
+            vm.jamAkhirPromosi = promosiInDb.TGL_AKHIR?.ToString("HH:mm");
 
             return PartialView("BarangPromosiPartial", vm);
         }
 
-        public ActionResult DeletePromosi(int? orderId)
+        public async Task<ActionResult> DeletePromosi(int? orderId)
         {
             var promosiInDb = ErasoftDbContext.PROMOSI.Single(p => p.RecNum == orderId);
             var detailPromosiInDb = ErasoftDbContext.DETAILPROMOSI.Where(dp => dp.RecNumPromosi == promosiInDb.RecNum).ToList();
-
+            var errorAPI = "";
             foreach (var barang in detailPromosiInDb)
             {
                 ErasoftDbContext.DETAILPROMOSI.Remove(barang);
@@ -33603,7 +33613,12 @@ namespace MasterOnline.Controllers
                                 {
                                     merchant_code = customer.Sort1_Cust,
                                 };
-                                Task.Run(() => ShopeeApi.DeleteDiscount(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID))).Wait();
+                                //Task.Run(() => ShopeeApi.DeleteDiscount(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID))).Wait();
+                                var respShopee = await ShopeeApi.DeleteDiscount(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID));
+                                if (!string.IsNullOrWhiteSpace(respShopee))
+                                {
+                                    errorAPI = "Gagal buat promosi ke Shopee :" + respShopee;
+                                }
                             }
                         }
                     }
@@ -33619,10 +33634,10 @@ namespace MasterOnline.Controllers
                                 {
                                     if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
                                     {
-                                        //var promoPrice = brgInDB.HJUAL;
+                                        var promoPrice = brgInDB.HJUAL;
                                         //change 19/08/2019, ubah harga promo karena lzd tetap cek harga promo walau promo sudah tidak aktif
                                         //var promoPrice = promo.HARGA_PROMOSI;
-                                        var promoPrice = 0;
+                                        //var promoPrice = 0;
                                         //end change 19/08/2019, ubah harga promo karena lzd tetap cek harga promo walau promo sudah tidak aktif
                                         //lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, DateTime.Today, DateTime.Today, customer.TOKEN);
                                         PromoLazadaObj data = new PromoLazadaObj
@@ -33633,7 +33648,11 @@ namespace MasterOnline.Controllers
                                             promoPrice = promoPrice,
                                             token = customer.TOKEN
                                         };
-                                        lazadaApi.setPromo(data);
+                                        var resLZd = lazadaApi.setPromo(data);
+                                        if (resLZd.status == 0)
+                                        {
+                                            errorAPI = "Gagal buat promosi ke lazada :" + resLZd.message;
+                                        }
                                     }
                                 }
                             }
@@ -33653,19 +33672,20 @@ namespace MasterOnline.Controllers
                 Errors = null
             };
 
-
-            return Json(promosiInDb, JsonRequestBehavior.AllowGet);
+            vm.errorAPI = errorAPI;
+            //return Json(promosiInDb, JsonRequestBehavior.AllowGet);
+            return Json(vm, JsonRequestBehavior.AllowGet);
             //return PartialView("TablePromosiPartial", vm);
         }
 
         [HttpGet]
-        public ActionResult DeleteBarangPromosi(int noUrut)
+        public async Task<ActionResult> DeleteBarangPromosi(int noUrut)
         {
             try
             {
                 var barangPromosiInDb = ErasoftDbContext.DETAILPROMOSI.Single(b => b.RecNum == noUrut);
                 var promosiInDb = ErasoftDbContext.PROMOSI.Single(p => p.RecNum == barangPromosiInDb.RecNumPromosi);
-
+                string errorAPI = "";
                 ErasoftDbContext.DETAILPROMOSI.Remove(barangPromosiInDb);
                 ErasoftDbContext.SaveChanges();
 
@@ -33700,8 +33720,12 @@ namespace MasterOnline.Controllers
                                 {
                                     merchant_code = customer.Sort1_Cust,
                                 };
-                                Task.Run(() => ShopeeApi.DeleteDiscountItem(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID), barangPromosiInDb)).Wait();
-
+                                //Task.Run(() => ShopeeApi.DeleteDiscountItem(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID), barangPromosiInDb)).Wait();
+                                var respShopee = await ShopeeApi.DeleteDiscountItem(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID), barangPromosiInDb);
+                                if (!string.IsNullOrWhiteSpace(respShopee))
+                                {
+                                    errorAPI = "Gagal hapus promosi ke Shopee :" + respShopee;
+                                }
                                 var brgInDB = ErasoftDbContext.STF02.Where(m => m.BRG == barangPromosiInDb.KODE_BRG).FirstOrDefault();
                                 if (brgInDB != null)
                                 {
@@ -33744,11 +33768,15 @@ namespace MasterOnline.Controllers
                                         kdBrg = brgInDB.BRG_MP,
                                         //change 19/08/2019, ubah harga promo karena lzd tetap cek harga promo walau promo sudah tidak aktif
                                         //promoPrice = barangPromosiInDb.HARGA_PROMOSI,
-                                        promoPrice = 0,
+                                        promoPrice = brgInDB.HJUAL,
                                         //end change 19/08/2019, ubah harga promo karena lzd tetap cek harga promo walau promo sudah tidak aktif
                                         token = customer.TOKEN
                                     };
-                                    lazadaApi.setPromo(data);
+                                    var resLZd = lazadaApi.setPromo(data);
+                                    if (resLZd.status == 0)
+                                    {
+                                        errorAPI = "Gagal hapus promosi ke lazada :" + resLZd.message;
+                                    }
                                 }
                             }
 
@@ -33760,11 +33788,19 @@ namespace MasterOnline.Controllers
                 var vm = new PromosiViewModel()
                 {
                     Promosi = ErasoftDbContext.PROMOSI.Single(p => p.RecNum == promosiInDb.RecNum),
-                    ListPromosi = ErasoftDbContext.PROMOSI.ToList(),
+                    //ListPromosi = ErasoftDbContext.PROMOSI.ToList(),
                     ListPromosiDetail = ErasoftDbContext.DETAILPROMOSI.Where(pd => pd.RecNumPromosi == promosiInDb.RecNum).ToList(),
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList()
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
                 };
+                var listBrg = vm.ListPromosiDetail.Select(m => m.KODE_BRG).ToList();
+                if (listBrg.Count > 0)
+                {
+                    vm.ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE != "4" && listBrg.Contains(a.BRG)).ToList();
+                }
+                vm.errorAPI = errorAPI;
+                vm.jamMulaiPromosi = vm.Promosi.TGL_MULAI?.ToString("HH:mm");
+                vm.jamAkhirPromosi = vm.Promosi.TGL_AKHIR?.ToString("HH:mm");
 
                 return PartialView("BarangPromosiPartial", vm);
             }
@@ -33774,14 +33810,14 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public ActionResult SavePromosi(PromosiViewModel dataVm)
+        public async Task<ActionResult> SavePromosi(PromosiViewModel dataVm)
         {
             if (!ModelState.IsValid)
             {
                 dataVm.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
                 return Json(dataVm, JsonRequestBehavior.AllowGet);
             }
-
+            dataVm.errorAPI = "";
             if (dataVm.Promosi.RecNum == null)
             {
                 var listFakturInDb = ErasoftDbContext.PROMOSI.OrderBy(p => p.RecNum).ToList();
@@ -33797,6 +33833,11 @@ namespace MasterOnline.Controllers
                     lastRecNum = listFakturInDb.Last().RecNum;
                     lastRecNum++;
                 }
+                var dariJam = dataVm.jamMulaiPromosi.Split(':');
+                dataVm.Promosi.TGL_MULAI = dataVm.Promosi.TGL_MULAI.Value.Date.AddHours(Convert.ToInt32(dariJam[0])).AddMinutes(Convert.ToInt32(dariJam[1]));
+                var sampaiJam = dataVm.jamAkhirPromosi.Split(':');
+                dataVm.Promosi.TGL_AKHIR = dataVm.Promosi.TGL_AKHIR.Value.Date.AddHours(Convert.ToInt32(sampaiJam[0])).AddMinutes(Convert.ToInt32(sampaiJam[1]));
+                dataVm.Promosi.TGL_INPUT = DateTime.UtcNow.AddHours(7);
 
                 ErasoftDbContext.PROMOSI.Add(dataVm.Promosi);
                 ErasoftDbContext.SaveChanges();
@@ -33840,8 +33881,12 @@ namespace MasterOnline.Controllers
                                 merchant_code = customer.Sort1_Cust,
                             };
                             //Task.Run(() => ShopeeApi.AddDiscount(data, lastRecNum.HasValue ? lastRecNum.Value : 0)).Wait();
-                            Task.Run(() => ShopeeApi.AddDiscount(data, dataVm.Promosi.RecNum.HasValue ? dataVm.Promosi.RecNum.Value : 0)).Wait();
-
+                            //Task.Run(() => ShopeeApi.AddDiscount(data, dataVm.Promosi.RecNum.HasValue ? dataVm.Promosi.RecNum.Value : 0)).Wait();
+                            var respShopee = await ShopeeApi.AddDiscount(data, dataVm.Promosi.RecNum.HasValue ? dataVm.Promosi.RecNum.Value : 0);
+                            if (!string.IsNullOrWhiteSpace(respShopee))
+                            {
+                                dataVm.errorAPI = "Gagal buat promosi ke Shopee :" + respShopee;
+                            }
                         }
                     }
                     else if (customer.NAMA.Equals(kdLazada))
@@ -33862,13 +33907,17 @@ namespace MasterOnline.Controllers
                                     //lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, dataVm.Promosi.TGL_MULAI ?? DateTime.Today, dataVm.Promosi.TGL_AKHIR ?? DateTime.Today, customer.TOKEN);
                                     PromoLazadaObj data = new PromoLazadaObj
                                     {
-                                        fromDt = (dataVm.Promosi.TGL_MULAI ?? DateTime.Today).ToString("yyyy-MM-dd"),
-                                        toDt = (dataVm.Promosi.TGL_AKHIR ?? DateTime.Today).ToString("yyyy-MM-dd"),
+                                        fromDt = (dataVm.Promosi.TGL_MULAI ?? DateTime.Today).ToString("yyyy-MM-dd HH:mm"),
+                                        toDt = (dataVm.Promosi.TGL_AKHIR ?? DateTime.Today).ToString("yyyy-MM-dd HH:mm"),
                                         kdBrg = brgInDB.BRG_MP,
                                         promoPrice = promoPrice,
                                         token = customer.TOKEN
                                     };
-                                    lazadaApi.setPromo(data);
+                                    var resLZd = lazadaApi.setPromo(data);
+                                    if (resLZd.status == 0)
+                                    {
+                                        dataVm.errorAPI = "Gagal buat promosi ke lazada :" + resLZd.message;
+                                    }
                                 }
                             }
 
@@ -33923,8 +33972,8 @@ namespace MasterOnline.Controllers
 
                 promosiInDb.NAMA_PROMOSI = dataVm.Promosi.NAMA_PROMOSI;
                 promosiInDb.NAMA_MARKET = dataVm.Promosi.NAMA_MARKET;
-                promosiInDb.TGL_MULAI = dataVm.Promosi.TGL_MULAI;
-                promosiInDb.TGL_AKHIR = dataVm.Promosi.TGL_AKHIR;
+                //promosiInDb.TGL_MULAI = dataVm.Promosi.TGL_MULAI;
+                //promosiInDb.TGL_AKHIR = dataVm.Promosi.TGL_AKHIR;
 
                 if (dataVm.PromosiDetail.RecNum == null)
                 {
@@ -33964,7 +34013,12 @@ namespace MasterOnline.Controllers
                                     {
                                         merchant_code = customer.Sort1_Cust,
                                     };
-                                    Task.Run(() => ShopeeApi.AddDiscountItem(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID), dataVm.PromosiDetail)).Wait();
+                                    //Task.Run(() => ShopeeApi.AddDiscountItem(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID), dataVm.PromosiDetail)).Wait();
+                                    var respShopee = await ShopeeApi.AddDiscountItem(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID), dataVm.PromosiDetail);
+                                    if (!string.IsNullOrWhiteSpace(respShopee))
+                                    {
+                                        dataVm.errorAPI = "Gagal buat promosi ke Shopee :" + respShopee;
+                                    }
                                 }
                             }
                         }
@@ -33986,13 +34040,19 @@ namespace MasterOnline.Controllers
                                         //lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, dataVm.Promosi.TGL_MULAI ?? DateTime.Today, dataVm.Promosi.TGL_AKHIR ?? DateTime.Today, customer.TOKEN);
                                         PromoLazadaObj data = new PromoLazadaObj
                                         {
-                                            fromDt = (dataVm.Promosi.TGL_MULAI ?? DateTime.Today).ToString("yyyy-MM-dd"),
-                                            toDt = (dataVm.Promosi.TGL_AKHIR ?? DateTime.Today).ToString("yyyy-MM-dd"),
+                                            //fromDt = (dataVm.Promosi.TGL_MULAI ?? DateTime.Today).ToString("yyyy-MM-dd"),
+                                            //toDt = (dataVm.Promosi.TGL_AKHIR ?? DateTime.Today).ToString("yyyy-MM-dd"),
+                                            fromDt = (promosiInDb.TGL_MULAI ?? DateTime.Today).ToString("yyyy-MM-dd HH:mm"),
+                                            toDt = (promosiInDb.TGL_AKHIR ?? DateTime.Today).ToString("yyyy-MM-dd HH:mm"),
                                             kdBrg = brgInDB.BRG_MP,
                                             promoPrice = promoPrice,
                                             token = customer.TOKEN
                                         };
-                                        lazadaApi.setPromo(data);
+                                        var resLZd = lazadaApi.setPromo(data);
+                                        if(resLZd.status == 0)
+                                        {
+                                            dataVm.errorAPI = "Gagal buat promosi ke lazada :" + resLZd.message;
+                                        }
                                     }
                                 }
 
@@ -34051,11 +34111,19 @@ namespace MasterOnline.Controllers
                 Promosi = ErasoftDbContext.PROMOSI.Single(p => p.RecNum == dataVm.Promosi.RecNum),
                 ListPromosiDetail = ErasoftDbContext.DETAILPROMOSI.Where(pd => pd.RecNumPromosi == dataVm.Promosi.RecNum).ToList(),
                 //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList()
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                ListPelanggan = new List<ARF01>(),
+                ListMarketplace = MoDbContext.Marketplaces.ToList(),
             };
-
+            var listBrg = vm.ListPromosiDetail.Select(m => m.KODE_BRG).ToList();
+            if (listBrg.Count > 0)
+            {
+                vm.ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE != "4" && listBrg.Contains(a.BRG)).ToList();
+            }
+            vm.errorAPI = dataVm.errorAPI;
+            vm.jamMulaiPromosi = vm.Promosi.TGL_MULAI?.ToString("HH:mm");
+            vm.jamAkhirPromosi = vm.Promosi.TGL_AKHIR?.ToString("HH:mm");
             return PartialView("BarangPromosiPartial", vm);
         }
 

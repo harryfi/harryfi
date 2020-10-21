@@ -4387,7 +4387,8 @@ namespace MasterOnline.Controllers
             {
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                return "";
+                ret = currentLog.REQUEST_EXCEPTION;
+                return ret;
             }
 
 
@@ -4422,7 +4423,8 @@ namespace MasterOnline.Controllers
             {
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                return "";
+                ret = currentLog.REQUEST_EXCEPTION;
+                return ret;
             }
 
             if (responseFromServer != null)
@@ -4435,11 +4437,25 @@ namespace MasterOnline.Controllers
                         if (string.IsNullOrEmpty(resServer.error))
                         {
                             EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE PROMOSIS SET MP_PROMO_ID = '" + resServer.discount_id + "' WHERE RECNUM = " + recNumPromosi);
-                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            //if(resServer.errors.Count == 0)
+                            if (resServer.errors == null)
+                            {
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }
+                            else
+                            {
+                                foreach(var err in resServer.errors)
+                                {
+                                    currentLog.REQUEST_RESULT += "brg_mp:" + err.item_id + ";" + err.variation_id + ",error:" + err.error_msg + "\n";
+                                }
+                                ret = currentLog.REQUEST_RESULT;
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            }
                         }
                         else
                         {
                             currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
+                            ret = currentLog.REQUEST_RESULT;
                             manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                         }
                     }
@@ -4447,6 +4463,7 @@ namespace MasterOnline.Controllers
                 catch (Exception ex2)
                 {
                     currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                    ret = currentLog.REQUEST_EXCEPTION;
                     manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 }
             }
@@ -4572,6 +4589,7 @@ namespace MasterOnline.Controllers
             {
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                ret = currentLog.REQUEST_EXCEPTION;
             }
 
             if (responseFromServer != null)
@@ -4583,12 +4601,27 @@ namespace MasterOnline.Controllers
                     {
                         if (string.IsNullOrEmpty(resServer.error))
                         {
-                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            //if (resServer.errors.Count == 0)
+                            if (resServer.errors == null)
+                            {
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }
+                            else
+                            {
+                                foreach (var err in resServer.errors)
+                                {
+                                    currentLog.REQUEST_RESULT += "brg_mp:" + err.item_id + ";" + err.variation_id + ",error:" + err.error_msg + "\n";
+                                }
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                ret = currentLog.REQUEST_RESULT;
+                            }
                         }
                         else
                         {
                             currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
                             manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            ret = currentLog.REQUEST_RESULT;
                         }
                     }
                 }
@@ -4596,6 +4629,7 @@ namespace MasterOnline.Controllers
                 {
                     currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
                     manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    ret = currentLog.REQUEST_EXCEPTION;
                 }
             }
             return ret;
@@ -4664,6 +4698,7 @@ namespace MasterOnline.Controllers
             {
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                ret = currentLog.REQUEST_EXCEPTION;
             }
 
             if (responseFromServer != null)
@@ -4675,12 +4710,27 @@ namespace MasterOnline.Controllers
                     {
                         if (string.IsNullOrEmpty(resServer.error))
                         {
-                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            //if (resServer.errors.Count == 0)
+                            if (resServer.errors == null)
+                            {
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }
+                            else
+                            {
+                                foreach (var err in resServer.errors)
+                                {
+                                    currentLog.REQUEST_RESULT += "brg_mp:" + err.item_id + ";" + err.variation_id + ",error:" + err.error_msg + "\n";
+                                }
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                ret = currentLog.REQUEST_RESULT;
+                            }
                         }
                         else
                         {
                             currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
                             manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                ret = currentLog.REQUEST_RESULT;
                         }
                     }
                 }
@@ -4688,6 +4738,7 @@ namespace MasterOnline.Controllers
                 {
                     currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
                     manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    ret = currentLog.REQUEST_EXCEPTION;
                 }
             }
             return ret;
@@ -4773,6 +4824,7 @@ namespace MasterOnline.Controllers
             {
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                                ret = currentLog.REQUEST_EXCEPTION;
             }
 
             if (responseFromServer != null)
@@ -4784,12 +4836,27 @@ namespace MasterOnline.Controllers
                     {
                         if (string.IsNullOrEmpty(resServer.error))
                         {
-                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            //if (resServer.errors.Count == 0)
+                            if (resServer.errors == null)
+                            {
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }
+                            else
+                            {
+                                foreach (var err in resServer.errors)
+                                {
+                                    currentLog.REQUEST_RESULT += "brg_mp:" + err.item_id + ";" + err.variation_id + ",error:" + err.error_msg + "\n";
+                                }
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                ret = currentLog.REQUEST_RESULT;
+                            }
                         }
                         else
                         {
                             currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
                             manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                ret = currentLog.REQUEST_RESULT;
                         }
                     }
                 }
@@ -4797,6 +4864,7 @@ namespace MasterOnline.Controllers
                 {
                     currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
                     manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                                ret = currentLog.REQUEST_EXCEPTION;
                 }
             }
             return ret;
@@ -5947,11 +6015,20 @@ namespace MasterOnline.Controllers
         {
             public long discount_id { get; set; }
             public int count { get; set; }
+            public List<ShopeePromoErrors> errors { get; set; }
+        }
+        public class ShopeePromoErrors
+        {
+            public long item_id { get; set; }
+            public long variation_id { get; set; }
+            public string error_msg { get; set; }
+
         }
         public class ShopeeDeletePromo : ShopeeError
         {
             public UInt64 discount_id { get; set; }
             public DateTime modify_time { get; set; }
+            public List<ShopeePromoErrors> errors { get; set; }
         }
         public class Item
         {
@@ -6068,6 +6145,7 @@ namespace MasterOnline.Controllers
             public long discount_id { get; set; }
             public long item_id { get; set; }
             public long variation_id { get; set; }
+            public List<ShopeePromoErrors> errors { get; set; }
         }
         public class ShopeeDeleteDiscountData : ShopeeError
         {
@@ -6075,6 +6153,7 @@ namespace MasterOnline.Controllers
             public long shopid { get; set; }
             public long timestamp { get; set; }
             public long discount_id { get; set; }
+            public List<ShopeePromoErrors> errors { get; set; }
         }
 
         public class ShopeeGetAddressData

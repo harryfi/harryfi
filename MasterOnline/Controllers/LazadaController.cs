@@ -1255,6 +1255,7 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 currentLog.REQUEST_EXCEPTION = ex.Message;
+                ret.message = currentLog.REQUEST_EXCEPTION;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.token, currentLog);
             }
 
