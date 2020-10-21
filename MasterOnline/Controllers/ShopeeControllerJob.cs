@@ -2234,7 +2234,7 @@ namespace MasterOnline.Controllers
                             jmlhNewOrder = jmlhNewOrder + rowAffected;
                             if (listOrder.more)
                             {
-                                await GetOrderByStatusCompleted(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
+                                await GetOrderByStatusCompletedPer3Day(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, fromdt, todt);
                             }
                             else
                             {
