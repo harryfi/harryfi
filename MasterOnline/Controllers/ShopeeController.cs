@@ -4437,7 +4437,8 @@ namespace MasterOnline.Controllers
                         if (string.IsNullOrEmpty(resServer.error))
                         {
                             EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE PROMOSIS SET MP_PROMO_ID = '" + resServer.discount_id + "' WHERE RECNUM = " + recNumPromosi);
-                            if(resServer.errors.Count == 0)
+                            //if(resServer.errors.Count == 0)
+                            if (resServer.errors == null)
                             {
                                 manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             }
@@ -4601,7 +4602,8 @@ namespace MasterOnline.Controllers
                         if (string.IsNullOrEmpty(resServer.error))
                         {
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                            if (resServer.errors.Count == 0)
+                            //if (resServer.errors.Count == 0)
+                            if (resServer.errors == null)
                             {
                                 manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             }
@@ -4709,7 +4711,8 @@ namespace MasterOnline.Controllers
                         if (string.IsNullOrEmpty(resServer.error))
                         {
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                            if (resServer.errors.Count == 0)
+                            //if (resServer.errors.Count == 0)
+                            if (resServer.errors == null)
                             {
                                 manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             }
@@ -4834,7 +4837,8 @@ namespace MasterOnline.Controllers
                         if (string.IsNullOrEmpty(resServer.error))
                         {
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                            if (resServer.errors.Count == 0)
+                            //if (resServer.errors.Count == 0)
+                            if (resServer.errors == null)
                             {
                                 manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             }
