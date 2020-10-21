@@ -2131,6 +2131,25 @@ namespace MasterOnline.Controllers
         [Queue("3_general")]
         public async Task<string> GetOrderByStatusCompleted(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
+            int fromdt = -2;
+            int todt = 0;
+            SetupContext(iden);
+
+            while(fromdt >= -14)
+            {
+                await GetOrderByStatusCompletedPer3Day(iden, stat, CUST, NAMA_CUST, page, jmlhNewOrder, fromdt, todt);
+                fromdt = fromdt - 2;
+                todt = todt - 2;
+            }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\\\"}\"" + "," + "\"4\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","4","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+            return "";
+        }
+        public async Task<string> GetOrderByStatusCompletedPer3Day(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int fromdt, int todt)
+        {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
@@ -2140,8 +2159,12 @@ namespace MasterOnline.Controllers
             long seconds = CurrentTimeSecond();
             //long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-10).ToUnixTimeSeconds();
             //long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-14).ToUnixTimeSeconds();//change by Tri 25 aug 2020, pesanan bisa selesai lebih dari 10hari
-            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-5).ToUnixTimeSeconds();//change by Fauzi 17 Oktober 2020, pesanan bisa selesai lebih dari -5hari
-            long timeStampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            //change 20 okt 2020, ambil per 3 hari
+            //long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-5).ToUnixTimeSeconds();//change by Fauzi 17 Oktober 2020, pesanan bisa selesai lebih dari -5hari
+            //long timeStampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(fromdt).ToUnixTimeSeconds();
+            long timeStampTo = (long)DateTimeOffset.UtcNow.AddDays(todt).ToUnixTimeSeconds();
+            //end change 20 okt 2020, ambil per 3 hari
 
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
@@ -2211,7 +2234,7 @@ namespace MasterOnline.Controllers
                             jmlhNewOrder = jmlhNewOrder + rowAffected;
                             if (listOrder.more)
                             {
-                                await GetOrderByStatusCompleted(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
+                                await GetOrderByStatusCompletedPer3Day(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, fromdt, todt);
                             }
                             else
                             {
@@ -2244,10 +2267,10 @@ namespace MasterOnline.Controllers
             }
 
 
-            // tunning untuk tidak duplicate
-            var queryStatus = "\\\"}\"" + "," + "\"4\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","4","\"000003\""
-            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
-            // end tunning untuk tidak duplicate
+            //// tunning untuk tidak duplicate
+            //var queryStatus = "\\\"}\"" + "," + "\"4\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","4","\"000003\""
+            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            //// end tunning untuk tidak duplicate
 
             return ret;
         }
