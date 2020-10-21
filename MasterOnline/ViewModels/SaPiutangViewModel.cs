@@ -22,5 +22,6 @@ namespace MasterOnline.ViewModels
         public List<string> Errors { get; set; } = new List<string>();
         public List<STF02> listDetailSKU { get; set; } = new List<STF02>();
         public string Brg_Acuan { get; set; }
+        public string statusAddonMultiSKU { get; set; }
     }
 }
