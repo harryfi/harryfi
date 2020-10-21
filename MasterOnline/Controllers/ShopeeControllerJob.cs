@@ -5161,6 +5161,8 @@ namespace MasterOnline.Controllers
                             item.LINK_STATUS = "Buat Produk Berhasil";
                             item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                             item.LINK_ERROR = "0;Buat Produk;;";
+                            string urlBrg = "https://shopee.co.id/product/"+iden.merchant_code+"/" + resServer.item_id;
+                            item.AVALUE_34 = urlBrg;
                             ErasoftDbContext.SaveChanges();
 
                             if (brgInDb.TYPE == "4")
@@ -5294,9 +5296,10 @@ namespace MasterOnline.Controllers
                     //ErasoftDbContext.SaveChanges();
                     //change by Tri 16 Des 2019, isi link status
                     //var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "' AND ISNULL(BRG_MP,'') = '' ");
+                    string urlBrg = "https://shopee.co.id/product/" + iden.merchant_code + "/" + resServer.item_id;
                     string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception                     
                     var sSQL = "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
-                    sSQL += "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error;
+                    sSQL += "',AVALUE_34 = '" + urlBrg + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error;
                     sSQL += "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "' AND ISNULL(BRG_MP,'') = '' ";
                     var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQL);
                     //end change by Tri 16 Des 2019, isi link status
@@ -6158,8 +6161,10 @@ namespace MasterOnline.Controllers
                                 //var var_item = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h_var).SingleOrDefault();
                                 //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
                                 //ErasoftDbContext.SaveChanges();
+                                string urlBrg = "https://shopee.co.id/product/" + iden.merchant_code + "/" + resServer.item_id;
                                 string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
-                                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
+                                //var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
+                                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "',AVALUE_34 = '" + urlBrg + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
 
                                 //var barang = ErasoftDbContext.STF02H.Where(m => m.RecNum == recnum_stf02h_var).FirstOrDefault();
                                 //await UpdateImage(iden, barang.BRG, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id));
