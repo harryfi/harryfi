@@ -1,0 +1,57 @@
+﻿@using System.Globalization
+@model MasterOnline.ViewModels.AddonsCustomerViewModel
+
+
+@Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.Addons_Customer.RecNum)
+<div class="form-group">
+    @Html.LabelFor(m => m.Addons_Customer.NamaAddons, "Nama Addons", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @*//change by nurul 21/10/2020*@
+        @*@Html.HiddenFor(m => m.Addons.Fitur, new { id = "namaaddons" })*@
+        @Html.HiddenFor(m => m.Addons_Customer.ID_ADDON)
+        @Html.HiddenFor(m => m.Addons_Customer.NamaAddons)
+        @*//end change by nurul 21/10/2020*@
+        <select id="Addons" placeholder="Harap Pilih"></select>
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.Accounts.Email, "Email", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @*//change by nurul 21/10/2020*@
+        @*@Html.HiddenFor(m => m.Accounts.Email)*@
+        @Html.HiddenFor(m => m.Addons_Customer.Account)
+        @*//end change by nurul 21/10/2020*@
+        <select id="Email_addons" placeholder="Harap Pilih"></select>
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.Addons_Customer.NamaTokoOnline, "Nama Toko Online", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @*//change by nurul 21/10/2020*@
+        @*@Html.TextBoxFor(m => m.Accounts.NamaTokoOnline, new { @class = "form-control", @ReadOnly = true })*@
+        @Html.TextBoxFor(m => m.Addons_Customer.NamaTokoOnline, new { @class = "form-control", @ReadOnly = true })
+        @*//end change by nurul 21/10/2020*@
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.Addons_Customer.TglSubscription, "Tanggal Subscription", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @*//change by nurul 21/10/2020*@
+        @*@Html.TextBoxFor(m => m.Accounts.TGL_SUBSCRIPTION, new { @class = "form-control", @ReadOnly = true })*@
+        @Html.TextBoxFor(m => m.Addons_Customer.TglSubscription, new { @class = "form-control", @ReadOnly = true, Value=(Model?.Addons_Customer?.TglSubscription?.ToString("dd/MM/yyyy")) })
+        @*//end change by nurul 21/10/2020*@
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.Addons_Customer.Harga, "Harga", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @*@Html.TextBoxFor(m => String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", m.Addons.Harga), new { @class = "form-control", @ReadOnly = true, })*@
+        @*//change by nurul 21/10/2020*@
+        @*@Html.TextBoxFor(m => m.Addons.Harga, new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Addons.Harga), disabled = "disabled", maxlength = "12" })*@
+        @Html.TextBoxFor(m => m.Addons_Customer.Harga, new { @class = "form-control", @style = "text-align:right", Value = (Model?.Addons_Customer?.Harga >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Addons_Customer?.Harga) : "0,00"), disabled = "disabled", maxlength = "12" })
+        @*//end change by nurul 21/10/2020*@
+    </div>
+</div>
+<hr />
+<button type="button"  id="simpan_btn" class="btn btn-primary pull-right" onclick="simpanAddonCust()">Simpan</button>

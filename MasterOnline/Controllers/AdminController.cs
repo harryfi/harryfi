@@ -946,8 +946,8 @@ namespace MasterOnline.Controllers
             //{
             //    return View("AddonsCustMenu", vm);
             //}
-
-            if (vm.Accounts.Email == null)
+            DateTime tglDaftar = DateTime.Now;
+            if (vm.Addons_Customer.Account == null)
             {
                 var eksInDb = MoDbContext.Addons_Customer.SingleOrDefault(e => e.Account == vm.Accounts.Email);
 
@@ -959,17 +959,51 @@ namespace MasterOnline.Controllers
             }
             else
             {
+                var idAddon = Convert.ToInt32(vm.Addons_Customer.ID_ADDON);
+                var MasterAddon = MoDbContext.Addons.SingleOrDefault(a => a.RecNum == idAddon);
                 var eksInDb = MoDbContext.Addons_Customer.SingleOrDefault(e => e.RecNum == vm.Addons_Customer.RecNum);
                 if (eksInDb == null)
                 {
                     eksInDb = new Addons_Customer
                     {
-                        TglSubscription = vm.Accounts.TGL_SUBSCRIPTION,
-                        Account = vm.Accounts.Email,
-                        NamaTokoOnline = vm.Accounts.NamaTokoOnline,
-                        Harga = vm.Addons.Harga,
-                        NamaAddons = vm.Addons.Fitur
+                        //change by nurul 21/10/2020
+                        //TglSubscription = vm.Accounts.TGL_SUBSCRIPTION,
+                        //Account = vm.Accounts.Email,
+                        //NamaTokoOnline = vm.Accounts.NamaTokoOnline,
+                        //Harga = vm.Addons.Harga,
+                        Harga = vm.Addons_Customer.Harga,
+                        TglSubscription = vm.Addons_Customer.TglSubscription,
+                        Account = vm.Addons_Customer.Account,
+                        NamaTokoOnline = vm.Addons_Customer.NamaTokoOnline,
+                        //end change by nurul 21/10/2020
+                        NamaAddons = vm.Addons_Customer.NamaAddons,
+                        //add by nurul 21/10/2020                   
+                        TGL_DAFTAR = DateTime.Now,
+                        ID_ADDON = vm.Addons_Customer.ID_ADDON
+                        //end add by nurul 21/10/2020
                     };
+                    //add by nurul 21/10/2020
+                    tglDaftar = Convert.ToDateTime(eksInDb.TGL_DAFTAR);
+                    if (vm.Addons_Customer.ID_ADDON == "2") //82cart FREE
+                    {
+                        eksInDb.STATUS = "1";
+                    }
+                    else
+                    {
+                        eksInDb.STATUS = "0";
+                    }
+                    if(eksInDb.Harga <= 0)
+                    {
+                        if(MasterAddon != null)
+                        {
+                            eksInDb.Harga = MasterAddon.Harga;
+                            if (eksInDb.NamaAddons == "" || eksInDb.NamaAddons == null)
+                            {
+                                eksInDb.NamaAddons = MasterAddon.Fitur;
+                            }
+                        }
+                    }
+                    //end add by nurul 21/10/2020
                     MoDbContext.Addons_Customer.Add(eksInDb);
                 }
                 else
@@ -985,8 +1019,14 @@ namespace MasterOnline.Controllers
             MoDbContext.SaveChanges();
             ModelState.Clear();
 
-            return RedirectToAction("AddonsCustMenu");
+            return RedirectToAction("FormAddonsCustPartial");
+            //var vmNew = new AddonsCustomerViewModel()
+            //{
+            //    Addons_Customer = MoDbContext.Addons_Customer.SingleOrDefault(e => e.TGL_DAFTAR == tglDaftar)
+            //};
 
+            ////return Json(vmNew, JsonRequestBehavior.AllowGet);
+            //return PartialView("FormAddonsCustPartial", vmNew);
         }
 
         [HttpGet]
@@ -1007,8 +1047,8 @@ namespace MasterOnline.Controllers
 
             //ViewData["Editing"] = 1;
 
-            return Json(vm, JsonRequestBehavior.AllowGet);
-            //return View("AddonsCustMenu", vm);
+            //return Json(vm, JsonRequestBehavior.AllowGet);
+            return PartialView("FormAddonsCustPartial", vm);
         }
 
         public ActionResult DeleteCustAddons(int? eksId)

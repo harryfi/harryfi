@@ -145,9 +145,12 @@
                                             }
                                         }
                                         <br>
-                                        @using (Html.BeginForm("SaveCustAddons", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                        @using (Html.BeginForm("SaveCustAddons", "Admin", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-addon-cust" }))
                                         {
-                                            @Html.AntiForgeryToken()
+                                        <div id="form-partial">
+                                            @Html.Partial("FormAddonsCustPartial")
+                                        </div>
+                                            @*@Html.AntiForgeryToken()
                                             @Html.HiddenFor(m => m.Addons_Customer.RecNum)
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Addons_Customer.NamaAddons, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
@@ -160,6 +163,7 @@
                                                 @Html.LabelFor(m => m.Accounts.Email, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.HiddenFor(m => m.Accounts.Email)
+                                                    
                                                     <select id="Email_addons" placeholder="Harap Pilih"></select>
                                                 </div>
                                             </div>
@@ -167,23 +171,25 @@
                                                 @Html.LabelFor(m => m.Addons_Customer.NamaTokoOnline, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.TextBoxFor(m => m.Accounts.NamaTokoOnline, new { @class = "form-control", @ReadOnly = true })
+                                                    
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Addons_Customer.TglSubscription, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.TextBoxFor(m => m.Accounts.TGL_SUBSCRIPTION, new { @class = "form-control", @ReadOnly = true })
+                                                    
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Addons_Customer.Harga, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @*@Html.TextBoxFor(m => String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", m.Addons.Harga), new { @class = "form-control", @ReadOnly = true, })*@
                                                     @Html.TextBoxFor(m => m.Addons.Harga, new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Addons.Harga), disabled = "disabled", maxlength = "12" })
+                                                    
                                                 </div>
                                             </div>
                                             <hr />
-                                            <button type="submit" id="simpan_btn" class="btn btn-primary pull-right">Simpan</button>
+                                            <button type="submit" id="simpan_btn" class="btn btn-primary pull-right" >Simpan</button>*@
                                         }
                                     </div>
                                 </div>
@@ -293,16 +299,17 @@
                 contentType: 'application/json',
                 url: link,
                 success: function (response) {
+                    $('#form-partial').html(response);
                     $('.addons_table_section').hide();
                     $('.addons_editor_section').show();
 
-                    $('#Accounts_NamaTokoOnline').val(response.Addons_Customer.NamaTokoOnline);
-                    $('#Accounts_TGL_SUBSCRIPTION').val(response.Addons_Customer.TglSubscription);
-                    $('#Addons_Harga').val(response.Addons_Customer.Harga);
+                    //$('#Accounts_NamaTokoOnline').val(response.Addons_Customer.NamaTokoOnline);
+                    //$('#Accounts_TGL_SUBSCRIPTION').val(response.Addons_Customer.TglSubscription);
+                    //$('#Addons_Harga').val(response.Addons_Customer.Harga);
 
                     //debugger;
-                    getAddons(response.Addons_Customer.NamaAddons);
-                    getEmail(response.Addons_Customer.Account);
+                    getAddons($('#Addons_Customer.NamaAddons').val());
+                    getEmail($('#response.Addons_Customer.Account').val());
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -343,27 +350,38 @@
                         searchField: 'text',
                         options: emailList,
                         onChange: function (value) {
+                            var $objSup = $.grep(emailList, function (data) { return data.id == value });
                             if (value == null) {
-                                $("#Accounts_Email").val(null);
-                                emailSelect[0].selectize.setValue($('#Accounts_Email').val(), true);
+                                //$("#Accounts_Email").val(null);
+                                //emailSelect[0].selectize.setValue($('#Accounts_Email').val(), true);
+                                $("#Addons_Customer_Account").val(null);
+                                emailSelect[0].selectize.setValue($('#Addons_Customer_Account').val(), true);
                             } else {
-                                $("#Accounts_Email").val(value);
-                                emailSelect[0].selectize.setValue($('#Accounts_Email').val(), true);
-                                $.each(emailList,
-                                    function (i, item) {
-                                        if (item.id == value) {
-                                            //$('#Addons_Customer_RecNum').val(item.id);
-                                            $('#Accounts_NamaTokoOnline').val(item.toko);
-                                            $('#Accounts_TGL_SUBSCRIPTION').val(item.tglsub.getDate() + "/" + (item.tglsub.getMonth() + 1) + "/" + item.tglsub.getFullYear());
-                                        }
-                                    });
+                                //$("#Accounts_Email").val(value);
+                                //emailSelect[0].selectize.setValue($('#Accounts_Email').val(), true);
+                                //$.each(emailList,
+                                //    function (i, item) {
+                                //        if (item.id == value) {
+                                //            //$('#Addons_Customer_RecNum').val(item.id);
+                                //            $('#Accounts_NamaTokoOnline').val(item.toko);
+                                //            $('#Accounts_TGL_SUBSCRIPTION').val(item.tglsub.getDate() + "/" + (item.tglsub.getMonth() + 1) + "/" + item.tglsub.getFullYear());
+                                //        }
+                                //    });
+
+                                $("#Addons_Customer_Account").val(value);
+                                emailSelect[0].selectize.setValue($('#Addons_Customer_Account').val(), true);
+
+                                if ($objSup[0] != null) {
+                                    $('#Addons_Customer_NamaTokoOnline').val($objSup[0].toko);
+                                    $('#Addons_Customer_TglSubscription').val($objSup[0].tglsub.getDate() + "/" + ($objSup[0].tglsub.getMonth() + 1) + "/" + $objSup[0].tglsub.getFullYear())
+                                }
                             }
                         }
                     });
-
-                    if (respon != null) {
-                        emailSelect[0].selectize.trigger('change', respon);
-                    }
+                    emailSelect[0].selectize.setValue($('#Addons_Customer_Account').val(), true);
+                    //if (respon != null) {
+                    //    emailSelect[0].selectize.trigger('change', respon);
+                    //}
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -389,32 +407,44 @@
                         });
 
                     var addonsSelect = $('#Addons').selectize({
-                        valueField: 'text',
+                        //valueField: 'text',
+                        valueField: 'id',
                         searchField: 'text',
                         options: addonsList,
                         onChange: function (value) {
+                            var $objSup = $.grep(addonsList, function (data) { return data.id == value });
                             if (value == null) {
-                                $("#namaaddons").val(null);
-                                addonsSelect[0].selectize.setValue($('#namaaddons').val(), true);
+                                //$("#namaaddons").val(null);
+                                //addonsSelect[0].selectize.setValue($('#namaaddons').val(), true);
+                                $('#Addons_Customer_ID_ADDON').val(null);
+                                $('#Addons_Customer_NamaAddons').val(null);
+                                addonsSelect[0].selectize.setValue($('#Addons_Customer_ID_ADDON').val(), true);
                             } else {
                                 //debugger;
-                                $("#namaaddons").val(value);
-                                addonsSelect[0].selectize.setValue($('#namaaddons').val(), true);
-                                $.each(addonsList,
-                                    function (i, item) {
-                                        if (item.text == value) {
-                                            //$('#Addons_Fitur').val(item.text);
-                                            $('#Addons_Harga').val(item.cost);
-                                        }
-                                    });
+                                //$("#namaaddons").val(value);
+                                //addonsSelect[0].selectize.setValue($('#namaaddons').val(), true);
+                                //$.each(addonsList,
+                                //    function (i, item) {
+                                //        if (item.text == value) {
+                                //            //$('#Addons_Fitur').val(item.text);
+                                //            $('#Addons_Harga').val(item.cost);
+                                //        }
+                                //    });
+
+                                $('#Addons_Customer_ID_ADDON').val(value);
+                                addonsSelect[0].selectize.setValue($('#Addons_Customer_ID_ADDON').val(), true);
+                                if ($objSup[0] != null) {
+                                    $('#Addons_Customer_Harga').val($objSup[0].cost);
+                                    $('#Addons_Customer_NamaAddons').val($objSup[0].text);
+                                }
                             }
                         }
                     });
-
+                    addonsSelect[0].selectize.setValue($('#Addons_Customer_ID_ADDON').val(), true);
                     //debugger;
-                    if (respon != null) {
-                        addonsSelect[0].selectize.trigger('change', respon);
-                    }
+                    //if (respon != null) {
+                    //    addonsSelect[0].selectize.trigger('change', respon);
+                    //}
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -422,6 +452,33 @@
             });
         }
 
+        //add by nurul 21/10/2020
+        function simpanAddonCust() {
+            if ($('#Addons_Customer_NamaAddons').val() == undefined || $('#Addons_Customer_NamaAddons').val() == "" || $('#Addons_Customer_NamaAddons').val() == null) {
+                alert("Silahkan pilih nama addons terlebih dahulu.");
+                return false;
+            }
+            if ($('#Addons_Customer_Account').val() == undefined || $('#Addons_Customer_Account').val() == "" || $('#Addons_Customer_Account').val() == null) {
+                alert("Silahkan pilih email terlebih dahulu.");
+                return false;
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SaveCustAddons", "Admin")',
+                data: $('#form-addon-cust').serialize(),
+                success: function (response) {
+                    alert('Data berhasil tersimpan');
+                    $('#form-addon-cust').html(response);
+                    //if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
+                    //     $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
+                    //}
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
 
+        }
+        //end add by nurul 21/10/2020
     </script>
 }

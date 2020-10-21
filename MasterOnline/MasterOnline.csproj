@@ -6554,6 +6554,7 @@
     <Content Include="Views\Manage\PromptPesananPL.cshtml" />
     <Content Include="Views\Admin\AddonsMenu.cshtml" />
     <Content Include="Views\Admin\AddonsCustMenu.cshtml" />
+    <Content Include="Views\Admin\FormAddonsCustPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
