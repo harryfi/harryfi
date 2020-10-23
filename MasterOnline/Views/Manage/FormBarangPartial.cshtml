@@ -284,27 +284,12 @@
         }
     }
 
-    function setTypeItem(i, value, text) {
-        if (value != null && value != "") {
-            $('#ListHargaJualPermarket_' + i + '__ACODE_39').val(value);
-            $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(text);
+    function setQualityJDID(i, value) {
+        if (value != null) {
+            $('#ListHargaJualPermarket_' + i + '__AVALUE_47').val(value);
         }
     }
-
-    function setAfterSale(i, value, text) {
-        if (value != null && value != "") {
-            $('#ListHargaJualPermarket_' + i + '__ACODE_40').val(value);
-            $('#ListHargaJualPermarket_' + i + '__AVALUE_40').val(text);
-
-        }
-    }
-
-    function setWarranty(i, value, text) {
-        if (value != null && value != "") {
-            $('#ListHargaJualPermarket_' + i + '__ACODE_41').val(value);
-            $('#ListHargaJualPermarket_' + i + '__AVALUE_41').val(text);
-        }
-    }
+    
 </script>
 <div class="form-horizontal">
     <div class="row">
@@ -1511,23 +1496,7 @@
                                                                                 <div class="col-md-5 col-sm-5 col-xs-12 form-group">
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_39, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_39 })
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_39, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_39 })
-                                                                                    <div class="input-group text">
-                                                                                        <table>
-                                                                                            <tr>
-                                                                                                <td>
-                                                                                                    @*@Html.TextBox("Tipe Barang" + i + "JDID", "", new { @class = "form-control", id= "JDID_tipe_barang" , data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_18 })*@
-                                                                                                    @*<select style="width:200px" id="JDID_tipe_barang_@Convert.ToString(recnumArf01)" placeholder="Harap pilih" required="required"></select>*@
-                                                                                                    @Html.DropDownListFor(m => m.ListHargaJualPermarket[i].ACODE_39, new SelectListItem[] {
-                                                                                                    new SelectListItem() { Text = "Harap pilih", Value = "", Disabled = true, Selected = true },
-                                                                                                    new SelectListItem() { Text = "Small item <= 20KG", Value = "0" },
-                                                                                                    new SelectListItem() { Text = "Big item > 20KG", Value = "1" }
-                                                                                                    }, new { @class = "form-control", data_valid_toggle_required = "1", required = "required",
-                                                                                                        Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_39,
-                                                                                                        @onchange = "setTypeItem(" + i + ", this.options[this.selectedIndex].value, this.options[this.selectedIndex].text)"
-                                                                                                    })
-                                                                                                </td>
-                                                                                            </tr>
-                                                                                        </table>
+                                                                                    <div id="tipebarang_JD_@Convert.ToString(recnumArf01)">
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
@@ -1552,24 +1521,7 @@
                                                                                 <div class="col-md-5 col-sm-5 col-xs-12 form-group">
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_40, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_40 })
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_40, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_40 })
-                                                                                    <div class="input-group text">
-                                                                                        <table>
-                                                                                            <tr>
-                                                                                                <td>
-                                                                                                    @*@Html.TextBox("After Sale" + i + "JDID", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_19 })*@
-                                                                                                    @*<select style="width:200px" id="JDID_after_sale_@Convert.ToString(recnumArf01)" placeholder="Harap pilih" required="required"></select>*@
-                                                                                                    @Html.DropDownListFor(m => m.ListHargaJualPermarket[i].ACODE_40, new SelectListItem[] {
-                                                                                                    new SelectListItem() { Text = "Harap pilih", Value = "" , Disabled = true, Selected = true },
-                                                                                                    new SelectListItem() { Text = "Only Support 7 Days Refund", Value = "1" },
-                                                                                                    new SelectListItem() { Text = "Not Support 7 Days Refund And 15 Days Exchange", Value = "2" },
-                                                                                                    new SelectListItem() { Text = "Support 7 Days Refund And 15 Days Exchange", Value = "3" },
-                                                                                                    new SelectListItem() { Text = "Only Support 15 Days Exchange", Value = "4" }
-                                                                                                    }, new { @class = "form-control", data_valid_toggle_required = "1", required = "required",
-                                                                                                        Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_40,
-                                                                                                        @onchange = "setAfterSale(" + i + ", this.options[this.selectedIndex].value, this.options[this.selectedIndex].text)" })
-                                                                                                </td>
-                                                                                            </tr>
-                                                                                        </table>
+                                                                                    <div id="aftersale_JD_@Convert.ToString(recnumArf01)">
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
@@ -1594,46 +1546,7 @@
                                                                                 <div class="col-md-5 col-sm-5 col-xs-12 form-group">
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ACODE_41, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_41 })
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_41, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_41 })
-                                                                                    <div class="input-group text">
-                                                                                        <table>
-                                                                                            <tr>
-                                                                                                <td>
-                                                                                                    @*@Html.TextBox("Warranty" + i + "JDID", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_20 })*@
-                                                                                                    @*<select class="form-group" style="width:400px" id="JDID_warranty_@Convert.ToString(recnumArf01)" placeholder="Harap pilih" required="required"></select>*@
-                                                                                                    @Html.DropDownListFor(m => m.ListHargaJualPermarket[i].ACODE_41, new SelectListItem[] {
-                                                                                                    //new SelectListItem() { Text = "Harap pilih", Value = "" , Disabled = true, Selected = true },
-                                                                                                    new SelectListItem() { Text = "No warranty", Value = "1" },
-                                                                                                    new SelectListItem() { Text = "6 months official warranty", Value = "50" },
-                                                                                                    new SelectListItem() { Text = "8 months official warranty", Value = "51" },
-                                                                                                    new SelectListItem() { Text = "18 months official warranty", Value = "52" },
-                                                                                                    new SelectListItem() { Text = "1 year official warranty", Value = "2" },
-                                                                                                    new SelectListItem() { Text = "2 year official warranty", Value = "3" },
-                                                                                                    new SelectListItem() { Text = "3 year official warranty", Value = "4" },
-                                                                                                    new SelectListItem() { Text = "4 year official warranty", Value = "11" },
-                                                                                                    new SelectListItem() { Text = "5 year official warranty", Value = "12" },
-                                                                                                    new SelectListItem() { Text = "1 year shop warranty", Value = "5" },
-                                                                                                    new SelectListItem() { Text = "2 year shop warranty", Value = "6" },
-                                                                                                    new SelectListItem() { Text = "3 year shop warranty", Value = "7" },
-                                                                                                    new SelectListItem() { Text = "4 year shop warranty", Value = "21" },
-                                                                                                    new SelectListItem() { Text = "5 year shop warranty", Value = "22" },
-                                                                                                    new SelectListItem() { Text = "1 year compressor warranty", Value = "31" },
-                                                                                                    new SelectListItem() { Text = "2 year compressor warranty", Value = "32" },
-                                                                                                    new SelectListItem() { Text = "3 year compressor warranty", Value = "33" },
-                                                                                                    new SelectListItem() { Text = "5 year compressor warranty", Value = "35" },
-                                                                                                    new SelectListItem() { Text = "10 year compressor warranty", Value = "30" },
-                                                                                                    new SelectListItem() { Text = "1 year motor warranty", Value = "41" },
-                                                                                                    new SelectListItem() { Text = "3 year motor warranty", Value = "42" },
-                                                                                                    new SelectListItem() { Text = "5 year motor warranty", Value = "45" },
-                                                                                                    new SelectListItem() { Text = "10 year motor warranty", Value = "40" },
-                                                                                                    new SelectListItem() { Text = "Lifetime warranty", Value = "8" }
-                                                                                                    }, new { @class = "form-control", data_placeholder = "Harap pilih", data_valid_toggle_required = "1", required = "required",
-                                                                                                        //Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ACODE_41,
-                                                                                                        Value = 3, SelectList = 3,
-                                                                                                        @onchange = "setWarranty(" + i + ", this.options[this.selectedIndex].value, this.options[this.selectedIndex].text)"
-                                                                                                    })
-                                                                                                </td>
-                                                                                            </tr>
-                                                                                        </table>
+                                                                                    <div id="warranty_JD_@Convert.ToString(recnumArf01)">
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="col-md-2 col-sm-2 col-xs-12">
@@ -1662,7 +1575,7 @@
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                     @Html.Label("Keywords *", new { @class = "control-label" })
                                                                                 </div>
-                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                                                                <div class="col-md-5 col-sm-5 col-xs-12 form-group">
                                                                                     <div class="input-group text">
                                                                                         <table>
                                                                                             <tr>
@@ -1672,6 +1585,27 @@
                                                                                             </tr>
                                                                                         </table>
                                                                                     </div>
+                                                                                </div>
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                    @Html.Label("Quality Assurance *", new { @class = "control-label" })
+                                                                                </div>
+                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group" style="padding-top:10px">
+                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_47, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.AVALUE_47 })
+                                                                                    @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_47 == "1")
+                                                                                    {
+                                                                                        <input type="radio" id="rdoQualityJDID1_@Convert.ToString(recnumArf01)" name="QualityJDID_@Convert.ToString(recnumArf01)" value="1" checked onclick="setQualityJDID('@i','1')">
+                                                                                        <label for="rdoQualityJDID1_@Convert.ToString(recnumArf01)">Ya</label>
+                                                                                        <input type="radio" id="rdoQualityJDID2_@Convert.ToString(recnumArf01)" name="QualityJDID_@Convert.ToString(recnumArf01)" value="0" onclick="setQualityJDID('@i','0')">
+                                                                                        <label for="rdoQualityJDID2_@Convert.ToString(recnumArf01)">Tidak</label>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <input type="radio" id="rdoQualityJDID1_@Convert.ToString(recnumArf01)" name="QualityJDID_@Convert.ToString(recnumArf01)" value="1" onclick="setQualityJDID('@i','1')">
+                                                                                        <label for="rdoQualityJDID1_@Convert.ToString(recnumArf01)">Ya</label>
+                                                                                        <input type="radio" id="rdoQualityJDID2_@Convert.ToString(recnumArf01)" name="QualityJDID_@Convert.ToString(recnumArf01)" value="0" checked onclick="setQualityJDID('@i','0')">
+                                                                                        <label for="rdoQualityJDID2_@Convert.ToString(recnumArf01)">Tidak</label>
+                                                                                    }
+
                                                                                 </div>
                                                                             </div>
                                                                         }

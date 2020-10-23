@@ -8136,6 +8136,8 @@ namespace MasterOnline.Controllers
                     //saveBarang82Cart(1, dataBarang, false);
                     saveBarang82CartVariant(1, barangInDb.BRG, false);
                     //end add by fauzi for 82Cart
+
+                    saveBarangJDID(1, barangInDb.BRG, false);
                 }
                 //end add by tri call marketplace api to create product
                 else
@@ -8147,7 +8149,6 @@ namespace MasterOnline.Controllers
                     saveBarangElevenia(2, dataBarang, imgPath);
                     saveBarangShopee(2, dataBarang, updateHarga);
                     saveBarangShopify(2, dataBarang);
-                    
 
 
                     //get image
@@ -8170,6 +8171,7 @@ namespace MasterOnline.Controllers
 
                     saveBarangTokpedVariant(2, barang.BRG, false);
 
+                    saveBarangJDID(2, barang.BRG, false);
 
                     #region lazada
                     if (listLazadaShop.Count > 0)
@@ -10509,6 +10511,180 @@ namespace MasterOnline.Controllers
                                                     //}
                                                     //}
                                                 }
+                                            }
+                                            else
+                                            {
+                                                if (stf02h.DISPLAY)
+                                                {
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
+
+#if (DEBUG || Debug_AWS)
+                                                    EightTwoCartControllerJob.E2CartAPIData iden = new EightTwoCartControllerJob.E2CartAPIData
+                                                    {
+                                                        username = usernameLogin,
+                                                        no_cust = tblCustomer.CUST,
+                                                        account_store = tblCustomer.PERSO,
+                                                        API_key = tblCustomer.API_KEY,
+                                                        API_credential = tblCustomer.Sort1_Cust,
+                                                        API_url = tblCustomer.PERSO,
+                                                        ID_MARKET = tblCustomer.RecNum.Value.ToString(),
+                                                        DatabasePathErasoft = dbPathEra
+                                                    };
+                                                    EightTwoCartControllerJob c82CartAPI = new EightTwoCartControllerJob();
+
+                                                    c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
+                                                    //Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
+#else
+                                                    EightTwoCartControllerJob.E2CartAPIData dataJob = new EightTwoCartControllerJob.E2CartAPIData
+                                                    {
+                                                        username = usernameLogin,
+                                                        no_cust = tblCustomer.CUST,
+                                                        account_store = tblCustomer.PERSO,
+                                                        API_key = tblCustomer.API_KEY,
+                                                        API_credential = tblCustomer.Sort1_Cust,
+                                                        API_url = tblCustomer.PERSO,
+                                                        ID_MARKET = tblCustomer.RecNum.Value.ToString(),
+                                                        DatabasePathErasoft = dbPathEra
+                                                    };
+
+                                                    //EightTwoCartControllerJob c82CartAPIJob = new EightTwoCartControllerJob();
+                                                    //Task.Run(() => c82CartAPIJob.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob)).Wait();
+
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                    clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
+#endif
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        protected void saveBarangJDID(int mode, string dataBarang_Stf02_BRG, bool updateHarga)
+        {
+            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == dataBarang_Stf02_BRG);
+            //var kd82Cart = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "82CART");
+            var kdJDID = "19";
+            if (barangInDb != null && kdJDID != null)
+            {
+                var listJDID = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdJDID).ToList();
+                if (listJDID.Count > 0)
+                {
+                    switch (mode)
+                    {
+                        #region Create Product lalu Hide Item
+                        case 1:
+                            {
+                                foreach (ARF01 tblCustomer in listJDID)
+                                {
+                                    if (!string.IsNullOrEmpty(tblCustomer.API_KEY))
+                                    {
+                                        var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
+                                        if (display)
+                                        {
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
+#if (DEBUG || Debug_AWS)
+                                            JDIDControllerJob.JDIDAPIData iden = new JDIDControllerJob.JDIDAPIData()
+                                            {
+                                                username = usernameLogin,
+                                                no_cust = tblCustomer.CUST,
+                                                account_store = tblCustomer.PERSO,
+                                                accessToken = tblCustomer.TOKEN,
+                                                appKey = tblCustomer.API_KEY,
+                                                appSecret = tblCustomer.API_CLIENT_U,
+                                                email = tblCustomer.EMAIL,
+                                                ID_MARKET = tblCustomer.RecNum.Value.ToString(),
+                                                DatabasePathErasoft = dbPathEra
+                                            };
+                                            JDIDControllerJob JDIDAPI = new JDIDControllerJob();
+
+                                            JDIDAPI.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
+                                            
+#else
+                                            JDIDControllerJob.JDIDAPIData iden = new JDIDControllerJob.JDIDAPIData()
+                                            {
+                                                username = usernameLogin,
+                                                no_cust = tblCustomer.CUST,
+                                                account_store = tblCustomer.PERSO,
+                                                accessToken = tblCustomer.TOKEN,
+                                                appKey = tblCustomer.API_KEY,
+                                                appSecret = tblCustomer.API_CLIENT_U,
+                                                email = tblCustomer.EMAIL,
+                                                ID_MARKET = tblCustomer.RecNum.Value.ToString(),
+                                                DatabasePathErasoft = dbPathEra
+                                            };
+
+                                            JDIDControllerJob JDIDAPI = new JDIDControllerJob();
+                                            Task.Run(() => JDIDAPI.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden)).Wait();
+
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                            clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden));
+#endif
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        #endregion
+                        case 2:
+                            {
+                                foreach (ARF01 tblCustomer in listJDID)
+                                {
+                                    if (!string.IsNullOrEmpty(tblCustomer.API_KEY))
+                                    {
+                                        var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == barangInDb.BRG && p.IDMARKET == tblCustomer.RecNum).FirstOrDefault();
+                                        if (stf02h != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                            {
+                                                JDIDControllerJob.JDIDAPIData iden = new JDIDControllerJob.JDIDAPIData()
+                                                {
+                                                    username = usernameLogin,
+                                                    no_cust = tblCustomer.CUST,
+                                                    account_store = tblCustomer.PERSO,
+                                                    accessToken = tblCustomer.TOKEN,
+                                                    appKey = tblCustomer.API_KEY,
+                                                    appSecret = tblCustomer.API_CLIENT_U,
+                                                    email = tblCustomer.EMAIL,
+                                                    ID_MARKET = tblCustomer.RecNum.Value.ToString(),
+                                                    DatabasePathErasoft = dbPathEra
+                                                };
+                                                JDIDControllerJob JDIDAPI = new JDIDControllerJob();
+
+                                                var temp_brg = (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG);
+
+                                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+#if (Debug_AWS || DEBUG)
+                                                //JDIDAPI.JD_CreateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", iden);
+                                                JDIDAPI.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
+#else
+                                                //clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_CreateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", iden));
+#endif
+
+                                                //Task.Run(() => shoAPI.UpdateImage(iden, temp_brg, stf02h.BRG_MP).Wait());
+                                                //string[] brg_mp = stf02h.BRG_MP.Split(';');
+                                                //                                                if (updateHarga)
+                                                //                                                {
+                                                //#if (Debug_AWS || DEBUG)
+                                                //                                                    Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, "0")).Wait();
+                                                //#else
+                                                //                                                    clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, "0"));
+                                                //#endif
+                                                //                                                }
                                             }
                                             else
                                             {

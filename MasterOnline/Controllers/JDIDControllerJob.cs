@@ -359,32 +359,6 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            //Required parameters, other parameters can be add
-            //var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
-            //postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
-            //postData += "&name=" + Uri.EscapeDataString(brgInDb.NAMA);
-            //postData += "&reference=" + Uri.EscapeDataString(brgInDb.BRG);
-            //postData += "&active=" + Uri.EscapeDataString("1");
-            //postData += "&visibility=" + Uri.EscapeDataString("both");
-            //postData += "&available_for_order=" + Uri.EscapeDataString("1");
-            //postData += "&show_price=" + Uri.EscapeDataString("1");
-            //postData += "&online_only=" + Uri.EscapeDataString("0");
-            //postData += "&condition=" + Uri.EscapeDataString("new");
-            //postData += "&wholesale_price=" + Uri.EscapeDataString("0");
-            //postData += "&price=" + Uri.EscapeDataString(detailBrg.HJUAL.ToString());
-            //postData += "&on_sale=" + Uri.EscapeDataString("1");
-            //postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").ToLower());
-            //postData += "&width=" + Uri.EscapeDataString(brgInDb.LEBAR.ToString());
-            //postData += "&height=" + Uri.EscapeDataString(brgInDb.TINGGI.ToString());
-            //postData += "&depth=" + Uri.EscapeDataString("0");
-            //postData += "&weight=" + Uri.EscapeDataString(weight.ToString());
-            //postData += "&additional_shipping_cost=" + Uri.EscapeDataString("0");
-            //postData += "&minimal_quantity=" + Uri.EscapeDataString(brgInDb.MINI.ToString());
-            //postData += "&out_of_stock=" + Uri.EscapeDataString("0");
-            //postData += "&id_category_default=" + Uri.EscapeDataString(finalCategory.ToString());
-            //postData += "&category=" + Uri.EscapeDataString("[" + categoryID.ToString() + "]");
-            //postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38.ToString());
-
 
             //Start handle description
             var vDescription = brgInDb.Deskripsi;
@@ -450,18 +424,71 @@ namespace MasterOnline.Controllers
             var finalCategory = splitCat.Last();
             var weight = Convert.ToDouble(brgInDb.BERAT / 1000);
 
+            var namafull = "";
+            namafull = brgInDb.NAMA;
+            if (!string.IsNullOrEmpty(brgInDb.NAMA2))
+            {
+                namafull += " " + brgInDb.NAMA2;
+            }
+            if (!string.IsNullOrEmpty(brgInDb.NAMA3))
+            {
+                namafull += " " + brgInDb.NAMA3;
+            }
+
+            var commonAttribute = "";
+            if (!string.IsNullOrEmpty(detailBrg.ACODE_1))
+            {
+                commonAttribute = detailBrg.ACODE_1 + ":" + detailBrg.ANAME_1;
+            }
+            if (!string.IsNullOrEmpty(detailBrg.ACODE_2))
+            {
+                commonAttribute += ";" + detailBrg.ACODE_2 + ":" + detailBrg.ANAME_2;
+            }
+            if (!string.IsNullOrEmpty(detailBrg.ACODE_3))
+            {
+                commonAttribute += ";" + detailBrg.ACODE_3 + ":" + detailBrg.ANAME_3;
+            }
+            if (!string.IsNullOrEmpty(detailBrg.ACODE_4))
+            {
+                commonAttribute += ";" + detailBrg.ACODE_4 + ":" + detailBrg.ANAME_4;
+            }
+            if (!string.IsNullOrEmpty(detailBrg.ACODE_5))
+            {
+                commonAttribute += ";" + detailBrg.ACODE_5 + ":" + detailBrg.ANAME_5;
+            }
+            if (!string.IsNullOrEmpty(detailBrg.ACODE_6))
+            {
+                commonAttribute += ";" + detailBrg.ACODE_6 + ":" + detailBrg.ANAME_6;
+            }
+            if (!string.IsNullOrEmpty(detailBrg.ACODE_7))
+            {
+                commonAttribute += ";" + detailBrg.ACODE_7 + ":" + detailBrg.ANAME_7;
+            }
+            if (!string.IsNullOrEmpty(detailBrg.ACODE_8))
+            {
+                commonAttribute += ";" + detailBrg.ACODE_8 + ":" + detailBrg.ANAME_8;
+            }
+
+
             //buatkan selection merk (brandId) get dari API xxx
             //buatkan selection jaminan Asuransi Yes | No (isQuality)
             //pelajari (commonAttributeIds)
             //
 
             string sMethod = "epi.ware.openapi.SpuApi.publishWare";
-            string sParamJson = "{\"spuInfo\":{\"appDescription\":\"" + vDescription + "\", \"brandId\":30830, \"catId\":" + finalCategory + ", \"commonAttributeIds\":\"9192:2258575;9233:2262793;9191:2262808;9180:2259386;9175:2259395;9223:2262814;9514:2262804;9193:2262797\", " +
-                "\"description\":\"" + vDescription + "\", \"isQuality\":1, \"isSequenceNumber\":1, \"keywords\":\"kew1,ke2\", \"packageInfo\":\"pack\", \"productArea\":\"xinjiang\", " +
-                "\"qualityDays\":12, \"spuName\":\"test spu name for api 4\", \"subtitle\":\"sub\", \"subtitleHref\":\"http://xxxx.com\", \"subtitleHrefM\":\"http://xxxxm.com\", \"transportId\":42, " +
-                "\"warrantyPeriod\":3, \"whetherCod\":0,  \"weight\":\"1\",  \"netWeight\":\"1.5\",   \"packHeight\":\"1\",   \"packLong\":\"1\",   \"packWide\":\"1\",   \"piece\":1}, " +
-                "\"skuList\":[ {\"costPrice\":1000, \"imgFlag\":\"https://indomedia.com.au/wp-content/uploads/2019/02/vvip-warpan.jpg\", \"jdPrice\":1000, \"sellerSkuId\":\"sellerSkuId 0\", " +
-                "\"skuName\":\"sku name for api 0\", \"stock\":10, \"upc\":\"upc\" }]}";
+            //string sParamJson = "{\"spuInfo\":{\"appDescription\":\"" + vDescription + "\", \"brandId\":30830, \"catId\":" + finalCategory + ", \"commonAttributeIds\":\"9192:2258575;9233:2262793;9191:2262808;9180:2259386;9175:2259395;9223:2262814;9514:2262804;9193:2262797\", " +
+            //    "\"description\":\"" + vDescription + "\", \"isQuality\":1, \"isSequenceNumber\":1, \"keywords\":\"kew1,ke2\", \"packageInfo\":\"pack\", \"productArea\":\"xinjiang\", " +
+            //    "\"qualityDays\":12, \"spuName\":\"test spu name for api 4\", \"subtitle\":\"sub\", \"subtitleHref\":\"http://xxxx.com\", \"subtitleHrefM\":\"http://xxxxm.com\", \"transportId\":42, " +
+            //    "\"warrantyPeriod\":3, \"whetherCod\":0,  \"weight\":\"1\",  \"netWeight\":\"1.5\",   \"packHeight\":\"1\",   \"packLong\":\"1\",   \"packWide\":\"1\",   \"piece\":1}, " +
+            //    "\"skuList\":[ {\"costPrice\":1000, \"imgFlag\":\"https://indomedia.com.au/wp-content/uploads/2019/02/vvip-warpan.jpg\", \"jdPrice\":1000, \"sellerSkuId\":\"sellerSkuId 0\", " +
+            //    "\"skuName\":\"sku name for api 0\", \"stock\":10, \"upc\":\"upc\" }]}";
+
+            string sParamJson = "{\"spuInfo\":{\"spuName\":\""+ namafull + "\", \"appDescription\":\""+ vDescription + "\", \"description\":\""+ vDescription +"\", \"packageInfo\":\"PAKET INFO\", " +
+                "\"brandId\":"+ detailBrg.AVALUE_38 + ", \"catId\":" + detailBrg.CATEGORY_CODE + ", \"commomAttributeIds\":\"9446:2261344;9459:2261490,2261378;9455:2261632\", \"isSequenceNumber\":1, \"keywords\":\""+ detailBrg.AVALUE_46 + "\", \"productArea\":\"Jakarta\", " +
+                "\"crossProductType\":\"1\", \"clearanceType\":\"2\" , \"taxesType\":\"2\", \"countryId\":\"10000000\", " +
+                "\"subtitle\":\"sub\", \"subtitleHref\":\"" + detailBrg.AVALUE_44 + "\", \"subtitleHrefM\":\"" + detailBrg.AVALUE_44 + "\", \"transportId\":42, \"isQuality\":"+ detailBrg.AVALUE_47 + ", \"qualityDays\":1"+ detailBrg.AVALUE_48 + ", \"warrantyPeriod\":"+detailBrg.AVALUE_41 +", \"afterSale\":" + detailBrg.AVALUE_40 + ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
+                "\"weight\":\"" + brgInDb.BERAT + "\", \"netWeight\":\"" + brgInDb.BERAT + "\", \"packHeight\":\"" + brgInDb.TINGGI + "\", \"packLong\":\"" + brgInDb.PANJANG + "\", \"packWide\":\"" + brgInDb.LEBAR + "\", \"piece\":" + detailBrg.ACODE_39 + "}, \"skuList\":[ {\"costPrice\":" + detailBrg.HJUAL + ", " +
+                "\"jdPrice\":" + detailBrg.HJUAL + ", \"sellerSkuId\":\"" + detailBrg.BRG + "\", \"skuName\":\"" + namafull + "\", \"stock\":"+qty_stock+", \"upc\":\"upc\" }]}";
 
 
             var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
@@ -485,6 +512,8 @@ namespace MasterOnline.Controllers
                                     {
                                         var tes = retSubData.skuIdList.Replace('\"', '"');
                                         var retSubSKUData = JsonConvert.DeserializeObject(tes, typeof(JDID_SubSKUListDetailResultCreateProduct)) as JDID_SubSKUListDetailResultCreateProduct;
+
+                                        //JD_addSKUMainPicture(dbPathEra, kodeProduk, log_CUST, "UPLOAD IMAGE", data, detailBrg.BRG, brgInDb.LINK_GAMBAR_1, brgInDb.LINK_GAMBAR_1, null)
 
                                         //foreach (var itemSKU in tes)
                                         //{
@@ -2709,6 +2738,19 @@ namespace MasterOnline.Controllers
         }
 
         #region jdid data class
+
+        public class JDIDAPIData
+        {
+            public string appKey { get; set; }
+            public string appSecret { get; set; }
+            public string accessToken { get; set; }
+            public string no_cust { get; set; }
+            public string account_store { get; set; }
+            public string ID_MARKET { get; set; }
+            public string username { get; set; }
+            public string email { get; set; }
+            public string DatabasePathErasoft { get; set; }
+        }
 
         public class Model_PromoJob
         {
