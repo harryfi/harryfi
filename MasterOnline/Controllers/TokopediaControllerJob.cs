@@ -110,7 +110,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        [AutomaticRetry(Attempts = 2)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Tokopedia Gagal.")]
         public async Task<string> CreateProductGetStatus(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg, int upload_id, string log_request_id)
@@ -151,6 +151,7 @@ namespace MasterOnline.Controllers
             }
             catch (WebException e)
             {
+                var failed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
 
                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
@@ -161,12 +162,16 @@ namespace MasterOnline.Controllers
                     {
                         err = sr.ReadToEnd();
                     }
-                    throw new Exception(err);
+                    currentLog.REQUEST_EXCEPTION = err;
+                    //throw new Exception(err);
                 }
                 else
                 {
-                    throw e;
+                    currentLog.REQUEST_EXCEPTION = e.InnerException == null ? e.Message : e.InnerException.Message;
+                    //throw e;
                 }
+                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                throw new Exception(currentLog.REQUEST_EXCEPTION);
             }
             //if (err != "")
             //{
@@ -282,7 +287,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        [AutomaticRetry(Attempts = 2)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Edit Product {obj} ke Tokopedia Gagal.")]
         public async Task<string> EditProductGetStatus(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg, int upload_id, string log_request_id, string product_id)
@@ -323,6 +328,7 @@ namespace MasterOnline.Controllers
             catch (WebException e)
             {
                 string err = "";
+                var failed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 if (e.Status == WebExceptionStatus.ProtocolError)
@@ -331,14 +337,18 @@ namespace MasterOnline.Controllers
                     using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
                     {
                         err = sr.ReadToEnd();
-                        throw new Exception(err);//add by Tri 23 apr 2020
+                        //throw new Exception(err);//add by Tri 23 apr 2020
+                        currentLog.REQUEST_EXCEPTION = err;
                     }
                 }
                 else
                 {
-                    throw e;
+                    //throw e;
+                    currentLog.REQUEST_EXCEPTION = e.InnerException == null ? e.Message : e.InnerException.Message;
                 }
                 //throw new Exception(e.Message);//add by Tri 23 apr 2020
+                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                throw new Exception(currentLog.REQUEST_EXCEPTION);
             }
 
             if (responseFromServer != "")
