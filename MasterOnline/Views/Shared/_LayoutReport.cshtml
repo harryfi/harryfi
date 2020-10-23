@@ -675,7 +675,15 @@
                                     {
                                         <li class="parent-li" id="@parent.ScrId">
                                             <a id="a_@parent.ScrId" @(!parent.HaveChild ? "href=" + parent.Url : "")>
-                                                <i class="fa @parent.Icon"></i> @parent.NamaForm
+                                                @*<i class="fa @parent.Icon"></i> @parent.NamaForm*@
+                                                @if (!string.IsNullOrEmpty(parent.Icon))
+                                                {
+                                                    <i class="fa @parent.Icon"></i> @parent.NamaForm
+                                                }
+                                                else
+                                                {
+                                                    <i class=""></i> @parent.NamaForm
+                                                }
                                                 @if (parent.HaveChild)
                                                 {
                                                     <span class="fa fa-chevron-down"></span>
@@ -782,7 +790,11 @@
 
                                             <li id="@parent.ScrId">
                                                 <a id="a_@parent.ScrId" @(!parent.HaveChild ? "href=" + parent.Url : "")>
-                                                    <i class="fa @parent.Icon"></i> @parent.NamaForm
+                                                    @*<i class="fa @parent.Icon"></i> @parent.NamaForm*@
+                                                    @if (!string.IsNullOrEmpty(parent.Icon))
+                                                    {
+                                                        <i class="fa @parent.Icon"></i>
+                                                    }@parent.NamaForm
                                                     @if (parent.HaveChild)
                                                     {
                                                         <span class="fa fa-chevron-down"></span>
