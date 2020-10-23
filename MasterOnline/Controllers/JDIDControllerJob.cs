@@ -483,10 +483,16 @@ namespace MasterOnline.Controllers
             //    "\"skuList\":[ {\"costPrice\":1000, \"imgFlag\":\"https://indomedia.com.au/wp-content/uploads/2019/02/vvip-warpan.jpg\", \"jdPrice\":1000, \"sellerSkuId\":\"sellerSkuId 0\", " +
             //    "\"skuName\":\"sku name for api 0\", \"stock\":10, \"upc\":\"upc\" }]}";
 
+            var urlHref = detailBrg.AVALUE_44;
+            if (!urlHref.Contains("http://"))
+            {
+                urlHref = "http://" + urlHref;
+            }
+
             string sParamJson = "{\"spuInfo\":{\"spuName\":\""+ namafull + "\", \"appDescription\":\""+ vDescription + "\", \"description\":\""+ vDescription +"\", \"packageInfo\":\"PAKET INFO\", " +
-                "\"brandId\":"+ detailBrg.AVALUE_38 + ", \"catId\":" + detailBrg.CATEGORY_CODE + ", \"commomAttributeIds\":\"9446:2261344;9459:2261490,2261378;9455:2261632\", \"isSequenceNumber\":1, \"keywords\":\""+ detailBrg.AVALUE_46 + "\", \"productArea\":\"Jakarta\", " +
+                "\"brandId\":"+ detailBrg.AVALUE_38 + ", \"catId\":" + detailBrg.CATEGORY_CODE + ", \"commomAttributeIds\":\""+ commonAttribute + "\", \"isSequenceNumber\":1, \"keywords\":\""+ detailBrg.AVALUE_46 + "\", \"productArea\":\"Jakarta\", " +
                 "\"crossProductType\":\"1\", \"clearanceType\":\"2\" , \"taxesType\":\"2\", \"countryId\":\"10000000\", " +
-                "\"subtitle\":\"sub\", \"subtitleHref\":\"" + detailBrg.AVALUE_44 + "\", \"subtitleHrefM\":\"" + detailBrg.AVALUE_44 + "\", \"transportId\":42, \"isQuality\":"+ detailBrg.AVALUE_47 + ", \"qualityDays\":1"+ detailBrg.AVALUE_48 + ", \"warrantyPeriod\":"+detailBrg.AVALUE_41 +", \"afterSale\":" + detailBrg.AVALUE_40 + ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
+                "\"subtitle\":\"sub\", \"subtitleHref\":\"" + urlHref + "\", \"subtitleHrefM\":\"" + urlHref + "\", \"transportId\":42, \"isQuality\":"+ detailBrg.AVALUE_47 + ", \"qualityDays\":1"+ detailBrg.AVALUE_48 + ", \"warrantyPeriod\":"+detailBrg.ACODE_41 + ", \"afterSale\":" + detailBrg.ACODE_40 + ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
                 "\"weight\":\"" + brgInDb.BERAT + "\", \"netWeight\":\"" + brgInDb.BERAT + "\", \"packHeight\":\"" + brgInDb.TINGGI + "\", \"packLong\":\"" + brgInDb.PANJANG + "\", \"packWide\":\"" + brgInDb.LEBAR + "\", \"piece\":" + detailBrg.ACODE_39 + "}, \"skuList\":[ {\"costPrice\":" + detailBrg.HJUAL + ", " +
                 "\"jdPrice\":" + detailBrg.HJUAL + ", \"sellerSkuId\":\"" + detailBrg.BRG + "\", \"skuName\":\"" + namafull + "\", \"stock\":"+qty_stock+", \"upc\":\"upc\" }]}";
 
