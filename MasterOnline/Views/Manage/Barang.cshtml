@@ -1799,7 +1799,9 @@
 
                         var selectCategoryJDID = 'Category_JD_' + listMarket[i].RecNum;
                         var fieldCategoryCode = '#ListHargaJualPermarket_'+ i +'__CATEGORY_CODE';
-                        var fieldCategoryName = '#ListHargaJualPermarket_'+ i +'__CATEGORY_NAME';
+                        var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
+                        var fieldCatCode = '#ListHargaJualPermarket_' + i + '__ACODE_';
+                        var fieldCatName = '#ListHargaJualPermarket_' + i + '__ANAME_';
                         var nextselectID = "Category_JD_2_" + listMarket[i].RecNum;
                         var categoryJDSelanjutnya =  '#category_JD_selanjutnya_' + listMarket[i].RecNum;
                         var listMarketRecNum = listMarket[i].RecNum;
@@ -1821,15 +1823,15 @@
                         }
                         else {
                             //new
-                            FuncGetKategoriJDByCode(selectCategoryJDID, listMarket[i].RecNum, nextselectID,categoryJDSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum);
+                            FuncGetKategoriJDByCode(selectCategoryJDID, listMarket[i].RecNum, nextselectID,categoryJDSelanjutnya,fieldCategoryCode,fieldCategoryName,fieldCatCode,fieldCatName,listMarketRecNum);
                         }
                     }
                 }
             }
 
-            getTipeBarangJDID();
-            getAfterSaleJDID();
-            getWarrantyJDID();
+            //getTipeBarangJDID();
+            //getAfterSaleJDID();
+            //getWarrantyJDID();
         }
         
         //add by fauzi for Tipe Barang JDID
@@ -1848,31 +1850,29 @@
             var idMarketJD = "19";
             var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
             for (var i = 0; i < listMarket.length; i++) {
-                if (listMarket[i].NAMA == idMarketJD.toString()){
-
-                    var comboSelect = $('#JDID_tipe_barang_' + i).selectize({
+                if (listMarket[i].NAMA == idMarketJD.toString() && listMarket[i].TOKEN != null){
+                    var selectedValue = "";
+                    var comboSelect = $('#JDID_tipe_barang_' + listMarket[i].RecNum).selectize({
                         valueField: 'id',
                         searchField: 'text',
                         options: listReason,
                         onChange: function (value) {
-                            //$('#txtCancelReason').val(value);
-                            //if (value.includes("STOCK")) {
-                            //    $('#ckBrg').show();
-                            //} else {
-                            //    $('#ckBrg').hide();
-                            //}
-                            $('#ListHargaJualPermarket_' + i + '__ACODE_39').val(value);
-                            for (var z = 0; z < listReason.length; z++) {
-                                if (listReason[z].id == value) {
-                                    $('#ListHargaJualPermarket_' + i + '__AVALUE_39').val(listReason[z].text.toString());
+                            for (var x = 0; x < listMarket.length; x++) {
+                                if (listMarket[x].NAMA == idMarketJD.toString() && listMarket[x].TOKEN != null) {
+                                    for (var z = 0; z < listReason.length; z++) {
+                                        if (listReason[z].id == value) {
+                                            selectedValue = listReason[z].id.toString();
+                                            $('#ListHargaJualPermarket_' + x + '__ACODE_39').val(listReason[z].id.toString());
+                                            $('#ListHargaJualPermarket_' + x + '__AVALUE_39').val(listReason[z].text.toString());
+                                        }
+                                    }
                                 }
                             }
-
                         }
                     });
 
                     if (comboSelect[0] != undefined) {
-                        comboSelect[0].selectize.setValue($('#ListHargaJualPermarket_' + i + '__ACODE_39').val(), true);
+                        comboSelect[0].selectize.setValue(selectedValue, true);
                     }
                 }
             }
@@ -1893,11 +1893,11 @@
                 id: "2",
                 text: "Not Support 7 Days Refund And 15 Days Exchange"
             }; 
-            listReason[1] = {
+            listReason[2] = {
                 id: "3",
                 text: "Support 7 Days Refund And 15 Days Exchange"
             };
-            listReason[1] = {
+            listReason[3] = {
                 id: "4",
                 text: "Only Support 15 Days Exchange"
             };
@@ -1905,24 +1905,22 @@
             var idMarketJD = "19";
             var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
             for (var i = 0; i < listMarket.length; i++) {
-                if (listMarket[i].NAMA == idMarketJD.toString()) {
-
-                    var comboSelect = $('#JDID_after_sale_' + i).selectize({
+                if (listMarket[i].NAMA == idMarketJD.toString() && listMarket[i].TOKEN != null) {
+                    var selectedValue = "";
+                    var comboSelect = $('#JDID_after_sale_' + listMarket[i].RecNum).selectize({
                         valueField: 'id',
                         searchField: 'text',
                         options: listReason,
                         onChange: function (value) {
-                            //$('#txtCancelReason').val(value);
-                            //if (value.includes("STOCK")) {
-                            //    $('#ckBrg').show();
-                            //} else {
-                            //    $('#ckBrg').hide();
-                            //}
-
-                            $('#ListHargaJualPermarket_' + i + '__ACODE_40').val(value);
-                            for (var z = 0; z < listReason.length; z++) {
-                                if (listReason[z].id == value) {
-                                    $('#ListHargaJualPermarket_' + i + '__AVALUE_40').val(listReason[z].text.toString());
+                            for (var x = 0; x < listMarket.length; x++) {
+                                if (listMarket[x].NAMA == idMarketJD.toString() && listMarket[x].TOKEN != null) {
+                                    for (var z = 0; z < listReason.length; z++) {
+                                        if (listReason[z].id == value) {
+                                            selectedValue = listReason[z].id.toString();
+                                            $('#ListHargaJualPermarket_' + x + '__ACODE_40').val(listReason[z].id.toString());
+                                            $('#ListHargaJualPermarket_' + x + '__AVALUE_40').val(listReason[z].text.toString());
+                                        }
+                                    }
                                 }
                             }
 
@@ -1930,7 +1928,7 @@
                     });
 
                     if (comboSelect[0] != undefined) {
-                        comboSelect[0].selectize.setValue($('#ListHargaJualPermarket_' + i + '__ACODE_40').val(), true);
+                        comboSelect[0].selectize.setValue(selectedValue, true);
                     }
                 }
             }
@@ -2045,33 +2043,36 @@
             var idMarketJD = "19";
             var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
             for (var i = 0; i < listMarket.length; i++) {
-                if (listMarket[i].NAMA == idMarketJD.toString()) {
-                    var comboSelect = $('#JDID_warranty_' + i).selectize({
+                if (listMarket[i].NAMA == idMarketJD.toString() && listMarket[i].TOKEN != null) {
+                    var selectionWarranty = "#JDID_warranty_" + listMarket[i].RecNum;
+                    var selectedValue = "";
+                    var comboSelect = $(selectionWarranty).selectize({
                         valueField: 'id',
                         searchField: 'text',
                         options: listReason,
                         onChange: function (value) {
-                            $('#ListHargaJualPermarket_' + i + '__ACODE_41').val(value);
-                            for (var z = 0; z < listReason.length; z++) {
-                                if (listReason[z].id == value ) {
-                                    $('#ListHargaJualPermarket_' + i + '__AVALUE_41').val(listReason[z].text.toString());
+                            for (var x = 0; x < listMarket.length; x++) {
+                                if (listMarket[x].NAMA == idMarketJD.toString() && listMarket[x].TOKEN != null) {
+                                    for (var z = 0; z < listReason.length; z++) {
+                                        if (listReason[z].id == value) {
+                                            selectedValue = listReason[z].id.toString();
+                                            $('#ListHargaJualPermarket_' + x + '__ACODE_41').val(listReason[z].id.toString());
+                                            $('#ListHargaJualPermarket_' + x + '__AVALUE_41').val(listReason[z].text.toString());
+                                        }
+                                    }
                                 }
                             }
-                            //$('#txtCancelReason').val(value);
-                            //if (value.includes("STOCK")) {
-                            //    $('#ckBrg').show();
-                            //} else {
-                            //    $('#ckBrg').hide();
-                            //}
-
                         }
                     });
 
                     if (comboSelect[0] != undefined) {
-                        comboSelect[0].selectize.setValue($('#ListHargaJualPermarket_' + i + '__ACODE_41').val(), true);
+                        comboSelect[0].selectize.setValue(selectedValue, true);
                     }
                 }
             }            
+
+            $('#ListHargaJualPermarket_4__ACODE_41').val("ACODE 41");
+            $('#ListHargaJualPermarket_4__ACODE_40').val("ACODE 40");
         }
         
     // end add
@@ -2110,7 +2111,7 @@
                 }
             });
         }
-        function FuncGetKategoriJDByCode(selectCategoryJDID, listMarket_i_RecNum, nextselectID,categoryJDSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum){
+        function FuncGetKategoriJDByCode(selectCategoryJDID, listMarket_i_RecNum, nextselectID, categoryJDSelanjutnya, fieldCategoryCode, fieldCategoryName, fieldCatCode, fieldCatName, listMarketRecNum){
             var link = '@Url.Action("GetKategoriJDByCode", "Manage")';
             //link = link.replace("replaceCode", listMarket[i].Kode);
 
@@ -2141,7 +2142,7 @@
                         dataAttr: 'data-extra',
                         options: listKategori,
                         onChange: function (value) {
-                            KategoriJDOnChange(value, nextselectID, selectCategoryJDID, categoryJDSelanjutnya,2,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
+                            KategoriJDOnChange(value, nextselectID, selectCategoryJDID, categoryJDSelanjutnya, 2, fieldCategoryCode, fieldCategoryName, fieldCatCode, fieldCatName, listMarketRecNum,this);
                         }
                     });
                 },
@@ -2150,22 +2151,30 @@
                 }
             });
         }
-        function KategoriJDOnChange(value, nextselectID, selectCategoryJDID, categoryJDSelanjutnya, next, fieldCategoryCode, fieldCategoryName, listMarketRecNum, s) {
+        function KategoriJDOnChange(value, nextselectID, selectCategoryJDID, categoryJDSelanjutnya, next, fieldCategoryCode, fieldCategoryName, fieldCatCode, fieldCatName, listMarketRecNum, s) {
             s.disable();
             var values = value.split('|;|');
             $('#' + nextselectID).remove();
             if (values[1] == "0") {
                 var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="' + nextselectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                 $(categoryJDSelanjutnya).append(nextselect);
-                getKategoriSelanjutnyaJD(values[0], listMarketRecNum, nextselectID, next + 1, fieldCategoryCode, fieldCategoryName);
+
+                $(fieldCatCode + (next - 1)).val(values[0]).trigger("change");
+                $(fieldCatName + (next - 1)).val($('#' + selectCategoryJDID + " option:selected").text()).trigger("change");
+
+                getKategoriSelanjutnyaJD(values[0], listMarketRecNum, nextselectID, next + 1, fieldCategoryCode, fieldCategoryName, fieldCatCode, fieldCatName);
             }
             else if (values[1] == "1") {
                 $(fieldCategoryCode).val(values[0]);
                 $(fieldCategoryName).val($('#' + selectCategoryJDID + " option:selected").text());
+
+                $(fieldCatCode + (next - 1)).val(values[0]).trigger("change");
+                $(fieldCatName + (next - 1)).val($('#' + selectCategoryJDID + " option:selected").text()).trigger("change");
+
                 getAttributeJD(values[0], listMarketRecNum, fieldCategoryCode, null);
             }
         }
-        function getKategoriSelanjutnyaJD(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName){
+        function getKategoriSelanjutnyaJD(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName, fieldCatCode, fieldCatName){
             var link = '@Url.Action("GetKategoriJDByParentCode", "Manage", new { code = "replaceCode" })';
             link = link.replace("replaceCode", encodeURIComponent(categoryCode));
 
@@ -2194,7 +2203,7 @@
                         searchField: 'text',
                         options: listKategori,
                         onChange: function (value) {
-                            KategoriJDOnChange(value, nextselectID, selectCategoryJDID,categoryJDSelanjutnya,next,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
+                            KategoriJDOnChange(value, nextselectID, selectCategoryJDID,categoryJDSelanjutnya,next,fieldCategoryCode,fieldCategoryName, fieldCatCode, fieldCatName, listMarketRecNum,this);
                         }
                     });
                 },
