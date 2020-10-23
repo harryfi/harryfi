@@ -675,7 +675,15 @@
                                     {
                                         <li class="parent-li" id="@parent.ScrId">
                                             <a id="a_@parent.ScrId" @(!parent.HaveChild ? "href=" + parent.Url : "")>
-                                                <i class="fa @parent.Icon"></i> @parent.NamaForm
+                                                @*<i class="fa @parent.Icon"></i> @parent.NamaForm*@
+                                                @if (!string.IsNullOrEmpty(parent.Icon))
+                                                {
+                                                    <i class="fa @parent.Icon"></i> @parent.NamaForm
+                                                }
+                                                else
+                                                {
+                                                    <i class=""></i> @parent.NamaForm
+                                                }
                                                 @if (parent.HaveChild)
                                                 {
                                                     <span class="fa fa-chevron-down"></span>
@@ -716,7 +724,8 @@
                                                             {
                                                                 <li>
                                                                     <a @(!child.HaveChild ? "href=" + child.Url : "")>
-                                                                        @if (child.Icon != null)
+                                                                        @*@if (child.Icon != null)*@
+                                                                        @if (!string.IsNullOrEmpty(child.Icon))
                                                                         {
                                                                             <i class="fa @child.Icon"></i>
                                                                         }
@@ -732,7 +741,12 @@
                                                             {
                                                                 <li class="parent-li" id="@child.ScrId">
                                                                     <a id="a_@child.ScrId" @(!child.HaveChild ? "href=" + child.Url : "")>
-                                                                        <i class="fa @child.Icon"></i> @child.NamaForm
+                                                                        @*<i class="fa @child.Icon"></i> @child.NamaForm*@
+                                                                        @if (!string.IsNullOrEmpty(child.Icon))
+                                                                        {
+                                                                            <i class="fa @child.Icon"></i>
+                                                                        }
+                                                                        @child.NamaForm
                                                                         @if (child.HaveChild)
                                                                         {
                                                                             <span class="fa fa-chevron-down"></span>
@@ -782,7 +796,11 @@
 
                                             <li id="@parent.ScrId">
                                                 <a id="a_@parent.ScrId" @(!parent.HaveChild ? "href=" + parent.Url : "")>
-                                                    <i class="fa @parent.Icon"></i> @parent.NamaForm
+                                                    @*<i class="fa @parent.Icon"></i> @parent.NamaForm*@
+                                                    @if (!string.IsNullOrEmpty(parent.Icon))
+                                                    {
+                                                        <i class="fa @parent.Icon"></i>
+                                                    }@parent.NamaForm
                                                     @if (parent.HaveChild)
                                                     {
                                                         <span class="fa fa-chevron-down"></span>
@@ -799,7 +817,8 @@
                                                             {
                                                                 <li>
                                                                     <a @(!child.HaveChild ? "href=" + child.Url : "")>
-                                                                        @if (child.Icon != null)
+                                                                        @* @if (child.Icon != null)*@
+                                                                        @if (!string.IsNullOrEmpty(child.Icon))
                                                                         {
                                                                             <i class="fa @child.Icon"></i>
                                                                         }
@@ -815,7 +834,12 @@
                                                             {
                                                                 <li id="@child.ScrId">
                                                                     <a id="a_@child.ScrId" @(!child.HaveChild ? "href=" + child.Url : "")>
-                                                                        <i class="fa @child.Icon"></i> @child.NamaForm
+                                                                        @* <i class="fa @child.Icon"></i> @child.NamaForm*@
+                                                                        @if (!string.IsNullOrEmpty(child.Icon))
+                                                                        {
+                                                                            <i class="fa @child.Icon"></i>
+                                                                        }
+                                                                        @child.NamaForm
                                                                         @if (child.HaveChild)
                                                                         {
                                                                             <span class="fa fa-chevron-down"></span>
