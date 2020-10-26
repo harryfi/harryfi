@@ -10672,7 +10672,7 @@ namespace MasterOnline.Controllers
                                                 //JDIDAPI.JD_CreateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", iden);
                                                 JDIDAPI.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
 #else
-                                                //clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_CreateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", iden));
+                                                clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_CreateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", iden));
 #endif
 
                                                 //Task.Run(() => shoAPI.UpdateImage(iden, temp_brg, stf02h.BRG_MP).Wait());
@@ -10695,40 +10695,40 @@ namespace MasterOnline.Controllers
 
 
 #if (DEBUG || Debug_AWS)
-                                                    EightTwoCartControllerJob.E2CartAPIData iden = new EightTwoCartControllerJob.E2CartAPIData
+                                                    JDIDControllerJob.JDIDAPIData iden = new JDIDControllerJob.JDIDAPIData()
                                                     {
                                                         username = usernameLogin,
                                                         no_cust = tblCustomer.CUST,
                                                         account_store = tblCustomer.PERSO,
-                                                        API_key = tblCustomer.API_KEY,
-                                                        API_credential = tblCustomer.Sort1_Cust,
-                                                        API_url = tblCustomer.PERSO,
+                                                        accessToken = tblCustomer.TOKEN,
+                                                        appKey = tblCustomer.API_KEY,
+                                                        appSecret = tblCustomer.API_CLIENT_U,
+                                                        email = tblCustomer.EMAIL,
                                                         ID_MARKET = tblCustomer.RecNum.Value.ToString(),
                                                         DatabasePathErasoft = dbPathEra
                                                     };
-                                                    EightTwoCartControllerJob c82CartAPI = new EightTwoCartControllerJob();
+                                                    JDIDControllerJob JDIDAPI = new JDIDControllerJob();
 
-                                                    c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
+                                                    JDIDAPI.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
                                                     //Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
 #else
-                                                    EightTwoCartControllerJob.E2CartAPIData dataJob = new EightTwoCartControllerJob.E2CartAPIData
+                                                    JDIDControllerJob.JDIDAPIData dataJob = new JDIDControllerJob.JDIDAPIData()
                                                     {
                                                         username = usernameLogin,
                                                         no_cust = tblCustomer.CUST,
                                                         account_store = tblCustomer.PERSO,
-                                                        API_key = tblCustomer.API_KEY,
-                                                        API_credential = tblCustomer.Sort1_Cust,
-                                                        API_url = tblCustomer.PERSO,
+                                                        accessToken = tblCustomer.TOKEN,
+                                                        appKey = tblCustomer.API_KEY,
+                                                        appSecret = tblCustomer.API_CLIENT_U,
+                                                        email = tblCustomer.EMAIL,
                                                         ID_MARKET = tblCustomer.RecNum.Value.ToString(),
                                                         DatabasePathErasoft = dbPathEra
                                                     };
-
-                                                    //EightTwoCartControllerJob c82CartAPIJob = new EightTwoCartControllerJob();
-                                                    //Task.Run(() => c82CartAPIJob.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob)).Wait();
-
+                                                    JDIDControllerJob JDIDAPI = new JDIDControllerJob();
+                                                    
                                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                    clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
+                                                    clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
 #endif
                                                 }
                                             }
