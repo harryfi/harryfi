@@ -10596,7 +10596,7 @@ namespace MasterOnline.Controllers
                                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 
 #if (DEBUG || Debug_AWS)
-                                            JDIDControllerJob.JDIDAPIData iden = new JDIDControllerJob.JDIDAPIData()
+                                            JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob()
                                             {
                                                 username = usernameLogin,
                                                 no_cust = tblCustomer.CUST,
@@ -10611,9 +10611,9 @@ namespace MasterOnline.Controllers
                                             JDIDControllerJob JDIDAPI = new JDIDControllerJob();
 
                                             JDIDAPI.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
-                                            
+
 #else
-                                            JDIDControllerJob.JDIDAPIData iden = new JDIDControllerJob.JDIDAPIData()
+                                            JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob()
                                             {
                                                 username = usernameLogin,
                                                 no_cust = tblCustomer.CUST,
@@ -10650,7 +10650,7 @@ namespace MasterOnline.Controllers
                                         {
                                             if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                             {
-                                                JDIDControllerJob.JDIDAPIData iden = new JDIDControllerJob.JDIDAPIData()
+                                                JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob()
                                                 {
                                                     username = usernameLogin,
                                                     no_cust = tblCustomer.CUST,
@@ -10695,7 +10695,7 @@ namespace MasterOnline.Controllers
 
 
 #if (DEBUG || Debug_AWS)
-                                                    JDIDControllerJob.JDIDAPIData iden = new JDIDControllerJob.JDIDAPIData()
+                                                    JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob()
                                                     {
                                                         username = usernameLogin,
                                                         no_cust = tblCustomer.CUST,
@@ -10712,7 +10712,7 @@ namespace MasterOnline.Controllers
                                                     JDIDAPI.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
                                                     //Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
 #else
-                                                    JDIDControllerJob.JDIDAPIData dataJob = new JDIDControllerJob.JDIDAPIData()
+                                                    JDIDControllerJob.JDIDAPIDataJob dataJob = new JDIDControllerJob.JDIDAPIDataJob()
                                                     {
                                                         username = usernameLogin,
                                                         no_cust = tblCustomer.CUST,
