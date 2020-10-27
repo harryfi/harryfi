@@ -3038,6 +3038,13 @@ namespace MasterOnline.Controllers
                             CUST = CUST,
                             NAMA_CUST = NAMA_CUST
                         };
+                        //add 27 okt 2020, expired shipping date
+                        newOrder.ship_by_date = null ;
+                        if(order.ship_by_date > 0)
+                        {
+                            newOrder.ship_by_date = DateTimeOffset.FromUnixTimeSeconds(order.ship_by_date).UtcDateTime.AddHours(7);
+                        }
+                        //end add 27 okt 2020, expired shipping date
                         var ShippingFeeData = await GetShippingFee(iden, order.ordersn);
                         if (ShippingFeeData != null)
                         {
@@ -8415,6 +8422,7 @@ namespace MasterOnline.Controllers
             public string dropshipper { get; set; }
             public string buyer_username { get; set; }
             public string cancel_reason { get; set; }//add by Tri 9 Des 2019
+            public long ship_by_date { get; set; }//add by Tri 27 okt 2020
         }
 
         public class ShopeeGetOrderDetailsResultRecipient_Address
