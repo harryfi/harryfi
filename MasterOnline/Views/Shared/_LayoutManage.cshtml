@@ -474,9 +474,11 @@
                                             if (secMenu != null)
                                             {
                                                 var listChildOfSecMenu = listSec.Where(c => c.ParentId == secMenu.FormId);
-
+                                                
                                                 <li id="@parent.ScrId">
-                                                    <a id="a_@parent.ScrId" @(!parent.HaveChild ? "href=" + parent.Url : "")>
+                                                    @if (secMenu.FormId != 2065) //untuk tidak menampilkan dashboard double 2065 adalah kode SCRID dashboard
+                                                    {
+                                                        <a id="a_@parent.ScrId" @(!parent.HaveChild ? "href=" + parent.Url : "")>
                                                         @if (!string.IsNullOrEmpty(parent.Icon))
                                                         {
                                                             <i class="fa @parent.Icon"></i>
@@ -485,7 +487,8 @@
                                                         {
                                                             <span class="fa fa-chevron-down"></span>
                                                         }
-                                                    </a>
+                                                        </a>
+                                                    }
                                                     <ul class="nav child_menu">
                                                         @foreach (var child in listChild)
                                                         {
