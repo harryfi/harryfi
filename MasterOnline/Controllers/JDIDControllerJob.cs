@@ -554,97 +554,6 @@ namespace MasterOnline.Controllers
                                                 ErasoftDbContext.SaveChanges();
                                             }
 
-                                            if (brgInDb.TYPE == "4") // punya variasi
-                                            {
-                                                //handle variasi product
-                                                #region variasi product
-                                                var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
-                                                var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "JDID").ToList().OrderBy(p => p.RECNUM);
-
-                                                foreach (var itemData in var_stf02)
-                                                {
-                                                    #region varian LV1
-                                                    if (!string.IsNullOrEmpty(itemData.Sort8))
-                                                    {
-                                                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == itemData.Sort8).FirstOrDefault();
-                                                        listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ";";
-                                                        listattributeIDItems = variant_id_group.MP_VALUE_VAR + ";";
-                                                    }
-                                                    #endregion
-
-                                                    #region varian LV2
-                                                    if (!string.IsNullOrEmpty(itemData.Sort9))
-                                                    {
-                                                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == itemData.Sort9).FirstOrDefault();
-                                                        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ";";
-                                                        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ";";
-                                                    }
-                                                    #endregion
-
-                                                    #region varian LV3
-                                                    if (!string.IsNullOrEmpty(itemData.Sort10))
-                                                    {
-                                                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
-                                                        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ";";
-                                                        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ";";
-                                                    }
-                                                    #endregion
-
-                                                    listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
-                                                    listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
-                                                    
-                                                    DataAddSKUVariant dataSKUVariant = new DataAddSKUVariant()
-                                                    {
-                                                        skuName = itemData.NAMA + itemData.NAMA2 + itemData.NAMA3,
-                                                        sellerSkuId = itemData.BRG,
-                                                        saleAttributeIds = listattributeIDGroup,
-                                                        jdPrice = Convert.ToInt64(itemData.HJUAL),
-                                                        costPrice = Convert.ToInt64(itemData.HJUAL),
-                                                        stock = Convert.ToInt32(itemData.ISI),
-                                                        weight = itemData.BERAT.ToString(),
-                                                        netWeight = itemData.BERAT.ToString(),
-                                                        packHeight = itemData.TINGGI.ToString(),
-                                                        packLong = itemData.PANJANG.ToString(),
-                                                        packWide = itemData.LEBAR.ToString(),
-                                                        piece = Convert.ToInt32(detailBrg.ACODE_39)
-                                                    };
-
-                                                    var skuID = JD_addSKUVariant(data, dataSKUVariant, item.BRG_MP);
-                                                    if (lGambarUploaded.Count() > 0)
-                                                    {
-                                                        if (lGambarUploaded.Count() > 0)
-                                                        {
-                                                            for (int i = 0; i < lGambarUploaded.Count(); i++)
-                                                            {
-                                                                var urlImageJDID = "";
-                                                                switch (i)
-                                                                {
-                                                                    case 2:
-                                                                        urlImageJDID = brgInDb.LINK_GAMBAR_2;
-                                                                        break;
-                                                                    case 3:
-                                                                        urlImageJDID = brgInDb.LINK_GAMBAR_3;
-                                                                        break;
-                                                                    case 4:
-                                                                        urlImageJDID = brgInDb.LINK_GAMBAR_4;
-                                                                        break;
-                                                                    case 5:
-                                                                        urlImageJDID = brgInDb.LINK_GAMBAR_5;
-                                                                        break;
-                                                                }
-                                                                JD_addSKUDetailPicture(data, skuID.ToString(), urlImageJDID, i);
-                                                            }
-                                                        }
-                                                    }
-                                                }
-
-
-
-                                                #endregion
-                                                //end handle variasi product
-                                            }
-
-
                                             if (lGambarUploaded.Count() > 0)
                                             {
                                                 JD_addSKUMainPicture(data, retData.model.skuIdList[0].skuId.ToString(), brgInDb.LINK_GAMBAR_1);
@@ -672,6 +581,74 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
                                             }
+
+                                            if (brgInDb.TYPE == "4") // punya variasi
+                                            {
+                                                //handle variasi product
+                                                #region variasi product
+                                                var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
+                                                var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "JDID").ToList().OrderBy(p => p.RECNUM);
+
+                                                foreach (var itemData in var_stf02)
+                                                {
+                                                    #region varian LV1
+                                                    if (!string.IsNullOrEmpty(itemData.Sort8))
+                                                    {
+                                                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == itemData.Sort8).FirstOrDefault();
+                                                        listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
+                                                    }
+                                                    #endregion
+
+                                                    #region varian LV2
+                                                    if (!string.IsNullOrEmpty(itemData.Sort9))
+                                                    {
+                                                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == itemData.Sort9).FirstOrDefault();
+                                                        listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
+                                                    }
+                                                    #endregion
+
+                                                    #region varian LV3
+                                                    if (!string.IsNullOrEmpty(itemData.Sort10))
+                                                    {
+                                                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
+                                                        listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
+                                                    }
+                                                    #endregion
+
+                                                    listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
+                                                    //listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
+                                                    
+                                                    DataAddSKUVariant dataSKUVariant = new DataAddSKUVariant()
+                                                    {
+                                                        skuName = itemData.NAMA + itemData.NAMA2 + itemData.NAMA3,
+                                                        sellerSkuId = itemData.BRG,
+                                                        saleAttributeIds = listattributeIDGroup,
+                                                        jdPrice = Convert.ToInt64(itemData.HJUAL),
+                                                        costPrice = Convert.ToInt64(itemData.HJUAL),
+                                                        stock = Convert.ToInt32(itemData.ISI),
+                                                        weight = itemData.BERAT.ToString(),
+                                                        netWeight = itemData.BERAT.ToString(),
+                                                        packHeight = itemData.TINGGI.ToString(),
+                                                        packLong = itemData.PANJANG.ToString(),
+                                                        packWide = itemData.LEBAR.ToString(),
+                                                        piece = Convert.ToInt32(detailBrg.ACODE_39)
+                                                    };
+
+                                                    var skuID = JD_addSKUVariant(data, dataSKUVariant, item.BRG_MP, kodeProduk, marketplace.RecNum);
+                                                    if (lGambarUploaded.Count() > 0)
+                                                    {
+                                                        JD_addSKUMainPicture(data, skuID.ToString(), brgInDb.LINK_GAMBAR_1);
+                                                    }
+                                                }
+
+
+
+                                                #endregion
+                                                //end handle variasi product
+                                            }
+
+
+                                           
                                         }
 
                                         //foreach (var itemSKU in tes)
@@ -834,14 +811,14 @@ namespace MasterOnline.Controllers
             return "";
         }
 
-        public async Task<string> JD_addSKUVariant(JDIDAPIDataJob data, DataAddSKUVariant dataSKU, string sSPUID)
+        public async Task<string> JD_addSKUVariant(JDIDAPIDataJob data, DataAddSKUVariant dataSKU, string sSPUID, string kodeProduk, int? recnum)
         {
             try
             {
                 string result = "";
                 string[] spuID = sSPUID.Split(';');
 
-                string sMethod = "epi.ware.openapi.SkuApi.saveSkuDetailPic";
+                string sMethod = "epi.ware.openapi.SkuApi.addSkuInfo";
                 string sParamJson = "{\"spuId\":\""+ spuID[0] + "\", \"skuList\": " +
                 "[{\"skuName\":\""+ dataSKU.skuName + "\", \"saleAttributeIds\":\""+ dataSKU.saleAttributeIds + "\", \"jdPrice\":"+ dataSKU.jdPrice + ", " +
                 "\"costPrice\":"+ dataSKU.costPrice + ", \"stock\":"+ dataSKU.stock + ", \"weight\":\""+ dataSKU.weight + "\", \"netWeight\":\""+ dataSKU.netWeight + "\", " +
@@ -855,8 +832,16 @@ namespace MasterOnline.Controllers
                     {
                         if (ret.openapi_data != null)
                         {
-                            result = ret.openapi_data;
-                            //var result = JsonConvert.DeserializeObject(response, typeof(JDID_DetailResultAddSKUMainPicture)) as JDID_DetailResultAddSKUMainPicture;
+                            var res = JsonConvert.DeserializeObject(ret.openapi_data, typeof(JDID_ResultAddSKUVariant)) as JDID_ResultAddSKUVariant;
+                            var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk && b.IDMARKET == recnum).SingleOrDefault();
+                            if (item != null)
+                            {
+                                item.BRG_MP = Convert.ToString(sSPUID) + ";" + res.model[0].skuId.ToString();
+                                item.LINK_STATUS = "Buat Produk Berhasil";
+                                item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                item.LINK_ERROR = "0;Buat Produk;;";
+                                ErasoftDbContext.SaveChanges();
+                            }
                             //if (result.success == true)
                             //{
 
@@ -3727,6 +3712,19 @@ namespace MasterOnline.Controllers
             public string model { get; set; }
             public bool success { get; set; }
             public string message { get; set; }
+        }
+
+        public class JDID_ResultAddSKUVariant
+        {
+            public int code { get; set; }
+            public JDID_ResultAddSKUVariantListModel[] model { get; set; }
+            public bool success { get; set; }
+            public string message { get; set; }
+        }
+
+        public class JDID_ResultAddSKUVariantListModel
+        {
+            public int skuId { get; set; }
         }
 
         public class JDID_DetailResultCreateProduct

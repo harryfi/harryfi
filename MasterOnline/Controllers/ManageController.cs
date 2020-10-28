@@ -6249,7 +6249,42 @@ namespace MasterOnline.Controllers
             };
             return result;
         }
-        
+
+        [HttpGet]
+        public ActionResult GetAttributeOptJdidVar(string code)
+        {
+            string[] codelist = code.Split(';');
+            var retData = new List<ATTRIBUTE_OPT_JDID>();
+            int custId = Convert.ToInt32(codelist[2]);
+            var customer = ErasoftDbContext.ARF01.Where(m => m.RecNum == custId).FirstOrDefault();
+            if (customer != null)
+            {
+                if (!string.IsNullOrEmpty(customer.TOKEN))
+                {
+                    var data = new JDIDAPIData
+                    {
+                        accessToken = customer.TOKEN,
+                        appKey = customer.API_KEY,
+                        appSecret = customer.API_CLIENT_U
+                    };
+                    var jdApi = new JDIDController();
+                    var a = jdApi.getAttributeOpt(data, codelist[1], codelist[0], 1);
+                    retData = a.OrderBy(m => m.OPTION_VALUE).ToList();
+                }
+
+            }
+
+            //return Json(retData, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(retData),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+
         [HttpGet]
         public ActionResult GetAttributeJD(string code, int cust)
         {
@@ -13004,6 +13039,7 @@ namespace MasterOnline.Controllers
             saveBarangTokpedVariant(2, brg, false);
             createBarangLazadaVariant(brg);
             saveBarang82CartVariant(2, brg, false);
+            saveBarangJDID(2, brg, false);
             //}
 
             //change by calvin 26 april 2019
