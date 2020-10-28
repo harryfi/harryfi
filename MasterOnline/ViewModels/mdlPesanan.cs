@@ -254,6 +254,7 @@ namespace MasterOnline
 
         //[JsonIgnore]
         //public virtual SOT01D SOT01D { get; set; }
+        public DateTime? ORDER_EXPIRED_DATE { get; set; }
 
     }
 

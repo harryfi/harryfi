@@ -21311,7 +21311,8 @@ namespace MasterOnline.Controllers
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
             //ADD BY NURUL 7/8/2020
             //sSQLSelect += ", ISNULL(CONVERT(VARCHAR,KET),'') AS catatanPembeli ";
-            sSQLSelect += ", ISNULL(A.KET,'') AS catatanPembeli ";
+            //sSQLSelect += ", ISNULL(A.KET,'') AS catatanPembeli ";
+            sSQLSelect += ", ISNULL(A.KET,'') AS catatanPembeli, ORDER_EXPIRED_DATE ";
             //END ADD BY NURUL 7/8/2020
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
@@ -21368,6 +21369,18 @@ namespace MasterOnline.Controllers
             if (filter == "tanggal" && filtervalue == "asc")
             {
                 sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_BUKTI ASC ";
+            }
+            else if (filter == "exp_tgl")
+            {
+                if(filtervalue == "asc")
+                {
+                    sSQLSelect2 += "ORDER BY ORDER_EXPIRED_DATE, A.TGL DESC, A.NO_BUKTI DESC ";
+                }
+                else
+                {
+                    //sSQLSelect2 += "ORDER BY case when ORDER_EXPIRED_DATE is null then 1 else 0 end, ORDER_EXPIRED_DATE, A.TGL DESC, A.NO_BUKTI DESC ";
+                    sSQLSelect2 += "ORDER BY ORDER_EXPIRED_DATE DESC, A.TGL DESC, A.NO_BUKTI DESC ";
+                }
             }
             else
             {
@@ -21673,7 +21686,8 @@ namespace MasterOnline.Controllers
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
             //ADD BY NURUL 7/8/2020
             //sSQLSelect += ", ISNULL(CONVERT(VARCHAR,KET),'') AS catatanPembeli ";
-            sSQLSelect += ", ISNULL(A.KET,'') AS catatanPembeli ";
+            //sSQLSelect += ", ISNULL(A.KET,'') AS catatanPembeli ";
+            sSQLSelect += ", ISNULL(A.KET,'') AS catatanPembeli, ORDER_EXPIRED_DATE ";
             //END ADD BY NURUL 7/8/2020
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
@@ -21730,6 +21744,18 @@ namespace MasterOnline.Controllers
             if (filter == "tanggal" && filtervalue == "asc")
             {
                 sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_BUKTI ASC ";
+            }
+            else if (filter == "exp_tgl")
+            {
+                if (filtervalue == "asc")
+                {
+                    sSQLSelect2 += "ORDER BY ORDER_EXPIRED_DATE, A.TGL DESC, A.NO_BUKTI DESC ";
+                }
+                else
+                {
+                    //sSQLSelect2 += "ORDER BY case when ORDER_EXPIRED_DATE is null then 1 else 0 end, ORDER_EXPIRED_DATE, A.TGL DESC, A.NO_BUKTI DESC ";
+                    sSQLSelect2 += "ORDER BY ORDER_EXPIRED_DATE DESC, A.TGL DESC, A.NO_BUKTI DESC ";
+                }
             }
             else
             {
@@ -21832,7 +21858,8 @@ namespace MasterOnline.Controllers
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, ISNULL(D.NO_BUKTI,'') AS NO_FAKTUR, A.TRACKING_SHIPMENT as RESI, ISNULL(D.NO_SO,'') as FAKTUR, ISNULL(D.TGL,'') as TGL_FAKTUR, A.CUST as CUST, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
             //ADD BY CALVIN 29 NOV 2019
-            sSQLSelect += ", A.status_kirim, A.status_print, ISNULL(E.NO_BUKTI,'') AS PACKINGNO ";
+            //sSQLSelect += ", A.status_kirim, A.status_print, ISNULL(E.NO_BUKTI,'') AS PACKINGNO ";
+            sSQLSelect += ", A.status_kirim, A.status_print, ISNULL(E.NO_BUKTI,'') AS PACKINGNO, ORDER_EXPIRED_DATE ";
             //END ADD BY CALVIN 29 NOV 2019
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
@@ -21896,6 +21923,18 @@ namespace MasterOnline.Controllers
             if (filter == "tanggal" && filtervalue == "asc")
             {
                 sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_BUKTI ASC ";
+            }
+            else if (filter == "exp_tgl")
+            {
+                if (filtervalue == "asc")
+                {
+                    sSQLSelect2 += "ORDER BY ORDER_EXPIRED_DATE, A.TGL DESC, A.NO_BUKTI DESC ";
+                }
+                else
+                {
+                    //sSQLSelect2 += "ORDER BY case when ORDER_EXPIRED_DATE is null then 1 else 0 end, ORDER_EXPIRED_DATE, A.TGL DESC, A.NO_BUKTI DESC ";
+                    sSQLSelect2 += "ORDER BY ORDER_EXPIRED_DATE DESC, A.TGL DESC, A.NO_BUKTI DESC ";
+                }
             }
             else
             {

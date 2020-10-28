@@ -1887,6 +1887,7 @@
                             <select class="form-control" id="filter_pesanan_dibayar_field" required="required">
                                 <option value="tanggal">Tgl. Pesanan</option>
                                 <option value="marketplace">Marketplace</option>
+                                <option value="exp_tgl">Tgl. Expired Pesanan</option>
                             </select>
                         </div>
                         <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
@@ -1995,6 +1996,7 @@
                             <select class="form-control" id="filter_pesanan_packing_field" required="required">
                                 <option value="tanggal">Tgl. Pesanan</option>
                                 <option value="marketplace">Marketplace</option>
+                                <option value="exp_tgl">Tgl. Expired Pesanan</option>
                             </select>
                         </div>
                         <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
@@ -2085,6 +2087,7 @@
                             <select class="form-control" id="filter_pesanan_faktur_field" required="required">
                                 <option value="tanggal">Tgl. Pesanan</option>
                                 <option value="marketplace">Marketplace</option>
+                                <option value="exp_tgl">Tgl. Expired Pesanan</option>
                                 <option value="statuskirim">Status Kirim</option>
                                 <option value="statusprint">Status Print</option>
                             </select>
@@ -4810,6 +4813,11 @@
                         $('#filter_pesanan_dibayar_field_marketplace_div').hide();
                         searchTablePesananSudahDibayar();
                         break;
+                    case "exp_tgl":
+                        $('#filter_pesanan_dibayar_field_tanggal_div').show();
+                        $('#filter_pesanan_dibayar_field_marketplace_div').hide();
+                        searchTablePesananSudahDibayar();
+                        break;
                     case "marketplace":
                         $('#filter_pesanan_dibayar_field_tanggal_div').hide();
                         $('#filter_pesanan_dibayar_field_marketplace_div').show();
@@ -4835,6 +4843,11 @@
                 var filterBy = $(this).val();
                 switch (filterBy) {
                     case "tanggal":
+                        $('#filter_pesanan_packing_field_tanggal_div').show();
+                        $('#filter_pesanan_packing_field_marketplace_div').hide();
+                        searchTablePesananPacking();
+                        break;
+                    case "exp_tgl":
                         $('#filter_pesanan_packing_field_tanggal_div').show();
                         $('#filter_pesanan_packing_field_marketplace_div').hide();
                         searchTablePesananPacking();
@@ -4865,6 +4878,12 @@
                 var filterBy = $(this).val();
                 switch (filterBy) {
                     case "tanggal":
+                        $('#filter_pesanan_faktur_field_tanggal_div').show();
+                        $('#filter_pesanan_faktur_field_marketplace_div').hide();
+                        $('#filter_pesanan_faktur_field_statuskirim_div').hide();
+                        $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        break;
+                    case "exp_tgl":
                         $('#filter_pesanan_faktur_field_tanggal_div').show();
                         $('#filter_pesanan_faktur_field_marketplace_div').hide();
                         $('#filter_pesanan_faktur_field_statuskirim_div').hide();
@@ -8232,6 +8251,9 @@
                 case "tanggal":
                     filtervalue = $('#filter_pesanan_dibayar_field_tanggal').val();
                     break;
+                case "exp_tgl":
+                    filtervalue = $('#filter_pesanan_dibayar_field_tanggal').val();
+                    break;
                 case "marketplace":
                     filtervalue = $('#filter_pesanan_dibayar_field_marketplace').val();
                     break;
@@ -8447,6 +8469,9 @@
                 case "tanggal":
                     filtervalue = $('#filter_pesanan_packing_field_tanggal').val();
                     break;
+                case "exp_tgl":
+                    filtervalue = $('#filter_pesanan_packing_field_tanggal').val();
+                    break;
                 case "marketplace":
                     filtervalue = $('#filter_pesanan_packing_field_marketplace').val();
                     break;
@@ -8649,6 +8674,9 @@
             var filtervalue = "";
             switch (filterby) {
                 case "tanggal":
+                    filtervalue = $('#filter_pesanan_faktur_field_tanggal').val();
+                    break;
+                case "exp_tgl":
                     filtervalue = $('#filter_pesanan_faktur_field_tanggal').val();
                     break;
                 case "marketplace":

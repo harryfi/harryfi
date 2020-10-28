@@ -402,6 +402,7 @@ namespace MasterOnline.Models
         public string extra_attributes { get; set; }
         public string order_id { get; set; }
         public string status { get; set; }
+        public string sla_time_stamp { get; set; }
     }
 
 

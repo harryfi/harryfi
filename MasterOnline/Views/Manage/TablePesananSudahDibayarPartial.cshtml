@@ -66,6 +66,7 @@
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Pesanan</th>
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 100px;">No. Referensi</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Pesanan</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Expired Pesanan</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Marketplace</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 90px;">Pembeli</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 100px;">Kurir</th>
@@ -119,90 +120,96 @@
                     keterangan = "-";
                 }
                 keterangan = keterangan.Length > 30 ? keterangan.Substring(0, 30) + "..." : keterangan.ToString();
-                <tr>
-                    <td>@pesanan.NOSO</td>
-                    <td>@pesanan.REFERENSI</td>
-                    <td>@(pesanan.TGL?.ToString("dd/MM/yyyy HH:mm"))</td>
-                    @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
-                    <td>
-                        @if (pesanan?.PERSO != "")
-                        {
-                            @(pesanan.MARKET + " (" + pesanan.PERSO + ")")
-                        }
-                        else
-                        {
-                            @pesanan.MARKET
-                        }
-                    </td>
-                    <td>
-                        @*@(buyer.NAMA + " (" + buyer.PERSO + ")")*@
-                        @*remark by nurul 24/9/2018 @(buyerNama + " (" + buyerPerso + ")")*@
-                        @*@(buyerNama + " (" + pelanggan.PERSO + ")")*@
-                        @*@(buyer == null ? "" : buyer.NAMA)*@
-                        @pesanan.PEMBELI
-                    </td>
-                    <td>@pesanan.SHIPMENT</td>
-                    <td>
-                        @if (keterangan != "-")
-                        {
-                            <div data-tip="@pesanan.catatanPembeli">
-                                @keterangan
-                                @*<a class="user-link" href="#" data-toggle="modal" data-target="#modalCatatanPembeli" onclick="LihatCatatanPembeli('@forDetailStok')">@barang.QOH</a>*@
-                            </div>
-                        }
-                        else
-                        {
+            <tr>
+                <td>@pesanan.NOSO</td>
+                <td>@pesanan.REFERENSI</td>
+                <td>@(pesanan.TGL?.ToString("dd/MM/yyyy HH:mm"))</td>               
+                <td>
+                    @if (pesanan.ORDER_EXPIRED_DATE != null)
+                    {
+                        @(pesanan.ORDER_EXPIRED_DATE?.ToString("dd/MM/yyyy HH:mm"))
+                    }
+                </td>              
+                @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
+                <td>
+                    @if (pesanan?.PERSO != "")
+                    {
+                        @(pesanan.MARKET + " (" + pesanan.PERSO + ")")
+                    }
+                    else
+                    {
+                        @pesanan.MARKET
+                    }
+                </td>
+                <td>
+                    @*@(buyer.NAMA + " (" + buyer.PERSO + ")")*@
+                    @*remark by nurul 24/9/2018 @(buyerNama + " (" + buyerPerso + ")")*@
+                    @*@(buyerNama + " (" + pelanggan.PERSO + ")")*@
+                    @*@(buyer == null ? "" : buyer.NAMA)*@
+                    @pesanan.PEMBELI
+                </td>
+                <td>@pesanan.SHIPMENT</td>
+                <td>
+                    @if (keterangan != "-")
+                    {
+                        <div data-tip="@pesanan.catatanPembeli">
                             @keterangan
-                        }
-                    </td>
-                    <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
-                    <td class="edit-hapus-col" style="border-right:hidden; width: 50px; max-width: 50px;">
-                        @if (pesanan.MARKET != "")
-                        {
-                            <button class="btn btn-success ubah-dibayar" data-toggle="modal" id="ubah1_dibayar" data-target="#konfUbahStatusDibayar" onclick="passRecStatus(@pesanan.RECNUM, '02', '@pesanan.NOSO')">
-                                @*<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
-                                @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
-                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                            </button>
-                        }
-                        else
-                        {
-                            <button style="background-color:darkgray; cursor:not-allowed">
-                                <span class="glyphicon glyphicon-edit" aria-hidden="false"></span>
-                            </button>
-                        }
-                    </td>
-                    <td style="width: 40px; max-width: 40px; align-self:flex-start; border-left:hidden">
-                        @if (pesanan.MARKET != "")
-                        {
-                            <input type="checkbox" class="dt-checkboxes center checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
-                            @*<input type="checkbox" class="checkbox_gntstatus_sudahdibayar" name="checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />*@
-                        }
-                        else
-                        {
-                            <input type="checkbox" class="dt-checkboxes center" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" disabled="disabled" />
-                        }
-                    </td>
-                    <td class="edit-hapus-col">
-                        <button class="btn btn-primary" onclick="lihatPesananSudahDibayar(@(pesanan.RECNUM))">
-                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                            @*<a class="user-link" href="#" data-toggle="modal" data-target="#modalCatatanPembeli" onclick="LihatCatatanPembeli('@forDetailStok')">@barang.QOH</a>*@
+                        </div>
+                    }
+                    else
+                    {
+                        @keterangan
+                    }
+                </td>
+                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
+                <td class="edit-hapus-col" style="border-right:hidden; width: 50px; max-width: 50px;">
+                    @if (pesanan.MARKET != "")
+                    {
+                        <button class="btn btn-success ubah-dibayar" data-toggle="modal" id="ubah1_dibayar" data-target="#konfUbahStatusDibayar" onclick="passRecStatus(@pesanan.RECNUM, '02', '@pesanan.NOSO')">
+                            @*<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
+                            @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
+                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                         </button>
-                    </td>
-                    <td class="edit-hapus-col">
-                        @if (pesanan.MARKET != "")
-                        {
-                            <button class="btn btn-warning" data-toggle="modal" data-target="#konfBatalPesanan" onclick="passRecStatus(@pesanan.RECNUM, '11', '@pesanan.NOSO')">
-                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                            </button>
-                        }
-                        else
-                        {
-                            <button style="background-color:darkgray; cursor:not-allowed">
-                                <span class="glyphicon glyphicon-remove" aria-hidden="false"></span>
-                            </button>
-                        }
-                    </td>
-                </tr>
+                    }
+                    else
+                    {
+                        <button style="background-color:darkgray; cursor:not-allowed">
+                            <span class="glyphicon glyphicon-edit" aria-hidden="false"></span>
+                        </button>
+                    }
+                </td>
+                <td style="width: 40px; max-width: 40px; align-self:flex-start; border-left:hidden">
+                    @if (pesanan.MARKET != "")
+                    {
+                        <input type="checkbox" class="dt-checkboxes center checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
+                        @*<input type="checkbox" class="checkbox_gntstatus_sudahdibayar" name="checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />*@
+                    }
+                    else
+                    {
+                        <input type="checkbox" class="dt-checkboxes center" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" disabled="disabled" />
+                    }
+                </td>
+                <td class="edit-hapus-col">
+                    <button class="btn btn-primary" onclick="lihatPesananSudahDibayar(@(pesanan.RECNUM))">
+                        <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                    </button>
+                </td>
+                <td class="edit-hapus-col">
+                    @if (pesanan.MARKET != "")
+                    {
+                        <button class="btn btn-warning" data-toggle="modal" data-target="#konfBatalPesanan" onclick="passRecStatus(@pesanan.RECNUM, '11', '@pesanan.NOSO')">
+                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button style="background-color:darkgray; cursor:not-allowed">
+                            <span class="glyphicon glyphicon-remove" aria-hidden="false"></span>
+                        </button>
+                    }
+                </td>
+            </tr>
             }
         </tbody>
     </table>

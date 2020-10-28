@@ -2101,6 +2101,7 @@ namespace MasterOnline.Controllers
                                     {
                                         list_pesanan_update_pembeli.Add(Convert.ToString(dsPesananUnpaid.Tables[0].Rows[i]["NO_REFERENSI"]));
                                     }
+                                    getMultiOrderItemsForExpiredDate(list_pesanan_update_pembeli, accessToken, cust);
                                     var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + no_referensi_update_status + ") AND STATUS_TRANSAKSI = '0'");
                                 }
                             }
@@ -3767,7 +3768,11 @@ namespace MasterOnline.Controllers
                                 if (order.order_items.Count() > 0)
                                 {
                                     //var connectionID = Guid.NewGuid().ToString();
-
+                                    if (!string.IsNullOrEmpty(order.order_items[0].sla_time_stamp))
+                                    {
+                                        var tgl_expired = Convert.ToDateTime(order.order_items[0].sla_time_stamp).ToString("yyyy-MM-dd HH:mm:ss");
+                                        EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_LAZADA_GETORDERS SET sla_time_stamp = '"+tgl_expired+ "' WHERE ORDERID = '" + order.order_items[0].order_id + "' AND CUST = '" + cust + "' AND CONNECTION_ID = '" + connectionID + "'");
+                                    }
                                     foreach (Order_Items items in order.order_items)
                                     {
                                         //var isDigital = (items.IsDigital == 1) ? 1 : 0;
@@ -3947,6 +3952,101 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public BindingBase getMultiOrderItemsForExpiredDate(List<string> orderIds, string accessToken, string dbPathEra, string cust)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+
+            var MoDbContext = new MoDbContext("");
+            var EDB = new DatabaseSQL(dbPathEra);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
+
+            List<string> listID = new List<string>();
+            string addOrderID = "[";
+            if (orderIds.Count > 100)
+            {
+                for (int i = 0; i < orderIds.Count; i++)
+                {
+                    addOrderID += orderIds[i];
+                    if ((i + 1) % 100 == 0)
+                    {
+                        addOrderID += "]";
+                        listID.Add(addOrderID);
+                        addOrderID = "[";
+                    }
+                    else
+                    {
+                        addOrderID += ",";
+                    }
+                }
+            }
+            else
+            {
+                foreach (var ids in orderIds)
+                {
+                    addOrderID += ids + ",";
+                }
+                //remark 10 Feb 2020
+                //addOrderID = addOrderID.Substring(0, addOrderID.Length - 1) + "]";
+                //listID.Add(addOrderID);
+                //end remark 10 Feb 2020
+            }
+            //add by Tri 10 Feb 2020, untuk data lebih dari 100 belum di add
+            addOrderID = addOrderID.Substring(0, addOrderID.Length - 1) + "]";
+            listID.Add(addOrderID);
+            //end add by Tri 10 Feb 2020, untuk data lebih dari 100 belum di add
+
+            string sSQL_Value = "";
+            foreach (var listOrderIds in listID)
+            {
+                ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+                LazopRequest request = new LazopRequest();
+                request.SetApiName("/orders/items/get");
+                request.SetHttpMethod("GET");
+                request.AddApiParameter("order_ids", listOrderIds);
+
+                LazopResponse response = client.Execute(request, accessToken);
+
+                var bindOrderItems = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaOrderItems)) as LazadaOrderItems;
+                if (bindOrderItems != null)
+                {
+                    if (bindOrderItems.code.Equals("0"))
+                    {
+                        if (bindOrderItems.data.Count > 0)
+                        {
+                            foreach (Datum order in bindOrderItems.data)
+                            {
+                                if (order.order_items.Count() > 0)
+                                {
+                                    if (!string.IsNullOrEmpty(order.order_items[0].sla_time_stamp))
+                                    {
+                                        var tgl_expired = Convert.ToDateTime(order.order_items[0].sla_time_stamp).ToString("yyyy-MM-dd HH:mm:ss");
+                                        EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET ORDER_EXPIRED_DATE = '" + tgl_expired + "' WHERE NO_REFERENSI = '" + order.order_items[0].order_id + "' AND CUST = '" + cust + "'");
+                                    }
+                                    
+                                }
+                            }
+                        }
+                        else
+                        {
+                            ret.message = "no item";
+                        }
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(bindOrderItems.message))
+                            ret.message += "\n" + bindOrderItems.message;
+                    }
+                }
+                else
+                {
+                    ret.message = "failed to call lazada api";
+                }
+            }
+
+            return ret;
+        }
 
         public BindingBase getMultiOrderItems2WithQueue(string dbPathEra, string uname, List<string> orderIds, string accessToken, string connectionID, string cust)
         {
