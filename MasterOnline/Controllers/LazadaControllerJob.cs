@@ -2101,7 +2101,7 @@ namespace MasterOnline.Controllers
                                     {
                                         list_pesanan_update_pembeli.Add(Convert.ToString(dsPesananUnpaid.Tables[0].Rows[i]["NO_REFERENSI"]));
                                     }
-                                    getMultiOrderItemsForExpiredDate(list_pesanan_update_pembeli, accessToken, cust);
+                                    getMultiOrderItemsForExpiredDate(list_pesanan_update_pembeli, accessToken, dbPathEra, cust);
                                     var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + no_referensi_update_status + ") AND STATUS_TRANSAKSI = '0'");
                                 }
                             }
