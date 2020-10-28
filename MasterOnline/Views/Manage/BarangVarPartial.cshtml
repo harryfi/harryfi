@@ -1683,6 +1683,7 @@
                     lazada_code: lazada_code,
                     e2cart_code: e2cart_code,
                     shopify_code: shopify_code,
+                    jdid_code: jdid_code,
                     code: $('#txtKodeKategori').val(),
                     opt_selected_1: $('#select_opt_level_1').val(),
                     opt_selected_2: $('#select_opt_level_2').val(),
@@ -2218,10 +2219,10 @@
                 validasi_autoloadStf02Variant = false;
             }
         });
-        message_validasi_autoloadStf02Variant = "Mohon isi semua Opsi Jdid.";
+        message_validasi_autoloadStf02Variant = "Mohon isi semua Opsi JDID.";
         if (validasi_autoloadStf02Variant) {
             if (!$('#save_map_var_jdid').prop('disabled')) {
-                message_validasi_autoloadStf02Variant = "Mohon simpan setting Opsi Jdid.";
+                message_validasi_autoloadStf02Variant = "Mohon simpan setting Opsi JDID.";
             }
         }
     }
@@ -2907,7 +2908,7 @@
                             {
                                 if (idMarket == 19)
                                 {
-                                    if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
+                                    if (!string.IsNullOrEmpty(listMarket[i].API_KEY))
                                     {
                                         //add by calvin 24 april 2019
                                         var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault()?.DISPLAY;
@@ -4916,7 +4917,7 @@
                             <div class="col-md-4 col-sm-4 col-xs-12">
                                 @Html.TextBox("txtNamaKategoriMOJdid", Model.Kategori.KET, new { @class = "form-control", disabled = "disabled" })
                             </div>
-                            @Html.Label("lblNamaKategoriJdid", "Kategori Jdid", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
+                            @Html.Label("lblNamaKategoriJdid", "Kategori JDID", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
                             <div class="col-md-4 col-sm-4 col-xs-12">
                                 @Html.TextBox("txtNamaKategoriJdid", "", new { @class = "form-control", disabled = "disabled" })
                             </div>
@@ -4945,7 +4946,7 @@
                                                             </tr>
                                                             <tr>
                                                                 <th width="50%" style="border-right:none">Master Online</th>
-                                                                <th width="50%" style="border-right:none">Jdid</th>
+                                                                <th width="50%" style="border-right:none">JDID</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -4974,7 +4975,7 @@
                                                             </tr>
                                                             <tr>
                                                                 <th width="50%" style="border-right:none">Master Online</th>
-                                                                <th width="50%" style="border-right:none">Jdid</th>
+                                                                <th width="50%" style="border-right:none">JDID</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -5034,7 +5035,7 @@
                                                             </tr>
                                                             <tr>
                                                                 <th width="50%" style="border-right:none">Master Online</th>
-                                                                <th width="50%" style="border-right:none">Jdid</th>
+                                                                <th width="50%" style="border-right:none">JDID</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -5063,7 +5064,7 @@
                                                             </tr>
                                                             <tr>
                                                                 <th width="50%" style="border-right:none">Master Online</th>
-                                                                <th width="50%" style="border-right:none">Jdid</th>
+                                                                <th width="50%" style="border-right:none">JDID</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -5123,7 +5124,7 @@
                                                             </tr>
                                                             <tr>
                                                                 <th width="50%" style="border-right:none">Master Online</th>
-                                                                <th width="50%" style="border-right:none">Jdid</th>
+                                                                <th width="50%" style="border-right:none">JDID</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -5152,7 +5153,7 @@
                                                             </tr>
                                                             <tr>
                                                                 <th width="50%" style="border-right:none">Master Online</th>
-                                                                <th width="50%" style="border-right:none">Jdid</th>
+                                                                <th width="50%" style="border-right:none">JDID</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>

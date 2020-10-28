@@ -2413,8 +2413,8 @@
                 var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="' + nextselectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                 $(categoryJDSelanjutnya).append(nextselect);
 
-                $(fieldCatCode + (next - 1)).val(values[0]).trigger("change");
-                $(fieldCatName + (next - 1)).val($('#' + selectCategoryJDID + " option:selected").text()).trigger("change");
+                //$(fieldCatCode + (next - 1)).val(values[0]).trigger("change");
+                //$(fieldCatName + (next - 1)).val($('#' + selectCategoryJDID + " option:selected").text()).trigger("change");
 
                 getKategoriSelanjutnyaJD(values[0], listMarketRecNum, nextselectID, next + 1, fieldCategoryCode, fieldCategoryName, fieldCatCode, fieldCatName);
             }
@@ -2422,8 +2422,8 @@
                 $(fieldCategoryCode).val(values[0]);
                 $(fieldCategoryName).val($('#' + selectCategoryJDID + " option:selected").text());
 
-                $(fieldCatCode + (next - 1)).val(values[0]).trigger("change");
-                $(fieldCatName + (next - 1)).val($('#' + selectCategoryJDID + " option:selected").text()).trigger("change");
+                //$(fieldCatCode + (next - 1)).val(values[0]).trigger("change");
+                //$(fieldCatName + (next - 1)).val($('#' + selectCategoryJDID + " option:selected").text()).trigger("change");
 
                 getAttributeJD(values[0], listMarketRecNum, fieldCategoryCode, null);
             }
@@ -4146,8 +4146,10 @@
                     var selectCategory82CartID = 'Category_82Cart_' + listMarket[i].RecNum;
                     var fieldCategoryCode = '#ListHargaJualPermarket_' + i +'__CATEGORY_CODE';
                     var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
-                    var fieldCatCode = '#ListHargaJualPermarket_' + i + '__ACODE_';
-                    var fieldCatName = '#ListHargaJualPermarket_' + i + '__ANAME_';
+                    //var fieldCatCode = '#ListHargaJualPermarket_' + i + '__ACODE_';
+                    //var fieldCatName = '#ListHargaJualPermarket_' + i + '__ANAME_';
+                    var fieldCatCode = '';
+                    var fieldCatName = '';
                     var nextselectID = "Category_82Cart_2_" + listMarket[i].RecNum;
                     var category82CartSelanjutnya =  '#category_82Cart_selanjutnya_' + listMarket[i].RecNum;
                     var listMarketRecNum = listMarket[i].RecNum;

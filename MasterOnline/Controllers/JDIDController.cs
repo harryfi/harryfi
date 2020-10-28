@@ -670,7 +670,7 @@ namespace MasterOnline.Controllers
 
                                 a = Convert.ToString(i + 1);
                                 retAttr["ACODE_" + a] = Convert.ToString(attr.propertyId);
-                                retAttr["ATYPE_" + a] = attr.type.ToString();
+                                retAttr["AVALUE_" + a] = attr.type.ToString();
                                 retAttr["ANAME_" + a] = attr.nameEn;
                                 i = i + 1;
                             }
@@ -678,7 +678,7 @@ namespace MasterOnline.Controllers
                             {
                                 a = Convert.ToString(j + 1);
                                 retAttr["ACODE_" + a] = "";
-                                retAttr["ATYPE_" + a] = "";
+                                retAttr["AVALUE_" + a] = "";
                                 retAttr["ANAME_" + a] = "";
                             }
                         }
