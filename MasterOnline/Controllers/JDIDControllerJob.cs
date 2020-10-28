@@ -510,15 +510,22 @@ namespace MasterOnline.Controllers
             string sMethod = "epi.ware.openapi.SpuApi.publishWare";
 
             var urlHref = detailBrg.AVALUE_44;
-            if (!urlHref.Contains("http://"))
+            var paramHref = "";
+            if(!string.IsNullOrEmpty(urlHref))
             {
-                urlHref = "http://" + urlHref;
+                if (!urlHref.Contains("http://"))
+                {
+                    urlHref = "http://" + urlHref;
+                    paramHref = "\"subtitleHref\":\"" + urlHref + "\", \"subtitleHrefM\":\"" + urlHref + "\",";
+                }
             }
+            
 
             string sParamJson = "{\"spuInfo\":{\"spuName\":\"" + namafull + "\", \"appDescription\":\"" + vDescription + "\", \"description\":\"" + vDescription + "\", \"packageInfo\":\"PAKET INFO\", " +
                 "\"brandId\":" + detailBrg.AVALUE_38 + ", \"catId\":" + detailBrg.CATEGORY_CODE + ", \"commonAttributeIds\":\"" + commonAttribute + "\", \"isSequenceNumber\":1, \"keywords\":\"" + detailBrg.AVALUE_46 + "\", \"productArea\":\"Jakarta\", " +
                 "\"crossProductType\":\"1\", \"clearanceType\":\"2\" , \"taxesType\":\"2\", \"countryId\":\"10000000\", " +
-                "\"subtitle\":\"sub\", \"subtitleHref\":\"" + urlHref + "\", \"subtitleHrefM\":\"" + urlHref + "\", \"transportId\":42, \"isQuality\":" + detailBrg.AVALUE_47 + ", \"qualityDays\":1" + detailBrg.AVALUE_48 + ", \"warrantyPeriod\":" + detailBrg.ACODE_41 + ", \"afterSale\":" + detailBrg.ACODE_40 + ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
+                paramHref +
+                "\"subtitle\":\"sub\", \"transportId\":42, \"isQuality\":" + detailBrg.AVALUE_47 + ", \"qualityDays\":1" + detailBrg.AVALUE_48 + ", \"warrantyPeriod\":" + detailBrg.ACODE_41 + ", \"afterSale\":" + detailBrg.ACODE_40 + ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
                 "\"weight\":\"" + brgInDb.BERAT + "\", \"netWeight\":\"" + brgInDb.BERAT + "\", \"packHeight\":\"" + brgInDb.TINGGI + "\", \"packLong\":\"" + brgInDb.PANJANG + "\", \"packWide\":\"" + brgInDb.LEBAR + "\", \"piece\":" + detailBrg.ACODE_39 + "}, \"skuList\":[ {\"costPrice\":" + detailBrg.HJUAL + ", " +
                 "\"jdPrice\":" + detailBrg.HJUAL + ", \"sellerSkuId\":\"" + detailBrg.BRG + "\", \"skuName\":\"" + namafull + "\", \"stock\":" + qty_stock + ", \"upc\":\"upc\" }]}";
 
