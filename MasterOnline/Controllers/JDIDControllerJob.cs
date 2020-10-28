@@ -635,10 +635,10 @@ namespace MasterOnline.Controllers
                                                     };
 
                                                     var skuID = JD_addSKUVariant(data, dataSKUVariant, item.BRG_MP, kodeProduk, marketplace.RecNum);
-                                                    if (lGambarUploaded.Count() > 0)
-                                                    {
-                                                        JD_addSKUMainPicture(data, skuID.ToString(), brgInDb.LINK_GAMBAR_1);
-                                                    }
+                                                    //if (lGambarUploaded.Count() > 0)
+                                                    //{
+                                                    //    JD_addSKUMainPicture(data, skuID.ToString(), brgInDb.LINK_GAMBAR_1);
+                                                    //}
                                                 }
 
 
@@ -833,15 +833,15 @@ namespace MasterOnline.Controllers
                         if (ret.openapi_data != null)
                         {
                             var res = JsonConvert.DeserializeObject(ret.openapi_data, typeof(JDID_ResultAddSKUVariant)) as JDID_ResultAddSKUVariant;
-                            var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk && b.IDMARKET == recnum).SingleOrDefault();
-                            if (item != null)
-                            {
-                                item.BRG_MP = Convert.ToString(sSPUID) + ";" + res.model[0].skuId.ToString();
-                                item.LINK_STATUS = "Buat Produk Berhasil";
-                                item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
-                                item.LINK_ERROR = "0;Buat Produk;;";
-                                ErasoftDbContext.SaveChanges();
-                            }
+                            //var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk && b.IDMARKET == recnum).SingleOrDefault();
+                            //if (item != null)
+                            //{
+                            //    item.BRG_MP = Convert.ToString(sSPUID) + ";" + res.model[0].skuId.ToString();
+                            //    item.LINK_STATUS = "Buat Produk Berhasil";
+                            //    item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                            //    item.LINK_ERROR = "0;Buat Produk;;";
+                            //    ErasoftDbContext.SaveChanges();
+                            //}
                             //if (result.success == true)
                             //{
 
