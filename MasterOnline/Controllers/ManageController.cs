@@ -10701,8 +10701,8 @@ namespace MasterOnline.Controllers
                                                 DatabasePathErasoft = dbPathEra
                                             };
 
-                                            JDIDControllerJob JDIDAPI = new JDIDControllerJob();
-                                            Task.Run(() => JDIDAPI.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden)).Wait();
+                                            //JDIDControllerJob JDIDAPI = new JDIDControllerJob();
+                                            //Task.Run(() => JDIDAPI.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden)).Wait();
 
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
