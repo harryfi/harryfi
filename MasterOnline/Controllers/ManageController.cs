@@ -7249,6 +7249,76 @@ namespace MasterOnline.Controllers
             };
             return result;
         }
+
+        [HttpGet]
+        public ActionResult GetAttributeJdidVar(string code)
+        {
+            string[] codelist = code.Split(';');
+            var retData = new List<ATTRIBUTE_JDID>();
+            int idrec = Convert.ToInt32(codelist[1]);
+            var customer = ErasoftDbContext.ARF01.Where(m => m.RecNum == idrec).FirstOrDefault();
+            if (customer != null)
+            {
+                if (!string.IsNullOrEmpty(customer.TOKEN))
+                {
+                    var data = new JDIDAPIData
+                    {
+                        accessToken = customer.TOKEN,
+                        appKey = customer.API_KEY,
+                        appSecret = customer.API_CLIENT_U
+                    };
+                    var jdApi = new JDIDController();
+                    retData.Add(jdApi.getAttribute(data, codelist[0]));
+                }
+
+            }
+
+            //return Json(retData, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(retData),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+
+        [HttpGet]
+        public ActionResult GetAttributeOptJdidVar(string code)
+        {
+            string[] codelist = code.Split(';');
+            var retData = new List<ATTRIBUTE_OPT_JDID>();
+            int custId = Convert.ToInt32(codelist[2]);
+            var customer = ErasoftDbContext.ARF01.Where(m => m.RecNum == custId).FirstOrDefault();
+            if (customer != null)
+            {
+                if (!string.IsNullOrEmpty(customer.TOKEN))
+                {
+                    var data = new JDIDAPIData
+                    {
+                        accessToken = customer.TOKEN,
+                        appKey = customer.API_KEY,
+                        appSecret = customer.API_CLIENT_U
+                    };
+                    var jdApi = new JDIDController();
+                    var a = jdApi.getAttributeOpt(data, codelist[1], codelist[0], 1);
+                    retData = a.OrderBy(m => m.OPTION_VALUE).ToList();
+                }
+
+            }
+
+            //return Json(retData, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(retData),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+
         [HttpGet]
         public ActionResult GetAttributeJD(string code, int cust)
         {
@@ -7294,7 +7364,7 @@ namespace MasterOnline.Controllers
                     var data = new JDIDAPIData
                     {
                         accessToken = customer.TOKEN,
-                        appKey = customer.API_CLIENT_P,
+                        appKey = customer.API_KEY,
                         appSecret = customer.API_CLIENT_U
                     };
                     var jdApi = new JDIDController();
@@ -7314,6 +7384,7 @@ namespace MasterOnline.Controllers
             };
             return result;
         }
+        
         #endregion
         //end add by Tri 22 Maret 2018
         //add by calvin 18 desember 2018
@@ -9339,6 +9410,8 @@ namespace MasterOnline.Controllers
                     //saveBarang82Cart(1, dataBarang, false);
                     saveBarang82CartVariant(1, barangInDb.BRG, false);
                     //end add by fauzi for 82Cart
+
+                    saveBarangJDID(1, barangInDb.BRG, false);
                 }
                 //end add by tri call marketplace api to create product
                 else
@@ -9350,7 +9423,6 @@ namespace MasterOnline.Controllers
                     saveBarangElevenia(2, dataBarang, imgPath);
                     saveBarangShopee(2, dataBarang, updateHarga);
                     saveBarangShopify(2, dataBarang);
-
 
 
                     //get image
@@ -9373,6 +9445,7 @@ namespace MasterOnline.Controllers
 
                     saveBarangTokpedVariant(2, barang.BRG, false);
 
+                    saveBarangJDID(2, barang.BRG, false);
 
                     #region lazada
                     if (listLazadaShop.Count > 0)
@@ -9549,6 +9622,7 @@ namespace MasterOnline.Controllers
                 var kdTokped = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
                 var kd82Cart = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "82CART");
                 var kdShopify = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPIFY");
+                var kdJDID = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "JDID");
                 var validPrice = true;
 
                 string[] imgPath = new string[Request.Files.Count];
@@ -10097,6 +10171,10 @@ namespace MasterOnline.Controllers
                                             else if (kdMarket == kdShopify.IdMarket.ToString())
                                             {
                                                 namaMarket = "SHOPIFY";
+                                            }
+                                            else if (kdMarket == kdJDID.IdMarket.ToString())
+                                            {
+                                                namaMarket = "JDID";
                                             }
                                             if (namaMarket != "")
                                             {
@@ -11802,6 +11880,180 @@ namespace MasterOnline.Controllers
             }
         }
 
+        protected void saveBarangJDID(int mode, string dataBarang_Stf02_BRG, bool updateHarga)
+        {
+            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == dataBarang_Stf02_BRG);
+            //var kd82Cart = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "82CART");
+            var kdJDID = "19";
+            if (barangInDb != null && kdJDID != null)
+            {
+                var listJDID = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdJDID).ToList();
+                if (listJDID.Count > 0)
+                {
+                    switch (mode)
+                    {
+                        #region Create Product lalu Hide Item
+                        case 1:
+                            {
+                                foreach (ARF01 tblCustomer in listJDID)
+                                {
+                                    if (!string.IsNullOrEmpty(tblCustomer.API_KEY))
+                                    {
+                                        var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
+                                        if (display)
+                                        {
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
+#if (DEBUG || Debug_AWS)
+                                            JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob()
+                                            {
+                                                username = usernameLogin,
+                                                no_cust = tblCustomer.CUST,
+                                                account_store = tblCustomer.PERSO,
+                                                accessToken = tblCustomer.TOKEN,
+                                                appKey = tblCustomer.API_KEY,
+                                                appSecret = tblCustomer.API_CLIENT_U,
+                                                email = tblCustomer.EMAIL,
+                                                ID_MARKET = tblCustomer.RecNum.Value.ToString(),
+                                                DatabasePathErasoft = dbPathEra
+                                            };
+                                            JDIDControllerJob JDIDAPI = new JDIDControllerJob();
+
+                                            JDIDAPI.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
+
+#else
+                                            JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob()
+                                            {
+                                                username = usernameLogin,
+                                                no_cust = tblCustomer.CUST,
+                                                account_store = tblCustomer.PERSO,
+                                                accessToken = tblCustomer.TOKEN,
+                                                appKey = tblCustomer.API_KEY,
+                                                appSecret = tblCustomer.API_CLIENT_U,
+                                                email = tblCustomer.EMAIL,
+                                                ID_MARKET = tblCustomer.RecNum.Value.ToString(),
+                                                DatabasePathErasoft = dbPathEra
+                                            };
+
+                                            //JDIDControllerJob JDIDAPI = new JDIDControllerJob();
+                                            //Task.Run(() => JDIDAPI.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden)).Wait();
+
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                            clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden));
+#endif
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        #endregion
+                        case 2:
+                            {
+                                foreach (ARF01 tblCustomer in listJDID)
+                                {
+                                    if (!string.IsNullOrEmpty(tblCustomer.API_KEY))
+                                    {
+                                        var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == barangInDb.BRG && p.IDMARKET == tblCustomer.RecNum).FirstOrDefault();
+                                        if (stf02h != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                            {
+                                                JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob()
+                                                {
+                                                    username = usernameLogin,
+                                                    no_cust = tblCustomer.CUST,
+                                                    account_store = tblCustomer.PERSO,
+                                                    accessToken = tblCustomer.TOKEN,
+                                                    appKey = tblCustomer.API_KEY,
+                                                    appSecret = tblCustomer.API_CLIENT_U,
+                                                    email = tblCustomer.EMAIL,
+                                                    ID_MARKET = tblCustomer.RecNum.Value.ToString(),
+                                                    DatabasePathErasoft = dbPathEra
+                                                };
+                                                JDIDControllerJob JDIDAPI = new JDIDControllerJob();
+
+                                                var temp_brg = (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG);
+
+                                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+#if (Debug_AWS || DEBUG)
+                                                //JDIDAPI.JD_CreateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", iden);
+                                                JDIDAPI.JD_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Update Produk", iden);
+#else
+                                                clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_UpdateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", iden));
+#endif
+
+                                                //Task.Run(() => shoAPI.UpdateImage(iden, temp_brg, stf02h.BRG_MP).Wait());
+                                                //string[] brg_mp = stf02h.BRG_MP.Split(';');
+                                                //                                                if (updateHarga)
+                                                //                                                {
+                                                //#if (Debug_AWS || DEBUG)
+                                                //                                                    Task.Run(() => c82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, "0")).Wait();
+                                                //#else
+                                                //                                                    clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Price", "Update Price", iden, stf02h.BRG_MP, (int)stf02h.HJUAL, "0"));
+                                                //#endif
+                                                //                                                }
+                                            }
+                                            else
+                                            {
+                                                if (stf02h.DISPLAY)
+                                                {
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
+
+#if (DEBUG || Debug_AWS)
+                                                    JDIDControllerJob.JDIDAPIDataJob iden = new JDIDControllerJob.JDIDAPIDataJob()
+                                                    {
+                                                        username = usernameLogin,
+                                                        no_cust = tblCustomer.CUST,
+                                                        account_store = tblCustomer.PERSO,
+                                                        accessToken = tblCustomer.TOKEN,
+                                                        appKey = tblCustomer.API_KEY,
+                                                        appSecret = tblCustomer.API_CLIENT_U,
+                                                        email = tblCustomer.EMAIL,
+                                                        ID_MARKET = tblCustomer.RecNum.Value.ToString(),
+                                                        DatabasePathErasoft = dbPathEra
+                                                    };
+                                                    JDIDControllerJob JDIDAPI = new JDIDControllerJob();
+
+                                                    JDIDAPI.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
+                                                    //Task.Run(() => c82CartAPI.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
+#else
+                                                    JDIDControllerJob.JDIDAPIDataJob dataJob = new JDIDControllerJob.JDIDAPIDataJob()
+                                                    {
+                                                        username = usernameLogin,
+                                                        no_cust = tblCustomer.CUST,
+                                                        account_store = tblCustomer.PERSO,
+                                                        accessToken = tblCustomer.TOKEN,
+                                                        appKey = tblCustomer.API_KEY,
+                                                        appSecret = tblCustomer.API_CLIENT_U,
+                                                        email = tblCustomer.EMAIL,
+                                                        ID_MARKET = tblCustomer.RecNum.Value.ToString(),
+                                                        DatabasePathErasoft = dbPathEra
+                                                    };
+                                                    JDIDControllerJob JDIDAPI = new JDIDControllerJob();
+                                                    
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                    clientJobServer.Enqueue<JDIDControllerJob>(x => x.JD_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
+#endif
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
 
         protected void saveBarangBlibli(int mode, BarangViewModel dataBarang)
         {
@@ -13071,33 +13323,29 @@ namespace MasterOnline.Controllers
             return PartialView("TablePromptBrandBlibli");
         }
 
-        public async Task<ActionResult> RefreshBrandJDID(string category, string cust, int? page, string search = "")
+        public ActionResult RefreshBrandJDID(string category, string cust, int? page, string search = "")
         {
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
             ViewData["cust"] = cust;
             ViewData["category"] = category;
+
             if (string.IsNullOrEmpty(search))
                 search = "a";
             var marketPlace = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).SingleOrDefault();
+            
             if (marketPlace != null)
             {
-                var brandJDID = MoDbContext.BrandJDID.OrderBy(p => p.brandName).ToList();
-                //var list_value = new List<BRAND_JDID>();
-                //foreach (var item in ret.content)
-                //{
-                //    if (item.brandApprovalStatus == "APPROVED")
-                //    {
-                //        list_value.Add(new BRAND_BLIBLI()
-                //        {
-                //            brand_id = item.brandName,
-                //            name = item.brandName
-                //        });
-                //    }
+                
+                var BrandJDID = (from p in MoDbContext.BrandJDID
+                                   where p.brandName.Contains(search)
+                                   orderby p.brandName
+                                   select p);
+                var PromptModel = BrandJDID.Skip(pagenumber * 5).Take(5).ToList();
 
-                //}
-                IPagedList<BRAND_JDID> pageOrders = new StaticPagedList<BRAND_JDID>(brandJDID, pagenumber + 1, 10, 10);
+                IPagedList<BRAND_JDID> pageOrders = new StaticPagedList<BRAND_JDID>(PromptModel, pagenumber + 1, 5, BrandJDID.Count());
+
                 return PartialView("TablePromptBrandJDID", pageOrders);
             }
 
@@ -13408,7 +13656,7 @@ namespace MasterOnline.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public ActionResult SaveOptVariantBarang(string brg, string shopee_code, string tokped_code, string blibli_code, string lazada_code, string e2cart_code, string shopify_code, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3)
+        public ActionResult SaveOptVariantBarang(string brg, string shopee_code, string tokped_code, string blibli_code, string lazada_code, string e2cart_code, string shopify_code, string jdid_code, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3)
         {
             var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == code);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
@@ -13475,6 +13723,7 @@ namespace MasterOnline.Controllers
                 var Histori_Lazada_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "LAZADA" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == lazada_code).OrderByDescending(p => p.RECNUM).ToList();
                 var Histori_82Cart_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "82CART" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == e2cart_code).OrderByDescending(p => p.RECNUM).ToList();
                 var Histori_shopify_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "SHOPIFY" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == shopify_code).OrderByDescending(p => p.RECNUM).ToList();
+                var Histori_jdid_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "JDID" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == jdid_code).OrderByDescending(p => p.RECNUM).ToList();
 
                 if (opt_selected_1 != null)
                 {
@@ -13484,6 +13733,7 @@ namespace MasterOnline.Controllers
                     var Histori_Lazada = Histori_Lazada_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_82Cart = Histori_82Cart_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_shopify = Histori_shopify_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_jdid = Histori_jdid_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_1)
                     {
                         if (item != "")
@@ -13594,6 +13844,19 @@ namespace MasterOnline.Controllers
                                 MP_CATEGORY_CODE = shopify_code
                             };
                             listNewData.Add(newdatashopify);
+
+                            STF02I newdatajdid = new STF02I()
+                            {
+                                MARKET = "JDID",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 1,
+                                MP_JUDUL_VAR = Histori_jdid.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_jdid.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = jdid_code
+                            };
+                            listNewData.Add(newdatajdid);
                         }
                     }
                 }
@@ -13605,6 +13868,7 @@ namespace MasterOnline.Controllers
                     var Histori_Lazada = Histori_Lazada_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_82Cart = Histori_82Cart_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_shopify = Histori_shopify_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_jdid = Histori_jdid_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_2)
                     {
                         if (item != "")
@@ -13715,6 +13979,19 @@ namespace MasterOnline.Controllers
                                 MP_CATEGORY_CODE = shopify_code
                             };
                             listNewData.Add(newdatashopify);
+
+                            STF02I newdatajdid = new STF02I()
+                            {
+                                MARKET = "JDID",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 2,
+                                MP_JUDUL_VAR = Histori_jdid.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_jdid.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = jdid_code
+                            };
+                            listNewData.Add(newdatajdid);
                         }
                     }
                 }
@@ -13726,6 +14003,7 @@ namespace MasterOnline.Controllers
                     var Histori_Lazada = Histori_Lazada_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_82Cart = Histori_82Cart_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_shopify = Histori_shopify_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_jdid = Histori_jdid_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_3)
                     {
                         if (item != "")
@@ -13836,6 +14114,19 @@ namespace MasterOnline.Controllers
                                 MP_CATEGORY_CODE = shopify_code
                             };
                             listNewData.Add(newdatashopify);
+
+                            STF02I newdatajdid = new STF02I()
+                            {
+                                MARKET = "JDID",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 3,
+                                MP_JUDUL_VAR = Histori_jdid.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_jdid.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = jdid_code
+                            };
+                            listNewData.Add(newdatajdid);
                         }
                     }
                 }
@@ -13983,6 +14274,7 @@ namespace MasterOnline.Controllers
             saveBarangTokpedVariant(2, brg, false);
             createBarangLazadaVariant(brg);
             saveBarang82CartVariant(2, brg, false);
+            saveBarangJDID(2, brg, false);
             //}
 
             //change by calvin 26 april 2019
@@ -16336,6 +16628,133 @@ namespace MasterOnline.Controllers
             }
             #endregion
 
+            var vm = new BarangDetailVarViewModel()
+            {
+
+            };
+
+            return Json(vm, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult SaveMappingVarJdid(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3, StrukturVariantMp jdid)
+        {
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == code);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            List<STF02I> listNewData = new List<STF02I>();
+            #region Create Ulang STF02I
+            {
+                if (opt_selected_1 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_1)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdata = new STF02I()
+                                {
+                                    MARKET = "JDID",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 1,
+                                    MP_JUDUL_VAR = jdid.var_judul.lv_1,
+                                    MP_VALUE_VAR = jdid.var_detail.lv_1[i],
+                                    MP_CATEGORY_CODE = jdid.code
+                                };
+                                listNewData.Add(newdata);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_2 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_2)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdata = new STF02I()
+                                {
+                                    MARKET = "JDID",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 2,
+                                    MP_JUDUL_VAR = jdid.var_judul.lv_2,
+                                    MP_VALUE_VAR = jdid.var_detail.lv_2[i],
+                                    MP_CATEGORY_CODE = jdid.code
+                                };
+                                listNewData.Add(newdata);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_3 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_3)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdata = new STF02I()
+                                {
+                                    MARKET = "JDID",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 3,
+                                    MP_JUDUL_VAR = jdid.var_judul.lv_3,
+                                    MP_VALUE_VAR = jdid.var_detail.lv_3[i],
+                                    MP_CATEGORY_CODE = jdid.code
+                                };
+                                listNewData.Add(newdata);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+            }
+            #endregion
+
+            #region Save STF02I
+            if (listNewData.Count() > 0)
+            {
+                var listStf02IinDb = ErasoftDbContext.STF02I.Where(p => p.BRG == brg && p.MARKET == "JDID").ToList();
+                ErasoftDbContext.STF02I.RemoveRange(listStf02IinDb);
+                ErasoftDbContext.SaveChanges();
+
+                ErasoftDbContext.STF02I.AddRange(listNewData);
+
+                //add by nurul 27/11/2019, add tgl last edit
+                var tempBrg = ErasoftDbContext.STF02.Where(p => p.BRG == brg).SingleOrDefault();
+                if (tempBrg != null)
+                {
+                    tempBrg.Tgl_Input = DateTime.Today;
+                }
+                //end add by nurul 27/11/2019, add tgl last edit
+
+                ErasoftDbContext.SaveChanges();
+            }
+            #endregion
             var vm = new BarangDetailVarViewModel()
             {
 
@@ -39663,11 +40082,11 @@ namespace MasterOnline.Controllers
                                         };
 
                                         // get category for 82Cart
-                                        //var resultCategory82Cart = await v82CartAPI.E2Cart_GetCategoryProduct_Sync(data);
+                                        var resultCategory82Cart = await v82CartAPI.E2Cart_GetCategoryProduct_Sync(data);
                                         // end get category for 82Cart
 
                                         // get attribute for 82Cart
-                                        //var resultAttribute82Cart = await v82CartAPI.E2Cart_GetAttribute_Sync(data);
+                                        var resultAttribute82Cart = await v82CartAPI.E2Cart_GetAttribute_Sync(data);
                                         // end get attribute for 82Cart
 
                                         var result82Cart = await v82CartAPI.E2Cart_GetProductsList(data, arf01.RecNum.Value, page, recordCount, totalData);
