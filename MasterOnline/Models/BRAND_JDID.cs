@@ -11,7 +11,7 @@ namespace MasterOnline.Models
     public class BRAND_JDID
     {
         [Key]
-        public string brandId { get; set; }
+        public int brandId { get; set; }
         public string brandName { get; set; }
     }
 }

@@ -670,7 +670,7 @@ namespace MasterOnline.Controllers
 
                                 a = Convert.ToString(i + 1);
                                 retAttr["ACODE_" + a] = Convert.ToString(attr.propertyId);
-                                retAttr["ATYPE_" + a] = attr.type.ToString();
+                                retAttr["AVALUE_" + a] = attr.type.ToString();
                                 retAttr["ANAME_" + a] = attr.nameEn;
                                 i = i + 1;
                             }
@@ -678,7 +678,7 @@ namespace MasterOnline.Controllers
                             {
                                 a = Convert.ToString(j + 1);
                                 retAttr["ACODE_" + a] = "";
-                                retAttr["ATYPE_" + a] = "";
+                                retAttr["AVALUE_" + a] = "";
                                 retAttr["ANAME_" + a] = "";
                             }
                         }
@@ -2090,6 +2090,39 @@ namespace MasterOnline.Controllers
         public int code { get; set; }
         public string description { get; set; }
         public string order_id { get; set; }
+    }
+
+    public class JD_HeaderTipe
+    {
+        public List<JD_TipeItem> data { get; set; }
+    }
+
+    public class JD_TipeItem
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+    }
+
+    public class JD_HeaderAfterSale
+    {
+        public List<JD_AfterSale> data { get; set; }
+    }
+
+    public class JD_AfterSale
+    {
+        public string code { get; set; }
+        public string desc { get; set; }
+    }
+
+    public class JD_HeaderJD_Warranty
+    {
+        public List<JD_Warranty> data { get; set; }
+    }
+
+    public class JD_Warranty
+    {
+        public string code { get; set; }
+        public string desc { get; set; }
     }
 
     public class Data_OrderDetail
