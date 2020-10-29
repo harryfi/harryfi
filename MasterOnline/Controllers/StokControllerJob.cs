@@ -3772,6 +3772,17 @@ namespace MasterOnline.Controllers
         {
             SetupContext(DatabasePathErasoft, uname);
 
+            var brgMp = "";
+            if (id.Contains(";"))
+            {
+                string[] brgSplit = id.Split(';');
+                brgMp = brgSplit[1].ToString();
+            }
+            else
+            {
+                brgMp = id;
+            }
+
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
 
             if (qtyOnHand < 0)
@@ -3784,7 +3795,7 @@ namespace MasterOnline.Controllers
             try
             {
                 string sMethod = "epi.ware.openapi.warestock.updateWareStock";
-                string sParamJson = "{\"jsonStr\":[{\"skuId\":" + id + ", \"realNum\": " + stok + "}]}";
+                string sParamJson = "{\"jsonStr\":[{\"skuId\":" + brgMp + ", \"realNum\": " + stok + "}]}";
 
                 var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
                 var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
