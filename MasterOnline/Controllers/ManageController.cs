@@ -45674,6 +45674,16 @@ namespace MasterOnline.Controllers
         //add by calvin 10 september 2019, update stock ulang ke seluruh marketplace
         public ActionResult MarketplaceLogRetryStock()
         {
+            var data = ErasoftDbContext.SIFSYS.Select(m => m.TGL_SK).FirstOrDefault();
+
+            if(data.AddHours(2) > DateTime.UtcNow.AddHours(7))
+            {
+                return new JsonResult { Data = data.AddHours(2).ToString("yyyy-MM-dd HH:mm:ss"), JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            else
+            {
+                EDB.ExecuteSQL("CString", CommandType.Text, "update SIFSYS set TGL_SK = '"+ DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "'");
+            }
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
@@ -45682,6 +45692,19 @@ namespace MasterOnline.Controllers
             return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
         //end add by calvin 10 september 2019, update stock ulang ke seluruh marketplace
+
+        //add by Tri 2 Nov 2020
+        public ActionResult GetLastRefreshStok()
+        {
+            var data = ErasoftDbContext.SIFSYS.Select(m => m.TGL_SK).FirstOrDefault();
+            var tgl = "-";
+            if(data.Year >= 2020)
+            {
+                tgl = data.ToString("yyyy-MM-dd HH:mm:ss");
+            }
+            return new JsonResult { Data = tgl, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+        //end add by Tri 2 Nov 2020
 
         //add by nurul 23/10/2019
         public ActionResult GetDetailBayarPiutang(string orderId)
