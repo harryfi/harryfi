@@ -5,7 +5,6 @@
     ViewBag.Title = "Aktivitas Marketplace";
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
 }
-
 @section styles
 {
     <style>
@@ -173,7 +172,7 @@
     }
     function RetryUpdateStock() {
         //add by fauzi
-        $('#modalRefreshStock').modal('hide');
+        //$('#modalRefreshStock').modal('hide');
         //end
 
         var link = '@Url.Action("MarketplaceLogRetryStock", "Manage")';
@@ -187,7 +186,13 @@
                 $('#loading_barang_tab').show();
             },
             success: function (response) {
-                refreshTableLog();
+                if (response == "Success") {
+                    refreshTableLog();
+                    $('#modalRefreshStock').modal('hide');
+                } else {
+                    alert('Anda baru dapat melakukan proses ini pada : ' + response);
+                $('#loading_barang_tab').hide();
+                }
             },
             error: function (response) {
             }
@@ -276,7 +281,12 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h5>Proses Refresh Stok akan melakukan update stock semua barang di Master Online ke masing-masing marketplace. <br />Yakin ingin lanjutkan?</h5>
+                    <h5>
+                        Proses Refresh Stok akan melakukan update stock semua barang di Master Online ke masing-masing marketplace.
+                        Proses ini akan memakan waktu, harap tunggu perubahan stok di masing-masing marketplace anda. <br />Yakin ingin lanjutkan?
+                    </h5>
+                    <br />
+                    <h5 id="txtLastDate">Tanggal Terakhir Proses : -</h5>
                 </div>
             </div>
             <div class="modal-footer">
@@ -289,6 +299,19 @@
 <script>
     //add by fauzi for popup modal refresh stock
     function openModalRefreshStock() {
-        $('#modalRefreshStock').modal('show');
+        $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetLastRefreshStok", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+            success: function (data) {
+                document.getElementById('txtLastDate').innerText = 'Tanggal Terakhir Proses : ' + data;
+                    $('#modalRefreshStock').modal('show');
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        //$('#modalRefreshStock').modal('show');
     }
 </script>
