@@ -8,7 +8,7 @@
     if (dataSession?.User != null)
     {
         var context = new MoDbContext("");
-        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        var accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
         username = context.Account.Single(a => a.AccountId == accId).Username;
         context.Dispose();
     }
