@@ -3054,7 +3054,8 @@ namespace MasterOnline.Controllers
                         {
                             newOrder.estimated_shipping_fee = (ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee).ToString();
                         }
-                        var listPromo = new Dictionary<long, double>();//add 6 juli 2020
+                        //var listPromo = new Dictionary<long, double>();//add 6 juli 2020
+                        var listPromo = new Dictionary<long, Activity>();//add 6 juli 2020
                         foreach (var item in order.items)
                         {
                             string item_name = !string.IsNullOrEmpty(item.item_name) ? item.item_name.Replace('\'', '`') : "";
@@ -3104,14 +3105,26 @@ namespace MasterOnline.Controllers
                                     var discount = 0d;
                                     if (!listPromo.ContainsKey(item.promotion_id))
                                     {
-                                        discount = await GetEscrowDetail(iden, order.ordersn, item.item_id, item.variation_id, item.promotion_id);
-                                        listPromo.Add(item.promotion_id, discount);
+                                        var dataDisc = await GetEscrowDetail(iden, order.ordersn, item.item_id, item.variation_id, item.promotion_id);
+                                        if (dataDisc.activity_id > 0)
+                                        {
+                                            listPromo.Add(item.promotion_id, dataDisc);
+                                        }
                                     }
-                                    else
-                                    {
-                                        discount = listPromo[item.promotion_id];
-                                    }
+                                    //else
+                                    //{
+                                    //    discount = listPromo[item.promotion_id];
+                                    //}
                                     newOrderItem.variation_discounted_price = item.variation_original_price;
+                                    var dDisc = listPromo[item.promotion_id];
+                                    discount = (Convert.ToInt64(dDisc.original_price) - Convert.ToInt64(dDisc.discounted_price)) * 100 / Convert.ToInt64(dDisc.original_price);
+                                    foreach(var disc in dDisc.items)
+                                    {
+                                        if(item.item_id == disc.item_id && item.variation_id == item.variation_id)
+                                        {
+                                            newOrderItem.variation_discounted_price = disc.original_price;
+                                        }
+                                    }
                                     newOrderItem.DISC = discount;
                                     newOrderItem.N_DISC = Convert.ToInt64(newOrderItem.variation_discounted_price) * newOrderItem.variation_quantity_purchased * discount / 100;
                                 }
@@ -3331,11 +3344,11 @@ namespace MasterOnline.Controllers
             return null;
         }
         //end add by Tri 14 Apr 2020, api untuk ambil shipping fee 
-        public async Task<double> GetEscrowDetail(ShopeeAPIData iden, string ordersn, long itemId, long variationId, long activityId)
+        public async Task<Activity> GetEscrowDetail(ShopeeAPIData iden, string ordersn, long itemId, long variationId, long activityId)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            var ret = 0d;
+            var ret = new Activity();
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -3398,8 +3411,9 @@ namespace MasterOnline.Controllers
                                 //}
                                 if (act.activity_id == activityId)
                                 {
-                                    double discount = (Convert.ToInt64(act.original_price) - Convert.ToInt64(act.discounted_price)) * 100 / Convert.ToInt64(act.original_price);
-                                    return discount;
+                                    //double discount = (Convert.ToInt64(act.original_price) - Convert.ToInt64(act.discounted_price)) * 100 / Convert.ToInt64(act.original_price);
+                                    //return discount;
+                                    return act;
                                 }
 
                             }
