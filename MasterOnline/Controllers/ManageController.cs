@@ -9622,7 +9622,7 @@ namespace MasterOnline.Controllers
                 var kdTokped = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
                 var kd82Cart = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "82CART");
                 var kdShopify = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPIFY");
-                var kdJDID = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "JDID");
+                var kdJDID = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "JD.ID");
                 var validPrice = true;
 
                 string[] imgPath = new string[Request.Files.Count];
@@ -40039,6 +40039,9 @@ namespace MasterOnline.Controllers
                                             email = arf01.EMAIL,
                                             DatabasePathErasoft = dbPathEra
                                         };
+
+                                        //var resultCat = JDApi.getCategory(data);
+
                                         var resultJD = JDApi.getListProduct(data, page, cust, recordCount, totalData);
                                         retBarang.exception = resultJD.exception;
                                         retBarang.totalData = resultJD.totalData;

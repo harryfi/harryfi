@@ -1067,18 +1067,25 @@ namespace MasterOnline.Controllers
                                                         {
                                                             if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
                                                             {
-                                                                if (Convert.ToInt32(worksheet.Cells[i, 3].Value) >= 0)
+                                                                var qtyTemp = worksheet.Cells[i, 3].Value.ToString().Replace("\r", "").Replace("\n", "").Replace(" ", "");
+                                                                double dqty = Convert.ToDouble(qtyTemp);
+
+                                                                if (dqty >= 0)
                                                                 {
                                                                     TEMP_SALDOAWAL newrecord = new TEMP_SALDOAWAL()
                                                                     {
                                                                         BRG = Convert.ToString(worksheet.Cells[i, 1].Value),
-                                                                        QTY = Convert.ToInt32(worksheet.Cells[i, 3].Value)
+                                                                        //QTY = Convert.ToInt32(worksheet.Cells[i, 3].Value)
+                                                                        QTY = dqty
                                                                     };
                                                                     if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 4].Value)))
                                                                     {
-                                                                        if (Convert.ToInt32(worksheet.Cells[i, 4].Value) >= 0)
+                                                                        var modalTemp = worksheet.Cells[i, 4].Value.ToString().Replace("\r", "").Replace("\n", "").Replace(" ", "").Replace("&nbsp;", "").Replace("\r\n", "");
+                                                                        var te = modalTemp.Replace("\r", "").Replace("\n", "").Replace("\r\r", "").Replace("&nbsp;", "").Replace("\r\n", "");
+                                                                        double dmodal = Convert.ToDouble(modalTemp);
+                                                                        if (dmodal >= 0)
                                                                         {
-                                                                            newrecord.HARGA_SATUAN = Convert.ToDouble(worksheet.Cells[i, 4].Value);
+                                                                            newrecord.HARGA_SATUAN = dmodal;
                                                                         }
                                                                         else
                                                                         {
