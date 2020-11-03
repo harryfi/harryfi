@@ -3019,7 +3019,7 @@ namespace MasterOnline.Controllers
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
                                             //create brg induk
-                                            BindingBase retSQLInduk = insertTempBrgQry(brg, i, IdMarket, cust, 1, "");
+                                            BindingBase retSQLInduk = insertTempBrgQry(brg, i, IdMarket, cust, 1, "", accessToken);
                                             if (retSQLInduk.status == 1)
                                                 sSQL_Value += retSQLInduk.message;
                                         }
@@ -3904,7 +3904,7 @@ namespace MasterOnline.Controllers
                                         #endregion
                                         if (!varian)
                                         {
-                                            BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 0, "");
+                                            BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 0, "", accessToken);
                                             if (retSQL.exception == 1)
                                                 ret.exception = 1;
                                             if (retSQL.status == 1)
@@ -3912,7 +3912,7 @@ namespace MasterOnline.Controllers
                                         }
                                         else
                                         {
-                                            BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 2, kdBrgInduk);
+                                            BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 2, kdBrgInduk, accessToken);
                                             if (retSQL.exception == 1)
                                                 ret.exception = 1;
                                             if (retSQL.status == 1)
@@ -3960,7 +3960,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase insertTempBrgQry(dynamic brg, int i, int IdMarket, string cust, int typeBrg, string kodeBrgInduk)
+        public BindingBase insertTempBrgQry(dynamic brg, int i, int IdMarket, string cust, int typeBrg, string kodeBrgInduk, string token)
         {
             // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
             var ret = new BindingBase();
@@ -3991,6 +3991,37 @@ namespace MasterOnline.Controllers
                 }
                 namaBrg = namaBrg.Replace('\'', '`');//add by Tri 8 Juli 2019, replace petik pada nama barang
 
+                #region get item detail
+                ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+                LazopRequest request = new LazopRequest();
+                request.SetApiName("/product/item/get");
+                request.SetHttpMethod("GET");
+                if (typeBrg != 1)
+                {
+                    request.AddApiParameter("seller_sku", sellerSku);
+                }
+                else
+                {
+                    request.AddApiParameter("item_id", sellerSku);
+                }
+
+                //LazopResponse response = client.Execute(request, data.token);
+                try
+                {
+                    LazopResponse response = client.Execute(request, token);
+                    //var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaItemDetailResponse)) as LazadaItemDetailResponse;
+                    dynamic resultItemDetail = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body); 
+                    if (response.Code.Equals("0"))
+                    {
+                        brg = resultItemDetail.data;
+                        i = 0;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                }
+                #endregion
                 string nama, nama2, nama3, urlImage, urlImage2, urlImage3, urlImage4, urlImage5;
                 urlImage = "";
                 urlImage2 = "";
@@ -4059,13 +4090,17 @@ namespace MasterOnline.Controllers
                     //if (typeBrg != 2)
                     if (typeBrg == 0)// ubah jd gambar non varian yg ambil gambar > 1
                     {
-                        if (brg.skus[i].Images[1] != null)
+                        //if (brg.skus[i].Images[1] != null)
+                        if (brg.skus[i].Images.Count >= 2)
                             urlImage2 = brg.skus[i].Images[1];
-                        if (brg.skus[i].Images[2] != null)
+                        //if (brg.skus[i].Images[2] != null)
+                        if (brg.skus[i].Images.Count >= 3)
                             urlImage3 = brg.skus[i].Images[2];
-                        if (brg.skus[i].Images[3] != null)
+                        //if (brg.skus[i].Images[3] != null)
+                        if (brg.skus[i].Images.Count >= 4)
                             urlImage4 = brg.skus[i].Images[3];
-                        if (brg.skus[i].Images[4] != null)
+                        //if (brg.skus[i].Images[4] != null)
+                        if (brg.skus[i].Images.Count >= 5)
                             urlImage5 = brg.skus[i].Images[4];
                     }
                     //end change 21/8/2019, barang varian ambil 1 gambar saja
@@ -4122,7 +4157,7 @@ namespace MasterOnline.Controllers
                 //sSQL_Value += display + " , '" + categoryCode + "' , '" + MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID.Equals(categoryCode)).FirstOrDefault().NAME + "' , '";
                 sSQL_Value += display + " , '" + categoryCode + "' , '" + categoryName + "' , '";
                 //end change by Tri 4 Nov 2019, handle category not in db
-                sSQL_Value += brg.attributes.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kodeBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
+                sSQL_Value += brg.attributes.brand.ToString().Replace('\'', '`') + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kodeBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
                 sSQL_Value += ",'" + brg.skus[i].SkuId + "','" + brg.item_id + "'";
                 //change 8 Nov 2019, kalau kategory code sudah tidak bisa ditemukan di lazada tidak perlu disimpan
                 //var attributeLzd = MoDbContext.ATTRIBUTE_LAZADA.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
