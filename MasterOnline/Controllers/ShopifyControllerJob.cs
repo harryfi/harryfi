@@ -1576,8 +1576,10 @@ namespace MasterOnline.Controllers
                 option1 = brgInDb.NAMA2,
                 price = detailBrg.HJUAL.ToString(),
                 inventory_quantity = 1,
-                grams = Convert.ToInt32(brgInDb.BERAT * 1000),
-                weight = Convert.ToInt64(brgInDb.BERAT),
+                //grams = Convert.ToInt32(brgInDb.BERAT * 1000),
+                grams = Convert.ToInt32(brgInDb.BERAT),
+                //weight = Convert.ToInt64(brgInDb.BERAT),
+                weight = Convert.ToInt64(brgInDb.BERAT / 1000),
                 weight_unit = "kg",
                 sku = detailBrg.BRG
             };
@@ -1980,8 +1982,10 @@ namespace MasterOnline.Controllers
                 //option1 = brgInDb.NAMA,
                 price = Convert.ToInt32(detailBrg.HJUAL),
                 inventory_quantity = 1,
-                grams = Convert.ToInt32(brgInDb.BERAT * 1000),
-                weight = Convert.ToInt32(brgInDb.BERAT),
+                //grams = Convert.ToInt32(brgInDb.BERAT * 1000),
+                grams = Convert.ToInt32(brgInDb.BERAT),
+                //weight = Convert.ToInt32(brgInDb.BERAT),
+                weight = Convert.ToInt32(brgInDb.BERAT / 1000),
                 unit_weight = "kg",
                 sku = detailBrg.BRG
             };

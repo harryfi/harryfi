@@ -323,7 +323,7 @@ namespace MasterOnline.Controllers
             username = uname;
         }
 
-        [AutomaticRetry(Attempts = 2)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke JDID Gagal.")]
         public async Task<string> JD_CreateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data)
@@ -776,7 +776,7 @@ namespace MasterOnline.Controllers
             return "";
         }
 
-        [AutomaticRetry(Attempts = 2)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Product {obj} ke JDID Gagal.")]
         public async Task<string> JD_UpdateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data)
@@ -1304,7 +1304,7 @@ namespace MasterOnline.Controllers
             return "";
         }
 
-        [AutomaticRetry(Attempts = 3)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke JD.ID gagal.")]
         public async Task<string> JD_updatePrice(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string id, int price, string uname)
@@ -1441,15 +1441,15 @@ namespace MasterOnline.Controllers
                                 }
 
                                 #region connstring
-#if AWS
-                    string con = "Data Source=localhost;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
-#elif Debug_AWS
-                                string con = "Data Source=13.250.232.74;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
-#else
-                                string con = "Data Source=13.251.222.53;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
-#endif
+//#if AWS
+//                    string con = "Data Source=localhost;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
+//#elif Debug_AWS
+//                                string con = "Data Source=13.250.232.74;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
+//#else
+//                                string con = "Data Source=13.251.222.53;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
+//#endif
                                 #endregion
-                                using (SqlConnection oConnection = new SqlConnection(con))
+                                using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
                                 {
                                     oConnection.Open();
                                     //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
