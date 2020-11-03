@@ -1923,7 +1923,7 @@ namespace MasterOnline.Controllers
 
                                                                                                 int IDMarket = Convert.ToInt32(dataToko.NAMA);
                                                                                                 var dataMP = MoDbContext.Marketplaces.Where(p => p.IdMarket == IDMarket).SingleOrDefault();
-                                                                                                messageErrorLog = "Kode Barang " + kode_brg + " saat ini link di toko " + dataToko.PERSO + " (" + dataMP.NamaMarket.ToString() + ")";
+                                                                                                messageErrorLog = "Kode Barang " + kode_brg + " saat ini tidak link di toko " + dataToko.PERSO + " (" + dataMP.NamaMarket.ToString() + ")";
                                                                                                 tw.WriteLine(messageErrorLog);
                                                                                                 var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                                                                 if (cekLog == null)
