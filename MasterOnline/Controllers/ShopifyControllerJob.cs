@@ -1523,7 +1523,7 @@ namespace MasterOnline.Controllers
             return result;
         }
 
-        [AutomaticRetry(Attempts = 2)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Shopify Gagal.")]
         public async Task<string> Shopify_CreateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, ShopifyAPIData iden)
