@@ -1868,7 +1868,11 @@ namespace MasterOnline.Controllers
                                 if (!string.IsNullOrEmpty(ordersn))
                                 {
                                     ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
+                                    //add 28 okt 2020 update tgl expired
+                                    await GetOrderDetailsUpdateExpiredDate(iden, ordersn, connID, CUST, NAMA_CUST, stat);
+                                    //end add 28 okt 2020 update tgl expired 
+                                    //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0' AND CUST = '" + CUST + "'");
                                     if (rowAffected > 0)
                                     {
                                         jmlhPesananDibayar += rowAffected;
@@ -3038,12 +3042,20 @@ namespace MasterOnline.Controllers
                             CUST = CUST,
                             NAMA_CUST = NAMA_CUST
                         };
+                        //add 27 okt 2020, expired shipping date
+                        newOrder.ship_by_date = null ;
+                        if(order.ship_by_date > 0)
+                        {
+                            newOrder.ship_by_date = DateTimeOffset.FromUnixTimeSeconds(order.ship_by_date).UtcDateTime.AddHours(7);
+                        }
+                        //end add 27 okt 2020, expired shipping date
                         var ShippingFeeData = await GetShippingFee(iden, order.ordersn);
                         if (ShippingFeeData != null)
                         {
                             newOrder.estimated_shipping_fee = (ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee).ToString();
                         }
-                        var listPromo = new Dictionary<long, double>();//add 6 juli 2020
+                        //var listPromo = new Dictionary<long, double>();//add 6 juli 2020
+                        var listPromo = new Dictionary<long, Activity>();//add 6 juli 2020
                         foreach (var item in order.items)
                         {
                             string item_name = !string.IsNullOrEmpty(item.item_name) ? item.item_name.Replace('\'', '`') : "";
@@ -3093,14 +3105,26 @@ namespace MasterOnline.Controllers
                                     var discount = 0d;
                                     if (!listPromo.ContainsKey(item.promotion_id))
                                     {
-                                        discount = await GetEscrowDetail(iden, order.ordersn, item.item_id, item.variation_id, item.promotion_id);
-                                        listPromo.Add(item.promotion_id, discount);
+                                        var dataDisc = await GetEscrowDetail(iden, order.ordersn, item.item_id, item.variation_id, item.promotion_id);
+                                        if (dataDisc.activity_id > 0)
+                                        {
+                                            listPromo.Add(item.promotion_id, dataDisc);
+                                        }
                                     }
-                                    else
-                                    {
-                                        discount = listPromo[item.promotion_id];
-                                    }
+                                    //else
+                                    //{
+                                    //    discount = listPromo[item.promotion_id];
+                                    //}
                                     newOrderItem.variation_discounted_price = item.variation_original_price;
+                                    var dDisc = listPromo[item.promotion_id];
+                                    discount = (Convert.ToInt64(dDisc.original_price) - Convert.ToInt64(dDisc.discounted_price)) * 100 / Convert.ToInt64(dDisc.original_price);
+                                    foreach(var disc in dDisc.items)
+                                    {
+                                        if(item.item_id == disc.item_id && item.variation_id == item.variation_id)
+                                        {
+                                            newOrderItem.variation_discounted_price = disc.original_price;
+                                        }
+                                    }
                                     newOrderItem.DISC = discount;
                                     newOrderItem.N_DISC = Convert.ToInt64(newOrderItem.variation_discounted_price) * newOrderItem.variation_quantity_purchased * discount / 100;
                                 }
@@ -3151,6 +3175,100 @@ namespace MasterOnline.Controllers
                 //    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
                 //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 //}
+            }
+            return ret;
+        }
+
+        public async Task<string> GetOrderDetailsUpdateExpiredDate(ShopeeAPIData iden, string list_noref, string connID, string CUST, string NAMA_CUST, StatusOrder stat)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "";
+            var ordersn_list = new string[0];
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = seconds.ToString(),
+            //    REQUEST_ACTION = "Get Order List", //ganti
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            var dsOrder = EDB.GetDataSet("CString", "SOT01A", "SELECT NO_REFERENSI FROM SOT01A WHERE NO_REFERENSI IN ("+list_noref+") AND STATUS_TRANSAKSI = '0' AND CUST = '"+CUST+"'");
+            if(dsOrder.Tables[0].Rows.Count > 0)
+            {
+                ordersn_list = new string[dsOrder.Tables[0].Rows.Count];
+                for(int i=0; i< dsOrder.Tables[0].Rows.Count; i++)
+                {
+                    ordersn_list[i] = dsOrder.Tables[0].Rows[i]["NO_REFERENSI"].ToString();
+                }
+            }
+            else
+            {
+                return "";
+            }
+            string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
+
+            GetOrderDetailsData HttpBody = new GetOrderDetailsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn_list = ordersn_list
+                //ordersn_list = ordersn_list_test.ToArray()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+                //    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            }
+            catch (Exception ex)
+            {
+                //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+            if (responseFromServer != null)
+            {
+                //try
+                //{
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+
+
+                foreach (var order in result.orders)
+                {
+                    if (order.ship_by_date > 0)
+                    {
+                        var exp_date = DateTimeOffset.FromUnixTimeSeconds(order.ship_by_date).UtcDateTime.AddHours(7);
+                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET ORDER_EXPIRED_DATE = '"+exp_date.ToString("yyyy-MM-dd HH:mm:ss")+"' WHERE NO_REFERENSI = '" + order.ordersn + "' AND CUST = '" + CUST + "'");
+
+                    }
+                }
             }
             return ret;
         }
@@ -3226,11 +3344,11 @@ namespace MasterOnline.Controllers
             return null;
         }
         //end add by Tri 14 Apr 2020, api untuk ambil shipping fee 
-        public async Task<double> GetEscrowDetail(ShopeeAPIData iden, string ordersn, long itemId, long variationId, long activityId)
+        public async Task<Activity> GetEscrowDetail(ShopeeAPIData iden, string ordersn, long itemId, long variationId, long activityId)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            var ret = 0d;
+            var ret = new Activity();
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -3293,8 +3411,9 @@ namespace MasterOnline.Controllers
                                 //}
                                 if (act.activity_id == activityId)
                                 {
-                                    double discount = (Convert.ToInt64(act.original_price) - Convert.ToInt64(act.discounted_price)) * 100 / Convert.ToInt64(act.original_price);
-                                    return discount;
+                                    //double discount = (Convert.ToInt64(act.original_price) - Convert.ToInt64(act.discounted_price)) * 100 / Convert.ToInt64(act.original_price);
+                                    //return discount;
+                                    return act;
                                 }
 
                             }
@@ -8415,6 +8534,7 @@ namespace MasterOnline.Controllers
             public string dropshipper { get; set; }
             public string buyer_username { get; set; }
             public string cancel_reason { get; set; }//add by Tri 9 Des 2019
+            public long ship_by_date { get; set; }//add by Tri 27 okt 2020
         }
 
         public class ShopeeGetOrderDetailsResultRecipient_Address
