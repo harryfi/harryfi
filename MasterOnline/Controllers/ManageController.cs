@@ -32306,7 +32306,7 @@ namespace MasterOnline.Controllers
                 //var listItem = ErasoftDbContext.STF02.ToList(); 'change by nurul 21/1/2019
                 //change 18/10/2019, tuning
                 //var listItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
-                var listBRGItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").Select(p => p.BRG).ToList();
+                var listBRGItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3" || a.TYPE == "6").Select(p => p.BRG).ToList();
                 //end change 18/10/2019, tuning
                 var listSTF02H = ErasoftDbContext.STF02H.Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
 
@@ -32443,7 +32443,7 @@ namespace MasterOnline.Controllers
                                             //change 18/10/2019, tuning
                                             //listItem = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.TYPE == "3").ToList();
                                             //listBRGItem = listItem.Select(p => p.BRG).ToList();
-                                            listBRGItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").Select(p => p.BRG).ToList();
+                                            listBRGItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3" || a.TYPE == "6").Select(p => p.BRG).ToList();
                                             //end change 18/10/2019, tuning
                                             listSTF02H = ErasoftDbContext.STF02H.AsNoTracking().Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
                                         }
@@ -32703,7 +32703,7 @@ namespace MasterOnline.Controllers
                             if (!string.IsNullOrEmpty(newfakturdetail.BRG))
                             {
                                 var cekTypeBrg = ErasoftDbContext.STF02.Where(a => a.BRG == newfakturdetail.BRG).SingleOrDefault();
-                                if(cekTypeBrg.BRG != null)
+                                if(cekTypeBrg != null)
                                 {
                                     if(cekTypeBrg.TYPE == "6" && cekTypeBrg.KUBILASI == 1 && !string.IsNullOrEmpty(cekTypeBrg.BRG_NON_OS))
                                     {
@@ -33082,7 +33082,7 @@ namespace MasterOnline.Controllers
                 //var listItem = ErasoftDbContext.STF02.ToList(); 'change by nurul 21/1/2019
                 //change 18/10/2019, tuning
                 //var listItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
-                var listBRGItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").Select(p => p.BRG).ToList();
+                var listBRGItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3" || a.TYPE == "6").Select(p => p.BRG).ToList();
                 //end change 18/10/2019, tuning
                 var listSTF02H = ErasoftDbContext.STF02H.Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
 
@@ -33211,7 +33211,7 @@ namespace MasterOnline.Controllers
                                             //change 18/10/2019, tuning
                                             //listItem = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.TYPE == "3").ToList();
                                             //listBRGItem = listItem.Select(p => p.BRG).ToList();
-                                            listBRGItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").Select(p => p.BRG).ToList();
+                                            listBRGItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3" || a.TYPE == "6").Select(p => p.BRG).ToList();
                                             //end change 18/10/2019, tuning
                                             listSTF02H = ErasoftDbContext.STF02H.AsNoTracking().Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
                                         }
@@ -33479,7 +33479,7 @@ namespace MasterOnline.Controllers
                             if (!string.IsNullOrEmpty(newfakturdetail.BRG))
                             {
                                 var cekTypeBrg = ErasoftDbContext.STF02.Where(a => a.BRG == newfakturdetail.BRG).SingleOrDefault();
-                                if (cekTypeBrg.BRG != null)
+                                if (cekTypeBrg != null)
                                 {
                                     if (cekTypeBrg.TYPE == "6" && cekTypeBrg.KUBILASI == 1 && !string.IsNullOrEmpty(cekTypeBrg.BRG_NON_OS))
                                     {
@@ -33759,7 +33759,7 @@ namespace MasterOnline.Controllers
                 //change 18/10/2019, tuning
                 //var listItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
                 //var listBRGItem = listItem.Select(p => p.BRG).ToList();
-                var listBRGItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").Select(p => p.BRG).ToList();
+                var listBRGItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3" || a.TYPE == "6").Select(p => p.BRG).ToList();
                 //end change 18/10/2019, tuning
                 var listSTF02H = ErasoftDbContext.STF02H.Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
 
@@ -34034,7 +34034,7 @@ namespace MasterOnline.Controllers
                             if (!string.IsNullOrEmpty(newfakturdetail.BRG))
                             {
                                 var cekTypeBrg = ErasoftDbContext.STF02.Where(a => a.BRG == newfakturdetail.BRG).SingleOrDefault();
-                                if (cekTypeBrg.BRG != null)
+                                if (cekTypeBrg != null)
                                 {
                                     if (cekTypeBrg.TYPE == "6" && cekTypeBrg.KUBILASI == 1 && !string.IsNullOrEmpty(cekTypeBrg.BRG_NON_OS))
                                     {
