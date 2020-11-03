@@ -37115,8 +37115,8 @@ namespace MasterOnline.Controllers
                                 //brgMp.USERNAME = "SYSTEM_UPLOAD_BRG";
                                 brgMp.USERNAME = data.Stf02.USERNAME;
                                 #region attribute mp
-                                brgMp.ACODE_1 = data.TempBrg.ACODE_1;
-                                brgMp.ANAME_1 = data.TempBrg.ANAME_1;
+                                brgMp.ACODE_1 = tempBrginDB.ACODE_1;
+                                brgMp.ANAME_1 = tempBrginDB.ANAME_1;
                                 if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
                                 {
                                     brgMp.AVALUE_1 = HttpUtility.HtmlDecode(tempBrginDB.AVALUE_1);
