@@ -4841,16 +4841,22 @@ namespace MasterOnline.Controllers
                     //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                     foreach (var item in result.data.children)
                     {
-                        if (createBrg)
+                        //change by Tri 3 nov 2020, selalu update brg mp tokped karena bisa berubah saat edit nama
+                        //if (createBrg)
+                        //{
+                        //    var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.product_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(item.sku) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+
+                        //}
+                        //else//saat update, isi kode brg mp jika sebelumnya kosong(tambah varian baru)
+                        //{
+                        //    var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.product_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(item.sku) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "' AND ISNULL(BRG_MP, '') = ''");
+
+                        //}
+                        if (!string.IsNullOrWhiteSpace(item.sku))
                         {
                             var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.product_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(item.sku) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
-
                         }
-                        else//saat update, isi kode brg mp jika sebelumnya kosong(tambah varian baru)
-                        {
-                            var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.product_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(item.sku) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "' AND ISNULL(BRG_MP, '') = ''");
-
-                        }
+                        //end change by Tri 3 nov 2020, selalu update brg mp tokped karena bisa berubah saat edit nama
                         //add by Tri 21 Jan 2019, update stok setelah create product sukses 
                         if (createBrg || brgInDB.DISPLAY)
                             if (customer != null)
