@@ -323,7 +323,7 @@ namespace MasterOnline.Controllers
             username = uname;
         }
 
-        [AutomaticRetry(Attempts = 2)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke JDID Gagal.")]
         public async Task<string> JD_CreateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data)
@@ -776,7 +776,7 @@ namespace MasterOnline.Controllers
             return "";
         }
 
-        [AutomaticRetry(Attempts = 2)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Product {obj} ke JDID Gagal.")]
         public async Task<string> JD_UpdateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data)
@@ -1304,7 +1304,7 @@ namespace MasterOnline.Controllers
             return "";
         }
 
-        [AutomaticRetry(Attempts = 3)]
+        [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke JD.ID gagal.")]
         public async Task<string> JD_updatePrice(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIDataJob data, string id, int price, string uname)
