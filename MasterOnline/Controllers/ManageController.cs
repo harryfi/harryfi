@@ -33464,10 +33464,7 @@ namespace MasterOnline.Controllers
                             QTY_RETUR = 0,
                             GUDANG = "001" //buat default gudang 001, untuk semua akun baru
                         };
-
-                        //add by nurul 21/9/2020, brg multi sku 
-                        var tempBrgDetail = newfakturdetail.BRG;
-                        //end add by nurul 21/9/2020, brg multi sku 
+                                                
                         //ErasoftDbContext.SIT01B.Add(newfakturdetail);
                         if (!barangFakturLolosValidasi)
                         {
@@ -33487,6 +33484,25 @@ namespace MasterOnline.Controllers
                                         newfakturdetail.BRG_MULTISKU = cekTypeBrg.BRG;
                                     }
                                 }
+                                //add by nurul 3/11/2020, handle brg_mp = sku excel tapi brg <> brg_mp
+                                else
+                                {
+                                    var cekStf02BrgMp = ErasoftDbContext.STF02H.Where(a => a.BRG_MP == newfakturdetail.BRG).SingleOrDefault();
+                                    if(cekStf02BrgMp != null)
+                                    {
+                                        newfakturdetail.BRG = cekStf02BrgMp.BRG;
+                                        var cekTypeBrgForMultiSKU = ErasoftDbContext.STF02.Where(a => a.BRG == cekStf02BrgMp.BRG).SingleOrDefault();
+                                        if(cekTypeBrgForMultiSKU != null)
+                                        {
+                                            if (cekTypeBrgForMultiSKU.TYPE == "6" && cekTypeBrgForMultiSKU.KUBILASI == 1 && !string.IsNullOrEmpty(cekTypeBrgForMultiSKU.BRG_NON_OS))
+                                            {
+                                                newfakturdetail.BRG = cekTypeBrgForMultiSKU.BRG_NON_OS;
+                                                newfakturdetail.BRG_MULTISKU = cekTypeBrgForMultiSKU.BRG;
+                                            }
+                                        }
+                                    }
+                                }
+                                //end add by nurul 3/11/2020
                             }
                         }
                         //end add by nurul 21/9/2020, brg multi sku 
