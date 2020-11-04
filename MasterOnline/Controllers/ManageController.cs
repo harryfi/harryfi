@@ -17747,7 +17747,11 @@ namespace MasterOnline.Controllers
                 if (dataVm.FakturDetail.NO_URUT == null)
                 {
                     ErasoftDbContext.SIT01B.Add(dataVm.FakturDetail);
-                    ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = dataVm.Faktur.BRUTO });
+                    //CHANGE BY NURUL 4/11/2020
+                    //ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = dataVm.Faktur.BRUTO });
+                    var sSQL = "UPDATE SIT01A SET BRUT0 = BRUTO WHERE NO_BUKTI='" + noOrder + "' AND JENIS_FORM ='2'";
+                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                    //END CHANGE BY NURUL 4/11/2020
                 }
             }
             else
@@ -19061,7 +19065,12 @@ namespace MasterOnline.Controllers
                 var barangFakturInDb = ErasoftDbContext.SIT01B.Single(b => b.NO_URUT == noUrut && b.JENIS_FORM == "2");
                 var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == barangFakturInDb.NO_BUKTI && p.JENIS_FORM == "2");
 
+                //CHANGE BY NURUL 4/11/2020
                 fakturInDb.BRUTO -= barangFakturInDb.HARGA;
+                var getBrutoFromDetail = ErasoftDbContext.SIT01B.Where(a => a.NO_BUKTI == fakturInDb.NO_BUKTI && a.JENIS_FORM == "2" && a.NO_URUT != noUrut).Sum(a => a.HARGA);
+                fakturInDb.BRUTO = getBrutoFromDetail;
+                //END CHANGE BY NURUL 4/11/2020
+
                 //change by nurul 2/10/2019
                 //fakturInDb.NILAI_PPN = Math.Ceiling((double)fakturInDb.PPN * (double)fakturInDb.BRUTO / 100);
                 ////change by nurul 8/10/2018  fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN;
