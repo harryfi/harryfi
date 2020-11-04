@@ -1899,6 +1899,10 @@ namespace MasterOnline.Controllers
                                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari Shopee.");
                                 }
                             }
+
+                            //add by nurul 28/10/2020, bundling
+                            new ManageController().getQtyBundling();
+                            //add by nurul 28/10/2020, bundling
                         }
                     }
                 }
@@ -2096,6 +2100,10 @@ namespace MasterOnline.Controllers
                                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhNewOrder) + " Pesanan dari Shopee dibatalkan.");
                                 }
                             }
+
+                            //add by nurul 28/10/2020, bundling
+                            new ManageController().getQtyBundling();
+                            //add by nurul 28/10/2020, bundling
                         }
                     }
                 }

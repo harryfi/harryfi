@@ -712,6 +712,13 @@ namespace MasterOnline.Controllers
                 // tunning untuk tidak duplicate
                 var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + connId + "%' and invocationdata like '%blibli%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%'");
                 // end tunning untuk tidak duplicate
+
+                //add by nurul 28/10/2020, bundling
+                if (stat == StatusOrder.Paid || stat == StatusOrder.Cancel)
+                {
+                    new ManageController().getQtyBundling();
+                }
+                //add by nurul 28/10/2020, bundling
             }
 
 

@@ -63,6 +63,11 @@ namespace MasterOnline.ViewModels
         public List<STF18> listGudang { get; set; }
         public List<brgForReturPrompt> listBarangRetur { get; set; } = new List<brgForReturPrompt>();
         //end add by nurul 8/6/2020
+
+        //add by nurul 20/10/2020
+        public SIT01H FakturBundling { get; set; }
+        public List<SIT01H> ListFakturBundling { get; set; } = new List<SIT01H>();
+        //end add by nurul 20/10/2020
     }
 
     public class CetakLabelViewModel

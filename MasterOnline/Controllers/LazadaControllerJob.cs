@@ -1957,11 +1957,15 @@ namespace MasterOnline.Controllers
                     more = false;
                 }
             }
-
+            
             // tunning untuk tidak duplicate
             var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrdersUnpaid%' and invocationdata not like '%GetOrdersRTS%' and invocationdata not like '%GetOrdersCancelled%' and invocationdata not like '%GetOrdersToUpdateMO%' ");
             // end tunning untuk tidak duplicate
+
+            //add by nurul 28/10/2020, bundling
+            new ManageController().getQtyBundling();
+            //add by nurul 28/10/2020, bundling
 
             return ret;
         }
@@ -1994,6 +1998,10 @@ namespace MasterOnline.Controllers
             var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersRTS%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
+
+            //add by nurul 28/10/2020, bundling
+            new ManageController().getQtyBundling();
+            //add by nurul 28/10/2020, bundling
 
             return ret;
         }
@@ -2748,11 +2756,16 @@ namespace MasterOnline.Controllers
                     more = false;
                 }
             }
+                      
 
             // tunning untuk tidak duplicate
             var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
+
+            //add by nurul 28/10/2020, bundling
+            new ManageController().getQtyBundling();
+            //add by nurul 28/10/2020, bundling
 
             return ret;
         }
@@ -3262,6 +3275,10 @@ namespace MasterOnline.Controllers
             var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
+
+            //add by nurul 28/10/2020, bundling
+            new ManageController().getQtyBundling();
+            //add by nurul 28/10/2020, bundling
 
             return ret;
         }

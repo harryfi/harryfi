@@ -97,6 +97,11 @@
 </style>
 
 <script type="text/javascript">
+    @{
+        var flagBundling = Model?.Faktur?.APPROVAL.ToString();
+    }
+    var flagBundling = @Html.Raw(Json.Encode(flagBundling));
+
     $(document).ready(function () {
         Initialize();
     });
@@ -274,7 +279,33 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6"></div>
+        <div class="col-md-6">
+            @*//add by nurul 26/10/2020*@
+            <div class="form-group">
+                @Html.LabelFor(m => m.Faktur.APPROVAL, "Faktur ini ada bundling", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "top: -10px;" })
+                @Html.HiddenFor(m => m.Faktur.APPROVAL, new { data_cbx = $"cbx-Bundling", @class = "cbxBundling" })
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    <div class="input-group">
+                        @if ((Model.Faktur == null ? false : Model.Faktur.APPROVAL) == true)
+                        {
+                            //memiliki bundling
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="cbxFakturBundling" class="cbxBundling" name="@($"cbx-Faktur-Bundling")" checked />
+                                <span class="checkmark"></span>
+                            </label>
+                        }
+                        else
+                        {
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="cbxFakturBundling" class="cbxBundling" name="@($"cbx-Faktur-Bundling")" @*onclick="validateBundling($('#cbxPesananBundling').is(':checked'));"*@ />
+                                <span class="checkmark"></span>
+                            </label>
+                        }
+                    </div>
+                </div>
+            </div>
+            @*//add by nurul 26/10/2020*@
+        </div>
     </div>
     <hr />
     <div class="row">
@@ -378,6 +409,81 @@
     <div class="col-lg-12">
         @*<div class="hscroll table-responsive fakturtform"> --change by nurul 15/8/2019*@
         <div class="fakturtform">
+            @*//add by nurul 20/10/2020*@
+            <table id="table_tambah_bundling" class="table table-bordered" role="grid">
+                <thead>
+                    <tr>
+                        <th width="200">Kode Brg Bundling</th>
+                        <th width="200">Nama Brg Bundling</th>
+                        <th width="30">Qty Bundling</th>
+                        <th width="60">Harga Bundling</th>
+                        <th width="35">Simpan</th>
+                        <th width="35">Hapus</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var listBarangBundling = Model.ListBarang.ToList();
+                    }
+                    @foreach (var bundling in Model.ListFakturBundling.Where(pb => pb.NO_BUKTI == Model?.Faktur?.NO_BUKTI).ToList())
+                    {
+                        <tr data-bundling-id="bundling-@bundling.RECNUM">
+                            @{
+                                var barang = listBarangBundling.SingleOrDefault(b => b.BRG.ToUpper() == bundling.BRG.ToUpper());
+                                var namaBarang = barang == null ? "" : (barang.NAMA + " " + barang.NAMA2);
+                            }
+                            <td class="brg-bundling">@bundling.BRG</td>
+                            <td class="nama-bundling">@namaBarang</td>
+                            <td class="qty-bundling">@bundling.QTY</td>
+                            <td class="harga-bundling" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", bundling.HARGA)
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button type="button" class="btn btn-primary btn-save-bundling" disabled="disabled">
+                                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button class="btn btn-danger btn-delete-bundling" type="button" data-toggle="modal" data-target="#konfHapusBundling" onclick="passBundling('@bundling.RECNUM')">
+                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    <tr data-bundling-id="0">
+                        @Html.HiddenFor(m => m.FakturBundling.RECNUM)
+                        @Html.HiddenFor(m => m.FakturBundling.TGL_EDIT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                        @Html.HiddenFor(m => m.FakturBundling.USERNAME, new { Value = username })
+                        <td class="brg-bundling" style="width: 120px; max-width: 120px;">
+                            <span id="harga-satuan-bundling" style="display: none;"></span>
+                            <div id="bundling-select" style="display: none;">
+                                <select id="BRG_BUNDLING" placeholder="Pilih Barang" class="barang_bundling"></select>
+                            </div>
+                            @Html.HiddenFor(m => m.FakturBundling.BRG)
+                        </td>
+                        <td class="nama-bundling" style="width: 200px; max-width: 200px;">-</td>
+                        <td class="qty-bundling">
+                            0
+                            @Html.HiddenFor(m => m.FakturBundling.QTY)
+                        </td>
+                        <td class="harga-bundling" style="text-align:right">
+                            0,00
+                            @Html.HiddenFor(m => m.FakturBundling.HARGA)
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button type="button" class="btn btn-primary btn-save-bundling" disabled="disabled" onclick="simpanBundling('bundling-0')">
+                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button class="btn btn-danger btn-delete-bundling" disabled="disabled">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            @*//end add by nurul 20/10/2020*@
             <table id="table_tambah_faktur" class="table table-bordered" role="grid">
                 <thead>
                     <tr>
@@ -503,15 +609,15 @@
                         <td class="nama-barang">-</td>
                         @*//ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
                         @*<td class="barang-multisku" style="width: 100px !important; max-width: 100px !important;padding:5px !important">
-                                @Html.TextBoxFor(m => m.FakturDetail.BRG_MULTISKU, new { @readonly = "readonly", placeholder = "Pilih Barang", @style = "background-color : #eee; cursor :not-allowed; height: 34px; width: 210px !important; ; margin-right:0px", @class = "nbrg-class" })
-                                <button id="tambah-brg" class="btn btn-default" type="button" style="height: 34px;margin:0px;width:25px !important;padding:unset" onclick="PromptMultiSKUFaktur()">
-                                    <span class="glyphicon glyphicon-option-horizontal center-block"></span>
-                                </button>
-                            </td>*@
+                        @Html.TextBoxFor(m => m.FakturDetail.BRG_MULTISKU, new { @readonly = "readonly", placeholder = "Pilih Barang", @style = "background-color : #eee; cursor :not-allowed; height: 34px; width: 210px !important; ; margin-right:0px", @class = "nbrg-class" })
+                        <button id="tambah-brg" class="btn btn-default" type="button" style="height: 34px;margin:0px;width:25px !important;padding:unset" onclick="PromptMultiSKUFaktur()">
+                            <span class="glyphicon glyphicon-option-horizontal center-block"></span>
+                        </button>
+                    </td>*@
                         <td class="barang-multisku">
                             <span id="multisku-kode">-</span>
                             <div id="multisku-select" style="display: none;">
-                                <select id="BRG_MULTI_SKU" placeholder="Pilih Barang"  class="barang_multisku"></select>
+                                <select id="BRG_MULTI_SKU" placeholder="Pilih Barang" class="barang_multisku"></select>
                             </div>
                             @Html.HiddenFor(m => m.FakturDetail.BRG_MULTISKU)
                         </td>

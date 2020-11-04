@@ -1691,6 +1691,10 @@ namespace MasterOnline.Controllers
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusPaid%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusComplete%' and invocationdata not like '%JD_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
 
+            //add by nurul 28/10/2020, bundling
+            new ManageController().getQtyBundling();
+            //add by nurul 28/10/2020, bundling
+
             return ret;
         }
 
@@ -1813,6 +1817,10 @@ namespace MasterOnline.Controllers
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusRTS%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusComplete%' and invocationdata not like '%JD_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
 
+            //add by nurul 28/10/2020, bundling
+            new ManageController().getQtyBundling();
+            //add by nurul 28/10/2020, bundling
+
             return ret;
         }
 
@@ -1934,6 +1942,10 @@ namespace MasterOnline.Controllers
             }
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusCancel%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusComplete%' ");
             // end tunning untuk tidak duplicate
+
+            //add by nurul 28/10/2020, bundling
+            new ManageController().getQtyBundling();
+            //add by nurul 28/10/2020, bundling
 
             return ret;
         }

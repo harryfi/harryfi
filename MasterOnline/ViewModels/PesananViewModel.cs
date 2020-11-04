@@ -56,6 +56,11 @@ namespace MasterOnline.ViewModels
         //add by nurul 5/5/2020
         public string namaMarket { get; set; }
         //end add by nurul 5/5/2020
+
+        //add by nurul 20/10/2020
+        public SOT01G PesananBundling { get; set; }
+        public List<SOT01G> ListPesananBundling { get; set; } = new List<SOT01G>();
+        //end add by nurul 20/10/2020
     }
 
     //add by nurul 24/3/2020

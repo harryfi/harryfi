@@ -122,6 +122,10 @@ namespace MasterOnline.Controllers
             //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%Shopify_GetOrderByStatusUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%Shopify_GetOrderByStatusPaid%' and invocationdata not like '%Shopify_GetOrderByStatusCompleted%' and invocationdata not like '%Shopify_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
 
+            //add by nurul 28/10/2020, bundling
+            new ManageController().getQtyBundling();
+            //add by nurul 28/10/2020, bundling
+
             return ret;
         }
 
@@ -436,6 +440,10 @@ namespace MasterOnline.Controllers
             //}
             //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%Shopify_GetOrderByStatusUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%Shopify_GetOrderByStatusPaid%' and invocationdata not like '%Shopify_GetOrderByStatusCompleted%' and invocationdata not like '%Shopify_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
+
+            //add by nurul 28/10/2020, bundling
+            new ManageController().getQtyBundling();
+            //add by nurul 28/10/2020, bundling
 
             return ret;
         }
@@ -839,6 +847,10 @@ namespace MasterOnline.Controllers
             //var queryStatus = "\\\"}\"" + "," + "\"6\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","6","\"000003\""
             //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%E2Cart_GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             //// end tunning untuk tidak duplicate
+
+            //add by nurul 28/10/2020, bundling
+            new ManageController().getQtyBundling();
+            //add by nurul 28/10/2020, bundling
 
             return ret;
         }
