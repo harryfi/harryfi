@@ -1627,10 +1627,29 @@ namespace MasterOnline.Controllers
 
                                                                                                 var kodePembeli = "";
                                                                                                 string address = "";
-                                                                                                var dataPembeli = eraDB.ARF01C.Where(p => p.NAMA == nama_pembeli && p.TLP == no_telpPembeli).FirstOrDefault();
-                                                                                                var alamatAutoSplit1 = alamat_kirim.Length > 30 ? alamat_kirim.Substring(0, 29) : alamat_kirim.ToString();
-                                                                                                var alamatAutoSplit2 = alamat_kirim.Length > 80 ? alamat_kirim.Substring(30, 50) : "";
-                                                                                                //var alamatAutoSplit3 = alamat_kirim.Length > 120 ? alamat_kirim.Substring(80, 119) : alamat_kirim.ToString();
+                                                                                                var dataPembeli = eraDB.ARF01C.Where(p => p.NAMA == nama_pembeli.Replace("'", "`") && p.TLP == no_telpPembeli.Replace(" ", "").Replace("'", "`").Replace("`", "").Replace("+", "").Replace("-", "")).FirstOrDefault();
+
+                                                                                                var alamatAutoSplit1 = "";
+                                                                                                var alamatAutoSplit2 = "";
+                                                                                                var alamatAutoSplit3 = "";
+
+                                                                                                if (alamat_kirim.Length >= 40)
+                                                                                                {
+                                                                                                    alamatAutoSplit1 = alamat_kirim.Substring(0, 40);
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    alamatAutoSplit1 = alamat_kirim.ToString();
+                                                                                                }
+                                                                                                //if (alamat_kirim.Length > 30 && alamat_kirim.Length <= 40)
+                                                                                                //    alamatAutoSplit2 = alamat_kirim.Substring(30, alamat_kirim.Length - 30);
+                                                                                                //if (alamat_kirim.Length > 60 && alamat_kirim.Length <= 70)
+                                                                                                //    alamatAutoSplit3 = alamat_kirim.Substring(60, alamat_kirim.Length - 60);
+
+
+                                                                                                //var alamatAutoSplit1 = alamat_kirim.Length > 40 ? alamat_kirim.Substring(0, 40) : alamat_kirim.ToString();
+                                                                                                //var alamatAutoSplit2 = alamat_kirim.Length > 80 ? alamat_kirim.Substring(30, 40) : "";
+                                                                                                //var alamatAutoSplit3 = alamat_kirim.Length > 120 ? alamat_kirim.Substring(80, 119) : "";
 
                                                                                                 if (dataPembeli == null)
                                                                                                 {
@@ -1650,8 +1669,8 @@ namespace MasterOnline.Controllers
 
                                                                                                     insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01', 1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                                                                                                         ((nama_pembeli ?? "").Replace("'", "`")),
-                                                                                                        ((address ?? "").Replace("'", "`")),
-                                                                                                         ((no_telpPembeli).Replace("'", "`")),
+                                                                                                        (alamatAutoSplit1.Replace("'", "`") + alamatAutoSplit2.Replace("'", "`") + alamatAutoSplit3.Replace("'", "`")),
+                                                                                                         ((no_telpPembeli).Replace("'", "`").Replace("`", "").Replace("+", "").Replace(" ", "").Replace("-", "")),
                                                                                                         (dataToko.PERSO.Replace(',', '.')),
                                                                                                         ((address ?? "").Replace("'", "`")),
                                                                                                         DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -1663,7 +1682,7 @@ namespace MasterOnline.Controllers
                                                                                                         );
                                                                                                     insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
                                                                                                     EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
-                                                                                                    kodePembeli = eraDB.ARF01C.Where(p => p.NAMA == nama_pembeli && p.TLP == no_telpPembeli).Select(p => p.BUYER_CODE).FirstOrDefault();
+                                                                                                    kodePembeli = eraDB.ARF01C.Where(p => p.NAMA == nama_pembeli.Replace("'", "`") && p.TLP == no_telpPembeli.Replace("-", "").Replace(" ", "").Replace("'", "`").Replace("`", "").Replace("+", "")).Select(p => p.BUYER_CODE).FirstOrDefault();
                                                                                                     //kodePembeli = dataMasterARF01C.Where(p => p.NAMA == nama).Select(p => p.BUYER_CODE).FirstOrDefault();
                                                                                                 }
                                                                                                 else
@@ -1684,7 +1703,7 @@ namespace MasterOnline.Controllers
                                                                                                         AL = alamatAutoSplit1,
                                                                                                         AL1 = alamatAutoSplit1,
                                                                                                         AL2 = alamatAutoSplit2,
-                                                                                                        AL3 = "",
+                                                                                                        AL3 = alamatAutoSplit3,
                                                                                                         ALAMAT_KIRIM = alamat_kirim,
                                                                                                         AL_CUST = "",
                                                                                                         BRUTO = Convert.ToInt32(bruto),
@@ -1704,7 +1723,7 @@ namespace MasterOnline.Controllers
                                                                                                         KODE_WIL = "",
                                                                                                         KOMISI = 0,
                                                                                                         KOTA = null,
-                                                                                                        NAMAPEMESAN = nama_pembeli,
+                                                                                                        NAMAPEMESAN = nama_pembeli.Replace("'", "`"),
                                                                                                         NAMAPENGIRIM = null,
                                                                                                         NAMA_CUST = dataToko.PERSO,
                                                                                                         NETTO = Convert.ToInt32(netto),
@@ -1738,7 +1757,7 @@ namespace MasterOnline.Controllers
                                                                                                         TGL_JTH_TEMPO = DateTime.Now.AddHours(7).AddDays(Convert.ToInt32(top)),
                                                                                                         TGL_KIRIM = null,
                                                                                                         TIPE_KIRIM = 0,
-                                                                                                        TOTAL_SEMUA = Convert.ToInt32(total),
+                                                                                                        TOTAL_SEMUA = Convert.ToInt32(bruto),
                                                                                                         TOTAL_TITIPAN = 0,
                                                                                                         TRACKING_SHIPMENT = null,
                                                                                                         UCAPAN = "",
@@ -1796,13 +1815,13 @@ namespace MasterOnline.Controllers
                                                                                                     noBuktiSO = checkDuplicateHeader.NO_BUKTI;
                                                                                                 }
 
-                                                                                                if (!string.IsNullOrEmpty(diskon) || !string.IsNullOrEmpty(ndisc1) || !string.IsNullOrEmpty(nilai_ppn) || !string.IsNullOrEmpty(netto) || !string.IsNullOrEmpty(total))
+                                                                                                if (string.IsNullOrEmpty(diskon) || string.IsNullOrEmpty(ndisc1) || string.IsNullOrEmpty(nilai_ppn))
                                                                                                 {
                                                                                                     diskon = "0";
                                                                                                     ndisc1 = "0";
                                                                                                     nilai_ppn = "0";
-                                                                                                    netto = "0";
-                                                                                                    total = "0";
+                                                                                                    //netto = "0";
+                                                                                                    //total = "0";
                                                                                                 }
 
                                                                                                 var sot01b = new SOT01B
@@ -1815,7 +1834,7 @@ namespace MasterOnline.Controllers
                                                                                                     QTY = Convert.ToInt32(qty),
                                                                                                     DISCOUNT = Convert.ToInt32(diskon),
                                                                                                     NILAI_DISC = Convert.ToInt32(ndisc1),
-                                                                                                    HARGA = Convert.ToInt32(harga_satuan),
+                                                                                                    HARGA = Convert.ToInt32(total),
                                                                                                     WRITE_KONFIG = false,
                                                                                                     QTY_KIRIM = 0,
                                                                                                     QTY_RETUR = 0,
@@ -2488,7 +2507,7 @@ namespace MasterOnline.Controllers
                             }
                             catch (Exception ex)
                             {
-                                tw.WriteLine(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+                                 tw.WriteLine(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
                                 //transaction.Rollback();
                                 //new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                 ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
