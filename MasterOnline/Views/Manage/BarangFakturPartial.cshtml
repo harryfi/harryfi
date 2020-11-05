@@ -289,20 +289,24 @@
                         @if ((Model.Faktur == null ? false : Model.Faktur.APPROVAL) == true)
                         {
                             //memiliki bundling
-                            <label class="checkbox-container">
-                                <input type="checkbox" id="cbxFakturBundling" class="cbxBundling" name="@($"cbx-Faktur-Bundling")" checked />
-                                <span class="checkmark"></span>
-                            </label>
+                            <div style="padding-left:10px;">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="cbxFakturBundling" class="cbxBundling" name="@($"cbx-Faktur-Bundling")" checked />
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
                         }
                         else
                         {
-                            <label class="checkbox-container">
-                                <input type="checkbox" id="cbxFakturBundling" class="cbxBundling" name="@($"cbx-Faktur-Bundling")" @*onclick="validateBundling($('#cbxPesananBundling').is(':checked'));"*@ />
-                                <span class="checkmark"></span>
-                            </label>
+                            <div style="padding-left:10px;">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="cbxFakturBundling" class="cbxBundling" name="@($"cbx-Faktur-Bundling")" @*onclick="validateBundling($('#cbxPesananBundling').is(':checked'));"*@ />
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
                         }
                     </div>
-                </div>
+                        </div>
             </div>
             @*//add by nurul 26/10/2020*@
         </div>
@@ -415,8 +419,9 @@
                     <tr>
                         <th width="200">Kode Brg Bundling</th>
                         <th width="200">Nama Brg Bundling</th>
-                        <th width="30">Qty Bundling</th>
-                        <th width="60">Harga Bundling</th>
+                        <th width="80">Gudang</th>
+                        <th width="30">Qty</th>
+                        <th width="60">Total Harga</th>
                         <th width="35">Simpan</th>
                         <th width="35">Hapus</th>
                     </tr>
@@ -434,6 +439,9 @@
                             }
                             <td class="brg-bundling">@bundling.BRG</td>
                             <td class="nama-bundling">@namaBarang</td>
+                            <td class="gd-bundling">
+                                @bundling.GD
+                            </td>
                             <td class="qty-bundling">@bundling.QTY</td>
                             <td class="harga-bundling" style="text-align:right">
                                 @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", bundling.HARGA)
@@ -450,37 +458,44 @@
                             </td>
                         </tr>
                     }
-                    <tr data-bundling-id="0">
-                        @Html.HiddenFor(m => m.FakturBundling.RECNUM)
-                        @Html.HiddenFor(m => m.FakturBundling.TGL_EDIT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
-                        @Html.HiddenFor(m => m.FakturBundling.USERNAME, new { Value = username })
-                        <td class="brg-bundling" style="width: 120px; max-width: 120px;">
-                            <span id="harga-satuan-bundling" style="display: none;"></span>
-                            <div id="bundling-select" style="display: none;">
-                                <select id="BRG_BUNDLING" placeholder="Pilih Barang" class="barang_bundling"></select>
-                            </div>
-                            @Html.HiddenFor(m => m.FakturBundling.BRG)
-                        </td>
-                        <td class="nama-bundling" style="width: 200px; max-width: 200px;">-</td>
-                        <td class="qty-bundling">
-                            0
-                            @Html.HiddenFor(m => m.FakturBundling.QTY)
-                        </td>
-                        <td class="harga-bundling" style="text-align:right">
-                            0,00
-                            @Html.HiddenFor(m => m.FakturBundling.HARGA)
-                        </td>
-                        <td class="edit-hapus-col">
-                            <button type="button" class="btn btn-primary btn-save-bundling" disabled="disabled" onclick="simpanBundling('bundling-0')">
-                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-                            </button>
-                        </td>
-                        <td class="edit-hapus-col">
-                            <button class="btn btn-danger btn-delete-bundling" disabled="disabled">
-                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                            </button>
-                        </td>
-                    </tr>
+                        <tr data-bundling-id="0">
+                            @Html.HiddenFor(m => m.FakturBundling.RECNUM)
+                            @Html.HiddenFor(m => m.FakturBundling.TGL_EDIT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                            @Html.HiddenFor(m => m.FakturBundling.USERNAME, new { Value = username })
+                            <td class="brg-bundling" style="width: 120px; max-width: 120px;">
+                                <span id="harga-satuan-bundling" style="display: none;"></span>
+                                <div id="bundling-select" style="display: none;">
+                                    <select id="BRG_BUNDLING" placeholder="Pilih Barang" class="barang_bundling"></select>
+                                </div>
+                                @Html.HiddenFor(m => m.FakturBundling.BRG)
+                            </td>
+                            <td class="nama-bundling" style="width: 200px; max-width: 200px;">-</td>
+                            <td class="gd-bundling">
+                                <span id="gudang-bundling-kode">-</span>
+                                <div id="gudang-bundling-select" style="display: none;">
+                                    <select id="GUDANG_BUNDLING" placeholder="Pilih" required="required" class="gudang_bundling_detail"></select>
+                                </div>
+                                @Html.HiddenFor(m => m.FakturBundling.GD)
+                            </td>
+                            <td class="qty-bundling">
+                                0
+                                @Html.HiddenFor(m => m.FakturBundling.QTY)
+                            </td>
+                            <td class="harga-bundling" style="text-align:right">
+                                0,00
+                                @Html.HiddenFor(m => m.FakturBundling.HARGA)
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button type="button" class="btn btn-primary btn-save-bundling" disabled="disabled" onclick="simpanBundling('bundling-0')">
+                                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button class="btn btn-danger btn-delete-bundling" disabled="disabled">
+                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        </tr>
                 </tbody>
             </table>
             @*//end add by nurul 20/10/2020*@

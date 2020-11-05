@@ -16451,7 +16451,7 @@ namespace MasterOnline.Controllers
                 var lastBukti = GenerateAutoNumber(ErasoftDbContext, "SI", "SIT01A", "NO_BUKTI");
                 var noOrder = "SI" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
                 //end change by nurul 23/12/2019, perbaikan no bukti
-                
+
                 //change by nurul 26/10/2020
                 //add by calvin, 22 juni 2018 validasi QOH
                 //var qtyOnHand = GetQOHSTF08A(dataVm.FakturDetail.BRG, dataVm.FakturDetail.GUDANG);
@@ -16464,12 +16464,12 @@ namespace MasterOnline.Controllers
                 var qtyOnHand = 0d;
                 if (dataVm.FakturBundling.BRG != null && dataVm.FakturBundling.BRG != "")
                 {
-                    qtyOnHand = GetQOHSTF08A(dataVm.FakturBundling.BRG, default_gudang);
-                    if (qtyOnHand < dataVm.FakturBundling.QTY)
-                    {
-                        dataVm.Errors.Add("Qty penjualan melebihi qty siap jual ( " + Convert.ToString(qtyOnHand) + " ) di gudang " + default_gudang + ".");
-                        return Json(dataVm, JsonRequestBehavior.AllowGet);
-                    }
+                    //qtyOnHand = GetQOHSTF08A(dataVm.FakturBundling.BRG, dataVm.FakturBundling.GD);
+                    //if (qtyOnHand < dataVm.FakturBundling.QTY)
+                    //{
+                    //    dataVm.Errors.Add("Qty penjualan melebihi qty siap jual ( " + Convert.ToString(qtyOnHand) + " ) di gudang " + dataVm.FakturBundling.GD + ".");
+                    //    return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    //}
                 }
                 else
                 {
@@ -16631,58 +16631,64 @@ namespace MasterOnline.Controllers
                     dataVm.FakturBundling.TGL_EDIT = DateTime.Now;
                     dataVm.FakturBundling.USERNAME = usernameLogin;
 
-                    
-                        var getKomponenBundling = ErasoftDbContext.STF03.Where(a => a.Unit == dataVm.FakturBundling.BRG).ToList();
-                        if (getKomponenBundling.Count() > 0)
-                        {
-                            foreach (var komponen in getKomponenBundling)
-                            {
-                                //var getStf02 = ErasoftDbContext.STF02.Where(a => a.BRG == komponen.Brg).FirstOrDefault();
-                                var sit01b = new SIT01B()
-                                {
-                                    JENIS_FORM = "2",
-                                    NO_BUKTI = noOrder,
-                                    BRG = komponen.Brg,
-                                    QTY = Convert.ToDouble(komponen.Qty * dataVm.FakturBundling.QTY),
-                                    H_SATUAN = Convert.ToDouble(komponen.HARGA),
-                                    HARGA = Convert.ToDouble(komponen.HARGA * komponen.Qty * dataVm.FakturBundling.QTY),
-                                    BRG_BUNDLING = komponen.Unit,
-                                    USERNAME = usernameLogin,
-                                    TGLINPUT = DateTime.Now,
-                                    SATUAN = "2",
-                                    DISCOUNT = 0,
-                                    NILAI_DISC_1 = 0,
-                                    DISCOUNT_2 = 0,
-                                    NILAI_DISC_2 = 0,
-                                    GUDANG = default_gudang,
 
-                                    WRITE_KONFIG = false,
-                                    QTY_KIRIM = 0,
-                                    QTY_RETUR = 0,
-                                    CATATAN = "-",
-                                    DISCOUNT_3 = 0,
-                                    DISCOUNT_4 = 0,
-                                    DISCOUNT_5 = 0,
-                                    NILAI_DISC = 0,
-                                    NILAI_DISC_3 = 0,
-                                    NILAI_DISC_4 = 0,
-                                    NILAI_DISC_5 = 0,
-                                    TRANS_NO_URUT = 0,
-                                    SATUAN_N = 0,
-                                    QTY_N = 0,
-                                    NTITIPAN = 0,
-                                    DISC_TITIPAN = 0,
-                                    BRG_MULTISKU = "",
-                                    BRG_CUST = "",
-                                    NO_URUT_SO = 0,
-                                };
-                                bruto.Add(Convert.ToDouble(sit01b.HARGA));
-                                brutoHeader = brutoHeader + Convert.ToDouble(sit01b.HARGA);
-                                ListBrgKomponenSIT01B.Add(sit01b.BRG);
-                                listSit01b.Add(sit01b);
+                    var getKomponenBundling = ErasoftDbContext.STF03.Where(a => a.Unit == dataVm.FakturBundling.BRG).ToList();
+                    if (getKomponenBundling.Count() > 0)
+                    {
+                        foreach (var komponen in getKomponenBundling)
+                        {
+                            var qtyOnHandKomponen = GetQOHSTF08A(komponen.Brg, dataVm.FakturBundling.GD);
+                            if (qtyOnHandKomponen < Convert.ToDouble(komponen.Qty * dataVm.FakturBundling.QTY))
+                            {
+                                dataVm.Errors.Add("Qty penjualan brg komponen (" + komponen.Brg + ") melebihi qty siap jual ( " + Convert.ToString(qtyOnHandKomponen) + " ) di gudang " + dataVm.FakturBundling.GD + ".");
+                                return Json(dataVm, JsonRequestBehavior.AllowGet);
                             }
+                            //var getStf02 = ErasoftDbContext.STF02.Where(a => a.BRG == komponen.Brg).FirstOrDefault();
+                            var sit01b = new SIT01B()
+                            {
+                                JENIS_FORM = "2",
+                                NO_BUKTI = noOrder,
+                                BRG = komponen.Brg,
+                                QTY = Convert.ToDouble(komponen.Qty * dataVm.FakturBundling.QTY),
+                                H_SATUAN = Convert.ToDouble(komponen.HARGA),
+                                HARGA = Convert.ToDouble(komponen.HARGA * komponen.Qty * dataVm.FakturBundling.QTY),
+                                BRG_BUNDLING = komponen.Unit,
+                                USERNAME = usernameLogin,
+                                TGLINPUT = DateTime.Now,
+                                SATUAN = "2",
+                                DISCOUNT = 0,
+                                NILAI_DISC_1 = 0,
+                                DISCOUNT_2 = 0,
+                                NILAI_DISC_2 = 0,
+                                GUDANG = dataVm.FakturBundling.GD,
+
+                                WRITE_KONFIG = false,
+                                QTY_KIRIM = 0,
+                                QTY_RETUR = 0,
+                                CATATAN = "-",
+                                DISCOUNT_3 = 0,
+                                DISCOUNT_4 = 0,
+                                DISCOUNT_5 = 0,
+                                NILAI_DISC = 0,
+                                NILAI_DISC_3 = 0,
+                                NILAI_DISC_4 = 0,
+                                NILAI_DISC_5 = 0,
+                                TRANS_NO_URUT = 0,
+                                SATUAN_N = 0,
+                                QTY_N = 0,
+                                NTITIPAN = 0,
+                                DISC_TITIPAN = 0,
+                                BRG_MULTISKU = "",
+                                BRG_CUST = "",
+                                NO_URUT_SO = 0,
+                            };
+                            bruto.Add(Convert.ToDouble(sit01b.HARGA));
+                            brutoHeader = brutoHeader + Convert.ToDouble(sit01b.HARGA);
+                            ListBrgKomponenSIT01B.Add(sit01b.BRG);
+                            listSit01b.Add(sit01b);
                         }
-                    
+                    }
+
                     dataVm.Faktur.BRUTO = brutoHeader;
                     dataVm.Faktur.NILAI_DISC = 0;
                     dataVm.Faktur.PPN = 0;
@@ -16783,7 +16789,7 @@ namespace MasterOnline.Controllers
                 }
                 //end change by nurul 23/12/2019, perbaikan no bukti
 
-                
+
                 //change by nurul 26/10/2020
                 if (dataVm.FakturBundling.BRG != null && dataVm.FakturBundling.BRG != "")
                 {
@@ -16817,12 +16823,12 @@ namespace MasterOnline.Controllers
                 var qtyOnHand = 0d;
                 if (dataVm.FakturBundling.BRG != null && dataVm.FakturBundling.BRG != "")
                 {
-                    qtyOnHand = GetQOHSTF08A(dataVm.FakturBundling.BRG, default_gudang);
-                    if (qtyOnHand < dataVm.FakturBundling.QTY)
-                    {
-                        dataVm.Errors.Add("Qty penjualan melebihi qty yang ada di gudang ( " + Convert.ToString(qtyOnHand) + " )");
-                        return Json(dataVm, JsonRequestBehavior.AllowGet);
-                    }
+                    //qtyOnHand = GetQOHSTF08A(dataVm.FakturBundling.BRG, dataVm.FakturBundling.GD);
+                    //if (qtyOnHand < dataVm.FakturBundling.QTY)
+                    //{
+                    //    dataVm.Errors.Add("Qty penjualan melebihi qty yang ada di gudang ( " + Convert.ToString(qtyOnHand) + " )");
+                    //    return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    //}
                 }
                 else
                 {
@@ -16835,7 +16841,7 @@ namespace MasterOnline.Controllers
                 }
                 //end change by nurul 26/10/2020
 
-                
+
 
                 fakturInDb.NETTO = dataVm.Faktur.NETTO;
                 fakturInDb.BRUTO = dataVm.Faktur.BRUTO;
@@ -16915,58 +16921,64 @@ namespace MasterOnline.Controllers
                     dataVm.FakturBundling.NO_BUKTI = dataVm.Faktur.NO_BUKTI;
                     dataVm.FakturBundling.TGL_EDIT = DateTime.Now;
                     dataVm.FakturBundling.USERNAME = usernameLogin;
-                    
-                        var getKomponenBundling = ErasoftDbContext.STF03.Where(a => a.Unit == dataVm.FakturBundling.BRG).ToList();
-                        if (getKomponenBundling.Count() > 0)
-                        {
-                            foreach (var komponen in getKomponenBundling)
-                            {
-                                var getStf02 = ErasoftDbContext.STF02.Where(a => a.BRG == komponen.Brg).FirstOrDefault();
-                                var sit01b = new SIT01B()
-                                {
-                                    JENIS_FORM = "2",
-                                    NO_BUKTI = dataVm.Faktur.NO_BUKTI,
-                                    BRG = komponen.Brg,
-                                    QTY = Convert.ToDouble(komponen.Qty * dataVm.FakturBundling.QTY),
-                                    H_SATUAN = Convert.ToDouble(komponen.HARGA),
-                                    HARGA = Convert.ToDouble(komponen.HARGA * komponen.Qty * dataVm.FakturBundling.QTY),
-                                    BRG_BUNDLING = komponen.Unit,
-                                    USERNAME = usernameLogin,
-                                    TGLINPUT = DateTime.Now,
-                                    SATUAN = "2",
-                                    DISCOUNT = 0,
-                                    NILAI_DISC_1 = 0,
-                                    DISCOUNT_2 = 0,
-                                    NILAI_DISC_2 = 0,
-                                    GUDANG = default_gudang,
 
-                                    WRITE_KONFIG = false,
-                                    QTY_KIRIM = 0,
-                                    QTY_RETUR = 0,
-                                    CATATAN = "-",
-                                    DISCOUNT_3 = 0,
-                                    DISCOUNT_4 = 0,
-                                    DISCOUNT_5 = 0,
-                                    NILAI_DISC = 0,
-                                    NILAI_DISC_3 = 0,
-                                    NILAI_DISC_4 = 0,
-                                    NILAI_DISC_5 = 0,
-                                    TRANS_NO_URUT = 0,
-                                    SATUAN_N = 0,
-                                    QTY_N = 0,
-                                    NTITIPAN = 0,
-                                    DISC_TITIPAN = 0,
-                                    BRG_MULTISKU = "",
-                                    BRG_CUST = "",
-                                    NO_URUT_SO = 0,
-                                };
-                                bruto.Add(Convert.ToDouble(sit01b.HARGA));
-                                brutoHeader = brutoHeader + Convert.ToDouble(sit01b.HARGA);
-                                ListBrgKomponenSIT01B.Add(sit01b.BRG);
-                                listSit01b.Add(sit01b);
+                    var getKomponenBundling = ErasoftDbContext.STF03.Where(a => a.Unit == dataVm.FakturBundling.BRG).ToList();
+                    if (getKomponenBundling.Count() > 0)
+                    {
+                        foreach (var komponen in getKomponenBundling)
+                        {
+                            var qtyOnHandKomponen = GetQOHSTF08A(komponen.Brg, dataVm.FakturBundling.GD);
+                            if (qtyOnHandKomponen < Convert.ToDouble(komponen.Qty * dataVm.FakturBundling.QTY))
+                            {
+                                dataVm.Errors.Add("Qty penjualan brg komponen (" + komponen.Brg + ") melebihi qty siap jual ( " + Convert.ToString(qtyOnHandKomponen) + " ) di gudang " + dataVm.FakturBundling.GD + ".");
+                                return Json(dataVm, JsonRequestBehavior.AllowGet);
                             }
+                            var getStf02 = ErasoftDbContext.STF02.Where(a => a.BRG == komponen.Brg).FirstOrDefault();
+                            var sit01b = new SIT01B()
+                            {
+                                JENIS_FORM = "2",
+                                NO_BUKTI = dataVm.Faktur.NO_BUKTI,
+                                BRG = komponen.Brg,
+                                QTY = Convert.ToDouble(komponen.Qty * dataVm.FakturBundling.QTY),
+                                H_SATUAN = Convert.ToDouble(komponen.HARGA),
+                                HARGA = Convert.ToDouble(komponen.HARGA * komponen.Qty * dataVm.FakturBundling.QTY),
+                                BRG_BUNDLING = komponen.Unit,
+                                USERNAME = usernameLogin,
+                                TGLINPUT = DateTime.Now,
+                                SATUAN = "2",
+                                DISCOUNT = 0,
+                                NILAI_DISC_1 = 0,
+                                DISCOUNT_2 = 0,
+                                NILAI_DISC_2 = 0,
+                                GUDANG = dataVm.FakturBundling.GD,
+
+                                WRITE_KONFIG = false,
+                                QTY_KIRIM = 0,
+                                QTY_RETUR = 0,
+                                CATATAN = "-",
+                                DISCOUNT_3 = 0,
+                                DISCOUNT_4 = 0,
+                                DISCOUNT_5 = 0,
+                                NILAI_DISC = 0,
+                                NILAI_DISC_3 = 0,
+                                NILAI_DISC_4 = 0,
+                                NILAI_DISC_5 = 0,
+                                TRANS_NO_URUT = 0,
+                                SATUAN_N = 0,
+                                QTY_N = 0,
+                                NTITIPAN = 0,
+                                DISC_TITIPAN = 0,
+                                BRG_MULTISKU = "",
+                                BRG_CUST = "",
+                                NO_URUT_SO = 0,
+                            };
+                            bruto.Add(Convert.ToDouble(sit01b.HARGA));
+                            brutoHeader = brutoHeader + Convert.ToDouble(sit01b.HARGA);
+                            ListBrgKomponenSIT01B.Add(sit01b.BRG);
+                            listSit01b.Add(sit01b);
                         }
-                    
+                    }
+
                     dataVm.Faktur.BRUTO = fakturInDb.BRUTO + brutoHeader;
                     //dataVm.Pesanan.NILAI_DISC = 0;
                     //dataVm.Pesanan.PPN = 0;
@@ -20125,61 +20137,61 @@ namespace MasterOnline.Controllers
                     dataVm.PesananBundling.TGL_EDIT = DateTime.Now;
                     dataVm.PesananBundling.USERNAME = usernameLogin;
 
-                    
-                        var getKomponenBundling = ErasoftDbContext.STF03.Where(a => a.Unit == dataVm.PesananBundling.BRG).ToList();
-                        if (getKomponenBundling.Count() > 0)
-                        {
-                            foreach (var komponen in getKomponenBundling)
-                            {
-                                //var getStf02 = ErasoftDbContext.STF02.Where(a => a.BRG == komponen.Brg).FirstOrDefault();
-                                var sot01b = new SOT01B()
-                                {
-                                    NO_BUKTI = noOrder,
-                                    BRG = komponen.Brg,
-                                    QTY = Convert.ToDouble(komponen.Qty * dataVm.PesananBundling.QTY),
-                                    H_SATUAN = Convert.ToDouble(komponen.HARGA),
-                                    HARGA = Convert.ToDouble(komponen.HARGA * komponen.Qty * dataVm.PesananBundling.QTY),
-                                    BRG_BUNDLING = komponen.Unit,
-                                    USER_NAME = usernameLogin,
-                                    TGL_INPUT = DateTime.Now,
-                                    SATUAN = "2",
-                                    DISCOUNT = 0,
-                                    NILAI_DISC_1 = 0,
-                                    DISCOUNT_2 = 0,
-                                    NILAI_DISC_2 = 0,
 
-                                    WRITE_KONFIG = false,
-                                    QTY_KIRIM = 0,
-                                    QTY_RETUR = 0,
-                                    LOKASI = " ",
-                                    CATATAN = " ",
-                                    DISCOUNT_3 = 0,
-                                    DISCOUNT_4 = 0,
-                                    DISCOUNT_5 = 0,
-                                    NILAI_DISC = 0,
-                                    NILAI_DISC_3 = 0,
-                                    NILAI_DISC_4 = 0,
-                                    NILAI_DISC_5 = 0,
-                                    TRANS_NO_URUT = 0,
-                                    SATUAN_N = 0,
-                                    QTY_N = 0,
-                                    NTITIPAN = 0,
-                                    DISC_TITIPAN = 0,
-                                    KET_DETAIL = "",
-                                    NETTO = 0,
-                                    STATUS_BRG = "",
-                                    ORDER_ITEM_ID = "",
-                                    TOTAL = 0,
-                                    BRG_MULTISKU = "",
-                                    BRG_CUST = ""
-                                };
-                                bruto.Add(sot01b.HARGA);
-                                brutoHeader = brutoHeader + sot01b.HARGA;
-                                ListBrgKomponenSOT01B.Add(sot01b.BRG);
-                                listSot01b.Add(sot01b);
-                            }
+                    var getKomponenBundling = ErasoftDbContext.STF03.Where(a => a.Unit == dataVm.PesananBundling.BRG).ToList();
+                    if (getKomponenBundling.Count() > 0)
+                    {
+                        foreach (var komponen in getKomponenBundling)
+                        {
+                            //var getStf02 = ErasoftDbContext.STF02.Where(a => a.BRG == komponen.Brg).FirstOrDefault();
+                            var sot01b = new SOT01B()
+                            {
+                                NO_BUKTI = noOrder,
+                                BRG = komponen.Brg,
+                                QTY = Convert.ToDouble(komponen.Qty * dataVm.PesananBundling.QTY),
+                                H_SATUAN = Convert.ToDouble(komponen.HARGA),
+                                HARGA = Convert.ToDouble(komponen.HARGA * komponen.Qty * dataVm.PesananBundling.QTY),
+                                BRG_BUNDLING = komponen.Unit,
+                                USER_NAME = usernameLogin,
+                                TGL_INPUT = DateTime.Now,
+                                SATUAN = "2",
+                                DISCOUNT = 0,
+                                NILAI_DISC_1 = 0,
+                                DISCOUNT_2 = 0,
+                                NILAI_DISC_2 = 0,
+
+                                WRITE_KONFIG = false,
+                                QTY_KIRIM = 0,
+                                QTY_RETUR = 0,
+                                LOKASI = " ",
+                                CATATAN = " ",
+                                DISCOUNT_3 = 0,
+                                DISCOUNT_4 = 0,
+                                DISCOUNT_5 = 0,
+                                NILAI_DISC = 0,
+                                NILAI_DISC_3 = 0,
+                                NILAI_DISC_4 = 0,
+                                NILAI_DISC_5 = 0,
+                                TRANS_NO_URUT = 0,
+                                SATUAN_N = 0,
+                                QTY_N = 0,
+                                NTITIPAN = 0,
+                                DISC_TITIPAN = 0,
+                                KET_DETAIL = "",
+                                NETTO = 0,
+                                STATUS_BRG = "",
+                                ORDER_ITEM_ID = "",
+                                TOTAL = 0,
+                                BRG_MULTISKU = "",
+                                BRG_CUST = ""
+                            };
+                            bruto.Add(sot01b.HARGA);
+                            brutoHeader = brutoHeader + sot01b.HARGA;
+                            ListBrgKomponenSOT01B.Add(sot01b.BRG);
+                            listSot01b.Add(sot01b);
                         }
-                    
+                    }
+
                     dataVm.Pesanan.BRUTO = brutoHeader;
                     dataVm.Pesanan.NILAI_DISC = 0;
                     dataVm.Pesanan.PPN = 0;
@@ -29132,9 +29144,14 @@ namespace MasterOnline.Controllers
                 var vm = new GudangViewModel()
                 {
                     Gudang = ErasoftDbContext.STF18.Single(k => k.ID == gudangId),
-                    ListGudang = ErasoftDbContext.STF18.ToList()
+                    ListGudang = ErasoftDbContext.STF18.ToList(),
+                    gd_default = false
                 };
-
+                var getDefaultGd = ErasoftDbContext.SIFSYS.FirstOrDefault(p => p.BLN == 1).GUDANG;
+                if (vm.Gudang.Kode_Gudang == getDefaultGd)
+                {
+                    vm.gd_default = true;
+                }
                 return Json(vm, JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
@@ -58196,6 +58213,20 @@ namespace MasterOnline.Controllers
                 dataVm.Errors.Add("Qty tidak boleh 0 !");
                 return Json(dataVm, JsonRequestBehavior.AllowGet);
             }
+            var default_gudang = "";
+            using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
+            {
+                var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
+                var cekgudang = context.STF18.ToList();
+                if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
+                {
+                    default_gudang = gudang_parsys;
+                }
+                else
+                {
+                    default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                }
+            }
             if (dataVm.Bundling.Brg != null && dataVm.Bundling.Brg != "")
             {
                 if (dataVm.Bundling.Unit != null && dataVm.Bundling.Unit != "")
@@ -58227,21 +58258,6 @@ namespace MasterOnline.Controllers
                                     //    dataVm.Errors.Add("Barang " + cekBarang + " sudah dipakai di transaksi tidak bisa dijadikan barang multi SKU !");
                                     //    return Json(dataVm, JsonRequestBehavior.AllowGet);
                                     //}
-
-                                    var default_gudang = "";
-                                    using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
-                                    {
-                                        var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
-                                        var cekgudang = context.STF18.ToList();
-                                        if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
-                                        {
-                                            default_gudang = gudang_parsys;
-                                        }
-                                        else
-                                        {
-                                            default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
-                                        }
-                                    }
 
                                     //cekBrgKomponen.TYPE = "6"; --tipe tetep 3 untuk barang komponen 
                                     cekBrgKomponen.GENERIC = true;
@@ -58350,7 +58366,7 @@ namespace MasterOnline.Controllers
             var getBrgFromlistMultiSKU = listMultiSKU.Select(a => a.Brg).ToList();
             //getBrgFromlistMultiSKU.Add(listMultiSKU.FirstOrDefault().BRG_ACUAN);
             getBrgFromlistMultiSKU.Add(dataVm.Bundling.Unit);
-            var qtyBundling = ErasoftDbContext.STF08A.Where(a => a.BRG == dataVm.Bundling.Unit).Select(a => a.QAwal).FirstOrDefault();
+            var qtyBundling = ErasoftDbContext.STF08A.Where(a => a.BRG == dataVm.Bundling.Unit && a.GD == default_gudang).Select(a => a.QAwal).FirstOrDefault();
 
             var Vm = new BundlingViewModel()
             {
@@ -58391,17 +58407,23 @@ namespace MasterOnline.Controllers
                     }
 
                     var sSQL1 = "select a.brg, qoh - qoo as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
-                                "select SUM(CASE WHEN b.JENIS = 'QOH' THEN b.JUMLAH ELSE 0 END) qoh, SUM(CASE WHEN b.JENIS = 'QOO' THEN b.JUMLAH ELSE 0 END) qoo,a.brg,a.qty " +
-                                "from stf03 a left join [QOH_QOO_ALL_ITEM] b on a.brg=b.brg " +
-                                "group by a.brg,a.qty " +
+                                //"select SUM(CASE WHEN b.JENIS = 'QOH' THEN b.JUMLAH ELSE 0 END) qoh, SUM(CASE WHEN b.JENIS = 'QOO' THEN b.JUMLAH ELSE 0 END) qoo,a.brg,a.qty " +
+                                //"from stf03 a left join [QOH_QOO_ALL_ITEM] b on a.brg=b.brg " +
+                                //"group by a.brg,a.qty " +
+                                "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
+                                "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty " +
+                                "from stf03 a " +
                                 ")a";
                     var getListBrgKomponen = ErasoftDbContext.Database.SqlQuery<mdlQtyBrgBundling>(sSQL1).ToList();
 
                     var sSQL2 = "update a set a.QTY_SIAPJUAL = b.qty_sales, a.QTY_KOMPONEN=b.qty_komp from stf03 a inner join ( " +
                                 "select a.brg,a.qty, qoh - qoo as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
-                                "select SUM(CASE WHEN b.JENIS = 'QOH' THEN b.JUMLAH ELSE 0 END) qoh, SUM(CASE WHEN b.JENIS = 'QOO' THEN b.JUMLAH ELSE 0 END) qoo, a.brg,a.qty " +
-                                "from stf03 a left join [QOH_QOO_ALL_ITEM] b on a.brg=b.brg " +
-                                "group by a.brg,a.qty )a )b on a.brg=b.brg and a.qty=b.qty ";
+                                //"select SUM(CASE WHEN b.JENIS = 'QOH' THEN b.JUMLAH ELSE 0 END) qoh, SUM(CASE WHEN b.JENIS = 'QOO' THEN b.JUMLAH ELSE 0 END) qoo, a.brg,a.qty " +
+                                //"from stf03 a left join [QOH_QOO_ALL_ITEM] b on a.brg=b.brg " +
+                                //"group by a.brg,a.qty )a )b on a.brg=b.brg and a.qty=b.qty ";
+                                "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
+                                "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty from stf03 a " +
+                                ")a )b on a.brg=b.brg and a.qty=b.qty ";
                     ErasoftDbContext.Database.ExecuteSqlCommand(sSQL2);
 
                     var cekListBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03").ToList();
@@ -58912,13 +58934,29 @@ namespace MasterOnline.Controllers
                 var getBrgFromlistBundling = listBundling.Select(a => a.Brg).ToList();
                 //getBrgFromlistMultiSKU.Add(listMultiSKU.FirstOrDefault().BRG_ACUAN);
                 getBrgFromlistBundling.Add(kdBrg);
+
+                var default_gudang = "";
+                using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
+                {
+                    var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
+                    var cekgudang = context.STF18.ToList();
+                    if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
+                    {
+                        default_gudang = gudang_parsys;
+                    }
+                    else
+                    {
+                        default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                    }
+                }
+
                 var piuVm = new BundlingViewModel()
                 {
                     listBundling = listBundling,
                     Brg_Bundling = kdBrg,
                     Bundling = ErasoftDbContext.STF03.Where(a => a.Unit == kdBrg).FirstOrDefault(),
                     listDetailBundling = ErasoftDbContext.STF02.Where(a => getBrgFromlistBundling.Contains(a.BRG)).ToList(),
-                    Qty_Bundling = ErasoftDbContext.STF08A.Where(a => a.BRG == kdBrg).Select(a => a.QAwal).FirstOrDefault()
+                    Qty_Bundling = ErasoftDbContext.STF08A.Where(a => a.BRG == kdBrg && a.GD == default_gudang).Select(a => a.QAwal).FirstOrDefault()
                 };
 
                 return PartialView("FormBundlingPartial", piuVm);
@@ -59050,7 +59088,22 @@ namespace MasterOnline.Controllers
                     vm.Brg_Bundling = Unit;
                     vm.Bundling = ErasoftDbContext.STF03.Where(a => a.Unit == Unit).FirstOrDefault();
                     vm.listDetailBundling = ErasoftDbContext.STF02.Where(a => getBrgFromlistKomponen.Contains(a.BRG)).ToList();
-                    vm.Qty_Bundling = ErasoftDbContext.STF08A.Where(a => a.BRG == Unit).Select(a => a.QAwal).FirstOrDefault();
+
+                    var default_gudang = "";
+                    using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
+                    {
+                        var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
+                        var cekgudang = context.STF18.ToList();
+                        if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
+                        {
+                            default_gudang = gudang_parsys;
+                        }
+                        else
+                        {
+                            default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                        }
+                    }
+                    vm.Qty_Bundling = ErasoftDbContext.STF08A.Where(a => a.BRG == Unit && a.GD == default_gudang).Select(a => a.QAwal).FirstOrDefault();
                 }
             }
             catch (Exception ex)
@@ -59557,6 +59610,7 @@ namespace MasterOnline.Controllers
                 return View("Error");
             }
         }
+
         //END ADD BY NURUL 5/10/2020, BUNDLING 
     }
     public class smolSTF02

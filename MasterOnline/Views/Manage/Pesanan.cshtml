@@ -11825,7 +11825,7 @@
                             options: listBarang,
                             onChange: function (value) {
                                 var $objSup = $.grep(listBarang, function (data) { return data.id == value });
-                                if (value != null) {
+                                if (value != null && value != "") {
                                     //$('#multisku-kode').text(value);
                                     $("#PesananBundling_BRG").val(value);
                                     if ($objSup[0] != null) {
@@ -11839,7 +11839,7 @@
                                 } else {
                                     //$('#multisku-kode').text('-');
                                     $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.nama-bundling').text('-');
-                                    $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.qty-bundling').html('-' + '<input data-val="true" data-val-length="The field QTY must be a number." data-val-length-max="10" id="PesananBundling_QTY" name="PesananBundling.QTY" type="hidden" value="">');
+                                    $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.qty-bundling').html('0' + '<input data-val="true" data-val-length="The field QTY must be a number." data-val-length-max="10" id="PesananBundling_QTY" name="PesananBundling.QTY" type="hidden" value="">');
                                     $('#harga-satuan-bundling').val(0);
                                     $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.harga-bundling').html('0,00' + '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The Harsat field is required." id="PesananBundling_HARGA" name="PesananBundling.HARGA" type="hidden" value="">');
                                     onTab();

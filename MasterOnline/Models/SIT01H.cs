@@ -28,5 +28,8 @@ namespace MasterOnline
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RECNUM { get; set; }
+
+        [StringLength(4)]
+        public string GD { get; set; }
     }
 }

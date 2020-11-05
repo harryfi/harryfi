@@ -391,6 +391,12 @@
                     } else {
                         $('#linkMP').attr('checked', false);
                     }
+
+                    if (response.gd_default) {
+                        $("#linkMP").attr('disabled', 'disabled');
+                    } else {
+                        $("#linkMP").removeAttr('disabled');
+                    }
                     //end add by nurul 26/4/2019
                     $('#tambah_gudang').click();
                 },

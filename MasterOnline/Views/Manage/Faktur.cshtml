@@ -2180,6 +2180,7 @@
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script type="text/javascript">
         var $tempQty = "";
+        var $tempQtyBundling = "";
         var $statusAPI = window.text;
         //add by nurul 11/2/2019
         var $jumlahPesanan = true;
@@ -3432,7 +3433,7 @@
                     }
                 });
             });
-            if (flagBundling) {
+            if (flagBundling == "True") {
                 $('#cbxFakturBundling').prop('checked', true);
                 $('#table_tambah_bundling').show();
                 $('#Faktur_APPROVAL').val(true);
@@ -6068,8 +6069,18 @@
         //add by nurul 26/10/2020, bundling
         function validasiTambahanBundling() {
             var $isValid = true;
+            var $Gd = $('#GUDANG_BUNDLING');
             var $this = $('tr[data-bundling-id="0"] .qty-bundling');
-            if ($this.text().trim() == "0") {
+            if ($Gd.val() == "-" || $Gd.val() == "") {
+                if (!$Gd.closest('div').find('.text-danger').length) {
+                    if ($Gd.closest('div').hasClass('input-group')) {
+                        $('tr[data-bundling-id="0"] .gd-bundling').parent().parent().append('<span class="text-danger">Gudang bundling tidak boleh kosong!</span>');
+                    } else {
+                        $('tr[data-bundling-id="0"] .gd-bundling').closest('div').append('<span class="text-danger">Gudang bundling tidak boleh kosong!</span>');
+                    }
+                    $isValid = false;
+                }
+            } else if ($this.text().trim() == "0") {
                 if (!$this.closest('div').find('.text-danger').length) {
                     if ($this.closest('div').hasClass('input-group')) {
                         $this.parent().parent().append('<span class="text-danger">Quantity bundling tidak boleh 0!</span>');
@@ -6078,8 +6089,17 @@
                     }
                     $isValid = false;
                 }
+            } else if ($tempQtyBundling < $this.text().trim()) {
+                alert("Qty penjualan barang bundling melebihi qty siap jual ( " + $tempQtyBundling + " )");
+                $isValid = false;
             } else {
-                if ($this.closest('div').find('.text-danger').length) {
+                //if ($this.closest('div').find('.text-danger').length) {
+                //    $this.closest('div').find('.text-danger').remove();
+                //}
+
+                if ($Gd.closest('div').find('.text-danger').length) {
+                    $Gd.closest('div').find('.text-danger').remove();
+                } else if ($this.closest('div').find('.text-danger').length) {
                     $this.closest('div').find('.text-danger').remove();
                 }
             }
@@ -6122,7 +6142,7 @@
                             options: listBarang,
                             onChange: function (value) {
                                 var $objSup = $.grep(listBarang, function (data) { return data.id == value });
-                                if (value != null) {
+                                if (value != null && value != "") {
                                     //$('#multisku-kode').text(value);
                                     $("#FakturBundling_BRG").val(value);
                                     if ($objSup[0] != null) {
@@ -6130,15 +6150,23 @@
                                         $('#harga-satuan-bundling').val($objSup[0].harga);
                                         $('#harga-satuan-bundling').text($objSup[0].harga);
                                         $('tr[data-bundling-id="0"] .btn-save-bundling').removeAttr('disabled');
+                                        $('#gudang-bundling-select').show();
+                                        $('#gudang-bundling-kode').hide();
+                                        getGudangForBarangBundling();
                                         offTab();
                                         modeEditTdBundling();
                                     }
                                 } else {
+                                    $("#FakturBundling_BRG").val(null);
                                     //$('#multisku-kode').text('-');
                                     $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.nama-bundling').text('-');
-                                    $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.qty-bundling').html('-' + '<input data-val="true" data-val-length="The field QTY must be a number." data-val-length-max="10" id="FakturBundling_QTY" name="FakturBundling.QTY" type="hidden" value="">');
+                                    $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.qty-bundling').html('0' + '<input data-val="true" data-val-length="The field QTY must be a number." data-val-length-max="10" id="FakturBundling_QTY" name="FakturBundling.QTY" type="hidden" value="">');
                                     $('#harga-satuan-bundling').val(0);
                                     $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.harga-bundling').html('0,00' + '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The Harsat field is required." id="FakturBundling_HARGA" name="FakturBundling.HARGA" type="hidden" value="">');
+                                    $('#gudang-bundling-kode').text('-');
+                                    $('#gudang-bundling-select').hide();
+                                    $('#gudang-bundling-kode').show();
+                                    getGudangForBarangBundling();
                                     onTab();
                                     modeEditOffBundling();
                                 }
@@ -6331,6 +6359,7 @@
                 }
             }*@
 
+            if ($('#FakturBundling_BRG').val() == "" || $('#FakturBundling_BRG').val() == null || $('#FakturBundling_BRG').val() == undefined) return false;
 
             if ($id == 'bundling-0') {
                 if ($('#Faktur_TGL').val() != '' &&
@@ -6394,6 +6423,9 @@
                                 $('#multisku-kode').hide();
                                 getBarangMultiSKUForBarang();
                                 getGudangForBarang();
+
+                                $('#bundling-select').show();
+                                getBarangBundling();
                                 //$('#EXPEDISI').attr('disabled', 'disabled');
                                 $('#btn-simpan-perubahan-row').show();
                             } else {
@@ -6500,6 +6532,90 @@
                     console.log(xhr);
                 }
             });
+        }
+
+        function getGudangForBarangBundling() {
+            if ($('#FakturBundling_BRG').val() != '') {
+
+                var link = '@Url.Action("GetGudangBarangFaktur", "Manage", new { brgId = "replaceId" })';
+                link = link.replace("replaceId", encodeURIComponent($('#FakturBundling_BRG').val()));
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (response) {
+                        var defaultGd = response.setGd;
+                        var listGd = response.ListQOHPerGD;
+                        var kode = "";
+                        var gudang = "";
+                        var nama = "";
+                        var link = false;
+                        var listGudang = [];
+                        if (listGd[0] != undefined) {
+                            $.each(listGd,
+                                function (i, item) {
+                                    listGudang[i] = {
+                                        id: item.GD,
+                                        //text: item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
+                                        text: item.Nama_Gudang + " (Qty Siap Jual : " + item.SISA + ")",
+                                        sisa: item.SISA
+                                    };
+                                    if (defaultGd == item.GD) {
+                                        link = true;
+                                        kode = item.BRG;
+                                        gudang = item.GD;
+                                        //nama = item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
+                                        nama = item.Nama_Gudang + " (Qty Siap Jual : " + item.SISA + ")";
+                                        qty_1 = item.SISA;
+                                    }
+                                });
+                        }
+                        var gudangSelect = $('#GUDANG_BUNDLING').selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: listGudang,
+                            onChange: function (value) {
+                                var $objSup = $.grep(listGudang, function (data) { return data.id == value });
+                                $('#FakturBundling_GD').val(value);
+
+                                if (value != null) {
+                                    $('#gudang-bundling-kode').text(value);
+
+                                    // Otomatis masuk ke field Qty setelah pilih gudang
+                                    $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.qty-bundling').click();
+                                    if ($objSup[0] != null) {
+                                        $tempQtyBundling = $objSup[0].sisa;
+                                    }
+                                } else {
+                                    $('#gudang-bundling-kode').text('-');
+                                }
+                            }
+                        });
+                        gudangSelect[0].selectize.clearOptions();
+                        gudangSelect[0].selectize.renderCache = {};
+                        gudangSelect[0].selectize.load(function (callback) {
+                            callback(listGudang);
+                        });
+                        if (link == false || listGd.length == 0) {
+                            $(".selectize-input gudang_bundling_detail input[placeholder]").attr('placeholder', 'Harap pilih');
+                            $(".selectize-input gudang_bundling_detail input[placeholder]").attr('style', 'width: 66px !important');
+                            gudangSelect[0].selectize.setValue($('#FakturBundling_GD').val());
+                        } else if (link == true && listGd.length > 0) {
+                            $(".selectize-input gudang_bundling_detail input[placeholder]").attr('placeholder', nama);
+                            $('#gudang-bundling-kode').text(gudang);
+                            gudangSelect[0].selectize.setValue(gudang);
+                            $('#FakturBundling_GD').val(gudang);
+                            $tempQtyBundling = qty_1;
+                        }
+
+
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
         }
         //end add by nurul 26/10/2020, bundling
     </script>
