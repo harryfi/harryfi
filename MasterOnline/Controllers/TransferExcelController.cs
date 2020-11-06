@@ -911,7 +911,7 @@ namespace MasterOnline.Controllers
                             {
                                 using (System.Data.Entity.DbContextTransaction transaction = eraDB.Database.BeginTransaction())
                                 {
-                                    eraDB.Database.CommandTimeout = 1800;
+                                    eraDB.Database.CommandTimeout = 0;
                                     //loop all worksheets
                                     var worksheet = excelPackage.Workbook.Worksheets[1];
                                     string gd = worksheet.Cells[2, 1].Value == null ? "" : worksheet.Cells[2, 1].Value.ToString();
@@ -941,7 +941,7 @@ namespace MasterOnline.Controllers
                                             #region create induk
                                             if (ret.statusLoop == false)
                                             {
-                                                eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+                                                //eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
 
                                                 var stt01a = new STT01A
                                                 {
@@ -1669,10 +1669,10 @@ namespace MasterOnline.Controllers
 
                                                                                                     insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01', 1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                                                                                                         ((nama_pembeli ?? "").Replace("'", "`")),
-                                                                                                        (alamatAutoSplit1.Replace("'", "`") + alamatAutoSplit2.Replace("'", "`") + alamatAutoSplit3.Replace("'", "`")),
+                                                                                                        (alamatAutoSplit1.Length > 30 ? alamatAutoSplit1.Substring(0, 30).Replace("'", "`") : alamatAutoSplit1.Replace("'", "`")),
                                                                                                          ((no_telpPembeli).Replace("'", "`").Replace("`", "").Replace("+", "").Replace(" ", "").Replace("-", "")),
                                                                                                         (dataToko.PERSO.Replace(',', '.')),
-                                                                                                        ((address ?? "").Replace("'", "`")),
+                                                                                                        (alamatAutoSplit1.Length > 30 ? alamatAutoSplit1.Substring(0, 30).Replace("'", "`") : alamatAutoSplit1.Replace("'", "`")),
                                                                                                         DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                                                                                                         (username),
                                                                                                         (("").Replace("'", "`")),
