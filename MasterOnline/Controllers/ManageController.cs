@@ -32160,7 +32160,7 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
-        public FileResult JD_Download_PrintLabel(string path)
+        public FileResult Download_PrintLabel(string path)
         {
             byte[] fileBytes = System.IO.File.ReadAllBytes(path);
             return File(fileBytes, "application/pdf");
@@ -43797,9 +43797,13 @@ namespace MasterOnline.Controllers
                                         }
                                         if (adaItem && !adaOrderItemIdNull && !string.IsNullOrWhiteSpace(so.no_referensi))
                                         {
-                                            var sqlStorage = new SqlServerStorage(EDBConnID);
-                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                            var jobId = clientJobServer.Enqueue<LazadaControllerJob>(x => x.GetToPackedToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Packing", usernameLogin, ordItemId, DeliveryProvider, marketPlace.TOKEN));
+                                            var lzdApijob = new LazadaControllerJob();
+                                            lzdApijob.GetToPackedToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Packing", usernameLogin, ordItemId, DeliveryProvider, marketPlace.TOKEN);
+
+
+                                            //var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            //var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                            //var jobId = clientJobServer.Enqueue<LazadaControllerJob>(x => x.GetToPackedToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Packing", usernameLogin, ordItemId, DeliveryProvider, marketPlace.TOKEN));
 
                                             listSuccess.Add(new listSuccessPrintLabel
                                             {
@@ -43921,9 +43925,13 @@ namespace MasterOnline.Controllers
                                     }
                                     if (adaItem && !adaOrderItemIdNull && !string.IsNullOrWhiteSpace(so.no_referensi))
                                     {
-                                        var sqlStorage = new SqlServerStorage(EDBConnID);
-                                        var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                        var jobId = clientJobServer.Enqueue<LazadaControllerJob>(x => x.GetToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, ordItemId, DeliveryProvider, so.tracking_no, marketPlace.TOKEN));
+
+                                        var lzdApijob = new LazadaControllerJob();
+                                        lzdApijob.GetToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, ordItemId, DeliveryProvider, so.tracking_no, marketPlace.TOKEN);
+
+                                        //var sqlStorage = new SqlServerStorage(EDBConnID);
+                                        //var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                        //var jobId = clientJobServer.Enqueue<LazadaControllerJob>(x => x.GetToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, ordItemId, DeliveryProvider, so.tracking_no, marketPlace.TOKEN));
 
                                         listSuccess.Add(new listSuccessPrintLabel
                                         {
