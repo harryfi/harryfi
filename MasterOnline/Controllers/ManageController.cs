@@ -17768,15 +17768,15 @@ namespace MasterOnline.Controllers
                 }
                 //end add by calvin, validasi QOH
 
-                fakturInDb.NETTO = dataVm.Faktur.NETTO;
-                fakturInDb.BRUTO = dataVm.Faktur.BRUTO;
-                //change by nurul 6/9/2019, samain dg form faktur pakenya NILAI_DISC dan tambah ongkos kirim 
-                //fakturInDb.DISCOUNT = dataVm.Faktur.DISCOUNT;
-                fakturInDb.NILAI_DISC = dataVm.Faktur.NILAI_DISC;
-                fakturInDb.MATERAI = dataVm.Faktur.MATERAI;
-                //end change by nurul 6/9/2019, samain dg form faktur pakenya NILAI_DISC 
-                fakturInDb.PPN = dataVm.Faktur.PPN;
-                fakturInDb.NILAI_PPN = dataVm.Faktur.NILAI_PPN;
+                //fakturInDb.NETTO = dataVm.Faktur.NETTO;
+                //fakturInDb.BRUTO = dataVm.Faktur.BRUTO;
+                ////change by nurul 6/9/2019, samain dg form faktur pakenya NILAI_DISC dan tambah ongkos kirim 
+                ////fakturInDb.DISCOUNT = dataVm.Faktur.DISCOUNT;
+                //fakturInDb.NILAI_DISC = dataVm.Faktur.NILAI_DISC;
+                //fakturInDb.MATERAI = dataVm.Faktur.MATERAI;
+                ////end change by nurul 6/9/2019, samain dg form faktur pakenya NILAI_DISC 
+                //fakturInDb.PPN = dataVm.Faktur.PPN;
+                //fakturInDb.NILAI_PPN = dataVm.Faktur.NILAI_PPN;
                 //add 25/9/2019 by Tri, fix nilai null
                 if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.NILAI_DISC_1)))
                 {
@@ -17828,7 +17828,17 @@ namespace MasterOnline.Controllers
                 if (dataVm.FakturDetail.NO_URUT == null)
                 {
                     ErasoftDbContext.SIT01B.Add(dataVm.FakturDetail);
+                    ErasoftDbContext.SaveChanges();
                 }
+
+                var sSQL = "select isnull(sum(harga),0) from sit01b where no_bukti='" + dataVm.Faktur.NO_BUKTI + "' and JENIS_FORM ='2'";
+                var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
+                fakturInDb.BRUTO = getSumDetailFaktur;
+                fakturInDb.NILAI_DISC = dataVm.Faktur.NILAI_DISC;
+                fakturInDb.MATERAI = dataVm.Faktur.MATERAI;
+                fakturInDb.PPN = dataVm.Faktur.PPN;
+                fakturInDb.NILAI_PPN = Math.Ceiling((double)fakturInDb.PPN * ((double)fakturInDb.BRUTO - (double)fakturInDb.NILAI_DISC) / 100);
+                fakturInDb.NETTO = fakturInDb.BRUTO + fakturInDb.MATERAI + fakturInDb.NILAI_PPN - fakturInDb.NILAI_DISC;
             }
 
             ErasoftDbContext.SaveChanges();
@@ -19132,8 +19142,19 @@ namespace MasterOnline.Controllers
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
                 //end add by calvin, validasi QOH
-
-                fakturInDb.BRUTO -= barangFakturInDb.HARGA;
+                
+                //CHANGE BY NURUL 4/11/2020
+                //fakturInDb.BRUTO -= barangFakturInDb.HARGA;
+                var getBrutoFromDetail = ErasoftDbContext.SIT01B.Where(a => a.NO_BUKTI == fakturInDb.NO_BUKTI && a.JENIS_FORM == "2" && a.NO_URUT != noUrut).Sum(a => a.HARGA);
+                if (getBrutoFromDetail != null)
+                {
+                    fakturInDb.BRUTO = getBrutoFromDetail;
+                }
+                else
+                {
+                    fakturInDb.BRUTO = 0;
+                }
+                //END CHANGE BY NURUL 4/11/2020
                 fakturInDb.NILAI_PPN = Math.Ceiling((double)fakturInDb.PPN * ((double)fakturInDb.BRUTO - (double)fakturInDb.NILAI_DISC) / 100);
                 fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
 
@@ -19171,10 +19192,17 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateFaktur(UpdateData dataUpdate)
         {
             var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataUpdate.OrderId && p.JENIS_FORM == "2");
-            fakturInDb.BRUTO = dataUpdate.Bruto;
+            var sSQL = "select isnull(sum(harga),0) from sit01b where no_bukti='" + dataUpdate.OrderId + "' and JENIS_FORM ='2'";
+            var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
+            //fakturInDb.BRUTO = dataUpdate.Bruto;
+            //fakturInDb.NILAI_DISC = dataUpdate.NilaiDisc;
+            //fakturInDb.PPN = dataUpdate.Ppn;
+            //fakturInDb.NILAI_PPN = dataUpdate.NilaiPpn;
+            //fakturInDb.MATERAI = dataUpdate.OngkosKirim;
+            fakturInDb.BRUTO = getSumDetailFaktur;
             fakturInDb.NILAI_DISC = dataUpdate.NilaiDisc;
             fakturInDb.PPN = dataUpdate.Ppn;
-            fakturInDb.NILAI_PPN = dataUpdate.NilaiPpn;
+            fakturInDb.NILAI_PPN = Math.Ceiling((double)fakturInDb.PPN * ((double)fakturInDb.BRUTO - (double)fakturInDb.NILAI_DISC) / 100);
             fakturInDb.MATERAI = dataUpdate.OngkosKirim;
             fakturInDb.TGL = DateTime.ParseExact(dataUpdate.Tgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             fakturInDb.CUST = dataUpdate.Cust;
@@ -19184,7 +19212,7 @@ namespace MasterOnline.Controllers
             fakturInDb.NAMAPEMESAN = dataUpdate.NamaBuyer;
             //end add by nurul 7/7/2020
             fakturInDb.TGL_JT_TEMPO = DateTime.ParseExact(dataUpdate.Tempo, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-            fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
+            fakturInDb.NETTO = fakturInDb.BRUTO + fakturInDb.NILAI_PPN + fakturInDb.MATERAI - fakturInDb.NILAI_DISC;
             //ADD BY NURUL 5/3/2020
             fakturInDb.PENGIRIM = dataUpdate.Kurir;
             fakturInDb.NAMAPENGIRIM = dataUpdate.NamaKurir;
@@ -19203,12 +19231,19 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateReturFaktur(UpdateData dataUpdate)
         {
             var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataUpdate.OrderId && p.JENIS_FORM == "3");
-            fakturInDb.BRUTO = dataUpdate.Bruto;
+            var sSQL = "select isnull(sum(harga),0) from SIT01A where no_bukti='" + dataUpdate.OrderId + "' and JENIS_FORM = '3'";
+            var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
+            //fakturInDb.BRUTO = dataUpdate.Bruto;
+            //fakturInDb.NILAI_DISC = dataUpdate.NilaiDisc;
+            //fakturInDb.PPN = dataUpdate.Ppn;
+            //fakturInDb.NILAI_PPN = dataUpdate.NilaiPpn;
+            //fakturInDb.MATERAI = dataUpdate.OngkosKirim;
+            fakturInDb.BRUTO = getSumDetailFaktur;
             fakturInDb.NILAI_DISC = dataUpdate.NilaiDisc;
             fakturInDb.PPN = dataUpdate.Ppn;
-            fakturInDb.NILAI_PPN = dataUpdate.NilaiPpn;
             fakturInDb.MATERAI = dataUpdate.OngkosKirim;
-            fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
+            fakturInDb.NILAI_PPN = Math.Ceiling((double)fakturInDb.PPN * ((double)fakturInDb.BRUTO - (double)fakturInDb.NILAI_DISC) / 100);
+            fakturInDb.NETTO = fakturInDb.BRUTO + fakturInDb.NILAI_PPN + fakturInDb.MATERAI - fakturInDb.NILAI_DISC;
 
             //add by nurul 27/11/2019, add tgl last edit
             fakturInDb.TGLINPUT = DateTime.Today;
@@ -19517,7 +19552,17 @@ namespace MasterOnline.Controllers
                 if (dataVm.InvoiceDetail.NO == null)
                 {
                     ErasoftDbContext.PBT01B.Add(dataVm.InvoiceDetail);
+                    ErasoftDbContext.SaveChanges();
                 }
+
+                var sSQL = "select isnull(sum(tharga),0) from PBT01B where inv='" + dataVm.Invoice.INV + "'";
+                var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
+                invoiceInDb.BRUTO = getSumDetailFaktur;
+                invoiceInDb.NDISC1 = dataVm.Invoice.NDISC1;
+                invoiceInDb.BIAYA_LAIN = dataVm.Invoice.BIAYA_LAIN;
+                invoiceInDb.PPN = dataVm.Invoice.PPN;
+                invoiceInDb.NPPN = Math.Ceiling((double)invoiceInDb.PPN * ((double)invoiceInDb.BRUTO - (double)invoiceInDb.NDISC1) / 100);
+                invoiceInDb.NETTO = invoiceInDb.BRUTO + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN - invoiceInDb.NDISC1;
             }
 
             ErasoftDbContext.SaveChanges();
@@ -20296,8 +20341,19 @@ namespace MasterOnline.Controllers
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
                 //end add by calvin, validasi QOH
-
-                invoiceInDb.BRUTO -= barangInvoiceInDb.THARGA;
+                
+                //CHANGE BY NURUL 4/11/2020
+                //invoiceInDb.BRUTO -= barangInvoiceInDb.THARGA;
+                var getBrutoFromDetail = ErasoftDbContext.PBT01B.Where(a => a.INV == invoiceInDb.INV && a.JENISFORM == "1" && a.NO != noUrut).Sum(a => a.THARGA);
+                if (getBrutoFromDetail != null)
+                {
+                    invoiceInDb.BRUTO = getBrutoFromDetail;
+                }
+                else
+                {
+                    invoiceInDb.BRUTO = 0;
+                }
+                //END CHANGE BY NURUL 4/11/2020
                 //invoiceInDb.NILAI_PPN = Math.Ceiling((double)invoiceInDb.PPN * (double)invoiceInDb.BRUTO / 100);
                 invoiceInDb.NPPN = Math.Ceiling((double)invoiceInDb.PPN * ((double)invoiceInDb.BRUTO - (double)invoiceInDb.NDISC1) / 100);
                 //change by nurul 10/12/2018 -- invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NILAI_PPN;
@@ -20340,8 +20396,19 @@ namespace MasterOnline.Controllers
             {
                 var barangInvoiceInDb = ErasoftDbContext.PBT01B.Single(b => b.NO == noUrut && b.JENISFORM == "2");
                 var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.INV == barangInvoiceInDb.INV && p.JENISFORM == "2");
-
-                invoiceInDb.BRUTO -= barangInvoiceInDb.THARGA;
+                
+                //CHANGE BY NURUL 4/11/2020
+                //invoiceInDb.BRUTO -= barangInvoiceInDb.THARGA;
+                var getBrutoFromDetail = ErasoftDbContext.PBT01B.Where(a => a.INV == invoiceInDb.INV && a.JENISFORM == "1" && a.NO != noUrut).Sum(a => a.THARGA);
+                if (getBrutoFromDetail != null)
+                {
+                    invoiceInDb.BRUTO = getBrutoFromDetail;
+                }
+                else
+                {
+                    invoiceInDb.BRUTO = 0;
+                }
+                //END CHANGE BY NURUL 4/11/2020
                 //invoiceInDb.NILAI_PPN = Math.Ceiling((double)invoiceInDb.PPN * (double)invoiceInDb.BRUTO / 100);
                 invoiceInDb.NPPN = Math.Ceiling((double)invoiceInDb.PPN * ((double)invoiceInDb.BRUTO - (double)invoiceInDb.NDISC1) / 100);
                 //change by nurul 10/12/2018 -- invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NILAI_PPN;
@@ -20398,11 +20465,22 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateInvoice(UpdateData dataUpdate)
         {
             var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.INV == dataUpdate.OrderId);
-            invoiceInDb.BRUTO = dataUpdate.Bruto;
+            var sSQL = "select isnull(sum(tharga),0) from PBT01A where inv='" + dataUpdate.OrderId + "'";
+            var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
+            //invoiceInDb.BRUTO = dataUpdate.Bruto;
+            //invoiceInDb.NDISC1 = dataUpdate.NilaiDisc;
+            //invoiceInDb.PPN = dataUpdate.Ppn;
+            ////change by nurul 16/11/2018 -- invoiceInDb.NPPN = dataUpdate.Bruto * (invoiceInDb.PPN / 100);
+            //invoiceInDb.NPPN = dataUpdate.NilaiPpn;
+            ////end change 
+            ////ADD BY NURUL 7/12/2018
+            //invoiceInDb.BIAYA_LAIN = dataUpdate.OngkosKirim;
+            ////END ADD
+            invoiceInDb.BRUTO = getSumDetailFaktur;
             invoiceInDb.NDISC1 = dataUpdate.NilaiDisc;
             invoiceInDb.PPN = dataUpdate.Ppn;
             //change by nurul 16/11/2018 -- invoiceInDb.NPPN = dataUpdate.Bruto * (invoiceInDb.PPN / 100);
-            invoiceInDb.NPPN = dataUpdate.NilaiPpn;
+            invoiceInDb.NPPN = Math.Ceiling((double)invoiceInDb.PPN * ((double)invoiceInDb.BRUTO - (double)invoiceInDb.NDISC1) / 100);
             //end change 
             //ADD BY NURUL 7/12/2018
             invoiceInDb.BIAYA_LAIN = dataUpdate.OngkosKirim;
@@ -20414,7 +20492,7 @@ namespace MasterOnline.Controllers
             invoiceInDb.NAMA = ErasoftDbContext.APF01.Single(s => s.SUPP == dataUpdate.Supp).NAMA;
             invoiceInDb.TGJT = DateTime.ParseExact(dataUpdate.Tempo, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             //CHANGE BY NURUL 7/12/2018 -- invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN;
-            invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN;
+            invoiceInDb.NETTO = invoiceInDb.BRUTO + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN - invoiceInDb.NDISC1;
             //END CHANGE 
             //add by nurul 24/7/2019
             invoiceInDb.DROPSHIPPER = dataUpdate.Dropship;
@@ -20433,17 +20511,28 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateReturInvoice(UpdateData dataUpdate)
         {
             var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.INV == dataUpdate.OrderId);
-            invoiceInDb.BRUTO = dataUpdate.Bruto;
+            var sSQL = "select isnull(sum(tharga),0) from PBT01A where inv='" + dataUpdate.OrderId + "'";
+            var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
+            //invoiceInDb.BRUTO = dataUpdate.Bruto;
+            //invoiceInDb.NDISC1 = dataUpdate.NilaiDisc;
+            //invoiceInDb.PPN = dataUpdate.Ppn;
+            ////change by nurul 6/11/2018 -- invoiceInDb.NPPN = dataUpdate.Bruto * (invoiceInDb.PPN / 100);
+            //invoiceInDb.NPPN = ((dataUpdate.Bruto - invoiceInDb.NDISC1) * invoiceInDb.PPN / 100);
+            ////invoiceInDb.KODE_REF_PESANAN = dataUpdate.KodeRefPesanan;
+            ////add by nurul 10/12/2018
+            //invoiceInDb.BIAYA_LAIN = dataUpdate.OngkosKirim;
+            ////end add
+            invoiceInDb.BRUTO = getSumDetailFaktur;
             invoiceInDb.NDISC1 = dataUpdate.NilaiDisc;
             invoiceInDb.PPN = dataUpdate.Ppn;
             //change by nurul 6/11/2018 -- invoiceInDb.NPPN = dataUpdate.Bruto * (invoiceInDb.PPN / 100);
-            invoiceInDb.NPPN = ((dataUpdate.Bruto - invoiceInDb.NDISC1) * invoiceInDb.PPN / 100);
+            invoiceInDb.NPPN = Math.Ceiling((double)invoiceInDb.PPN * ((double)invoiceInDb.BRUTO - (double)invoiceInDb.NDISC1) / 100);
             //invoiceInDb.KODE_REF_PESANAN = dataUpdate.KodeRefPesanan;
             //add by nurul 10/12/2018
             invoiceInDb.BIAYA_LAIN = dataUpdate.OngkosKirim;
             //end add
             //change by nurul 10/12/2018 -- invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN;
-            invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN;
+            invoiceInDb.NETTO = invoiceInDb.BRUTO + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN - invoiceInDb.NDISC1;
             //end change 
 
             //add by nurul 27/11/2019, add tgl last edit
@@ -20884,15 +20973,15 @@ namespace MasterOnline.Controllers
             {
                 var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == dataVm.Pesanan.NO_BUKTI);
 
-                pesananInDb.NETTO = dataVm.Pesanan.NETTO;
-                pesananInDb.BRUTO = dataVm.Pesanan.BRUTO;
-                //change by nurul 6/9/2019, save disc di nilai_disc ngikutin di form
-                //pesananInDb.DISCOUNT = dataVm.Pesanan.DISCOUNT;
-                pesananInDb.NILAI_DISC = dataVm.Pesanan.NILAI_DISC;
-                //end change by nurul 6/9/2019, save disc di nilai_disc ngikutin di form
-                pesananInDb.PPN = dataVm.Pesanan.PPN;
-                pesananInDb.NILAI_PPN = dataVm.Pesanan.NILAI_PPN;
-                pesananInDb.ONGKOS_KIRIM = dataVm.Pesanan.ONGKOS_KIRIM;
+                //pesananInDb.NETTO = dataVm.Pesanan.NETTO;
+                //pesananInDb.BRUTO = dataVm.Pesanan.BRUTO;
+                ////change by nurul 6/9/2019, save disc di nilai_disc ngikutin di form
+                ////pesananInDb.DISCOUNT = dataVm.Pesanan.DISCOUNT;
+                //pesananInDb.NILAI_DISC = dataVm.Pesanan.NILAI_DISC;
+                ////end change by nurul 6/9/2019, save disc di nilai_disc ngikutin di form
+                //pesananInDb.PPN = dataVm.Pesanan.PPN;
+                //pesananInDb.NILAI_PPN = dataVm.Pesanan.NILAI_PPN;
+                //pesananInDb.ONGKOS_KIRIM = dataVm.Pesanan.ONGKOS_KIRIM;
                 pesananInDb.ALAMAT_KIRIM = dataVm.Pesanan.ALAMAT_KIRIM;
                 pesananInDb.TERM = dataVm.Pesanan.TERM;
                 pesananInDb.TGL_JTH_TEMPO = dataVm.Pesanan.TGL_JTH_TEMPO;
@@ -20906,7 +20995,17 @@ namespace MasterOnline.Controllers
                 if (dataVm.PesananDetail.NO_URUT == null)
                 {
                     ErasoftDbContext.SOT01B.Add(dataVm.PesananDetail);
+                    ErasoftDbContext.SaveChanges();
                 }
+
+                var sSQL = "select isnull(sum(harga),0) from sot01b where no_bukti='" + dataVm.Pesanan.NO_BUKTI + "'";
+                var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
+                pesananInDb.BRUTO = getSumDetailFaktur;
+                pesananInDb.NILAI_DISC = dataVm.Pesanan.NILAI_DISC;
+                pesananInDb.ONGKOS_KIRIM = dataVm.Pesanan.ONGKOS_KIRIM;
+                pesananInDb.PPN = dataVm.Pesanan.PPN;
+                pesananInDb.NILAI_PPN = Math.Ceiling((double)pesananInDb.PPN * ((double)pesananInDb.BRUTO - (double)pesananInDb.NILAI_DISC) / 100);
+                pesananInDb.NETTO = pesananInDb.BRUTO + pesananInDb.NILAI_PPN + pesananInDb.ONGKOS_KIRIM - pesananInDb.NILAI_DISC;
             }
 
             ErasoftDbContext.SaveChanges();
@@ -23903,8 +24002,19 @@ namespace MasterOnline.Controllers
             {
                 var barangPesananInDb = ErasoftDbContext.SOT01B.Single(b => b.NO_URUT == noUrut);
                 var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == barangPesananInDb.NO_BUKTI);
-
-                pesananInDb.BRUTO -= barangPesananInDb.HARGA;
+                
+                //CHANGE BY NURUL 4/11/2020
+                //pesananInDb.BRUTO -= barangPesananInDb.HARGA;
+                var getBrutoFromDetail = ErasoftDbContext.SOT01B.Where(a => a.NO_BUKTI == pesananInDb.NO_BUKTI && a.NO_URUT != noUrut).Sum(a => a.HARGA);
+                if (getBrutoFromDetail != null)
+                {
+                    pesananInDb.BRUTO = getBrutoFromDetail;
+                }
+                else
+                {
+                    pesananInDb.BRUTO = 0;
+                }
+                //END CHANGE BY NURUL 4/11/2020
                 //change by nurul 2/10/2019
                 //pesananInDb.NILAI_PPN = Math.Ceiling(pesananInDb.PPN * pesananInDb.BRUTO / 100);
                 //pesananInDb.NETTO = pesananInDb.BRUTO - pesananInDb.DISCOUNT + pesananInDb.NILAI_PPN +
@@ -23943,10 +24053,17 @@ namespace MasterOnline.Controllers
         public ActionResult UpdatePesanan(UpdateData dataUpdate)
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == dataUpdate.OrderId);
+            var sSQL = "select isnull(sum(harga),0) from SOT01A where no_bukti='" + dataUpdate.OrderId + "'";
+            var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
+            //pesananInDb.NILAI_DISC = dataUpdate.NilaiDisc;
+            //pesananInDb.ONGKOS_KIRIM = dataUpdate.OngkosKirim;
+            //pesananInDb.PPN = dataUpdate.Ppn;
+            //pesananInDb.NILAI_PPN = dataUpdate.NilaiPpn;
+            pesananInDb.BRUTO = getSumDetailFaktur;
             pesananInDb.NILAI_DISC = dataUpdate.NilaiDisc;
             pesananInDb.ONGKOS_KIRIM = dataUpdate.OngkosKirim;
             pesananInDb.PPN = dataUpdate.Ppn;
-            pesananInDb.NILAI_PPN = dataUpdate.NilaiPpn;
+            pesananInDb.NILAI_PPN = Math.Ceiling((double)pesananInDb.PPN * ((double)pesananInDb.BRUTO - (double)pesananInDb.NILAI_DISC) / 100);
             pesananInDb.TGL = DateTime.ParseExact(dataUpdate.Tgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             pesananInDb.CUST = dataUpdate.Cust;
             pesananInDb.TERM = dataUpdate.Term;
@@ -23955,8 +24072,7 @@ namespace MasterOnline.Controllers
             var buyer = ErasoftDbContext.ARF01C.FirstOrDefault(k => k.BUYER_CODE == dataUpdate.Buyer);
             pesananInDb.NAMAPEMESAN = buyer.NAMA;
             pesananInDb.TGL_JTH_TEMPO = DateTime.ParseExact(dataUpdate.Tempo, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-            pesananInDb.NETTO = pesananInDb.BRUTO - pesananInDb.NILAI_DISC + pesananInDb.NILAI_PPN +
-                                pesananInDb.ONGKOS_KIRIM;
+            pesananInDb.NETTO = pesananInDb.BRUTO + pesananInDb.NILAI_PPN + pesananInDb.ONGKOS_KIRIM - pesananInDb.NILAI_DISC;
 
             //add by fauzi 01/07/2020 tambah untuk nama kurir jika diisi manual di form pesanan
             if (!string.IsNullOrEmpty(dataUpdate.Exp))
@@ -28981,6 +29097,12 @@ namespace MasterOnline.Controllers
             //return PartialView("TableBayarPiutangPartial", vm);
         }
 
+        public class getSumDetail
+        {
+            public double potDetail { get; set; }
+            public double bayarDetail { get; set; }
+            public double lebihBayarDetail { get; set; }
+        }
         [HttpGet]
         public ActionResult DeleteDetailBayarPiutang(int noUrut)
         {
@@ -28989,9 +29111,25 @@ namespace MasterOnline.Controllers
                 var detailPiutangInDb = ErasoftDbContext.ART03B.Single(b => b.NO == noUrut);
                 var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == detailPiutangInDb.BUKTI);
 
-                piutangInDb.TPOT -= detailPiutangInDb.POT;
-                piutangInDb.TBAYAR -= detailPiutangInDb.BAYAR;
-                piutangInDb.TLEBIH_BAYAR -= detailPiutangInDb.LEBIH_BAYAR;
+                //CHANGE BY NURUL 4/11/2020
+                //piutangInDb.TPOT -= detailPiutangInDb.POT;
+                //piutangInDb.TBAYAR -= detailPiutangInDb.BAYAR;
+                //piutangInDb.TLEBIH_BAYAR -= detailPiutangInDb.LEBIH_BAYAR;
+                var sSQL = "select isnull(sum(POT),0) as potDetail, isnull(sum(BAYAR),0) as bayarDetail, isnull(sum(LEBIH_BAYAR),0) as lebihBayarDetail from ART03B where bukti = '" + detailPiutangInDb.BUKTI + "' and no <> '" + noUrut + "'";
+                var getSumFromDetail = ErasoftDbContext.Database.SqlQuery<getSumDetail>(sSQL).SingleOrDefault();
+                if (getSumFromDetail != null)
+                {
+                    piutangInDb.TPOT = getSumFromDetail.potDetail;
+                    piutangInDb.TBAYAR = getSumFromDetail.bayarDetail;
+                    piutangInDb.TLEBIH_BAYAR = getSumFromDetail.lebihBayarDetail;
+                }
+                else
+                {
+                    piutangInDb.TPOT = 0;
+                    piutangInDb.TBAYAR = 0;
+                    piutangInDb.TLEBIH_BAYAR = 0;
+                }
+                //END CHANGE BY NURUL 4/11/2020
                 ErasoftDbContext.ART03B.Remove(detailPiutangInDb);
                 ErasoftDbContext.SaveChanges();
 
@@ -29361,10 +29499,23 @@ namespace MasterOnline.Controllers
             {
                 var detailHutangInDb = ErasoftDbContext.APT03B.Single(b => b.NO == noUrut);
                 var hutangInDb = ErasoftDbContext.APT03A.Single(p => p.BUKTI == detailHutangInDb.BUKTI);
-
-                hutangInDb.TPOT -= detailHutangInDb.POT;
-                hutangInDb.TBAYAR -= detailHutangInDb.BAYAR;
-
+                
+                //CHANGE BY NURUL 4/11/2020
+                //hutangInDb.TPOT -= detailHutangInDb.POT;
+                //hutangInDb.TBAYAR -= detailHutangInDb.BAYAR;
+                var sSQL = "select isnull(sum(POT),0) as potDetail, isnull(sum(BAYAR),0) as bayarDetail from APT03B where bukti = '" + hutangInDb.BUKTI + "' and no <> '" + noUrut + "'";
+                var getSumFromDetail = ErasoftDbContext.Database.SqlQuery<getSumDetail>(sSQL).SingleOrDefault();
+                if (getSumFromDetail != null)
+                {
+                    hutangInDb.TPOT = getSumFromDetail.potDetail;
+                    hutangInDb.TBAYAR = getSumFromDetail.bayarDetail;
+                }
+                else
+                {
+                    hutangInDb.TPOT = 0;
+                    hutangInDb.TBAYAR = 0;
+                }
+                //END CHANGE BY NURUL 4/11/2020
                 ErasoftDbContext.APT03B.Remove(detailHutangInDb);
                 ErasoftDbContext.SaveChanges();
 
