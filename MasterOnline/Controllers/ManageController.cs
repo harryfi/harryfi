@@ -50,6 +50,10 @@ using System.Text.RegularExpressions;
 
 using Spire.Xls;
 
+// add by fauzi 04 November 2020
+using SelectPdf;
+// end add
+
 namespace MasterOnline.Controllers
 {
     [SessionCheck]
@@ -44015,6 +44019,10 @@ namespace MasterOnline.Controllers
                 List<string> temp_htmlString = new List<string>();
                 List<string> temp_strmsg = new List<string>();
 
+                List<string> temp_printLabel = new List<string>();
+                string temp_printLabel_split = "";
+                string result_printLabel = "";
+
                 //add by nurul 16/12/2019
                 bool gakketemulagi = false;
                 bool JNEgakketemulagi = false;
@@ -44436,6 +44444,54 @@ namespace MasterOnline.Controllers
 
                                         /// UPDATE FITUR FROM HTML TO PDF by Fauzi 04 November 2020
                                         #region FITUR PRINT LABEL HTML TO PDF
+                                        #region initial folder
+                                        string messageErrorLog = "";
+                                        string filename = "LAZADA_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                                        var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                                        #endregion
+
+                                        if (!System.IO.File.Exists(path))
+                                        {
+                                            System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                                            FileStream stream = System.IO.File.Create(path);
+
+                                            //process convert html to pdf
+                                            //string htmlStringAdd = htmlString;
+                                            string pdf_page_size = "9";
+                                            PdfPageSize pageSize = (PdfPageSize)Enum.Parse(typeof(PdfPageSize),
+                                                pdf_page_size, true);
+
+                                            string pdf_orientation = "0";
+                                            PdfPageOrientation pdfOrientation =
+                                                (PdfPageOrientation)Enum.Parse(typeof(PdfPageOrientation),
+                                                pdf_orientation, true);
+
+                                            int webPageWidth = 500;
+                                            int webPageHeight = 400;
+
+                                            HtmlToPdf converter = new HtmlToPdf();
+                                            converter.Options.PdfPageSize = pageSize;
+                                            converter.Options.PdfPageOrientation = pdfOrientation;
+                                            converter.Options.WebPageWidth = webPageWidth;
+                                            converter.Options.WebPageHeight = webPageHeight;
+                                            converter.Options.MarginRight = 10;
+                                            converter.Options.MarginLeft = 10;
+                                            converter.Options.MarginTop = 10;
+
+                                            SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
+
+                                            byte[] byteArray = doc.Save();
+                                            //end process
+
+
+                                            //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
+                                            stream.Write(byteArray, 0, byteArray.Length);
+                                            stream.Close();
+                                            temp_printLabel.Add(path);
+                                            temp_printLabel_split = temp_printLabel_split + path + ";";
+
+
+                                        }
 
 
                                         #endregion
@@ -44476,7 +44532,16 @@ namespace MasterOnline.Controllers
                     EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + listNobuk + ")");
                     if (label == "1")
                     {
-                        return Json(temp_htmlString, JsonRequestBehavior.AllowGet);
+                        if (temp_printLabel.Count() > 0)
+                        {
+                            result_printLabel = MergePDFProcess(temp_printLabel_split, bukti, "LAZADA");
+                            //return new JsonResult { Data = new { mo_label = temp_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                            return new JsonResult { Data = new { mo_label = result_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        }
+                        else
+                        {
+                            return Json(temp_htmlString, JsonRequestBehavior.AllowGet);
+                        }
                     }
                     else if (label == "2")
                     {
@@ -55807,13 +55872,13 @@ namespace MasterOnline.Controllers
                                 temp_printLabel_split = temp_printLabel_split + path + ";";
                             }
 
-                            var sql = "update SOT01A set status_print = '1' where no_bukti in ('" + so.no_bukti + "')";
-                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
+                            //var sql = "update SOT01A set status_print = '1' where no_bukti in ('" + so.no_bukti + "')";
+                            //ErasoftDbContext.Database.ExecuteSqlCommand(sql);
                         }
                         else
                         {
-                            var sql = "update SOT01A set status_print = '0' where no_bukti in ('" + so.no_bukti + "')";
-                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
+                            //var sql = "update SOT01A set status_print = '0' where no_bukti in ('" + so.no_bukti + "')";
+                            //ErasoftDbContext.Database.ExecuteSqlCommand(sql);
                             temp_strmsg_label.Add(retApi.Result.ToString());
                         }
                     }
@@ -55821,7 +55886,8 @@ namespace MasterOnline.Controllers
                 
                 if (temp_printLabel.Count() > 0)
                 {
-                    result_printLabel = MergePDFProcess(temp_printLabel_split, bukti);
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + listNobuk + ")");
+                    result_printLabel = MergePDFProcess(temp_printLabel_split, bukti, "JDID");
                     //return new JsonResult { Data = new { mo_label = temp_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     return new JsonResult { Data = new { mo_label = result_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
@@ -55852,7 +55918,7 @@ namespace MasterOnline.Controllers
         //add by fauzi function for merge file PDF.
 
 
-        public string MergePDFProcess(string FileLocation, string no_bukti)
+        public string MergePDFProcess(string FileLocation, string no_bukti, string sMarket)
         {
             string result = "";
 
@@ -55865,7 +55931,7 @@ namespace MasterOnline.Controllers
                 iTextSharp.text.pdf.PdfCopy pdfCopyProvider = null;
                 iTextSharp.text.pdf.PdfImportedPage importedPage;
                 //string outputPdfPath = @"D:/newFile.pdf";
-                string filename = "JDID_printlabelresult_" + no_bukti + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                string filename = sMarket + "_printlabelresult_" + no_bukti + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
                 var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
                 result = path;
 
