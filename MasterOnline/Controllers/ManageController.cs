@@ -44433,6 +44433,15 @@ namespace MasterOnline.Controllers
                                         //    return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
                                         //}
 
+
+                                        /// UPDATE FITUR FROM HTML TO PDF by Fauzi 04 November 2020
+                                        #region FITUR PRINT LABEL HTML TO PDF
+
+
+                                        #endregion
+                                        /// 
+
+
                                         temp_htmlString.Add(htmlString);
                                     }
                                     else
