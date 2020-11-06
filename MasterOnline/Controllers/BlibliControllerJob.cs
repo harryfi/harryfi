@@ -716,7 +716,7 @@ namespace MasterOnline.Controllers
                 //add by nurul 28/10/2020, bundling
                 if (stat == StatusOrder.Paid || stat == StatusOrder.Cancel)
                 {
-                    new ManageController().getQtyBundling();
+                    new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
                 }
                 //add by nurul 28/10/2020, bundling
             }

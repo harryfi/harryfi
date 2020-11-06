@@ -17064,7 +17064,7 @@ namespace MasterOnline.Controllers
             {
                 listBrg.AddRange(ListBrgKomponenSIT01B);
                 updateStockMarketPlace(listBrg, "[INS_SO][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
-                getQtyBundling();
+                //getQtyBundling();
             }
             else
             {
@@ -18261,10 +18261,10 @@ namespace MasterOnline.Controllers
             //end add by calvin 8 nov 2018
 
             //add by nurul 23/10/2020
-            if (adaBundling)
-            {
-                getQtyBundling();
-            }
+            //if (adaBundling)
+            //{
+            //    getQtyBundling();
+            //}
             //end add by nurul 23/10/2020
 
             var vm = new FakturViewModel()
@@ -20416,7 +20416,7 @@ namespace MasterOnline.Controllers
             {
                 listBrg.AddRange(ListBrgKomponenSOT01B);
                 updateStockMarketPlace(listBrg, "[INS_SO][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
-                getQtyBundling();
+                //getQtyBundling();
             }
             else
             {
@@ -23369,10 +23369,10 @@ namespace MasterOnline.Controllers
             //end add by calvin 8 nov 2018
 
             //add by nurul 23/10/2020
-            if (adaBundling)
-            {
-                getQtyBundling();
-            }
+            //if (adaBundling)
+            //{
+            //    getQtyBundling();
+            //}
             //end add by nurul 23/10/2020
 
             var vm = new PesananViewModel()
@@ -29716,6 +29716,29 @@ namespace MasterOnline.Controllers
                 new StokControllerJob().updateStockMarketPlace(ConnId, dbPathEra, usernameLogin);
                 //end change by Tri 26 Nov 2019, gunakan usernamelogin
 
+                //add by nurul 6/11/2020, bundling
+                var adaBundling = false;
+                var list_brg_cekBundling = "";
+                foreach (var brg in listBrg)
+                {
+                    if (list_brg_cekBundling != "")
+                    {
+                        list_brg_cekBundling += ",";
+                    }
+
+                    list_brg_cekBundling += "'" + brg + "'";
+                }
+                var sSQL = "select count(brg) from stf02 where brg in (" + list_brg_cekBundling + ") and generic = 'true' ";
+                var cekPesananBundling = ErasoftDbContext.Database.SqlQuery<int>(sSQL).Single();
+                if (cekPesananBundling > 0)
+                {
+                    adaBundling = true;
+                }
+                if (adaBundling)
+                {
+                    new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin);
+                }
+                //end add by nurul 6/11/2020, bundling
             }
 
         }
@@ -58282,7 +58305,8 @@ namespace MasterOnline.Controllers
 
                                     ErasoftDbContext.STF03.Add(dataVm.Bundling);
                                     ErasoftDbContext.SaveChanges();
-                                    getQtyBundling();
+                                    //getQtyBundling();
+                                    new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin);
 
                                     updateHargaJualAllMarketplace(HargaBundling, dataVm.Bundling.Unit);
 
@@ -58379,155 +58403,7 @@ namespace MasterOnline.Controllers
 
             return PartialView("FormBundlingPartial", Vm);
         }
-
-
-        public ActionResult getQtyBundling()
-        {
-            List<string> ret = new List<string>();
-            //if(barangKomponen != "" && barangKomponen != null && barangKomponen != "undefined")
-            //{
-            try
-            {
-                var cekBundling = ErasoftDbContext.STF03.Count();
-                if (cekBundling > 0)
-                {
-                    var default_gudang = "";
-                    using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
-                    {
-                        var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
-                        var cekgudang = context.STF18.ToList();
-                        if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
-                        {
-                            default_gudang = gudang_parsys;
-                        }
-                        else
-                        {
-                            default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
-                        }
-                    }
-
-                    var sSQL1 = "select a.brg, qoh - qoo as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
-                                //"select SUM(CASE WHEN b.JENIS = 'QOH' THEN b.JUMLAH ELSE 0 END) qoh, SUM(CASE WHEN b.JENIS = 'QOO' THEN b.JUMLAH ELSE 0 END) qoo,a.brg,a.qty " +
-                                //"from stf03 a left join [QOH_QOO_ALL_ITEM] b on a.brg=b.brg " +
-                                //"group by a.brg,a.qty " +
-                                "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
-                                "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty " +
-                                "from stf03 a " +
-                                ")a";
-                    var getListBrgKomponen = ErasoftDbContext.Database.SqlQuery<mdlQtyBrgBundling>(sSQL1).ToList();
-
-                    var sSQL2 = "update a set a.QTY_SIAPJUAL = b.qty_sales, a.QTY_KOMPONEN=b.qty_komp from stf03 a inner join ( " +
-                                "select a.brg,a.qty, qoh - qoo as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
-                                //"select SUM(CASE WHEN b.JENIS = 'QOH' THEN b.JUMLAH ELSE 0 END) qoh, SUM(CASE WHEN b.JENIS = 'QOO' THEN b.JUMLAH ELSE 0 END) qoo, a.brg,a.qty " +
-                                //"from stf03 a left join [QOH_QOO_ALL_ITEM] b on a.brg=b.brg " +
-                                //"group by a.brg,a.qty )a )b on a.brg=b.brg and a.qty=b.qty ";
-                                "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
-                                "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty from stf03 a " +
-                                ")a )b on a.brg=b.brg and a.qty=b.qty ";
-                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL2);
-
-                    var cekListBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03").ToList();
-                    var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a inner join stf08a b on a.unit=b.brg where b.tahun='" + DateTime.Now.ToString("yyyy") + "' and b.gd ='" + default_gudang + "'").ToList();
-                    var cekListBrgBundlingBelumAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a left join stf08a b on a.unit=b.brg where isnull(b.brg,'')=''").ToList();
-
-                    if (cekListBrgBundlingBelumAdaStok.Count() > 0)
-                    {
-                        foreach (var brg in cekListBrgBundlingBelumAdaStok)
-                        {
-                            var stf08a = new STF08A()
-                            {
-                                GD = default_gudang,
-                                BRG = brg.Unit,
-                                Tahun = Convert.ToInt16(DateTime.Now.ToString("yyyy")),
-                                QAwal = brg.qty_bundling,
-                                NAwal = 0,
-                                QM1 = 0,
-                                QM2 = 0,
-                                QM3 = 0,
-                                QM4 = 0,
-                                QM5 = 0,
-                                QM6 = 0,
-                                QM7 = 0,
-                                QM8 = 0,
-                                QM9 = 0,
-                                QM10 = 0,
-                                QM11 = 0,
-                                QM12 = 0,
-                                NM1 = 0,
-                                NM2 = 0,
-                                NM3 = 0,
-                                NM4 = 0,
-                                NM5 = 0,
-                                NM6 = 0,
-                                NM7 = 0,
-                                NM8 = 0,
-                                NM9 = 0,
-                                NM10 = 0,
-                                NM11 = 0,
-                                NM12 = 0,
-                                QK1 = 0,
-                                QK2 = 0,
-                                QK3 = 0,
-                                QK4 = 0,
-                                QK5 = 0,
-                                QK6 = 0,
-                                QK7 = 0,
-                                QK8 = 0,
-                                QK9 = 0,
-                                QK10 = 0,
-                                QK11 = 0,
-                                QK12 = 0,
-                                NK1 = 0,
-                                NK2 = 0,
-                                NK3 = 0,
-                                NK4 = 0,
-                                NK5 = 0,
-                                NK6 = 0,
-                                NK7 = 0,
-                                NK8 = 0,
-                                NK9 = 0,
-                                NK10 = 0,
-                                NK11 = 0,
-                                NK12 = 0,
-                            };
-                            ErasoftDbContext.STF08A.Add(stf08a);
-                            ErasoftDbContext.SaveChanges();
-                        }
-                    }
-
-                    if (cekListBrgBundlingSudahAdaStok.Count() > 0)
-                    {
-                        foreach (var brg in cekListBrgBundlingSudahAdaStok)
-                        {
-                            var Tahun = Convert.ToInt16(DateTime.Now.ToString("yyyy"));
-                            var getStf08a = ErasoftDbContext.STF08A.Where(a => a.BRG == brg.Unit && a.GD == default_gudang && a.Tahun == Tahun).FirstOrDefault();
-                            if (getStf08a != null)
-                            {
-                                getStf08a.QAwal = brg.qty_bundling;
-                                ErasoftDbContext.SaveChanges();
-                            }
-                        }
-                    }
-                    if (cekListBrgBundling.Count() > 0)
-                    {
-                        ret.AddRange(cekListBrgBundling);
-                    }
-
-                    //panggil api marketplace to change stock
-                    List<string> listBrg = new List<string>();
-                    //var listBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03").ToList();
-                    listBrg.AddRange(cekListBrgBundling);
-                    updateStockMarketPlace(listBrg, "[BRG_BUNDLING][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
-                    //panggil api marketplace to change stock
-                }
-            }
-            catch (Exception ex)
-            {
-                return View("Error");
-            }
-            return Json(ret, JsonRequestBehavior.AllowGet);
-        }
-
+                
         public ActionResult updateHargaJualAllMarketplace(double hJualBrg, string kdBrgBundling)
         {
             string ret = "";
@@ -59005,7 +58881,7 @@ namespace MasterOnline.Controllers
                                     {
                                         try
                                         {
-                                            var sSQL = "update stf02 set generic = 0 where brg= '" + item.Brg + "' and GENERIC == 'true'";
+                                            var sSQL = "update stf02 set generic = 0 where brg= '" + item.Brg + "' and GENERIC = 'true'";
                                             ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
                                         }
                                         catch (Exception e)
@@ -59035,7 +58911,8 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.Database.ExecuteSqlCommand(sSQL1);
                         ErasoftDbContext.STF03.RemoveRange(BundlingInDb);
                         ErasoftDbContext.SaveChanges();
-                        getQtyBundling();
+                        //getQtyBundling();
+                        new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin);
                     }
                 }
             }
@@ -59072,14 +58949,15 @@ namespace MasterOnline.Controllers
                             catch (Exception ex)
                             {
                                 vm.Errors.Add("Terjadi Kesalahan, mohon hubungi support. \n" + ex.Message);
-                                var sSQL = "update stf02 set generic = 0 where brg= '" + KomponenInDb.Brg + "' and GENERIC == 'true'";
+                                var sSQL = "update stf02 set generic = 0 where brg= '" + KomponenInDb.Brg + "' and GENERIC = 'true'";
                                 ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
                             }
                         }
                     }
                     ErasoftDbContext.STF03.Remove(KomponenInDb);
                     ErasoftDbContext.SaveChanges();
-                    getQtyBundling();
+                    //getQtyBundling();
+                    new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin);
                     var listKomponen = ErasoftDbContext.STF03.Where(b => b.Unit == Unit).ToList();
                     var getBrgFromlistKomponen = listKomponen.Select(a => a.Brg).ToList();
                     getBrgFromlistKomponen.Add(Unit);
@@ -59513,7 +59391,7 @@ namespace MasterOnline.Controllers
                 //List<string> listBrg = new List<string>();
                 //listBrg.Add(barangPesananDetailInDb);
                 updateStockMarketPlace(listBrg, "[DEL_SO_B][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
-                getQtyBundling();
+                //getQtyBundling();
                 //end add by calvin 8 nov 2018
 
                 var ListPesananDetail = ErasoftDbContext.SOT01B.Where(pd => pd.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
@@ -59577,7 +59455,7 @@ namespace MasterOnline.Controllers
                 //listBrg.Add(barangFakturInDb.BRG);
                 updateStockMarketPlace(listBrg, "[DEL_SI_B][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
                 //end add by calvin 8 nov 2018
-                getQtyBundling();
+                //getQtyBundling();
 
                 //var vm = new FakturViewModel()
                 //{

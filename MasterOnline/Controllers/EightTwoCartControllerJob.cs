@@ -1230,7 +1230,7 @@ namespace MasterOnline.Controllers
             // end tunning untuk tidak duplicate
 
             //add by nurul 28/10/2020, bundling
-            new ManageController().getQtyBundling();
+            new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
             //add by nurul 28/10/2020, bundling
 
             return ret;
@@ -1860,7 +1860,7 @@ namespace MasterOnline.Controllers
             // end tunning untuk tidak duplicate
 
             //add by nurul 28/10/2020, bundling
-            new ManageController().getQtyBundling();
+            new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
             //add by nurul 28/10/2020, bundling
 
             return ret;

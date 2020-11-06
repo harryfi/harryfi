@@ -517,6 +517,7 @@
                     success: function (response) {
                         if (response.Errors == null) {
                             $('#form-partial').html(response);
+                            $('#Bundling_Brg').val(null);
                             $('.Bundling_table_section').hide();
                             $('.Bundling_editor_section').show();
 

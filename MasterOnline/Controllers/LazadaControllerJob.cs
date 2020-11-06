@@ -1964,7 +1964,7 @@ namespace MasterOnline.Controllers
             // end tunning untuk tidak duplicate
 
             //add by nurul 28/10/2020, bundling
-            new ManageController().getQtyBundling();
+            new StokControllerJob().getQtyBundling(dbPathEra, uname);
             //add by nurul 28/10/2020, bundling
 
             return ret;
@@ -2000,7 +2000,7 @@ namespace MasterOnline.Controllers
             // end tunning untuk tidak duplicate
 
             //add by nurul 28/10/2020, bundling
-            new ManageController().getQtyBundling();
+            new StokControllerJob().getQtyBundling(dbPathEra, uname);
             //add by nurul 28/10/2020, bundling
 
             return ret;
@@ -2764,7 +2764,7 @@ namespace MasterOnline.Controllers
             // end tunning untuk tidak duplicate
 
             //add by nurul 28/10/2020, bundling
-            new ManageController().getQtyBundling();
+            new StokControllerJob().getQtyBundling(dbPathEra, uname);
             //add by nurul 28/10/2020, bundling
 
             return ret;
@@ -3277,7 +3277,7 @@ namespace MasterOnline.Controllers
             // end tunning untuk tidak duplicate
 
             //add by nurul 28/10/2020, bundling
-            new ManageController().getQtyBundling();
+            new StokControllerJob().getQtyBundling(dbPathEra, uname);
             //add by nurul 28/10/2020, bundling
 
             return ret;
