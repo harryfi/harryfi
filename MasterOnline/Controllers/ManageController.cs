@@ -44462,9 +44462,7 @@ namespace MasterOnline.Controllers
                                         {
                                             System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
                                             FileStream stream = System.IO.File.Create(path);
-
-                                            //process convert html to pdf
-                                            //string htmlStringAdd = htmlString;
+                                            
                                             string pdf_page_size = "9";
                                             PdfPageSize pageSize = (PdfPageSize)Enum.Parse(typeof(PdfPageSize),
                                                 pdf_page_size, true);
@@ -44486,22 +44484,18 @@ namespace MasterOnline.Controllers
                                             converter.Options.MarginLeft = 10;
                                             converter.Options.MarginTop = 10;
 
+                                            htmlString = htmlString.Replace("break;", "");
                                             SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
 
                                             byte[] byteArray = doc.Save();
                                             //end process
-
 
                                             //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
                                             stream.Write(byteArray, 0, byteArray.Length);
                                             stream.Close();
                                             temp_printLabel.Add(path);
                                             temp_printLabel_split = temp_printLabel_split + path + ";";
-
-
                                         }
-
-
                                         #endregion
                                         /// 
 
