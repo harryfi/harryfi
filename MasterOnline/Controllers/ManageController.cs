@@ -17063,13 +17063,13 @@ namespace MasterOnline.Controllers
             if (dataVm.FakturBundling.BRG != null && dataVm.FakturBundling.BRG != "")
             {
                 listBrg.AddRange(ListBrgKomponenSIT01B);
-                updateStockMarketPlace(listBrg, "[INS_SO][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+                updateStockMarketPlace(listBrg, "[INS_SI][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
                 //getQtyBundling();
             }
             else
             {
                 listBrg.Add(dataVm.FakturDetail.BRG);
-                updateStockMarketPlace(listBrg, "[INS_SO][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+                updateStockMarketPlace(listBrg, "[INS_SI][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
             }
             //end change by nurul 26/10/2020
             //end add by calvin 8 nov 2018
