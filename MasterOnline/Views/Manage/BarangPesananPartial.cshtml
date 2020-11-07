@@ -596,7 +596,7 @@
                                 </button>
                             </td>
                             <td class="edit-hapus-col">
-                                @if (pesanan.BRG_BUNDLING != "")
+                                @if (pesanan.BRG_BUNDLING != "" && pesanan.BRG_BUNDLING != null)
                                 {
                                     <button class="btn btn-danger" type="button" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@pesanan.NO_URUT')">
                                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
