@@ -4144,7 +4144,8 @@ namespace MasterOnline.Controllers
                     if (cekSI != null)
                     {
                         //cekSI.BRUTO = bruto;
-                        string sSQL = "update sit01a set BRUTO = '" + bruto + "' where NO_BUKTI = '" + nobukSI + "' and JENIS_FORM ='2'";
+                        //string sSQL = "update sit01a set BRUTO = '" + bruto + "' where NO_BUKTI = '" + nobukSI + "' and JENIS_FORM ='2'";
+                        string sSQL = "update sit01a set BRUTO = BRUTO where NO_BUKTI = '" + nobukSI + "' and JENIS_FORM ='2'";
                         ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
                         ErasoftDbContext.SaveChanges();
                     }
