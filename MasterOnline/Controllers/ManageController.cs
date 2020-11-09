@@ -19828,12 +19828,19 @@ namespace MasterOnline.Controllers
         public ActionResult GetDataBarangPesanan(string code)
         {
             //var listBarang = ErasoftDbContext.STF02.ToList();
-            var listBarang = (from a in ErasoftDbContext.STF02
-                              join b in ErasoftDbContext.STF02H on a.BRG equals b.BRG
-                              join c in ErasoftDbContext.ARF01 on b.IDMARKET equals c.RecNum
-                              //change by nurul 21/1/2019 -- where c.CUST == code
-                              where c.CUST == code && a.TYPE == "3"
-                              select new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
+            //CHANGE BY NURUL 9/11/2020, BUNDLING
+            //var listBarang = (from a in ErasoftDbContext.STF02
+            //                  join b in ErasoftDbContext.STF02H on a.BRG equals b.BRG
+            //                  join c in ErasoftDbContext.ARF01 on b.IDMARKET equals c.RecNum
+            //                  //change by nurul 21/1/2019 -- where c.CUST == code
+            //                  where c.CUST == code && a.TYPE == "3"
+            //                  select new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
+
+            var sSQL = "SELECT a.BRG, a.NAMA, ISNULL(NAMA2,'') AS NAMA2, a.STN2, B.HJUAL FROM STF02 A (NOLOCK) " +
+                       "INNER JOIN STF02H B (NOLOCK) ON A.BRG=B.BRG INNER JOIN ARF01 C (NOLOCK) ON B.IDMARKET=C.RECNUM " +
+                       "LEFT JOIN (SELECT DISTINCT UNIT FROM STF03 (NOLOCK))D  ON A.BRG=D.UNIT WHERE C.CUST = '" + code + "' AND A.TYPE = '3' AND ISNULL(D.UNIT,'')='' ";
+            var listBarang = ErasoftDbContext.Database.SqlQuery<ListDataBrg>(sSQL).ToList();
+            //END CHANGE BY NURUL 9/11/2020
 
             return Json(listBarang, JsonRequestBehavior.AllowGet);
         }
@@ -19876,6 +19883,25 @@ namespace MasterOnline.Controllers
             //end change by Tri 5 April 2019, max length json
 
         }
+
+        //add by nurul 9/11/2020, bundling
+        public class ListDataBrg
+        {
+            public string BRG { get; set; }
+            public string NAMA { get; set; }
+            public string NAMA2 { get; set; }
+            public string STN2 { get; set; }
+            public double HJUAL { get; set; }
+        }
+        [HttpGet]
+        public ActionResult GetDataBarangStok(string code)
+        {
+            var sSQL = "SELECT a.BRG, a.NAMA, ISNULL(NAMA2,'') AS NAMA2, a.STN2, A.HJUAL FROM STF02 A (NOLOCK) LEFT JOIN STF03 B (NOLOCK) ON A.BRG=B.UNIT WHERE TYPE='3' AND ISNULL(B.UNIT,'')=''";
+            var listBarang = ErasoftDbContext.Database.SqlQuery<ListDataBrg>(sSQL).ToList();
+            
+            return Json(listBarang, JsonRequestBehavior.AllowGet);
+        }
+        //end add by nurul 9/11/2020, bundling
 
         [HttpGet]
         public ActionResult GetDataBarangPromosi(int? promoId)
@@ -31189,7 +31215,10 @@ namespace MasterOnline.Controllers
         {
 
             var listBrgOP = ErasoftDbContext.STF02.Where(c => c.TYPE == "3")
-                .Where(c => !ErasoftDbContext.STT04B.Where(b => b.NOBUK == nobuk).Select(b => b.Brg).Contains(c.BRG))
+                //change by nurul 9/11/2020, bundling
+                //.Where(c => !ErasoftDbContext.STT04B.Where(b => b.NOBUK == nobuk).Select(b => b.Brg).Contains(c.BRG))
+                .Where(c => !ErasoftDbContext.STT04B.Where(b => b.NOBUK == nobuk).Select(b => b.Brg).Contains(c.BRG) && !ErasoftDbContext.STF03.Select(d => d.Unit).Contains(c.BRG))
+                //end change by nurul 9/11/2020, bundling
                 .Select(a => new smolSTF02
                 {
                     BRG = a.BRG,
