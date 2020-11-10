@@ -67,6 +67,7 @@ namespace MasterOnline.ViewModels
         //add by nurul 20/10/2020
         public SIT01H FakturBundling { get; set; }
         public List<SIT01H> ListFakturBundling { get; set; } = new List<SIT01H>();
+        public List<listKomponenBundling> listKomponen { get; set; } = new List<listKomponenBundling>();
         //end add by nurul 20/10/2020
     }
 

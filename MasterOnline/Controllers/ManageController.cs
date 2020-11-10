@@ -16933,7 +16933,7 @@ namespace MasterOnline.Controllers
                                 dataVm.Errors.Add("Qty penjualan brg komponen (" + komponen.Brg + ") melebihi qty siap jual ( " + Convert.ToString(qtyOnHandKomponen) + " ) di gudang " + dataVm.FakturBundling.GD + ".");
                                 return Json(dataVm, JsonRequestBehavior.AllowGet);
                             }
-                            var getStf02 = ErasoftDbContext.STF02.Where(a => a.BRG == komponen.Brg).FirstOrDefault();
+                            //var getStf02 = ErasoftDbContext.STF02.Where(a => a.BRG == komponen.Brg).FirstOrDefault();
                             var sit01b = new SIT01B()
                             {
                                 JENIS_FORM = "2",
@@ -17102,7 +17102,26 @@ namespace MasterOnline.Controllers
                 ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3" || a.TYPE == "6").ToList(),
                 ListFakturBundling = listFakturBundling
             };
-
+            var listBundling = listFakturBundling.Select(a => a.BRG).Distinct().ToList();
+            var cekBundling = ErasoftDbContext.STF03.Where(a => listBundling.Contains(a.Unit)).ToList();
+            if (cekBundling.Count() > 0)
+            {
+                foreach (var getKomponen1 in listBundling)
+                {
+                    var komponen = new listKomponenBundling() { };
+                    komponen.bundling = getKomponen1;
+                    var detail_komp = "";
+                    foreach (var getKomponen in cekBundling.Where(a => a.Unit == getKomponen1))
+                    {
+                        if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
+                        {
+                            detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                        }
+                    }
+                    komponen.komponen = detail_komp;
+                    vm.listKomponen.Add(komponen);
+                }
+            }
             return PartialView("BarangFakturPartial", vm);
         }
 
@@ -18198,7 +18217,26 @@ namespace MasterOnline.Controllers
                 ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3" || a.TYPE == "6").ToList(),
                 ListFakturBundling = listFakturBundling
             };
-
+            var listBundling = listFakturBundling.Select(a => a.BRG).Distinct().ToList();
+            var cekBundling = ErasoftDbContext.STF03.Where(a => listBundling.Contains(a.Unit)).ToList();
+            if (cekBundling.Count() > 0)
+            {
+                foreach (var getKomponen1 in listBundling)
+                {
+                    var komponen = new listKomponenBundling() { };
+                    komponen.bundling = getKomponen1;
+                    var detail_komp = "";
+                    foreach (var getKomponen in cekBundling.Where(a => a.Unit == getKomponen1))
+                    {
+                        if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
+                        {
+                            detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                        }
+                    }
+                    komponen.komponen = detail_komp;
+                    vm.listKomponen.Add(komponen);
+                }
+            }
             return PartialView("BarangFakturPartial", vm);
         }
 
@@ -18366,15 +18404,44 @@ namespace MasterOnline.Controllers
                 updateStockMarketPlace(listBrg, "[DEL_SI_B][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
                 //end add by calvin 8 nov 2018
 
+                var ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => pd.NO_BUKTI == fakturInDb.NO_BUKTI && pd.JENIS_FORM == "2").ToList();
+                var listBarangInFakturDetail = ListFakturDetail.Select(p => p.BRG).ToList();
+                var listFakturBundling = ErasoftDbContext.SIT01H.Where(a => a.NO_BUKTI == fakturInDb.NO_BUKTI).ToList();
+                if (listFakturBundling.Count() > 0)
+                {
+                    listBarangInFakturDetail.AddRange(listFakturBundling.Select(a => a.BRG).ToList());
+                }
                 var vm = new FakturViewModel()
                 {
                     Faktur = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == fakturInDb.NO_BUKTI && p.JENIS_FORM == "2"),
-                    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList(),
-                    ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => pd.NO_BUKTI == fakturInDb.NO_BUKTI && pd.JENIS_FORM == "2").ToList(),
+                    //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList(),
+                    //ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => pd.NO_BUKTI == fakturInDb.NO_BUKTI && pd.JENIS_FORM == "2").ToList(),
+                    ListFakturDetail= ListFakturDetail,
                     //ListBarang = ErasoftDbContext.STF02.ToList() 'change by nurul 21/1/2019 
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
+                    ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3" || a.TYPE == "6").ToList(),
+                    ListFakturBundling = listFakturBundling
                 };
-
+                var listBundling = listFakturBundling.Select(a => a.BRG).Distinct().ToList();
+                var cekBundling = ErasoftDbContext.STF03.Where(a => listBundling.Contains(a.Unit)).ToList();
+                if (cekBundling.Count() > 0)
+                {
+                    foreach (var getKomponen1 in listBundling)
+                    {
+                        var komponen = new listKomponenBundling() { };
+                        komponen.bundling = getKomponen1;
+                        var detail_komp = "";
+                        foreach (var getKomponen in cekBundling.Where(a => a.Unit == getKomponen1))
+                        {
+                            if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
+                            {
+                                detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                            }
+                        }
+                        komponen.komponen = detail_komp;
+                        vm.listKomponen.Add(komponen);
+                    }
+                }
                 return PartialView("BarangFakturPartial", vm);
             }
             catch (Exception)
@@ -19898,7 +19965,7 @@ namespace MasterOnline.Controllers
         {
             var sSQL = "SELECT a.BRG, a.NAMA, ISNULL(NAMA2,'') AS NAMA2, a.STN2, A.HJUAL FROM STF02 A (NOLOCK) LEFT JOIN STF03 B (NOLOCK) ON A.BRG=B.UNIT WHERE TYPE='3' AND ISNULL(B.UNIT,'')=''";
             var listBarang = ErasoftDbContext.Database.SqlQuery<ListDataBrg>(sSQL).ToList();
-            
+
             return Json(listBarang, JsonRequestBehavior.AllowGet);
         }
         //end add by nurul 9/11/2020, bundling
@@ -20350,7 +20417,7 @@ namespace MasterOnline.Controllers
                         {
                             foreach (var komponen in getKomponenBundling)
                             {
-                                var getStf02 = ErasoftDbContext.STF02.Where(a => a.BRG == komponen.Brg).FirstOrDefault();
+                                //var getStf02 = ErasoftDbContext.STF02.Where(a => a.BRG == komponen.Brg).FirstOrDefault();
                                 var sot01b = new SOT01B()
                                 {
                                     NO_BUKTI = dataVm.Pesanan.NO_BUKTI,
@@ -20361,7 +20428,7 @@ namespace MasterOnline.Controllers
                                     BRG_BUNDLING = komponen.Unit,
                                     USER_NAME = usernameLogin,
                                     TGL_INPUT = DateTime.Now,
-                                    SATUAN = getStf02.STN2,
+                                    SATUAN = "2",
                                     DISCOUNT = 0,
                                     NILAI_DISC_1 = 0,
                                     DISCOUNT_2 = 0,
@@ -20479,6 +20546,26 @@ namespace MasterOnline.Controllers
 
                 ListPesananBundling = listPesananBundling
             };
+            var listBundling = listPesananBundling.Select(a => a.BRG).Distinct().ToList();
+            var cekBundling = ErasoftDbContext.STF03.Where(a => listBundling.Contains(a.Unit)).ToList();
+            if (cekBundling.Count() > 0)
+            {
+                foreach (var getKomponen1 in listBundling)
+                {
+                    var komponen = new listKomponenBundling() { };
+                    komponen.bundling = getKomponen1;
+                    var detail_komp = "";
+                    foreach (var getKomponen in cekBundling.Where(a => a.Unit == getKomponen1))
+                    {
+                        if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
+                        {
+                            detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                        }
+                    }
+                    komponen.komponen = detail_komp;
+                    vm.listKomponen.Add(komponen);
+                }
+            }
 
             return PartialView("BarangPesananPartial", vm);
 
@@ -22633,6 +22720,26 @@ namespace MasterOnline.Controllers
                     ListPesananBundling = listPesananBundling
                     //end add by nurul 22/10/2020
                 };
+                var listBundling = listPesananBundling.Select(a => a.BRG).Distinct().ToList();
+                var cekBundling = ErasoftDbContext.STF03.Where(a => listBundling.Contains(a.Unit)).ToList();
+                if (cekBundling.Count() > 0)
+                {
+                    foreach (var getKomponen1 in listBundling)
+                    {
+                        var komponen = new listKomponenBundling() { };
+                        komponen.bundling = getKomponen1;
+                        var detail_komp = "";
+                        foreach (var getKomponen in cekBundling.Where(a => a.Unit == getKomponen1))
+                        {
+                            if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
+                            {
+                                detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                            }
+                        }
+                        komponen.komponen = detail_komp;
+                        vm.listKomponen.Add(komponen);
+                    }
+                }
 
                 return PartialView("BarangPesananPartial", vm);
             }
@@ -23344,6 +23451,26 @@ namespace MasterOnline.Controllers
 
                     ListPesananBundling = listPesananBundling
                 };
+                var listBundling = listPesananBundling.Select(a => a.BRG).Distinct().ToList();
+                var cekBundling = ErasoftDbContext.STF03.Where(a => listBundling.Contains(a.Unit)).ToList();
+                if (cekBundling.Count() > 0)
+                {
+                    foreach (var getKomponen1 in listBundling)
+                    {
+                        var komponen = new listKomponenBundling() { };
+                        komponen.bundling = getKomponen1;
+                        var detail_komp = "";
+                        foreach (var getKomponen in cekBundling.Where(a => a.Unit == getKomponen1))
+                        {
+                            if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
+                            {
+                                detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                            }
+                        }
+                        komponen.komponen = detail_komp;
+                        vm.listKomponen.Add(komponen);
+                    }
+                }
 
                 return PartialView("BarangPesananSelesaiPartial", vm);
             }
@@ -23469,6 +23596,26 @@ namespace MasterOnline.Controllers
                     ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInPesananDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
                     ListPesananBundling = listPesananBundling
                 };
+                var listBundling = listPesananBundling.Select(a => a.BRG).Distinct().ToList();
+                var cekBundling = ErasoftDbContext.STF03.Where(a => listBundling.Contains(a.Unit)).ToList();
+                if (cekBundling.Count() > 0)
+                {
+                    foreach (var getKomponen1 in listBundling)
+                    {
+                        var komponen = new listKomponenBundling() { };
+                        komponen.bundling = getKomponen1;
+                        var detail_komp = "";
+                        foreach (var getKomponen in cekBundling.Where(a => a.Unit == getKomponen1))
+                        {
+                            if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
+                            {
+                                detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                            }
+                        }
+                        komponen.komponen = detail_komp;
+                        vm.listKomponen.Add(komponen);
+                    }
+                }
                 //end change by nurul 23/10/2020
 
                 return PartialView("BarangPesananPartial", vm);
@@ -58432,7 +58579,7 @@ namespace MasterOnline.Controllers
 
             return PartialView("FormBundlingPartial", Vm);
         }
-                
+
         public ActionResult updateHargaJualAllMarketplace(double hJualBrg, string kdBrgBundling)
         {
             string ret = "";
@@ -59437,7 +59584,26 @@ namespace MasterOnline.Controllers
                     ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInPesananDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
                     ListPesananBundling = listPesananBundling
                 };
-
+                var listBundling = listPesananBundling.Select(a => a.BRG).Distinct().ToList();
+                var cekBundling = ErasoftDbContext.STF03.Where(a => listBundling.Contains(a.Unit)).ToList();
+                if (cekBundling.Count() > 0)
+                {
+                    foreach (var getKomponen1 in listBundling)
+                    {
+                        var komponen = new listKomponenBundling() { };
+                        komponen.bundling = getKomponen1;
+                        var detail_komp = "";
+                        foreach (var getKomponen in cekBundling.Where(a => a.Unit == getKomponen1))
+                        {
+                            if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
+                            {
+                                detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                            }
+                        }
+                        komponen.komponen = detail_komp;
+                        vm.listKomponen.Add(komponen);
+                    }
+                }
                 return PartialView("BarangPesananPartial", vm);
             }
             catch (Exception)
@@ -59509,7 +59675,26 @@ namespace MasterOnline.Controllers
                     ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3" || a.TYPE == "6").ToList(),
                     ListFakturBundling = listFakturBundling
                 };
-
+                var listBundling = listFakturBundling.Select(a => a.BRG).Distinct().ToList();
+                var cekBundling = ErasoftDbContext.STF03.Where(a => listBundling.Contains(a.Unit)).ToList();
+                if (cekBundling.Count() > 0)
+                {
+                    foreach (var getKomponen1 in listBundling)
+                    {
+                        var komponen = new listKomponenBundling() { };
+                        komponen.bundling = getKomponen1;
+                        var detail_komp = "";
+                        foreach (var getKomponen in cekBundling.Where(a => a.Unit == getKomponen1))
+                        {
+                            if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
+                            {
+                                detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                            }
+                        }
+                        komponen.komponen = detail_komp;
+                        vm.listKomponen.Add(komponen);
+                    }
+                }
                 return PartialView("BarangFakturPartial", vm);
             }
             catch (Exception)

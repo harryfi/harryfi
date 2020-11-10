@@ -439,12 +439,12 @@
             <table id="table_tambah_bundling" class="table table-bordered" role="grid">
                 <thead>
                     <tr>
-                        <th width="200">Kode Brg Bundling</th>
-                        <th width="200">Nama Brg Bundling</th>
-                        <th width="30">Qty Bundling</th>
-                        <th width="60">Harga Bundling</th>
-                        <th width="35">Simpan</th>
-                        <th width="35">Hapus</th>
+                        <th width="200px">Kode Brg Bundling</th>
+                        <th width="200px">Nama Brg Bundling</th>
+                        <th width="30px">Qty Bundling</th>
+                        <th width="60px">Harga Bundling</th>
+                        <th width="35px">Simpan</th>
+                        <th width="35px">Hapus</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -453,12 +453,23 @@
                     }
                     @foreach (var bundling in Model.ListPesananBundling.Where(pb => pb.NO_BUKTI == Model?.Pesanan?.NO_BUKTI).ToList())
                     {
+                        string detail_komp = "";
+                        var cekListKomp = Model.listKomponen.Where(a => a.bundling == bundling.BRG).SingleOrDefault();
+                        if (cekListKomp != null)
+                        {
+                            detail_komp = cekListKomp.komponen.ToString();
+                        }
                         <tr data-bundling-id="bundling-@bundling.RECNUM">
                             @{
                                 var barang = listBarangBundling.SingleOrDefault(b => b.BRG.ToUpper() == bundling.BRG.ToUpper());
                                 var namaBarang = barang == null ? "" : (barang.NAMA + " " + barang.NAMA2);
                             }
-                            <td class="brg-bundling">@bundling.BRG</td>
+                            <td class="brg-bundling">
+                                @*@bundling.BRG*@
+                                <div data-tip="@detail_komp">
+                                    @bundling.BRG
+                                </div>
+                            </td>
                             <td class="nama-bundling">@namaBarang</td>
                             <td class="qty-bundling">@bundling.QTY</td>
                             <td class="harga-bundling" style="text-align:right">
