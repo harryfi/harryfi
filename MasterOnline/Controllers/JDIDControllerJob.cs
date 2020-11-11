@@ -364,7 +364,8 @@ namespace MasterOnline.Controllers
             vDescription = vDescription.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
             vDescription = vDescription.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
             vDescription = vDescription.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
-            //vDescription = vDescription.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
+            vDescription = vDescription.Replace("<p>", "").Replace("</p>", "");
+            vDescription = vDescription.Replace("\r", "");
             //HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
             //HttpBody.description = HttpBody.description.Replace("&nbsp;", "");
 
@@ -599,10 +600,12 @@ namespace MasterOnline.Controllers
                                             var dataSkuResult = JD_getSKUVariantbySPU(data, Convert.ToString(retData.model.spuId));
                                             if(dataSkuResult != null)
                                             {
+                                                var brgMPInduk = "";
                                                 foreach (var dataSKU in dataSkuResult.model)
                                                 {
                                                     if (brgInDb.TYPE == "4") // punya variasi
                                                     {
+                                                        brgMPInduk = Convert.ToString(retData.model.spuId) + ";0";
                                                         //handle variasi product
                                                         #region variasi product
                                                         var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
@@ -653,7 +656,8 @@ namespace MasterOnline.Controllers
                                                         //end handle variasi product
                                                     }
                                                     else
-                                                    {                                                        
+                                                    {
+                                                        brgMPInduk = Convert.ToString(retData.model.spuId) + ";" + retData.model.skuIdList[0].skuId.ToString();
                                                         if (lGambarUploaded.Count() > 0)
                                                         {
                                                             JD_addSKUMainPicture(data, retData.model.skuIdList[0].skuId.ToString(), brgInDb.LINK_GAMBAR_1);
@@ -687,7 +691,7 @@ namespace MasterOnline.Controllers
                                                 var itemDataInduk = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
                                                 if (itemDataInduk != null)
                                                 {
-                                                    itemDataInduk.BRG_MP = Convert.ToString(retData.model.spuId) + ";" + retData.model.skuIdList[0].skuId.ToString();
+                                                    itemDataInduk.BRG_MP = brgMPInduk;
                                                     itemDataInduk.LINK_STATUS = "Buat Produk Berhasil";
                                                     itemDataInduk.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                                     itemDataInduk.LINK_ERROR = "0;Buat Produk;;";
@@ -703,30 +707,35 @@ namespace MasterOnline.Controllers
                             }
                             catch (Exception ex)
                             {
+                                throw new Exception(Convert.ToString(ex.Message));
                                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                             }
                         }
                         else
                         {
+                            throw new Exception(Convert.ToString(retData.message));
                             //currentLog.REQUEST_EXCEPTION = retStok.message;
                             //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                         }
                     }
                     else
                     {
+                        throw new Exception("No response API. Please contact support.");
                         //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
                         //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                     }
                 }
                 else
                 {
+                    throw new Exception("API error. Please contact support.");
                     //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                 }
             }
             else
             {
+                throw new Exception("API error.Please contact support.");
                 //currentLog.REQUEST_EXCEPTION = response;
                 //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
             }
@@ -1056,7 +1065,7 @@ namespace MasterOnline.Controllers
                 "\"subtitle\":\""+ detailBrg.AVALUE_43 +"\", \"subtitleHref\":\"" + urlHref + "\", \"subtitleHrefM\":\"" + urlHref + "\", \"transportId\":42, \"isQuality\":" + detailBrg.AVALUE_47 + ", " +
                 paramQualityAsurance +
                 "\"warrantyPeriod\":" + detailBrg.ACODE_41 + ", \"afterSale\":" + detailBrg.ACODE_40 + ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
-                "\"weight\":\"" + weight + "\",  \"piece\":0, \"netWeight\":\"" + weight + "\", \"packHeight\":\"" + brgInDb.TINGGI + "\", \"packLong\":\"" + brgInDb.PANJANG + "\", \"packWide\":\"" + brgInDb.LEBAR + "\"," +
+                "\"weight\":\"" + weight + "\",  \"Piece\": " + detailBrg.ACODE_39 + ", \"netWeight\":\"" + weight + "\", \"packHeight\":\"" + brgInDb.TINGGI + "\", \"packLong\":\"" + brgInDb.PANJANG + "\", \"packWide\":\"" + brgInDb.LEBAR + "\"," +
                 "\"appDescription\":\"" + vDescription + "\"" +
                 //", \"description\":\"" + vDescription + "\"" + 
                 "}}";
