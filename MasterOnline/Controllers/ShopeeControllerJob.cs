@@ -1846,7 +1846,7 @@ namespace MasterOnline.Controllers
                         {
                             string[] ordersn_list = listOrder.orders.Select(p => p.ordersn).ToArray();
                             //add by calvin 4 maret 2019, filter
-                            var dariTgl = DateTimeOffset.UtcNow.AddDays(-30).DateTime;
+                            var dariTgl = DateTimeOffset.UtcNow.AddDays(-4).DateTime;
                             var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto Shopee" && p.CUST == CUST && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
                             //end add by calvin
                             var filtered = ordersn_list.Where(p => !SudahAdaDiMO.Contains(p));
@@ -3196,7 +3196,7 @@ namespace MasterOnline.Controllers
             //    REQUEST_ATTRIBUTE_1 = iden.merchant_code,
             //    REQUEST_STATUS = "Pending",
             //};
-            var dsOrder = EDB.GetDataSet("CString", "SOT01A", "SELECT NO_REFERENSI FROM SOT01A WHERE NO_REFERENSI IN ("+list_noref+") AND STATUS_TRANSAKSI = '0' AND CUST = '"+CUST+"'");
+            var dsOrder = EDB.GetDataSet("CString", "SOT01A", "SELECT NO_REFERENSI FROM SOT01A (NOLOCK) WHERE NO_REFERENSI IN ("+list_noref+") AND STATUS_TRANSAKSI = '0' AND CUST = '"+CUST+"'");
             if(dsOrder.Tables[0].Rows.Count > 0)
             {
                 ordersn_list = new string[dsOrder.Tables[0].Rows.Count];

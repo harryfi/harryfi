@@ -387,7 +387,7 @@ namespace MasterOnline.Controllers
             bool accessDashboard = false;
             if (sessionData?.User != null)
             {
-                userId = Convert.ToString(MoDbContext.User.Single(u => u.Email == sessionData.User.Email).UserId);
+                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
                 accountId = Convert.ToString(sessionData?.User?.AccountId);
             }
             else
@@ -396,14 +396,14 @@ namespace MasterOnline.Controllers
                 userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
 
                 var emailAccount = Convert.ToString(sessionData?.Account?.Email);
-                accountId = Convert.ToString(MoDbContext.Account.Single(u => u.Email == emailAccount).AccountId);
+                accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
             }
 
             luserId = Convert.ToInt64(userId);
             laccountId = Convert.ToInt64(accountId);
 
-            var idFormDasboard = MoDbContext.FormMoses.Single(p => p.NamaForm == "Dashboard").ScrId;
-            var checkMenuDashboard = MoDbContext.SecUser.Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
+            var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
+            var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
 
             if(checkMenuDashboard.Count() > 0)
             {
@@ -476,9 +476,9 @@ namespace MasterOnline.Controllers
                     //ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL.Month == selectedMonth && p.TGL.Year == selectedDate.Year).ToList(),
                     ////ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
                     //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    listBarangCount = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").Count(),
-                    ListAkunMarketplace = ErasoftDbContext.ARF01.ToList(),
-                    ListMarket = MoDbContext.Marketplaces.ToList(),
+                    listBarangCount = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.TYPE == "3").Count(),
+                    ListAkunMarketplace = ErasoftDbContext.ARF01.AsNoTracking().ToList(),
+                    ListMarket = MoDbContext.Marketplaces.AsNoTracking().ToList(),
                     //remark by calvin 8 juli 2019
                     //ListBarangUntukCekQty = ErasoftDbContext.STF08A.ToList(),
                     //end remark by calvin 8 juli 2019
@@ -516,8 +516,8 @@ namespace MasterOnline.Controllers
                 //// change by nurul 12/10/2018   vm.NilaiReturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => p.BRUTO - p.NILAI_DISC);
                 //vm.NilaiReturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => p.NETTO);
 
-                var ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.TGL.Value.Month == selectedMonth && p.TGL.Value.Year == selectedDate.Year && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04"));
-                var ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL.Month == selectedMonth && p.TGL.Year == selectedDate.Year && p.STATUS == "1");
+                var ListPesanan = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => p.TGL.Value.Month == selectedMonth && p.TGL.Value.Year == selectedDate.Year && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04"));
+                var ListFaktur = ErasoftDbContext.SIT01A.AsNoTracking().Where(p => p.TGL.Month == selectedMonth && p.TGL.Year == selectedDate.Year && p.STATUS == "1");
 
                 // Pesanan
                 vm.JumlahPesananHariIni = ListPesanan.Where(p => System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Count();
@@ -668,8 +668,8 @@ namespace MasterOnline.Controllers
                 //}            
                 //end change by calvin 8 juli 2019
                 string sSQL = "select COUNT(ID) AS COUNT_TRANSAKSI from (";
-                sSQL += "select distinct A.brg,A.id from stf02 A LEFT join (";
-                sSQL += "SELECT DISTINCT BRG FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI ";
+                sSQL += "select distinct A.brg,A.id from stf02 A(NOLOCK) LEFT join (";
+                sSQL += "SELECT DISTINCT BRG FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI ";
                 sSQL += "WHERE A.TGL >= '" + (selectedDate.AddMonths(-1)).ToString("yyyy-MM-dd") + "' AND A.TGL <= '" + (selectedDate).ToString("yyyy-MM-dd") + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND B.BRG <> 'NOT_FOUND' ";
                 sSQL += ")B on A.brg=B.brg WHERE ISNULL(B.BRG, '') = '' AND A.TYPE='3')A";
                 var ListBarangAndQtyNotInPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(sSQL).Single();
@@ -680,7 +680,7 @@ namespace MasterOnline.Controllers
                 sSQL = "SELECT COUNT(BRG) AS COUNT_TRANSAKSI FROM ( ";
                 sSQL += "SELECT DISTINCT A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, A.SELISIH FROM ( ";
                 sSQL += "SELECT B.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI, ((ISNULL(QOH,0) - ISNULL(QOO,0)) - B.MINI) AS SELISIH FROM ";
-                sSQL += "STF02 B LEFT JOIN ( ";
+                sSQL += "STF02 B(NOLOCK) LEFT JOIN ( ";
                 sSQL += "SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, ";
                 sSQL += "SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
                 sSQL += "FROM ( ";
@@ -745,7 +745,7 @@ namespace MasterOnline.Controllers
             bool accessDashboard = false;
             if (sessionData?.User != null)
             {
-                userId = Convert.ToString(MoDbContext.User.Single(u => u.Email == sessionData.User.Email).UserId);
+                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
                 accountId = Convert.ToString(sessionData?.User?.AccountId);
             }
             else
@@ -754,14 +754,14 @@ namespace MasterOnline.Controllers
                 userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
 
                 var emailAccount = Convert.ToString(sessionData?.Account?.Email);
-                accountId = Convert.ToString(MoDbContext.Account.Single(u => u.Email == emailAccount).AccountId);
+                accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
             }
 
             luserId = Convert.ToInt64(userId);
             laccountId = Convert.ToInt64(accountId);
 
-            var idFormDasboard = MoDbContext.FormMoses.Single(p => p.NamaForm == "Dashboard").ScrId;
-            var checkMenuDashboard = MoDbContext.SecUser.Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
+            var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
+            var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
 
             if (checkMenuDashboard.Count() > 0)
             {
@@ -2021,7 +2021,7 @@ namespace MasterOnline.Controllers
             bool accessDashboard = false;
             if (sessionData?.User != null)
             {
-                userId = Convert.ToString(MoDbContext.User.Single(u => u.Email == sessionData.User.Email).UserId);
+                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
                 accountId = Convert.ToString(sessionData?.User?.AccountId);
             }
             else
@@ -2030,14 +2030,14 @@ namespace MasterOnline.Controllers
                 userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
 
                 var emailAccount = Convert.ToString(sessionData?.Account?.Email);
-                accountId = Convert.ToString(MoDbContext.Account.Single(u => u.Email == emailAccount).AccountId);
+                accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
             }
 
             luserId = Convert.ToInt64(userId);
             laccountId = Convert.ToInt64(accountId);
 
-            var idFormDasboard = MoDbContext.FormMoses.Single(p => p.NamaForm == "Dashboard").ScrId;
-            var checkMenuDashboard = MoDbContext.SecUser.Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
+            var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
+            var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
 
             if (checkMenuDashboard.Count() > 0)
             {
@@ -2058,9 +2058,9 @@ namespace MasterOnline.Controllers
             else
             {
                 string sSQL = "SELECT TOP 10 A.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2,'') AS NAMA,A.SUM_QTY AS QTY FROM ( ";
-                sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.TGL_INPUT >= '" + tempDrtgl + "' AND B.TGL_INPUT <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND BRG <> 'NOT_FOUND' GROUP BY BRG ";
+                sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE B.TGL_INPUT >= '" + tempDrtgl + "' AND B.TGL_INPUT <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND BRG <> 'NOT_FOUND' GROUP BY BRG ";
                 //sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG ORDER BY SUM_QTY DESC ";
-                sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '3' ORDER BY SUM_QTY DESC ";
+                sSQL += ") A LEFT JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG WHERE B.TYPE = '3' ORDER BY SUM_QTY DESC ";
                 var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
                 foreach (var item in ListBarangAndQtyInPesanan)
                 {
@@ -2152,7 +2152,7 @@ namespace MasterOnline.Controllers
             bool accessDashboard = false;
             if (sessionData?.User != null)
             {
-                userId = Convert.ToString(MoDbContext.User.Single(u => u.Email == sessionData.User.Email).UserId);
+                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
                 accountId = Convert.ToString(sessionData?.User?.AccountId);
             }
             else
@@ -2161,14 +2161,14 @@ namespace MasterOnline.Controllers
                 userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
 
                 var emailAccount = Convert.ToString(sessionData?.Account?.Email);
-                accountId = Convert.ToString(MoDbContext.Account.Single(u => u.Email == emailAccount).AccountId);
+                accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
             }
 
             luserId = Convert.ToInt64(userId);
             laccountId = Convert.ToInt64(accountId);
 
-            var idFormDasboard = MoDbContext.FormMoses.Single(p => p.NamaForm == "Dashboard").ScrId;
-            var checkMenuDashboard = MoDbContext.SecUser.Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
+            var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
+            var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
 
             if (checkMenuDashboard.Count() > 0)
             {
@@ -2193,8 +2193,8 @@ namespace MasterOnline.Controllers
                 string sSql = "";
                 //sSql += "SELECT SI.CUST,(ISNULL(MO.NAMAMARKET,'')  + ' (' + ISNULL(AR.PERSO,'') + ')') Market, SUM(SI.NETTO) AS Nilai, COUNT(SI.RECNUM) AS Jumlah ";
                 sSql += "SELECT SI.CUST,(ISNULL(MO.NAMAMARKET,'')  + ' (' + ISNULL(AR.PERSO,'') + ')') Market, SUM(SI.BRUTO) AS Nilai, COUNT(SI.RECNUM) AS Jumlah ";
-                sSql += "FROM SIT01A SI LEFT JOIN ARF01 AR ON SI.CUST = AR.CUST LEFT JOIN ";
-                sSql += "MO..MARKETPLACE MO ON AR.NAMA = MO.IDMARKET ";
+                sSql += "FROM SIT01A SI(NOLOCK) LEFT JOIN ARF01 AR(NOLOCK) ON SI.CUST = AR.CUST LEFT JOIN ";
+                sSql += "MO..MARKETPLACE MO (NOLOCK) ON AR.NAMA = MO.IDMARKET ";
                 sSql += "WHERE SI.TGL >= '" + tempDrtgl + "' AND SI.TGL <= '" + tempSdtgl + "' AND SI.STATUS = '1' AND SI.JENIS_FORM = '2' ";
                 sSql += "GROUP BY SI.CUST, MO.NAMAMARKET, AR.PERSO ";
                 var ListFakturPerMarket = ErasoftDbContext.Database.SqlQuery<listFaktur>(sSql).ToList();
@@ -2277,7 +2277,7 @@ namespace MasterOnline.Controllers
             bool accessDashboard = false;
             if (sessionData?.User != null)
             {
-                userId = Convert.ToString(MoDbContext.User.Single(u => u.Email == sessionData.User.Email).UserId);
+                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
                 accountId = Convert.ToString(sessionData?.User?.AccountId);
             }
             else
@@ -2286,14 +2286,14 @@ namespace MasterOnline.Controllers
                 userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
 
                 var emailAccount = Convert.ToString(sessionData?.Account?.Email);
-                accountId = Convert.ToString(MoDbContext.Account.Single(u => u.Email == emailAccount).AccountId);
+                accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
             }
 
             luserId = Convert.ToInt64(userId);
             laccountId = Convert.ToInt64(accountId);
 
-            var idFormDasboard = MoDbContext.FormMoses.Single(p => p.NamaForm == "Dashboard").ScrId;
-            var checkMenuDashboard = MoDbContext.SecUser.Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
+            var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
+            var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
 
             if (checkMenuDashboard.Count() > 0)
             {
@@ -2327,25 +2327,25 @@ namespace MasterOnline.Controllers
 
                 string sSql1 = "";
                 sSql1 += "SELECT C.NO_BUKTI, D.BRG into #B FROM SOT01A C(NOLOCK) INNER JOIN SOT01B D(NOLOCK) ON C.NO_BUKTI = D.NO_BUKTI WHERE C.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND C.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'); " + System.Environment.NewLine;
-                sSql1 += "SELECT B.BRG, B.NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI INTO #A FROM (SELECT BRG, (isnull(NAMA, '') + ' ' + ISNULL(NAMA2, '')) AS NAMA,MINI FROM STF02(NOLOCK) WHERE TYPE='3') B LEFT JOIN 	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, 	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO 	FROM [QOH_QOO_ALL_ITEM]	GROUP BY BRG 	) A ON A.BRG = B.BRG WHERE (ISNULL(QOH,0) - ISNULL(QOO,0)) <= B.MINI; " + System.Environment.NewLine;
+                sSql1 += "SELECT B.BRG, B.NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI INTO #A FROM (SELECT BRG, (isnull(NAMA, '') + ' ' + ISNULL(NAMA2, '')) AS NAMA,MINI FROM STF02(NOLOCK) WHERE TYPE='3') B LEFT JOIN 	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, 	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO 	FROM [QOH_QOO_ALL_ITEM] (NOLOCK)	GROUP BY BRG 	) A ON A.BRG = B.BRG WHERE (ISNULL(QOH,0) - ISNULL(QOO,0)) <= B.MINI; " + System.Environment.NewLine;
 
                 sSql1 += "SELECT JENIS, BRG, NAMA, QOH, QOO , SISA, MINI, QTY_JUAL, (MINI - SISA) AS SELISIH FROM ";
                 sSql1 += "( ";
                 //1. CARI YANG BARANG NYA ADA PENJUALAN DAN SISA KURANG DR MINIMAL STOK
-                sSql1 += "SELECT 'ADA' AS JENIS, A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY AS QTY_JUAL FROM #B B  ";
-                sSql1 += "  INNER JOIN #A A  ON A.BRG=B.BRG ";
+                sSql1 += "SELECT 'ADA' AS JENIS, A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY AS QTY_JUAL FROM #B B(NOLOCK)  ";
+                sSql1 += "  INNER JOIN #A A(NOLOCK)  ON A.BRG=B.BRG ";
                 sSql1 += "  LEFT JOIN SIT01A C(NOLOCK) ON B.NO_BUKTI= C.NO_SO ";
-                sSql1 += "  LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
+                sSql1 += "  LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
                 sSql1 += "  GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI,D.QTY ";
 
                 sSql1 += "UNION ALL ";
                 //2. KALAU YANG PERTAMA KURANG DR 10 RECORD, MAKA CARI YANG BARANG NYA TIDAK ADA PENJUALAN DAN SISA KURANG DR MINIMAL STOK 
                 sSql1 += "SELECT 'TIDAK ADA' AS JENIS, A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, 0 AS QTY_JUAL FROM  ( ";
                 sSql1 += "  SELECT * FROM #A WHERE SISA <= MINI AND BRG NOT IN( ";
-                sSql1 += "      SELECT A.BRG FROM #B B ";
-                sSql1 += "      INNER JOIN #A A  ON A.BRG=B.BRG ";
+                sSql1 += "      SELECT A.BRG FROM #B B(NOLOCK) ";
+                sSql1 += "      INNER JOIN #A A(NOLOCK)  ON A.BRG=B.BRG ";
                 sSql1 += "      LEFT JOIN SIT01A C(NOLOCK) ON B.NO_BUKTI= C.NO_SO ";
-                sSql1 += "      LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
+                sSql1 += "      LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
                 sSql1 += "  GROUP BY A.BRG ";
                 sSql1 += ") )A ";
                 sSql1 += "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI ";
@@ -2396,7 +2396,7 @@ namespace MasterOnline.Controllers
             bool accessDashboard = false;
             if (sessionData?.User != null)
             {
-                userId = Convert.ToString(MoDbContext.User.Single(u => u.Email == sessionData.User.Email).UserId);
+                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
                 accountId = Convert.ToString(sessionData?.User?.AccountId);
             }
             else
@@ -2405,14 +2405,14 @@ namespace MasterOnline.Controllers
                 userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
 
                 var emailAccount = Convert.ToString(sessionData?.Account?.Email);
-                accountId = Convert.ToString(MoDbContext.Account.Single(u => u.Email == emailAccount).AccountId);
+                accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
             }
 
             luserId = Convert.ToInt64(userId);
             laccountId = Convert.ToInt64(accountId);
 
-            var idFormDasboard = MoDbContext.FormMoses.Single(p => p.NamaForm == "Dashboard").ScrId;
-            var checkMenuDashboard = MoDbContext.SecUser.Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
+            var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
+            var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
 
             if (checkMenuDashboard.Count() > 0)
             {
@@ -2437,7 +2437,7 @@ namespace MasterOnline.Controllers
                 string sSql1 = "";
                 sSql1 += "SELECT A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA FROM  ";
                 sSql1 += "(SELECT B.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA FROM ";
-                sSql1 += "STF02 B LEFT JOIN ";
+                sSql1 += "STF02 B(NOLOCK) LEFT JOIN ";
                 sSql1 += "	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, ";
                 sSql1 += "	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
                 sSql1 += "	FROM (";
@@ -2460,7 +2460,7 @@ namespace MasterOnline.Controllers
                 sSql1 += "ON A.BRG = B.BRG WHERE B.TYPE = '3' ";
                 sSql1 += ") A  ";
                 sSql1 += "left join  ";
-                sSql1 += "(SELECT DISTINCT BRG FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'))B ";
+                sSql1 += "(SELECT DISTINCT BRG FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'))B ";
                 sSql1 += "ON B.BRG=A.BRG ";
                 sSql1 += "WHERE ISNULL(B.BRG, '') = '' ";
                 sSql1 += "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA ";
@@ -2507,7 +2507,7 @@ namespace MasterOnline.Controllers
                     bool accessDashboard = false;
                     if (sessionData?.User != null)
                     {
-                        userId = Convert.ToString(MoDbContext.User.Single(u => u.Email == sessionData.User.Email).UserId);
+                        userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
                         accountId = Convert.ToString(sessionData?.User?.AccountId);
                     }
                     else
@@ -2516,14 +2516,14 @@ namespace MasterOnline.Controllers
                         userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
 
                         var emailAccount = Convert.ToString(sessionData?.Account?.Email);
-                        accountId = Convert.ToString(MoDbContext.Account.Single(u => u.Email == emailAccount).AccountId);
+                        accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
                     }
 
                     luserId = Convert.ToInt64(userId);
                     laccountId = Convert.ToInt64(accountId);
 
-                    var idFormDasboard = MoDbContext.FormMoses.Single(p => p.NamaForm == "Dashboard").ScrId;
-                    var checkMenuDashboard = MoDbContext.SecUser.Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
+                    var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
+                    var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
 
                     if (checkMenuDashboard.Count() > 0)
                     {
@@ -2538,9 +2538,9 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        string sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from sit01a where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "'";
+                        string sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from sit01a (NOLOCK) where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "' and jenis_form='2' ";
                         var TotalPenjualan = ErasoftDbContext.Database.SqlQuery<SUM_NettoSIPB>(sSQL1).Single();
-                        sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from pbt01a where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "'";
+                        sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from pbt01a (NOLOCK) where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "' and jenisform='3' ";
                         var TotalPembelian = ErasoftDbContext.Database.SqlQuery<SUM_NettoSIPB>(sSQL1).Single();
                         vm.totalSI = TotalPenjualan.TOTAL;
                         vm.totalPB = TotalPembelian.TOTAL;
@@ -2602,14 +2602,14 @@ namespace MasterOnline.Controllers
             if (sessionData?.User != null)
             {
                 //var accId = MoDbContext.User.Single(u => u.Username == sessionData.User.Username).AccountId; // remark by fauzi 17 Juli 2020
-                var accId = MoDbContext.User.Single(u => u.Email == sessionData.User.Email).AccountId;
-                username = MoDbContext.Account.Single(a => a.AccountId == accId).Username;
+                var accId = MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).AccountId;
+                username = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == accId).Username;
             }
             else
             {
                 username = sessionData?.Account?.Username;
             }
-            var Marketplaces = MoDbContext.Marketplaces.ToList();
+            var Marketplaces = MoDbContext.Marketplaces.AsNoTracking().ToList();
 
             //REMARK BY CALVIN 5 APRIL 2019
             ////remark by calvin 13 desember 2018, testing
@@ -2813,7 +2813,7 @@ namespace MasterOnline.Controllers
                                 if (queryfilter != "") { queryfilter += ","; }
                                 queryfilter += "'" + item + "'";
                             }
-                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '01' AND ";
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI = '01' AND ";
                             if (queryfilter != "")
                             {
                                 sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
@@ -2822,23 +2822,23 @@ namespace MasterOnline.Controllers
                             {
                                 sSQLTemp += " 0 = 1; " + Environment.NewLine;
                             }
-                            sSQL2 += "FROM #SOT01A A ";
+                            sSQL2 += "FROM #SOT01A A(NOLOCK) ";
                         }
                         else
                         {
-                            sSQL2 += "FROM SOT01A A ";
+                            sSQL2 += "FROM SOT01A A(NOLOCK) ";
                         }
                     }
                     break;
                 default:
                     {
-                        sSQL2 += "FROM SOT01A A ";
+                        sSQL2 += "FROM SOT01A A(NOLOCK) ";
                     }
                     break;
             }
             //END ADD BY NURUL 4/12/2019
-            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
-            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            sSQL2 += "LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C(NOLOCK) ON B.NAMA = C.IdMarket ";
             sSQL2 += "WHERE A.STATUS_TRANSAKSI='01' ";
             if (search != "")
             {
@@ -2884,15 +2884,15 @@ namespace MasterOnline.Controllers
             if (sessionData?.User != null)
             {
                 //var accId = MoDbContext.User.Single(u => u.Username == sessionData.User.Username).AccountId; // remark by fauzi 17 Juli 2020
-                var accId = MoDbContext.User.Single(u => u.Email == sessionData.User.Email).AccountId;
-                username = MoDbContext.Account.Single(a => a.AccountId == accId).Username;
+                var accId = MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).AccountId;
+                username = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == accId).Username;
             }
             else
             {
                 username = sessionData?.Account?.Username;
             }
-            var Marketplaces = MoDbContext.Marketplaces.ToList();
-            var List_ARF01 = ErasoftDbContext.ARF01.ToList();
+            var Marketplaces = MoDbContext.Marketplaces.AsNoTracking().ToList();
+            var List_ARF01 = ErasoftDbContext.ARF01.AsNoTracking().ToList();
             //remark by calvin 2 april 2019, dipindah ke recurring saat login
             //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
             //bool doAPI = false;
@@ -3050,8 +3050,8 @@ namespace MasterOnline.Controllers
             //};
 
             //return View(vm);
-            var dataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1);
-            var ceklistPesanan = ErasoftDbContext.SOT01A.Take(1).ToList();
+            var dataUsaha = ErasoftDbContext.SIFSYS.AsNoTracking().SingleOrDefault(p => p.BLN == 1);
+            var ceklistPesanan = ErasoftDbContext.SOT01A.AsNoTracking().Take(1).ToList();
 
             //add by nurul 2/12/2019, penambahan dashboard pesanan
             var getBelumBayar = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto  from sot01a(nolock) where status_transaksi='0' ").Single();
@@ -3082,7 +3082,7 @@ namespace MasterOnline.Controllers
             //{
             var vm = new PesananViewModel
             {
-                ListSubs = MoDbContext.Subscription.ToList(),
+                ListSubs = MoDbContext.Subscription.AsNoTracking().ToList(),
                 DataUsaha = dataUsaha,
                 ListPesanan = ceklistPesanan,
                 //add by nurul 2/12/2019, penambahan dashboard pesanan
@@ -3912,7 +3912,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new BuyerViewModel()
             {
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
+                ListPembeli = ErasoftDbContext.ARF01C.AsNoTracking().OrderBy(x => x.NAMA).ToList()
             };
 
             return View(vm);
@@ -4353,8 +4353,8 @@ namespace MasterOnline.Controllers
             {
                 var buyerVm = new BuyerViewModel()
                 {
-                    Pembeli = ErasoftDbContext.ARF01C.SingleOrDefault(c => c.BUYER_CODE == kodePembeli),
-                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
+                    Pembeli = ErasoftDbContext.ARF01C.AsNoTracking().SingleOrDefault(c => c.BUYER_CODE == kodePembeli),
+                    ListPembeli = ErasoftDbContext.ARF01C.AsNoTracking().OrderBy(x => x.NAMA).ToList()
                 };
 
                 ViewData["Editing"] = 1;
@@ -13033,7 +13033,7 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                var PromptModel = ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Where(a => a.CUST == cust).ToList();
+                var PromptModel = ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.AsNoTracking().Where(a => a.CUST == cust).ToList();
                 return View("PromptDeliveryProviderLazada", PromptModel);
             }
             catch (Exception ex)
@@ -20455,10 +20455,10 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetPelangganAkunBukalapak()
         {
-            var mp = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToUpper() == "BUKALAPAK").FirstOrDefault();
+            var mp = MoDbContext.Marketplaces.AsNoTracking().Where(m => m.NamaMarket.ToUpper() == "BUKALAPAK").FirstOrDefault();
             if (mp != null)
             {
-                var listPelanggan = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).Where(m => m.NAMA == mp.IdMarket.ToString()).ToList();
+                var listPelanggan = ErasoftDbContext.ARF01.AsNoTracking().OrderBy(m => m.NAMA).Where(m => m.NAMA == mp.IdMarket.ToString()).ToList();
 
                 return Json(listPelanggan, JsonRequestBehavior.AllowGet);
             }
@@ -20600,7 +20600,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetPelangganAkun()
         {
-            var listPelanggan = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).ToList();
+            var listPelanggan = ErasoftDbContext.ARF01.AsNoTracking().OrderBy(m => m.NAMA).ToList();
 
             return Json(listPelanggan, JsonRequestBehavior.AllowGet);
         }
@@ -20628,7 +20628,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetPembeli()
         {
-            var listPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList();
+            var listPembeli = ErasoftDbContext.ARF01C.AsNoTracking().OrderBy(x => x.NAMA).ToList();
 
             return Json(listPembeli, JsonRequestBehavior.AllowGet);
         }
@@ -20638,7 +20638,7 @@ namespace MasterOnline.Controllers
         public ActionResult GetPembeliPesanan(string kode)
         {
             //var listPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList();
-            var pembeli = ErasoftDbContext.ARF01C.Single(x => x.BUYER_CODE == kode);
+            var pembeli = ErasoftDbContext.ARF01C.AsNoTracking().Single(x => x.BUYER_CODE == kode);
 
             return Json(pembeli, JsonRequestBehavior.AllowGet);
         }
@@ -20648,9 +20648,9 @@ namespace MasterOnline.Controllers
         public ActionResult GetDataBarangPesanan(string code)
         {
             //var listBarang = ErasoftDbContext.STF02.ToList();
-            var listBarang = (from a in ErasoftDbContext.STF02
-                              join b in ErasoftDbContext.STF02H on a.BRG equals b.BRG
-                              join c in ErasoftDbContext.ARF01 on b.IDMARKET equals c.RecNum
+            var listBarang = (from a in ErasoftDbContext.STF02.AsNoTracking()
+                              join b in ErasoftDbContext.STF02H.AsNoTracking() on a.BRG equals b.BRG
+                              join c in ErasoftDbContext.ARF01.AsNoTracking() on b.IDMARKET equals c.RecNum
                               //change by nurul 21/1/2019 -- where c.CUST == code
                               where c.CUST == code && a.TYPE == "3"
                               select new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
@@ -20662,7 +20662,7 @@ namespace MasterOnline.Controllers
         {
             //var listBarang = ErasoftDbContext.STF02.ToList(); 'change by nurul 21/1/2019 
             //var listBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
-            var listBarang = from stf02 in ErasoftDbContext.STF02
+            var listBarang = from stf02 in ErasoftDbContext.STF02.AsNoTracking()
                              where stf02.TYPE == "3"
                              select new smolSTF02
                              {
@@ -20794,7 +20794,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetEkspedisi()
         {
-            var listEkspedisi = MoDbContext.Ekspedisi.ToList();
+            var listEkspedisi = MoDbContext.Ekspedisi.AsNoTracking().ToList();
 
             return Json(listEkspedisi, JsonRequestBehavior.AllowGet);
         }
@@ -20804,16 +20804,17 @@ namespace MasterOnline.Controllers
         //public ActionResult CekJumlahPesananBulanIni(string uname)
         public ActionResult CekJumlahPesananBulanIni(long accId)
         {
-            var jumlahPesananBulanIni = ErasoftDbContext.SOT01A.Count(p => p.TGL.Value.Year == DateTime.Today.Year && p.TGL.Value.Month == DateTime.Today.Month);
-            var accInDb = MoDbContext.Account.FirstOrDefault(a => a.AccountId == accId);
+            //var jumlahPesananBulanIni = ErasoftDbContext.SOT01A.AsNoTracking().Count(p => p.TGL.Value.Year == DateTime.Today.Year && p.TGL.Value.Month == DateTime.Today.Month);
+            var jumlahPesananBulanIni = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => p.TGL.Value.Year == DateTime.Today.Year && p.TGL.Value.Month == DateTime.Today.Month).Count();
+            var accInDb = MoDbContext.Account.AsNoTracking().FirstOrDefault(a => a.AccountId == accId);
 
             if (accInDb == null)
             {
-                var accIdByUser = MoDbContext.User.FirstOrDefault(u => u.AccountId == accId)?.AccountId;
-                accInDb = MoDbContext.Account.FirstOrDefault(a => a.AccountId == accIdByUser);
+                var accIdByUser = MoDbContext.User.AsNoTracking().FirstOrDefault(u => u.AccountId == accId)?.AccountId;
+                accInDb = MoDbContext.Account.AsNoTracking().FirstOrDefault(a => a.AccountId == accIdByUser);
             }
 
-            var accSubs = MoDbContext.Subscription.FirstOrDefault(s => s.KODE == accInDb.KODE_SUBSCRIPTION);
+            var accSubs = MoDbContext.Subscription.AsNoTracking().FirstOrDefault(s => s.KODE == accInDb.KODE_SUBSCRIPTION);
             //remark by Tri 23 juli 2019, selalu tampilkan button upload faktur
             //var cekTokped = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).Where(m => m.NAMA == "15").ToList().Count();
             //end remark by Tri 23 juli 2019, selalu tampilkan button upload faktur
@@ -20838,22 +20839,22 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetPesananInfo(string nobuk)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == nobuk);
-            var pesananDetailInDb = ErasoftDbContext.SOT01B.FirstOrDefault(p => p.NO_BUKTI == nobuk && p.BRG == "NOT_FOUND");
-            var marketInDb = ErasoftDbContext.ARF01.Single(m => m.CUST == pesananInDb.CUST);
+            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.NO_BUKTI == nobuk);
+            var pesananDetailInDb = ErasoftDbContext.SOT01B.AsNoTracking().FirstOrDefault(p => p.NO_BUKTI == nobuk && p.BRG == "NOT_FOUND");
+            var marketInDb = ErasoftDbContext.ARF01.AsNoTracking().Single(m => m.CUST == pesananInDb.CUST);
             var idMarket = Convert.ToInt32(marketInDb.NAMA);
-            var namaMarketplace = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket;
+            var namaMarketplace = MoDbContext.Marketplaces.AsNoTracking().Single(m => m.IdMarket == idMarket).NamaMarket;
             var namaAkunMarket = $"{namaMarketplace} ({marketInDb.PERSO})";
             //change by Tri 11 Apr 2020, handle pembeli kosong
             //var namaBuyer = ErasoftDbContext.ARF01C.SingleOrDefault(b => b.BUYER_CODE == pesananInDb.PEMESAN).NAMA;
             var namaBuyer = pesananInDb.NAMAPEMESAN;
-            var pembeli = ErasoftDbContext.ARF01C.Where(b => b.BUYER_CODE == (pesananInDb.PEMESAN ?? "")).FirstOrDefault();
+            var pembeli = ErasoftDbContext.ARF01C.AsNoTracking().Where(b => b.BUYER_CODE == (pesananInDb.PEMESAN ?? "")).FirstOrDefault();
             if (pembeli != null)
             {
                 namaBuyer = pembeli.NAMA;
             }
             //end change by Tri 11 Apr 2020, handle pembeli kosong
-            var listBarang = EDB.GetDataSet("CString", "SOT01B", "SELECT A.NO_URUT, ISNULL(B.NAMA + ' ' + ISNULL(B.NAMA2, ''), CATATAN) AS NAMA FROM SOT01B A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "'");
+            var listBarang = EDB.GetDataSet("CString", "SOT01B", "SELECT A.NO_URUT, ISNULL(B.NAMA + ' ' + ISNULL(B.NAMA2, ''), CATATAN) AS NAMA FROM SOT01B A(NOLOCK) LEFT JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "'");
 
             var infoPesanan = new InfoPesanan()
             {
@@ -20945,7 +20946,7 @@ namespace MasterOnline.Controllers
                 }
                 catch (Exception ex)
                 {
-                    var tempSI = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == dataVm.Pesanan.NO_BUKTI).Single();
+                    var tempSI = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => a.NO_BUKTI == dataVm.Pesanan.NO_BUKTI).Single();
                     if (tempSI != null)
                     {
                         if (tempSI.NO_BUKTI == noOrder)
@@ -21002,7 +21003,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SaveChanges();
                 }
 
-                var sSQL = "select isnull(sum(harga),0) from sot01b where no_bukti='" + dataVm.Pesanan.NO_BUKTI + "'";
+                var sSQL = "select isnull(sum(harga),0) from sot01b (NOLOCK) where no_bukti='" + dataVm.Pesanan.NO_BUKTI + "'";
                 var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
                 pesananInDb.BRUTO = getSumDetailFaktur;
                 pesananInDb.NILAI_DISC = dataVm.Pesanan.NILAI_DISC;
@@ -21022,18 +21023,18 @@ namespace MasterOnline.Controllers
             //end add by calvin 8 nov 2018
 
             //add by nurul 8/7/2019, tuning
-            var ListPesananDetail = ErasoftDbContext.SOT01B.Where(pd => pd.NO_BUKTI == dataVm.Pesanan.NO_BUKTI).ToList();
+            var ListPesananDetail = ErasoftDbContext.SOT01B.AsNoTracking().Where(pd => pd.NO_BUKTI == dataVm.Pesanan.NO_BUKTI).ToList();
             var listBarangInPesananDetail = ListPesananDetail.Select(p => p.BRG).ToList();
             //end add by nurul 8/7/2019, tuning
             //change by nurul 13 / 5 / 2019
             var vm = new PesananViewModel()
             {
-                Pesanan = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == dataVm.Pesanan.NO_BUKTI),
+                Pesanan = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.NO_BUKTI == dataVm.Pesanan.NO_BUKTI),
                 //ListPesananDetail = ErasoftDbContext.SOT01B.Where(pd => pd.NO_BUKTI == dataVm.Pesanan.NO_BUKTI).ToList(),
                 ListPesananDetail = ListPesananDetail,
                 //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
                 //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInPesananDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                ListBarang = ErasoftDbContext.STF02.AsNoTracking().Where(a => listBarangInPesananDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
                 ////ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ////ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                 ////ListMarketplace = MoDbContext.Marketplaces.ToList(),
@@ -21048,7 +21049,7 @@ namespace MasterOnline.Controllers
 
         public ActionResult UbahStatusPesanan(int? recNum, string tipeStatus, string cancelReason, string[] listData)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
+            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.RecNum == recNum);
             if (tipeStatus == "04") // validasi di tab Siap dikirim
             {
                 var dataVm = new PesananViewModel()
@@ -21067,7 +21068,7 @@ namespace MasterOnline.Controllers
                 //}
                 //end remark by nurul 23/11/2018 no resi boleh kosong 
 
-                var pesananDetailInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+                var pesananDetailInDb = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
                 bool valid = true;
                 foreach (var item in pesananDetailInDb)
                 {
@@ -21086,10 +21087,11 @@ namespace MasterOnline.Controllers
                 else // add by fauzi 23/09/2020 untuk update tanggal selesai TGL_KIRIM di table faktur fitur Upload faktru via FTP
                 {
                     //update tanggal selesai pesanan
-                    var dataFaktur = ErasoftDbContext.SIT01A.Where(p => p.NO_SO == pesananInDb.NO_BUKTI).SingleOrDefault();
+                    var dataFaktur = ErasoftDbContext.SIT01A.AsNoTracking().Where(p => p.NO_SO == pesananInDb.NO_BUKTI).SingleOrDefault();
                     if(dataFaktur != null)
                     {
-                        dataFaktur.TGL_KIRIM = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
+                        //dataFaktur.TGL_KIRIM = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
+                        EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SIT01A SET TGL_KIRIM = '" + Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd")) + "' where NO_SO='" + pesananInDb.NO_BUKTI + "'");
                         ErasoftDbContext.SaveChanges();
                     }
                     //update tanggal selesai pesanan
@@ -21099,7 +21101,7 @@ namespace MasterOnline.Controllers
             //add by nurul 4/1/2019 (tambah validasi jika gudang belum diisi)
             if (tipeStatus == "03")
             {
-                var pesananDetailInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+                var pesananDetailInDb = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
                 bool valid = true;
                 foreach (var item in pesananDetailInDb)
                 {
@@ -21118,10 +21120,11 @@ namespace MasterOnline.Controllers
                 else
                 {
                     //update tanggal selesai pesanan
-                    var dataFaktur = ErasoftDbContext.SIT01A.Where(p => p.NO_SO == pesananInDb.NO_BUKTI).SingleOrDefault();
+                    var dataFaktur = ErasoftDbContext.SIT01A.AsNoTracking().Where(p => p.NO_SO == pesananInDb.NO_BUKTI).SingleOrDefault();
                     if (dataFaktur != null)
                     {
-                        dataFaktur.TGL_KIRIM = null;
+                        //dataFaktur.TGL_KIRIM = null;
+                        EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SIT01A SET TGL_KIRIM = null where NO_SO='" + pesananInDb.NO_BUKTI + "'");
                         ErasoftDbContext.SaveChanges();
                     }
                     //update tanggal selesai pesanan
@@ -21142,7 +21145,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SOT01D.Add(sot01d);
                     ErasoftDbContext.SaveChanges();
                 }
-                var customer = ErasoftDbContext.ARF01.Where(p => p.CUST == pesananInDb.CUST).FirstOrDefault();
+                var customer = ErasoftDbContext.ARF01.AsNoTracking().Where(p => p.CUST == pesananInDb.CUST).FirstOrDefault();
                 if (customer != null)
                 {
                     if (customer.STATUS_API == "1")
@@ -21162,7 +21165,7 @@ namespace MasterOnline.Controllers
                                     for (int i = 0; i < listData.Count(); i++)
                                     {
                                         var data = listData[i];
-                                        var detail = ErasoftDbContext.SOT01B.Where(p => p.NO_URUT.ToString() == data).FirstOrDefault();
+                                        var detail = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_URUT.ToString() == data).FirstOrDefault();
                                         if (detail != null)
                                         {
                                             if (detail.BRG == "NOT_FOUND")
@@ -21176,7 +21179,7 @@ namespace MasterOnline.Controllers
                                             }
                                             else
                                             {
-                                                var kdBrgMp = ErasoftDbContext.STF02H.Where(m => m.BRG == detail.BRG && m.IDMARKET == customer.RecNum).FirstOrDefault();
+                                                var kdBrgMp = ErasoftDbContext.STF02H.AsNoTracking().Where(m => m.BRG == detail.BRG && m.IDMARKET == customer.RecNum).FirstOrDefault();
                                                 if (kdBrgMp != null)
                                                 {
                                                     listVariable += kdBrgMp.BRG_MP + "|";
@@ -21274,12 +21277,13 @@ namespace MasterOnline.Controllers
             }
             //end add 19 Nov 2019, validasi cancel reason
             pesananInDb.STATUS_TRANSAKSI = tipeStatus;
+            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '" + pesananInDb.STATUS_TRANSAKSI + "' where RecNum='" + recNum + "'");
             ErasoftDbContext.SaveChanges();
 
             //add by calvin 29 nov 2018
             if (tipeStatus == "11") // cancel, update qoh
             {
-                var pesananDetailInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+                var pesananDetailInDb = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
 
                 List<string> listBrg = new List<string>();
                 foreach (var item in pesananDetailInDb)
@@ -21299,11 +21303,11 @@ namespace MasterOnline.Controllers
         //add by Tri 27 Nov 2019
         public ActionResult GetCancelReasonLazada(string nobuk)
         {
-            var order = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == nobuk).FirstOrDefault();
+            var order = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => p.NO_BUKTI == nobuk).FirstOrDefault();
             if (order != null)
             {
                 var cust = order.CUST;
-                var customer = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).FirstOrDefault();
+                var customer = ErasoftDbContext.ARF01.AsNoTracking().Where(p => p.CUST == cust).FirstOrDefault();
                 if (customer != null)
                 {
                     if (customer.STATUS_API == "1")
@@ -21345,7 +21349,7 @@ namespace MasterOnline.Controllers
                     Int32 rec = Convert.ToInt32(get_selected[i]);
                     var pesananInDb = ErasoftDbContext.SOT01A.Single(a => a.RecNum == rec);
                     var getnobuk = pesananInDb.NO_BUKTI;
-                    var pesananDetailInDb = ErasoftDbContext.SOT01B.FirstOrDefault(p => p.NO_BUKTI == getnobuk && p.BRG == "NOT_FOUND");
+                    var pesananDetailInDb = ErasoftDbContext.SOT01B.AsNoTracking().FirstOrDefault(p => p.NO_BUKTI == getnobuk && p.BRG == "NOT_FOUND");
                     if (pesananDetailInDb == null)
                     {
                         if (pesananInDb.STATUS_TRANSAKSI == "01")
@@ -21359,7 +21363,7 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        var nobuk = ErasoftDbContext.SOT01A.Single(a => a.RecNum == rec).NO_BUKTI;
+                        var nobuk = ErasoftDbContext.SOT01A.AsNoTracking().Single(a => a.RecNum == rec).NO_BUKTI;
                         listError.Add(nobuk);
                     }
                 }
@@ -21706,7 +21710,7 @@ namespace MasterOnline.Controllers
                                 if (queryfilter != "") { queryfilter += ","; }
                                 queryfilter += "'" + item + "'";
                             }
-                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE ";
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE ";
                             if (queryfilter != "")
                             {
                                 sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
@@ -21715,23 +21719,23 @@ namespace MasterOnline.Controllers
                             {
                                 sSQLTemp += " 0 = 1; " + Environment.NewLine;
                             }
-                            sSQL2 += "FROM #SOT01A A ";
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
                         }
                         else
                         {
-                            sSQL2 += "FROM SOT01A A ";
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
                         }
                     }
                     break;
                 default:
                     {
-                        sSQL2 += "FROM SOT01A A ";
+                        sSQL2 += "FROM SOT01A A (NOLOCK) ";
                     }
                     break;
             }
             //end add by nurul 4/12/2019
-            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
-            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            sSQL2 += "LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C(NOLOCK) ON B.NAMA = C.IdMarket ";
             if (search != "")
             {
                 //sSQL2 += "WHERE A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' ";
@@ -21823,7 +21827,7 @@ namespace MasterOnline.Controllers
 
                 //return PartialView("Pesanan", vm);
 
-                var ceklistPesanan = ErasoftDbContext.SOT01A.Take(1).ToList();
+                var ceklistPesanan = ErasoftDbContext.SOT01A.AsNoTracking().Take(1).ToList();
                 if (dataUsaha.JTRAN_RETUR != "1" && ceklistPesanan.Count() == 0)
                 {
                     var vm = new PesananViewModel()
@@ -21838,7 +21842,7 @@ namespace MasterOnline.Controllers
                 {
                     var vm = new PesananViewModel
                     {
-                        ListSubs = MoDbContext.Subscription.ToList(),
+                        ListSubs = MoDbContext.Subscription.AsNoTracking().ToList(),
                         DataUsaha = dataUsaha,
                         ListPesanan = ceklistPesanan
                     };
@@ -21919,17 +21923,17 @@ namespace MasterOnline.Controllers
             ////var ListBarang = ErasoftDbContext.STF02.Where(p => ListKodeBarangMarket.Contains(p.BRG)).ToList(); 'change by nurul 21/1/2019
             //var ListBarang = ErasoftDbContext.STF02.Where(p => ListKodeBarangMarket.Contains(p.BRG) && p.TYPE == "3").ToList();
 
-            var sSql1 = "select NO_BUKTI,CATATAN,NO_URUT from sot01b where NO_URUT = '" + recNum + "'";
+            var sSql1 = "select NO_BUKTI,CATATAN,NO_URUT from sot01b (NOLOCK) where NO_URUT = '" + recNum + "'";
             var PesananDetail = ErasoftDbContext.Database.SqlQuery<PesananDetail_NotFound>(sSql1).FirstOrDefault();
-            var sSql = "select b.RecNum from SOT01A a inner join ARF01 b on a.CUST=b.CUST where a.NO_BUKTI='" + PesananDetail.NO_BUKTI + "'";
+            var sSql = "select b.RecNum from SOT01A a (NOLOCK) inner join ARF01 b(NOLOCK) on a.CUST=b.CUST where a.NO_BUKTI='" + PesananDetail.NO_BUKTI + "'";
             var idMarket = ErasoftDbContext.Database.SqlQuery<Int32>(sSql).FirstOrDefault();
-            var sSql2 = "select BRG,RecNum from stf02h where IDMARKET = '" + idMarket + "'";
+            var sSql2 = "select BRG,RecNum from stf02h (NOLOCK) where IDMARKET = '" + idMarket + "'";
             var ListBarangMarket = ErasoftDbContext.Database.SqlQuery<listBarangMarket_NotFound>(sSql2).ToList();
             var ListKodeBarangMarket = ListBarangMarket.Select(p => p.BRG).ToList();
             //var ListBarang = (from a in ErasoftDbContext.STF02
             //                  where a.TYPE == "3" && ListKodeBarangMarket.Any(y => a.BRG.Contains(y))
             //                  select new listBarang_NotFound { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2 }).ToList();
-            var sSql3 = "select BRG,NAMA,NAMA2 from stf02 where ([type]='3' or [type]='6') and brg in (select brg from stf02h where idmarket='" + idMarket + "')";
+            var sSql3 = "select BRG,NAMA,NAMA2 from stf02 (NOLOCK) where ([type]='3' or [type]='6') and brg in (select brg from stf02h (NOLOCK) where idmarket='" + idMarket + "')";
             var ListBarang = ErasoftDbContext.Database.SqlQuery<listBarang_NotFound>(sSql3).ToList();
             //end change by nurul 24/3/2020
             var ListKodeBarangMarket2 = ListBarang.Select(p => p.BRG).ToList();
@@ -21958,10 +21962,10 @@ namespace MasterOnline.Controllers
                 var PesananDetail = ErasoftDbContext.SOT01B.Where(b => b.NO_URUT == no_urut_sot01b).SingleOrDefault();
                 var dataStf02h = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h).SingleOrDefault();
 
-                var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.NO_BUKTI == PesananDetail.NO_BUKTI);
+                var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().SingleOrDefault(p => p.NO_BUKTI == PesananDetail.NO_BUKTI);
                 //change by nurul 16/9/2020, brg multi sku
                 //PesananDetail.BRG = dataStf02h.BRG;
-                var cekTipeBrg = ErasoftDbContext.STF02.Where(a => a.BRG == dataStf02h.BRG).SingleOrDefault();
+                var cekTipeBrg = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.BRG == dataStf02h.BRG).SingleOrDefault();
                 if (cekTipeBrg.TYPE == "6")
                 {
                     if (cekTipeBrg.KUBILASI == 1 && !string.IsNullOrEmpty(cekTipeBrg.BRG_NON_OS))
@@ -21987,7 +21991,7 @@ namespace MasterOnline.Controllers
                     if (!string.IsNullOrEmpty(dataStf02h.BRG_MP))
                         if (dataStf02h.BRG_MP != catatan_split[2])
                         {
-                            var cust = ErasoftDbContext.ARF01.Where(m => m.CUST == pesananInDb.CUST).SingleOrDefault();
+                            var cust = ErasoftDbContext.ARF01.AsNoTracking().Where(m => m.CUST == pesananInDb.CUST).SingleOrDefault();
                             if (cust.NAMA == "16")//blibli
                             {
                                 var gdnSku = dataStf02h.BRG_MP.Split(';');
@@ -22153,7 +22157,7 @@ namespace MasterOnline.Controllers
         public ActionResult RefreshGudangQtyPesanan(string noBuk)
         {
             //add by calvin 27 nov 2018, munculkan QOH di combobox gudang
-            var ListPesananDetail = ErasoftDbContext.SOT01B.Where(b => b.NO_BUKTI == noBuk).ToList();
+            var ListPesananDetail = ErasoftDbContext.SOT01B.AsNoTracking().Where(b => b.NO_BUKTI == noBuk).ToList();
 
             List<string> items = new List<string>();
             string brg = "";
@@ -22168,30 +22172,30 @@ namespace MasterOnline.Controllers
             }
 
             //var ListBarang = ErasoftDbContext.STF02.Where(p => items.Contains(p.BRG)).ToList(); 'change by nurul 21/1/2019
-            var ListBarang = ErasoftDbContext.STF02.Where(p => items.Contains(p.BRG) && p.TYPE == "3").ToList();
+            var ListBarang = ErasoftDbContext.STF02.AsNoTracking().Where(p => items.Contains(p.BRG) && p.TYPE == "3").ToList();
             string sSQL = "SELECT A.BRG, A.GD, B.Nama_Gudang, QOH = ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)),0) ";
             //sSQL += "FROM STF08A A LEFT JOIN STF18 B ON A.GD = B.Kode_Gudang WHERE A.TAHUN=" + DateTime.UtcNow.AddHours(7).ToString("yyyy") + " AND A.BRG IN ('" + brg + "') GROUP BY A.BRG, A.GD, B.Nama_Gudang";
-            sSQL += "FROM STF08A A LEFT JOIN STF18 B ON A.GD = B.Kode_Gudang WHERE A.TAHUN=" + DateTime.UtcNow.AddHours(7).ToString("yyyy") + " AND A.BRG IN ('" + brg + "') AND ISNULL(A.GD,'') <> '' AND ISNULL(B.Kode_Gudang,'') <> '' GROUP BY A.BRG, A.GD, B.Nama_Gudang";
+            sSQL += "FROM STF08A A(NOLOCK) LEFT JOIN STF18 B(NOLOCK) ON A.GD = B.Kode_Gudang WHERE A.TAHUN=" + DateTime.UtcNow.AddHours(7).ToString("yyyy") + " AND A.BRG IN ('" + brg + "') AND ISNULL(A.GD,'') <> '' AND ISNULL(B.Kode_Gudang,'') <> '' GROUP BY A.BRG, A.GD, B.Nama_Gudang";
             var ListQOHPerGD = ErasoftDbContext.Database.SqlQuery<QOH_PER_GD>(sSQL).ToList();
             //end add by calvin 27 nov 2018, munculkan QOH di combobox gudang
-            sSQL = "SELECT BRG,GD = B.LOKASI, QSO = ISNULL(SUM(ISNULL(QTY,0)),0) FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')  AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG IN ('" + brg + "') AND A.NO_BUKTI <> '" + noBuk + "' GROUP BY BRG, B.LOKASI";
+            sSQL = "SELECT BRG,GD = B.LOKASI, QSO = ISNULL(SUM(ISNULL(QTY,0)),0) FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')  AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG IN ('" + brg + "') AND A.NO_BUKTI <> '" + noBuk + "' GROUP BY BRG, B.LOKASI";
             var ListQOOPerBRG = ErasoftDbContext.Database.SqlQuery<QOO_PER_BRG>(sSQL).ToList();
             //add by nurul 11/3/2019
-            var cekgudang = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG).ToList();
+            var cekgudang = ErasoftDbContext.STF18.AsNoTracking().Where(a => a.Kode_Gudang == ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG).ToList();
             var gudang = "";
             if (cekgudang.Count() > 0)
             {
-                gudang = ErasoftDbContext.SIFSYS.SingleOrDefault().GUDANG;
+                gudang = ErasoftDbContext.SIFSYS.AsNoTracking().SingleOrDefault().GUDANG;
             }
             else
             {
-                gudang = ErasoftDbContext.STF18.FirstOrDefault().Kode_Gudang;
+                gudang = ErasoftDbContext.STF18.AsNoTracking().FirstOrDefault().Kode_Gudang;
             }
             //end add by nurul 11/3/2019
             var vm = new PesananViewModel()
             {
                 //add by nurul 23/11/2018
-                Pesanan = ErasoftDbContext.SOT01A.SingleOrDefault(b => b.NO_BUKTI == noBuk),
+                Pesanan = ErasoftDbContext.SOT01A.AsNoTracking().SingleOrDefault(b => b.NO_BUKTI == noBuk),
                 //end add 
                 ListPesananDetail = ListPesananDetail,
                 ListBarang = ListBarang,
@@ -22288,7 +22292,7 @@ namespace MasterOnline.Controllers
                                 if (queryfilter != "") { queryfilter += ","; }
                                 queryfilter += "'" + item + "'";
                             }
-                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '01' AND ";
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI = '01' AND ";
                             if (queryfilter != "")
                             {
                                 sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
@@ -22297,23 +22301,23 @@ namespace MasterOnline.Controllers
                             {
                                 sSQLTemp += " 0 = 1; " + Environment.NewLine;
                             }
-                            sSQL2 += "FROM #SOT01A A ";
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
                         }
                         else
                         {
-                            sSQL2 += "FROM SOT01A A ";
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
                         }
                     }
                     break;
                 default:
                     {
-                        sSQL2 += "FROM SOT01A A ";
+                        sSQL2 += "FROM SOT01A A (NOLOCK) ";
                     }
                     break;
             }
             //END ADD BY NURUL 4/12/2019
-            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
-            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            sSQL2 += "LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C(NOLOCK) ON B.NAMA = C.IdMarket ";
             sSQL2 += "WHERE A.STATUS_TRANSAKSI='01' ";
             if (search != "")
             {
@@ -22354,7 +22358,7 @@ namespace MasterOnline.Controllers
                 foreach (var getKetTokped in cekTokped)
                 {
                     var tempKet = "";
-                    var getKet = ErasoftDbContext.SOT01B.Where(a => a.NO_BUKTI == getKetTokped.NOSO).ToList();
+                    var getKet = ErasoftDbContext.SOT01B.AsNoTracking().Where(a => a.NO_BUKTI == getKetTokped.NOSO).ToList();
                     foreach (var detail in getKet)
                     {
                         if (detail.KET_DETAIL != null && detail.KET_DETAIL != "" && detail.KET_DETAIL != "-")
@@ -22394,10 +22398,10 @@ namespace MasterOnline.Controllers
                     listRecnum.Add(row);
                 }
             }
-            var xx = ErasoftDbContext.SOT01A.Where(a => listRecnum.Contains(a.RecNum.Value)).ToList();
+            var xx = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => listRecnum.Contains(a.RecNum.Value)).ToList();
             listorder.AddRange(xx);
             var buyer = xx.Select(a => a.PEMESAN).ToList();
-            var xxBuyer = ErasoftDbContext.ARF01C.Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
+            var xxBuyer = ErasoftDbContext.ARF01C.AsNoTracking().Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
             listBuyer.AddRange(xxBuyer);
 
             var vm = new PesananViewModel()
@@ -22408,8 +22412,8 @@ namespace MasterOnline.Controllers
                 //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
                 //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPembeli = listBuyer,
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList()
+                ListPelanggan = ErasoftDbContext.ARF01.AsNoTracking().ToList(),
+                ListMarketplace = MoDbContext.Marketplaces.AsNoTracking().ToList()
             };
             return PartialView("UbahStatusMultiPartial", vm);
         }
@@ -22434,10 +22438,10 @@ namespace MasterOnline.Controllers
                     listRecnum.Add(row);
                 }
             }
-            var xx = ErasoftDbContext.SOT01A.Where(a => listRecnum.Contains(a.RecNum.Value) && a.STATUS_TRANSAKSI == "03").ToList();
+            var xx = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => listRecnum.Contains(a.RecNum.Value) && a.STATUS_TRANSAKSI == "03").ToList();
             listorder.AddRange(xx);
             var buyer = xx.Select(a => a.PEMESAN).ToList();
-            var xxBuyer = ErasoftDbContext.ARF01C.Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
+            var xxBuyer = ErasoftDbContext.ARF01C.AsNoTracking().Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
             listBuyer.AddRange(xxBuyer);
 
             var vm = new PesananViewModel()
@@ -22448,8 +22452,8 @@ namespace MasterOnline.Controllers
                 //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
                 //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPembeli = listBuyer,
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList()
+                ListPelanggan = ErasoftDbContext.ARF01.AsNoTracking().ToList(),
+                ListMarketplace = MoDbContext.Marketplaces.AsNoTracking().ToList()
             };
             return PartialView("UbahStatusMultiPartial", vm);
         }
@@ -22475,10 +22479,10 @@ namespace MasterOnline.Controllers
                     listRecnum.Add(row);
                 }
             }
-            var xx = ErasoftDbContext.SOT01A.Where(a => listRecnum.Contains(a.RecNum.Value) && a.STATUS_TRANSAKSI == "01").ToList();
+            var xx = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => listRecnum.Contains(a.RecNum.Value) && a.STATUS_TRANSAKSI == "01").ToList();
             listorder.AddRange(xx);
             var buyer = xx.Select(a => a.PEMESAN).ToList();
-            var xxBuyer = ErasoftDbContext.ARF01C.Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
+            var xxBuyer = ErasoftDbContext.ARF01C.AsNoTracking().Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
             listBuyer.AddRange(xxBuyer);
 
             var vm = new PesananViewModel()
@@ -22489,8 +22493,8 @@ namespace MasterOnline.Controllers
                 //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
                 //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPembeli = listBuyer,
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList()
+                ListPelanggan = ErasoftDbContext.ARF01.AsNoTracking().ToList(),
+                ListMarketplace = MoDbContext.Marketplaces.AsNoTracking().ToList()
             };
             return PartialView("UbahStatusMultiPartial", vm);
         }
@@ -22515,10 +22519,10 @@ namespace MasterOnline.Controllers
                     listRecnum.Add(row);
                 }
             }
-            var xx = ErasoftDbContext.SOT01A.Where(a => listRecnum.Contains(a.RecNum.Value) && a.STATUS_TRANSAKSI == "02").ToList();
+            var xx = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => listRecnum.Contains(a.RecNum.Value) && a.STATUS_TRANSAKSI == "02").ToList();
             listorder.AddRange(xx);
             var buyer = xx.Select(a => a.PEMESAN).ToList();
-            var xxBuyer = ErasoftDbContext.ARF01C.Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
+            var xxBuyer = ErasoftDbContext.ARF01C.AsNoTracking().Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
             listBuyer.AddRange(xxBuyer);
 
             var vm = new PesananViewModel()
@@ -22529,12 +22533,12 @@ namespace MasterOnline.Controllers
                 //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
                 //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPembeli = listBuyer,
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList()
+                ListPelanggan = ErasoftDbContext.ARF01.AsNoTracking().ToList(),
+                ListMarketplace = MoDbContext.Marketplaces.AsNoTracking().ToList()
             };
             //add by Tri 19/9/19
             //vm.createPackinglist = ErasoftDbContext.SIFSYS.FirstOrDefault().TITIPAN;
-            vm.createPackinglist = Convert.ToInt32(ErasoftDbContext.SIFSYS.FirstOrDefault().EDIT_BONUS);
+            vm.createPackinglist = Convert.ToInt32(ErasoftDbContext.SIFSYS.AsNoTracking().FirstOrDefault().EDIT_BONUS);
             //end add by Tri 19/9/19
             return PartialView("UbahStatusMultiPacking", vm);
         }
@@ -22561,10 +22565,10 @@ namespace MasterOnline.Controllers
                     Int32 row = Convert.ToInt32(rows_selected[i]);
                     //var cekfaktur = ErasoftDbContext.SIT01A.Where(b => b.NO_SO != null || b.NO_SO != "").Select(b => b.NO_SO).ToList();
                     //var xxPesanan = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "03" && !cekfaktur.Contains(a.NO_BUKTI)).ToList();
-                    var xxPesanan = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "03").ToList();
+                    var xxPesanan = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "03").ToList();
                     listorder.AddRange(xxPesanan);
                     var buyer = xxPesanan.Select(a => a.PEMESAN).ToList();
-                    var xxBuyer = ErasoftDbContext.ARF01C.Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
+                    var xxBuyer = ErasoftDbContext.ARF01C.AsNoTracking().Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
                     listBuyer.AddRange(xxBuyer);
                 }
             }
@@ -22574,8 +22578,8 @@ namespace MasterOnline.Controllers
             {
                 ListPesanan = listorder,
                 ListPembeli = listBuyer,
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList()
+                ListPelanggan = ErasoftDbContext.ARF01.AsNoTracking().ToList(),
+                ListMarketplace = MoDbContext.Marketplaces.AsNoTracking().ToList()
             };
             return PartialView("KonfirmasiGenerateFakturNew", vm);
         }
@@ -22663,7 +22667,7 @@ namespace MasterOnline.Controllers
                                 if (queryfilter != "") { queryfilter += ","; }
                                 queryfilter += "'" + item + "'";
                             }
-                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '02' AND ";
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI = '02' AND ";
                             if (queryfilter != "")
                             {
                                 sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
@@ -22672,23 +22676,23 @@ namespace MasterOnline.Controllers
                             {
                                 sSQLTemp += " 0 = 1; " + Environment.NewLine;
                             }
-                            sSQL2 += "FROM #SOT01A A ";
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
                         }
                         else
                         {
-                            sSQL2 += "FROM SOT01A A ";
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
                         }
                     }
                     break;
                 default:
                     {
-                        sSQL2 += "FROM SOT01A A ";
+                        sSQL2 += "FROM SOT01A A (NOLOCK) ";
                     }
                     break;
             }
             //END ADD BY NURUL 4/12/2019
-            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
-            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            sSQL2 += "LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C(NOLOCK) ON B.NAMA = C.IdMarket ";
             sSQL2 += "WHERE A.STATUS_TRANSAKSI='02' ";
             if (search != "")
             {
@@ -22729,7 +22733,7 @@ namespace MasterOnline.Controllers
                 foreach (var getKetTokped in cekTokped)
                 {
                     var tempKet = "";
-                    var getKet = ErasoftDbContext.SOT01B.Where(a => a.NO_BUKTI == getKetTokped.NOSO).ToList();
+                    var getKet = ErasoftDbContext.SOT01B.AsNoTracking().Where(a => a.NO_BUKTI == getKetTokped.NOSO).ToList();
                     foreach (var detail in getKet)
                     {
                         if (detail.KET_DETAIL != null && detail.KET_DETAIL != "" && detail.KET_DETAIL != "-")
@@ -22833,7 +22837,7 @@ namespace MasterOnline.Controllers
                             queryfilter += "'" + item + "'";
                         }
 
-                        sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '03'";
+                        sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI = '03'";
 
                         if (queryfilter != "")
                         {
@@ -22843,32 +22847,32 @@ namespace MasterOnline.Controllers
                         {
                             sSQLTemp += " AND 0=1;" + Environment.NewLine;
                         }
-                        sSQL2 += "FROM #SOT01A A ";
+                        sSQL2 += "FROM #SOT01A A (NOLOCK) ";
                     }
                     break;
                 case "statuskirim":
                     {
-                        sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '03' AND ISNULL(STATUS_KIRIM,'') = '" + filtervalue + "';" + Environment.NewLine;
-                        sSQL2 += " FROM #SOT01A A ";
+                        sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI = '03' AND ISNULL(STATUS_KIRIM,'') = '" + filtervalue + "';" + Environment.NewLine;
+                        sSQL2 += " FROM #SOT01A A (NOLOCK) ";
                     }
                     break;
                 case "statusprint":
                     {
-                        sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '03' AND ISNULL(STATUS_PRINT,'0') = '" + filtervalue + "';" + Environment.NewLine;
-                        sSQL2 += " FROM #SOT01A A ";
+                        sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI = '03' AND ISNULL(STATUS_PRINT,'0') = '" + filtervalue + "';" + Environment.NewLine;
+                        sSQL2 += " FROM #SOT01A A (NOLOCK) ";
                     }
                     break;
                 default:
                     {
-                        sSQL2 += "FROM SOT01A A ";
+                        sSQL2 += "FROM SOT01A A (NOLOCK) ";
                     }
                     break;
             }
 
-            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
-            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
-            sSQL2 += "LEFT JOIN SIT01A D ON A.NO_BUKTI = D.NO_SO ";
-            sSQL2 += "LEFT JOIN SOT03B E ON A.NO_BUKTI = E.NO_PESANAN ";
+            sSQL2 += "LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C(NOLOCK) ON B.NAMA = C.IdMarket ";
+            sSQL2 += "LEFT JOIN SIT01A D(NOLOCK) ON A.NO_BUKTI = D.NO_SO ";
+            sSQL2 += "LEFT JOIN SOT03B E(NOLOCK) ON A.NO_BUKTI = E.NO_PESANAN ";
             sSQL2 += "WHERE A.STATUS_TRANSAKSI='03' ";
             if (search != "")
             {
@@ -22992,7 +22996,7 @@ namespace MasterOnline.Controllers
                                 if (queryfilter != "") { queryfilter += ","; }
                                 queryfilter += "'" + item + "'";
                             }
-                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '04' AND ";
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI = '04' AND ";
                             if (queryfilter != "")
                             {
                                 sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
@@ -23001,24 +23005,24 @@ namespace MasterOnline.Controllers
                             {
                                 sSQLTemp += " 0 = 1; " + Environment.NewLine;
                             }
-                            sSQL2 += "FROM #SOT01A A ";
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
                         }
                         else
                         {
-                            sSQL2 += "FROM SOT01A A ";
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
                         }
                     }
                     break;
                 default:
                     {
-                        sSQL2 += "FROM SOT01A A ";
+                        sSQL2 += "FROM SOT01A A (NOLOCK) ";
                     }
                     break;
             }
             //END ADD BY NURUL 4/12/2019
-            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
-            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
-            sSQL2 += "LEFT JOIN SIT01A D ON A.NO_BUKTI = D.NO_SO ";
+            sSQL2 += "LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C(NOLOCK) ON B.NAMA = C.IdMarket ";
+            sSQL2 += "LEFT JOIN SIT01A D(NOLOCK) ON A.NO_BUKTI = D.NO_SO ";
             sSQL2 += "WHERE A.STATUS_TRANSAKSI='04' ";
             if (search != "")
             {
@@ -23123,7 +23127,7 @@ namespace MasterOnline.Controllers
                                 if (queryfilter != "") { queryfilter += ","; }
                                 queryfilter += "'" + item + "'";
                             }
-                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '11' AND ";
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI = '11' AND ";
                             if (queryfilter != "")
                             {
                                 sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
@@ -23132,25 +23136,25 @@ namespace MasterOnline.Controllers
                             {
                                 sSQLTemp += " 0 = 1; " + Environment.NewLine;
                             }
-                            sSQL2 += "FROM #SOT01A A ";
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
                         }
                         else
                         {
-                            sSQL2 += "FROM SOT01A A ";
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
                         }
                     }
                     break;
                 default:
                     {
-                        sSQL2 += "FROM SOT01A A ";
+                        sSQL2 += "FROM SOT01A A (NOLOCK) ";
                     }
                     break;
             }
             //END ADD BY NURUL 4/12/2019
-            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
-            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            sSQL2 += "LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C(NOLOCK) ON B.NAMA = C.IdMarket ";
             //add by Tri 2 Des 2019, tambah cancel reason
-            sSQL2 += "LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI ";
+            sSQL2 += "LEFT JOIN SOT01D D(NOLOCK) ON A.NO_BUKTI = D.NO_BUKTI ";
             //end add by Tri 2 Des 2019, tambah cancel reason
             sSQL2 += "WHERE A.STATUS_TRANSAKSI='11' ";
             if (search != "")
@@ -23187,7 +23191,7 @@ namespace MasterOnline.Controllers
         {
             if (reqId != null || reqId != "")
             {
-                var ex = ErasoftDbContext.SOT01D.Where(a => a.NO_BUKTI == reqId).FirstOrDefault();
+                var ex = ErasoftDbContext.SOT01D.AsNoTracking().Where(a => a.NO_BUKTI == reqId).FirstOrDefault();
                 if (ex != null)
                 {
                     return Json(ex.CATATAN_1, JsonRequestBehavior.AllowGet);
@@ -23223,12 +23227,12 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == orderId);
+                var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.RecNum == orderId);
 
-                var ListPesananDetail = ErasoftDbContext.SOT01B.Where(pd => pd.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+                var ListPesananDetail = ErasoftDbContext.SOT01B.AsNoTracking().Where(pd => pd.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
                 var listBarangInPesananDetail = ListPesananDetail.Select(p => p.BRG).ToList();
                 //ADD BY NURUL 5/5/2020
-                var sSQLGetMarket = "select namamarket from sot01a a inner join arf01 b on a.cust=b.cust inner join mo..marketplace c on b.nama=c.idmarket where no_bukti='" + pesananInDb.NO_BUKTI + "'";
+                var sSQLGetMarket = "select namamarket from sot01a a(NOLOCK) inner join arf01 b(NOLOCK) on a.cust=b.cust inner join mo..marketplace c(NOLOCK) on b.nama=c.idmarket where no_bukti='" + pesananInDb.NO_BUKTI + "'";
                 var GetMarket = ErasoftDbContext.Database.SqlQuery<string>(sSQLGetMarket).SingleOrDefault();
                 //END ADD BY NURUL 5/5/2020
 
@@ -23238,7 +23242,7 @@ namespace MasterOnline.Controllers
                     //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
                     ListPesananDetail = ListPesananDetail,
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInPesananDetail.Contains(a.BRG) && (a.TYPE == "3" || a.TYPE == "6")).ToList(),
+                    ListBarang = ErasoftDbContext.STF02.AsNoTracking().Where(a => listBarangInPesananDetail.Contains(a.BRG) && (a.TYPE == "3" || a.TYPE == "6")).ToList(),
                     //ADD BY NURUL 5/5/2020
                     namaMarket = GetMarket
                     //end ADD BY NURUL 5/5/2020
@@ -23262,7 +23266,7 @@ namespace MasterOnline.Controllers
                 {
                     //Pesanan = pesananInDb,
                     //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
-                    ListPesananDetail = ErasoftDbContext.SOT01B.Where(pd => 0 == 1).ToList(),
+                    ListPesananDetail = ErasoftDbContext.SOT01B.AsNoTracking().Where(pd => 0 == 1).ToList(),
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
                     //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
                 };
@@ -23278,9 +23282,9 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public void ChangeStatusPesanan(string nobuk, string status, bool lazadaPickup, string cancelReason, string listVariable)
         {
-            var pesanan = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == nobuk);
-            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesanan.CUST);
-            var mp = MoDbContext.Marketplaces.Single(p => p.IdMarket.ToString() == marketPlace.NAMA);
+            var pesanan = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.NO_BUKTI == nobuk);
+            var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == pesanan.CUST);
+            var mp = MoDbContext.Marketplaces.AsNoTracking().Single(p => p.IdMarket.ToString() == marketPlace.NAMA);
 
             //remark by fauzi tgl 16 Januari 2020
             //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
@@ -23334,7 +23338,7 @@ namespace MasterOnline.Controllers
                             {
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                var sot01b = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == nobuk).ToList();
+                                var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == nobuk).ToList();
                                 if (sot01b.Count > 0)
                                 {
                                     foreach (var tbl in sot01b)
@@ -23422,7 +23426,7 @@ namespace MasterOnline.Controllers
                         {
                             DataSet dsTEMP_ELV_ORDERS = new DataSet();
                             //dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT ORDER_NO,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY ORDER_NO,ORDER_PROD_NO");
-                            dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT ORDER_NO,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE ORDER_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY ORDER_NO,ORDER_PROD_NO");
+                            dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT ORDER_NO,ORDER_PROD_NO FROM TEMP_ELV_ORDERS (NOLOCK) WHERE ORDER_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY ORDER_NO,ORDER_PROD_NO");
                             if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
                             {
 
@@ -23537,7 +23541,7 @@ namespace MasterOnline.Controllers
                             //{
                             if (lazadaPickup)
                             {
-                                var pesananChild = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == nobuk).ToList();
+                                var pesananChild = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == nobuk).ToList();
                                 if (pesananChild.Count > 0)
                                 {
                                     var adaItem = false;
@@ -23585,7 +23589,7 @@ namespace MasterOnline.Controllers
                             {
                                 DataSet dsTEMP_ELV_ORDERS = new DataSet();
                                 //dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO");
-                                dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT DELIVERY_NO,DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE ORDER_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY DELIVERY_NO,DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO");
+                                dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT DELIVERY_NO,DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS (NOLOCK) WHERE ORDER_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY DELIVERY_NO,DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO");
                                 if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
                                 {
 
@@ -23622,7 +23626,7 @@ namespace MasterOnline.Controllers
                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
                                     //var bliAPI = new BlibliController();
-                                    var listDetail = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesanan.NO_BUKTI).ToList();
+                                    var listDetail = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == pesanan.NO_BUKTI).ToList();
                                     foreach (var item in listDetail)
                                     {
                                         //change by calvin 10 april 2019, jadi pakai backgroundjob
@@ -23791,14 +23795,14 @@ namespace MasterOnline.Controllers
         //end add by Tri, call marketplace api to change status
         public ActionResult LazadaLabel(int recnum)
         {
-            var pesanan = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recnum);
-            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesanan.CUST);
-            var mp = MoDbContext.Marketplaces.Single(p => p.IdMarket.ToString() == marketPlace.NAMA);
+            var pesanan = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.RecNum == recnum);
+            var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == pesanan.CUST);
+            var mp = MoDbContext.Marketplaces.AsNoTracking().Single(p => p.IdMarket.ToString() == marketPlace.NAMA);
             if (mp.NamaMarket.ToUpper().Contains("LAZADA"))
             {
                 var lzdApi = new LazadaController();
                 List<string> orderItemIds = new List<string>();
-                var sot01b = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesanan.NO_BUKTI).ToList();
+                var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == pesanan.NO_BUKTI).ToList();
                 if (sot01b.Count > 0)
                 {
                     foreach (var tbl in sot01b)
@@ -23847,14 +23851,14 @@ namespace MasterOnline.Controllers
 
         public ActionResult LazadaGetResi(int recnum, string DeliveryProvider)
         {
-            var pesanan = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recnum);
-            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesanan.CUST);
-            var mp = MoDbContext.Marketplaces.Single(p => p.IdMarket.ToString() == marketPlace.NAMA);
+            var pesanan = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.RecNum == recnum);
+            var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == pesanan.CUST);
+            var mp = MoDbContext.Marketplaces.AsNoTracking().Single(p => p.IdMarket.ToString() == marketPlace.NAMA);
             if (mp.NamaMarket.ToUpper().Contains("LAZADA"))
             {
                 var lzdApi = new LazadaController();
                 List<string> orderItemIds = new List<string>();
-                var sot01b = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesanan.NO_BUKTI).ToList();
+                var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == pesanan.NO_BUKTI).ToList();
                 if (sot01b.Count > 0)
                 {
                     List<string> ordItemId = new List<string>();
@@ -23891,7 +23895,7 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == orderId);
+                var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.RecNum == orderId);
 
                 //add by nurul 16/4/2019
                 var kota = "";
@@ -23916,21 +23920,21 @@ namespace MasterOnline.Controllers
                 }
                 //end add by nurul 16/4/2019
 
-                var ListPesananDetail = ErasoftDbContext.SOT01B.Where(pd => pd.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+                var ListPesananDetail = ErasoftDbContext.SOT01B.AsNoTracking().Where(pd => pd.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
                 var listBarangInPesananDetail = ListPesananDetail.Select(p => p.BRG).ToList();
                 //ADD BY NURUL 5/5/2020
-                var sSQLGetMarket = "select namamarket from sot01a a inner join arf01 b on a.cust=b.cust inner join mo..marketplace c on b.nama=c.idmarket where no_bukti='" + pesananInDb.NO_BUKTI + "'";
+                var sSQLGetMarket = "select namamarket from sot01a a(NOLOCK) inner join arf01 b(NOLOCK) on a.cust=b.cust inner join mo..marketplace c(NOLOCK) on b.nama=c.idmarket where no_bukti='" + pesananInDb.NO_BUKTI + "'";
                 var GetMarket = ErasoftDbContext.Database.SqlQuery<string>(sSQLGetMarket).SingleOrDefault();
                 //END ADD BY NURUL 5/5/2020
 
                 var vm = new PesananViewModel()
                 {
                     Pesanan = pesananInDb,
-                    ListPesanan = ErasoftDbContext.SOT01A.Where(pd => pd.NO_BUKTI == pesananInDb.NO_BUKTI).ToList(),
+                    ListPesanan = ErasoftDbContext.SOT01A.AsNoTracking().Where(pd => pd.NO_BUKTI == pesananInDb.NO_BUKTI).ToList(),
                     ListPesananDetail = ListPesananDetail,
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
                     //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInPesananDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                    ListBarang = ErasoftDbContext.STF02.AsNoTracking().Where(a => listBarangInPesananDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
                     //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                     //ListEkspedisi = MoDbContext.Ekspedisi.ToList(),
                     //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
@@ -23952,7 +23956,7 @@ namespace MasterOnline.Controllers
 
         public ActionResult DeletePesanan(int? orderId)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == orderId);
+            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.RecNum == orderId);
 
             // ========== Hapus Barang =============
             /*var listPesananDetail = ErasoftDbContext.SOT01B.Where(pd => pd.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
@@ -23967,7 +23971,7 @@ namespace MasterOnline.Controllers
 
             //add by calvin 8 nov 2018, update stok marketplace
             List<string> listBrg = new List<string>();
-            var detailPesananInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+            var detailPesananInDb = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
             foreach (var item in detailPesananInDb)
             {
                 listBrg.Add(item.BRG);
@@ -24009,7 +24013,7 @@ namespace MasterOnline.Controllers
                 
                 //CHANGE BY NURUL 4/11/2020
                 //pesananInDb.BRUTO -= barangPesananInDb.HARGA;
-                var getBrutoFromDetail = ErasoftDbContext.SOT01B.Where(a => a.NO_BUKTI == pesananInDb.NO_BUKTI && a.NO_URUT != noUrut).Sum(p => (double?)(p.HARGA)) ?? 0;
+                var getBrutoFromDetail = ErasoftDbContext.SOT01B.AsNoTracking().Where(a => a.NO_BUKTI == pesananInDb.NO_BUKTI && a.NO_URUT != noUrut).Sum(p => (double?)(p.HARGA)) ?? 0;
                 if (getBrutoFromDetail != null)
                 {
                     pesananInDb.BRUTO = getBrutoFromDetail;
@@ -24038,11 +24042,11 @@ namespace MasterOnline.Controllers
                 //end add by calvin 8 nov 2018
                 var vm = new PesananViewModel()
                 {
-                    Pesanan = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == pesananInDb.NO_BUKTI),
-                    ListPesanan = ErasoftDbContext.SOT01A.ToList(),
-                    ListPesananDetail = ErasoftDbContext.SOT01B.Where(pd => pd.NO_BUKTI == pesananInDb.NO_BUKTI).ToList(),
+                    Pesanan = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.NO_BUKTI == pesananInDb.NO_BUKTI),
+                    ListPesanan = ErasoftDbContext.SOT01A.AsNoTracking().ToList(),
+                    ListPesananDetail = ErasoftDbContext.SOT01B.AsNoTracking().Where(pd => pd.NO_BUKTI == pesananInDb.NO_BUKTI).ToList(),
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
+                    ListBarang = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.TYPE == "3").ToList()
                 };
 
                 return PartialView("BarangPesananPartial", vm);
@@ -24057,7 +24061,7 @@ namespace MasterOnline.Controllers
         public ActionResult UpdatePesanan(UpdateData dataUpdate)
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == dataUpdate.OrderId);
-            var sSQL = "select isnull(sum(harga),0) from SOT01B where no_bukti='" + dataUpdate.OrderId + "'";
+            var sSQL = "select isnull(sum(harga),0) from SOT01B (NOLOCK) where no_bukti='" + dataUpdate.OrderId + "'";
             var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
             //pesananInDb.NILAI_DISC = dataUpdate.NilaiDisc;
             //pesananInDb.ONGKOS_KIRIM = dataUpdate.OngkosKirim;
@@ -24082,7 +24086,7 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(dataUpdate.Exp))
             {
                 int recnumEkpedisi = Convert.ToInt32(dataUpdate.Exp);
-                var namaKurir = MoDbContext.Ekspedisi.Where(p => p.RecNum == recnumEkpedisi).SingleOrDefault().NamaEkspedisi;
+                var namaKurir = MoDbContext.Ekspedisi.AsNoTracking().Where(p => p.RecNum == recnumEkpedisi).SingleOrDefault().NamaEkspedisi;
                 pesananInDb.SHIPMENT = namaKurir.ToString();
             }
 
@@ -24094,7 +24098,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetResi(int? recNum)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
+            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.RecNum == recNum);
 
             //change by nurul 22/11/2018
             //string[] shipment = new string[2];
@@ -24116,7 +24120,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public async Task<ActionResult> GetResiTokped(int? recNum)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
+            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.RecNum == recNum);
             //var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
 
             string[] shipment = new string[6];
@@ -24184,8 +24188,8 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public async Task<ActionResult> GetResiShopee(int? recNum)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
-            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.RecNum == recNum);
+            var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == pesananInDb.CUST);
 
 
             string[] shipment = new string[6];
@@ -24289,8 +24293,8 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public async Task<ActionResult> SaveResiTokped(int? recNum)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recNum);
-            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().SingleOrDefault(p => p.RecNum == recNum);
+            var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == pesananInDb.CUST);
             if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
             {
                 //TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData()
@@ -24368,7 +24372,7 @@ namespace MasterOnline.Controllers
 
             if (changeStat)
             {
-                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+                var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == pesananInDb.CUST);
                 //var shoAPI = new ShopeeController();
                 //ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
                 //{
@@ -24480,8 +24484,8 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public async Task<ActionResult> GetShopeeDropoffBranch(int? recNum)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
-            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.RecNum == recNum);
+            var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == pesananInDb.CUST);
             var shoAPI = new ShopeeController();
             ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
             {
@@ -24494,8 +24498,8 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public async Task<ActionResult> GetShopeePickupAddress(int? recNum)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
-            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.RecNum == recNum);
+            var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == pesananInDb.CUST);
             var shoAPI = new ShopeeController();
             ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
             {
@@ -24508,8 +24512,8 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public async Task<ActionResult> GetShopeePickupTime(int? recNum, long address_id)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
-            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.RecNum == recNum);
+            var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == pesananInDb.CUST);
             var shoAPI = new ShopeeController();
             ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
             {
@@ -25582,7 +25586,7 @@ namespace MasterOnline.Controllers
                 //var fakturInDb = ErasoftDbContext.SIT01A.Single(f => f.NO_SO == noBukPesanan);
                 if (nobuk == "SO")
                 {
-                    var fakturInDb = ErasoftDbContext.SIT01A.Single(f => f.NO_SO == noBukPesanan);
+                    var fakturInDb = ErasoftDbContext.SIT01A.AsNoTracking().Single(f => f.NO_SO == noBukPesanan);
                     var namaToko = "";
 
                     var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
@@ -25594,13 +25598,13 @@ namespace MasterOnline.Controllers
                     {
                         if (sessionData?.User != null)
                         {
-                            var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                            var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == sessionData.User.AccountId);
                             namaToko = accFromUser.NamaTokoOnline;
                         }
                     }
 
                     //add by nurul 16/4/2019
-                    var pesanan = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan);
+                    var pesanan = ErasoftDbContext.SOT01A.AsNoTracking().SingleOrDefault(a => a.NO_BUKTI == noBukPesanan);
 
                     if (pesanan != null)
                     {
@@ -25620,26 +25624,26 @@ namespace MasterOnline.Controllers
                     }
                     //end add by nurul 16/4/2019
 
-                    var cust = ErasoftDbContext.ARF01.Single(c => c.CUST == fakturInDb.CUST);
+                    var cust = ErasoftDbContext.ARF01.AsNoTracking().Single(c => c.CUST == fakturInDb.CUST);
                     var idMarket = Convert.ToInt32(cust.NAMA);
-                    var urlLogoMarket = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).LokasiLogo;
-                    var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
+                    var urlLogoMarket = MoDbContext.Marketplaces.AsNoTracking().Single(m => m.IdMarket == idMarket).LokasiLogo;
+                    var namaPT = ErasoftDbContext.SIFSYS.AsNoTracking().Single(p => p.BLN == 1).NAMA_PT;
                     //add by nurul 29/11/2018 (modiv cetak faktur)
-                    var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
-                    var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                    var alamat = ErasoftDbContext.SIFSYS.AsNoTracking().Single(a => a.BLN == 1).ALAMAT_PT;
+                    var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.AsNoTracking().Single().TELEPON;
                     //end add
                     //add by nurul 2/1/2019 (tambah no referensi)
-                    var noRef = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).NO_REFERENSI;
+                    var noRef = ErasoftDbContext.SOT01A.AsNoTracking().SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).NO_REFERENSI;
                     //end add 
                     //add by nurul 28/1/2019 
-                    var market = MoDbContext.Marketplaces.Single(a => a.IdMarket == idMarket).NamaMarket;
+                    var market = MoDbContext.Marketplaces.AsNoTracking().Single(a => a.IdMarket == idMarket).NamaMarket;
                     //var kurir = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).NAMAPENGIRIM;
-                    var kurir = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).SHIPMENT;
-                    var resi = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).TRACKING_SHIPMENT;
+                    var kurir = ErasoftDbContext.SOT01A.AsNoTracking().SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).SHIPMENT;
+                    var resi = ErasoftDbContext.SOT01A.AsNoTracking().SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).TRACKING_SHIPMENT;
 
                     //end add by nurul 28/1/2019 
 
-                    var ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList();
+                    var ListFakturDetail = ErasoftDbContext.SIT01B.AsNoTracking().Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList();
                     var listBarangInFakturDetail = ListFakturDetail.Select(p => p.BRG).ToList();
 
                     var vm = new FakturViewModel()
@@ -25649,9 +25653,9 @@ namespace MasterOnline.Controllers
                         LogoMarket = urlLogoMarket,
                         Faktur = fakturInDb,
                         ListFakturDetail = ListFakturDetail,
-                        ListPembeli = ErasoftDbContext.ARF01C.Where(p => p.BUYER_CODE == fakturInDb.PEMESAN).ToList(),
+                        ListPembeli = ErasoftDbContext.ARF01C.AsNoTracking().Where(p => p.BUYER_CODE == fakturInDb.PEMESAN).ToList(),
                         //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                        ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                        ListBarang = ErasoftDbContext.STF02.AsNoTracking().Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
                         //add by nurul nurul 29/11/2018 (modiv cetak faktur)
                         AlamatToko = alamat,
                         TlpToko = tlp,
@@ -25673,7 +25677,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var fakturInDb = ErasoftDbContext.SIT01A.Single(f => f.NO_BUKTI == noBukPesanan);
+                    var fakturInDb = ErasoftDbContext.SIT01A.AsNoTracking().Single(f => f.NO_BUKTI == noBukPesanan);
                     var namaToko = "";
 
                     var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
@@ -25685,13 +25689,13 @@ namespace MasterOnline.Controllers
                     {
                         if (sessionData?.User != null)
                         {
-                            var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                            var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == sessionData.User.AccountId);
                             namaToko = accFromUser.NamaTokoOnline;
                         }
                     }
 
                     //add by nurul 16/4/2019
-                    var buyer = ErasoftDbContext.ARF01C.SingleOrDefault(a => a.BUYER_CODE == fakturInDb.PEMESAN);
+                    var buyer = ErasoftDbContext.ARF01C.AsNoTracking().SingleOrDefault(a => a.BUYER_CODE == fakturInDb.PEMESAN);
 
                     if (buyer != null)
                     {
@@ -25711,13 +25715,13 @@ namespace MasterOnline.Controllers
                     }
                     //end add by nurul 16/4/2019
 
-                    var cust = ErasoftDbContext.ARF01.Single(c => c.CUST == fakturInDb.CUST);
+                    var cust = ErasoftDbContext.ARF01.AsNoTracking().Single(c => c.CUST == fakturInDb.CUST);
                     var idMarket = Convert.ToInt32(cust.NAMA);
-                    var urlLogoMarket = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).LokasiLogo;
-                    var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
+                    var urlLogoMarket = MoDbContext.Marketplaces.AsNoTracking().Single(m => m.IdMarket == idMarket).LokasiLogo;
+                    var namaPT = ErasoftDbContext.SIFSYS.AsNoTracking().Single(p => p.BLN == 1).NAMA_PT;
                     //add by nurul 29/11/2018 (modiv cetak faktur)
-                    var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
-                    var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                    var alamat = ErasoftDbContext.SIFSYS.AsNoTracking().Single(a => a.BLN == 1).ALAMAT_PT;
+                    var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.AsNoTracking().Single().TELEPON;
                     //end add
                     //add by nurul 2/1/2019 (tambah no referensi)
                     var noRef = "";
@@ -25731,14 +25735,14 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        noRef = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).NO_REFERENSI;
+                        noRef = ErasoftDbContext.SOT01A.AsNoTracking().SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).NO_REFERENSI;
                         //kurir = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).NAMAPENGIRIM;
-                        kurir = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).SHIPMENT;
-                        resi = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).TRACKING_SHIPMENT;
+                        kurir = ErasoftDbContext.SOT01A.AsNoTracking().SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).SHIPMENT;
+                        resi = ErasoftDbContext.SOT01A.AsNoTracking().SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).TRACKING_SHIPMENT;
                     }
                     //end add 
                     //add by nurul 28/1/2019 
-                    var market = MoDbContext.Marketplaces.Single(a => a.IdMarket == idMarket).NamaMarket;
+                    var market = MoDbContext.Marketplaces.AsNoTracking().Single(a => a.IdMarket == idMarket).NamaMarket;
                     //var barcode = new Object();
                     //BarcodeLib.Barcode b;
                     //b = new BarcodeLib.Barcode();
@@ -25766,7 +25770,7 @@ namespace MasterOnline.Controllers
                     //}
                     //end add by nurul 28/1/2019 
 
-                    var ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList();
+                    var ListFakturDetail = ErasoftDbContext.SIT01B.AsNoTracking().Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList();
                     var listBarangInFakturDetail = ListFakturDetail.Select(p => p.BRG).ToList();
                     var vm = new FakturViewModel()
                     {
@@ -25774,9 +25778,9 @@ namespace MasterOnline.Controllers
                         NamaPerusahaan = namaPT,
                         LogoMarket = urlLogoMarket,
                         Faktur = fakturInDb,
-                        ListPembeli = ErasoftDbContext.ARF01C.Where(p => p.BUYER_CODE == fakturInDb.PEMESAN).ToList(),
+                        ListPembeli = ErasoftDbContext.ARF01C.AsNoTracking().Where(p => p.BUYER_CODE == fakturInDb.PEMESAN).ToList(),
                         //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                        ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                        ListBarang = ErasoftDbContext.STF02.AsNoTracking().Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
                         ListFakturDetail = ListFakturDetail,
                         //add by nurul nurul 29/11/2018 (modiv cetak faktur)
                         AlamatToko = alamat,
@@ -27004,7 +27008,7 @@ namespace MasterOnline.Controllers
 
         public ActionResult GetGudang()
         {
-            var listGudang = ErasoftDbContext.STF18.ToList();
+            var listGudang = ErasoftDbContext.STF18.AsNoTracking().ToList();
 
             return Json(listGudang, JsonRequestBehavior.AllowGet);
         }
@@ -33852,16 +33856,16 @@ namespace MasterOnline.Controllers
             ViewData["searchParam"] = cust;
             ViewData["LastPage"] = page;
             string sSQLSelect = "SELECT A.REQUEST_ID," +
-                "(SELECT TOP 1 ISNULL(B.CUST_ATTRIBUTE_1, 'Anonim') FROM API_LOG_MARKETPLACE B WHERE A.REQUEST_ID = B.REQUEST_ID) AS CUST_ATTRIBUTE_1, " +
-                "(SELECT TOP 1 B.REQUEST_DATETIME FROM API_LOG_MARKETPLACE B WHERE A.REQUEST_ID = B.REQUEST_ID ORDER BY B.REQUEST_DATETIME DESC) AS REQUEST_DATETIME, " +
-                "(SELECT TOP 1 ISNULL(B.REQUEST_RESULT, 'Kosong') FROM API_LOG_MARKETPLACE B WHERE A.REQUEST_ID = B.REQUEST_ID ORDER BY B.REQUEST_DATETIME DESC) AS REQUEST_RESULT, " +
-                "(SELECT TOP 1 ISNULL(B.REQUEST_EXCEPTION, 'Kosong') FROM API_LOG_MARKETPLACE B WHERE A.REQUEST_ID = B.REQUEST_ID ORDER BY B.REQUEST_DATETIME DESC) AS REQUEST_EXCEPTION " +
-                "FROM API_LOG_MARKETPLACE A WHERE A.REQUEST_ACTION like '%Upload Excel Pesanan%' " +
+                "(SELECT TOP 1 ISNULL(B.CUST_ATTRIBUTE_1, 'Anonim') FROM API_LOG_MARKETPLACE B(NOLOCK) WHERE A.REQUEST_ID = B.REQUEST_ID) AS CUST_ATTRIBUTE_1, " +
+                "(SELECT TOP 1 B.REQUEST_DATETIME FROM API_LOG_MARKETPLACE B(NOLOCK) WHERE A.REQUEST_ID = B.REQUEST_ID ORDER BY B.REQUEST_DATETIME DESC) AS REQUEST_DATETIME, " +
+                "(SELECT TOP 1 ISNULL(B.REQUEST_RESULT, 'Kosong') FROM API_LOG_MARKETPLACE B(NOLOCK) WHERE A.REQUEST_ID = B.REQUEST_ID ORDER BY B.REQUEST_DATETIME DESC) AS REQUEST_RESULT, " +
+                "(SELECT TOP 1 ISNULL(B.REQUEST_EXCEPTION, 'Kosong') FROM API_LOG_MARKETPLACE B(NOLOCK) WHERE A.REQUEST_ID = B.REQUEST_ID ORDER BY B.REQUEST_DATETIME DESC) AS REQUEST_EXCEPTION " +
+                "FROM API_LOG_MARKETPLACE A(NOLOCK) WHERE A.REQUEST_ACTION like '%Upload Excel Pesanan%' " +
                 "GROUP BY A.REQUEST_ID ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(DISTINCT(REQUEST_ID)) AS JUMLAH ";
             string sSQL2 = "";
-            sSQL2 += "FROM API_LOG_MARKETPLACE ";
+            sSQL2 += "FROM API_LOG_MARKETPLACE (NOLOCK) ";
             //sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
             //if (cust != "")
             //{
@@ -41551,7 +41555,7 @@ namespace MasterOnline.Controllers
         protected double GetQOHSTF08A(string Barang, string Gudang)
         {
             //ADD BY NURUL 4/9/2020, handle cek stok brg multi sku 
-            var cekBrgMultiSKU = ErasoftDbContext.STF02.Where(a => a.BRG == Barang).SingleOrDefault();
+            var cekBrgMultiSKU = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.BRG == Barang).SingleOrDefault();
             var tempBrgAwal = Barang;
             if (cekBrgMultiSKU.TYPE == "6" && cekBrgMultiSKU.KUBILASI == 1 && cekBrgMultiSKU.BRG_NON_OS != "" && cekBrgMultiSKU.BRG_NON_OS != null)
             {
@@ -42812,7 +42816,7 @@ namespace MasterOnline.Controllers
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
             string sSQL2 = "";
-            sSQL2 += "FROM SOT03A ";
+            sSQL2 += "FROM SOT03A (NOLOCK) ";
             //sSQL2 += "LEFT JOIN ARF01 B ON A.NAMA_MARKET = B.CUST ";
             //sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
             if (search != "")
@@ -42865,13 +42869,13 @@ namespace MasterOnline.Controllers
         public ActionResult GetDataPesananPackinglist(string nobuk)
         {
             var listPesanan = new List<SOT03B>();
-            var dsPesanan = EDB.GetDataSet("CString", "SOT03B", "SELECT A.NO_BUKTI, A.TGL, NAMAPEMESAN, C.NAMAMARKET FROM SOT01A A INNER JOIN ARF01 B ON A.CUST = B.CUST INNER JOIN MO..MARKETPLACE C ON B.NAMA = C.IDMARKET INNER JOIN SOT01B  D ON A.NO_BUKTI = D.NO_BUKTI WHERE A.STATUS_TRANSAKSI = '02' AND D.QTY_N > 0");
+            var dsPesanan = EDB.GetDataSet("CString", "SOT03B", "SELECT A.NO_BUKTI, A.TGL, NAMAPEMESAN, C.NAMAMARKET FROM SOT01A A(NOLOCK) INNER JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST INNER JOIN MO..MARKETPLACE C(NOLOCK) ON B.NAMA = C.IDMARKET INNER JOIN SOT01B  D(NOLOCK) ON A.NO_BUKTI = D.NO_BUKTI WHERE A.STATUS_TRANSAKSI = '02' AND D.QTY_N > 0");
             var listPesanandiPackinglist = new List<SOT03B>();
             //if (!string.IsNullOrEmpty(nobuk))
             //{
             //listPesanandiPackinglist = ErasoftDbContext.SOT03B.Where(dp => dp.NO_BUKTI == nobuk).ToList();
             //}
-            listPesanandiPackinglist = ErasoftDbContext.SOT03B.ToList();
+            listPesanandiPackinglist = ErasoftDbContext.SOT03B.AsNoTracking().ToList();
 
             if (dsPesanan.Tables[0].Rows.Count > 0)
             {
@@ -42915,12 +42919,12 @@ namespace MasterOnline.Controllers
             var vm = new PackingListViewModel()
             {
             };
-            vm.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
+            vm.packingList = ErasoftDbContext.SOT03A.AsNoTracking().Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
             vm.listDetailPacking = new List<SOT03BDetailPacking>();
-            var listSOT03B = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == vm.packingList.NO_BUKTI).OrderBy(m => m.NO_PESANAN).ToList();
+            var listSOT03B = ErasoftDbContext.SOT03B.AsNoTracking().Where(m => m.NO_BUKTI == vm.packingList.NO_BUKTI).OrderBy(m => m.NO_PESANAN).ToList();
 
             var listPesanan = listSOT03B.Select(p => p.NO_PESANAN).ToList();
-            var listSO = ErasoftDbContext.SOT01A.Where(p => listPesanan.Contains(p.NO_BUKTI)).ToList();
+            var listSO = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => listPesanan.Contains(p.NO_BUKTI)).ToList();
             foreach (var detil in listSOT03B)
             {
                 var isiDetailpacking = new SOT03BDetailPacking()
@@ -42956,7 +42960,7 @@ namespace MasterOnline.Controllers
             //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
             //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(A.QTY) QTY, ISNULL(C.BRG_CUST,'') AS BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT01B C ON A.NO_PESANAN=C.NO_BUKTI AND A.BRG=C.BRG WHERE A.NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, C.BRG_CUST");
             //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(B.WARNA,'') as BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, B.WARNA");
-            var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE,B.LKS ORDER BY B.LKS");
+            var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A(NOLOCK) INNER JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE,B.LKS ORDER BY B.LKS");
             //END CHANGE BY NURUL 22/7/2020
             for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
             {
@@ -42985,7 +42989,7 @@ namespace MasterOnline.Controllers
                 NO_PL = nobuk,
             };
             var listBrg = new List<ScanBarcodePickingBarang>();
-            var dsBarang = EDB.GetDataSet("CString", "SOT03C", "SELECT C.BRG, SUM(C.QTY) TOTAL, ISNULL(C.BARCODE, '') BARCODE, ISNULL(A.LKS, '') RAK FROM STF02 A INNER JOIN SOT03C C ON A.BRG = C.BRG WHERE NO_BUKTI = '" + nobuk+ "' GROUP BY C.BRG, C.BARCODE, A.LKS");
+            var dsBarang = EDB.GetDataSet("CString", "SOT03C", "SELECT C.BRG, SUM(C.QTY) TOTAL, ISNULL(C.BARCODE, '') BARCODE, ISNULL(A.LKS, '') RAK FROM STF02 A(NOLOCK) INNER JOIN SOT03C C(NOLOCK) ON A.BRG = C.BRG WHERE NO_BUKTI = '" + nobuk+ "' GROUP BY C.BRG, C.BARCODE, A.LKS");
             if(dsBarang.Tables[0].Rows.Count > 0)
             {
                 vm.maxBrg = dsBarang.Tables[0].Rows.Count;
@@ -43102,7 +43106,7 @@ namespace MasterOnline.Controllers
             {
                 NO_PL = nobuk,
             };
-            var listPesanan = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == nobuk).OrderBy(m => m.NO_PESANAN).ToList();
+            var listPesanan = ErasoftDbContext.SOT03B.AsNoTracking().Where(m => m.NO_BUKTI == nobuk).OrderBy(m => m.NO_PESANAN).ToList();
             if (!string.IsNullOrEmpty(no_pesanan))
             {
                 var cekValid = listPesanan.Where(m => m.NO_PESANAN == no_pesanan).FirstOrDefault();
@@ -43138,7 +43142,7 @@ namespace MasterOnline.Controllers
             {
                 vm.nobuk = no_pesanan;
                 var sSQL = "SELECT C.BRG, ISNULL(A.KET_SORT7, '') BARCODE, ISNULL(A.LKS, '') RAK, SUM(C.QTY) QTY, A.NAMA + ' ' + ISNULL(A.NAMA2, '') NAMA ";
-                sSQL += "FROM SOT03C C INNER JOIN STF02 A ON C.BRG = A.BRG ";
+                sSQL += "FROM SOT03C C(NOLOCK) INNER JOIN STF02 A(NOLOCK) ON C.BRG = A.BRG ";
                 sSQL += "WHERE NO_BUKTI = '" + nobuk + "' AND NO_PESANAN = '" + no_pesanan + "' GROUP BY C.BRG, A.KET_SORT7, A.LKS, A.NAMA, A.NAMA2 ORDER BY C.BRG ";
                 var listBarang = EDB.GetDataSet("CString", "BARANG", sSQL);
                 if(listBarang.Tables[0].Rows.Count > 0)
@@ -43331,12 +43335,12 @@ namespace MasterOnline.Controllers
                 {
 
                 };
-                vm.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == pesananPackinglistInDb.NO_BUKTI).FirstOrDefault();
+                vm.packingList = ErasoftDbContext.SOT03A.AsNoTracking().Where(m => m.NO_BUKTI == pesananPackinglistInDb.NO_BUKTI).FirstOrDefault();
                 vm.listDetailPacking = new List<SOT03BDetailPacking>();
-                var listSOT03B = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == vm.packingList.NO_BUKTI).ToList();
+                var listSOT03B = ErasoftDbContext.SOT03B.AsNoTracking().Where(m => m.NO_BUKTI == vm.packingList.NO_BUKTI).ToList();
 
                 var listPesanan = listSOT03B.Select(p => p.NO_PESANAN).ToList();
-                var listSO = ErasoftDbContext.SOT01A.Where(p => listPesanan.Contains(p.NO_BUKTI)).ToList();
+                var listSO = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => listPesanan.Contains(p.NO_BUKTI)).ToList();
                 foreach (var detil in listSOT03B)
                 {
                     var isiDetailpacking = new SOT03BDetailPacking()
@@ -43362,7 +43366,7 @@ namespace MasterOnline.Controllers
                 }
 
                 vm.listRekapBarang = new List<RekapBarang>();
-                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + pesananPackinglistInDb.NO_BUKTI + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
+                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A(NOLOCK) INNER JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG WHERE NO_BUKTI = '" + pesananPackinglistInDb.NO_BUKTI + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
                 for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
                 {
                     var newData = new RekapBarang
@@ -43385,13 +43389,13 @@ namespace MasterOnline.Controllers
 
         public void ProsesDetailPackinglist(string nobuk)
         {
-            var sot03b = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == nobuk).ToList();
+            var sot03b = ErasoftDbContext.SOT03B.AsNoTracking().Where(m => m.NO_BUKTI == nobuk).ToList();
             var tglInput = DateTime.Now;
             if (sot03b.Count > 0)
             {
                 EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_BUKTI = '" + nobuk + "'");
                 var listNoPesanan = sot03b.Select(m => m.NO_PESANAN).ToList();
-                var pesananInDB = ErasoftDbContext.SOT01B.Where(m => listNoPesanan.Contains(m.NO_BUKTI)).ToList();
+                var pesananInDB = ErasoftDbContext.SOT01B.AsNoTracking().Where(m => listNoPesanan.Contains(m.NO_BUKTI)).ToList();
                 foreach (var data in pesananInDB)
                 {
                     var newSot03c = new SOT03C();
@@ -43453,7 +43457,7 @@ namespace MasterOnline.Controllers
             var retData = new PackingListViewModel();
             retData.printMode = mode;
             retData.listRekapBarang = new List<RekapBarang>();
-            retData.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
+            retData.packingList = ErasoftDbContext.SOT03A.AsNoTracking().Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
             if (mode == "1")
             {
                 //CHANGE BY NURUL 17/9/2020, BRG MULTI SKU
@@ -43464,8 +43468,8 @@ namespace MasterOnline.Controllers
                 //            "LEFT JOIN (SELECT B.NO_BUKTI, ISNULL(B.BRG_MULTISKU,'') BRG_MULTISKU, ISNULL(C.NAMA + ' ' + (ISNULL(C.NAMA2, '')),'') NAMA_BRG_MULTISKU FROM SOT03C A INNER JOIN SOT01B B ON A.NO_PESANAN = B.NO_BUKTI INNER JOIN STF02 C ON B.BRG_MULTISKU = C.BRG where A.NO_BUKTI = '" + nobuk + "')E ON A.NO_PESANAN = E.NO_BUKTI " +
                 //            "WHERE A.NO_BUKTI = '" + nobuk + "' GROUP BY A.NO_PESANAN,A.BRG,B.NAMA,B.NAMA2,QTY, PEMBELI, MARKETPLACE,D.NO_REFERENSI ,E.BRG_MULTISKU,E.NAMA_BRG_MULTISKU ORDER BY A.NO_PESANAN, NAMA_BARANG";
                 var sSQL = "SELECT A.NO_BUKTI AS NO_PESANAN, B.BRG,C.NAMA + ' ' + (ISNULL(C.NAMA2, '')) NAMA_BARANG,B.QTY,A.NAMAPEMESAN AS PEMBELI,F.NAMAMARKET + ' (' + E.PERSO +')' AS MARKETPLACE, ISNULL(A.NO_REFERENSI,'')NO_REFERENSI, ISNULL(B.BRG_MULTISKU,'')BRG_MULTISKU, ISNULL(D.NAMA + ' ' + (ISNULL(D.NAMA2, '')),'') NAMA_BRG_MULTISKU " +
-                            "FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI=B.NO_BUKTI LEFT JOIN STF02 C ON B.BRG=C.BRG LEFT JOIN STF02 D ON D.BRG=B.BRG_MULTISKU  " +
-                            "LEFT JOIN ARF01 E ON A.CUST=E.CUST LEFT JOIN MO..MARKETPLACE F ON E.NAMA=F.IDMARKET " +
+                            "FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI=B.NO_BUKTI LEFT JOIN STF02 C(NOLOCK) ON B.BRG=C.BRG LEFT JOIN STF02 D(NOLOCK) ON D.BRG=B.BRG_MULTISKU  " +
+                            "LEFT JOIN ARF01 E(NOLOCK) ON A.CUST=E.CUST LEFT JOIN MO..MARKETPLACE F(NOLOCK) ON E.NAMA=F.IDMARKET " +
                             "WHERE A.NO_BUKTI IN (SELECT NO_PESANAN FROM SOT03C WHERE NO_BUKTI='" + nobuk + "')  order by A.NO_BUKTI, NAMA_BARANG ";
                 //END CHANGE BY NURUL 26/9/2020
                 var dsRekap = EDB.GetDataSet("CString", "SOT03C", sSQL);
@@ -43497,7 +43501,7 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE, B.LKS ORDER BY B.LKS");
+                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A(NOLOCK) INNER JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE, B.LKS ORDER BY B.LKS");
                 for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
                 {
                     var newData = new RekapBarang
@@ -43537,7 +43541,7 @@ namespace MasterOnline.Controllers
                 //return Json(vmError, JsonRequestBehavior.AllowGet);
                 return vmError;
             }
-            var listPackinglistinDB = ErasoftDbContext.SOT03B.Select(m => m.NO_PESANAN).ToList();
+            var listPackinglistinDB = ErasoftDbContext.SOT03B.AsNoTracking().Select(m => m.NO_PESANAN).ToList();
             var listorder = new List<SOT01A>();
             var listBuyer = new List<ARF01C>();
             var listPesanan = new List<string>();
@@ -43546,7 +43550,7 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrEmpty(rows_selected[i]))
                 {
                     Int32 row = Convert.ToInt32(rows_selected[i]);
-                    var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "03").FirstOrDefault();
+                    var xx = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "03").FirstOrDefault();
                     if (xx != null)
                     {
                         if (!listPackinglistinDB.Contains(xx.NO_BUKTI))
@@ -43564,7 +43568,7 @@ namespace MasterOnline.Controllers
                     TGL = DateTime.Now,
                     USERNAME = "AUTO_CREATE"
                 };
-                var listPackinglistInDb = ErasoftDbContext.SOT03A.OrderBy(p => p.RecNum).ToList();
+                var listPackinglistInDb = ErasoftDbContext.SOT03A.AsNoTracking().OrderBy(p => p.RecNum).ToList();
                 int? lastRecNum = 0;
                 string nobuk = "";
                 if (listPackinglistInDb.Count == 0)
@@ -43585,7 +43589,7 @@ namespace MasterOnline.Controllers
 
                 foreach (var order in listPesanan)
                 {
-                    var dsPesanan = EDB.GetDataSet("CString", "SOT03B", "SELECT A.NO_BUKTI, A.TGL, NAMAPEMESAN, C.NAMAMARKET FROM SOT01A A INNER JOIN ARF01 B ON A.CUST = B.CUST INNER JOIN MO..MARKETPLACE C ON B.NAMA = C.IDMARKET WHERE A.NO_BUKTI = '" + order + "'");
+                    var dsPesanan = EDB.GetDataSet("CString", "SOT03B", "SELECT A.NO_BUKTI, A.TGL, NAMAPEMESAN, C.NAMAMARKET FROM SOT01A A(NOLOCK) INNER JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST INNER JOIN MO..MARKETPLACE C(NOLOCK) ON B.NAMA = C.IDMARKET WHERE A.NO_BUKTI = '" + order + "'");
                     if (dsPesanan.Tables[0].Rows.Count > 0)
                     {
                         var pesanan = new SOT03B();
@@ -43680,7 +43684,7 @@ namespace MasterOnline.Controllers
             }
 
             string cust = "";
-            var listAkunTokped = ErasoftDbContext.ARF01.Where(p => p.NAMA == nama_cust).Select(p => p.CUST).ToList();
+            var listAkunTokped = ErasoftDbContext.ARF01.AsNoTracking().Where(p => p.NAMA == nama_cust).Select(p => p.CUST).ToList();
             foreach (var item in listAkunTokped)
             {
                 cust += item + "','";
@@ -43742,7 +43746,7 @@ namespace MasterOnline.Controllers
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
             string sSQL2 = "";
-            sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+            sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
             if (search != "")
             {
                 sSQL2 += " AND ( " + sSQL_No_Bukti + " or " + sSQL_No_Ref + " or " + sSQL_Pembeli + " or " + sSQL_Shipment + " ) ";
@@ -43831,7 +43835,7 @@ namespace MasterOnline.Controllers
                 sSQLSelect += "SELECT A.CUST, A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
                 //sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -43839,7 +43843,7 @@ namespace MasterOnline.Controllers
                 var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
                 foreach (var item in ListStt01a)
                 {
-                    var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == item.CUST);
+                    var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == item.CUST);
                     if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                     {
                         if (marketPlace.STATUS_API == "1")
@@ -43949,7 +43953,7 @@ namespace MasterOnline.Controllers
                         string sSQLSelect = "";
                         sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item,isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no ";
                         string sSQL2 = "";
-                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                        sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                         string sSQLSelect2 = "";
                         sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -43962,7 +43966,7 @@ namespace MasterOnline.Controllers
                                 {
                                     var lzdApi = new LazadaController();
                                     List<string> orderItemIds = new List<string>();
-                                    var sot01b = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == so.no_bukti).ToList();
+                                    var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
                                     var adaItem = false;
                                     var adaOrderItemIdNull = false;
                                     if (sot01b.Count > 0)
@@ -44071,7 +44075,7 @@ namespace MasterOnline.Controllers
                     string_recnum += "'" + so_recnum + "'";
                 }
 
-                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
                 if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                 {
                     if (marketPlace.STATUS_API == "1")
@@ -44079,7 +44083,7 @@ namespace MasterOnline.Controllers
                         string sSQLSelect = "";
                         sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item,isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no ";
                         string sSQL2 = "";
-                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                        sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                         string sSQLSelect2 = "";
                         sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -44090,7 +44094,7 @@ namespace MasterOnline.Controllers
                             {
                                 var lzdApi = new LazadaController();
                                 List<string> orderItemIds = new List<string>();
-                                var sot01b = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == so.no_bukti).ToList();
+                                var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
                                 var adaItem = false;
                                 var adaOrderItemIdNull = false;
                                 if (sot01b.Count > 0)
@@ -44195,7 +44199,7 @@ namespace MasterOnline.Controllers
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -44203,7 +44207,7 @@ namespace MasterOnline.Controllers
                 var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
 
 
-                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
 
                 List<string> orderItemIds = new List<string>();
                 List<string> temp_htmlString = new List<string>();
@@ -44249,7 +44253,7 @@ namespace MasterOnline.Controllers
 
                     string_detailSO += "'" + nobuk.no_bukti + "'";
                 }
-                string ssql = "SELECT ORDER_ITEM_ID,NO_BUKTI FROM SOT01B WHERE NO_BUKTI IN (" + string_detailSO + ") ";
+                string ssql = "SELECT ORDER_ITEM_ID,NO_BUKTI FROM SOT01B (NOLOCK) WHERE NO_BUKTI IN (" + string_detailSO + ") ";
                 var listDetailSo = ErasoftDbContext.Database.SqlQuery<ORDERITEMSO>(ssql).ToList();
                 var hitungDetail = listDetailSo.Count();
 
@@ -44266,7 +44270,7 @@ namespace MasterOnline.Controllers
                     {
                         if (marketPlace.STATUS_API == "1")
                         {
-                            var sot01b = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == so.no_bukti).ToList();
+                            var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
                             if (sot01b.Count > 0)
                             {
                                 if ((orderItemIds.Count() + sot01b.Count()) > 50)
@@ -44957,13 +44961,13 @@ namespace MasterOnline.Controllers
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
 
                 var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
-                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
 
                 foreach (var so in ListStt01a)
                 {
@@ -44971,7 +44975,7 @@ namespace MasterOnline.Controllers
                     {
                         if (marketPlace.STATUS_API == "1")
                         {
-                            var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == so.no_bukti).FirstOrDefault();
+                            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).FirstOrDefault();
                             if (pesananInDb != null)
                             {
                                 if (!string.IsNullOrWhiteSpace(pesananInDb.NO_REFERENSI))
@@ -45133,13 +45137,13 @@ namespace MasterOnline.Controllers
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
 
                 var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
-                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
 
                 //parameters += "DROPOFF;";
 
@@ -45160,7 +45164,7 @@ namespace MasterOnline.Controllers
                     {
                         if (marketPlace.STATUS_API == "1")
                         {
-                            var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == so.no_bukti).FirstOrDefault();
+                            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).FirstOrDefault();
                             if (pesananInDb != null)
                             {
                                 if (!string.IsNullOrWhiteSpace(pesananInDb.NO_REFERENSI))
@@ -45318,7 +45322,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public async Task<ActionResult> GetShopeePickupAddressByCust(string cust)
         {
-            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+            var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
             var shoAPI = new ShopeeController();
             ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
             {
@@ -45437,7 +45441,7 @@ namespace MasterOnline.Controllers
                     string_recnum += "'" + so_recnum + "'";
                 }
 
-                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
                 if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                 {
                     string sSQLSelect = "";
@@ -45446,7 +45450,7 @@ namespace MasterOnline.Controllers
                     sSQLSelect += ", A.TRACKING_SHIPMENT as tracking_no, A.NO_PO_CUST AS no_job ";
                     //end add by nurul 28/2/2020, untuk job
                     string sSQL2 = "";
-                    sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                    sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                     string sSQLSelect2 = "";
                     sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -45554,7 +45558,7 @@ namespace MasterOnline.Controllers
 
                     string_recnum += "'" + so_recnum + "'";
                 }
-                var tblCustomer = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                var tblCustomer = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
                 var EDB = new DatabaseSQL(dbPathEra);
 
                 if (!string.IsNullOrEmpty(tblCustomer.STATUS_API))
@@ -45564,7 +45568,7 @@ namespace MasterOnline.Controllers
                         string sSQLSelect = "";
                         sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item,isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no ";
                         string sSQL2 = "";
-                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                        sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                         string sSQLSelect2 = "";
                         sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -45596,7 +45600,7 @@ namespace MasterOnline.Controllers
                                 {
                                     var orderItemIds = new List<string>();
 
-                                    var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT ORDER_ITEM_ID FROM SOT01B NOLOCK WHERE NO_BUKTI = '" + so.no_bukti + "'");
+                                    var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT ORDER_ITEM_ID FROM SOT01B (NOLOCK) NOLOCK WHERE NO_BUKTI = '" + so.no_bukti + "'");
                                     for (int i = 0; i < dsSOT01B.Tables[0].Rows.Count; i++)
                                     {
                                         orderItemIds.Add(Convert.ToString(dsSOT01B.Tables[0].Rows[i]["ORDER_ITEM_ID"]));
@@ -45706,7 +45710,7 @@ namespace MasterOnline.Controllers
 
                     string_recnum += "'" + so_recnum + "'";
                 }
-                var tblCustomer = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                var tblCustomer = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
                 var EDB = new DatabaseSQL(dbPathEra);
 
                 if (!string.IsNullOrEmpty(tblCustomer.STATUS_API))
@@ -45716,7 +45720,7 @@ namespace MasterOnline.Controllers
                         string sSQLSelect = "";
                         sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                         string sSQL2 = "";
-                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                        sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                         string sSQLSelect2 = "";
                         sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -45742,7 +45746,7 @@ namespace MasterOnline.Controllers
                         var listSuccess = new List<listSuccessPrintLabel>();
                         foreach (var so in ListStt01a)
                         {
-                            var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT ORDER_ITEM_ID FROM SOT01B NOLOCK WHERE NO_BUKTI = '" + so.no_bukti + "'");
+                            var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT ORDER_ITEM_ID FROM SOT01B (NOLOCK) NOLOCK WHERE NO_BUKTI = '" + so.no_bukti + "'");
                             if (dsSOT01B.Tables[0].Rows.Count == 0)
                             {
                                 if (listErrors.Where(p => p.keyname == so.no_referensi).Count() == 0)
@@ -45854,7 +45858,7 @@ namespace MasterOnline.Controllers
                     string_recnum += "'" + so_recnum + "'";
                 }
 
-                var tblCustomer = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                var tblCustomer = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
                 var EDB = new DatabaseSQL(dbPathEra);
                 if (!string.IsNullOrEmpty(tblCustomer.STATUS_API))
                 {
@@ -45863,7 +45867,7 @@ namespace MasterOnline.Controllers
                         string sSQLSelect = "";
                         sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item,isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no ";
                         string sSQL2 = "";
-                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                        sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                         string sSQLSelect2 = "";
                         sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -45896,7 +45900,7 @@ namespace MasterOnline.Controllers
                             if (!string.IsNullOrWhiteSpace(so.no_referensi))
                             {
                                 var orderItemIds = new List<string>();
-                                var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT ORDER_ITEM_ID FROM SOT01B NOLOCK WHERE NO_BUKTI = '" + so.no_bukti + "'");
+                                var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT ORDER_ITEM_ID FROM SOT01B (NOLOCK) NOLOCK WHERE NO_BUKTI = '" + so.no_bukti + "'");
                                 var success = false;
                                 try
                                 {
@@ -48243,7 +48247,7 @@ namespace MasterOnline.Controllers
                         stringListRecnum += "'" + get_selected[i].Trim() + "'";
                     }
                 }
-                var dsSOFail = EDB.GetDataSet("sConn", "SO", "SELECT A.NO_BUKTI FROM SOT01A A LEFT JOIN SIT01A B ON A.NO_BUKTI = B.NO_SO WHERE A.RECNUM IN (" + stringListRecnum + ") AND ISNULL(B.NO_SO,'') <> '' ORDER BY A.NO_BUKTI");
+                var dsSOFail = EDB.GetDataSet("sConn", "SO", "SELECT A.NO_BUKTI FROM SOT01A A(NOLOCK) LEFT JOIN SIT01A B(NOLOCK) ON A.NO_BUKTI = B.NO_SO WHERE A.RECNUM IN (" + stringListRecnum + ") AND ISNULL(B.NO_SO,'') <> '' ORDER BY A.NO_BUKTI");
                 if (dsSOFail.Tables[0].Rows.Count > 0)
                 {
                     for (int i = 0; i < dsSOFail.Tables[0].Rows.Count; i++)
@@ -48256,7 +48260,7 @@ namespace MasterOnline.Controllers
                     }
                 }
 
-                var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT * FROM SOT01A A LEFT JOIN SIT01A B ON A.NO_BUKTI = B.NO_SO WHERE A.RECNUM IN (" + stringListRecnum + ") AND ISNULL(B.NO_SO,'') = '' ORDER BY A.NO_BUKTI");
+                var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT * FROM SOT01A A(NOLOCK) LEFT JOIN SIT01A B(NOLOCK) ON A.NO_BUKTI = B.NO_SO WHERE A.RECNUM IN (" + stringListRecnum + ") AND ISNULL(B.NO_SO,'') = '' ORDER BY A.NO_BUKTI");
                 if (dsSO.Tables[0].Rows.Count > 0)
                 {
                     string listNobuk = "";
@@ -48281,9 +48285,9 @@ namespace MasterOnline.Controllers
                         sSQLWhere += " 0=1" + Environment.NewLine;
                     }
                     //hapus bukti packing list yg akan kosong ( dari packing list yang dihapus sot03b nya )
-                    var sSQLPACKING = "SELECT RECNUM,NO_BUKTI INTO #TEMP FROM SOT03B WHERE " + sSQLWhere + ";";
-                    sSQLPACKING += "DELETE A FROM SOT03A A " + Environment.NewLine;
-                    sSQLPACKING += "LEFT JOIN SOT03B B ON A.NO_BUKTI = B.NO_BUKTI AND B.RECNUM NOT IN (SELECT RECNUM FROM #TEMP) " + Environment.NewLine;
+                    var sSQLPACKING = "SELECT RECNUM,NO_BUKTI INTO #TEMP FROM SOT03B (NOLOCK) WHERE " + sSQLWhere + ";";
+                    sSQLPACKING += "DELETE A FROM SOT03A A(NOLOCK) " + Environment.NewLine;
+                    sSQLPACKING += "LEFT JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI AND B.RECNUM NOT IN (SELECT RECNUM FROM #TEMP) " + Environment.NewLine;
                     sSQLPACKING += "WHERE A.NO_BUKTI IN (SELECT NO_BUKTI FROM #TEMP) " + Environment.NewLine;
                     sSQLPACKING += "AND ISNULL(B.NO_BUKTI,'') = '' " + Environment.NewLine;
                     EDB.ExecuteSQL("sConn", CommandType.Text, sSQLPACKING);
@@ -48322,7 +48326,7 @@ namespace MasterOnline.Controllers
                         stringListRecnum += "'" + get_selected[i].Trim() + "'";
                     }
                 }
-                var dsSOFail = EDB.GetDataSet("sConn", "SO", "SELECT A.NO_BUKTI FROM SOT01A A WHERE A.RECNUM IN (" + stringListRecnum + ") AND A.STATUS_TRANSAKSI <> '03' ORDER BY A.NO_BUKTI");
+                var dsSOFail = EDB.GetDataSet("sConn", "SO", "SELECT A.NO_BUKTI FROM SOT01A A(NOLOCK) WHERE A.RECNUM IN (" + stringListRecnum + ") AND A.STATUS_TRANSAKSI <> '03' ORDER BY A.NO_BUKTI");
                 if (dsSOFail.Tables[0].Rows.Count > 0)
                 {
                     for (int i = 0; i < dsSOFail.Tables[0].Rows.Count; i++)
@@ -48336,7 +48340,7 @@ namespace MasterOnline.Controllers
                 }
                 //change by nurul 24/1/2020
                 //var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT * FROM SOT01A A WHERE A.RECNUM IN (" + stringListRecnum + ") AND A.STATUS_TRANSAKSI = '04' ORDER BY A.NO_BUKTI");
-                var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT * FROM SOT01A A WHERE A.RECNUM IN (" + stringListRecnum + ") AND A.STATUS_TRANSAKSI = '03' ORDER BY A.NO_BUKTI");
+                var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT * FROM SOT01A A(NOLOCK) WHERE A.RECNUM IN (" + stringListRecnum + ") AND A.STATUS_TRANSAKSI = '03' ORDER BY A.NO_BUKTI");
                 //end change by nurul 24/1/2020
                 if (dsSO.Tables[0].Rows.Count > 0)
                 {
@@ -48390,7 +48394,7 @@ namespace MasterOnline.Controllers
                         //update tanggal selesai pesanan
 
                         var kdShopify = "21";
-                        var mpCust82Cart = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopify && m.CUST == SOA_CUST).FirstOrDefault();
+                        var mpCust82Cart = ErasoftDbContext.ARF01.AsNoTracking().Where(m => m.NAMA == kdShopify && m.CUST == SOA_CUST).FirstOrDefault();
                         if (mpCust82Cart != null)
                         {
                             if (mpCust82Cart.Sort1_Cust != "" && !string.IsNullOrEmpty(mpCust82Cart.API_KEY) && !string.IsNullOrEmpty(mpCust82Cart.PERSO))
@@ -48498,8 +48502,8 @@ namespace MasterOnline.Controllers
                 var default_gudang = "";
                 using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
                 {
-                    var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
-                    var cekgudang = context.STF18.ToList();
+                    var gudang_parsys = context.SIFSYS.AsNoTracking().FirstOrDefault().GUDANG;
+                    var cekgudang = context.STF18.AsNoTracking().ToList();
                     if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
                     {
                         default_gudang = gudang_parsys;
@@ -48526,7 +48530,7 @@ namespace MasterOnline.Controllers
                 if (approved == 2)
                 {
                     //undo alokasi stok pesanan, HANYA UNTUK YG LOKASI = DEFAULT GUDANG
-                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE B SET LOKASI = '', QTY_N = 0 FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.LOKASI = '" + default_gudang + "' AND A.RECNUM IN (" + stringListRecnum + ") AND A.STATUS_TRANSAKSI = '02'");
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE B SET LOKASI = '', QTY_N = 0 FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE B.LOKASI = '" + default_gudang + "' AND A.RECNUM IN (" + stringListRecnum + ") AND A.STATUS_TRANSAKSI = '02'");
                     return new JsonResult { Data = new { error_packing_list = false, listError, successCount = 0, need_approval = 2 }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
 
@@ -48997,9 +49001,9 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                                 var sSQL2 = "select a.status_transaksi,a.RecNum,a.no_bukti,isnull(b.no_bukti,'') as bukti_faktur,isnull(c.no_bukti,'') as bukti_packingList ";
-                                sSQL2 += "from sot01a a left join sit01a b on a.no_bukti=b.no_so left join sot03b c on a.no_bukti=c.no_pesanan where A.RECNUM IN (" + ListRecnum + ") ";
+                                sSQL2 += "from sot01a a(NOLOCK) left join sit01a b(NOLOCK) on a.no_bukti=b.no_so left join sot03b c(NOLOCK) on a.no_bukti=c.no_pesanan where A.RECNUM IN (" + ListRecnum + ") ";
                                 var listSemuaSO = context.Database.SqlQuery<templistSemuaSO>(sSQL2).ToList();
-                                var listSemuaDetailSOQty0 = context.SOT01B.Where(a => (a.QTY <= 0 || a.QTY_N == 0 || a.LOKASI == "" || a.LOKASI == null) && listSuccess.Contains(a.NO_BUKTI)).Select(a => new { NO_BUKTI = a.NO_BUKTI, QTY = a.QTY, BRG = a.BRG, QTY_N = a.QTY_N, GUDANG = a.LOKASI }).ToList();
+                                var listSemuaDetailSOQty0 = context.SOT01B.AsNoTracking().Where(a => (a.QTY <= 0 || a.QTY_N == 0 || a.LOKASI == "" || a.LOKASI == null) && listSuccess.Contains(a.NO_BUKTI)).Select(a => new { NO_BUKTI = a.NO_BUKTI, QTY = a.QTY, BRG = a.BRG, QTY_N = a.QTY_N, GUDANG = a.LOKASI }).ToList();
                                 foreach (var gagal in listSemuaSO)
                                 {
                                     if (gagal.STATUS_TRANSAKSI != "02")
@@ -49105,7 +49109,7 @@ namespace MasterOnline.Controllers
                                 }
                                 catch (Exception ex)
                                 {
-                                    var tempSI = context.SOT03A.Where(a => a.NO_BUKTI == newPackinglist.NO_BUKTI).Single();
+                                    var tempSI = context.SOT03A.AsNoTracking().Where(a => a.NO_BUKTI == newPackinglist.NO_BUKTI).Single();
                                     if (tempSI != null)
                                     {
                                         if (tempSI.NO_BUKTI == nobuk)
@@ -49131,10 +49135,10 @@ namespace MasterOnline.Controllers
                                 var newpackingdetail = new List<SOT03B>();
                                 var newpackingbrgdetail = new List<SOT03C>();
 
-                                var listDetailPesananSiapProses = context.SOT01B.Where(a => listSuccess.Contains(a.NO_BUKTI)).ToList();
+                                var listDetailPesananSiapProses = context.SOT01B.AsNoTracking().Where(a => listSuccess.Contains(a.NO_BUKTI)).ToList();
                                 foreach (var eachSO in listSemuaSO)
                                 {
-                                    var pesananInDb = context.SOT01A.Where(p => p.RecNum == eachSO.RecNum).Single();
+                                    var pesananInDb = context.SOT01A.AsNoTracking().Where(p => p.RecNum == eachSO.RecNum).Single();
                                     //add by nurul 11/9/2020, validasi untuk qtyN dan gudang blank tidak boleh create faktur 
                                     var listBarangPesananInDb = listDetailPesananSiapProses.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
                                     var listQtyNGdNull = listBarangPesananInDb.Where(a => a.QTY_N == 0 && (a.LOKASI == "" || a.LOKASI == null)).ToList();
@@ -49178,9 +49182,9 @@ namespace MasterOnline.Controllers
                                         var pesanan_bruto = 0d;
                                         var pesanan_netto = 0d;
                                         var pesanan_nilai_ppn = 0d;
-                                        var cust = context.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+                                        var cust = context.ARF01.AsNoTracking().Single(p => p.CUST == pesananInDb.CUST);
                                         var namacustint = Convert.ToInt32(cust.NAMA);
-                                        var marketplace = MoDbContext.Marketplaces.Single(p => p.IdMarket.Value == namacustint).NamaMarket;
+                                        var marketplace = MoDbContext.Marketplaces.AsNoTracking().Single(p => p.IdMarket.Value == namacustint).NamaMarket;
 
                                         var newSIT01A = new SIT01A();
                                         newSIT01A.NO_BUKTI = noOrder;
@@ -49458,7 +49462,7 @@ namespace MasterOnline.Controllers
                                         }
                                         catch (Exception ex)
                                         {
-                                            var tempSI = context.SIT01A.Where(a => a.NO_BUKTI == newSIT01A.NO_BUKTI).Single();
+                                            var tempSI = context.SIT01A.AsNoTracking().Where(a => a.NO_BUKTI == newSIT01A.NO_BUKTI).Single();
                                             if (tempSI != null)
                                             {
                                                 if (tempSI.NO_BUKTI == noOrder)
@@ -49484,6 +49488,7 @@ namespace MasterOnline.Controllers
                                         //end change by nurul 23/12/2019, perbaikan no bukti
 
                                         context.SIT01B.AddRange(listSIT01B);
+                                        EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '" + pesananInDb.STATUS_TRANSAKSI + "' , status_kirim = '" + pesananInDb.status_kirim + "' where RecNum='" + eachSO.RecNum + "' ");
                                         context.SaveChanges();
 
                                         //add by nurul 6/2/2020, tambah update sit01a untuk trigger create art01d
@@ -49517,15 +49522,15 @@ namespace MasterOnline.Controllers
                         }
                         if (listRecnumEnd != "") {
                             var sSQL3 = "update a set status_transaksi='03' ";
-                            sSQL3 += "from sot01a a inner join sit01a b on a.no_bukti=b.no_so inner join sot03b c on a.no_bukti=c.no_pesanan ";
+                            sSQL3 += "from sot01a a(NOLOCK) inner join sit01a b(NOLOCK) on a.no_bukti=b.no_so inner join sot03b c(NOLOCK) on a.no_bukti=c.no_pesanan ";
                             sSQL3 += "where a.status_transaksi='02' and a.recnum in (" + listRecnumEnd + ")";
                             context.Database.ExecuteSqlCommand(sSQL3);
                         }
-                        var sSQL4 = "select count(a.no_bukti)jumlah from sit01a a inner join sot01a b on a.no_so=b.no_bukti where (isnull(a.no_ref,'')='' or isnull(a.no_ref,'')='-') and isnull(b.no_referensi,'')<>'' ";
+                        var sSQL4 = "select count(a.no_bukti)jumlah from sit01a a(NOLOCK) inner join sot01a b(NOLOCK) on a.no_so=b.no_bukti where (isnull(a.no_ref,'')='' or isnull(a.no_ref,'')='-') and isnull(b.no_referensi,'')<>'' ";
                         var cekCountSINorefBlank = context.Database.SqlQuery<int>(sSQL4).SingleOrDefault();
                         if(cekCountSINorefBlank > 0)
                         {
-                            var sSQL5 = "update a set no_ref=b.no_referensi from sit01a a inner join sot01a b on a.no_so=b.no_bukti where (isnull(a.no_ref,'')='' or isnull(a.no_ref,'')='-') and isnull(b.no_referensi,'')<>''";
+                            var sSQL5 = "update a set no_ref=b.no_referensi from sit01a a(NOLOCK) inner join sot01a b(NOLOCK) on a.no_so=b.no_bukti where (isnull(a.no_ref,'')='' or isnull(a.no_ref,'')='-') and isnull(b.no_referensi,'')<>''";
                             context.Database.ExecuteSqlCommand(sSQL5);
                         }
                     }
@@ -55917,7 +55922,7 @@ namespace MasterOnline.Controllers
 
             //string lastnobuk = context.Database.SqlQuery<string>("SELECT ISNULL(SUBSTRING(MAX(" + FieldName + "), " + startIndex + ", 6), '0') FROM " + TableName + " WHERE " + FieldName + " LIKE '" + Prefix + tahun + "%'").First();
             //var nobuk = Prefix + tahun + Convert.ToString(Convert.ToInt32(lastnobuk) + 1).PadLeft(6, '0');
-            ret = context.Database.SqlQuery<string>("SELECT ISNULL(SUBSTRING(MAX(" + FieldName + "), " + startIndex + ", 6), '0') FROM " + TableName + " WHERE " + FieldName + " LIKE '" + Prefix + tahun + "%'").First();
+            ret = context.Database.SqlQuery<string>("SELECT ISNULL(SUBSTRING(MAX(" + FieldName + "), " + startIndex + ", 6), '0') FROM " + TableName + " (NOLOCK) WHERE " + FieldName + " LIKE '" + Prefix + tahun + "%'").First();
             return ret;
         }
         //end add by nurul 23/12/2019
@@ -55953,7 +55958,7 @@ namespace MasterOnline.Controllers
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -55961,7 +55966,7 @@ namespace MasterOnline.Controllers
                 var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
 
 
-                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
 
                 //List<string> orderItemIds = new List<string>();
                 List<string> temp_htmlString = new List<string>();
@@ -56010,7 +56015,7 @@ namespace MasterOnline.Controllers
 
                     string_detailSO += "'" + nobuk.no_bukti + "'";
                 }
-                string ssql = "SELECT ORDER_ITEM_ID,NO_BUKTI FROM SOT01B WHERE NO_BUKTI IN (" + string_detailSO + ") ";
+                string ssql = "SELECT ORDER_ITEM_ID,NO_BUKTI FROM SOT01B (NOLOCK) WHERE NO_BUKTI IN (" + string_detailSO + ") ";
                 var listDetailSo = ErasoftDbContext.Database.SqlQuery<ORDERITEMSO>(ssql).ToList();
                 var hitungDetail = listDetailSo.Count();
 
@@ -56188,7 +56193,7 @@ namespace MasterOnline.Controllers
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir,A.TRACKING_SHIPMENT as tracking_no, 0 as jumlah_item ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -56196,7 +56201,7 @@ namespace MasterOnline.Controllers
                 var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
 
 
-                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
                 
                 List<string> temp_base64String = new List<string>();
                 List<string> temp_strmsg = new List<string>();
@@ -56230,7 +56235,7 @@ namespace MasterOnline.Controllers
 
                     string_detailSO += "'" + nobuk.no_bukti + "'";
                 }
-                string ssql = "SELECT ORDER_ITEM_ID,NO_BUKTI FROM SOT01B WHERE NO_BUKTI IN (" + string_detailSO + ") ";
+                string ssql = "SELECT ORDER_ITEM_ID,NO_BUKTI FROM SOT01B (NOLOCK) WHERE NO_BUKTI IN (" + string_detailSO + ") ";
                 var listDetailSo = ErasoftDbContext.Database.SqlQuery<ORDERITEMSO>(ssql).ToList();
                 var hitungDetail = listDetailSo.Count();
                 var hitungSuccess = 0;
@@ -56337,21 +56342,21 @@ namespace MasterOnline.Controllers
                 sSQLSelect += ",A.KET ";
                 //end add by nurul 15/5/2020
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
-                sSQL2 += "LEFT JOIN SIT01A D ON A.NO_BUKTI=D.NO_SO ";
+                sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                sSQL2 += "LEFT JOIN SIT01A D(NOLOCK) ON A.NO_BUKTI=D.NO_SO ";
                 //sSQL2 += "LEFT JOIN ARF01C F ON D.PEMESAN = F.BUYER_CODE ";
-                sSQL2 += "LEFT JOIN (SELECT A.BUYER_CODE,A.NAMA,A.TLP,ISNULL(A.NAMA_KABKOT,ISNULL(C.NAMAKABKOT,''))NAMA_KABKOT,ISNULL(A.NAMA_PROV,ISNULL(B.NAMAPROV,'')) NAMA_PROV,ISNULL(A.KODEPOS,'')KODEPOS,ISNULL(A.AL,'')AL FROM ARF01C A LEFT JOIN MO..PROVINSI B ON A.KODEPROV=B.KODEPROV LEFT JOIN MO..KabupatenKota C ON A.KODEKABKOT=C.KODEKABKOT) F ON D.PEMESAN = F.BUYER_CODE ";
-                sSQL2 += "LEFT JOIN ARF01 H ON A.CUST=H.CUST ";
-                sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE I ON H.NAMA=I.IDMARKET ";
+                sSQL2 += "LEFT JOIN (SELECT A.BUYER_CODE,A.NAMA,A.TLP,ISNULL(A.NAMA_KABKOT,ISNULL(C.NAMAKABKOT,''))NAMA_KABKOT,ISNULL(A.NAMA_PROV,ISNULL(B.NAMAPROV,'')) NAMA_PROV,ISNULL(A.KODEPOS,'')KODEPOS,ISNULL(A.AL,'')AL FROM ARF01C A(NOLOCK) LEFT JOIN MO..PROVINSI B(NOLOCK) ON A.KODEPROV=B.KODEPROV LEFT JOIN MO..KabupatenKota C(NOLOCK) ON A.KODEKABKOT=C.KODEKABKOT) F ON D.PEMESAN = F.BUYER_CODE ";
+                sSQL2 += "LEFT JOIN ARF01 H(NOLOCK) ON A.CUST=H.CUST ";
+                sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE I(NOLOCK) ON H.NAMA=I.IDMARKET ";
                 //sSQL2 += "LEFT JOIN ARF01C J ON J.BUYER_CODE = A.PEMESAN ";
-                sSQL2 += "LEFT JOIN (SELECT A.BUYER_CODE,A.NAMA,A.TLP,ISNULL(A.NAMA_KABKOT,ISNULL(C.NAMAKABKOT,''))NAMA_KABKOT,ISNULL(A.NAMA_PROV,ISNULL(B.NAMAPROV,'')) NAMA_PROV,ISNULL(A.KODEPOS,'')KODEPOS,ISNULL(A.AL,'')AL FROM ARF01C A LEFT JOIN MO..PROVINSI B ON A.KODEPROV=B.KODEPROV LEFT JOIN MO..KabupatenKota C ON A.KODEKABKOT=C.KODEKABKOT) J ON J.BUYER_CODE = A.PEMESAN ";
+                sSQL2 += "LEFT JOIN (SELECT A.BUYER_CODE,A.NAMA,A.TLP,ISNULL(A.NAMA_KABKOT,ISNULL(C.NAMAKABKOT,''))NAMA_KABKOT,ISNULL(A.NAMA_PROV,ISNULL(B.NAMAPROV,'')) NAMA_PROV,ISNULL(A.KODEPOS,'')KODEPOS,ISNULL(A.AL,'')AL FROM ARF01C A(NOLOCK) LEFT JOIN MO..PROVINSI B(NOLOCK) ON A.KODEPROV=B.KODEPROV LEFT JOIN MO..KabupatenKota C(NOLOCK) ON A.KODEKABKOT=C.KODEKABKOT) J ON J.BUYER_CODE = A.PEMESAN ";
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
 
                 var ListSot01a = ErasoftDbContext.Database.SqlQuery<tempLabel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
-                var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
-                var alamat1 = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
-                var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                var namaPT = ErasoftDbContext.SIFSYS.AsNoTracking().Single(p => p.BLN == 1).NAMA_PT;
+                var alamat1 = ErasoftDbContext.SIFSYS.AsNoTracking().Single(a => a.BLN == 1).ALAMAT_PT;
+                var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.AsNoTracking().Single().TELEPON;
 
                 var ym = new FakturViewModel()
                 {
@@ -56366,8 +56371,8 @@ namespace MasterOnline.Controllers
                 };
 
                 var listSi = ListSot01a.Select(p => p.si_bukti).ToList();
-                var faktur = ErasoftDbContext.SIT01A.Where(a => listSi.Contains(a.NO_BUKTI)).ToList();
-                var detailFaktur = ErasoftDbContext.SIT01B.Where(a => listSi.Contains(a.NO_BUKTI)).ToList(); ;
+                var faktur = ErasoftDbContext.SIT01A.AsNoTracking().Where(a => listSi.Contains(a.NO_BUKTI)).ToList();
+                var detailFaktur = ErasoftDbContext.SIT01B.AsNoTracking().Where(a => listSi.Contains(a.NO_BUKTI)).ToList(); ;
 
                 foreach (var so in ListSot01a)
                 {
@@ -56413,7 +56418,7 @@ namespace MasterOnline.Controllers
                     if (so.namamarket.ToUpper() == "TOKOPEDIA")
                     {
                         EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in ('" + so.so_bukti + "')");
-                        ketTokped = ErasoftDbContext.Database.SqlQuery<tempKetTokped>("Select no_bukti as Nobuk, brg as Brg, Ket_Detail as ketdetail, brg_multisku from sot01b where no_bukti='" + so.so_bukti + "'").ToList();
+                        ketTokped = ErasoftDbContext.Database.SqlQuery<tempKetTokped>("Select no_bukti as Nobuk, brg as Brg, Ket_Detail as ketdetail, brg_multisku from sot01b (NOLOCK) where no_bukti='" + so.so_bukti + "'").ToList();
                     }
                     //add by nurul 15/5/2020
 
@@ -56438,7 +56443,7 @@ namespace MasterOnline.Controllers
                         Faktur = faktur.Where(a => a.NO_BUKTI == so.si_bukti).SingleOrDefault(),
                         namaPembeli = so.namapembeli,
                         tlpPembeli = so.tlppembeli,
-                        ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && (a.TYPE == "3" || a.TYPE == "6")).ToList(),
+                        ListBarang = ErasoftDbContext.STF02.AsNoTracking().Where(a => listBarangInFakturDetail.Contains(a.BRG) && (a.TYPE == "3" || a.TYPE == "6")).ToList(),
                         ListFakturDetail = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList(),
                         AlamatToko = alamat1,
                         TlpToko = tlp,
@@ -56509,7 +56514,7 @@ namespace MasterOnline.Controllers
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -56517,7 +56522,7 @@ namespace MasterOnline.Controllers
                 var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
 
 
-                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
 
                 List<string> orderItemIds = new List<string>();
                 List<string> temp_htmlString = new List<string>();
@@ -56561,7 +56566,7 @@ namespace MasterOnline.Controllers
 
                     string_detailSO += "'" + nobuk.no_bukti + "'";
                 }
-                string ssql = "SELECT ORDER_ITEM_ID,NO_BUKTI FROM SOT01B WHERE NO_BUKTI IN (" + string_detailSO + ") ";
+                string ssql = "SELECT ORDER_ITEM_ID,NO_BUKTI FROM SOT01B (NOLOCK) WHERE NO_BUKTI IN (" + string_detailSO + ") ";
                 var listDetailSo = ErasoftDbContext.Database.SqlQuery<ORDERITEMSO>(ssql).ToList();
                 var hitungDetail = listDetailSo.Count();
 
@@ -56762,7 +56767,7 @@ namespace MasterOnline.Controllers
                 sSQLSelect += "SELECT A.CUST, A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 sSQLSelect += ",ISNULL(A.NO_PO_CUST,'') AS no_job ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -56772,7 +56777,7 @@ namespace MasterOnline.Controllers
                 {
                     if (string.IsNullOrEmpty(item.no_job))
                     {
-                        var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == item.CUST);
+                        var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == item.CUST);
                         if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                         {
                             if (marketPlace.STATUS_API == "1")
@@ -58216,7 +58221,7 @@ namespace MasterOnline.Controllers
                 string sSQLCount = "";
                 sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
                 string sSQL2 = "";
-                sSQLSelect += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+                sSQLSelect += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
                 string sSQLTemp = "";
                 switch (filter)
                 {
@@ -58314,7 +58319,7 @@ namespace MasterOnline.Controllers
                 string sSQLCount = "";
                 sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
                 string sSQL2 = "";
-                sSQLSelect += "from sot03b a left join sot01a b on a.no_pesanan=b.no_bukti where a.no_bukti = '" + bukti + "' ";
+                sSQLSelect += "from sot03b a(NOLOCK) left join sot01a b(NOLOCK) on a.no_pesanan=b.no_bukti where a.no_bukti = '" + bukti + "' ";
                 string sSQLTemp = "";
                 switch (filter)
                 {
@@ -59078,8 +59083,8 @@ namespace MasterOnline.Controllers
                 //string sSQL = "";
                 //sSQL += "SELECT B.BRG,ISNULL(NAMA,'') + ' ' + ISNULL(NAMA2,'') AS NAMA,B.ID FROM STF03C A INNER JOIN STF02 B ON A.BRG=B.BRG WHERE BRG_ACUAN ='" + brgId + "' ";
 
-                var listBarang = (from a in ErasoftDbContext.STF03C
-                                  join b in ErasoftDbContext.STF02 on a.BRG equals b.BRG
+                var listBarang = (from a in ErasoftDbContext.STF03C.AsNoTracking()
+                                  join b in ErasoftDbContext.STF02.AsNoTracking() on a.BRG equals b.BRG
                                   where a.BRG_ACUAN == brgId 
                                   select new { BRG = b.BRG, NAMA = b.NAMA, NAMA2 = b.NAMA2 == null ? "" : b.NAMA2 }).ToList();
                 //select new { BRG = b.BRG, NAMA = b.NAMA + ' ' + b.NAMA2 == null ? "" : b.NAMA2 });
@@ -59088,7 +59093,7 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                var listGudang = ErasoftDbContext.STF18.ToList();
+                var listGudang = ErasoftDbContext.STF18.AsNoTracking().ToList();
                 return Json(listGudang, JsonRequestBehavior.AllowGet);
             }
         }
@@ -59100,7 +59105,7 @@ namespace MasterOnline.Controllers
             //                  join b in ErasoftDbContext.STF02 on a.BRG equals b.BRG
             //                  where a.BRG_ACUAN == brgId
             //                  select new { BRG = b.BRG, NAMA = b.NAMA, NAMA2 = b.NAMA2 == null ? "" : b.NAMA2 }).ToList();
-            var listBarang = (from a in ErasoftDbContext.STF02 
+            var listBarang = (from a in ErasoftDbContext.STF02.AsNoTracking()
                               where a.TYPE == "6"
                               select new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, BRG_ACUAN = a.BRG_NON_OS }).ToList();
             //select new { BRG = b.BRG, NAMA = b.NAMA + ' ' + b.NAMA2 == null ? "" : b.NAMA2 });

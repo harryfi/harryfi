@@ -2381,7 +2381,7 @@ namespace MasterOnline.Controllers
             string connId = Guid.NewGuid().ToString();
             var token = SetupContext(iden);
             iden.token = token;
-            var list_ordersn = ErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.CUST == cust && (a.NO_REFERENSI.Contains("INV")) && (a.STATUS_TRANSAKSI.Contains("02") || a.STATUS_TRANSAKSI.Contains("03") || a.STATUS_TRANSAKSI.Contains("04"))).ToList();
+            var list_ordersn = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.CUST == cust && (a.NO_REFERENSI.Contains("INV")) && (a.STATUS_TRANSAKSI.Contains("02") || a.STATUS_TRANSAKSI.Contains("03") || a.STATUS_TRANSAKSI.Contains("04"))).ToList();
             if (list_ordersn.Count() > 0)
             {
                 foreach (var pesanan in list_ordersn)
@@ -2440,11 +2440,12 @@ namespace MasterOnline.Controllers
                             var tempAWB = result.data.order_info.shipping_info.awb;
                             if (tempAWB != null && tempAWB != "")
                             {
-                                var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == pesanan.NO_BUKTI).SingleOrDefault();
+                                var pesananIndb = ErasoftDbContext.SOT01A.AsNoTracking().Where(a => a.NO_BUKTI == pesanan.NO_BUKTI).SingleOrDefault();
                                 if (pesananIndb != null)
                                 {
                                     ret = ret + tempAWB;
-                                    pesananIndb.TRACKING_SHIPMENT = tempAWB;
+                                    //pesananIndb.TRACKING_SHIPMENT = tempAWB;
+                                    ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE SOT01A SET TRACKING_SHIPMENT = '" + tempAWB + "' where NO_BUKTI='" + pesanan.NO_BUKTI + "'");
                                     ErasoftDbContext.SaveChanges();
                                 }
                             }
@@ -2851,9 +2852,14 @@ namespace MasterOnline.Controllers
                     //end add by Tri 17 mar 2020, insert pesanan dengan status 450
                     var orderTokpedInDb = ErasoftDbContext.TEMP_TOKPED_ORDERS.Where(p => p.fs_id == iden.merchant_code);
 
-                    var last21days = DateTimeOffset.UtcNow.AddHours(7).AddDays(-21).DateTime;
+                    //var last21days = DateTimeOffset.UtcNow.AddHours(7).AddDays(-21).DateTime;
+                    //System.DateTime datetimeisnull = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+                    //var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && (p.TGL ?? datetimeisnull) > last21days).Select(p => p.NO_REFERENSI).ToList();
+
+                    var last21days = DateTimeOffset.UtcNow.AddHours(7).AddDays(daysFrom - 1).DateTime;
+                    var last21days2 = DateTimeOffset.UtcNow.AddHours(7).AddDays(daysTo + 1).DateTime;
                     System.DateTime datetimeisnull = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-                    var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && (p.TGL ?? datetimeisnull) > last21days).Select(p => p.NO_REFERENSI).ToList();
+                    var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && (p.TGL ?? datetimeisnull) >= last21days && (p.TGL ?? datetimeisnull) <= last21days2).Select(p => p.NO_REFERENSI).ToList();
 
                     var connIdARF01C = Guid.NewGuid().ToString();
                     rowCount = result.data.Count();

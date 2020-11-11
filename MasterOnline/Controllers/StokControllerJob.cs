@@ -4140,7 +4140,7 @@ namespace MasterOnline.Controllers
                 //ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == nobukSI && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = bruto });
                 if (nobukSI != null)
                 {
-                    var cekSI = ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == nobukSI && p.JENIS_FORM == "2").FirstOrDefault();
+                    var cekSI = ErasoftDbContext.SIT01A.AsNoTracking().Where(p => p.NO_BUKTI == nobukSI && p.JENIS_FORM == "2").FirstOrDefault();
                     if (cekSI != null)
                     {
                         //cekSI.BRUTO = bruto;
