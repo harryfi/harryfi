@@ -2444,7 +2444,8 @@ namespace MasterOnline.Controllers
                                 if (pesananIndb != null)
                                 {
                                     ret = ret + tempAWB;
-                                    pesananIndb.TRACKING_SHIPMENT = tempAWB;
+                                    //pesananIndb.TRACKING_SHIPMENT = tempAWB;
+                                    ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE SOT01A SET TRACKING_SHIPMENT = '" + tempAWB + "' where NO_BUKTI='" + pesanan.NO_BUKTI + "'");
                                     ErasoftDbContext.SaveChanges();
                                 }
                             }

@@ -20972,7 +20972,7 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.NO_BUKTI == dataVm.Pesanan.NO_BUKTI);
+                var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == dataVm.Pesanan.NO_BUKTI);
 
                 //pesananInDb.NETTO = dataVm.Pesanan.NETTO;
                 //pesananInDb.BRUTO = dataVm.Pesanan.BRUTO;
@@ -21086,7 +21086,8 @@ namespace MasterOnline.Controllers
                     var dataFaktur = ErasoftDbContext.SIT01A.AsNoTracking().Where(p => p.NO_SO == pesananInDb.NO_BUKTI).SingleOrDefault();
                     if(dataFaktur != null)
                     {
-                        dataFaktur.TGL_KIRIM = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
+                        //dataFaktur.TGL_KIRIM = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
+                        EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SIT01A SET TGL_KIRIM = '" + Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd")) + "' where NO_SO='" + pesananInDb.NO_BUKTI + "'");
                         ErasoftDbContext.SaveChanges();
                     }
                     //update tanggal selesai pesanan
@@ -21118,7 +21119,8 @@ namespace MasterOnline.Controllers
                     var dataFaktur = ErasoftDbContext.SIT01A.AsNoTracking().Where(p => p.NO_SO == pesananInDb.NO_BUKTI).SingleOrDefault();
                     if (dataFaktur != null)
                     {
-                        dataFaktur.TGL_KIRIM = null;
+                        //dataFaktur.TGL_KIRIM = null;
+                        EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SIT01A SET TGL_KIRIM = null where NO_SO='" + pesananInDb.NO_BUKTI + "'");
                         ErasoftDbContext.SaveChanges();
                     }
                     //update tanggal selesai pesanan
@@ -21130,7 +21132,7 @@ namespace MasterOnline.Controllers
             string listVariable = "";
             if (tipeStatus == "11")
             {
-                var sot01d = ErasoftDbContext.SOT01D.AsNoTracking().Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).FirstOrDefault();
+                var sot01d = ErasoftDbContext.SOT01D.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).FirstOrDefault();
                 if (sot01d == null)
                 {
                     sot01d = new SOT01D();
@@ -21271,6 +21273,7 @@ namespace MasterOnline.Controllers
             }
             //end add 19 Nov 2019, validasi cancel reason
             pesananInDb.STATUS_TRANSAKSI = tipeStatus;
+            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '" + pesananInDb.STATUS_TRANSAKSI + "' where RecNum='" + recNum + "'");
             ErasoftDbContext.SaveChanges();
 
             //add by calvin 29 nov 2018
@@ -21340,7 +21343,7 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrEmpty(get_selected[i]))
                 {
                     Int32 rec = Convert.ToInt32(get_selected[i]);
-                    var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(a => a.RecNum == rec);
+                    var pesananInDb = ErasoftDbContext.SOT01A.Single(a => a.RecNum == rec);
                     var getnobuk = pesananInDb.NO_BUKTI;
                     var pesananDetailInDb = ErasoftDbContext.SOT01B.AsNoTracking().FirstOrDefault(p => p.NO_BUKTI == getnobuk && p.BRG == "NOT_FOUND");
                     if (pesananDetailInDb == null)
@@ -21777,7 +21780,7 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                var dataUsaha = ErasoftDbContext.SIFSYS.AsNoTracking().SingleOrDefault(p => p.BLN == 1);
+                var dataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1);
 
                 bool ubahSettingSync = false;
                 if (dataUsaha.JTRAN_RETUR != status)
@@ -21952,8 +21955,8 @@ namespace MasterOnline.Controllers
                 var no_urut = nourut.Split(';');
                 int no_urut_sot01b = Convert.ToInt32(no_urut[0]);
                 int recnum_stf02h = Convert.ToInt32(no_urut[1]);
-                var PesananDetail = ErasoftDbContext.SOT01B.AsNoTracking().Where(b => b.NO_URUT == no_urut_sot01b).SingleOrDefault();
-                var dataStf02h = ErasoftDbContext.STF02H.AsNoTracking().Where(b => b.RecNum == recnum_stf02h).SingleOrDefault();
+                var PesananDetail = ErasoftDbContext.SOT01B.Where(b => b.NO_URUT == no_urut_sot01b).SingleOrDefault();
+                var dataStf02h = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h).SingleOrDefault();
 
                 var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().SingleOrDefault(p => p.NO_BUKTI == PesananDetail.NO_BUKTI);
                 //change by nurul 16/9/2020, brg multi sku
@@ -24001,8 +24004,8 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                var barangPesananInDb = ErasoftDbContext.SOT01B.AsNoTracking().Single(b => b.NO_URUT == noUrut);
-                var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.NO_BUKTI == barangPesananInDb.NO_BUKTI);
+                var barangPesananInDb = ErasoftDbContext.SOT01B.Single(b => b.NO_URUT == noUrut);
+                var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == barangPesananInDb.NO_BUKTI);
                 
                 //CHANGE BY NURUL 4/11/2020
                 //pesananInDb.BRUTO -= barangPesananInDb.HARGA;
@@ -24053,7 +24056,7 @@ namespace MasterOnline.Controllers
         [HttpPost]
         public ActionResult UpdatePesanan(UpdateData dataUpdate)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.NO_BUKTI == dataUpdate.OrderId);
+            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == dataUpdate.OrderId);
             var sSQL = "select isnull(sum(harga),0) from SOT01B (NOLOCK) where no_bukti='" + dataUpdate.OrderId + "'";
             var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
             //pesananInDb.NILAI_DISC = dataUpdate.NilaiDisc;
@@ -24257,7 +24260,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult SaveResi(int? recNum, string noResi, string deliveryProv/*, string typeDelivery*/)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.RecNum == recNum);
+            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
             //remark 15-02-2019, agar user tidak perlu kosongkan nmr resi yg didapan langsung dr api
             //add by Tri, check if user input new resi
             //bool changeStat = false;
@@ -24333,7 +24336,7 @@ namespace MasterOnline.Controllers
             string pAddress, string pTime,
             string nTrackNo)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().SingleOrDefault(p => p.RecNum == recNum);
+            var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recNum);
             bool changeStat = false;
             if (string.IsNullOrEmpty(pesananInDb.TRACKING_SHIPMENT))
                 changeStat = true;
@@ -25299,7 +25302,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult SaveGudangQty(int? recNum, string gd, int qty)
         {
-            var barangPesananInDb = ErasoftDbContext.SOT01B.AsNoTracking().Single(b => b.NO_URUT == recNum);
+            var barangPesananInDb = ErasoftDbContext.SOT01B.Single(b => b.NO_URUT == recNum);
 
             //add by calvin, 22 juni 2018 validasi QOH
             var qtyOnHand = GetQOHSTF08A(barangPesananInDb.BRG, gd);
@@ -43289,9 +43292,9 @@ namespace MasterOnline.Controllers
 
         public ActionResult DeletePackinglist(string nobuk)
         {
-            var packinglistInDb = ErasoftDbContext.SOT03A.AsNoTracking().Single(p => p.NO_BUKTI == nobuk);
-            var detailPackinglistInDb = ErasoftDbContext.SOT03B.AsNoTracking().Where(dp => dp.NO_BUKTI == packinglistInDb.NO_BUKTI).ToList();
-            var detailBrgPackinglistInDb = ErasoftDbContext.SOT03C.AsNoTracking().Where(dp => dp.NO_BUKTI == packinglistInDb.NO_BUKTI).ToList();
+            var packinglistInDb = ErasoftDbContext.SOT03A.Single(p => p.NO_BUKTI == nobuk);
+            var detailPackinglistInDb = ErasoftDbContext.SOT03B.Where(dp => dp.NO_BUKTI == packinglistInDb.NO_BUKTI).ToList();
+            var detailBrgPackinglistInDb = ErasoftDbContext.SOT03C.Where(dp => dp.NO_BUKTI == packinglistInDb.NO_BUKTI).ToList();
 
             if (detailPackinglistInDb.Count > 0)
             {
@@ -43314,8 +43317,8 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                var pesananPackinglistInDb = ErasoftDbContext.SOT03B.AsNoTracking().Single(b => b.RecNum == noUrut);
-                var sot03c = ErasoftDbContext.SOT03C.AsNoTracking().Where(m => m.NO_BUKTI == pesananPackinglistInDb.NO_BUKTI && m.NO_PESANAN == pesananPackinglistInDb.NO_PESANAN).ToList();
+                var pesananPackinglistInDb = ErasoftDbContext.SOT03B.Single(b => b.RecNum == noUrut);
+                var sot03c = ErasoftDbContext.SOT03C.Where(m => m.NO_BUKTI == pesananPackinglistInDb.NO_BUKTI && m.NO_PESANAN == pesananPackinglistInDb.NO_PESANAN).ToList();
 
                 ErasoftDbContext.SOT03B.Remove(pesananPackinglistInDb);
                 if (sot03c.Count > 0)
@@ -43775,7 +43778,7 @@ namespace MasterOnline.Controllers
                 if(noresi != null && idpesanan != null)
                 {
 
-                    var dataPesanan = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => p.NO_BUKTI == idpesanan).SingleOrDefault();
+                    var dataPesanan = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == idpesanan).SingleOrDefault();
                     dataPesanan.TRACKING_SHIPMENT = noresi.ToString();
                     ErasoftDbContext.SaveChanges();
                     var successCount = listSuccess.Count();
@@ -48306,7 +48309,7 @@ namespace MasterOnline.Controllers
                         //end
 
                         //update tanggal selesai pesanan
-                        var dataFaktur = ErasoftDbContext.SIT01A.AsNoTracking().Where(p => p.NO_SO == Nobuk).SingleOrDefault();
+                        var dataFaktur = ErasoftDbContext.SIT01A.Where(p => p.NO_SO == Nobuk).SingleOrDefault();
                         if (dataFaktur != null)
                         {
                             dataFaktur.TGL_KIRIM = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
@@ -49409,6 +49412,7 @@ namespace MasterOnline.Controllers
                                         //end change by nurul 23/12/2019, perbaikan no bukti
 
                                         context.SIT01B.AddRange(listSIT01B);
+                                        EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '" + pesananInDb.STATUS_TRANSAKSI + "' , status_kirim = '" + pesananInDb.status_kirim + "' where RecNum='" + eachSO.RecNum + "' ");
                                         context.SaveChanges();
 
                                         //add by nurul 6/2/2020, tambah update sit01a untuk trigger create art01d

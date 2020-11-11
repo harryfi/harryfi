@@ -1672,7 +1672,7 @@ namespace MasterOnline.Controllers
                                                                                                     kodePembeli = dataPembeli.BUYER_CODE;
                                                                                                 }
 
-                                                                                                var checkDuplicateHeader = eraDB.SOT01A.AsNoTracking().Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
+                                                                                                var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
                                                                                                 if (checkDuplicateHeader == null)
                                                                                                 {
                                                                                                     var lastBukti = new ManageController().GenerateAutoNumber(eraDB, "SU", "SOT01A", "NO_BUKTI");
@@ -1776,7 +1776,7 @@ namespace MasterOnline.Controllers
                                                                                                             // error log terjadi error pada insert header pesanan
                                                                                                         }
 
-                                                                                                        checkDuplicateHeader = eraDB.SOT01A.AsNoTracking().Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
+                                                                                                        checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
                                                                                                         if (checkDuplicateHeader != null)
                                                                                                         {
                                                                                                             //transaction.Rollback();
@@ -1888,7 +1888,7 @@ namespace MasterOnline.Controllers
                                                                                                         var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                                                         // error log terjadi error pada insert detail pesanan
                                                                                                     }
-                                                                                                    checkDuplicateHeader = eraDB.SOT01A.AsNoTracking().Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
+                                                                                                    checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
                                                                                                     if (checkDuplicateHeader != null)
                                                                                                     {
                                                                                                         //transaction.Rollback();
@@ -1940,7 +1940,7 @@ namespace MasterOnline.Controllers
                                                                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                                                     // log error masukan ke log tidak ada databarang marketplace di STF02H
                                                                                                 }
-                                                                                                var checkDuplicateHeader = eraDB.SOT01A.AsNoTracking().Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
+                                                                                                var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
                                                                                                 if (checkDuplicateHeader != null)
                                                                                                 {
                                                                                                     //transaction.Rollback();
@@ -1981,7 +1981,7 @@ namespace MasterOnline.Controllers
                                                                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                                                 // log error masukan ke log tidak ada databarang marketplace di STF02H
                                                                                             }
-                                                                                            var checkDuplicateHeader = eraDB.SOT01A.AsNoTracking().Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
+                                                                                            var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
                                                                                             if (checkDuplicateHeader != null)
                                                                                             {
                                                                                                 //transaction.Rollback();
@@ -2019,7 +2019,7 @@ namespace MasterOnline.Controllers
                                                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                                             // log error masukan log tidak ada data toko
                                                                                         }
-                                                                                        var checkDuplicateHeader = eraDB.SOT01A.AsNoTracking().Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
+                                                                                        var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == dataToko.CUST).FirstOrDefault();
                                                                                         if (checkDuplicateHeader != null)
                                                                                         {
                                                                                             //transaction.Rollback();
@@ -2057,7 +2057,7 @@ namespace MasterOnline.Controllers
                                                                                         var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                                         // log error masukan log tidak ada data kurir
                                                                                     }
-                                                                                    var checkDuplicateHeader = eraDB.SOT01A.AsNoTracking().Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
+                                                                                    var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                                                     if (checkDuplicateHeader != null)
                                                                                     {
                                                                                         //transaction.Rollback();
@@ -2095,7 +2095,7 @@ namespace MasterOnline.Controllers
                                                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                                     //log error masukan log tidak ada barang di DB
                                                                                 }
-                                                                                var checkDuplicateHeader = eraDB.SOT01A.AsNoTracking().Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
+                                                                                var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                                                 if (checkDuplicateHeader != null)
                                                                                 {
                                                                                     //transaction.Rollback();
@@ -2134,7 +2134,7 @@ namespace MasterOnline.Controllers
                                                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                                 //log error masukan log kode barang lebih dari 20 karakter
                                                                             }
-                                                                            var checkDuplicateHeader = eraDB.SOT01A.AsNoTracking().Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
+                                                                            var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                                             if (checkDuplicateHeader != null)
                                                                             {
                                                                                 //transaction.Rollback();
@@ -2181,7 +2181,7 @@ namespace MasterOnline.Controllers
                                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                             //log error masukan log harga satuan kosong
                                                                         }
-                                                                        var checkDuplicateHeader = eraDB.SOT01A.AsNoTracking().Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
+                                                                        var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                                         if (checkDuplicateHeader != null)
                                                                         {
                                                                             //transaction.Rollback();
@@ -2219,7 +2219,7 @@ namespace MasterOnline.Controllers
                                                                         var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                         //log error masukan log kode barang kosong
                                                                     }
-                                                                    var checkDuplicateHeader = eraDB.SOT01A.AsNoTracking().Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
+                                                                    var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                                     if (checkDuplicateHeader != null)
                                                                     {
                                                                         //transaction.Rollback();
@@ -2257,7 +2257,7 @@ namespace MasterOnline.Controllers
                                                                     var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                     //log error masukan log ada koma
                                                                 }
-                                                                var checkDuplicateHeader = eraDB.SOT01A.AsNoTracking().Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
+                                                                var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                                 if (checkDuplicateHeader != null)
                                                                 {
                                                                     //transaction.Rollback();
@@ -2295,7 +2295,7 @@ namespace MasterOnline.Controllers
                                                                 var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                                 //log error masukan log ada titik
                                                             }
-                                                            var checkDuplicateHeader = eraDB.SOT01A.AsNoTracking().Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
+                                                            var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                             if (checkDuplicateHeader != null)
                                                             {
                                                                 //transaction.Rollback();
@@ -2333,7 +2333,7 @@ namespace MasterOnline.Controllers
                                                             var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                             //log error masukan log tidak ada no telepon
                                                         }
-                                                        var checkDuplicateHeader = eraDB.SOT01A.AsNoTracking().Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
+                                                        var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                         if (checkDuplicateHeader != null)
                                                         {
                                                             //transaction.Rollback();
@@ -2373,7 +2373,7 @@ namespace MasterOnline.Controllers
                                                         var result = EDB.ExecuteSQL("Constring", CommandType.Text, queryInsertLogError + InsertLogError);
                                                         //log error masukan log kode kurir kosong
                                                     }
-                                                    var checkDuplicateHeader = eraDB.SOT01A.AsNoTracking().Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
+                                                    var checkDuplicateHeader = eraDB.SOT01A.Where(p => p.NO_REFERENSI == no_referensi && p.CUST == noCust).FirstOrDefault();
                                                     if (checkDuplicateHeader != null)
                                                     {
                                                         //transaction.Rollback();
