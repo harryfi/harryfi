@@ -492,7 +492,10 @@ namespace MasterOnline.Controllers
                     {
                         namafullVariant += itemData.NAMA3;
                     }
-                    paramSKUVariant += "{\"costPrice\":" + itemData.HJUAL + ",\"jdPrice\":" + itemData.HJUAL + ", \"saleAttributeIds\":\""+ listattributeIDGroup + "\", \"sellerSkuId\":\"" + itemData.BRG + "\", \"skuName\":\"" + namafullVariant + "\", \"stock\":" + qty_stock + ", \"upc\":\"upc\" } ,";
+
+                    var detailBrgMP = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == itemData.BRG.ToUpper() && b.IDMARKET == marketplace.RecNum && b.DISPLAY == true).FirstOrDefault();
+
+                    paramSKUVariant += "{\"costPrice\":" + detailBrgMP.HJUAL + ",\"jdPrice\":" + detailBrgMP.HJUAL + ", \"saleAttributeIds\":\""+ listattributeIDGroup + "\", \"sellerSkuId\":\"" + detailBrgMP.BRG + "\", \"skuName\":\"" + namafullVariant + "\", \"stock\":" + qty_stock + ", \"upc\":\"upc\" } ,";
                 }
                 
                 if(paramSKUVariant.Length > 0 && listattributeIDAllVariantGroup.Length > 0)
@@ -1118,7 +1121,9 @@ namespace MasterOnline.Controllers
                                                             namafullVariant += itemDatas.NAMA3;
                                                         }
 
-                                                        JD_updateSKU(data, namafullVariant, itemDatas.BRG, itemDatas.HJUAL.ToString(), itemDatas.HJUAL.ToString(), dataSKU.skuId.ToString());
+                                                        var detailBrgMP = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == itemDatas.BRG.ToUpper() && b.IDMARKET == marketplace.RecNum && b.DISPLAY == true).FirstOrDefault();
+
+                                                        JD_updateSKU(data, namafullVariant, itemDatas.BRG, detailBrgMP.HJUAL.ToString(), detailBrgMP.HJUAL.ToString(), dataSKU.skuId.ToString());
 
                                                         if (lGambarUploaded.Count() > 0)
                                                         {
@@ -1166,7 +1171,7 @@ namespace MasterOnline.Controllers
                                                     namafullVariant += brgInDb.NAMA3;
                                                 }
 
-                                                JD_updateSKU(data, namafullVariant, brgInDb.BRG, brgInDb.HJUAL.ToString(), brgInDb.HJUAL.ToString(), dataSKU.skuId.ToString());
+                                                JD_updateSKU(data, namafullVariant, detailBrg.BRG, detailBrg.HJUAL.ToString(), detailBrg.HJUAL.ToString(), dataSKU.skuId.ToString());
 
                                                 if (lGambarUploaded.Count() > 0)
                                                 {
@@ -1203,30 +1208,35 @@ namespace MasterOnline.Controllers
                             }
                             catch (Exception ex)
                             {
+                                throw new Exception(Convert.ToString(ex.Message));
                                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                             }
                         }
                         else
                         {
+                            throw new Exception(Convert.ToString(retData.message));
                             //currentLog.REQUEST_EXCEPTION = retStok.message;
                             //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                         }
                     }
                     else
                     {
+                        throw new Exception("No response API. Please contact support.");
                         //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
                         //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                     }
                 }
                 else
                 {
+                    throw new Exception("API error. Please contact support.");
                     //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                 }
             }
             else
             {
+                throw new Exception("API error. Please contact support.");
                 //currentLog.REQUEST_EXCEPTION = response;
                 //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
             }
