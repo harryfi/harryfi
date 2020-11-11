@@ -402,10 +402,17 @@
                                 //$('#labelContainer').html(response);
 
                                 //window.open(response, "_self");
-                                var w = window.open('about:blank');
-                                w.document.open();
-                                w.document.write(response);
-                                w.document.close();
+                                //var w = window.open('about:blank');  // Remark by fauzi for print label LAZADA to pdf all merge.
+                                //w.document.open();
+                                //w.document.write(response);
+                                //w.document.close();
+
+                                if (response.mo_label != null) {
+                                    //response.mo_label.forEach(function (item) {
+                                    window.open('/Manage/Download_PrintLabel?path=' + response.mo_label, '_blank');
+                                    textareaValue += response.mo_label + "</br>";
+                                    //});
+                                }
                             } else {
                                 alert(response.mo_error);
                             }
