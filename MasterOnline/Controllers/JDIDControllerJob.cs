@@ -498,7 +498,8 @@ namespace MasterOnline.Controllers
                 {
                     paramSKUVariant = paramSKUVariant.Substring(0, paramSKUVariant.Length - 1);
                     listattributeIDAllVariantGroup = listattributeIDAllVariantGroup.Substring(0, listattributeIDAllVariantGroup.Length - 1);
-                    commonAttribute = listattributeIDAllVariantGroup;
+                    commonAttribute = "\"commonAttributeIds\":\"" + listattributeIDAllVariantGroup + "\", ";
+
                 }               
 
                 #endregion
@@ -506,46 +507,48 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                if (!string.IsNullOrEmpty(detailBrg.ACODE_1) && !detailBrg.ANAME_1.Contains("Coming Soon"))
-                {
-                    commonAttribute = detailBrg.ACODE_1 + ":" + detailBrg.AVALUE_1;
-                }
-                if (!string.IsNullOrEmpty(detailBrg.ACODE_2) && !detailBrg.ANAME_2.Contains("Coming Soon"))
-                {
-                    commonAttribute += ";" + detailBrg.ACODE_2 + ":" + detailBrg.AVALUE_2;
-                }
-                if (!string.IsNullOrEmpty(detailBrg.ACODE_3) && !detailBrg.ANAME_3.Contains("Coming Soon"))
-                {
-                    commonAttribute += ";" + detailBrg.ACODE_3 + ":" + detailBrg.AVALUE_3;
-                }
-                if (!string.IsNullOrEmpty(detailBrg.ACODE_4) && !detailBrg.ANAME_4.Contains("Coming Soon"))
-                {
-                    commonAttribute += ";" + detailBrg.ACODE_4 + ":" + detailBrg.AVALUE_4;
-                }
-                if (!string.IsNullOrEmpty(detailBrg.ACODE_5) && !detailBrg.ANAME_5.Contains("Coming Soon"))
-                {
-                    commonAttribute += ";" + detailBrg.ACODE_5 + ":" + detailBrg.AVALUE_5;
-                }
-                if (!string.IsNullOrEmpty(detailBrg.ACODE_6) && !detailBrg.ANAME_6.Contains("Coming Soon"))
-                {
-                    commonAttribute += ";" + detailBrg.ACODE_6 + ":" + detailBrg.AVALUE_6;
-                }
-                if (!string.IsNullOrEmpty(detailBrg.ACODE_7) && !detailBrg.ANAME_7.Contains("Coming Soon"))
-                {
-                    commonAttribute += ";" + detailBrg.ACODE_7 + ":" + detailBrg.AVALUE_7;
-                }
-                if (!string.IsNullOrEmpty(detailBrg.ACODE_8) && !detailBrg.ANAME_8.Contains("Coming Soon"))
-                {
-                    commonAttribute += ";" + detailBrg.ACODE_8 + ":" + detailBrg.AVALUE_8;
-                }
-                if (!string.IsNullOrEmpty(detailBrg.ACODE_9) && !detailBrg.ANAME_9.Contains("Coming Soon"))
-                {
-                    commonAttribute += ";" + detailBrg.ACODE_9 + ":" + detailBrg.AVALUE_9;
-                }
-                if (!string.IsNullOrEmpty(detailBrg.ACODE_10) && !detailBrg.ANAME_10.Contains("Coming Soon"))
-                {
-                    commonAttribute += ";" + detailBrg.ACODE_10 + ":" + detailBrg.AVALUE_10;
-                }
+                //if (!string.IsNullOrEmpty(detailBrg.ACODE_1) && !detailBrg.ANAME_1.Contains("Coming Soon"))
+                //{
+                //    commonAttribute = detailBrg.ACODE_1 + ":" + detailBrg.AVALUE_1;
+                //}
+                //if (!string.IsNullOrEmpty(detailBrg.ACODE_2) && !detailBrg.ANAME_2.Contains("Coming Soon"))
+                //{
+                //    commonAttribute += ";" + detailBrg.ACODE_2 + ":" + detailBrg.AVALUE_2;
+                //}
+                //if (!string.IsNullOrEmpty(detailBrg.ACODE_3) && !detailBrg.ANAME_3.Contains("Coming Soon"))
+                //{
+                //    commonAttribute += ";" + detailBrg.ACODE_3 + ":" + detailBrg.AVALUE_3;
+                //}
+                //if (!string.IsNullOrEmpty(detailBrg.ACODE_4) && !detailBrg.ANAME_4.Contains("Coming Soon"))
+                //{
+                //    commonAttribute += ";" + detailBrg.ACODE_4 + ":" + detailBrg.AVALUE_4;
+                //}
+                //if (!string.IsNullOrEmpty(detailBrg.ACODE_5) && !detailBrg.ANAME_5.Contains("Coming Soon"))
+                //{
+                //    commonAttribute += ";" + detailBrg.ACODE_5 + ":" + detailBrg.AVALUE_5;
+                //}
+                //if (!string.IsNullOrEmpty(detailBrg.ACODE_6) && !detailBrg.ANAME_6.Contains("Coming Soon"))
+                //{
+                //    commonAttribute += ";" + detailBrg.ACODE_6 + ":" + detailBrg.AVALUE_6;
+                //}
+                //if (!string.IsNullOrEmpty(detailBrg.ACODE_7) && !detailBrg.ANAME_7.Contains("Coming Soon"))
+                //{
+                //    commonAttribute += ";" + detailBrg.ACODE_7 + ":" + detailBrg.AVALUE_7;
+                //}
+                //if (!string.IsNullOrEmpty(detailBrg.ACODE_8) && !detailBrg.ANAME_8.Contains("Coming Soon"))
+                //{
+                //    commonAttribute += ";" + detailBrg.ACODE_8 + ":" + detailBrg.AVALUE_8;
+                //}
+                //if (!string.IsNullOrEmpty(detailBrg.ACODE_9) && !detailBrg.ANAME_9.Contains("Coming Soon"))
+                //{
+                //    commonAttribute += ";" + detailBrg.ACODE_9 + ":" + detailBrg.AVALUE_9;
+                //}
+                //if (!string.IsNullOrEmpty(detailBrg.ACODE_10) && !detailBrg.ANAME_10.Contains("Coming Soon"))
+                //{
+                //    commonAttribute += ";" + detailBrg.ACODE_10 + ":" + detailBrg.AVALUE_10;
+                //}
+
+                //commonAttribute = "\"commonAttributeIds\":\"" + commonAttribute + "\", ";
 
                 paramSKUVariant = "{\"costPrice\":" + detailBrg.HJUAL + ",\"jdPrice\":" + detailBrg.HJUAL + ", \"sellerSkuId\":\"" + detailBrg.BRG + "\", \"skuName\":\"" + namafull + "\", \"stock\":" + qty_stock + ", \"upc\":\"upc\" }";
             }
@@ -560,7 +563,7 @@ namespace MasterOnline.Controllers
             string sParamJson = "{\"spuInfo\":{\"spuName\":\"" + namafull + "\", " +
                 "\"appDescription\":\"" + vDescription + "\", " +
                 "\"description\":\"" + vDescription + "\", \"packageInfo\":\"PAKET INFO\", " +
-                "\"brandId\":" + detailBrg.AVALUE_38 + ", \"catId\":" + detailBrg.CATEGORY_CODE + ", \"commonAttributeIds\":\"" + commonAttribute + "\", \"isSequenceNumber\":1, \"keywords\":\"" + detailBrg.AVALUE_46 + "\", \"productArea\":\""+ detailBrg.ACODE_47 + "\", " +
+                "\"brandId\":" + detailBrg.AVALUE_38 + ", \"catId\":" + detailBrg.CATEGORY_CODE + ", " + commonAttribute + " \"isSequenceNumber\":1, \"keywords\":\"" + detailBrg.AVALUE_46 + "\", \"productArea\":\""+ detailBrg.ACODE_47 + "\", " +
                 "\"crossProductType\":\"1\", \"clearanceType\":\"2\" , \"taxesType\":\"2\", \"countryId\":\"10000000\", " +
                 paramHref +
                 "\"subtitle\":\""+detailBrg.AVALUE_43+"\", \"transportId\":42, \"isQuality\":" + detailBrg.AVALUE_47 + ", " +
@@ -776,6 +779,46 @@ namespace MasterOnline.Controllers
             return "";
         }
 
+        public async Task<string> JD_updateSKU(JDIDAPIDataJob data, string sSKUName, string sSellerSKUID, string sJDPrice, string sCostPrice, string sSKUID)
+        {
+            try
+            {
+                //string result = "";
+                string sMethod = "epi.ware.openapi.SkuApi.updateSkuInfo";
+                string sParamJson = "{ \"skuInfo\": " +
+                "{\"skuId\":\"" + sSKUID + "\",  \"skuName\":\"" + sSKUName + "\", \"sellerSkuId\":\"" + sSellerSKUID + "\", \"jdPrice\":" + sJDPrice + ", " +
+                "\"costPrice\":" + sCostPrice + "}}";
+
+                var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
+                var ret = JsonConvert.DeserializeObject(response, typeof(JDID_ResultAddSKUMainPicture)) as JDID_ResultAddSKUMainPicture;
+                if (ret != null)
+                {
+                    if (ret.openapi_msg.ToLower() == "success")
+                    {
+                        if (ret.openapi_data != null)
+                        {
+                           
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(ret.openapi_msg.ToString());
+                    }
+                }
+                else
+                {
+                    throw new Exception("Tidak ada respon dari API.");
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                throw new Exception(msg);
+            }
+
+            return "";
+        }
+
         [AutomaticRetry(Attempts = 0)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Product {obj} ke JDID Gagal.")]
@@ -811,7 +854,8 @@ namespace MasterOnline.Controllers
             vDescription = vDescription.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
             vDescription = vDescription.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
             vDescription = vDescription.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
-            //vDescription = vDescription.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
+            vDescription = vDescription.Replace("<p>", "").Replace("</p>", "");
+            vDescription = vDescription.Replace("\r", "");
             //HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
             //HttpBody.description = HttpBody.description.Replace("&nbsp;", "");
 
@@ -884,46 +928,46 @@ namespace MasterOnline.Controllers
             }
 
             var commonAttribute = "";
-            if (!string.IsNullOrEmpty(detailBrg.ACODE_1) && !detailBrg.ANAME_1.Contains("Coming Soon"))
-            {
-                commonAttribute = detailBrg.ACODE_1 + ":" + detailBrg.AVALUE_1;
-            }
-            if (!string.IsNullOrEmpty(detailBrg.ACODE_2) && !detailBrg.ANAME_2.Contains("Coming Soon"))
-            {
-                commonAttribute += ";" + detailBrg.ACODE_2 + ":" + detailBrg.AVALUE_2;
-            }
-            if (!string.IsNullOrEmpty(detailBrg.ACODE_3) && !detailBrg.ANAME_3.Contains("Coming Soon"))
-            {
-                commonAttribute += ";" + detailBrg.ACODE_3 + ":" + detailBrg.AVALUE_3;
-            }
-            if (!string.IsNullOrEmpty(detailBrg.ACODE_4) && !detailBrg.ANAME_4.Contains("Coming Soon"))
-            {
-                commonAttribute += ";" + detailBrg.ACODE_4 + ":" + detailBrg.AVALUE_4;
-            }
-            if (!string.IsNullOrEmpty(detailBrg.ACODE_5) && !detailBrg.ANAME_5.Contains("Coming Soon"))
-            {
-                commonAttribute += ";" + detailBrg.ACODE_5 + ":" + detailBrg.AVALUE_5;
-            }
-            if (!string.IsNullOrEmpty(detailBrg.ACODE_6) && !detailBrg.ANAME_6.Contains("Coming Soon"))
-            {
-                commonAttribute += ";" + detailBrg.ACODE_6 + ":" + detailBrg.AVALUE_6;
-            }
-            if (!string.IsNullOrEmpty(detailBrg.ACODE_7) && !detailBrg.ANAME_7.Contains("Coming Soon"))
-            {
-                commonAttribute += ";" + detailBrg.ACODE_7 + ":" + detailBrg.AVALUE_7;
-            }
-            if (!string.IsNullOrEmpty(detailBrg.ACODE_8) && !detailBrg.ANAME_8.Contains("Coming Soon"))
-            {
-                commonAttribute += ";" + detailBrg.ACODE_8 + ":" + detailBrg.AVALUE_8;
-            }
-            if (!string.IsNullOrEmpty(detailBrg.ACODE_9) && !detailBrg.ANAME_9.Contains("Coming Soon"))
-            {
-                commonAttribute += ";" + detailBrg.ACODE_9 + ":" + detailBrg.AVALUE_9;
-            }
-            if (!string.IsNullOrEmpty(detailBrg.ACODE_10) && !detailBrg.ANAME_10.Contains("Coming Soon"))
-            {
-                commonAttribute += ";" + detailBrg.ACODE_10 + ":" + detailBrg.AVALUE_10;
-            }
+            //if (!string.IsNullOrEmpty(detailBrg.ACODE_1) && !detailBrg.ANAME_1.Contains("Coming Soon"))
+            //{
+            //    commonAttribute = detailBrg.ACODE_1 + ":" + detailBrg.AVALUE_1;
+            //}
+            //if (!string.IsNullOrEmpty(detailBrg.ACODE_2) && !detailBrg.ANAME_2.Contains("Coming Soon"))
+            //{
+            //    commonAttribute += ";" + detailBrg.ACODE_2 + ":" + detailBrg.AVALUE_2;
+            //}
+            //if (!string.IsNullOrEmpty(detailBrg.ACODE_3) && !detailBrg.ANAME_3.Contains("Coming Soon"))
+            //{
+            //    commonAttribute += ";" + detailBrg.ACODE_3 + ":" + detailBrg.AVALUE_3;
+            //}
+            //if (!string.IsNullOrEmpty(detailBrg.ACODE_4) && !detailBrg.ANAME_4.Contains("Coming Soon"))
+            //{
+            //    commonAttribute += ";" + detailBrg.ACODE_4 + ":" + detailBrg.AVALUE_4;
+            //}
+            //if (!string.IsNullOrEmpty(detailBrg.ACODE_5) && !detailBrg.ANAME_5.Contains("Coming Soon"))
+            //{
+            //    commonAttribute += ";" + detailBrg.ACODE_5 + ":" + detailBrg.AVALUE_5;
+            //}
+            //if (!string.IsNullOrEmpty(detailBrg.ACODE_6) && !detailBrg.ANAME_6.Contains("Coming Soon"))
+            //{
+            //    commonAttribute += ";" + detailBrg.ACODE_6 + ":" + detailBrg.AVALUE_6;
+            //}
+            //if (!string.IsNullOrEmpty(detailBrg.ACODE_7) && !detailBrg.ANAME_7.Contains("Coming Soon"))
+            //{
+            //    commonAttribute += ";" + detailBrg.ACODE_7 + ":" + detailBrg.AVALUE_7;
+            //}
+            //if (!string.IsNullOrEmpty(detailBrg.ACODE_8) && !detailBrg.ANAME_8.Contains("Coming Soon"))
+            //{
+            //    commonAttribute += ";" + detailBrg.ACODE_8 + ":" + detailBrg.AVALUE_8;
+            //}
+            //if (!string.IsNullOrEmpty(detailBrg.ACODE_9) && !detailBrg.ANAME_9.Contains("Coming Soon"))
+            //{
+            //    commonAttribute += ";" + detailBrg.ACODE_9 + ":" + detailBrg.AVALUE_9;
+            //}
+            //if (!string.IsNullOrEmpty(detailBrg.ACODE_10) && !detailBrg.ANAME_10.Contains("Coming Soon"))
+            //{
+            //    commonAttribute += ";" + detailBrg.ACODE_10 + ":" + detailBrg.AVALUE_10;
+            //}
 
             string sMethod = "epi.ware.openapi.SpuApi.updateSpuInfo";
 
@@ -940,87 +984,82 @@ namespace MasterOnline.Controllers
                 paramQualityAsurance = " \"qualityDays\":" + detailBrg.ANAME_47 + ", ";
             }
 
-            var paramSKUVariant = "";
+            //var paramSKUVariant = "";
 
             if (brgInDb.TYPE == "4") // punya variasi
             {
                 //handle variasi product
                 #region variasi product
-                //var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
-                //var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "JDID").ToList().OrderBy(p => p.RECNUM);
+                var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
+                var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "JDID").ToList().OrderBy(p => p.RECNUM);
 
-                //foreach (var itemData in var_stf02)
-                //{
-                //    #region varian LV1
-                //    if (!string.IsNullOrEmpty(itemData.Sort8))
-                //    {
-                //        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == itemData.Sort8).FirstOrDefault();
-                //        listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
-                //        listattributeIDAllVariantGroup += variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
-                //    }
-                //    #endregion
+                foreach (var itemData in var_stf02)
+                {
+                    #region varian LV1
+                    if (!string.IsNullOrEmpty(itemData.Sort8))
+                    {
+                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == itemData.Sort8).FirstOrDefault();
+                        if (!listattributeIDAllVariantGroup.Contains(variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR))
+                            listattributeIDAllVariantGroup += variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
+                    }
+                    #endregion
 
-                //    #region varian LV2
-                //    if (!string.IsNullOrEmpty(itemData.Sort9))
-                //    {
-                //        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == itemData.Sort9).FirstOrDefault();
-                //        listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
-                //        listattributeIDAllVariantGroup += variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
-                //    }
-                //    #endregion
+                    #region varian LV2
+                    if (!string.IsNullOrEmpty(itemData.Sort9))
+                    {
+                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == itemData.Sort9).FirstOrDefault();
+                        if (!listattributeIDAllVariantGroup.Contains(variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR))
+                            listattributeIDAllVariantGroup += variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
+                    }
+                    #endregion
 
-                //    #region varian LV3
-                //    if (!string.IsNullOrEmpty(itemData.Sort10))
-                //    {
-                //        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
-                //        listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
-                //        listattributeIDAllVariantGroup += variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
-                //    }
-                //    #endregion
+                    #region varian LV3
+                    if (!string.IsNullOrEmpty(itemData.Sort10))
+                    {
+                        var variant_id_group = var_strukturVar.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
+                        if (!listattributeIDAllVariantGroup.Contains(variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR))
+                            listattributeIDAllVariantGroup += variant_id_group.MP_JUDUL_VAR + ":" + variant_id_group.MP_VALUE_VAR + ";";
+                    }
+                    #endregion
+                    
+                    var namafullVariant = "";
+                    namafullVariant = itemData.NAMA;
+                    if (!string.IsNullOrEmpty(itemData.NAMA2))
+                    {
+                        namafullVariant += itemData.NAMA2;
+                    }
+                    if (!string.IsNullOrEmpty(itemData.NAMA3))
+                    {
+                        namafullVariant += itemData.NAMA3;
+                    }
+                }
 
-                //    if (listattributeIDGroup.Length > 0)
-                //    {
-                //        listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
+                if (listattributeIDAllVariantGroup.Length > 0)
+                {
+                    listattributeIDAllVariantGroup = listattributeIDAllVariantGroup.Substring(0, listattributeIDAllVariantGroup.Length - 1);
+                    commonAttribute = "\"commonAttributeIds\":\"" + listattributeIDAllVariantGroup + "\", ";
 
-                //    }
-
-                //    var namafullVariant = "";
-                //    namafullVariant = itemData.NAMA;
-                //    if (!string.IsNullOrEmpty(itemData.NAMA2))
-                //    {
-                //        namafullVariant += itemData.NAMA2;
-                //    }
-                //    if (!string.IsNullOrEmpty(itemData.NAMA3))
-                //    {
-                //        namafullVariant += itemData.NAMA3;
-                //    }
-                //    paramSKUVariant += "{\"costPrice\":" + itemData.HJUAL + ",\"jdPrice\":" + itemData.HJUAL + ", \"saleAttributeIds\":\"" + listattributeIDGroup + "\", \"sellerSkuId\":\"" + itemData.BRG + "\", \"skuName\":\"" + namafullVariant + "\", \"stock\":" + qty_stock + ", \"upc\":\"upc\" } ,";
-                //}
-
-                //if (paramSKUVariant.Length > 0 && listattributeIDAllVariantGroup.Length > 0)
-                //{
-                //    paramSKUVariant = paramSKUVariant.Substring(0, paramSKUVariant.Length - 1);
-                //    listattributeIDAllVariantGroup = listattributeIDAllVariantGroup.Substring(0, listattributeIDAllVariantGroup.Length - 1);
-                //    commonAttribute = listattributeIDAllVariantGroup;
-                //}
+                }
 
                 #endregion
                 //end handle variasi product
             }
             else
             {
-                paramSKUVariant = "{\"costPrice\":" + detailBrg.HJUAL + ",\"jdPrice\":" + detailBrg.HJUAL + ", \"sellerSkuId\":\"" + detailBrg.BRG + "\", \"skuName\":\"" + namafull + "\", \"stock\":" + qty_stock + ", \"upc\":\"upc\" }";
+                //paramSKUVariant = "{\"costPrice\":" + detailBrg.HJUAL + ",\"jdPrice\":" + detailBrg.HJUAL + ", \"sellerSkuId\":\"" + detailBrg.BRG + "\", \"skuName\":\"" + namafull + "\", \"stock\":" + qty_stock + ", \"upc\":\"upc\" }";
             }
 
             string sParamJson = "{\"spuInfo\":{\"spuName\":\"" + namafull + "\", \"spuId\":"+ spuID[0] + ", " +
-                //"\"appDescription\":\"" + vDescription + "\", " +
-                "\"description\":\"" + vDescription + "\", \"packageInfo\":\"PAKET INFO\", " +
-                "\"brandId\":" + detailBrg.AVALUE_38 + ", \"catId\":" + detailBrg.CATEGORY_CODE + ", \"commonAttributeIds\":\"" + commonAttribute + "\", \"isSequenceNumber\":1, \"keywords\":\"" + detailBrg.AVALUE_46 + "\", \"productArea\":\"" + detailBrg.ACODE_47 + "\", " +
+                //"\"packageInfo\":\"PAKET INFO\", " +
+                "\"brandId\":" + detailBrg.AVALUE_38 + ", \"catId\":" + detailBrg.CATEGORY_CODE + ", " + commonAttribute + " \"isSequenceNumber\":1, \"keywords\":\"" + detailBrg.AVALUE_46 + "\", \"productArea\":\"" + detailBrg.ACODE_47 + "\", " +
                 "\"crossProductType\":\"1\", \"clearanceType\":\"2\" , \"taxesType\":\"2\", \"countryId\":\"10000000\", " +
                 "\"subtitle\":\""+ detailBrg.AVALUE_43 +"\", \"subtitleHref\":\"" + urlHref + "\", \"subtitleHrefM\":\"" + urlHref + "\", \"transportId\":42, \"isQuality\":" + detailBrg.AVALUE_47 + ", " +
                 paramQualityAsurance +
                 "\"warrantyPeriod\":" + detailBrg.ACODE_41 + ", \"afterSale\":" + detailBrg.ACODE_40 + ", \"whetherCod\":" + detailBrg.AVALUE_45 + ", " +
-                "\"weight\":\"" + weight + "\",  \"Piece\": \"" + detailBrg.ACODE_39 + "\" , \"netWeight\":\"" + weight + "\", \"packHeight\":\"" + brgInDb.TINGGI + "\", \"packLong\":\"" + brgInDb.PANJANG + "\", \"packWide\":\"" + brgInDb.LEBAR + "\" }}";
+                "\"weight\":\"" + weight + "\",  \"piece\":0, \"netWeight\":\"" + weight + "\", \"packHeight\":\"" + brgInDb.TINGGI + "\", \"packLong\":\"" + brgInDb.PANJANG + "\", \"packWide\":\"" + brgInDb.LEBAR + "\"," +
+                "\"appDescription\":\"" + vDescription + "\"" +
+                //", \"description\":\"" + vDescription + "\"" + 
+                "}}";
             //"\"skuList\":[ " +
             //paramSKUVariant +
             ////"{\"costPrice\":" + detailBrg.HJUAL + ", \"jdPrice\":" + detailBrg.HJUAL + ", \"sellerSkuId\":\"" + detailBrg.BRG + "\", \"skuName\":\"" + namafull + "\", \"stock\":" + qty_stock + ", \"upc\":\"upc\" }" +
@@ -1059,15 +1098,19 @@ namespace MasterOnline.Controllers
                                                 {
                                                     if (dataSKU.sellerSkuId == itemDatas.BRG)
                                                     {
-                                                        //var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == itemDatas.BRG && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
-                                                        //if (item != null)
-                                                        //{
-                                                        //    item.BRG_MP = Convert.ToString(dataSKU.spuId) + ";" + dataSKU.skuId;
-                                                        //    item.LINK_STATUS = "Buat Produk Berhasil";
-                                                        //    item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
-                                                        //    item.LINK_ERROR = "0;Buat Produk;;";
-                                                        //    ErasoftDbContext.SaveChanges();
-                                                        //}
+                                                        var namafullVariant = "";
+                                                        namafullVariant = itemDatas.NAMA;
+                                                        if (!string.IsNullOrEmpty(itemDatas.NAMA2))
+                                                        {
+                                                            namafullVariant += itemDatas.NAMA2;
+                                                        }
+                                                        if (!string.IsNullOrEmpty(itemDatas.NAMA3))
+                                                        {
+                                                            namafullVariant += itemDatas.NAMA3;
+                                                        }
+
+                                                        JD_updateSKU(data, namafullVariant, itemDatas.BRG, itemDatas.HJUAL.ToString(), itemDatas.HJUAL.ToString(), dataSKU.skuId.ToString());
+
                                                         if (lGambarUploaded.Count() > 0)
                                                         {
                                                             JD_addSKUMainPicture(data, Convert.ToString(dataSKU.skuId), itemDatas.LINK_GAMBAR_1);
@@ -1103,15 +1146,19 @@ namespace MasterOnline.Controllers
                                             }
                                             else
                                             {
-                                                //var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
-                                                //if (item != null)
-                                                //{
-                                                //    item.BRG_MP = Convert.ToString(dataSKU.spuId) + ";" + dataSKU.skuId.ToString();
-                                                //    item.LINK_STATUS = "Buat Produk Berhasil";
-                                                //    item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
-                                                //    item.LINK_ERROR = "0;Buat Produk;;";
-                                                //    ErasoftDbContext.SaveChanges();
-                                                //}
+                                                var namafullVariant = "";
+                                                namafullVariant = brgInDb.NAMA;
+                                                if (!string.IsNullOrEmpty(brgInDb.NAMA2))
+                                                {
+                                                    namafullVariant += brgInDb.NAMA2;
+                                                }
+                                                if (!string.IsNullOrEmpty(brgInDb.NAMA3))
+                                                {
+                                                    namafullVariant += brgInDb.NAMA3;
+                                                }
+
+                                                JD_updateSKU(data, namafullVariant, brgInDb.BRG, brgInDb.HJUAL.ToString(), brgInDb.HJUAL.ToString(), dataSKU.skuId.ToString());
+
                                                 if (lGambarUploaded.Count() > 0)
                                                 {
                                                     JD_addSKUMainPicture(data, dataSKU.skuId.ToString(), brgInDb.LINK_GAMBAR_1);
