@@ -54,6 +54,10 @@ using Spire.Xls;
 using SelectPdf;
 // end add
 
+// add by fauzi 
+using System.Data.Entity;
+// end add
+
 namespace MasterOnline.Controllers
 {
     [SessionCheck]
@@ -363,6 +367,18 @@ namespace MasterOnline.Controllers
 
         // Function Tambahan (END)
 
+        // Function No Lock
+        public void SetNoLockOn(DbContext context)
+        {
+            context.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
+        }
+
+        public void SetNoLockOff(DbContext context)
+        {
+            context.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ COMMITTED");
+        }
+        //
+
         // =============================================== Dashboard (START)
 
         [Route("manage/home")]
@@ -385,6 +401,9 @@ namespace MasterOnline.Controllers
             long luserId = 0;
             long laccountId = 0;
             bool accessDashboard = false;
+
+            SetNoLockOn(MoDbContext);
+
             if (sessionData?.User != null)
             {
                 userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
@@ -455,6 +474,7 @@ namespace MasterOnline.Controllers
             else
             {
 
+                SetNoLockOn(ErasoftDbContext);
                 //#if (DEBUG || Debug_AWS)
                 //            var vm = new DashboardViewModel()
                 //            {
@@ -570,16 +590,13 @@ namespace MasterOnline.Controllers
                         //    .Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Count();
                         //// change by nurul 12/10/2018   var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC))}";
                         //var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.NETTO))}";
-                        var jumlahPesananToday = ListPesanan
-                            .Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Count();
+                        var jumlahPesananToday = ListPesanan.Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Count();
                         // change by nurul 12/10/2018   var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC))}";
                         //var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.NETTO)) ?? 0)}";
                         var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.BRUTO)) ?? 0)}";
 
 
-                        var jumlahPesananMonth = ListPesanan
-
-                            .Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth).Count();
+                        var jumlahPesananMonth = ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth).Count();
                         // change by nurul 12/10/2018   var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC))}";
                         //var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.NETTO)) ?? 0)}";
                         var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.BRUTO)) ?? 0)}";
@@ -706,6 +723,9 @@ namespace MasterOnline.Controllers
                 vm.BarangDibawahMinStokCount = ListBarangMinStok.COUNT_TRANSAKSI;
                 //end add by nurul 20/9/2019
 
+                SetNoLockOff(ErasoftDbContext);
+                SetNoLockOff(MoDbContext);
+
                 return PartialView(vm);
             }
         }
@@ -734,6 +754,7 @@ namespace MasterOnline.Controllers
         }
         public ActionResult RefreshDashboardLine(string tgl)
         {
+            SetNoLockOn(MoDbContext);
 
             // set security dashboard
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
@@ -874,7 +895,6 @@ namespace MasterOnline.Controllers
             else
             {
                 #region pesanan
-
                 //change by nurul 11/9/2019, tuning 
                 //var pesananTahunIni = ErasoftDbContext.SOT01A.Where(a => a.TGL.Value.Year == selectedDate.Year).ToList();
                 string ssql = "";
@@ -1988,6 +2008,7 @@ namespace MasterOnline.Controllers
                 }
                 //END CHANGE BY CALVIN 18 SEPTEMBER 2019
 
+                SetNoLockOff(MoDbContext);
                 #endregion
 
                 return PartialView("TableDashboardLinePartial", vm);
@@ -1997,6 +2018,7 @@ namespace MasterOnline.Controllers
 
         public ActionResult RefreshDashboardBaranglakuPartial(string drTgl, string sdTgl)
         {
+            SetNoLockOn(MoDbContext);
 
             var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
                 System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.AddMonths(-3));
@@ -2057,6 +2079,7 @@ namespace MasterOnline.Controllers
             }
             else
             {
+                SetNoLockOn(ErasoftDbContext);
                 string sSQL = "SELECT TOP 10 A.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2,'') AS NAMA,A.SUM_QTY AS QTY FROM ( ";
                 sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE B.TGL_INPUT >= '" + tempDrtgl + "' AND B.TGL_INPUT <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND BRG <> 'NOT_FOUND' GROUP BY BRG ";
                 //sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG ORDER BY SUM_QTY DESC ";
@@ -2072,6 +2095,8 @@ namespace MasterOnline.Controllers
                         Laku = true
                     });
                 }
+
+                SetNoLockOff(ErasoftDbContext);
 
                 //if (vm.ListBarang != null && vm.ListPesananDetail != null)
                 //{
@@ -2097,6 +2122,8 @@ namespace MasterOnline.Controllers
                 //    }
                 //}
 
+                SetNoLockOff(MoDbContext);
+
                 return PartialView("TableDashboardBarangLakuPartial", vm);
             }
         }
@@ -2108,6 +2135,7 @@ namespace MasterOnline.Controllers
         }
         public ActionResult RefreshDashboardFakturPartial(string drTgl, string sdTgl)
         {
+            SetNoLockOn(MoDbContext);
 
             var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
                 System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.AddMonths(-1));
@@ -2190,6 +2218,8 @@ namespace MasterOnline.Controllers
             }
             else
             {
+                SetNoLockOn(ErasoftDbContext);
+
                 string sSql = "";
                 //sSql += "SELECT SI.CUST,(ISNULL(MO.NAMAMARKET,'')  + ' (' + ISNULL(AR.PERSO,'') + ')') Market, SUM(SI.NETTO) AS Nilai, COUNT(SI.RECNUM) AS Jumlah ";
                 sSql += "SELECT SI.CUST,(ISNULL(MO.NAMAMARKET,'')  + ' (' + ISNULL(AR.PERSO,'') + ')') Market, SUM(SI.BRUTO) AS Nilai, COUNT(SI.RECNUM) AS Jumlah ";
@@ -2213,6 +2243,8 @@ namespace MasterOnline.Controllers
                         });
                     }
                 }
+                SetNoLockOff(ErasoftDbContext);
+                SetNoLockOff(MoDbContext);
                 //end change by nurul 13/9/2019, tuning
                 return PartialView("TableDashboardFakturPartial", vm);
             }
@@ -2240,6 +2272,7 @@ namespace MasterOnline.Controllers
         }
         public ActionResult RefreshDashboardBarangMinStok(string drTgl, string sdTgl)
         {
+            SetNoLockOn(MoDbContext);
 
             var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
                 System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.AddMonths(-1));
@@ -2315,7 +2348,7 @@ namespace MasterOnline.Controllers
             }
             else
             {
-
+                SetNoLockOn(ErasoftDbContext);
                 try
                 {
                     ErasoftDbContext.Database.ExecuteSqlCommand("DROP TABLE #A; DROP TABLE #B;");
@@ -2369,11 +2402,15 @@ namespace MasterOnline.Controllers
                     });
                 }
 
+                SetNoLockOff(ErasoftDbContext);
+                SetNoLockOff(MoDbContext);
+
                 return PartialView("TableDashboardBarangMinStokPartial", vm);
             }
         }
         public ActionResult RefreshDashboardBarangTidaklaku(string drTgl, string sdTgl)
         {
+            SetNoLockOn(MoDbContext);
 
             var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
                 System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.AddMonths(-1));
@@ -2433,7 +2470,7 @@ namespace MasterOnline.Controllers
             }
             else
             {
-
+                SetNoLockOn(ErasoftDbContext);
                 string sSql1 = "";
                 sSql1 += "SELECT A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA FROM  ";
                 sSql1 += "(SELECT B.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA FROM ";
@@ -2480,6 +2517,9 @@ namespace MasterOnline.Controllers
                     });
                 }
 
+                SetNoLockOff(ErasoftDbContext);
+                SetNoLockOff(MoDbContext);
+
                 return PartialView("TableDashboardBarangTidaklakuPartial", vm);
             }
         }
@@ -2494,6 +2534,7 @@ namespace MasterOnline.Controllers
         {
             try
             {
+                SetNoLockOn(MoDbContext);
                 var vm = new DashboardViewModel() { };
                 if (bulan != "" && tahun != "")
                 {
@@ -2538,6 +2579,7 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
+                        SetNoLockOn(ErasoftDbContext);
                         string sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from sit01a (NOLOCK) where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "' and jenis_form='2' ";
                         var TotalPenjualan = ErasoftDbContext.Database.SqlQuery<SUM_NettoSIPB>(sSQL1).Single();
                         sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from pbt01a (NOLOCK) where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "' and jenisform='3' ";
@@ -2545,8 +2587,11 @@ namespace MasterOnline.Controllers
                         vm.totalSI = TotalPenjualan.TOTAL;
                         vm.totalPB = TotalPembelian.TOTAL;
                         vm.selisih = TotalPenjualan.TOTAL - TotalPembelian.TOTAL;
+                        SetNoLockOff(ErasoftDbContext);
                     }
                 }
+
+                SetNoLockOff(MoDbContext);
                 return PartialView("TableDashboardArusKas", vm);
             }
             catch (Exception ex)
@@ -21394,6 +21439,7 @@ namespace MasterOnline.Controllers
             //EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SIFSYS SET TITIPAN = " + (packinglist ? "1" : "0"));
             EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SIFSYS SET EDIT_BONUS = " + (packinglist ? "1" : "0"));
             //end add 19/9/2019, packing list
+            
             for (int i = 0; i < get_selected.Length; i++)
             {
                 if (!string.IsNullOrEmpty(get_selected[i]))
@@ -21615,6 +21661,8 @@ namespace MasterOnline.Controllers
 
             ////return PartialView("TablePesananPartial", vm);
 
+            SetNoLockOn(ErasoftDbContext);
+
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
@@ -21773,6 +21821,9 @@ namespace MasterOnline.Controllers
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLTemp + sSQLSelect + sSQL2 + sSQLSelect2).ToList();
 
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
+
+            SetNoLockOff(ErasoftDbContext);
+
             return PartialView("TablePesananPartial", pageOrders);
 
             //end add by nurul 8/5/2019, paging 
@@ -22223,6 +22274,7 @@ namespace MasterOnline.Controllers
             //};
 
             //return PartialView("TablePesananSudahDibayarPartial", vm);
+            SetNoLockOn(ErasoftDbContext);
 
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
@@ -22373,6 +22425,9 @@ namespace MasterOnline.Controllers
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQL2).Single();
 
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
+
+            SetNoLockOff(ErasoftDbContext);
+
             return PartialView("TablePesananSudahDibayarPartial", pageOrders);
 
             //end change by nurul 8/5/2019, paging 
@@ -22599,6 +22654,8 @@ namespace MasterOnline.Controllers
             //};
 
             //return PartialView("TablePesananSiapKirimPartial", vm);
+            SetNoLockOn(ErasoftDbContext);
+
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
@@ -22748,6 +22805,9 @@ namespace MasterOnline.Controllers
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQL2).Single();
 
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
+
+            SetNoLockOff(ErasoftDbContext);
+
             return PartialView("TablePesananSiapKirimPartial", pageOrders);
 
             //end change by nurul 8/5/2019, paging 
@@ -22768,6 +22828,9 @@ namespace MasterOnline.Controllers
             //};
 
             //return PartialView("TablePesananSudahKirimPartial", vm);
+
+            SetNoLockOn(ErasoftDbContext);
+
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
@@ -22907,6 +22970,9 @@ namespace MasterOnline.Controllers
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQL2).Single();
 
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
+
+            SetNoLockOff(ErasoftDbContext);
+
             return PartialView("TablePesananSudahKirimPartial", pageOrders);
 
             //end change by nurul 8/5/2019, paging 
@@ -22932,6 +22998,8 @@ namespace MasterOnline.Controllers
             //};
 
             //return PartialView("TablePesananSelesaiPartial", vm);
+            SetNoLockOn(ErasoftDbContext);
+
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
@@ -23048,6 +23116,9 @@ namespace MasterOnline.Controllers
 
             //IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listPesanan, pagenumber + 1, 10, totalCount);
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
+
+            SetNoLockOff(ErasoftDbContext);
+
             return PartialView("TablePesananSelesaiPartial", pageOrders);
 
             //end change by nurul 8/5/2019, paging
@@ -23067,6 +23138,8 @@ namespace MasterOnline.Controllers
             //};
 
             //return PartialView("TablePesananCancelPartial", vm);
+            SetNoLockOn(ErasoftDbContext);
+
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
@@ -23181,6 +23254,9 @@ namespace MasterOnline.Controllers
 
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
             //IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listPesanan, pagenumber + 1, 10, totalCount);
+
+            SetNoLockOff(ErasoftDbContext);
+
             return PartialView("TablePesananCancelPartial", pageOrders);
 
             //end change by nurul 8/5/2019, paging
@@ -48534,6 +48610,8 @@ namespace MasterOnline.Controllers
                     return new JsonResult { Data = new { error_packing_list = false, listError, successCount = 0, need_approval = 2 }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
 
+                SetNoLockOn(ErasoftDbContext);
+
                 //change by nurul 7/7/2020
                 //var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT A.NO_BUKTI,STATUS_TRANSAKSI,BRG,QTY,ISNULL(QTY_N,0) QTY_N,ISNULL(LOKASI,'') LOKASI,A.RECNUM AS SOA_RECNUM, B.NO_URUT AS SOB_RECNUM FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.RECNUM IN (" + stringListRecnum + ") AND STATUS_TRANSAKSI = '02' ORDER BY A.NO_BUKTI, B.NO_URUT");
                 //var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT A.NO_BUKTI,STATUS_TRANSAKSI,BRG,QTY,ISNULL(QTY_N,0) QTY_N,ISNULL(LOKASI,'') LOKASI,A.RECNUM AS SOA_RECNUM, B.NO_URUT AS SOB_RECNUM, A.CUST AS SOA_CUST,A.NO_REFERENSI AS SOA_NOREF FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.RECNUM IN (" + stringListRecnum + ") AND STATUS_TRANSAKSI = '02' ORDER BY A.NO_BUKTI, B.NO_URUT");
@@ -48546,6 +48624,9 @@ namespace MasterOnline.Controllers
                 sSql1 += "WHERE A.RECNUM IN (" + stringListRecnum + ") AND STATUS_TRANSAKSI = '02' ";
                 sSql1 += "ORDER BY A.NO_BUKTI, B.NO_URUT ";
                 var getlistSO = ErasoftDbContext.Database.SqlQuery<listProsesUbahStatusPackingTransaction>(sSql1).ToList();
+
+                SetNoLockOff(ErasoftDbContext);
+
                 if (getlistSO.Count() > 0)
                 {
 
@@ -48982,6 +49063,8 @@ namespace MasterOnline.Controllers
                     using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
                     {
                         var listRecnumEnd = "";
+                        context.Database.CommandTimeout = 360;
+                        SetNoLockOn(context);
                         using (System.Data.Entity.DbContextTransaction transaction = context.Database.BeginTransaction())
                         {
                             try
@@ -49488,8 +49571,10 @@ namespace MasterOnline.Controllers
                                         //end change by nurul 23/12/2019, perbaikan no bukti
 
                                         context.SIT01B.AddRange(listSIT01B);
-                                        EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '" + pesananInDb.STATUS_TRANSAKSI + "' , status_kirim = '" + pesananInDb.status_kirim + "' where RecNum='" + eachSO.RecNum + "' ");
+                                        //EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '" + pesananInDb.STATUS_TRANSAKSI + "' , status_kirim = '" + pesananInDb.status_kirim + "' where RecNum='" + eachSO.RecNum + "' "); // remark by Nurul 12 November 2020
                                         context.SaveChanges();
+
+                                        EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE A SET STATUS_TRANSAKSI = '" + pesananInDb.STATUS_TRANSAKSI + "' , status_kirim = '" + pesananInDb.status_kirim + "' FROM SOT01A A (NOLOCK) INNER JOIN SIT01A B (NOLOCK) ON A.NO_BUKTI=B.NO_SO WHERE A.RECNUM ='" + eachSO.RecNum + "' ");
 
                                         //add by nurul 6/2/2020, tambah update sit01a untuk trigger create art01d
                                         //context.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = newSIT01A.BRUTO });
@@ -49533,6 +49618,7 @@ namespace MasterOnline.Controllers
                             var sSQL5 = "update a set no_ref=b.no_referensi from sit01a a(NOLOCK) inner join sot01a b(NOLOCK) on a.no_so=b.no_bukti where (isnull(a.no_ref,'')='' or isnull(a.no_ref,'')='-') and isnull(b.no_referensi,'')<>''";
                             context.Database.ExecuteSqlCommand(sSQL5);
                         }
+                        SetNoLockOff(context);
                     }
                 }
             }
