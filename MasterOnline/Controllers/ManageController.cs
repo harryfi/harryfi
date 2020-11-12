@@ -49063,6 +49063,7 @@ namespace MasterOnline.Controllers
                     using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
                     {
                         var listRecnumEnd = "";
+                        context.Database.CommandTimeout = 360;
                         SetNoLockOn(context);
                         using (System.Data.Entity.DbContextTransaction transaction = context.Database.BeginTransaction())
                         {
