@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Transactions;
 using System.Data.Entity.Migrations;
 using System.Data.Entity.Validation;
 using System.Data.SqlClient;
@@ -377,336 +378,345 @@ namespace MasterOnline.Controllers
 
         public ActionResult DashboardPartial(string selDate)
         {
-            // set security dashboard
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            string username = "";
-            var userId = "";
-            var accountId = "";
-            long luserId = 0;
-            long laccountId = 0;
-            bool accessDashboard = false;
-            if (sessionData?.User != null)
+            using (var txn = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
             {
-                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
-                accountId = Convert.ToString(sessionData?.User?.AccountId);
+                IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted
             }
-            else
+            ))
             {
-                accessDashboard = true;
-                userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+                // query linQnya disini mba.
 
-                var emailAccount = Convert.ToString(sessionData?.Account?.Email);
-                accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
-            }
-
-            luserId = Convert.ToInt64(userId);
-            laccountId = Convert.ToInt64(accountId);
-
-            var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
-            var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
-
-            if(checkMenuDashboard.Count() > 0)
-            {
-                accessDashboard = true;
-            }
-            // end set security dashboard            
-
-            var selectedDate = (selDate != "" ? DateTime.ParseExact(selDate, "dd/MM/yyyy",
-                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.Date);
-
-            var selectedMonth = (selDate != "" ? DateTime.ParseExact(selDate, "dd/MM/yyyy",
-                System.Globalization.CultureInfo.InvariantCulture).Month : DateTime.Today.Month);
-
-            if (accessDashboard == false)
-            {
-                var vm = new DashboardViewModel()
+                // set security dashboard
+                AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                string username = "";
+                var userId = "";
+                var accountId = "";
+                long luserId = 0;
+                long laccountId = 0;
+                bool accessDashboard = false;
+                if (sessionData?.User != null)
                 {
-                    listBarangCount = 0,
-                    ListAkunMarketplace = null,
-                    ListMarket = null,
-                };
-
-                vm.JumlahPesananHariIni = 0;
-                vm.NilaiPesananHariIni = 0;
-                vm.JumlahPesananBulanIni = 0;
-                vm.NilaiPesananBulanIni = 0;
-                vm.JumlahFakturHariIni = 0;
-                vm.NilaiFakturHariIni = 0;
-                vm.JumlahFakturBulanIni = 0;
-                vm.NilaiFakturBulanIni = 0;
-                vm.JumlahReturHariIni = 0;
-                vm.NilaiReturHariIni = 0;
-                vm.JumlahReturBulanIni = 0;
-                vm.NilaiReturBulanIni = 0;
-                vm.ListAkunMarketplace = null;
-                vm.ListPesananPerMarketplace.Add(new PesananPerMarketplaceModel()
+                    userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
+                    accountId = Convert.ToString(sessionData?.User?.AccountId);
+                }
+                else
                 {
-                    NamaMarket = null,
-                    JumlahPesananHariIni = null,
-                    NilaiPesananHariIni = null,
-                    JumlahPesananBulanIni = null,
-                    NilaiPesananBulanIni = null
-                });
-                vm.BarangTidakLakuCount = 0;
-                vm.BarangDibawahMinStokCount = 0;
+                    accessDashboard = true;
+                    userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
 
-                return PartialView(vm);
-            }
-            else
-            {
-
-                //#if (DEBUG || Debug_AWS)
-                //            var vm = new DashboardViewModel()
-                //            {
-                //                ListPesanan = ErasoftDbContext.SOT01A.Where(p => 0 == 1).ToList(),
-                //                ListPesananDetail = ErasoftDbContext.SOT01B.Where(p => 0 == 1).ToList(),
-                //                ListFaktur = ErasoftDbContext.SIT01A.Where(p => 0 == 1).ToList(),
-                //                ListFakturDetail = ErasoftDbContext.SIT01B.Where(p => 0 == 1).ToList(),
-                //                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                //                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3" && 0 == 1).ToList(),
-                //                ListAkunMarketplace = ErasoftDbContext.ARF01.Where(p => 0 == 1).ToList(),
-                //                ListMarket = MoDbContext.Marketplaces.Where(p => 0 == 1).ToList(),
-                //                ListBarangUntukCekQty = ErasoftDbContext.STF08A.Where(p => 0 == 1).ToList(),
-                //                ListStok = ErasoftDbContext.STT01B.Where(p => 0 == 1).ToList()
-                //            };
-                //#else
-                var vm = new DashboardViewModel()
-                {
-                    //ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.TGL.Value.Month == selectedMonth && p.TGL.Value.Year == selectedDate.Year && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).ToList(),
-                    //ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL.Month == selectedMonth && p.TGL.Year == selectedDate.Year).ToList(),
-                    ////ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    listBarangCount = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.TYPE == "3").Count(),
-                    ListAkunMarketplace = ErasoftDbContext.ARF01.AsNoTracking().ToList(),
-                    ListMarket = MoDbContext.Marketplaces.AsNoTracking().ToList(),
-                    //remark by calvin 8 juli 2019
-                    //ListBarangUntukCekQty = ErasoftDbContext.STF08A.ToList(),
-                    //end remark by calvin 8 juli 2019
-                    //ListStok = ErasoftDbContext.STT01B.ToList()
-                };
-                //#endif
-                //var listNoPesanan = vm.ListPesanan.Where(p => (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).Select(p => p.NO_BUKTI).ToList();
-                //vm.ListPesananDetail = ErasoftDbContext.SOT01B.Where(p => listNoPesanan.Contains(p.NO_BUKTI)).ToList();
-                //var listNoFaktur = vm.ListFaktur.Select(p => p.NO_BUKTI).ToList();
-                //vm.ListFakturDetail = ErasoftDbContext.SIT01B.Where(p => listNoFaktur.Contains(p.NO_BUKTI)).ToList();
-
-                //change by calvin 17 september 2019
-                //// Pesanan
-                //vm.JumlahPesananHariIni = vm.ListPesanan?.Where(p => p.TGL?.Date == selectedDate).Count();
-                //// change by nurul 12/10/2018   vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL?.Date == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC);
-                //vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL?.Date == selectedDate).Sum(p => p.NETTO);
-                //vm.JumlahPesananBulanIni = vm.ListPesanan?.Where(p => p.TGL?.Month == selectedMonth).Count();
-                //// change by nurul 12/10/2018   vm.NilaiPesananBulanIni = vm.ListPesanan?.Where(p => p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC);
-                //vm.NilaiPesananBulanIni = vm.ListPesanan?.Where(p => p.TGL?.Month == selectedMonth).Sum(p => p.NETTO);
-
-                //// Faktur
-                //vm.JumlahFakturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Count();
-                //// change by nurul 12/10/2018   vm.NilaiFakturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Sum(p => p.BRUTO - p.NILAI_DISC);
-                //vm.NilaiFakturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Sum(p => p.NETTO);
-                //vm.JumlahFakturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Count();
-                //// change by nurul 12/10/2018   vm.NilaiFakturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Sum(p => p.BRUTO - p.NILAI_DISC);
-                //vm.NilaiFakturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Sum(p => p.NETTO);
-
-
-                //// Retur
-                //vm.JumlahReturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Count();
-                //// change by nurul 12/10/2018   vm.NilaiReturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Sum(p => p.BRUTO - p.NILAI_DISC);
-                //vm.NilaiReturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Sum(p => p.NETTO);
-                //vm.JumlahReturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Count();
-                //// change by nurul 12/10/2018   vm.NilaiReturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => p.BRUTO - p.NILAI_DISC);
-                //vm.NilaiReturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => p.NETTO);
-
-                var ListPesanan = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => p.TGL.Value.Month == selectedMonth && p.TGL.Value.Year == selectedDate.Year && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04"));
-                var ListFaktur = ErasoftDbContext.SIT01A.AsNoTracking().Where(p => p.TGL.Month == selectedMonth && p.TGL.Year == selectedDate.Year && p.STATUS == "1");
-
-                // Pesanan
-                vm.JumlahPesananHariIni = ListPesanan.Where(p => System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Count();
-                // change by nurul 12/10/2018   vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL?.Date == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC);
-                //vm.NilaiPesananHariIni = ListPesanan.Where(p => System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.NETTO)) ?? 0;
-                vm.NilaiPesananHariIni = ListPesanan.Where(p => System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.BRUTO)) ?? 0;
-                vm.JumlahPesananBulanIni = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth).Count();
-                // change by nurul 12/10/2018   vm.NilaiPesananBulanIni = vm.ListPesanan?.Where(p => p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC);
-                //vm.NilaiPesananBulanIni = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.NETTO)) ?? 0;
-                vm.NilaiPesananBulanIni = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.BRUTO)) ?? 0;
-
-                // Faktur
-                vm.JumlahFakturHariIni = ListFaktur.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Count();
-                // change by nurul 12/10/2018   vm.NilaiFakturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Sum(p => p.BRUTO - p.NILAI_DISC);
-                //vm.NilaiFakturHariIni = ListFaktur.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Sum(p => (double?)(p.NETTO)) ?? 0;
-                vm.NilaiFakturHariIni = ListFaktur.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Sum(p => (double?)(p.BRUTO)) ?? 0;
-                vm.JumlahFakturBulanIni = ListFaktur.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Count();
-                // change by nurul 12/10/2018   vm.NilaiFakturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Sum(p => p.BRUTO - p.NILAI_DISC);
-                //vm.NilaiFakturBulanIni = ListFaktur.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Sum(p => (double?)(p.NETTO)) ?? 0;
-                vm.NilaiFakturBulanIni = ListFaktur.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Sum(p => (double?)(p.BRUTO)) ?? 0;
-
-
-                // Retur
-                vm.JumlahReturHariIni = ListFaktur.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Count();
-                // change by nurul 12/10/2018   vm.NilaiReturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Sum(p => p.BRUTO - p.NILAI_DISC);
-                //vm.NilaiReturHariIni = ListFaktur.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Sum(p => (double?)(p.NETTO)) ?? 0;
-                vm.NilaiReturHariIni = ListFaktur.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Sum(p => (double?)(p.BRUTO)) ?? 0;
-                vm.JumlahReturBulanIni = ListFaktur.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Count();
-                // change by nurul 12/10/2018   vm.NilaiReturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => p.BRUTO - p.NILAI_DISC);
-                //vm.NilaiReturBulanIni = ListFaktur.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => (double?)(p.NETTO)) ?? 0;
-                vm.NilaiReturBulanIni = ListFaktur.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => (double?)(p.BRUTO)) ?? 0;
-                //end change by calvin 17 september 2019
-
-                if (vm.ListAkunMarketplace.Count > 0)
-                {
-                    foreach (var marketplace in vm.ListAkunMarketplace)
-                    {
-                        var idMarket = Convert.ToInt32(marketplace.NAMA);
-                        var namaMarket = vm.ListMarket.Single(m => m.IdMarket == idMarket).NamaMarket;
-
-                        //change by calvin 17 september 2019
-                        //var jumlahPesananToday = vm.ListPesanan?
-                        //    .Where(p => p.CUST == marketplace.CUST && p.TGL?.Date == selectedDate).Count();
-                        //// change by nurul 12/10/2018   var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC))}";
-                        //var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Date == selectedDate).Sum(p => p.NETTO))}";
-
-
-                        //var jumlahPesananMonth = vm.ListPesanan?
-
-                        //    .Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Count();
-                        //// change by nurul 12/10/2018   var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC))}";
-                        //var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.NETTO))}";
-                        var jumlahPesananToday = ListPesanan
-                            .Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Count();
-                        // change by nurul 12/10/2018   var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC))}";
-                        //var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.NETTO)) ?? 0)}";
-                        var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.BRUTO)) ?? 0)}";
-
-
-                        var jumlahPesananMonth = ListPesanan
-
-                            .Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth).Count();
-                        // change by nurul 12/10/2018   var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC))}";
-                        //var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.NETTO)) ?? 0)}";
-                        var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.BRUTO)) ?? 0)}";
-                        //end change by calvin 17 september 2019
-
-                        vm.ListPesananPerMarketplace.Add(new PesananPerMarketplaceModel()
-                        {
-                            NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
-                            JumlahPesananHariIni = jumlahPesananToday.ToString(),
-                            NilaiPesananHariIni = nilaiPesananToday,
-                            JumlahPesananBulanIni = jumlahPesananMonth.ToString(),
-                            NilaiPesananBulanIni = nilaiPesananMonth
-                        });
-                    }
+                    var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+                    accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
                 }
 
-                //change by calvin 8 juli 2019
-                //foreach (var barang in vm.ListBarang)
-                //{
-                //    var listBarangTerpesan = vm.ListPesananDetail.Where(b => b.BRG == barang.BRG).ToList();
+                luserId = Convert.ToInt64(userId);
+                laccountId = Convert.ToInt64(accountId);
 
-                //    if (listBarangTerpesan.Count > 0)
-                //    {
-                //        var qtyBarang = listBarangTerpesan.Where(b => b.TGL_INPUT?.Month >= (selectedMonth - 3) &&
-                //                                                      b.TGL_INPUT?.Month <= selectedMonth).Sum(b => b.QTY);
-                //        vm.ListBarangLaku.Add(new PenjualanBarang
-                //        {
-                //            KodeBrg = barang.BRG,
-                //            NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
-                //            Qty = qtyBarang,
-                //            Laku = true
-                //        });
-                //    }
-                //}
+                var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
+                var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
 
-                //remark by nurul 20/9/2019 -- sudah tidak dipakai, karna udh pake pie chart 
-                //string sSQL = "SELECT TOP 10 A.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2,'') AS NAMA,A.SUM_QTY AS QTY FROM ( ";
-                //sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI=B.NO_BUKTI WHERE MONTH(B.TGL_INPUT) >= " + (selectedMonth - 3).ToString() + " AND MONTH(B.TGL_INPUT) <= " + (selectedMonth).ToString() + " AND B.BRG <> 'NOT_FOUND' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY BRG ";
-                //sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE TYPE ='3' ORDER BY SUM_QTY DESC ";
-                //var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
-                //foreach (var item in ListBarangAndQtyInPesanan)
-                //{
-                //    vm.ListBarangLaku.Add(new PenjualanBarang
-                //    {
-                //        KodeBrg = item.BRG,
-                //        NamaBrg = item.NAMA,
-                //        Qty = item.QTY,
-                //        Laku = true
-                //    });
-                //}
-                //end remark by nurul 20/9/2019 -- sudah tidak dipakai, karna udh pake pie chart 
+                if (checkMenuDashboard.Count() > 0)
+                {
+                    accessDashboard = true;
+                }
+                // end set security dashboard            
 
-                //end change by calvin 8 juli 2019
+                var selectedDate = (selDate != "" ? DateTime.ParseExact(selDate, "dd/MM/yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.Date);
 
-                //Change by calvin 8 juli 2019, barang tidak laku sudah tidak dipakai
-                //foreach (var barang in vm.ListBarang.Where(b => b.Tgl_Input?.Month >= (selectedMonth - 3) && b.Tgl_Input?.Month <= selectedMonth))
-                //{
-                //    var barangTerpesan = vm.ListPesananDetail.FirstOrDefault(b => b.BRG == barang.BRG);
-                //    var stokBarang = vm.ListStok.FirstOrDefault(b => b.Kobar == barang.BRG);
+                var selectedMonth = (selDate != "" ? DateTime.ParseExact(selDate, "dd/MM/yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture).Month : DateTime.Today.Month);
 
-                //    if (barangTerpesan == null)
-                //    {
-                //        vm.ListBarangTidakLaku.Add(new PenjualanBarang
-                //        {
-                //            KodeBrg = barang.BRG,
-                //            NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
-                //            Qty = Convert.ToDouble(stokBarang?.Qty),
-                //            Laku = false
-                //        });
-                //    }
-                //}
-                //CHANGE BY NURUL 19/9/2019, UBAH QUERY 
-                //sSQL = "SELECT B.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2, '') AS NAMA,ISNULL(A.QTY,0) AS QTY FROM( ";
-                //sSQL += "SELECT DISTINCT BRG, QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI=B.NO_BUKTI WHERE MONTH(B.TGL_INPUT) >= " + (selectedMonth - 3).ToString() + " AND MONTH(B.TGL_INPUT) <= " + (selectedMonth).ToString() + " AND B.BRG <> 'NOT_FOUND' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') ";
-                //sSQL += ") A RIGHT JOIN STF02 B ON A.BRG = B.BRG WHERE ISNULL(A.BRG, '') = '' AND TYPE ='3'";
-                //var ListBarangAndQtyNotInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
-                //foreach (var item in ListBarangAndQtyNotInPesanan)
-                //{
-                //    vm.ListBarangTidakLaku.Add(new PenjualanBarang
-                //    {
-                //        KodeBrg = item.BRG,
-                //        NamaBrg = item.NAMA,
-                //        Qty = item.QTY,
-                //        Laku = false
-                //    });
-                //}            
-                //end change by calvin 8 juli 2019
-                string sSQL = "select COUNT(ID) AS COUNT_TRANSAKSI from (";
-                sSQL += "select distinct A.brg,A.id from stf02 A(NOLOCK) LEFT join (";
-                sSQL += "SELECT DISTINCT BRG FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI ";
-                sSQL += "WHERE A.TGL >= '" + (selectedDate.AddMonths(-1)).ToString("yyyy-MM-dd") + "' AND A.TGL <= '" + (selectedDate).ToString("yyyy-MM-dd") + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND B.BRG <> 'NOT_FOUND' ";
-                sSQL += ")B on A.brg=B.brg WHERE ISNULL(B.BRG, '') = '' AND A.TYPE='3')A";
-                var ListBarangAndQtyNotInPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(sSQL).Single();
-                vm.BarangTidakLakuCount = ListBarangAndQtyNotInPesanan.COUNT_TRANSAKSI;
-                //END CHANGE BY NURUL 19/9/2019 
+                if (accessDashboard == false)
+                {
+                    var vm = new DashboardViewModel()
+                    {
+                        listBarangCount = 0,
+                        ListAkunMarketplace = null,
+                        ListMarket = null,
+                    };
 
-                //add by nurul 20/9/2019, tambah query get count barang minimum stok 
-                sSQL = "SELECT COUNT(BRG) AS COUNT_TRANSAKSI FROM ( ";
-                sSQL += "SELECT DISTINCT A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, A.SELISIH FROM ( ";
-                sSQL += "SELECT B.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI, ((ISNULL(QOH,0) - ISNULL(QOO,0)) - B.MINI) AS SELISIH FROM ";
-                sSQL += "STF02 B(NOLOCK) LEFT JOIN ( ";
-                sSQL += "SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, ";
-                sSQL += "SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
-                sSQL += "FROM ( ";
-                sSQL += "	SELECT        'QOH' AS JENIS, BRG, JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) ";
-                sSQL += "	    - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) ";
-                sSQL += "	FROM            STF08A(NOLOCK) INNER JOIN ";
-                sSQL += "		STF18(NOLOCK) ON STF08A.GD = STF18.KODE_GUDANG ";
-                sSQL += "	WHERE        STF08A.TAHUN = YEAR('" + (selectedDate).ToString("yyyy-MM-dd") + "') AND STF18.QOH_SALES = 0 ";
-                sSQL += "	GROUP BY BRG ";
-                sSQL += "	UNION ALL ";
-                sSQL += "	SELECT        'QOO' AS JENIS, B.BRG, JUMLAH = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
-                sSQL += "	FROM            SOT01A A(NOLOCK) INNER JOIN ";
-                sSQL += "		SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN ";
-                sSQL += "		SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
-                sSQL += "	WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
-                sSQL += "	GROUP BY B.BRG)A ";
-                sSQL += "GROUP BY BRG ";
-                sSQL += ")A ";
-                sSQL += "ON A.BRG = B.BRG WHERE B.TYPE = '3' )A ";
-                sSQL += "WHERE A.SISA <= A.MINI ";
-                sSQL += ")A ";
-                var ListBarangMinStok = ErasoftDbContext.Database.SqlQuery<COUNT_List>(sSQL).Single();
-                vm.BarangDibawahMinStokCount = ListBarangMinStok.COUNT_TRANSAKSI;
-                //end add by nurul 20/9/2019
+                    vm.JumlahPesananHariIni = 0;
+                    vm.NilaiPesananHariIni = 0;
+                    vm.JumlahPesananBulanIni = 0;
+                    vm.NilaiPesananBulanIni = 0;
+                    vm.JumlahFakturHariIni = 0;
+                    vm.NilaiFakturHariIni = 0;
+                    vm.JumlahFakturBulanIni = 0;
+                    vm.NilaiFakturBulanIni = 0;
+                    vm.JumlahReturHariIni = 0;
+                    vm.NilaiReturHariIni = 0;
+                    vm.JumlahReturBulanIni = 0;
+                    vm.NilaiReturBulanIni = 0;
+                    vm.ListAkunMarketplace = null;
+                    vm.ListPesananPerMarketplace.Add(new PesananPerMarketplaceModel()
+                    {
+                        NamaMarket = null,
+                        JumlahPesananHariIni = null,
+                        NilaiPesananHariIni = null,
+                        JumlahPesananBulanIni = null,
+                        NilaiPesananBulanIni = null
+                    });
+                    vm.BarangTidakLakuCount = 0;
+                    vm.BarangDibawahMinStokCount = 0;
 
-                return PartialView(vm);
+                    return PartialView(vm);
+                }
+                else
+                {
+
+                    //#if (DEBUG || Debug_AWS)
+                    //            var vm = new DashboardViewModel()
+                    //            {
+                    //                ListPesanan = ErasoftDbContext.SOT01A.Where(p => 0 == 1).ToList(),
+                    //                ListPesananDetail = ErasoftDbContext.SOT01B.Where(p => 0 == 1).ToList(),
+                    //                ListFaktur = ErasoftDbContext.SIT01A.Where(p => 0 == 1).ToList(),
+                    //                ListFakturDetail = ErasoftDbContext.SIT01B.Where(p => 0 == 1).ToList(),
+                    //                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+                    //                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3" && 0 == 1).ToList(),
+                    //                ListAkunMarketplace = ErasoftDbContext.ARF01.Where(p => 0 == 1).ToList(),
+                    //                ListMarket = MoDbContext.Marketplaces.Where(p => 0 == 1).ToList(),
+                    //                ListBarangUntukCekQty = ErasoftDbContext.STF08A.Where(p => 0 == 1).ToList(),
+                    //                ListStok = ErasoftDbContext.STT01B.Where(p => 0 == 1).ToList()
+                    //            };
+                    //#else
+                    var vm = new DashboardViewModel()
+                    {
+                        //ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.TGL.Value.Month == selectedMonth && p.TGL.Value.Year == selectedDate.Year && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).ToList(),
+                        //ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL.Month == selectedMonth && p.TGL.Year == selectedDate.Year).ToList(),
+                        ////ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+                        //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                        listBarangCount = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.TYPE == "3").Count(),
+                        ListAkunMarketplace = ErasoftDbContext.ARF01.AsNoTracking().ToList(),
+                        ListMarket = MoDbContext.Marketplaces.AsNoTracking().ToList(),
+                        //remark by calvin 8 juli 2019
+                        //ListBarangUntukCekQty = ErasoftDbContext.STF08A.ToList(),
+                        //end remark by calvin 8 juli 2019
+                        //ListStok = ErasoftDbContext.STT01B.ToList()
+                    };
+                    //#endif
+                    //var listNoPesanan = vm.ListPesanan.Where(p => (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).Select(p => p.NO_BUKTI).ToList();
+                    //vm.ListPesananDetail = ErasoftDbContext.SOT01B.Where(p => listNoPesanan.Contains(p.NO_BUKTI)).ToList();
+                    //var listNoFaktur = vm.ListFaktur.Select(p => p.NO_BUKTI).ToList();
+                    //vm.ListFakturDetail = ErasoftDbContext.SIT01B.Where(p => listNoFaktur.Contains(p.NO_BUKTI)).ToList();
+
+                    //change by calvin 17 september 2019
+                    //// Pesanan
+                    //vm.JumlahPesananHariIni = vm.ListPesanan?.Where(p => p.TGL?.Date == selectedDate).Count();
+                    //// change by nurul 12/10/2018   vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL?.Date == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC);
+                    //vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL?.Date == selectedDate).Sum(p => p.NETTO);
+                    //vm.JumlahPesananBulanIni = vm.ListPesanan?.Where(p => p.TGL?.Month == selectedMonth).Count();
+                    //// change by nurul 12/10/2018   vm.NilaiPesananBulanIni = vm.ListPesanan?.Where(p => p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC);
+                    //vm.NilaiPesananBulanIni = vm.ListPesanan?.Where(p => p.TGL?.Month == selectedMonth).Sum(p => p.NETTO);
+
+                    //// Faktur
+                    //vm.JumlahFakturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Count();
+                    //// change by nurul 12/10/2018   vm.NilaiFakturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Sum(p => p.BRUTO - p.NILAI_DISC);
+                    //vm.NilaiFakturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Sum(p => p.NETTO);
+                    //vm.JumlahFakturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Count();
+                    //// change by nurul 12/10/2018   vm.NilaiFakturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Sum(p => p.BRUTO - p.NILAI_DISC);
+                    //vm.NilaiFakturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Sum(p => p.NETTO);
+
+
+                    //// Retur
+                    //vm.JumlahReturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Count();
+                    //// change by nurul 12/10/2018   vm.NilaiReturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Sum(p => p.BRUTO - p.NILAI_DISC);
+                    //vm.NilaiReturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Sum(p => p.NETTO);
+                    //vm.JumlahReturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Count();
+                    //// change by nurul 12/10/2018   vm.NilaiReturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => p.BRUTO - p.NILAI_DISC);
+                    //vm.NilaiReturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => p.NETTO);
+
+                    var ListPesanan = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => p.TGL.Value.Month == selectedMonth && p.TGL.Value.Year == selectedDate.Year && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04"));
+                    var ListFaktur = ErasoftDbContext.SIT01A.AsNoTracking().Where(p => p.TGL.Month == selectedMonth && p.TGL.Year == selectedDate.Year && p.STATUS == "1");
+
+                    // Pesanan
+                    vm.JumlahPesananHariIni = ListPesanan.Where(p => System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Count();
+                    // change by nurul 12/10/2018   vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL?.Date == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC);
+                    //vm.NilaiPesananHariIni = ListPesanan.Where(p => System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.NETTO)) ?? 0;
+                    vm.NilaiPesananHariIni = ListPesanan.Where(p => System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.BRUTO)) ?? 0;
+                    vm.JumlahPesananBulanIni = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth).Count();
+                    // change by nurul 12/10/2018   vm.NilaiPesananBulanIni = vm.ListPesanan?.Where(p => p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC);
+                    //vm.NilaiPesananBulanIni = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.NETTO)) ?? 0;
+                    vm.NilaiPesananBulanIni = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.BRUTO)) ?? 0;
+
+                    // Faktur
+                    vm.JumlahFakturHariIni = ListFaktur.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Count();
+                    // change by nurul 12/10/2018   vm.NilaiFakturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Sum(p => p.BRUTO - p.NILAI_DISC);
+                    //vm.NilaiFakturHariIni = ListFaktur.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Sum(p => (double?)(p.NETTO)) ?? 0;
+                    vm.NilaiFakturHariIni = ListFaktur.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Sum(p => (double?)(p.BRUTO)) ?? 0;
+                    vm.JumlahFakturBulanIni = ListFaktur.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Count();
+                    // change by nurul 12/10/2018   vm.NilaiFakturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Sum(p => p.BRUTO - p.NILAI_DISC);
+                    //vm.NilaiFakturBulanIni = ListFaktur.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Sum(p => (double?)(p.NETTO)) ?? 0;
+                    vm.NilaiFakturBulanIni = ListFaktur.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Sum(p => (double?)(p.BRUTO)) ?? 0;
+
+
+                    // Retur
+                    vm.JumlahReturHariIni = ListFaktur.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Count();
+                    // change by nurul 12/10/2018   vm.NilaiReturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Sum(p => p.BRUTO - p.NILAI_DISC);
+                    //vm.NilaiReturHariIni = ListFaktur.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Sum(p => (double?)(p.NETTO)) ?? 0;
+                    vm.NilaiReturHariIni = ListFaktur.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Sum(p => (double?)(p.BRUTO)) ?? 0;
+                    vm.JumlahReturBulanIni = ListFaktur.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Count();
+                    // change by nurul 12/10/2018   vm.NilaiReturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => p.BRUTO - p.NILAI_DISC);
+                    //vm.NilaiReturBulanIni = ListFaktur.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => (double?)(p.NETTO)) ?? 0;
+                    vm.NilaiReturBulanIni = ListFaktur.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => (double?)(p.BRUTO)) ?? 0;
+                    //end change by calvin 17 september 2019
+
+                    if (vm.ListAkunMarketplace.Count > 0)
+                    {
+                        foreach (var marketplace in vm.ListAkunMarketplace)
+                        {
+                            var idMarket = Convert.ToInt32(marketplace.NAMA);
+                            var namaMarket = vm.ListMarket.Single(m => m.IdMarket == idMarket).NamaMarket;
+
+                            //change by calvin 17 september 2019
+                            //var jumlahPesananToday = vm.ListPesanan?
+                            //    .Where(p => p.CUST == marketplace.CUST && p.TGL?.Date == selectedDate).Count();
+                            //// change by nurul 12/10/2018   var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC))}";
+                            //var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Date == selectedDate).Sum(p => p.NETTO))}";
+
+
+                            //var jumlahPesananMonth = vm.ListPesanan?
+
+                            //    .Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Count();
+                            //// change by nurul 12/10/2018   var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC))}";
+                            //var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.NETTO))}";
+                            var jumlahPesananToday = ListPesanan
+                                .Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Count();
+                            // change by nurul 12/10/2018   var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC))}";
+                            //var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.NETTO)) ?? 0)}";
+                            var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+
+
+                            var jumlahPesananMonth = ListPesanan
+
+                                .Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth).Count();
+                            // change by nurul 12/10/2018   var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC))}";
+                            //var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.NETTO)) ?? 0)}";
+                            var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+                            //end change by calvin 17 september 2019
+
+                            vm.ListPesananPerMarketplace.Add(new PesananPerMarketplaceModel()
+                            {
+                                NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
+                                JumlahPesananHariIni = jumlahPesananToday.ToString(),
+                                NilaiPesananHariIni = nilaiPesananToday,
+                                JumlahPesananBulanIni = jumlahPesananMonth.ToString(),
+                                NilaiPesananBulanIni = nilaiPesananMonth
+                            });
+                        }
+                    }
+
+                    //change by calvin 8 juli 2019
+                    //foreach (var barang in vm.ListBarang)
+                    //{
+                    //    var listBarangTerpesan = vm.ListPesananDetail.Where(b => b.BRG == barang.BRG).ToList();
+
+                    //    if (listBarangTerpesan.Count > 0)
+                    //    {
+                    //        var qtyBarang = listBarangTerpesan.Where(b => b.TGL_INPUT?.Month >= (selectedMonth - 3) &&
+                    //                                                      b.TGL_INPUT?.Month <= selectedMonth).Sum(b => b.QTY);
+                    //        vm.ListBarangLaku.Add(new PenjualanBarang
+                    //        {
+                    //            KodeBrg = barang.BRG,
+                    //            NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
+                    //            Qty = qtyBarang,
+                    //            Laku = true
+                    //        });
+                    //    }
+                    //}
+
+                    //remark by nurul 20/9/2019 -- sudah tidak dipakai, karna udh pake pie chart 
+                    //string sSQL = "SELECT TOP 10 A.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2,'') AS NAMA,A.SUM_QTY AS QTY FROM ( ";
+                    //sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI=B.NO_BUKTI WHERE MONTH(B.TGL_INPUT) >= " + (selectedMonth - 3).ToString() + " AND MONTH(B.TGL_INPUT) <= " + (selectedMonth).ToString() + " AND B.BRG <> 'NOT_FOUND' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY BRG ";
+                    //sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE TYPE ='3' ORDER BY SUM_QTY DESC ";
+                    //var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
+                    //foreach (var item in ListBarangAndQtyInPesanan)
+                    //{
+                    //    vm.ListBarangLaku.Add(new PenjualanBarang
+                    //    {
+                    //        KodeBrg = item.BRG,
+                    //        NamaBrg = item.NAMA,
+                    //        Qty = item.QTY,
+                    //        Laku = true
+                    //    });
+                    //}
+                    //end remark by nurul 20/9/2019 -- sudah tidak dipakai, karna udh pake pie chart 
+
+                    //end change by calvin 8 juli 2019
+
+                    //Change by calvin 8 juli 2019, barang tidak laku sudah tidak dipakai
+                    //foreach (var barang in vm.ListBarang.Where(b => b.Tgl_Input?.Month >= (selectedMonth - 3) && b.Tgl_Input?.Month <= selectedMonth))
+                    //{
+                    //    var barangTerpesan = vm.ListPesananDetail.FirstOrDefault(b => b.BRG == barang.BRG);
+                    //    var stokBarang = vm.ListStok.FirstOrDefault(b => b.Kobar == barang.BRG);
+
+                    //    if (barangTerpesan == null)
+                    //    {
+                    //        vm.ListBarangTidakLaku.Add(new PenjualanBarang
+                    //        {
+                    //            KodeBrg = barang.BRG,
+                    //            NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
+                    //            Qty = Convert.ToDouble(stokBarang?.Qty),
+                    //            Laku = false
+                    //        });
+                    //    }
+                    //}
+                    //CHANGE BY NURUL 19/9/2019, UBAH QUERY 
+                    //sSQL = "SELECT B.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2, '') AS NAMA,ISNULL(A.QTY,0) AS QTY FROM( ";
+                    //sSQL += "SELECT DISTINCT BRG, QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI=B.NO_BUKTI WHERE MONTH(B.TGL_INPUT) >= " + (selectedMonth - 3).ToString() + " AND MONTH(B.TGL_INPUT) <= " + (selectedMonth).ToString() + " AND B.BRG <> 'NOT_FOUND' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') ";
+                    //sSQL += ") A RIGHT JOIN STF02 B ON A.BRG = B.BRG WHERE ISNULL(A.BRG, '') = '' AND TYPE ='3'";
+                    //var ListBarangAndQtyNotInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
+                    //foreach (var item in ListBarangAndQtyNotInPesanan)
+                    //{
+                    //    vm.ListBarangTidakLaku.Add(new PenjualanBarang
+                    //    {
+                    //        KodeBrg = item.BRG,
+                    //        NamaBrg = item.NAMA,
+                    //        Qty = item.QTY,
+                    //        Laku = false
+                    //    });
+                    //}            
+                    //end change by calvin 8 juli 2019
+                    string sSQL = "select COUNT(ID) AS COUNT_TRANSAKSI from (";
+                    sSQL += "select distinct A.brg,A.id from stf02 A(NOLOCK) LEFT join (";
+                    sSQL += "SELECT DISTINCT BRG FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI ";
+                    sSQL += "WHERE A.TGL >= '" + (selectedDate.AddMonths(-1)).ToString("yyyy-MM-dd") + "' AND A.TGL <= '" + (selectedDate).ToString("yyyy-MM-dd") + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND B.BRG <> 'NOT_FOUND' ";
+                    sSQL += ")B on A.brg=B.brg WHERE ISNULL(B.BRG, '') = '' AND A.TYPE='3')A";
+                    var ListBarangAndQtyNotInPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(sSQL).Single();
+                    vm.BarangTidakLakuCount = ListBarangAndQtyNotInPesanan.COUNT_TRANSAKSI;
+                    //END CHANGE BY NURUL 19/9/2019 
+
+                    //add by nurul 20/9/2019, tambah query get count barang minimum stok 
+                    sSQL = "SELECT COUNT(BRG) AS COUNT_TRANSAKSI FROM ( ";
+                    sSQL += "SELECT DISTINCT A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, A.SELISIH FROM ( ";
+                    sSQL += "SELECT B.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI, ((ISNULL(QOH,0) - ISNULL(QOO,0)) - B.MINI) AS SELISIH FROM ";
+                    sSQL += "STF02 B(NOLOCK) LEFT JOIN ( ";
+                    sSQL += "SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, ";
+                    sSQL += "SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
+                    sSQL += "FROM ( ";
+                    sSQL += "	SELECT        'QOH' AS JENIS, BRG, JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) ";
+                    sSQL += "	    - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) ";
+                    sSQL += "	FROM            STF08A(NOLOCK) INNER JOIN ";
+                    sSQL += "		STF18(NOLOCK) ON STF08A.GD = STF18.KODE_GUDANG ";
+                    sSQL += "	WHERE        STF08A.TAHUN = YEAR('" + (selectedDate).ToString("yyyy-MM-dd") + "') AND STF18.QOH_SALES = 0 ";
+                    sSQL += "	GROUP BY BRG ";
+                    sSQL += "	UNION ALL ";
+                    sSQL += "	SELECT        'QOO' AS JENIS, B.BRG, JUMLAH = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
+                    sSQL += "	FROM            SOT01A A(NOLOCK) INNER JOIN ";
+                    sSQL += "		SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN ";
+                    sSQL += "		SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
+                    sSQL += "	WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+                    sSQL += "	GROUP BY B.BRG)A ";
+                    sSQL += "GROUP BY BRG ";
+                    sSQL += ")A ";
+                    sSQL += "ON A.BRG = B.BRG WHERE B.TYPE = '3' )A ";
+                    sSQL += "WHERE A.SISA <= A.MINI ";
+                    sSQL += ")A ";
+                    var ListBarangMinStok = ErasoftDbContext.Database.SqlQuery<COUNT_List>(sSQL).Single();
+                    vm.BarangDibawahMinStokCount = ListBarangMinStok.COUNT_TRANSAKSI;
+                    //end add by nurul 20/9/2019
+
+                    return PartialView(vm);
+                }
             }
         }
 
@@ -734,1271 +744,1284 @@ namespace MasterOnline.Controllers
         }
         public ActionResult RefreshDashboardLine(string tgl)
         {
-
-            // set security dashboard
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            string username = "";
-            var userId = "";
-            var accountId = "";
-            long luserId = 0;
-            long laccountId = 0;
-            bool accessDashboard = false;
-            if (sessionData?.User != null)
+            using (var txn = new System.Transactions.TransactionScope(TransactionScopeOption.Required, new TransactionOptions
             {
-                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
-                accountId = Convert.ToString(sessionData?.User?.AccountId);
+                IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted
             }
-            else
+           ))
             {
-                accessDashboard = true;
-                userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
-
-                var emailAccount = Convert.ToString(sessionData?.Account?.Email);
-                accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
-            }
-
-            luserId = Convert.ToInt64(userId);
-            laccountId = Convert.ToInt64(accountId);
-
-            var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
-            var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
-
-            if (checkMenuDashboard.Count() > 0)
-            {
-                accessDashboard = true;
-            }
-            // end set security dashboard   
-
-
-
-            var selectedDate = (tgl != "" ? DateTime.ParseExact(tgl, "dd/MM/yyyy",
-                    CultureInfo.InvariantCulture) : DateTime.Today.Date);
-
-            var selectedMonth = (tgl != "" ? DateTime.ParseExact(tgl, "dd/MM/yyyy",
-                CultureInfo.InvariantCulture).Month : DateTime.Today.Month);
-
-            var vm = new DashboardViewModel()
-            {
-            };
-
-            string[] minggu1 = { "01", "02", "03", "04", "05", "06", "07" };
-            string[] minggu2 = { "08", "09", "10", "11", "12", "13", "14" };
-            string[] minggu3 = { "15", "16", "17", "18", "19", "20", "21" };
-            string[] minggu4 = { "22", "23", "24", "25", "26", "27", "28" };
-            List<string> minggu5 = new List<string>();
-            var lastday = new DateTime(selectedDate.Year, selectedDate.Month, 1).AddMonths(1).AddDays(-1);
-            if (Convert.ToInt32(lastday.Day) > 28)
-            {
-                for (int y = 29; y <= Convert.ToInt32(lastday.Day); y++)
+                // query linQnya disini mba.
+                // set security dashboard
+                AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                string username = "";
+                var userId = "";
+                var accountId = "";
+                long luserId = 0;
+                long laccountId = 0;
+                bool accessDashboard = false;
+                if (sessionData?.User != null)
                 {
-                    minggu5.Add(Convert.ToString(y));
+                    userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
+                    accountId = Convert.ToString(sessionData?.User?.AccountId);
                 }
-            }
-
-            bool isSunday = selectedDate.DayOfWeek == 0;
-            var dayOfweek = isSunday == false ? (int)selectedDate.DayOfWeek : 7;
-            DateTime startWk = selectedDate.AddDays(((int)(dayOfweek) * -1) + 1);
-            List<DateTime> endday = new List<DateTime>();
-            for (int i = 0; i <= 6; i++)
-            {
-                endday.Add(startWk.AddDays(i).Date);
-            }
-
-            if (accessDashboard == false)
-            {
-                vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
+                else
                 {
-                    No = null,
-                    Jumlah = Convert.ToString(0),
-                    Nilai = Convert.ToString(0)
-                });
+                    accessDashboard = true;
+                    userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
 
-                vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
+                    var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+                    accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
+                }
+
+                luserId = Convert.ToInt64(userId);
+                laccountId = Convert.ToInt64(accountId);
+
+                var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
+                var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
+
+                if (checkMenuDashboard.Count() > 0)
                 {
-                    No = null,
-                    Jumlah = Convert.ToString(0),
-                    Nilai = Convert.ToString(0)
-                });
+                    accessDashboard = true;
+                }
+                // end set security dashboard   
 
-                vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
+
+
+                var selectedDate = (tgl != "" ? DateTime.ParseExact(tgl, "dd/MM/yyyy",
+                        CultureInfo.InvariantCulture) : DateTime.Today.Date);
+
+                var selectedMonth = (tgl != "" ? DateTime.ParseExact(tgl, "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture).Month : DateTime.Today.Month);
+
+                var vm = new DashboardViewModel()
                 {
-                    No = null,
-                    Jumlah = "0",
-                    Nilai = "0"
-                });
+                };
 
-                vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
+                string[] minggu1 = { "01", "02", "03", "04", "05", "06", "07" };
+                string[] minggu2 = { "08", "09", "10", "11", "12", "13", "14" };
+                string[] minggu3 = { "15", "16", "17", "18", "19", "20", "21" };
+                string[] minggu4 = { "22", "23", "24", "25", "26", "27", "28" };
+                List<string> minggu5 = new List<string>();
+                var lastday = new DateTime(selectedDate.Year, selectedDate.Month, 1).AddMonths(1).AddDays(-1);
+                if (Convert.ToInt32(lastday.Day) > 28)
                 {
-                    No = null,
-                    Jumlah = Convert.ToString(0),
-                    Nilai = Convert.ToString(0)
-                });
-
-                vm.ListdashboardFakturMingguan.Add(new DashboardMingguanModel()
-                {
-                    No = null,
-                    Jumlah = Convert.ToString(0),
-                    Nilai = Convert.ToString(0)
-                });
-
-                vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
-                {
-                    No = null,
-                    Jumlah = "0",
-                    Nilai = "0"
-                });
-
-                vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
-                {
-                    No = null,
-                    Jumlah = Convert.ToString(0),
-                    Nilai = Convert.ToString(0)
-                });
-
-                vm.ListdashboardReturMingguan.Add(new DashboardMingguanModel()
-                {
-                    No = null,
-                    Jumlah = Convert.ToString(0),
-                    Nilai = Convert.ToString(0)
-                });
-
-                vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
-                {
-                    No = null,
-                    Jumlah = "0",
-                    Nilai = "0"
-                });
-
-                return PartialView("TableDashboardLinePartial", vm);
-            }
-            else
-            {
-                #region pesanan
-
-                //change by nurul 11/9/2019, tuning 
-                //var pesananTahunIni = ErasoftDbContext.SOT01A.Where(a => a.TGL.Value.Year == selectedDate.Year).ToList();
-                string ssql = "";
-
-                //CHANGE BY CALVIN 18 SEPTEMBER 2019, TUNING
-                //ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') ";
-                //var cekpesananTahunIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
-                //if(cekpesananTahunIni.JUMLAH > 0)
-                //{
-                //    for (int i = 1; i < 13; i++)
-                //    {
-                //        //var cekjumlahPesanan = pesananTahunIni.Where(a => a.TGL.Value.Month == i).Count();
-                //        //var NilaiPesanan = pesananTahunIni.Where(a => a.TGL.Value.Month == i).Sum(p => p.NETTO);
-
-                //        string SSQL1 = "";
-                //        SSQL1 += "SELECT ISNULL(SUM(NETTO),0) TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + " AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') ";
-                //        var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL1).Single();
-                //        string SSQL2 = "";
-                //        SSQL2 += "SELECT COUNT(RECNUM) AS COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + " AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') ";
-                //        var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL2).Single();
-
-                //        vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
-                //        {
-                //            No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                //            Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
-                //            Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
-                //        });
-                //    }
-                //}
-                //else
-                //{
-                //    for (int i = 1; i < 13; i++)
-                //    {
-                //        vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
-                //        {
-                //            No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                //            Jumlah = "0",
-                //            Nilai = "0"
-                //        });
-                //    }
-                //}
-                {
-                    ssql = "";
-                    //ssql = "SELECT MONTH(TGL) BULAN, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY MONTH(TGL)";
-                    ssql = "SELECT MONTH(TGL) BULAN, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY MONTH(TGL)";
-                    var dsBulanan = EDB.GetDataSet("CString", "BULANAN", ssql);
-                    for (int i = 1; i < 13; i++)
+                    for (int y = 29; y <= Convert.ToInt32(lastday.Day); y++)
                     {
-                        var getData = dsBulanan.Tables[0].Select("BULAN = '" + i + "'").FirstOrDefault();
-                        if (getData != null)
-                        {
-                            vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
-                            {
-                                No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                                Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
-                                Nilai = Convert.ToString(getData["TOTAL_NETTO"])
-                            });
-                        }
-                        else
-                        {
-                            vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
-                            {
-                                No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                                Jumlah = Convert.ToString(0),
-                                Nilai = Convert.ToString(0)
-                            });
-                        }
+                        minggu5.Add(Convert.ToString(y));
                     }
                 }
-                //END CHANGE BY CALVIN 18 SEPTEMBER 2019
 
-                //CHANGE BY CALVIN 18 SEPTEMBER 2019
-                //for (int i = 0; i < endday.Count(); i++)
-                //{
-                //    var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
-                //    var dayName = endday[i].DayOfWeek;
-                //    //CHANGE BY NURUL 11/9/2019, TUNING 
-                //    //var sSQLPesanan = "SELECT A.NOBUK, A.NETTO FROM (SELECT NO_BUKTI AS NOBUK, NETTO AS NETTO FROM SOT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' )A";
-                //    //var ListPesananMingguini = ErasoftDbContext.Database.SqlQuery<listDataLine>(sSQLPesanan).ToList();
-                //    //var cekjumlahpesanan = ListPesananMingguini.Count();
-                //    //var NilaiPesanan = ListPesananMingguini.Sum(a => a.NETTO);
-
-                //    string SSQL3 = "";
-                //    SSQL3 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
-                //    var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL3).Single();
-                //    string SSQL4 = "";
-                //    SSQL4 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
-                //    var cekjumlahpesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL4).Single();
-
-                //    vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
-                //    {
-                //        No = dayName.ToString() + " " + getdate,
-                //        Jumlah = cekjumlahpesanan.COUNT_TRANSAKSI.ToString(),
-                //        Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
-                //    });
-                //}
+                bool isSunday = selectedDate.DayOfWeek == 0;
+                var dayOfweek = isSunday == false ? (int)selectedDate.DayOfWeek : 7;
+                DateTime startWk = selectedDate.AddDays(((int)(dayOfweek) * -1) + 1);
+                List<DateTime> endday = new List<DateTime>();
+                for (int i = 0; i <= 6; i++)
                 {
-                    var firstDateOfWeek = endday.First();
-                    var lastDateOfWeek = endday.Last();
-                    ssql = "";
-                    //ssql = "SELECT YEAR(TGL) TAHUN, MONTH(TGL) BULAN, DAY(TGL) HARI, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + firstDateOfWeek.ToString("yyyy-MM-dd") + " 00:00:00.000' AND TGL <= '" + lastDateOfWeek.ToString("yyyy-MM-dd") + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY YEAR(TGL),MONTH(TGL),DAY(TGL)";
-                    ssql = "SELECT YEAR(TGL) TAHUN, MONTH(TGL) BULAN, DAY(TGL) HARI, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + firstDateOfWeek.ToString("yyyy-MM-dd") + " 00:00:00.000' AND TGL <= '" + lastDateOfWeek.ToString("yyyy-MM-dd") + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY YEAR(TGL),MONTH(TGL),DAY(TGL)";
-                    var dsTuning = EDB.GetDataSet("CString", "HARIAN", ssql);
-                    for (int i = 0; i < endday.Count(); i++)
+                    endday.Add(startWk.AddDays(i).Date);
+                }
+
+                if (accessDashboard == false)
+                {
+                    vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
                     {
-                        var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
-                        var dayName = endday[i].DayOfWeek;
-                        var getData = dsTuning.Tables[0].Select("TAHUN = '" + endday[i].Year + "' AND BULAN = '" + endday[i].Month + "' AND HARI = '" + endday[i].Day + "'").FirstOrDefault();
-                        if (getData != null)
+                        No = null,
+                        Jumlah = Convert.ToString(0),
+                        Nilai = Convert.ToString(0)
+                    });
+
+                    vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
+                    {
+                        No = null,
+                        Jumlah = Convert.ToString(0),
+                        Nilai = Convert.ToString(0)
+                    });
+
+                    vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
+                    {
+                        No = null,
+                        Jumlah = "0",
+                        Nilai = "0"
+                    });
+
+                    vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
+                    {
+                        No = null,
+                        Jumlah = Convert.ToString(0),
+                        Nilai = Convert.ToString(0)
+                    });
+
+                    vm.ListdashboardFakturMingguan.Add(new DashboardMingguanModel()
+                    {
+                        No = null,
+                        Jumlah = Convert.ToString(0),
+                        Nilai = Convert.ToString(0)
+                    });
+
+                    vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
+                    {
+                        No = null,
+                        Jumlah = "0",
+                        Nilai = "0"
+                    });
+
+                    vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
+                    {
+                        No = null,
+                        Jumlah = Convert.ToString(0),
+                        Nilai = Convert.ToString(0)
+                    });
+
+                    vm.ListdashboardReturMingguan.Add(new DashboardMingguanModel()
+                    {
+                        No = null,
+                        Jumlah = Convert.ToString(0),
+                        Nilai = Convert.ToString(0)
+                    });
+
+                    vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
+                    {
+                        No = null,
+                        Jumlah = "0",
+                        Nilai = "0"
+                    });
+
+                    return PartialView("TableDashboardLinePartial", vm);
+                }
+                else
+                {
+                    #region pesanan
+
+                    //change by nurul 11/9/2019, tuning 
+                    //var pesananTahunIni = ErasoftDbContext.SOT01A.Where(a => a.TGL.Value.Year == selectedDate.Year).ToList();
+                    string ssql = "";
+
+                    //CHANGE BY CALVIN 18 SEPTEMBER 2019, TUNING
+                    //ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') ";
+                    //var cekpesananTahunIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
+                    //if(cekpesananTahunIni.JUMLAH > 0)
+                    //{
+                    //    for (int i = 1; i < 13; i++)
+                    //    {
+                    //        //var cekjumlahPesanan = pesananTahunIni.Where(a => a.TGL.Value.Month == i).Count();
+                    //        //var NilaiPesanan = pesananTahunIni.Where(a => a.TGL.Value.Month == i).Sum(p => p.NETTO);
+
+                    //        string SSQL1 = "";
+                    //        SSQL1 += "SELECT ISNULL(SUM(NETTO),0) TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + " AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') ";
+                    //        var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL1).Single();
+                    //        string SSQL2 = "";
+                    //        SSQL2 += "SELECT COUNT(RECNUM) AS COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + " AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') ";
+                    //        var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL2).Single();
+
+                    //        vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
+                    //        {
+                    //            No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
+                    //            Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
+                    //            Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
+                    //        });
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    for (int i = 1; i < 13; i++)
+                    //    {
+                    //        vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
+                    //        {
+                    //            No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
+                    //            Jumlah = "0",
+                    //            Nilai = "0"
+                    //        });
+                    //    }
+                    //}
+                    {
+                        ssql = "";
+                        //ssql = "SELECT MONTH(TGL) BULAN, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY MONTH(TGL)";
+                        ssql = "SELECT MONTH(TGL) BULAN, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY MONTH(TGL)";
+                        var dsBulanan = EDB.GetDataSet("CString", "BULANAN", ssql);
+                        for (int i = 1; i < 13; i++)
                         {
-                            vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
+                            var getData = dsBulanan.Tables[0].Select("BULAN = '" + i + "'").FirstOrDefault();
+                            if (getData != null)
                             {
-                                No = dayName.ToString() + " " + getdate,
-                                Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
-                                Nilai = Convert.ToString(getData["TOTAL_NETTO"])
-                            });
-                        }
-                        else
-                        {
-                            vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
+                                vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
+                                {
+                                    No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
+                                    Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
+                                    Nilai = Convert.ToString(getData["TOTAL_NETTO"])
+                                });
+                            }
+                            else
                             {
-                                No = dayName.ToString() + " " + getdate,
-                                Jumlah = Convert.ToString(0),
-                                Nilai = Convert.ToString(0)
-                            });
+                                vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
+                                {
+                                    No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
+                                    Jumlah = Convert.ToString(0),
+                                    Nilai = Convert.ToString(0)
+                                });
+                            }
                         }
                     }
-                }
-                //END CHANGE BY CALVIN 18 SEPTEMBER 2019
+                    //END CHANGE BY CALVIN 18 SEPTEMBER 2019
 
-                //var pesananBulanIni = ErasoftDbContext.SOT01A.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth).ToList();
-                //CHANGE BY CALVIN 18 SEPTEMBER 2019
-                //ssql = "";
-                //ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SOT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') ";
-                //var cekpesananBulanIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
-                //if (cekpesananBulanIni.JUMLAH > 0)
-                //{
-                //    for (int i = 1; i < 6; i++)
-                //    {
-                //        if (i == 1)
-                //        {
-                //            //var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu1.Last())).Count();
-                //            //var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu1.Last())).Sum(a => a.NETTO);
-                //            string SSQL5 = "";
-                //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
-                //            var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
-                //            string SSQL6 = "";
-                //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
-                //            var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+                    //CHANGE BY CALVIN 18 SEPTEMBER 2019
+                    //for (int i = 0; i < endday.Count(); i++)
+                    //{
+                    //    var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
+                    //    var dayName = endday[i].DayOfWeek;
+                    //    //CHANGE BY NURUL 11/9/2019, TUNING 
+                    //    //var sSQLPesanan = "SELECT A.NOBUK, A.NETTO FROM (SELECT NO_BUKTI AS NOBUK, NETTO AS NETTO FROM SOT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' )A";
+                    //    //var ListPesananMingguini = ErasoftDbContext.Database.SqlQuery<listDataLine>(sSQLPesanan).ToList();
+                    //    //var cekjumlahpesanan = ListPesananMingguini.Count();
+                    //    //var NilaiPesanan = ListPesananMingguini.Sum(a => a.NETTO);
 
-                //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                //No = "MingguKe-" + i,
-                //                No = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
-                //                Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
-                //            });
-                //        }
-                //        else if (i == 2)
-                //        {
-                //            //var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu2.Last())).Count();
-                //            //var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu2.Last())).Sum(a => a.NETTO);
-                //            string SSQL5 = "";
-                //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
-                //            var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
-                //            string SSQL6 = "";
-                //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
-                //            var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+                    //    string SSQL3 = "";
+                    //    SSQL3 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
+                    //    var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL3).Single();
+                    //    string SSQL4 = "";
+                    //    SSQL4 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
+                    //    var cekjumlahpesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL4).Single();
 
-                //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
-                //                Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
-                //            });
-                //        }
-                //        else if (i == 3)
-                //        {
-                //            //var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu3.Last())).Count();
-                //            //var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu3.Last())).Sum(a => a.NETTO);
-                //            string SSQL5 = "";
-                //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
-                //            var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
-                //            string SSQL6 = "";
-                //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
-                //            var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
-
-                //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
-                //                Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
-                //            });
-                //        }
-                //        else if (i == 4)
-                //        {
-                //            //var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu4.Last())).Count();
-                //            //var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu4.Last())).Sum(a => a.NETTO);
-                //            string SSQL5 = "";
-                //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
-                //            var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
-                //            string SSQL6 = "";
-                //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
-                //            var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
-
-                //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
-                //                Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
-                //            });
-                //        }
-                //        else if (i == 5)
-                //        {
-                //            if (minggu5.Count() > 0)
-                //            {
-                //                //var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu5.Last())).Count();
-                //                //var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu5.Last())).Sum(a => a.NETTO);
-                //                string SSQL5 = "";
-                //                SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
-                //                var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
-                //                string SSQL6 = "";
-                //                SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
-                //                var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
-
-                //                vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
-                //                {
-                //                    No = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                    Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
-                //                    Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
-                //                });
-                //            }
-                //        }
-                //    }
-
-                //}
-                //else
-                //{
-                //    for (int i = 1; i < 6; i++)
-                //    {
-                //        if (i == 1)
-                //        {
-                //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = "0",
-                //                Nilai = "0"
-                //            });
-                //        }
-                //        else if (i == 2)
-                //        {
-                //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = "0",
-                //                Nilai = "0"
-                //            });
-                //        }
-                //        else if (i == 3)
-                //        {
-                //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = "0",
-                //                Nilai = "0"
-                //            });
-                //        }
-                //        else if (i == 4)
-                //        {
-                //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = "0",
-                //                Nilai = "0"
-                //            });
-                //        }
-                //        else if (i == 5)
-                //        {
-                //            if (minggu5.Count() > 0)
-                //            {
-                //                vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
-                //                {
-                //                    No = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                    Jumlah = "0",
-                //                    Nilai = "0"
-                //                });
-                //            }
-                //        }
-                //    }
-                //}
-                {
-                    var adaMinggu5 = minggu5.Count() > 0;
-                    ssql = "";
-                    //ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
-                    ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
-                    ssql += "UNION ALL" + System.Environment.NewLine;
-                    //ssql += "SELECT '2' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
-                    ssql += "SELECT '2' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
-                    ssql += "UNION ALL" + System.Environment.NewLine;
-                    //ssql += "SELECT '3' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
-                    ssql += "SELECT '3' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
-                    ssql += "UNION ALL" + System.Environment.NewLine;
-                    //ssql += "SELECT '4' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
-                    ssql += "SELECT '4' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
-
-                    if (adaMinggu5)
+                    //    vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
+                    //    {
+                    //        No = dayName.ToString() + " " + getdate,
+                    //        Jumlah = cekjumlahpesanan.COUNT_TRANSAKSI.ToString(),
+                    //        Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
+                    //    });
+                    //}
                     {
+                        var firstDateOfWeek = endday.First();
+                        var lastDateOfWeek = endday.Last();
+                        ssql = "";
+                        //ssql = "SELECT YEAR(TGL) TAHUN, MONTH(TGL) BULAN, DAY(TGL) HARI, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + firstDateOfWeek.ToString("yyyy-MM-dd") + " 00:00:00.000' AND TGL <= '" + lastDateOfWeek.ToString("yyyy-MM-dd") + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY YEAR(TGL),MONTH(TGL),DAY(TGL)";
+                        ssql = "SELECT YEAR(TGL) TAHUN, MONTH(TGL) BULAN, DAY(TGL) HARI, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + firstDateOfWeek.ToString("yyyy-MM-dd") + " 00:00:00.000' AND TGL <= '" + lastDateOfWeek.ToString("yyyy-MM-dd") + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY YEAR(TGL),MONTH(TGL),DAY(TGL)";
+                        var dsTuning = EDB.GetDataSet("CString", "HARIAN", ssql);
+                        for (int i = 0; i < endday.Count(); i++)
+                        {
+                            var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
+                            var dayName = endday[i].DayOfWeek;
+                            var getData = dsTuning.Tables[0].Select("TAHUN = '" + endday[i].Year + "' AND BULAN = '" + endday[i].Month + "' AND HARI = '" + endday[i].Day + "'").FirstOrDefault();
+                            if (getData != null)
+                            {
+                                vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
+                                {
+                                    No = dayName.ToString() + " " + getdate,
+                                    Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
+                                    Nilai = Convert.ToString(getData["TOTAL_NETTO"])
+                                });
+                            }
+                            else
+                            {
+                                vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
+                                {
+                                    No = dayName.ToString() + " " + getdate,
+                                    Jumlah = Convert.ToString(0),
+                                    Nilai = Convert.ToString(0)
+                                });
+                            }
+                        }
+                    }
+                    //END CHANGE BY CALVIN 18 SEPTEMBER 2019
+
+                    //var pesananBulanIni = ErasoftDbContext.SOT01A.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth).ToList();
+                    //CHANGE BY CALVIN 18 SEPTEMBER 2019
+                    //ssql = "";
+                    //ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SOT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') ";
+                    //var cekpesananBulanIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
+                    //if (cekpesananBulanIni.JUMLAH > 0)
+                    //{
+                    //    for (int i = 1; i < 6; i++)
+                    //    {
+                    //        if (i == 1)
+                    //        {
+                    //            //var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu1.Last())).Count();
+                    //            //var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu1.Last())).Sum(a => a.NETTO);
+                    //            string SSQL5 = "";
+                    //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
+                    //            var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                    //            string SSQL6 = "";
+                    //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
+                    //            var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
+                    //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                //No = "MingguKe-" + i,
+                    //                No = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
+                    //                Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
+                    //            });
+                    //        }
+                    //        else if (i == 2)
+                    //        {
+                    //            //var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu2.Last())).Count();
+                    //            //var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu2.Last())).Sum(a => a.NETTO);
+                    //            string SSQL5 = "";
+                    //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
+                    //            var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                    //            string SSQL6 = "";
+                    //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
+                    //            var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
+                    //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
+                    //                Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
+                    //            });
+                    //        }
+                    //        else if (i == 3)
+                    //        {
+                    //            //var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu3.Last())).Count();
+                    //            //var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu3.Last())).Sum(a => a.NETTO);
+                    //            string SSQL5 = "";
+                    //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
+                    //            var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                    //            string SSQL6 = "";
+                    //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
+                    //            var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
+                    //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
+                    //                Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
+                    //            });
+                    //        }
+                    //        else if (i == 4)
+                    //        {
+                    //            //var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu4.Last())).Count();
+                    //            //var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu4.Last())).Sum(a => a.NETTO);
+                    //            string SSQL5 = "";
+                    //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
+                    //            var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                    //            string SSQL6 = "";
+                    //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
+                    //            var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
+                    //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
+                    //                Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
+                    //            });
+                    //        }
+                    //        else if (i == 5)
+                    //        {
+                    //            if (minggu5.Count() > 0)
+                    //            {
+                    //                //var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu5.Last())).Count();
+                    //                //var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu5.Last())).Sum(a => a.NETTO);
+                    //                string SSQL5 = "";
+                    //                SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
+                    //                var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                    //                string SSQL6 = "";
+                    //                SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')";
+                    //                var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
+                    //                vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
+                    //                {
+                    //                    No = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                    Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
+                    //                    Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
+                    //                });
+                    //            }
+                    //        }
+                    //    }
+
+                    //}
+                    //else
+                    //{
+                    //    for (int i = 1; i < 6; i++)
+                    //    {
+                    //        if (i == 1)
+                    //        {
+                    //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = "0",
+                    //                Nilai = "0"
+                    //            });
+                    //        }
+                    //        else if (i == 2)
+                    //        {
+                    //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = "0",
+                    //                Nilai = "0"
+                    //            });
+                    //        }
+                    //        else if (i == 3)
+                    //        {
+                    //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = "0",
+                    //                Nilai = "0"
+                    //            });
+                    //        }
+                    //        else if (i == 4)
+                    //        {
+                    //            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = "0",
+                    //                Nilai = "0"
+                    //            });
+                    //        }
+                    //        else if (i == 5)
+                    //        {
+                    //            if (minggu5.Count() > 0)
+                    //            {
+                    //                vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
+                    //                {
+                    //                    No = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                    Jumlah = "0",
+                    //                    Nilai = "0"
+                    //                });
+                    //            }
+                    //        }
+                    //    }
+                    //}
+                    {
+                        var adaMinggu5 = minggu5.Count() > 0;
+                        ssql = "";
+                        //ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
+                        ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
                         ssql += "UNION ALL" + System.Environment.NewLine;
-                        //ssql += "SELECT '5' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
-                        ssql += "SELECT '5' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
-                    }
+                        //ssql += "SELECT '2' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
+                        ssql += "SELECT '2' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
+                        ssql += "UNION ALL" + System.Environment.NewLine;
+                        //ssql += "SELECT '3' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
+                        ssql += "SELECT '3' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
+                        ssql += "UNION ALL" + System.Environment.NewLine;
+                        //ssql += "SELECT '4' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
+                        ssql += "SELECT '4' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
 
-                    var dsTuning = EDB.GetDataSet("CString", "TUNING", ssql);
-                    for (int i = 1; i < 6; i++)
-                    {
-                        string noModel = "";
-                        switch (i)
+                        if (adaMinggu5)
                         {
-                            case 1:
-                                {
-                                    noModel = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
-                                }
-                                break;
-                            case 2:
-                                {
-                                    noModel = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
-                                }
-                                break;
-                            case 3:
-                                {
-                                    noModel = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
-                                }
-                                break;
-                            case 4:
-                                {
-                                    noModel = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
-                                }
-                                break;
-                            case 5:
-                                {
-                                    if (adaMinggu5)
-                                    {
-                                        noModel = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
-                                    }
-                                }
-                                break;
+                            ssql += "UNION ALL" + System.Environment.NewLine;
+                            //ssql += "SELECT '5' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
+                            ssql += "SELECT '5' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
                         }
-                        var getData = dsTuning.Tables[0].Select("MINGGU = '" + i + "'").FirstOrDefault();
-                        if (getData != null)
+
+                        var dsTuning = EDB.GetDataSet("CString", "TUNING", ssql);
+                        for (int i = 1; i < 6; i++)
                         {
-                            vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
+                            string noModel = "";
+                            switch (i)
                             {
-                                No = noModel,
-                                Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
-                                Nilai = Convert.ToString(getData["TOTAL_NETTO"])
-                            });
-                        }
-                        else
-                        {
-                            if (noModel != "")
+                                case 1:
+                                    {
+                                        noModel = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
+                                    }
+                                    break;
+                                case 2:
+                                    {
+                                        noModel = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
+                                    }
+                                    break;
+                                case 3:
+                                    {
+                                        noModel = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
+                                    }
+                                    break;
+                                case 4:
+                                    {
+                                        noModel = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
+                                    }
+                                    break;
+                                case 5:
+                                    {
+                                        if (adaMinggu5)
+                                        {
+                                            noModel = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
+                                        }
+                                    }
+                                    break;
+                            }
+                            var getData = dsTuning.Tables[0].Select("MINGGU = '" + i + "'").FirstOrDefault();
+                            if (getData != null)
                             {
                                 vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
                                 {
                                     No = noModel,
-                                    Jumlah = "0",
-                                    Nilai = "0"
+                                    Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
+                                    Nilai = Convert.ToString(getData["TOTAL_NETTO"])
+                                });
+                            }
+                            else
+                            {
+                                if (noModel != "")
+                                {
+                                    vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
+                                    {
+                                        No = noModel,
+                                        Jumlah = "0",
+                                        Nilai = "0"
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    //END CHANGE BY CALVIN 18 SEPTEMBER 2019
+
+                    #endregion
+                    #region faktur
+                    //var fakturTahunIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.JENIS_FORM == "2").ToList();
+
+                    //CHANGE BY CALVIN 18 SEPTEMBER 2019, TUNING
+                    //ssql = "";
+                    //ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '2' ";
+                    //var cekfakturTahunIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
+                    //if(cekfakturTahunIni.JUMLAH > 0)
+                    //{
+                    //    for (int i = 1; i < 13; i++)
+                    //    {
+                    //        //var cekjumlahFaktur = fakturTahunIni.Where(a => a.TGL.Month == i).Count();
+                    //        //var NilaiFaktur = fakturTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO);
+
+                    //        string SSQL1 = "";
+                    //        SSQL1 += "SELECT ISNULL(SUM(NETTO),0) TOTAL_NETTO FROM SIT01A WHERE JENIS_FORM = '2' AND YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + "";
+                    //        var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL1).Single();
+                    //        string SSQL2 = "";
+                    //        SSQL2 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE JENIS_FORM = '2' AND YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + " ";
+                    //        var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL2).Single();
+
+                    //        vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
+                    //        {
+                    //            No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
+                    //            Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
+                    //            Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
+                    //        });
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    for (int i = 1; i < 13; i++)
+                    //    {
+                    //        vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
+                    //        {
+                    //            No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
+                    //            Jumlah = "0",
+                    //            Nilai = "0"
+                    //        });
+                    //    }
+                    //}
+                    {
+                        ssql = "";
+                        //ssql = "SELECT MONTH(TGL) BULAN, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '2' AND STATUS = '1' GROUP BY MONTH(TGL)";
+                        ssql = "SELECT MONTH(TGL) BULAN, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '2' AND STATUS = '1' GROUP BY MONTH(TGL)";
+                        var dsBulanan = EDB.GetDataSet("CString", "BULANAN", ssql);
+                        for (int i = 1; i < 13; i++)
+                        {
+                            var getData = dsBulanan.Tables[0].Select("BULAN = '" + i + "'").FirstOrDefault();
+                            if (getData != null)
+                            {
+                                vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
+                                {
+                                    No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
+                                    Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
+                                    Nilai = Convert.ToString(getData["TOTAL_NETTO"])
+                                });
+                            }
+                            else
+                            {
+                                vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
+                                {
+                                    No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
+                                    Jumlah = Convert.ToString(0),
+                                    Nilai = Convert.ToString(0)
                                 });
                             }
                         }
                     }
-                }
-                //END CHANGE BY CALVIN 18 SEPTEMBER 2019
+                    //END CHANGE BY CALVIN 18 SEPTEMBER 2019
 
-                #endregion
-                #region faktur
-                //var fakturTahunIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.JENIS_FORM == "2").ToList();
+                    //CHANGE BY CALVIN 18 SEPTEMBER 2019, TUNING
+                    //for (int i = 0; i < endday.Count(); i++)
+                    //{
+                    //    var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
+                    //    var dayName = endday[i].DayOfWeek;
+                    //    //var sSQLFaktur = "SELECT A.NOBUK, A.NETTO FROM (SELECT NO_BUKTI AS NOBUK, NETTO AS NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '2' )A";
+                    //    //var ListFakturMingguini = ErasoftDbContext.Database.SqlQuery<listDataLine>(sSQLFaktur).ToList();
+                    //    //var cekjumlahFaktur = ListFakturMingguini.Count();
+                    //    //var NilaiFaktur = ListFakturMingguini.Sum(a => a.NETTO);
+                    //    string SSQL3 = "";
+                    //    SSQL3 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '2'";
+                    //    var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL3).Single();
+                    //    string SSQL4 = "";
+                    //    SSQL4 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '2'";
+                    //    var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL4).Single();
 
-                //CHANGE BY CALVIN 18 SEPTEMBER 2019, TUNING
-                //ssql = "";
-                //ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '2' ";
-                //var cekfakturTahunIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
-                //if(cekfakturTahunIni.JUMLAH > 0)
-                //{
-                //    for (int i = 1; i < 13; i++)
-                //    {
-                //        //var cekjumlahFaktur = fakturTahunIni.Where(a => a.TGL.Month == i).Count();
-                //        //var NilaiFaktur = fakturTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO);
-
-                //        string SSQL1 = "";
-                //        SSQL1 += "SELECT ISNULL(SUM(NETTO),0) TOTAL_NETTO FROM SIT01A WHERE JENIS_FORM = '2' AND YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + "";
-                //        var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL1).Single();
-                //        string SSQL2 = "";
-                //        SSQL2 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE JENIS_FORM = '2' AND YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + " ";
-                //        var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL2).Single();
-
-                //        vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
-                //        {
-                //            No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                //            Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
-                //            Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
-                //        });
-                //    }
-                //}
-                //else
-                //{
-                //    for (int i = 1; i < 13; i++)
-                //    {
-                //        vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
-                //        {
-                //            No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                //            Jumlah = "0",
-                //            Nilai = "0"
-                //        });
-                //    }
-                //}
-                {
-                    ssql = "";
-                    //ssql = "SELECT MONTH(TGL) BULAN, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '2' AND STATUS = '1' GROUP BY MONTH(TGL)";
-                    ssql = "SELECT MONTH(TGL) BULAN, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '2' AND STATUS = '1' GROUP BY MONTH(TGL)";
-                    var dsBulanan = EDB.GetDataSet("CString", "BULANAN", ssql);
-                    for (int i = 1; i < 13; i++)
+                    //    vm.ListdashboardFakturMingguan.Add(new DashboardMingguanModel()
+                    //    {
+                    //        No = dayName.ToString() + " " + getdate,
+                    //        Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
+                    //        Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
+                    //    });
+                    //}
                     {
-                        var getData = dsBulanan.Tables[0].Select("BULAN = '" + i + "'").FirstOrDefault();
-                        if (getData != null)
+                        var firstDateOfWeek = endday.First();
+                        var lastDateOfWeek = endday.Last();
+                        ssql = "";
+                        //ssql = "SELECT YEAR(TGL) TAHUN, MONTH(TGL) BULAN, DAY(TGL) HARI, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + firstDateOfWeek.ToString("yyyy-MM-dd") + " 00:00:00.000' AND TGL <= '" + lastDateOfWeek.ToString("yyyy-MM-dd") + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1' GROUP BY YEAR(TGL),MONTH(TGL),DAY(TGL)";
+                        ssql = "SELECT YEAR(TGL) TAHUN, MONTH(TGL) BULAN, DAY(TGL) HARI, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + firstDateOfWeek.ToString("yyyy-MM-dd") + " 00:00:00.000' AND TGL <= '" + lastDateOfWeek.ToString("yyyy-MM-dd") + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1' GROUP BY YEAR(TGL),MONTH(TGL),DAY(TGL)";
+                        var dsTuning = EDB.GetDataSet("CString", "HARIAN", ssql);
+                        for (int i = 0; i < endday.Count(); i++)
                         {
-                            vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
+                            var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
+                            var dayName = endday[i].DayOfWeek;
+                            var getData = dsTuning.Tables[0].Select("TAHUN = '" + endday[i].Year + "' AND BULAN = '" + endday[i].Month + "' AND HARI = '" + endday[i].Day + "'").FirstOrDefault();
+                            if (getData != null)
                             {
-                                No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                                Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
-                                Nilai = Convert.ToString(getData["TOTAL_NETTO"])
-                            });
-                        }
-                        else
-                        {
-                            vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
+                                vm.ListdashboardFakturMingguan.Add(new DashboardMingguanModel()
+                                {
+                                    No = dayName.ToString() + " " + getdate,
+                                    Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
+                                    Nilai = Convert.ToString(getData["TOTAL_NETTO"])
+                                });
+                            }
+                            else
                             {
-                                No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                                Jumlah = Convert.ToString(0),
-                                Nilai = Convert.ToString(0)
-                            });
+                                vm.ListdashboardFakturMingguan.Add(new DashboardMingguanModel()
+                                {
+                                    No = dayName.ToString() + " " + getdate,
+                                    Jumlah = Convert.ToString(0),
+                                    Nilai = Convert.ToString(0)
+                                });
+                            }
                         }
                     }
-                }
-                //END CHANGE BY CALVIN 18 SEPTEMBER 2019
+                    //END CHANGE BY CALVIN 18 SEPTEMBER 2019
 
-                //CHANGE BY CALVIN 18 SEPTEMBER 2019, TUNING
-                //for (int i = 0; i < endday.Count(); i++)
-                //{
-                //    var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
-                //    var dayName = endday[i].DayOfWeek;
-                //    //var sSQLFaktur = "SELECT A.NOBUK, A.NETTO FROM (SELECT NO_BUKTI AS NOBUK, NETTO AS NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '2' )A";
-                //    //var ListFakturMingguini = ErasoftDbContext.Database.SqlQuery<listDataLine>(sSQLFaktur).ToList();
-                //    //var cekjumlahFaktur = ListFakturMingguini.Count();
-                //    //var NilaiFaktur = ListFakturMingguini.Sum(a => a.NETTO);
-                //    string SSQL3 = "";
-                //    SSQL3 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '2'";
-                //    var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL3).Single();
-                //    string SSQL4 = "";
-                //    SSQL4 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '2'";
-                //    var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL4).Single();
+                    //CHANGE BY CALVIN 18 SEPTEMBER 2019, TUNING
+                    ////var fakturBulanIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.JENIS_FORM == "2").ToList();
+                    //ssql = "";
+                    //ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND JENIS_FORM = '2' ";
+                    //var cekfakturBulanIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
+                    //if (cekfakturBulanIni.JUMLAH > 0)
+                    //{
+                    //    for (int i = 1; i < 6; i++)
+                    //    {
+                    //        if (i == 1)
+                    //        {
+                    //            //var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Count();
+                    //            //var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Sum(a => a.NETTO);
+                    //            string SSQL5 = "";
+                    //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND JENIS_FORM = '2'";
+                    //            var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                    //            string SSQL6 = "";
+                    //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND JENIS_FORM = '2'";
+                    //            var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
 
-                //    vm.ListdashboardFakturMingguan.Add(new DashboardMingguanModel()
-                //    {
-                //        No = dayName.ToString() + " " + getdate,
-                //        Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
-                //        Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
-                //    });
-                //}
-                {
-                    var firstDateOfWeek = endday.First();
-                    var lastDateOfWeek = endday.Last();
-                    ssql = "";
-                    //ssql = "SELECT YEAR(TGL) TAHUN, MONTH(TGL) BULAN, DAY(TGL) HARI, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + firstDateOfWeek.ToString("yyyy-MM-dd") + " 00:00:00.000' AND TGL <= '" + lastDateOfWeek.ToString("yyyy-MM-dd") + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1' GROUP BY YEAR(TGL),MONTH(TGL),DAY(TGL)";
-                    ssql = "SELECT YEAR(TGL) TAHUN, MONTH(TGL) BULAN, DAY(TGL) HARI, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + firstDateOfWeek.ToString("yyyy-MM-dd") + " 00:00:00.000' AND TGL <= '" + lastDateOfWeek.ToString("yyyy-MM-dd") + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1' GROUP BY YEAR(TGL),MONTH(TGL),DAY(TGL)";
-                    var dsTuning = EDB.GetDataSet("CString", "HARIAN", ssql);
-                    for (int i = 0; i < endday.Count(); i++)
+                    //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
+                    //                Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
+                    //            });
+                    //        }
+                    //        else if (i == 2)
+                    //        {
+                    //            //var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Count();
+                    //            //var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Sum(a => a.NETTO);
+                    //            string SSQL5 = "";
+                    //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND JENIS_FORM = '2'";
+                    //            var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                    //            string SSQL6 = "";
+                    //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND JENIS_FORM = '2'";
+                    //            var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
+                    //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
+                    //                Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
+                    //            });
+                    //        }
+                    //        else if (i == 3)
+                    //        {
+                    //            //var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Count();
+                    //            //var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Sum(a => a.NETTO);
+                    //            string SSQL5 = "";
+                    //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND JENIS_FORM = '2'";
+                    //            var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                    //            string SSQL6 = "";
+                    //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND JENIS_FORM = '2'";
+                    //            var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
+                    //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
+                    //                Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
+                    //            });
+                    //        }
+                    //        else if (i == 4)
+                    //        {
+                    //            //var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Count();
+                    //            //var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Sum(a => a.NETTO);
+                    //            string SSQL5 = "";
+                    //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND JENIS_FORM = '2'";
+                    //            var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                    //            string SSQL6 = "";
+                    //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND JENIS_FORM = '2'";
+                    //            var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
+                    //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
+                    //                Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
+                    //            });
+                    //        }
+                    //        else if (i == 5)
+                    //        {
+                    //            if (minggu5.Count() > 0)
+                    //            {
+                    //                //var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Count();
+                    //                //var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Sum(a => a.NETTO);
+                    //                string SSQL5 = "";
+                    //                SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND JENIS_FORM = '2'";
+                    //                var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                    //                string SSQL6 = "";
+                    //                SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND JENIS_FORM = '2'";
+                    //                var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
+                    //                vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
+                    //                {
+                    //                    No = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                    Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
+                    //                    Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
+                    //                });
+                    //            }
+                    //        }
+                    //    }
+
+                    //}
+                    //else
+                    //{
+                    //    for (int i = 1; i < 6; i++)
+                    //    {
+                    //        if (i == 1)
+                    //        {
+                    //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = "0",
+                    //                Nilai = "0"
+                    //            });
+                    //        }
+                    //        else if (i == 2)
+                    //        {
+                    //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = "0",
+                    //                Nilai = "0"
+                    //            });
+                    //        }
+                    //        else if (i == 3)
+                    //        {
+                    //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = "0",
+                    //                Nilai = "0"
+                    //            });
+                    //        }
+                    //        else if (i == 4)
+                    //        {
+                    //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = "0",
+                    //                Nilai = "0"
+                    //            });
+                    //        }
+                    //        else if (i == 5)
+                    //        {
+                    //            if (minggu5.Count() > 0)
+                    //            {
+                    //                vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
+                    //                {
+                    //                    No = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                    Jumlah = "0",
+                    //                    Nilai = "0"
+                    //                });
+                    //            }
+                    //        }
+                    //    }
+                    //}
                     {
-                        var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
-                        var dayName = endday[i].DayOfWeek;
-                        var getData = dsTuning.Tables[0].Select("TAHUN = '" + endday[i].Year + "' AND BULAN = '" + endday[i].Month + "' AND HARI = '" + endday[i].Day + "'").FirstOrDefault();
-                        if (getData != null)
-                        {
-                            vm.ListdashboardFakturMingguan.Add(new DashboardMingguanModel()
-                            {
-                                No = dayName.ToString() + " " + getdate,
-                                Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
-                                Nilai = Convert.ToString(getData["TOTAL_NETTO"])
-                            });
-                        }
-                        else
-                        {
-                            vm.ListdashboardFakturMingguan.Add(new DashboardMingguanModel()
-                            {
-                                No = dayName.ToString() + " " + getdate,
-                                Jumlah = Convert.ToString(0),
-                                Nilai = Convert.ToString(0)
-                            });
-                        }
-                    }
-                }
-                //END CHANGE BY CALVIN 18 SEPTEMBER 2019
-
-                //CHANGE BY CALVIN 18 SEPTEMBER 2019, TUNING
-                ////var fakturBulanIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.JENIS_FORM == "2").ToList();
-                //ssql = "";
-                //ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND JENIS_FORM = '2' ";
-                //var cekfakturBulanIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
-                //if (cekfakturBulanIni.JUMLAH > 0)
-                //{
-                //    for (int i = 1; i < 6; i++)
-                //    {
-                //        if (i == 1)
-                //        {
-                //            //var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Count();
-                //            //var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Sum(a => a.NETTO);
-                //            string SSQL5 = "";
-                //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND JENIS_FORM = '2'";
-                //            var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
-                //            string SSQL6 = "";
-                //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND JENIS_FORM = '2'";
-                //            var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
-
-                //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
-                //                Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
-                //            });
-                //        }
-                //        else if (i == 2)
-                //        {
-                //            //var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Count();
-                //            //var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Sum(a => a.NETTO);
-                //            string SSQL5 = "";
-                //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND JENIS_FORM = '2'";
-                //            var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
-                //            string SSQL6 = "";
-                //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND JENIS_FORM = '2'";
-                //            var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
-
-                //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
-                //                Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
-                //            });
-                //        }
-                //        else if (i == 3)
-                //        {
-                //            //var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Count();
-                //            //var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Sum(a => a.NETTO);
-                //            string SSQL5 = "";
-                //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND JENIS_FORM = '2'";
-                //            var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
-                //            string SSQL6 = "";
-                //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND JENIS_FORM = '2'";
-                //            var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
-
-                //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
-                //                Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
-                //            });
-                //        }
-                //        else if (i == 4)
-                //        {
-                //            //var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Count();
-                //            //var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Sum(a => a.NETTO);
-                //            string SSQL5 = "";
-                //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND JENIS_FORM = '2'";
-                //            var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
-                //            string SSQL6 = "";
-                //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND JENIS_FORM = '2'";
-                //            var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
-
-                //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
-                //                Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
-                //            });
-                //        }
-                //        else if (i == 5)
-                //        {
-                //            if (minggu5.Count() > 0)
-                //            {
-                //                //var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Count();
-                //                //var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Sum(a => a.NETTO);
-                //                string SSQL5 = "";
-                //                SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND JENIS_FORM = '2'";
-                //                var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
-                //                string SSQL6 = "";
-                //                SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND JENIS_FORM = '2'";
-                //                var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
-
-                //                vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
-                //                {
-                //                    No = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                    Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
-                //                    Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
-                //                });
-                //            }
-                //        }
-                //    }
-
-                //}
-                //else
-                //{
-                //    for (int i = 1; i < 6; i++)
-                //    {
-                //        if (i == 1)
-                //        {
-                //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = "0",
-                //                Nilai = "0"
-                //            });
-                //        }
-                //        else if (i == 2)
-                //        {
-                //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = "0",
-                //                Nilai = "0"
-                //            });
-                //        }
-                //        else if (i == 3)
-                //        {
-                //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = "0",
-                //                Nilai = "0"
-                //            });
-                //        }
-                //        else if (i == 4)
-                //        {
-                //            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = "0",
-                //                Nilai = "0"
-                //            });
-                //        }
-                //        else if (i == 5)
-                //        {
-                //            if (minggu5.Count() > 0)
-                //            {
-                //                vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
-                //                {
-                //                    No = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                    Jumlah = "0",
-                //                    Nilai = "0"
-                //                });
-                //            }
-                //        }
-                //    }
-                //}
-                {
-                    var adaMinggu5 = minggu5.Count() > 0;
-                    ssql = "";
-                    //ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
-                    ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
-                    ssql += "UNION ALL" + System.Environment.NewLine;
-                    //ssql += "SELECT '2' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
-                    ssql += "SELECT '2' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
-                    ssql += "UNION ALL" + System.Environment.NewLine;
-                    //ssql += "SELECT '3' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
-                    ssql += "SELECT '3' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
-                    ssql += "UNION ALL" + System.Environment.NewLine;
-                    //ssql += "SELECT '4' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
-                    ssql += "SELECT '4' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
-
-                    if (adaMinggu5)
-                    {
+                        var adaMinggu5 = minggu5.Count() > 0;
+                        ssql = "";
+                        //ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
+                        ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
                         ssql += "UNION ALL" + System.Environment.NewLine;
-                        //ssql += "SELECT '5' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
-                        ssql += "SELECT '5' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
-                    }
+                        //ssql += "SELECT '2' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
+                        ssql += "SELECT '2' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
+                        ssql += "UNION ALL" + System.Environment.NewLine;
+                        //ssql += "SELECT '3' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
+                        ssql += "SELECT '3' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
+                        ssql += "UNION ALL" + System.Environment.NewLine;
+                        //ssql += "SELECT '4' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
+                        ssql += "SELECT '4' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
 
-                    var dsTuning = EDB.GetDataSet("CString", "TUNING", ssql);
-                    for (int i = 1; i < 6; i++)
-                    {
-                        string noModel = "";
-                        switch (i)
+                        if (adaMinggu5)
                         {
-                            case 1:
-                                {
-                                    noModel = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
-                                }
-                                break;
-                            case 2:
-                                {
-                                    noModel = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
-                                }
-                                break;
-                            case 3:
-                                {
-                                    noModel = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
-                                }
-                                break;
-                            case 4:
-                                {
-                                    noModel = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
-                                }
-                                break;
-                            case 5:
-                                {
-                                    if (adaMinggu5)
-                                    {
-                                        noModel = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
-                                    }
-                                }
-                                break;
+                            ssql += "UNION ALL" + System.Environment.NewLine;
+                            //ssql += "SELECT '5' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
+                            ssql += "SELECT '5' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
                         }
-                        var getData = dsTuning.Tables[0].Select("MINGGU = '" + i + "'").FirstOrDefault();
-                        if (getData != null)
+
+                        var dsTuning = EDB.GetDataSet("CString", "TUNING", ssql);
+                        for (int i = 1; i < 6; i++)
                         {
-                            vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
+                            string noModel = "";
+                            switch (i)
                             {
-                                No = noModel,
-                                Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
-                                Nilai = Convert.ToString(getData["TOTAL_NETTO"])
-                            });
-                        }
-                        else
-                        {
-                            if (noModel != "")
+                                case 1:
+                                    {
+                                        noModel = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
+                                    }
+                                    break;
+                                case 2:
+                                    {
+                                        noModel = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
+                                    }
+                                    break;
+                                case 3:
+                                    {
+                                        noModel = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
+                                    }
+                                    break;
+                                case 4:
+                                    {
+                                        noModel = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
+                                    }
+                                    break;
+                                case 5:
+                                    {
+                                        if (adaMinggu5)
+                                        {
+                                            noModel = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
+                                        }
+                                    }
+                                    break;
+                            }
+                            var getData = dsTuning.Tables[0].Select("MINGGU = '" + i + "'").FirstOrDefault();
+                            if (getData != null)
                             {
                                 vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
                                 {
                                     No = noModel,
-                                    Jumlah = "0",
-                                    Nilai = "0"
+                                    Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
+                                    Nilai = Convert.ToString(getData["TOTAL_NETTO"])
+                                });
+                            }
+                            else
+                            {
+                                if (noModel != "")
+                                {
+                                    vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
+                                    {
+                                        No = noModel,
+                                        Jumlah = "0",
+                                        Nilai = "0"
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    //END CHANGE BY CALVIN 18 SEPTEMBER 2019
+
+                    #endregion
+                    #region retur
+                    ////var returTahunIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.JENIS_FORM == "3").ToList();
+                    //ssql = "";
+                    //ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '3' ";
+                    //var cekreturTahunIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
+                    //if(cekreturTahunIni.JUMLAH > 0)
+                    //{
+                    //    for (int i = 1; i < 13; i++)
+                    //    {
+                    //        //var cekjumlahRetur = returTahunIni.Where(a => a.TGL.Month == i).Count();
+                    //        //var NilaiRetur = returTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO);
+
+                    //        string SSQL1 = "";
+                    //        SSQL1 += "SELECT ISNULL(SUM(NETTO),0) TOTAL_NETTO FROM SIT01A WHERE JENIS_FORM = '3' AND YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + "";
+                    //        var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL1).Single();
+                    //        string SSQL2 = "";
+                    //        SSQL2 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE JENIS_FORM = '3' AND YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + " ";
+                    //        var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL2).Single();
+
+                    //        vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
+                    //        {
+                    //            No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
+                    //            Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
+                    //            Nilai = NilaiRetur.TOTAL_NETTO.ToString()
+                    //        });
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    for (int i = 1; i < 13; i++)
+                    //    {
+                    //        vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
+                    //        {
+                    //            No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
+                    //            Jumlah = "0",
+                    //            Nilai = "0"
+                    //        });
+                    //    }
+                    //}
+                    {
+                        ssql = "";
+                        //ssql = "SELECT MONTH(TGL) BULAN, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '3' GROUP BY MONTH(TGL)";
+                        ssql = "SELECT MONTH(TGL) BULAN, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '3' GROUP BY MONTH(TGL)";
+                        var dsBulanan = EDB.GetDataSet("CString", "BULANAN", ssql);
+                        for (int i = 1; i < 13; i++)
+                        {
+                            var getData = dsBulanan.Tables[0].Select("BULAN = '" + i + "'").FirstOrDefault();
+                            if (getData != null)
+                            {
+                                vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
+                                {
+                                    No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
+                                    Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
+                                    Nilai = Convert.ToString(getData["TOTAL_NETTO"])
+                                });
+                            }
+                            else
+                            {
+                                vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
+                                {
+                                    No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
+                                    Jumlah = Convert.ToString(0),
+                                    Nilai = Convert.ToString(0)
                                 });
                             }
                         }
                     }
-                }
-                //END CHANGE BY CALVIN 18 SEPTEMBER 2019
+                    //END CHANGE BY CALVIN 18 SEPTEMBER 2019
 
-                #endregion
-                #region retur
-                ////var returTahunIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.JENIS_FORM == "3").ToList();
-                //ssql = "";
-                //ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '3' ";
-                //var cekreturTahunIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
-                //if(cekreturTahunIni.JUMLAH > 0)
-                //{
-                //    for (int i = 1; i < 13; i++)
-                //    {
-                //        //var cekjumlahRetur = returTahunIni.Where(a => a.TGL.Month == i).Count();
-                //        //var NilaiRetur = returTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO);
+                    //CHANGE BY CALVIN 18 SEPTEMBER 2019, TUNING
+                    //for (int i = 0; i < endday.Count(); i++)
+                    //{
+                    //    var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
+                    //    var dayName = endday[i].DayOfWeek;
+                    //    //var sSQLRetur = "SELECT A.NOBUK, A.NETTO FROM (SELECT NO_BUKTI AS NOBUK, NETTO AS NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '3' )A";
+                    //    //var ListReturMingguini = ErasoftDbContext.Database.SqlQuery<listDataLine>(sSQLRetur).ToList();
+                    //    //var cekjumlahRetur = ListReturMingguini.Count();
+                    //    //var NilaiRetur = ListReturMingguini.Sum(a => a.NETTO);
+                    //    string SSQL3 = "";
+                    //    SSQL3 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '3'";
+                    //    var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL3).Single();
+                    //    string SSQL4 = "";
+                    //    SSQL4 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '3'";
+                    //    var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL4).Single();
 
-                //        string SSQL1 = "";
-                //        SSQL1 += "SELECT ISNULL(SUM(NETTO),0) TOTAL_NETTO FROM SIT01A WHERE JENIS_FORM = '3' AND YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + "";
-                //        var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL1).Single();
-                //        string SSQL2 = "";
-                //        SSQL2 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE JENIS_FORM = '3' AND YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + " ";
-                //        var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL2).Single();
-
-                //        vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
-                //        {
-                //            No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                //            Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
-                //            Nilai = NilaiRetur.TOTAL_NETTO.ToString()
-                //        });
-                //    }
-                //}
-                //else
-                //{
-                //    for (int i = 1; i < 13; i++)
-                //    {
-                //        vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
-                //        {
-                //            No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                //            Jumlah = "0",
-                //            Nilai = "0"
-                //        });
-                //    }
-                //}
-                {
-                    ssql = "";
-                    //ssql = "SELECT MONTH(TGL) BULAN, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '3' GROUP BY MONTH(TGL)";
-                    ssql = "SELECT MONTH(TGL) BULAN, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '3' GROUP BY MONTH(TGL)";
-                    var dsBulanan = EDB.GetDataSet("CString", "BULANAN", ssql);
-                    for (int i = 1; i < 13; i++)
+                    //    vm.ListdashboardReturMingguan.Add(new DashboardMingguanModel()
+                    //    {
+                    //        No = dayName.ToString() + " " + getdate,
+                    //        Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
+                    //        Nilai = NilaiRetur.TOTAL_NETTO.ToString()
+                    //    });
+                    //}
                     {
-                        var getData = dsBulanan.Tables[0].Select("BULAN = '" + i + "'").FirstOrDefault();
-                        if (getData != null)
+                        var firstDateOfWeek = endday.First();
+                        var lastDateOfWeek = endday.Last();
+                        ssql = "";
+                        //ssql = "SELECT YEAR(TGL) TAHUN, MONTH(TGL) BULAN, DAY(TGL) HARI, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + firstDateOfWeek.ToString("yyyy-MM-dd") + " 00:00:00.000' AND TGL <= '" + lastDateOfWeek.ToString("yyyy-MM-dd") + " 23:59:59.999' AND JENIS_FORM = '3' GROUP BY YEAR(TGL),MONTH(TGL),DAY(TGL)";
+                        ssql = "SELECT YEAR(TGL) TAHUN, MONTH(TGL) BULAN, DAY(TGL) HARI, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + firstDateOfWeek.ToString("yyyy-MM-dd") + " 00:00:00.000' AND TGL <= '" + lastDateOfWeek.ToString("yyyy-MM-dd") + " 23:59:59.999' AND JENIS_FORM = '3' GROUP BY YEAR(TGL),MONTH(TGL),DAY(TGL)";
+                        var dsTuning = EDB.GetDataSet("CString", "HARIAN", ssql);
+                        for (int i = 0; i < endday.Count(); i++)
                         {
-                            vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
+                            var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
+                            var dayName = endday[i].DayOfWeek;
+                            var getData = dsTuning.Tables[0].Select("TAHUN = '" + endday[i].Year + "' AND BULAN = '" + endday[i].Month + "' AND HARI = '" + endday[i].Day + "'").FirstOrDefault();
+                            if (getData != null)
                             {
-                                No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                                Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
-                                Nilai = Convert.ToString(getData["TOTAL_NETTO"])
-                            });
-                        }
-                        else
-                        {
-                            vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
+                                vm.ListdashboardReturMingguan.Add(new DashboardMingguanModel()
+                                {
+                                    No = dayName.ToString() + " " + getdate,
+                                    Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
+                                    Nilai = Convert.ToString(getData["TOTAL_NETTO"])
+                                });
+                            }
+                            else
                             {
-                                No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                                Jumlah = Convert.ToString(0),
-                                Nilai = Convert.ToString(0)
-                            });
+                                vm.ListdashboardReturMingguan.Add(new DashboardMingguanModel()
+                                {
+                                    No = dayName.ToString() + " " + getdate,
+                                    Jumlah = Convert.ToString(0),
+                                    Nilai = Convert.ToString(0)
+                                });
+                            }
                         }
                     }
-                }
-                //END CHANGE BY CALVIN 18 SEPTEMBER 2019
+                    //END CHANGE BY CALVIN 18 SEPTEMBER 2019
 
-                //CHANGE BY CALVIN 18 SEPTEMBER 2019, TUNING
-                //for (int i = 0; i < endday.Count(); i++)
-                //{
-                //    var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
-                //    var dayName = endday[i].DayOfWeek;
-                //    //var sSQLRetur = "SELECT A.NOBUK, A.NETTO FROM (SELECT NO_BUKTI AS NOBUK, NETTO AS NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '3' )A";
-                //    //var ListReturMingguini = ErasoftDbContext.Database.SqlQuery<listDataLine>(sSQLRetur).ToList();
-                //    //var cekjumlahRetur = ListReturMingguini.Count();
-                //    //var NilaiRetur = ListReturMingguini.Sum(a => a.NETTO);
-                //    string SSQL3 = "";
-                //    SSQL3 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '3'";
-                //    var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL3).Single();
-                //    string SSQL4 = "";
-                //    SSQL4 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '3'";
-                //    var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL4).Single();
+                    //CHANGE BY CALVIN 18 SEPTEMBER 2019, TUNING
+                    ////var ReturBulanIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.JENIS_FORM == "3").ToList();
+                    //ssql = "";
+                    //ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND JENIS_FORM = '3' ";
+                    //var cekReturBulanIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
+                    //if (cekReturBulanIni.JUMLAH > 0)
+                    //{
+                    //    for (int i = 1; i < 6; i++)
+                    //    {
+                    //        if (i == 1)
+                    //        {
+                    //            //var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Count();
+                    //            //var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Sum(a => a.NETTO);
+                    //            string SSQL5 = "";
+                    //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND JENIS_FORM = '3'";
+                    //            var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                    //            string SSQL6 = "";
+                    //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND JENIS_FORM = '3'";
+                    //            var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
 
-                //    vm.ListdashboardReturMingguan.Add(new DashboardMingguanModel()
-                //    {
-                //        No = dayName.ToString() + " " + getdate,
-                //        Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
-                //        Nilai = NilaiRetur.TOTAL_NETTO.ToString()
-                //    });
-                //}
-                {
-                    var firstDateOfWeek = endday.First();
-                    var lastDateOfWeek = endday.Last();
-                    ssql = "";
-                    //ssql = "SELECT YEAR(TGL) TAHUN, MONTH(TGL) BULAN, DAY(TGL) HARI, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + firstDateOfWeek.ToString("yyyy-MM-dd") + " 00:00:00.000' AND TGL <= '" + lastDateOfWeek.ToString("yyyy-MM-dd") + " 23:59:59.999' AND JENIS_FORM = '3' GROUP BY YEAR(TGL),MONTH(TGL),DAY(TGL)";
-                    ssql = "SELECT YEAR(TGL) TAHUN, MONTH(TGL) BULAN, DAY(TGL) HARI, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + firstDateOfWeek.ToString("yyyy-MM-dd") + " 00:00:00.000' AND TGL <= '" + lastDateOfWeek.ToString("yyyy-MM-dd") + " 23:59:59.999' AND JENIS_FORM = '3' GROUP BY YEAR(TGL),MONTH(TGL),DAY(TGL)";
-                    var dsTuning = EDB.GetDataSet("CString", "HARIAN", ssql);
-                    for (int i = 0; i < endday.Count(); i++)
+                    //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
+                    //                Nilai = NilaiRetur.TOTAL_NETTO.ToString()
+                    //            });
+                    //        }
+                    //        else if (i == 2)
+                    //        {
+                    //            //var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Count();
+                    //            //var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Sum(a => a.NETTO);
+                    //            string SSQL5 = "";
+                    //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND JENIS_FORM = '3'";
+                    //            var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                    //            string SSQL6 = "";
+                    //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND JENIS_FORM = '3'";
+                    //            var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
+                    //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
+                    //                Nilai = NilaiRetur.TOTAL_NETTO.ToString()
+                    //            });
+                    //        }
+                    //        else if (i == 3)
+                    //        {
+                    //            //var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Count();
+                    //            //var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Sum(a => a.NETTO);
+                    //            string SSQL5 = "";
+                    //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND JENIS_FORM = '3'";
+                    //            var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                    //            string SSQL6 = "";
+                    //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND JENIS_FORM = '3'";
+                    //            var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
+                    //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
+                    //                Nilai = NilaiRetur.TOTAL_NETTO.ToString()
+                    //            });
+                    //        }
+                    //        else if (i == 4)
+                    //        {
+                    //            //var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Count();
+                    //            //var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Sum(a => a.NETTO);
+                    //            string SSQL5 = "";
+                    //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND JENIS_FORM = '3'";
+                    //            var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                    //            string SSQL6 = "";
+                    //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND JENIS_FORM = '3'";
+                    //            var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
+                    //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
+                    //                Nilai = NilaiRetur.TOTAL_NETTO.ToString()
+                    //            });
+                    //        }
+                    //        else if (i == 5)
+                    //        {
+                    //            if (minggu5.Count() > 0)
+                    //            {
+                    //                //var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Count();
+                    //                //var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Sum(a => a.NETTO);
+                    //                string SSQL5 = "";
+                    //                SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND JENIS_FORM = '3'";
+                    //                var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                    //                string SSQL6 = "";
+                    //                SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND JENIS_FORM = '3'";
+                    //                var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
+                    //                vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
+                    //                {
+                    //                    No = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                    Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
+                    //                    Nilai = NilaiRetur.TOTAL_NETTO.ToString()
+                    //                });
+                    //            }
+                    //        }
+                    //    }
+
+                    //}
+                    //else
+                    //{
+                    //    for (int i = 1; i < 6; i++)
+                    //    {
+                    //        if (i == 1)
+                    //        {
+                    //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = "0",
+                    //                Nilai = "0"
+                    //            });
+                    //        }
+                    //        else if (i == 2)
+                    //        {
+                    //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = "0",
+                    //                Nilai = "0"
+                    //            });
+                    //        }
+                    //        else if (i == 3)
+                    //        {
+                    //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = "0",
+                    //                Nilai = "0"
+                    //            });
+                    //        }
+                    //        else if (i == 4)
+                    //        {
+                    //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
+                    //            {
+                    //                No = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                Jumlah = "0",
+                    //                Nilai = "0"
+                    //            });
+                    //        }
+                    //        else if (i == 5)
+                    //        {
+                    //            if (minggu5.Count() > 0)
+                    //            {
+                    //                vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
+                    //                {
+                    //                    No = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
+                    //                    Jumlah = "0",
+                    //                    Nilai = "0"
+                    //                });
+                    //            }
+                    //        }
+                    //    }
+                    //}
                     {
-                        var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
-                        var dayName = endday[i].DayOfWeek;
-                        var getData = dsTuning.Tables[0].Select("TAHUN = '" + endday[i].Year + "' AND BULAN = '" + endday[i].Month + "' AND HARI = '" + endday[i].Day + "'").FirstOrDefault();
-                        if (getData != null)
-                        {
-                            vm.ListdashboardReturMingguan.Add(new DashboardMingguanModel()
-                            {
-                                No = dayName.ToString() + " " + getdate,
-                                Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
-                                Nilai = Convert.ToString(getData["TOTAL_NETTO"])
-                            });
-                        }
-                        else
-                        {
-                            vm.ListdashboardReturMingguan.Add(new DashboardMingguanModel()
-                            {
-                                No = dayName.ToString() + " " + getdate,
-                                Jumlah = Convert.ToString(0),
-                                Nilai = Convert.ToString(0)
-                            });
-                        }
-                    }
-                }
-                //END CHANGE BY CALVIN 18 SEPTEMBER 2019
-
-                //CHANGE BY CALVIN 18 SEPTEMBER 2019, TUNING
-                ////var ReturBulanIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.JENIS_FORM == "3").ToList();
-                //ssql = "";
-                //ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND JENIS_FORM = '3' ";
-                //var cekReturBulanIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
-                //if (cekReturBulanIni.JUMLAH > 0)
-                //{
-                //    for (int i = 1; i < 6; i++)
-                //    {
-                //        if (i == 1)
-                //        {
-                //            //var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Count();
-                //            //var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Sum(a => a.NETTO);
-                //            string SSQL5 = "";
-                //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND JENIS_FORM = '3'";
-                //            var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
-                //            string SSQL6 = "";
-                //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND JENIS_FORM = '3'";
-                //            var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
-
-                //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
-                //                Nilai = NilaiRetur.TOTAL_NETTO.ToString()
-                //            });
-                //        }
-                //        else if (i == 2)
-                //        {
-                //            //var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Count();
-                //            //var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Sum(a => a.NETTO);
-                //            string SSQL5 = "";
-                //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND JENIS_FORM = '3'";
-                //            var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
-                //            string SSQL6 = "";
-                //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND JENIS_FORM = '3'";
-                //            var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
-
-                //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
-                //                Nilai = NilaiRetur.TOTAL_NETTO.ToString()
-                //            });
-                //        }
-                //        else if (i == 3)
-                //        {
-                //            //var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Count();
-                //            //var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Sum(a => a.NETTO);
-                //            string SSQL5 = "";
-                //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND JENIS_FORM = '3'";
-                //            var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
-                //            string SSQL6 = "";
-                //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND JENIS_FORM = '3'";
-                //            var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
-
-                //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
-                //                Nilai = NilaiRetur.TOTAL_NETTO.ToString()
-                //            });
-                //        }
-                //        else if (i == 4)
-                //        {
-                //            //var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Count();
-                //            //var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Sum(a => a.NETTO);
-                //            string SSQL5 = "";
-                //            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND JENIS_FORM = '3'";
-                //            var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
-                //            string SSQL6 = "";
-                //            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND JENIS_FORM = '3'";
-                //            var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
-
-                //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
-                //                Nilai = NilaiRetur.TOTAL_NETTO.ToString()
-                //            });
-                //        }
-                //        else if (i == 5)
-                //        {
-                //            if (minggu5.Count() > 0)
-                //            {
-                //                //var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Count();
-                //                //var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Sum(a => a.NETTO);
-                //                string SSQL5 = "";
-                //                SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND JENIS_FORM = '3'";
-                //                var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
-                //                string SSQL6 = "";
-                //                SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND JENIS_FORM = '3'";
-                //                var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
-
-                //                vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
-                //                {
-                //                    No = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                    Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
-                //                    Nilai = NilaiRetur.TOTAL_NETTO.ToString()
-                //                });
-                //            }
-                //        }
-                //    }
-
-                //}
-                //else
-                //{
-                //    for (int i = 1; i < 6; i++)
-                //    {
-                //        if (i == 1)
-                //        {
-                //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = "0",
-                //                Nilai = "0"
-                //            });
-                //        }
-                //        else if (i == 2)
-                //        {
-                //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = "0",
-                //                Nilai = "0"
-                //            });
-                //        }
-                //        else if (i == 3)
-                //        {
-                //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = "0",
-                //                Nilai = "0"
-                //            });
-                //        }
-                //        else if (i == 4)
-                //        {
-                //            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
-                //            {
-                //                No = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                Jumlah = "0",
-                //                Nilai = "0"
-                //            });
-                //        }
-                //        else if (i == 5)
-                //        {
-                //            if (minggu5.Count() > 0)
-                //            {
-                //                vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
-                //                {
-                //                    No = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                //                    Jumlah = "0",
-                //                    Nilai = "0"
-                //                });
-                //            }
-                //        }
-                //    }
-                //}
-                {
-                    var adaMinggu5 = minggu5.Count() > 0;
-                    ssql = "";
-                    //ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
-                    ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
-                    ssql += "UNION ALL" + System.Environment.NewLine;
-                    //ssql += "SELECT '2' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
-                    ssql += "SELECT '2' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
-                    ssql += "UNION ALL" + System.Environment.NewLine;
-                    //ssql += "SELECT '3' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
-                    ssql += "SELECT '3' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
-                    ssql += "UNION ALL" + System.Environment.NewLine;
-                    //ssql += "SELECT '4' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
-                    ssql += "SELECT '4' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
-
-                    if (adaMinggu5)
-                    {
+                        var adaMinggu5 = minggu5.Count() > 0;
+                        ssql = "";
+                        //ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
+                        ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
                         ssql += "UNION ALL" + System.Environment.NewLine;
-                        //ssql += "SELECT '5' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
-                        ssql += "SELECT '5' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
-                    }
+                        //ssql += "SELECT '2' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
+                        ssql += "SELECT '2' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
+                        ssql += "UNION ALL" + System.Environment.NewLine;
+                        //ssql += "SELECT '3' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
+                        ssql += "SELECT '3' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
+                        ssql += "UNION ALL" + System.Environment.NewLine;
+                        //ssql += "SELECT '4' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
+                        ssql += "SELECT '4' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
 
-                    var dsTuning = EDB.GetDataSet("CString", "TUNING", ssql);
-                    for (int i = 1; i < 6; i++)
-                    {
-                        string noModel = "";
-                        switch (i)
+                        if (adaMinggu5)
                         {
-                            case 1:
-                                {
-                                    noModel = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
-                                }
-                                break;
-                            case 2:
-                                {
-                                    noModel = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
-                                }
-                                break;
-                            case 3:
-                                {
-                                    noModel = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
-                                }
-                                break;
-                            case 4:
-                                {
-                                    noModel = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
-                                }
-                                break;
-                            case 5:
-                                {
-                                    if (adaMinggu5)
-                                    {
-                                        noModel = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
-                                    }
-                                }
-                                break;
+                            ssql += "UNION ALL" + System.Environment.NewLine;
+                            //ssql += "SELECT '5' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
+                            ssql += "SELECT '5' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(BRUTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.Last() + " 23:59:59.999' AND JENIS_FORM = '3'" + System.Environment.NewLine;
                         }
-                        var getData = dsTuning.Tables[0].Select("MINGGU = '" + i + "'").FirstOrDefault();
-                        if (getData != null)
+
+                        var dsTuning = EDB.GetDataSet("CString", "TUNING", ssql);
+                        for (int i = 1; i < 6; i++)
                         {
-                            vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
+                            string noModel = "";
+                            switch (i)
                             {
-                                No = noModel,
-                                Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
-                                Nilai = Convert.ToString(getData["TOTAL_NETTO"])
-                            });
-                        }
-                        else
-                        {
-                            if (noModel != "")
+                                case 1:
+                                    {
+                                        noModel = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
+                                    }
+                                    break;
+                                case 2:
+                                    {
+                                        noModel = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
+                                    }
+                                    break;
+                                case 3:
+                                    {
+                                        noModel = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
+                                    }
+                                    break;
+                                case 4:
+                                    {
+                                        noModel = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
+                                    }
+                                    break;
+                                case 5:
+                                    {
+                                        if (adaMinggu5)
+                                        {
+                                            noModel = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year;
+                                        }
+                                    }
+                                    break;
+                            }
+                            var getData = dsTuning.Tables[0].Select("MINGGU = '" + i + "'").FirstOrDefault();
+                            if (getData != null)
                             {
                                 vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
                                 {
                                     No = noModel,
-                                    Jumlah = "0",
-                                    Nilai = "0"
+                                    Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
+                                    Nilai = Convert.ToString(getData["TOTAL_NETTO"])
                                 });
+                            }
+                            else
+                            {
+                                if (noModel != "")
+                                {
+                                    vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
+                                    {
+                                        No = noModel,
+                                        Jumlah = "0",
+                                        Nilai = "0"
+                                    });
+                                }
                             }
                         }
                     }
+                    //END CHANGE BY CALVIN 18 SEPTEMBER 2019
+
+                    #endregion
+
+                    return PartialView("TableDashboardLinePartial", vm);
                 }
-                //END CHANGE BY CALVIN 18 SEPTEMBER 2019
-
-                #endregion
-
-                return PartialView("TableDashboardLinePartial", vm);
             }
         }
         //end add by nurul 12/7/2019
 
         public ActionResult RefreshDashboardBaranglakuPartial(string drTgl, string sdTgl)
         {
-
-            var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+            using (var txn = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
+            {
+                IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted
+            }
+           ))
+            {
+                // query linQnya disini mba.
+                var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
                 System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.AddMonths(-3));
             var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
                 System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
@@ -2043,61 +2066,62 @@ namespace MasterOnline.Controllers
             {
                 accessDashboard = true;
             }
-            // end set security dashboard   
-            if (accessDashboard == false)
-            {
-                vm.ListBarangLaku.Add(new PenjualanBarang
-                {
-                    KodeBrg = null,
-                    NamaBrg = null,
-                    Qty = 0,
-                    Laku = true
-                });
-                return PartialView("TableDashboardBarangLakuPartial", vm);
-            }
-            else
-            {
-                string sSQL = "SELECT TOP 10 A.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2,'') AS NAMA,A.SUM_QTY AS QTY FROM ( ";
-                sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE B.TGL_INPUT >= '" + tempDrtgl + "' AND B.TGL_INPUT <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND BRG <> 'NOT_FOUND' GROUP BY BRG ";
-                //sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG ORDER BY SUM_QTY DESC ";
-                sSQL += ") A LEFT JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG WHERE B.TYPE = '3' ORDER BY SUM_QTY DESC ";
-                var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
-                foreach (var item in ListBarangAndQtyInPesanan)
+                // end set security dashboard   
+                if (accessDashboard == false)
                 {
                     vm.ListBarangLaku.Add(new PenjualanBarang
                     {
-                        KodeBrg = item.BRG,
-                        NamaBrg = item.NAMA,
-                        Qty = item.QTY,
+                        KodeBrg = null,
+                        NamaBrg = null,
+                        Qty = 0,
                         Laku = true
                     });
+                    return PartialView("TableDashboardBarangLakuPartial", vm);
                 }
+                else
+                {
+                    string sSQL = "SELECT TOP 10 A.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2,'') AS NAMA,A.SUM_QTY AS QTY FROM ( ";
+                    sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE B.TGL_INPUT >= '" + tempDrtgl + "' AND B.TGL_INPUT <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND BRG <> 'NOT_FOUND' GROUP BY BRG ";
+                    //sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG ORDER BY SUM_QTY DESC ";
+                    sSQL += ") A LEFT JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG WHERE B.TYPE = '3' ORDER BY SUM_QTY DESC ";
+                    var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
+                    foreach (var item in ListBarangAndQtyInPesanan)
+                    {
+                        vm.ListBarangLaku.Add(new PenjualanBarang
+                        {
+                            KodeBrg = item.BRG,
+                            NamaBrg = item.NAMA,
+                            Qty = item.QTY,
+                            Laku = true
+                        });
+                    }
 
-                //if (vm.ListBarang != null && vm.ListPesananDetail != null)
-                //{
-                //    foreach (var barang in vm.ListBarang)
-                //    {
-                //        var listBarangTerpesan = vm.ListPesananDetail.Where(b => b.BRG == barang.BRG).ToList();
+                    //if (vm.ListBarang != null && vm.ListPesananDetail != null)
+                    //{
+                    //    foreach (var barang in vm.ListBarang)
+                    //    {
+                    //        var listBarangTerpesan = vm.ListPesananDetail.Where(b => b.BRG == barang.BRG).ToList();
 
-                //        if (listBarangTerpesan.Count > 0)
-                //        {
-                //            //var qtyBarang = listBarangTerpesan.Where(b => b.TGL_INPUT?.Month >= (selectedMonth - 3) &&
-                //            //                                              b.TGL_INPUT?.Month <= selectedMonth).Sum(b => b.QTY);
-                //            var qtyBarang = listBarangTerpesan.Where(b => b.TGL_INPUT >= Drtgl &&
-                //                                                          b.TGL_INPUT <= Sdtgl).Sum(b => b.QTY);
-                //            vm.ListBarangLaku.Add(new PenjualanBarang
-                //            {
-                //                KodeBrg = barang.BRG,
-                //                NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
-                //                Qty = qtyBarang,
-                //                Laku = true
-                //            });
-                //        }
+                    //        if (listBarangTerpesan.Count > 0)
+                    //        {
+                    //            //var qtyBarang = listBarangTerpesan.Where(b => b.TGL_INPUT?.Month >= (selectedMonth - 3) &&
+                    //            //                                              b.TGL_INPUT?.Month <= selectedMonth).Sum(b => b.QTY);
+                    //            var qtyBarang = listBarangTerpesan.Where(b => b.TGL_INPUT >= Drtgl &&
+                    //                                                          b.TGL_INPUT <= Sdtgl).Sum(b => b.QTY);
+                    //            vm.ListBarangLaku.Add(new PenjualanBarang
+                    //            {
+                    //                KodeBrg = barang.BRG,
+                    //                NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
+                    //                Qty = qtyBarang,
+                    //                Laku = true
+                    //            });
+                    //        }
 
-                //    }
-                //}
+                    //    }
+                    //}
 
-                return PartialView("TableDashboardBarangLakuPartial", vm);
+                    return PartialView("TableDashboardBarangLakuPartial", vm);
+                }
             }
         }
         public class listFaktur
@@ -2108,113 +2132,120 @@ namespace MasterOnline.Controllers
         }
         public ActionResult RefreshDashboardFakturPartial(string drTgl, string sdTgl)
         {
-
-            var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+            using (var txn = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
+            {
+                IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted
+            }
+           ))
+            {
+                // query linQnya disini mba.
+                var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
                 System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.AddMonths(-1));
-            var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
-                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
-            var tempDrtgl = Drtgl.ToString("yyyy-MM-dd");
-            var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd");
-            //change by nurul 13/9/2019, tuning
-            //var vm = new DashboardViewModel()
-            //{
-            //    //ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL >= Drtgl && p.TGL <= Sdtgl).ToList(),
-            //    //ListAkunMarketplace = ErasoftDbContext.ARF01.ToList(),
-            //    //ListMarket = MoDbContext.Marketplaces.ToList(),
-            //};
-            //if (vm.ListAkunMarketplace.Count > 0)
-            //{
-            //    foreach (var marketplace in vm.ListAkunMarketplace)
-            //    {
-            //        var idMarket = Convert.ToInt32(marketplace.NAMA);
-            //        var namaMarket = vm.ListMarket.Single(m => m.IdMarket == idMarket).NamaMarket;
-            //        var jmlFaktur = vm.ListFaktur?
-            //            .Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Count();
-            //        //var nilaiFaktur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListFaktur?.Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Sum(p => p.NETTO))}";
-            //        var nilaiFaktur = vm.ListFaktur?.Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Sum(p => p.NETTO);
+                var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+                var tempDrtgl = Drtgl.ToString("yyyy-MM-dd");
+                var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd");
+                //change by nurul 13/9/2019, tuning
+                //var vm = new DashboardViewModel()
+                //{
+                //    //ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL >= Drtgl && p.TGL <= Sdtgl).ToList(),
+                //    //ListAkunMarketplace = ErasoftDbContext.ARF01.ToList(),
+                //    //ListMarket = MoDbContext.Marketplaces.ToList(),
+                //};
+                //if (vm.ListAkunMarketplace.Count > 0)
+                //{
+                //    foreach (var marketplace in vm.ListAkunMarketplace)
+                //    {
+                //        var idMarket = Convert.ToInt32(marketplace.NAMA);
+                //        var namaMarket = vm.ListMarket.Single(m => m.IdMarket == idMarket).NamaMarket;
+                //        var jmlFaktur = vm.ListFaktur?
+                //            .Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Count();
+                //        //var nilaiFaktur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListFaktur?.Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Sum(p => p.NETTO))}";
+                //        var nilaiFaktur = vm.ListFaktur?.Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Sum(p => p.NETTO);
 
-            //        vm.ListFakturPerMarketplace.Add(new FakturPerMarketplaceModel()
-            //        {
-            //            NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
-            //            JumlahFaktur = jmlFaktur.ToString(),
-            //            NilaiFaktur = Convert.ToString(nilaiFaktur)
-            //        });
-            //    }
-            //}
+                //        vm.ListFakturPerMarketplace.Add(new FakturPerMarketplaceModel()
+                //        {
+                //            NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
+                //            JumlahFaktur = jmlFaktur.ToString(),
+                //            NilaiFaktur = Convert.ToString(nilaiFaktur)
+                //        });
+                //    }
+                //}
 
-             // set security dashboard
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            string username = "";
-            var userId = "";
-            var accountId = "";
-            long luserId = 0;
-            long laccountId = 0;
-            bool accessDashboard = false;
-            if (sessionData?.User != null)
-            {
-                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
-                accountId = Convert.ToString(sessionData?.User?.AccountId);
-            }
-            else
-            {
-                accessDashboard = true;
-                userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
-
-                var emailAccount = Convert.ToString(sessionData?.Account?.Email);
-                accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
-            }
-
-            luserId = Convert.ToInt64(userId);
-            laccountId = Convert.ToInt64(accountId);
-
-            var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
-            var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
-
-            if (checkMenuDashboard.Count() > 0)
-            {
-                accessDashboard = true;
-            }
-            // end set security dashboard   
-            if (accessDashboard == false)
-            {
-                var vm = new DashboardViewModel()
+                // set security dashboard
+                AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                string username = "";
+                var userId = "";
+                var accountId = "";
+                long luserId = 0;
+                long laccountId = 0;
+                bool accessDashboard = false;
+                if (sessionData?.User != null)
                 {
-                };
-                vm.ListFakturPerMarketplace.Add(new FakturPerMarketplaceModel()
-                {
-                    NamaMarket = null,
-                    JumlahFaktur = null,
-                    NilaiFaktur = null
-                });
-                return PartialView("TableDashboardFakturPartial", vm);
-            }
-            else
-            {
-                string sSql = "";
-                //sSql += "SELECT SI.CUST,(ISNULL(MO.NAMAMARKET,'')  + ' (' + ISNULL(AR.PERSO,'') + ')') Market, SUM(SI.NETTO) AS Nilai, COUNT(SI.RECNUM) AS Jumlah ";
-                sSql += "SELECT SI.CUST,(ISNULL(MO.NAMAMARKET,'')  + ' (' + ISNULL(AR.PERSO,'') + ')') Market, SUM(SI.BRUTO) AS Nilai, COUNT(SI.RECNUM) AS Jumlah ";
-                sSql += "FROM SIT01A SI(NOLOCK) LEFT JOIN ARF01 AR(NOLOCK) ON SI.CUST = AR.CUST LEFT JOIN ";
-                sSql += "MO..MARKETPLACE MO (NOLOCK) ON AR.NAMA = MO.IDMARKET ";
-                sSql += "WHERE SI.TGL >= '" + tempDrtgl + "' AND SI.TGL <= '" + tempSdtgl + "' AND SI.STATUS = '1' AND SI.JENIS_FORM = '2' ";
-                sSql += "GROUP BY SI.CUST, MO.NAMAMARKET, AR.PERSO ";
-                var ListFakturPerMarket = ErasoftDbContext.Database.SqlQuery<listFaktur>(sSql).ToList();
-                var vm = new DashboardViewModel()
-                {
-                };
-                if (ListFakturPerMarket.Count() > 0)
-                {
-                    foreach (var faktur in ListFakturPerMarket)
-                    {
-                        vm.ListFakturPerMarketplace.Add(new FakturPerMarketplaceModel()
-                        {
-                            NamaMarket = faktur.Market,
-                            JumlahFaktur = faktur.Jumlah.ToString(),
-                            NilaiFaktur = Convert.ToString(faktur.Nilai)
-                        });
-                    }
+                    userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
+                    accountId = Convert.ToString(sessionData?.User?.AccountId);
                 }
-                //end change by nurul 13/9/2019, tuning
-                return PartialView("TableDashboardFakturPartial", vm);
+                else
+                {
+                    accessDashboard = true;
+                    userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+
+                    var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+                    accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
+                }
+
+                luserId = Convert.ToInt64(userId);
+                laccountId = Convert.ToInt64(accountId);
+
+                var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
+                var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
+
+                if (checkMenuDashboard.Count() > 0)
+                {
+                    accessDashboard = true;
+                }
+                // end set security dashboard   
+                if (accessDashboard == false)
+                {
+                    var vm = new DashboardViewModel()
+                    {
+                    };
+                    vm.ListFakturPerMarketplace.Add(new FakturPerMarketplaceModel()
+                    {
+                        NamaMarket = null,
+                        JumlahFaktur = null,
+                        NilaiFaktur = null
+                    });
+                    return PartialView("TableDashboardFakturPartial", vm);
+                }
+                else
+                {
+                    string sSql = "";
+                    //sSql += "SELECT SI.CUST,(ISNULL(MO.NAMAMARKET,'')  + ' (' + ISNULL(AR.PERSO,'') + ')') Market, SUM(SI.NETTO) AS Nilai, COUNT(SI.RECNUM) AS Jumlah ";
+                    sSql += "SELECT SI.CUST,(ISNULL(MO.NAMAMARKET,'')  + ' (' + ISNULL(AR.PERSO,'') + ')') Market, SUM(SI.BRUTO) AS Nilai, COUNT(SI.RECNUM) AS Jumlah ";
+                    sSql += "FROM SIT01A SI(NOLOCK) LEFT JOIN ARF01 AR(NOLOCK) ON SI.CUST = AR.CUST LEFT JOIN ";
+                    sSql += "MO..MARKETPLACE MO (NOLOCK) ON AR.NAMA = MO.IDMARKET ";
+                    sSql += "WHERE SI.TGL >= '" + tempDrtgl + "' AND SI.TGL <= '" + tempSdtgl + "' AND SI.STATUS = '1' AND SI.JENIS_FORM = '2' ";
+                    sSql += "GROUP BY SI.CUST, MO.NAMAMARKET, AR.PERSO ";
+                    var ListFakturPerMarket = ErasoftDbContext.Database.SqlQuery<listFaktur>(sSql).ToList();
+                    var vm = new DashboardViewModel()
+                    {
+                    };
+                    if (ListFakturPerMarket.Count() > 0)
+                    {
+                        foreach (var faktur in ListFakturPerMarket)
+                        {
+                            vm.ListFakturPerMarketplace.Add(new FakturPerMarketplaceModel()
+                            {
+                                NamaMarket = faktur.Market,
+                                JumlahFaktur = faktur.Jumlah.ToString(),
+                                NilaiFaktur = Convert.ToString(faktur.Nilai)
+                            });
+                        }
+                    }
+                    //end change by nurul 13/9/2019, tuning
+                    return PartialView("TableDashboardFakturPartial", vm);
+                }
             }
         }
 
@@ -2240,8 +2271,14 @@ namespace MasterOnline.Controllers
         }
         public ActionResult RefreshDashboardBarangMinStok(string drTgl, string sdTgl)
         {
-
-            var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+            using (var txn = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
+            {
+                IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted
+            }
+           ))
+            {
+                // query linQnya disini mba.
+                var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
                 System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.AddMonths(-1));
             var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
                 System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
@@ -2299,188 +2336,196 @@ namespace MasterOnline.Controllers
             {
                 accessDashboard = true;
             }
-            // end set security dashboard   
-            if (accessDashboard == false)
-            {
-                vm.ListBarangMiniStok.Add(new PenjualanBarang
-                {
-                    KodeBrg = null,
-                    NamaBrg = null,
-                    QtySales = Convert.ToDouble(0),
-                    Qty = Convert.ToDouble(0),
-                    Min = Convert.ToDouble(0),
-                    Selisih = 0
-                });
-                return PartialView("TableDashboardBarangMinStokPartial", vm);
-            }
-            else
-            {
-
-                try
-                {
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DROP TABLE #A; DROP TABLE #B;");
-                }
-                catch (Exception)
-                {
-
-                }
-
-                string sSql1 = "";
-                sSql1 += "SELECT C.NO_BUKTI, D.BRG into #B FROM SOT01A C(NOLOCK) INNER JOIN SOT01B D(NOLOCK) ON C.NO_BUKTI = D.NO_BUKTI WHERE C.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND C.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'); " + System.Environment.NewLine;
-                sSql1 += "SELECT B.BRG, B.NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI INTO #A FROM (SELECT BRG, (isnull(NAMA, '') + ' ' + ISNULL(NAMA2, '')) AS NAMA,MINI FROM STF02(NOLOCK) WHERE TYPE='3') B LEFT JOIN 	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, 	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO 	FROM [QOH_QOO_ALL_ITEM] (NOLOCK)	GROUP BY BRG 	) A ON A.BRG = B.BRG WHERE (ISNULL(QOH,0) - ISNULL(QOO,0)) <= B.MINI; " + System.Environment.NewLine;
-
-                sSql1 += "SELECT JENIS, BRG, NAMA, QOH, QOO , SISA, MINI, QTY_JUAL, (MINI - SISA) AS SELISIH FROM ";
-                sSql1 += "( ";
-                //1. CARI YANG BARANG NYA ADA PENJUALAN DAN SISA KURANG DR MINIMAL STOK
-                sSql1 += "SELECT 'ADA' AS JENIS, A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY AS QTY_JUAL FROM #B B(NOLOCK)  ";
-                sSql1 += "  INNER JOIN #A A(NOLOCK)  ON A.BRG=B.BRG ";
-                sSql1 += "  LEFT JOIN SIT01A C(NOLOCK) ON B.NO_BUKTI= C.NO_SO ";
-                sSql1 += "  LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
-                sSql1 += "  GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI,D.QTY ";
-
-                sSql1 += "UNION ALL ";
-                //2. KALAU YANG PERTAMA KURANG DR 10 RECORD, MAKA CARI YANG BARANG NYA TIDAK ADA PENJUALAN DAN SISA KURANG DR MINIMAL STOK 
-                sSql1 += "SELECT 'TIDAK ADA' AS JENIS, A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, 0 AS QTY_JUAL FROM  ( ";
-                sSql1 += "  SELECT * FROM #A WHERE SISA <= MINI AND BRG NOT IN( ";
-                sSql1 += "      SELECT A.BRG FROM #B B(NOLOCK) ";
-                sSql1 += "      INNER JOIN #A A(NOLOCK)  ON A.BRG=B.BRG ";
-                sSql1 += "      LEFT JOIN SIT01A C(NOLOCK) ON B.NO_BUKTI= C.NO_SO ";
-                sSql1 += "      LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
-                sSql1 += "  GROUP BY A.BRG ";
-                sSql1 += ") )A ";
-                sSql1 += "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI ";
-                sSql1 += ")A ";
-                //DI UNION ALL ORDER BY QTY_JUAL DESC, SELISIH (MIN-SISA) ASC, TAKE 10
-                sSql1 += "ORDER BY JENIS ASC, QTY_JUAL DESC, SELISIH DESC ";
-                sSql1 += "OFFSET 0 ROWS ";
-                sSql1 += "FETCH NEXT 10 ROWS ONLY ";
-
-                var ListBarangMinStokInPesanan = ErasoftDbContext.Database.SqlQuery<listBrgMinStok>(sSql1).ToList();
-                foreach (var item in ListBarangMinStokInPesanan)
+                // end set security dashboard   
+                if (accessDashboard == false)
                 {
                     vm.ListBarangMiniStok.Add(new PenjualanBarang
                     {
-                        KodeBrg = item.BRG,
-                        NamaBrg = item.NAMA,
-                        QtySales = Convert.ToDouble(item.QTY_JUAL),
-                        Qty = Convert.ToDouble(item.SISA),
-                        Min = Convert.ToDouble(item.MINI),
-                        Selisih = item.SELISIH
+                        KodeBrg = null,
+                        NamaBrg = null,
+                        QtySales = Convert.ToDouble(0),
+                        Qty = Convert.ToDouble(0),
+                        Min = Convert.ToDouble(0),
+                        Selisih = 0
                     });
+                    return PartialView("TableDashboardBarangMinStokPartial", vm);
                 }
+                else
+                {
 
-                return PartialView("TableDashboardBarangMinStokPartial", vm);
+                    try
+                    {
+                        ErasoftDbContext.Database.ExecuteSqlCommand("DROP TABLE #A; DROP TABLE #B;");
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    string sSql1 = "";
+                    sSql1 += "SELECT C.NO_BUKTI, D.BRG into #B FROM SOT01A C(NOLOCK) INNER JOIN SOT01B D(NOLOCK) ON C.NO_BUKTI = D.NO_BUKTI WHERE C.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND C.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'); " + System.Environment.NewLine;
+                    sSql1 += "SELECT B.BRG, B.NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI INTO #A FROM (SELECT BRG, (isnull(NAMA, '') + ' ' + ISNULL(NAMA2, '')) AS NAMA,MINI FROM STF02(NOLOCK) WHERE TYPE='3') B LEFT JOIN 	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, 	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO 	FROM [QOH_QOO_ALL_ITEM] (NOLOCK)	GROUP BY BRG 	) A ON A.BRG = B.BRG WHERE (ISNULL(QOH,0) - ISNULL(QOO,0)) <= B.MINI; " + System.Environment.NewLine;
+
+                    sSql1 += "SELECT JENIS, BRG, NAMA, QOH, QOO , SISA, MINI, QTY_JUAL, (MINI - SISA) AS SELISIH FROM ";
+                    sSql1 += "( ";
+                    //1. CARI YANG BARANG NYA ADA PENJUALAN DAN SISA KURANG DR MINIMAL STOK
+                    sSql1 += "SELECT 'ADA' AS JENIS, A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY AS QTY_JUAL FROM #B B(NOLOCK)  ";
+                    sSql1 += "  INNER JOIN #A A(NOLOCK)  ON A.BRG=B.BRG ";
+                    sSql1 += "  LEFT JOIN SIT01A C(NOLOCK) ON B.NO_BUKTI= C.NO_SO ";
+                    sSql1 += "  LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
+                    sSql1 += "  GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI,D.QTY ";
+
+                    sSql1 += "UNION ALL ";
+                    //2. KALAU YANG PERTAMA KURANG DR 10 RECORD, MAKA CARI YANG BARANG NYA TIDAK ADA PENJUALAN DAN SISA KURANG DR MINIMAL STOK 
+                    sSql1 += "SELECT 'TIDAK ADA' AS JENIS, A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, 0 AS QTY_JUAL FROM  ( ";
+                    sSql1 += "  SELECT * FROM #A WHERE SISA <= MINI AND BRG NOT IN( ";
+                    sSql1 += "      SELECT A.BRG FROM #B B(NOLOCK) ";
+                    sSql1 += "      INNER JOIN #A A(NOLOCK)  ON A.BRG=B.BRG ";
+                    sSql1 += "      LEFT JOIN SIT01A C(NOLOCK) ON B.NO_BUKTI= C.NO_SO ";
+                    sSql1 += "      LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
+                    sSql1 += "  GROUP BY A.BRG ";
+                    sSql1 += ") )A ";
+                    sSql1 += "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI ";
+                    sSql1 += ")A ";
+                    //DI UNION ALL ORDER BY QTY_JUAL DESC, SELISIH (MIN-SISA) ASC, TAKE 10
+                    sSql1 += "ORDER BY JENIS ASC, QTY_JUAL DESC, SELISIH DESC ";
+                    sSql1 += "OFFSET 0 ROWS ";
+                    sSql1 += "FETCH NEXT 10 ROWS ONLY ";
+
+                    var ListBarangMinStokInPesanan = ErasoftDbContext.Database.SqlQuery<listBrgMinStok>(sSql1).ToList();
+                    foreach (var item in ListBarangMinStokInPesanan)
+                    {
+                        vm.ListBarangMiniStok.Add(new PenjualanBarang
+                        {
+                            KodeBrg = item.BRG,
+                            NamaBrg = item.NAMA,
+                            QtySales = Convert.ToDouble(item.QTY_JUAL),
+                            Qty = Convert.ToDouble(item.SISA),
+                            Min = Convert.ToDouble(item.MINI),
+                            Selisih = item.SELISIH
+                        });
+                    }
+
+                    return PartialView("TableDashboardBarangMinStokPartial", vm);
+                }
             }
         }
         public ActionResult RefreshDashboardBarangTidaklaku(string drTgl, string sdTgl)
         {
-
-            var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+            using (var txn = new System.Transaction.TransactionScope(TransactionScopeOption.Required, new TransactionOptions
+            {
+                IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted
+            }
+           ))
+            {
+                // query linQnya disini mba.
+                var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
                 System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.AddMonths(-1));
-            var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
-                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
-            var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
-            var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
+                var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+                var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+                var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
 
-            var vm = new DashboardViewModel()
-            {
-            };
-
-             // set security dashboard
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            string username = "";
-            var userId = "";
-            var accountId = "";
-            long luserId = 0;
-            long laccountId = 0;
-            bool accessDashboard = false;
-            if (sessionData?.User != null)
-            {
-                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
-                accountId = Convert.ToString(sessionData?.User?.AccountId);
-            }
-            else
-            {
-                accessDashboard = true;
-                userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
-
-                var emailAccount = Convert.ToString(sessionData?.Account?.Email);
-                accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
-            }
-
-            luserId = Convert.ToInt64(userId);
-            laccountId = Convert.ToInt64(accountId);
-
-            var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
-            var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
-
-            if (checkMenuDashboard.Count() > 0)
-            {
-                accessDashboard = true;
-            }
-            // end set security dashboard   
-            if (accessDashboard == false)
-            {
-                vm.ListBarangTidakLaku.Add(new PenjualanBarang
+                var vm = new DashboardViewModel()
                 {
-                    KodeBrg = null,
-                    NamaBrg = null,
-                    Qoh = Convert.ToDouble(0),
-                    Qty = Convert.ToDouble(0)
-                });
+                };
 
-                return PartialView("TableDashboardBarangTidaklakuPartial", vm);
-            }
-            else
-            {
+                // set security dashboard
+                AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                string username = "";
+                var userId = "";
+                var accountId = "";
+                long luserId = 0;
+                long laccountId = 0;
+                bool accessDashboard = false;
+                if (sessionData?.User != null)
+                {
+                    userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
+                    accountId = Convert.ToString(sessionData?.User?.AccountId);
+                }
+                else
+                {
+                    accessDashboard = true;
+                    userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
 
-                string sSql1 = "";
-                sSql1 += "SELECT A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA FROM  ";
-                sSql1 += "(SELECT B.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA FROM ";
-                sSql1 += "STF02 B(NOLOCK) LEFT JOIN ";
-                sSql1 += "	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, ";
-                sSql1 += "	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
-                sSql1 += "	FROM (";
-                sSql1 += "		SELECT        'QOH' AS JENIS, BRG, JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) ";
-                sSql1 += "                         - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) ";
-                sSql1 += "		FROM            STF08A(NOLOCK) INNER JOIN ";
-                sSql1 += "                         STF18(NOLOCK) ON STF08A.GD = STF18.KODE_GUDANG ";
-                sSql1 += "		WHERE        STF08A.TAHUN = YEAR(SYSDATETIME()) AND STF18.QOH_SALES = 0 ";
-                sSql1 += "		GROUP BY BRG ";
-                sSql1 += "		UNION ALL ";
-                sSql1 += "		SELECT        'QOO' AS JENIS, B.BRG, JUMLAH = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
-                sSql1 += "		FROM            SOT01A A(NOLOCK) INNER JOIN ";
-                sSql1 += "                         SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN ";
-                sSql1 += "                         SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
-                sSql1 += "		WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
-                sSql1 += "		GROUP BY B.BRG)A ";
-                sSql1 += "	GROUP BY BRG  ";
-                sSql1 += "	) A  ";
-                //sSql1 += "LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '3' ";
-                sSql1 += "ON A.BRG = B.BRG WHERE B.TYPE = '3' ";
-                sSql1 += ") A  ";
-                sSql1 += "left join  ";
-                sSql1 += "(SELECT DISTINCT BRG FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'))B ";
-                sSql1 += "ON B.BRG=A.BRG ";
-                sSql1 += "WHERE ISNULL(B.BRG, '') = '' ";
-                sSql1 += "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA ";
-                sSql1 += "ORDER BY A.QOH DESC, A.BRG ASC ";
-                sSql1 += "OFFSET 0 ROWS ";
-                sSql1 += "FETCH NEXT 10 ROWS ONLY ";
+                    var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+                    accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
+                }
 
-                var ListBarangTidakLakuInPesanan = ErasoftDbContext.Database.SqlQuery<listBrgMinStok>(sSql1).ToList();
-                foreach (var item in ListBarangTidakLakuInPesanan)
+                luserId = Convert.ToInt64(userId);
+                laccountId = Convert.ToInt64(accountId);
+
+                var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
+                var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
+
+                if (checkMenuDashboard.Count() > 0)
+                {
+                    accessDashboard = true;
+                }
+                // end set security dashboard   
+                if (accessDashboard == false)
                 {
                     vm.ListBarangTidakLaku.Add(new PenjualanBarang
                     {
-                        KodeBrg = item.BRG,
-                        NamaBrg = item.NAMA,
-                        Qoh = Convert.ToDouble(item.QOH),
-                        Qty = Convert.ToDouble(item.SISA)
+                        KodeBrg = null,
+                        NamaBrg = null,
+                        Qoh = Convert.ToDouble(0),
+                        Qty = Convert.ToDouble(0)
                     });
-                }
 
-                return PartialView("TableDashboardBarangTidaklakuPartial", vm);
+                    return PartialView("TableDashboardBarangTidaklakuPartial", vm);
+                }
+                else
+                {
+
+                    string sSql1 = "";
+                    sSql1 += "SELECT A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA FROM  ";
+                    sSql1 += "(SELECT B.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA FROM ";
+                    sSql1 += "STF02 B(NOLOCK) LEFT JOIN ";
+                    sSql1 += "	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, ";
+                    sSql1 += "	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
+                    sSql1 += "	FROM (";
+                    sSql1 += "		SELECT        'QOH' AS JENIS, BRG, JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) ";
+                    sSql1 += "                         - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) ";
+                    sSql1 += "		FROM            STF08A(NOLOCK) INNER JOIN ";
+                    sSql1 += "                         STF18(NOLOCK) ON STF08A.GD = STF18.KODE_GUDANG ";
+                    sSql1 += "		WHERE        STF08A.TAHUN = YEAR(SYSDATETIME()) AND STF18.QOH_SALES = 0 ";
+                    sSql1 += "		GROUP BY BRG ";
+                    sSql1 += "		UNION ALL ";
+                    sSql1 += "		SELECT        'QOO' AS JENIS, B.BRG, JUMLAH = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
+                    sSql1 += "		FROM            SOT01A A(NOLOCK) INNER JOIN ";
+                    sSql1 += "                         SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN ";
+                    sSql1 += "                         SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
+                    sSql1 += "		WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+                    sSql1 += "		GROUP BY B.BRG)A ";
+                    sSql1 += "	GROUP BY BRG  ";
+                    sSql1 += "	) A  ";
+                    //sSql1 += "LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '3' ";
+                    sSql1 += "ON A.BRG = B.BRG WHERE B.TYPE = '3' ";
+                    sSql1 += ") A  ";
+                    sSql1 += "left join  ";
+                    sSql1 += "(SELECT DISTINCT BRG FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'))B ";
+                    sSql1 += "ON B.BRG=A.BRG ";
+                    sSql1 += "WHERE ISNULL(B.BRG, '') = '' ";
+                    sSql1 += "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA ";
+                    sSql1 += "ORDER BY A.QOH DESC, A.BRG ASC ";
+                    sSql1 += "OFFSET 0 ROWS ";
+                    sSql1 += "FETCH NEXT 10 ROWS ONLY ";
+
+                    var ListBarangTidakLakuInPesanan = ErasoftDbContext.Database.SqlQuery<listBrgMinStok>(sSql1).ToList();
+                    foreach (var item in ListBarangTidakLakuInPesanan)
+                    {
+                        vm.ListBarangTidakLaku.Add(new PenjualanBarang
+                        {
+                            KodeBrg = item.BRG,
+                            NamaBrg = item.NAMA,
+                            Qoh = Convert.ToDouble(item.QOH),
+                            Qty = Convert.ToDouble(item.SISA)
+                        });
+                    }
+
+                    return PartialView("TableDashboardBarangTidaklakuPartial", vm);
+                }
             }
         }
         //end add by nurul 2/9/2019
@@ -2494,60 +2539,68 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                var vm = new DashboardViewModel() { };
-                if (bulan != "" && tahun != "")
+                using (var txn = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
                 {
-                    // set security dashboard
-                    AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                    string username = "";
-                    var userId = "";
-                    var accountId = "";
-                    long luserId = 0;
-                    long laccountId = 0;
-                    bool accessDashboard = false;
-                    if (sessionData?.User != null)
-                    {
-                        userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
-                        accountId = Convert.ToString(sessionData?.User?.AccountId);
-                    }
-                    else
-                    {
-                        accessDashboard = true;
-                        userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
-
-                        var emailAccount = Convert.ToString(sessionData?.Account?.Email);
-                        accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
-                    }
-
-                    luserId = Convert.ToInt64(userId);
-                    laccountId = Convert.ToInt64(accountId);
-
-                    var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
-                    var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
-
-                    if (checkMenuDashboard.Count() > 0)
-                    {
-                        accessDashboard = true;
-                    }
-                    // end set security dashboard   
-                    if (accessDashboard == false)
-                    {
-                        vm.totalSI = 0;
-                        vm.totalPB = 0;
-                        vm.selisih = 0;
-                    }
-                    else
-                    {
-                        string sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from sit01a (NOLOCK) where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "' and jenis_form='2' ";
-                        var TotalPenjualan = ErasoftDbContext.Database.SqlQuery<SUM_NettoSIPB>(sSQL1).Single();
-                        sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from pbt01a (NOLOCK) where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "' and jenisform='3' ";
-                        var TotalPembelian = ErasoftDbContext.Database.SqlQuery<SUM_NettoSIPB>(sSQL1).Single();
-                        vm.totalSI = TotalPenjualan.TOTAL;
-                        vm.totalPB = TotalPembelian.TOTAL;
-                        vm.selisih = TotalPenjualan.TOTAL - TotalPembelian.TOTAL;
-                    }
+                    IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted
                 }
-                return PartialView("TableDashboardArusKas", vm);
+                ))
+                {
+                    // query linQnya disini mba.
+                    var vm = new DashboardViewModel() { };
+                    if (bulan != "" && tahun != "")
+                    {
+                        // set security dashboard
+                        AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                        string username = "";
+                        var userId = "";
+                        var accountId = "";
+                        long luserId = 0;
+                        long laccountId = 0;
+                        bool accessDashboard = false;
+                        if (sessionData?.User != null)
+                        {
+                            userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
+                            accountId = Convert.ToString(sessionData?.User?.AccountId);
+                        }
+                        else
+                        {
+                            accessDashboard = true;
+                            userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+
+                            var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+                            accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
+                        }
+
+                        luserId = Convert.ToInt64(userId);
+                        laccountId = Convert.ToInt64(accountId);
+
+                        var idFormDasboard = MoDbContext.FormMoses.AsNoTracking().Single(p => p.NamaForm == "Dashboard").ScrId;
+                        var checkMenuDashboard = MoDbContext.SecUser.AsNoTracking().Where(s => s.UserId == luserId && s.AccountId == laccountId && s.FormId == idFormDasboard && s.Permission == true).ToList();
+
+                        if (checkMenuDashboard.Count() > 0)
+                        {
+                            accessDashboard = true;
+                        }
+                        // end set security dashboard   
+                        if (accessDashboard == false)
+                        {
+                            vm.totalSI = 0;
+                            vm.totalPB = 0;
+                            vm.selisih = 0;
+                        }
+                        else
+                        {
+                            string sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from sit01a (NOLOCK) where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "' and jenis_form='2' ";
+                            var TotalPenjualan = ErasoftDbContext.Database.SqlQuery<SUM_NettoSIPB>(sSQL1).Single();
+                            sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from pbt01a (NOLOCK) where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "' and jenisform='3' ";
+                            var TotalPembelian = ErasoftDbContext.Database.SqlQuery<SUM_NettoSIPB>(sSQL1).Single();
+                            vm.totalSI = TotalPenjualan.TOTAL;
+                            vm.totalPB = TotalPembelian.TOTAL;
+                            vm.selisih = TotalPenjualan.TOTAL - TotalPembelian.TOTAL;
+                        }
+                    }
+                    return PartialView("TableDashboardArusKas", vm);
+                }
             }
             catch (Exception ex)
             {
@@ -2595,277 +2648,284 @@ namespace MasterOnline.Controllers
         }
         public async System.Threading.Tasks.Task<ActionResult> RefreshPesananDibayarMarketplace(int? page, string search = "", string filter = "", string filtervalue = "")
         {
-            //add by Tri call market place api getorder
-            var connectionID = Guid.NewGuid().ToString();
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            string username = "";
-            if (sessionData?.User != null)
+            using (var txn = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
             {
-                //var accId = MoDbContext.User.Single(u => u.Username == sessionData.User.Username).AccountId; // remark by fauzi 17 Juli 2020
-                var accId = MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).AccountId;
-                username = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == accId).Username;
+                IsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted
             }
-            else
+          ))
             {
-                username = sessionData?.Account?.Username;
-            }
-            var Marketplaces = MoDbContext.Marketplaces.AsNoTracking().ToList();
-
-            //REMARK BY CALVIN 5 APRIL 2019
-            ////remark by calvin 13 desember 2018, testing
-            //var kdBli = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
-            //var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
-            //if (listBliShop.Count > 0)
-            //{
-            //    foreach (ARF01 tblCustomer in listBliShop)
-            //    {
-            //        if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
-            //        {
-            //            var bliApi = new BlibliController();
-
-            //            BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
-            //            {
-            //                merchant_code = tblCustomer.Sort1_Cust,
-            //                API_client_password = tblCustomer.API_CLIENT_P,
-            //                API_client_username = tblCustomer.API_CLIENT_U,
-            //                API_secret_key = tblCustomer.API_KEY,
-            //                token = tblCustomer.TOKEN,
-            //                mta_username_email_merchant = tblCustomer.EMAIL,
-            //                mta_password_password_merchant = tblCustomer.PASSWORD,
-            //                idmarket = tblCustomer.RecNum.Value
-            //            };
-
-            //            await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-
-            //            //add by calvin 8 nov 2018, update status so di MO jika sudah ada order complete dari blibli
-            //            await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-            //            //end add by calvin 8 nov 2018
-            //        }
-            //    }
-            //}
-            //var kdEL = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
-            //var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
-            //if (listELShop.Count > 0)
-            //{
-            //    foreach (ARF01 tblCustomer in listELShop)
-            //    {
-            //        var elApi = new EleveniaController();
-            //        await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-
-            //        //add by calvin 8 nov 2018, update status so di MO jika sudah ada order complete dari elevenia
-            //        await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-            //        await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.ConfirmPurchase, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-            //        //end add by calvin 8 nov 2018
-            //    }
-            //}
-            //var kdBL = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
-            //var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
-            //if (listBLShop.Count > 0)
-            //{
-            //    foreach (ARF01 tblCustomer in listBLShop)
-            //    {
-            //        var blApi = new BukaLapakController();
-            //        blApi.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, connectionID);
-            //    }
-
-            //}
-
-            //var kdLzd = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "LAZADA");
-            //var listLzdShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLzd.IdMarket.ToString()).ToList();
-            //if (listLzdShop.Count > 0)
-            //{
-            //    foreach (ARF01 tblCustomer in listLzdShop)
-            //    {
-            //        var lzdApi = new LazadaController();
-            //        lzdApi.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, connectionID);
-            //    }
-            //}
-            ////end remark by calvin 13 desember 2018, testing
-
-            //var kdTokped = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
-            //var listTokPed = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
-            //if (listTokPed.Count > 0)
-            //{
-            //    foreach (ARF01 tblCustomer in listTokPed)
-            //    {
-            //        if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
-            //        {
-            //            var tokopediaApi = new TokopediaController();
-
-            //            TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
-            //            {
-            //                merchant_code = tblCustomer.Sort1_Cust, //FSID
-            //                API_client_password = tblCustomer.API_CLIENT_P, //Client ID
-            //                API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
-            //                API_secret_key = tblCustomer.API_KEY, //Shop ID 
-            //                token = tblCustomer.TOKEN,
-            //                idmarket = tblCustomer.RecNum.Value
-            //            };
-            //            //TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
-            //            //{
-            //            //    merchant_code = "13072", //FSID
-            //            //    API_client_username = "36bc3d7bcc13404c9e670a84f0c61676", //Client ID
-            //            //    API_client_password = "8a76adc52d144a9fa1ef4f96b59b7419", //Client Secret
-            //            //    API_secret_key = "2619296", //Shop ID 
-            //            //    token = "pmgdpFANTcC0PM9tVzrwmw"
-            //            //};
-            //            //await tokopediaApi.GetActiveItemList(iden, connectionID, tblCustomer.CUST, tblCustomer.PERSO, tblCustomer.RecNum ?? 0);
-            //            await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO, 1);
-            //            //await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-            //            //await tokopediaApi.GetCategoryTree(idenTest);
-            //            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-            //            //await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Completed, connectionID, "", "");
-            //        }
-            //    }
-            //}
-
-            //var kdShopee = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
-            //var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
-            //if (listShopeeShop.Count > 0)
-            //{
-            //    var shopeeApi = new ShopeeController();
-            //    foreach (ARF01 tblCustomer in listShopeeShop)
-            //    {
-            //        ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData();
-            //        iden.merchant_code = tblCustomer.Sort1_Cust;
-            //        await shopeeApi.GetOrderByStatus(iden, ShopeeController.StatusOrder.READY_TO_SHIP, connectionID, tblCustomer.CUST, tblCustomer.PERSO, 0);
-            //    }
-            //}
-
-            ////add by calvin 14 nov 2018, update qoh setelah get pesanan
-            //var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT * FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connectionID + "'").ToList();
-
-
-            //List<string> listBrg = new List<string>();
-            //foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
-            //{
-            //    listBrg.Add(item.BRG);
-            //}
-            //updateStockMarketPlace(listBrg);
-            //ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connectionID + "'");
-            ////end add by calvin 14 nov 2018, update qoh setelah get pesanan
-            //END REMARK BY CALVIN 5 APRIL 2019
-
-            //Change by nurul 9/5/2019
-            //var vm = new PesananViewModel()
-            //{
-            //    ListPesanan = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => p.STATUS_TRANSAKSI == "01").ToList(),
-            //    ListBarang = ErasoftDbContext.STF02.ToList(),
-            //    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-            //    ListMarketplace = Marketplaces,
-            //};
-
-            //return PartialView("TablePesananSudahDibayarPartial", vm);
-
-            int pagenumber = (page ?? 1) - 1;
-            ViewData["searchParam"] = search;
-            ViewData["LastPage"] = page;
-
-            //ADD BY NURUL 27/9/2019
-            string[] getkata = search.Split(' ');
-            string sSQLkode = "";
-            string sSQLmarket = "";
-            string sSQLpembeli = "";
-            string sSQLnetto = "";
-            if (getkata.Length > 0)
-            {
-                if (search != "")
+                //add by Tri call market place api getorder
+                var connectionID = Guid.NewGuid().ToString();
+                AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                string username = "";
+                if (sessionData?.User != null)
                 {
-                    for (int i = 0; i < getkata.Length; i++)
+                    //var accId = MoDbContext.User.Single(u => u.Username == sessionData.User.Username).AccountId; // remark by fauzi 17 Juli 2020
+                    var accId = MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).AccountId;
+                    username = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == accId).Username;
+                }
+                else
+                {
+                    username = sessionData?.Account?.Username;
+                }
+                var Marketplaces = MoDbContext.Marketplaces.AsNoTracking().ToList();
+
+                //REMARK BY CALVIN 5 APRIL 2019
+                ////remark by calvin 13 desember 2018, testing
+                //var kdBli = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
+                //var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
+                //if (listBliShop.Count > 0)
+                //{
+                //    foreach (ARF01 tblCustomer in listBliShop)
+                //    {
+                //        if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                //        {
+                //            var bliApi = new BlibliController();
+
+                //            BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                //            {
+                //                merchant_code = tblCustomer.Sort1_Cust,
+                //                API_client_password = tblCustomer.API_CLIENT_P,
+                //                API_client_username = tblCustomer.API_CLIENT_U,
+                //                API_secret_key = tblCustomer.API_KEY,
+                //                token = tblCustomer.TOKEN,
+                //                mta_username_email_merchant = tblCustomer.EMAIL,
+                //                mta_password_password_merchant = tblCustomer.PASSWORD,
+                //                idmarket = tblCustomer.RecNum.Value
+                //            };
+
+                //            await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+
+                //            //add by calvin 8 nov 2018, update status so di MO jika sudah ada order complete dari blibli
+                //            await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                //            //end add by calvin 8 nov 2018
+                //        }
+                //    }
+                //}
+                //var kdEL = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
+                //var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
+                //if (listELShop.Count > 0)
+                //{
+                //    foreach (ARF01 tblCustomer in listELShop)
+                //    {
+                //        var elApi = new EleveniaController();
+                //        await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+
+                //        //add by calvin 8 nov 2018, update status so di MO jika sudah ada order complete dari elevenia
+                //        await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                //        await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.ConfirmPurchase, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                //        //end add by calvin 8 nov 2018
+                //    }
+                //}
+                //var kdBL = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+                //var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
+                //if (listBLShop.Count > 0)
+                //{
+                //    foreach (ARF01 tblCustomer in listBLShop)
+                //    {
+                //        var blApi = new BukaLapakController();
+                //        blApi.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, connectionID);
+                //    }
+
+                //}
+
+                //var kdLzd = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "LAZADA");
+                //var listLzdShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLzd.IdMarket.ToString()).ToList();
+                //if (listLzdShop.Count > 0)
+                //{
+                //    foreach (ARF01 tblCustomer in listLzdShop)
+                //    {
+                //        var lzdApi = new LazadaController();
+                //        lzdApi.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, connectionID);
+                //    }
+                //}
+                ////end remark by calvin 13 desember 2018, testing
+
+                //var kdTokped = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+                //var listTokPed = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
+                //if (listTokPed.Count > 0)
+                //{
+                //    foreach (ARF01 tblCustomer in listTokPed)
+                //    {
+                //        if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                //        {
+                //            var tokopediaApi = new TokopediaController();
+
+                //            TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
+                //            {
+                //                merchant_code = tblCustomer.Sort1_Cust, //FSID
+                //                API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+                //                API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+                //                API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                //                token = tblCustomer.TOKEN,
+                //                idmarket = tblCustomer.RecNum.Value
+                //            };
+                //            //TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
+                //            //{
+                //            //    merchant_code = "13072", //FSID
+                //            //    API_client_username = "36bc3d7bcc13404c9e670a84f0c61676", //Client ID
+                //            //    API_client_password = "8a76adc52d144a9fa1ef4f96b59b7419", //Client Secret
+                //            //    API_secret_key = "2619296", //Shop ID 
+                //            //    token = "pmgdpFANTcC0PM9tVzrwmw"
+                //            //};
+                //            //await tokopediaApi.GetActiveItemList(iden, connectionID, tblCustomer.CUST, tblCustomer.PERSO, tblCustomer.RecNum ?? 0);
+                //            await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO, 1);
+                //            //await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                //            //await tokopediaApi.GetCategoryTree(idenTest);
+                //            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                //            //await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Completed, connectionID, "", "");
+                //        }
+                //    }
+                //}
+
+                //var kdShopee = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
+                //var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+                //if (listShopeeShop.Count > 0)
+                //{
+                //    var shopeeApi = new ShopeeController();
+                //    foreach (ARF01 tblCustomer in listShopeeShop)
+                //    {
+                //        ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData();
+                //        iden.merchant_code = tblCustomer.Sort1_Cust;
+                //        await shopeeApi.GetOrderByStatus(iden, ShopeeController.StatusOrder.READY_TO_SHIP, connectionID, tblCustomer.CUST, tblCustomer.PERSO, 0);
+                //    }
+                //}
+
+                ////add by calvin 14 nov 2018, update qoh setelah get pesanan
+                //var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT * FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connectionID + "'").ToList();
+
+
+                //List<string> listBrg = new List<string>();
+                //foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
+                //{
+                //    listBrg.Add(item.BRG);
+                //}
+                //updateStockMarketPlace(listBrg);
+                //ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connectionID + "'");
+                ////end add by calvin 14 nov 2018, update qoh setelah get pesanan
+                //END REMARK BY CALVIN 5 APRIL 2019
+
+                //Change by nurul 9/5/2019
+                //var vm = new PesananViewModel()
+                //{
+                //    ListPesanan = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => p.STATUS_TRANSAKSI == "01").ToList(),
+                //    ListBarang = ErasoftDbContext.STF02.ToList(),
+                //    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                //    ListMarketplace = Marketplaces,
+                //};
+
+                //return PartialView("TablePesananSudahDibayarPartial", vm);
+
+                int pagenumber = (page ?? 1) - 1;
+                ViewData["searchParam"] = search;
+                ViewData["LastPage"] = page;
+
+                //ADD BY NURUL 27/9/2019
+                string[] getkata = search.Split(' ');
+                string sSQLkode = "";
+                string sSQLmarket = "";
+                string sSQLpembeli = "";
+                string sSQLnetto = "";
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
                     {
-                        if (i > 0)
+                        for (int i = 0; i < getkata.Length; i++)
                         {
-                            sSQLkode += " AND ";
-                            sSQLmarket += " AND ";
-                            sSQLpembeli += " AND ";
-                            sSQLnetto += " AND ";
+                            if (i > 0)
+                            {
+                                sSQLkode += " AND ";
+                                sSQLmarket += " AND ";
+                                sSQLpembeli += " AND ";
+                                sSQLnetto += " AND ";
+                            }
+
+                            sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
+                            sSQLmarket += "  (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
+                            sSQLpembeli += "  A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
+                            sSQLnetto += "  A.NETTO like '%" + getkata[i] + "%' ";
+
                         }
-
-                        sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
-                        sSQLmarket += "  (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
-                        sSQLpembeli += "  A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
-                        sSQLnetto += "  A.NETTO like '%" + getkata[i] + "%' ";
-
                     }
                 }
-            }
 
-            //END ADD BY NURUL 27/9/2019
+                //END ADD BY NURUL 27/9/2019
 
-            string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ";
-            string sSQLCount = "";
-            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
-            string sSQL2 = "";
-            //ADD BY NURUL 4/12/2019
-            string sSQLTemp = "";
-            switch (filter)
-            {
-                case "marketplace":
-                    {
-                        if (filtervalue != null && filtervalue != "Harap Pilih")
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+                string sSQL2 = "";
+                //ADD BY NURUL 4/12/2019
+                string sSQLTemp = "";
+                switch (filter)
+                {
+                    case "marketplace":
                         {
-                            var listCustSesuaiFilter = ErasoftDbContext.ARF01.Where(p => p.NAMA == filtervalue).Select(p => p.CUST).ToList();
-                            var queryfilter = "";
-                            foreach (var item in listCustSesuaiFilter)
+                            if (filtervalue != null && filtervalue != "Harap Pilih")
                             {
-                                if (queryfilter != "") { queryfilter += ","; }
-                                queryfilter += "'" + item + "'";
-                            }
-                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI = '01' AND ";
-                            if (queryfilter != "")
-                            {
-                                sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                                var listCustSesuaiFilter = ErasoftDbContext.ARF01.Where(p => p.NAMA == filtervalue).Select(p => p.CUST).ToList();
+                                var queryfilter = "";
+                                foreach (var item in listCustSesuaiFilter)
+                                {
+                                    if (queryfilter != "") { queryfilter += ","; }
+                                    queryfilter += "'" + item + "'";
+                                }
+                                sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) WHERE STATUS_TRANSAKSI = '01' AND ";
+                                if (queryfilter != "")
+                                {
+                                    sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                                }
+                                else
+                                {
+                                    sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                                }
+                                sSQL2 += "FROM #SOT01A A(NOLOCK) ";
                             }
                             else
                             {
-                                sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                                sSQL2 += "FROM SOT01A A(NOLOCK) ";
                             }
-                            sSQL2 += "FROM #SOT01A A(NOLOCK) ";
                         }
-                        else
+                        break;
+                    default:
                         {
                             sSQL2 += "FROM SOT01A A(NOLOCK) ";
                         }
-                    }
-                    break;
-                default:
-                    {
-                        sSQL2 += "FROM SOT01A A(NOLOCK) ";
-                    }
-                    break;
-            }
-            //END ADD BY NURUL 4/12/2019
-            sSQL2 += "LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST ";
-            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C(NOLOCK) ON B.NAMA = C.IdMarket ";
-            sSQL2 += "WHERE A.STATUS_TRANSAKSI='01' ";
-            if (search != "")
-            {
-                //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLpembeli + ") ) ";
-            }
-            string sSQLSelect2 = "";
-            //ADD BY NURUL 4/12/2019
-            if (filter == "tanggal" && filtervalue == "asc")
-            {
-                sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_BUKTI ASC ";
-            }
-            else
-            {
-                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
-            }
-            //END ADD BY NURUL 4/12/2019
-            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
-            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+                        break;
+                }
+                //END ADD BY NURUL 4/12/2019
+                sSQL2 += "LEFT JOIN ARF01 B(NOLOCK) ON A.CUST = B.CUST ";
+                sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C(NOLOCK) ON B.NAMA = C.IdMarket ";
+                sSQL2 += "WHERE A.STATUS_TRANSAKSI='01' ";
+                if (search != "")
+                {
+                    //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%') ";
+                    sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLpembeli + ") ) ";
+                }
+                string sSQLSelect2 = "";
+                //ADD BY NURUL 4/12/2019
+                if (filter == "tanggal" && filtervalue == "asc")
+                {
+                    sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_BUKTI ASC ";
+                }
+                else
+                {
+                    sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+                }
+                //END ADD BY NURUL 4/12/2019
+                sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+                sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
-            var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLTemp + sSQLSelect + sSQL2 + sSQLSelect2).ToList();
-            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQL2).Single();
+                var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLTemp + sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+                var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQL2).Single();
 
-            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
-            //IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listPesanan, pagenumber + 1, 10, totalCount);
-            return PartialView("TablePesananSudahDibayarPartial", pageOrders);
-            //end change by nurul 9/5/2019
+                IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
+                //IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listPesanan, pagenumber + 1, 10, totalCount);
+                return PartialView("TablePesananSudahDibayarPartial", pageOrders);
+                //end change by nurul 9/5/2019
+            }
         }
 
         public class sumPesanan
