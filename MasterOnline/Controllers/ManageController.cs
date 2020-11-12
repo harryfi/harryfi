@@ -49063,6 +49063,7 @@ namespace MasterOnline.Controllers
                     using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
                     {
                         var listRecnumEnd = "";
+                        SetNoLockOn(context);
                         using (System.Data.Entity.DbContextTransaction transaction = context.Database.BeginTransaction())
                         {
                             try
@@ -49616,6 +49617,7 @@ namespace MasterOnline.Controllers
                             var sSQL5 = "update a set no_ref=b.no_referensi from sit01a a(NOLOCK) inner join sot01a b(NOLOCK) on a.no_so=b.no_bukti where (isnull(a.no_ref,'')='' or isnull(a.no_ref,'')='-') and isnull(b.no_referensi,'')<>''";
                             context.Database.ExecuteSqlCommand(sSQL5);
                         }
+                        SetNoLockOff(context);
                     }
                 }
             }
