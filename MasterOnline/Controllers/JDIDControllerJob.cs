@@ -627,7 +627,8 @@ namespace MasterOnline.Controllers
                                                                 }
                                                                 if (lGambarUploaded.Count() > 0)
                                                                 {
-                                                                    JD_addSKUMainPicture(data, Convert.ToString(dataSKU.skuId), itemDatas.LINK_GAMBAR_1);
+                                                                    JD_addSKUMainPicture(data, Convert.ToString(dataSKU.skuId), brgInDb.LINK_GAMBAR_1);
+                                                                    JD_addSKUDetailPicture(data, Convert.ToString(dataSKU.skuId), itemDatas.LINK_GAMBAR_1, 1);
                                                                     if (lGambarUploaded.Count() > 1)
                                                                     {
                                                                         for (int i = 1; i < lGambarUploaded.Count(); i++)
@@ -1097,6 +1098,7 @@ namespace MasterOnline.Controllers
 
                                     if(dataSkuResult != null)
                                     {
+                                        var urutanGambar = 0;
                                         foreach (var dataSKU in dataSkuResult.model)
                                         {
                                             if (brgInDb.TYPE == "4") // punya variasi
@@ -1110,6 +1112,7 @@ namespace MasterOnline.Controllers
                                                 {
                                                     if (dataSKU.sellerSkuId == itemDatas.BRG)
                                                     {
+                                                        urutanGambar = urutanGambar + 1;
                                                         var namafullVariant = "";
                                                         namafullVariant = itemDatas.NAMA;
                                                         if (!string.IsNullOrEmpty(itemDatas.NAMA2))
@@ -1127,33 +1130,42 @@ namespace MasterOnline.Controllers
 
                                                         if (lGambarUploaded.Count() > 0)
                                                         {
-                                                            JD_addSKUMainPicture(data, Convert.ToString(dataSKU.skuId), itemDatas.LINK_GAMBAR_1);
-                                                            if (lGambarUploaded.Count() > 1)
+                                                            if (!string.IsNullOrEmpty(itemDatas.LINK_GAMBAR_1))
                                                             {
-                                                                for (int i = 1; i < lGambarUploaded.Count(); i++)
-                                                                {
-                                                                    var urlImageJDID = "";
-                                                                    switch (i)
-                                                                    {
-                                                                        case 1:
-                                                                            urlImageJDID = brgInDb.LINK_GAMBAR_2;
-                                                                            break;
-                                                                        case 2:
-                                                                            urlImageJDID = brgInDb.LINK_GAMBAR_3;
-                                                                            break;
-                                                                        case 3:
-                                                                            urlImageJDID = brgInDb.LINK_GAMBAR_4;
-                                                                            break;
-                                                                        case 4:
-                                                                            urlImageJDID = brgInDb.LINK_GAMBAR_5;
-                                                                            break;
-                                                                    }
-                                                                    JD_addSKUDetailPicture(data, Convert.ToString(dataSKU.skuId), urlImageJDID, i + 1);
-                                                                }
+                                                                JD_addSKUMainPicture(data, Convert.ToString(dataSKU.skuId), itemDatas.LINK_GAMBAR_1);
+                                                                JD_addSKUDetailPicture(data, Convert.ToString(dataSKU.skuId), itemDatas.LINK_GAMBAR_1, urutanGambar);
                                                             }
+                                                            
                                                         }
                                                     }
                                                 }
+
+                                                //if (lGambarUploaded.Count() > 0)
+                                                //{
+                                                //    for (int i = 1; i < lGambarUploaded.Count() + 1; i++)
+                                                //    {
+                                                //        var urlImageJDID = "";
+                                                //        switch (i)
+                                                //        {
+                                                //            case 1:
+                                                //                urlImageJDID = brgInDb.LINK_GAMBAR_1;
+                                                //                break;
+                                                //            case 2:
+                                                //                urlImageJDID = brgInDb.LINK_GAMBAR_2;
+                                                //                break;
+                                                //            case 3:
+                                                //                urlImageJDID = brgInDb.LINK_GAMBAR_3;
+                                                //                break;
+                                                //            case 4:
+                                                //                urlImageJDID = brgInDb.LINK_GAMBAR_4;
+                                                //                break;
+                                                //            case 5:
+                                                //                urlImageJDID = brgInDb.LINK_GAMBAR_5;
+                                                //                break;
+                                                //        }
+                                                //        JD_addSKUDetailPicture(data, Convert.ToString(dataSKU.skuId), urlImageJDID, urutanGambar + i);
+                                                //    }
+                                                //}
 
                                                 #endregion
                                                 //end handle variasi product
