@@ -1771,7 +1771,7 @@
                                                                                             <table>
                                                                                                 <tr>
                                                                                                     <td>
-                                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].ANAME_47, new { @class = "form-control", id = "iquality_days_" + i, @MaxLength = "5", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_47 })
+                                                                                                        @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].ANAME_47, new { @class = "form-control", @type = "number", @min = "0", id = "iquality_days_" + i, @MaxLength = "5", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_47 })
                                                                                                     </td>
                                                                                                 </tr>
                                                                                             </table>
