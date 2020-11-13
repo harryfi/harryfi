@@ -3012,19 +3012,21 @@ namespace MasterOnline.Controllers
                                 {
                                     DateTime? expiredDate = null;
                                     DateTime? paymentDate = null;
-                                    var orderDetail = await GetOrderDetail(iden, order.invoice_ref_num);
-                                    if(orderDetail != null)
-                                    {
-                                        if(orderDetail.data != null)
-                                        {
-                                            if(orderDetail.data.shipment_fulfillment != null)
-                                            {
-                                                expiredDate = orderDetail.data.shipment_fulfillment.confirm_shipping_deadline;
-                                            }
-                                            paymentDate = orderDetail.data.payment_date;
-                                        }
-                                    }
+                                    //remark 13 nov 2020 tutup sementara
+                                    //var orderDetail = await GetOrderDetail(iden, order.invoice_ref_num);
+                                    //if(orderDetail != null)
+                                    //{
+                                    //    if(orderDetail.data != null)
+                                    //    {
+                                    //        if(orderDetail.data.shipment_fulfillment != null)
+                                    //        {
+                                    //            expiredDate = orderDetail.data.shipment_fulfillment.confirm_shipping_deadline;
+                                    //        }
+                                    //        paymentDate = orderDetail.data.payment_date;
+                                    //    }
+                                    //}
                                     //belum ada di temp
+                                    //end remark 13 nov 2020 tutup sementara
                                     foreach (var product in order.products)
                                     {
                                         #region cut max length dan ubah '
@@ -3160,18 +3162,20 @@ namespace MasterOnline.Controllers
                             {
                                 DateTime? expiredDate = null;
                                 DateTime? paymentDate = null;
-                                var orderDetail = await GetOrderDetail(iden, order.invoice_ref_num);
-                                if (orderDetail != null)
-                                {
-                                    if (orderDetail.data != null)
-                                    {
-                                        if (orderDetail.data.shipment_fulfillment != null)
-                                        {
-                                            expiredDate = orderDetail.data.shipment_fulfillment.confirm_shipping_deadline;
-                                        }
-                                        paymentDate = orderDetail.data.payment_date;
-                                    }
-                                }
+                                //remark 13 nov 2020 tutup sementara
+                                //var orderDetail = await GetOrderDetail(iden, order.invoice_ref_num);
+                                //if (orderDetail != null)
+                                //{
+                                //    if (orderDetail.data != null)
+                                //    {
+                                //        if (orderDetail.data.shipment_fulfillment != null)
+                                //        {
+                                //            expiredDate = orderDetail.data.shipment_fulfillment.confirm_shipping_deadline;
+                                //        }
+                                //        paymentDate = orderDetail.data.payment_date;
+                                //    }
+                                //}
+                                //end remark 13 nov 2020 tutup sementara
                                 List<TEMP_TOKPED_ORDERS> ListNewOrders = new List<TEMP_TOKPED_ORDERS>();
 
                                 ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_TOKPED_ORDERS");

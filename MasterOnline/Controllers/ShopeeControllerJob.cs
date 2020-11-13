@@ -1869,7 +1869,7 @@ namespace MasterOnline.Controllers
                                 {
                                     ordersn = ordersn.Substring(0, ordersn.Length - 1);
                                     //add 28 okt 2020 update tgl expired
-                                    await GetOrderDetailsUpdateExpiredDate(iden, ordersn, connID, CUST, NAMA_CUST, stat);
+                                    //await GetOrderDetailsUpdateExpiredDate(iden, ordersn, connID, CUST, NAMA_CUST, stat);//remark 13 nov 2020 tutup sementara
                                     //end add 28 okt 2020 update tgl expired 
                                     //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
                                     var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0' AND CUST = '" + CUST + "'");
