@@ -186,8 +186,13 @@ namespace MasterOnline.Controllers
                 string sql = "";
                 var userId = Convert.ToString(accInDb.AccountId);
                 //var tujuan = "54.179.169.195\\SQLEXPRESS";
+#if AWS
                 var tujuan = "13.250.232.74\\SQLEXPRESS, 1433";
                 //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
+                //var tujuan = "54.179.169.195\\SQLEXPRESS, 1444";
+#else
+                var tujuan = "54.179.169.195\\SQLEXPRESS, 1444";
+#endif
 
                 accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
                 accInDb.DataSourcePath = tujuan;
@@ -870,7 +875,7 @@ namespace MasterOnline.Controllers
         // =============================================== Bagian Marketplace (END)
 
         // =============================================== Bagian Addons (START)
-        #region Bagian Addons (START)
+#region Bagian Addons (START)
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -932,11 +937,11 @@ namespace MasterOnline.Controllers
             return RedirectToAction("AddonsMenu");
         }
 
-        #endregion
+#endregion
         // =============================================== Bagian Addons (END)
 
         // =============================================== Bagian CustomerAddons (START)
-        #region Bagian CustomerAddons (START)
+#region Bagian CustomerAddons (START)
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1065,7 +1070,7 @@ namespace MasterOnline.Controllers
             return RedirectToAction("AddonsCustMenu");
         }
 
-        #endregion
+#endregion
         // =============================================== Bagian CustomerAddons (END)
 
         // =============================================== Bagian Ekpedisi (START)
@@ -2241,8 +2246,11 @@ namespace MasterOnline.Controllers
                                                       "user id=masteronline;password=M@ster123;");
 #else
                 //add by fauzi 29 Januari 2020
-                accInDb.DataSourcePath = "13.251.222.53\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //accInDb.DataSourcePath = "13.251.222.53\\SQLEXPRESS, 1433";
+                //SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //                                      "user id=masteronline;password=M@ster123;");
+                accInDb.DataSourcePath = "54.179.169.195\\SQLEXPRESS, 1444";
+                SqlConnection con = new SqlConnection("Server=54.179.169.195\\SQLEXPRESS,1444;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
 #endif
                 SqlCommand command = new SqlCommand(sql, con);
