@@ -49602,6 +49602,15 @@ namespace MasterOnline.Controllers
                             catch (Exception ex)
                             {
                                 transaction.Rollback();
+                                //update status transaksi pesanan 
+                                if (listRecnumEnd != "")
+                                {
+                                    string sSQLStatus = "UPDATE A SET STATUS_TRANSAKSI = '02' " +
+                                                    "FROM SOT01A A (NOLOCK) LEFT JOIN SIT01A B (NOLOCK) ON A.NO_BUKTI=B.NO_SO left join sot03b c(nolock) on a.no_bukti = c.no_pesanan  " +
+                                                    "WHERE A.RECNUM IN (" + listRecnumEnd + ") AND ISNULL(B.NO_SO,'')='' and isnull(c.no_pesanan,'')='' and (status_transaksi='03' or status_transaksi='04') ";
+                                    var resultUpdateStatusSO = EDB.ExecuteSQL("CString", CommandType.Text, sSQLStatus);
+                                }
+                                //end update status transaksi pesanan
                                 return new JsonResult { Data = new { error_packing_list = true }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                             }
                         }
@@ -49610,6 +49619,12 @@ namespace MasterOnline.Controllers
                             sSQL3 += "from sot01a a(NOLOCK) inner join sit01a b(NOLOCK) on a.no_bukti=b.no_so inner join sot03b c(NOLOCK) on a.no_bukti=c.no_pesanan ";
                             sSQL3 += "where a.status_transaksi='02' and a.recnum in (" + listRecnumEnd + ")";
                             context.Database.ExecuteSqlCommand(sSQL3);
+                            //update status transaksi pesanan 
+                                string sSQLStatus = "UPDATE A SET STATUS_TRANSAKSI = '02' " +
+                                                "FROM SOT01A A (NOLOCK) LEFT JOIN SIT01A B (NOLOCK) ON A.NO_BUKTI=B.NO_SO left join sot03b c(nolock) on a.no_bukti = c.no_pesanan  " +
+                                                "WHERE A.RECNUM IN (" + listRecnumEnd + ") AND ISNULL(B.NO_SO,'')='' and isnull(c.no_pesanan,'')='' and (status_transaksi='03' or status_transaksi='04') ";
+                                var resultUpdateStatusSO = EDB.ExecuteSQL("CString", CommandType.Text, sSQLStatus);
+                            //end update status transaksi pesanan
                         }
                         var sSQL4 = "select count(a.no_bukti)jumlah from sit01a a(NOLOCK) inner join sot01a b(NOLOCK) on a.no_so=b.no_bukti where (isnull(a.no_ref,'')='' or isnull(a.no_ref,'')='-') and isnull(b.no_referensi,'')<>'' ";
                         var cekCountSINorefBlank = context.Database.SqlQuery<int>(sSQL4).SingleOrDefault();
