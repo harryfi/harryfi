@@ -49221,7 +49221,7 @@ namespace MasterOnline.Controllers
                                 var listDetailPesananSiapProses = context.SOT01B.AsNoTracking().Where(a => listSuccess.Contains(a.NO_BUKTI)).ToList();
                                 foreach (var eachSO in listSemuaSO)
                                 {
-                                    var pesananInDb = context.SOT01A.AsNoTracking().Where(p => p.RecNum == eachSO.RecNum).Single();
+                                    var pesananInDb = context.SOT01A.Where(p => p.RecNum == eachSO.RecNum).Single();
                                     //add by nurul 11/9/2020, validasi untuk qtyN dan gudang blank tidak boleh create faktur 
                                     var listBarangPesananInDb = listDetailPesananSiapProses.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
                                     var listQtyNGdNull = listBarangPesananInDb.Where(a => a.QTY_N == 0 && (a.LOKASI == "" || a.LOKASI == null)).ToList();
@@ -49574,7 +49574,7 @@ namespace MasterOnline.Controllers
                                         //EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '" + pesananInDb.STATUS_TRANSAKSI + "' , status_kirim = '" + pesananInDb.status_kirim + "' where RecNum='" + eachSO.RecNum + "' "); // remark by Nurul 12 November 2020
                                         context.SaveChanges();
 
-                                        EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE A SET STATUS_TRANSAKSI = '" + pesananInDb.STATUS_TRANSAKSI + "' , status_kirim = '" + pesananInDb.status_kirim + "' FROM SOT01A A (NOLOCK) INNER JOIN SIT01A B (NOLOCK) ON A.NO_BUKTI=B.NO_SO WHERE A.RECNUM ='" + eachSO.RecNum + "' ");
+                                        //EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE A SET STATUS_TRANSAKSI = '" + pesananInDb.STATUS_TRANSAKSI + "' , status_kirim = '" + pesananInDb.status_kirim + "' FROM SOT01A A (NOLOCK) INNER JOIN SIT01A B (NOLOCK) ON A.NO_BUKTI=B.NO_SO WHERE A.RECNUM ='" + eachSO.RecNum + "' ");
 
                                         //add by nurul 6/2/2020, tambah update sit01a untuk trigger create art01d
                                         //context.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = newSIT01A.BRUTO });
@@ -49603,13 +49603,13 @@ namespace MasterOnline.Controllers
                             {
                                 transaction.Rollback();
                                 //update status transaksi pesanan 
-                                if (listRecnumEnd != "")
-                                {
-                                    string sSQLStatus = "UPDATE A SET STATUS_TRANSAKSI = '02' " +
-                                                    "FROM SOT01A A (NOLOCK) LEFT JOIN SIT01A B (NOLOCK) ON A.NO_BUKTI=B.NO_SO left join sot03b c(nolock) on a.no_bukti = c.no_pesanan  " +
-                                                    "WHERE A.RECNUM IN (" + listRecnumEnd + ") AND ISNULL(B.NO_SO,'')='' and isnull(c.no_pesanan,'')='' and (status_transaksi='03' or status_transaksi='04') ";
-                                    var resultUpdateStatusSO = EDB.ExecuteSQL("CString", CommandType.Text, sSQLStatus);
-                                }
+                                //if (listRecnumEnd != "")
+                                //{
+                                //    string sSQLStatus = "UPDATE A SET STATUS_TRANSAKSI = '02' " +
+                                //                    "FROM SOT01A A (NOLOCK) LEFT JOIN SIT01A B (NOLOCK) ON A.NO_BUKTI=B.NO_SO left join sot03b c(nolock) on a.no_bukti = c.no_pesanan  " +
+                                //                    "WHERE A.RECNUM IN (" + listRecnumEnd + ") AND ISNULL(B.NO_SO,'')='' and isnull(c.no_pesanan,'')='' and (status_transaksi='03' or status_transaksi='04') ";
+                                //    var resultUpdateStatusSO = EDB.ExecuteSQL("CString", CommandType.Text, sSQLStatus);
+                                //}
                                 //end update status transaksi pesanan
                                 return new JsonResult { Data = new { error_packing_list = true }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                             }
@@ -49620,10 +49620,10 @@ namespace MasterOnline.Controllers
                             sSQL3 += "where a.status_transaksi='02' and a.recnum in (" + listRecnumEnd + ")";
                             context.Database.ExecuteSqlCommand(sSQL3);
                             //update status transaksi pesanan 
-                                string sSQLStatus = "UPDATE A SET STATUS_TRANSAKSI = '02' " +
-                                                "FROM SOT01A A (NOLOCK) LEFT JOIN SIT01A B (NOLOCK) ON A.NO_BUKTI=B.NO_SO left join sot03b c(nolock) on a.no_bukti = c.no_pesanan  " +
-                                                "WHERE A.RECNUM IN (" + listRecnumEnd + ") AND ISNULL(B.NO_SO,'')='' and isnull(c.no_pesanan,'')='' and (status_transaksi='03' or status_transaksi='04') ";
-                                var resultUpdateStatusSO = EDB.ExecuteSQL("CString", CommandType.Text, sSQLStatus);
+                                //string sSQLStatus = "UPDATE A SET STATUS_TRANSAKSI = '02' " +
+                                //                "FROM SOT01A A (NOLOCK) LEFT JOIN SIT01A B (NOLOCK) ON A.NO_BUKTI=B.NO_SO left join sot03b c(nolock) on a.no_bukti = c.no_pesanan  " +
+                                //                "WHERE A.RECNUM IN (" + listRecnumEnd + ") AND ISNULL(B.NO_SO,'')='' and isnull(c.no_pesanan,'')='' and (status_transaksi='03' or status_transaksi='04') ";
+                                //var resultUpdateStatusSO = EDB.ExecuteSQL("CString", CommandType.Text, sSQLStatus);
                             //end update status transaksi pesanan
                         }
                         var sSQL4 = "select count(a.no_bukti)jumlah from sit01a a(NOLOCK) inner join sot01a b(NOLOCK) on a.no_so=b.no_bukti where (isnull(a.no_ref,'')='' or isnull(a.no_ref,'')='-') and isnull(b.no_referensi,'')<>'' ";
