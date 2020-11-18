@@ -3053,6 +3053,10 @@ namespace MasterOnline.Controllers
                         if (ShippingFeeData != null)
                         {
                             newOrder.estimated_shipping_fee = (ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee).ToString();
+                            if(ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee < 0)
+                            {
+                                newOrder.estimated_shipping_fee = "0";
+                            }
                         }
                         //var listPromo = new Dictionary<long, double>();//add 6 juli 2020
                         var listPromo = new Dictionary<long, Activity>();//add 6 juli 2020
