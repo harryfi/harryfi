@@ -1147,6 +1147,7 @@ namespace MasterOnline.Controllers
                                                 if (ret.countAll == 0)
                                                 {
                                                     transaction.Rollback();
+                                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
                                                     ret.Errors.Add("Mohon untuk mengisi kolom Quantity dan Harga Modal (jika diperlukan) untuk proses Upload Excel Saldo Awal.");
                                                     ret.statusSuccess = false;
                                                     return Json(ret, JsonRequestBehavior.AllowGet);

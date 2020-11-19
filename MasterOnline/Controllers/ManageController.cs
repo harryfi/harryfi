@@ -44595,7 +44595,9 @@ namespace MasterOnline.Controllers
                                     }
                                 }
 
-                                if (orderItemIds.Count() == 50 || orderItemIds.Count() == hitungDetail || orderItemIds.Count() == 10)
+                                if (orderItemIds.Count() == 50 || orderItemIds.Count() == hitungDetail
+                                    || orderItemIds.Count() == 10
+                                    )
                                 {
                                     var lzdApi = new LazadaController();
                                     var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
@@ -45048,7 +45050,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = ex.Message.ToString() + ". Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             return JsonErrorMessage("This Function is for Lazada only");
         }
