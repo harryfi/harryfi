@@ -2365,6 +2365,10 @@ namespace MasterOnline.Controllers
 
                                     foreach (var item in listBrg.content)
                                     {
+                                        if(item.gdnSku.Contains("PAP-60067-00218") || item.gdnSku.Contains("PAP-60067-00223"))
+                                        {
+
+                                        }
                                         ret.totalData += 1;
                                         //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
                                         //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
@@ -2717,7 +2721,7 @@ namespace MasterOnline.Controllers
 
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_1 + "' , '" + attributeBlibli.ANAME_1.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_1 + "' , '" + attributeBlibli.ANAME_1.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -2750,7 +2754,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_2 + "' , '" + attributeBlibli.ANAME_2.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_2 + "' , '" + attributeBlibli.ANAME_2.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -2783,7 +2787,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_3 + "' , '" + attributeBlibli.ANAME_3.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_3 + "' , '" + attributeBlibli.ANAME_3.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -2816,7 +2820,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_4 + "' , '" + attributeBlibli.ANAME_4.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_4 + "' , '" + attributeBlibli.ANAME_4.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -2849,7 +2853,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_5 + "' , '" + attributeBlibli.ANAME_5.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_5 + "' , '" + attributeBlibli.ANAME_5.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -2882,7 +2886,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_6 + "' , '" + attributeBlibli.ANAME_6.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_6 + "' , '" + attributeBlibli.ANAME_6.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -2915,7 +2919,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_7 + "' , '" + attributeBlibli.ANAME_7.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_7 + "' , '" + attributeBlibli.ANAME_7.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -2948,7 +2952,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_8 + "' , '" + attributeBlibli.ANAME_8.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_8 + "' , '" + attributeBlibli.ANAME_8.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -2981,7 +2985,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_9 + "' , '" + attributeBlibli.ANAME_9.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_9 + "' , '" + attributeBlibli.ANAME_9.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3014,7 +3018,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_10 + "' , '" + attributeBlibli.ANAME_10.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_10 + "' , '" + attributeBlibli.ANAME_10.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3047,7 +3051,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_11 + "' , '" + attributeBlibli.ANAME_11.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_11 + "' , '" + attributeBlibli.ANAME_11.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3080,7 +3084,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_12 + "' , '" + attributeBlibli.ANAME_12.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_12 + "' , '" + attributeBlibli.ANAME_12.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3113,7 +3117,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_13 + "' , '" + attributeBlibli.ANAME_13.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_13 + "' , '" + attributeBlibli.ANAME_13.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3146,7 +3150,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_14 + "' , '" + attributeBlibli.ANAME_14.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_14 + "' , '" + attributeBlibli.ANAME_14.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3179,7 +3183,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_15 + "' , '" + attributeBlibli.ANAME_15.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_15 + "' , '" + attributeBlibli.ANAME_15.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3212,7 +3216,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_16 + "' , '" + attributeBlibli.ANAME_16.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_16 + "' , '" + attributeBlibli.ANAME_16.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3245,7 +3249,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_17 + "' , '" + attributeBlibli.ANAME_17.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_17 + "' , '" + attributeBlibli.ANAME_17.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3278,7 +3282,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_18 + "' , '" + attributeBlibli.ANAME_18.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_18 + "' , '" + attributeBlibli.ANAME_18.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3311,7 +3315,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_19 + "' , '" + attributeBlibli.ANAME_19.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_19 + "' , '" + attributeBlibli.ANAME_19.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3344,7 +3348,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_20 + "' , '" + attributeBlibli.ANAME_20.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_20 + "' , '" + attributeBlibli.ANAME_20.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3377,7 +3381,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_21 + "' , '" + attributeBlibli.ANAME_21.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_21 + "' , '" + attributeBlibli.ANAME_21.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3410,7 +3414,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_22 + "' , '" + attributeBlibli.ANAME_22.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_22 + "' , '" + attributeBlibli.ANAME_22.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3443,7 +3447,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_23 + "' , '" + attributeBlibli.ANAME_23.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_23 + "' , '" + attributeBlibli.ANAME_23.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3476,7 +3480,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_24 + "' , '" + attributeBlibli.ANAME_24.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_24 + "' , '" + attributeBlibli.ANAME_24.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3509,7 +3513,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_25 + "' , '" + attributeBlibli.ANAME_25.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_25 + "' , '" + attributeBlibli.ANAME_25.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3542,7 +3546,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_26 + "' , '" + attributeBlibli.ANAME_26.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_26 + "' , '" + attributeBlibli.ANAME_26.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3575,7 +3579,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_27 + "' , '" + attributeBlibli.ANAME_27.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_27 + "' , '" + attributeBlibli.ANAME_27.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3608,7 +3612,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_28 + "' , '" + attributeBlibli.ANAME_28.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_28 + "' , '" + attributeBlibli.ANAME_28.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3641,7 +3645,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_29 + "' , '" + attributeBlibli.ANAME_29.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_29 + "' , '" + attributeBlibli.ANAME_29.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3674,7 +3678,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_30 + "' , '" + attributeBlibli.ANAME_30.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_30 + "' , '" + attributeBlibli.ANAME_30.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3708,7 +3712,7 @@ namespace MasterOnline.Controllers
 
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_31 + "' , '" + attributeBlibli.ANAME_31.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_31 + "' , '" + attributeBlibli.ANAME_31.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3741,7 +3745,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_32 + "' , '" + attributeBlibli.ANAME_32.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_32 + "' , '" + attributeBlibli.ANAME_32.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3774,7 +3778,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_33 + "' , '" + attributeBlibli.ANAME_33.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_33 + "' , '" + attributeBlibli.ANAME_33.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3807,7 +3811,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_34 + "' , '" + attributeBlibli.ANAME_34.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                                sSQL += ", '" + attributeBlibli.ACODE_34 + "' , '" + attributeBlibli.ANAME_34.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                                 attrVal = "";
                             }
                             else
@@ -3840,7 +3844,7 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                sSQL += ", '" + attributeBlibli.ACODE_35 + "' , '" + attributeBlibli.ANAME_35.Replace("\'", "\'\'") + "' , '" + attrVal + "')";
+                                sSQL += ", '" + attributeBlibli.ACODE_35 + "' , '" + attributeBlibli.ANAME_35.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "')";
                                 attrVal = "";
                             }
                             else
@@ -3855,6 +3859,10 @@ namespace MasterOnline.Controllers
                             sSQL += sSQLInduk;
 
                         var retExec = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        if(retExec < 1)
+                        {
+
+                        }
                         ret.status = retExec;
                         //return ret;
                     }
@@ -3868,7 +3876,7 @@ namespace MasterOnline.Controllers
             string sSQL = "";
             string namaBrg = result.value.productName;
             string nama, nama2, nama3;
-
+            namaBrg = namaBrg.Replace('\'', '`');//add by Tri 8 Juli 2019, replace petik pada nama barang
             //change by calvin 16 september 2019
             //if (namaBrg.Length > 30)
             //{
@@ -3953,7 +3961,7 @@ namespace MasterOnline.Controllers
 
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_1 + "' , '" + attributeBlibli.ANAME_1.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_1 + "' , '" + attributeBlibli.ANAME_1.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -3986,7 +3994,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_2 + "' , '" + attributeBlibli.ANAME_2.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_2 + "' , '" + attributeBlibli.ANAME_2.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4019,7 +4027,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_3 + "' , '" + attributeBlibli.ANAME_3.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_3 + "' , '" + attributeBlibli.ANAME_3.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4052,7 +4060,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_4 + "' , '" + attributeBlibli.ANAME_4.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_4 + "' , '" + attributeBlibli.ANAME_4.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4085,7 +4093,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_5 + "' , '" + attributeBlibli.ANAME_5.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_5 + "' , '" + attributeBlibli.ANAME_5.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4118,7 +4126,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_6 + "' , '" + attributeBlibli.ANAME_6.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_6 + "' , '" + attributeBlibli.ANAME_6.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4151,7 +4159,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_7 + "' , '" + attributeBlibli.ANAME_7.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_7 + "' , '" + attributeBlibli.ANAME_7.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4184,7 +4192,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_8 + "' , '" + attributeBlibli.ANAME_8.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_8 + "' , '" + attributeBlibli.ANAME_8.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4217,7 +4225,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_9 + "' , '" + attributeBlibli.ANAME_9.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_9 + "' , '" + attributeBlibli.ANAME_9.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4250,7 +4258,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_10 + "' , '" + attributeBlibli.ANAME_10.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_10 + "' , '" + attributeBlibli.ANAME_10.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4283,7 +4291,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_11 + "' , '" + attributeBlibli.ANAME_11.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_11 + "' , '" + attributeBlibli.ANAME_11.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4316,7 +4324,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_12 + "' , '" + attributeBlibli.ANAME_12.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_12 + "' , '" + attributeBlibli.ANAME_12.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4349,7 +4357,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_13 + "' , '" + attributeBlibli.ANAME_13.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_13 + "' , '" + attributeBlibli.ANAME_13.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4382,7 +4390,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_14 + "' , '" + attributeBlibli.ANAME_14.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_14 + "' , '" + attributeBlibli.ANAME_14.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4415,7 +4423,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_15 + "' , '" + attributeBlibli.ANAME_15.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_15 + "' , '" + attributeBlibli.ANAME_15.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4448,7 +4456,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_16 + "' , '" + attributeBlibli.ANAME_16.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_16 + "' , '" + attributeBlibli.ANAME_16.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4481,7 +4489,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_17 + "' , '" + attributeBlibli.ANAME_17.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_17 + "' , '" + attributeBlibli.ANAME_17.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4514,7 +4522,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_18 + "' , '" + attributeBlibli.ANAME_18.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_18 + "' , '" + attributeBlibli.ANAME_18.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4547,7 +4555,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_19 + "' , '" + attributeBlibli.ANAME_19.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_19 + "' , '" + attributeBlibli.ANAME_19.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4580,7 +4588,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_20 + "' , '" + attributeBlibli.ANAME_20.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_20 + "' , '" + attributeBlibli.ANAME_20.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4613,7 +4621,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_21 + "' , '" + attributeBlibli.ANAME_21.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_21 + "' , '" + attributeBlibli.ANAME_21.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4646,7 +4654,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_22 + "' , '" + attributeBlibli.ANAME_22.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_22 + "' , '" + attributeBlibli.ANAME_22.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4679,7 +4687,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_23 + "' , '" + attributeBlibli.ANAME_23.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_23 + "' , '" + attributeBlibli.ANAME_23.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4712,7 +4720,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_24 + "' , '" + attributeBlibli.ANAME_24.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_24 + "' , '" + attributeBlibli.ANAME_24.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4745,7 +4753,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_25 + "' , '" + attributeBlibli.ANAME_25.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_25 + "' , '" + attributeBlibli.ANAME_25.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4778,7 +4786,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_26 + "' , '" + attributeBlibli.ANAME_26.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_26 + "' , '" + attributeBlibli.ANAME_26.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4811,7 +4819,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_27 + "' , '" + attributeBlibli.ANAME_27.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_27 + "' , '" + attributeBlibli.ANAME_27.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4844,7 +4852,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_28 + "' , '" + attributeBlibli.ANAME_28.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_28 + "' , '" + attributeBlibli.ANAME_28.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4877,7 +4885,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_29 + "' , '" + attributeBlibli.ANAME_29.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_29 + "' , '" + attributeBlibli.ANAME_29.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4910,7 +4918,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_30 + "' , '" + attributeBlibli.ANAME_30.Replace("\'", "\'\'") + "' , '" + attrVal + "')";
+                    sSQL += ", '" + attributeBlibli.ACODE_30 + "' , '" + attributeBlibli.ANAME_30.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "')";
                     attrVal = "";
                 }
                 else
@@ -4944,7 +4952,7 @@ namespace MasterOnline.Controllers
 
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_31 + "' , '" + attributeBlibli.ANAME_31.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_31 + "' , '" + attributeBlibli.ANAME_31.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -4977,7 +4985,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_32 + "' , '" + attributeBlibli.ANAME_32.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_32 + "' , '" + attributeBlibli.ANAME_32.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -5010,7 +5018,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_33 + "' , '" + attributeBlibli.ANAME_33.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_33 + "' , '" + attributeBlibli.ANAME_33.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -5043,7 +5051,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_34 + "' , '" + attributeBlibli.ANAME_34.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeBlibli.ACODE_34 + "' , '" + attributeBlibli.ANAME_34.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "'";
                     attrVal = "";
                 }
                 else
@@ -5076,7 +5084,7 @@ namespace MasterOnline.Controllers
                             //}
                         }
                     }
-                    sSQL += ", '" + attributeBlibli.ACODE_35 + "' , '" + attributeBlibli.ANAME_35.Replace("\'", "\'\'") + "' , '" + attrVal + "')";
+                    sSQL += ", '" + attributeBlibli.ACODE_35 + "' , '" + attributeBlibli.ANAME_35.Replace("\'", "\'\'") + "' , '" + attrVal.Replace('\'', '`') + "')";
                     attrVal = "";
                 }
                 else
