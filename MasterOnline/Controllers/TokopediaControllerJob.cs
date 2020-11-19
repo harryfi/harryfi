@@ -7157,7 +7157,7 @@ namespace MasterOnline.Controllers
             public OriginInfo origin_info { get; set; }
             public PaymentInfo payment_info { get; set; }
             public InsuranceInfo insurance_info { get; set; }
-            public string hold_info { get; set; }
+            //public string hold_info { get; set; }
             public Cancel_Request_Info cancel_request_info { get; set; }
             public DateTime create_time { get; set; }
             //public object shipping_date { get; set; }
