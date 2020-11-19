@@ -22049,6 +22049,22 @@ namespace MasterOnline.Controllers
                                 if (gdnSku[0] != catatan_split[2])
                                     return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
                             }
+                            else if (cust.NAMA == "19")//JDID
+                            {
+                                if (dataStf02h.BRG_MP.Contains(";"))
+                                {
+                                    var gdnSku = dataStf02h.BRG_MP.Split(';');
+                                    var catatanSplitJDID = catatan_split[2].Split(';');
+                                    if (gdnSku[1] != catatanSplitJDID[1])
+                                        return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                                }
+                                else
+                                {
+                                    var catatanSplitJDID = catatan_split[2].Split(';');
+                                    if (dataStf02h.BRG_MP != catatanSplitJDID[1])
+                                        return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                                }
+                            }
                             else
                             {
                                 return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
@@ -22163,6 +22179,22 @@ namespace MasterOnline.Controllers
                                 var gdnSku = dataStf02h.BRG_MP.Split(';');
                                 if (gdnSku[0] != catatan_split[2])
                                     return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                            }
+                            else if (cust.NAMA == "19")//JDID
+                            {
+                                if (dataStf02h.BRG_MP.Contains(";"))
+                                {
+                                    var gdnSku = dataStf02h.BRG_MP.Split(';');
+                                    var catatanSplitJDID = catatan_split[2].Split(';');
+                                    if (gdnSku[1] != catatanSplitJDID[1])
+                                        return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                                }
+                                else
+                                {
+                                    var catatanSplitJDID = catatan_split[2].Split(';');
+                                    if (dataStf02h.BRG_MP != catatanSplitJDID[1])
+                                        return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                                }
                             }
                             else
                             {
