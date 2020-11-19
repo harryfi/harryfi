@@ -4077,7 +4077,7 @@ namespace MasterOnline.Controllers
 
                 if (brg.skus[i].Images != null)
                 {
-                    if (brg.skus[i].Images[0] != null)
+                    if (brg.skus[i].Images.Count > 0)
                         urlImage = brg.skus[i].Images[0];
                     //add 19/9/19, varian ambil 2 barang
                     //if(typeBrg == 2)
