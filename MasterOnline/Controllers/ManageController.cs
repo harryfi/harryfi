@@ -22164,6 +22164,15 @@ namespace MasterOnline.Controllers
                                 if (gdnSku[0] != catatan_split[2])
                                     return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
                             }
+                            else if (cust.NAMA == "19")//JDID
+                            {
+                                if (dataStf02h.BRG_MP.Contains(";"))
+                                {
+                                    var gdnSku = dataStf02h.BRG_MP.Split(';');
+                                    if (gdnSku[1] != catatan_split[2])
+                                        return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                                }
+                            }
                             else
                             {
                                 return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");

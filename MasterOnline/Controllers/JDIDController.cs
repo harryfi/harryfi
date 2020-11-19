@@ -1350,11 +1350,11 @@ namespace MasterOnline.Controllers
                     var sellerSKUAPI = Convert.ToString(detItem.sellerSkuId);
                     if (!string.IsNullOrEmpty(sellerSKUAPI) && sellerSKUAPI != "null")
                     {
-                        sSQL_Value += " ( '" + skuId + "' , '" + sellerSKUAPI + "' , '";
+                        sSQL_Value += " ( '" + item.spuId + ";" + skuId + "' , '" + sellerSKUAPI + "' , '";
                     }
                     else
                     {
-                        sSQL_Value += " ( '" + skuId + "' , '" + skuId + "' , '";
+                        sSQL_Value += " ( '" + item.spuId + ";" + skuId + "' , '" + skuId + "' , '";
                     }
                     //end changed by fauzi 03/09/2020
                     //sSQL_Value += " ( '" + skuId + "' , '' , '";
