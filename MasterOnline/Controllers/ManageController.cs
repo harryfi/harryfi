@@ -44514,6 +44514,55 @@ namespace MasterOnline.Controllers
                                         //    return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
                                         //}
 
+                                        /// UPDATE FITUR FROM HTML TO PDF by Fauzi 04 November 2020
+                                        #region FITUR PRINT LABEL HTML TO PDF
+                                        #region initial folder
+                                        string messageErrorLog = "";
+                                        string filename = "LAZADA_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                                        var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                                        #endregion
+
+                                        if (!System.IO.File.Exists(path))
+                                        {
+                                            System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                                            FileStream stream = System.IO.File.Create(path);
+
+                                            string pdf_page_size = "9";
+                                            PdfPageSize pageSize = (PdfPageSize)Enum.Parse(typeof(PdfPageSize),
+                                                pdf_page_size, true);
+
+                                            string pdf_orientation = "0";
+                                            PdfPageOrientation pdfOrientation =
+                                                (PdfPageOrientation)Enum.Parse(typeof(PdfPageOrientation),
+                                                pdf_orientation, true);
+
+                                            int webPageWidth = 500;
+                                            int webPageHeight = 400;
+
+                                            HtmlToPdf converter = new HtmlToPdf();
+                                            converter.Options.PdfPageSize = pageSize;
+                                            converter.Options.PdfPageOrientation = pdfOrientation;
+                                            converter.Options.WebPageWidth = webPageWidth;
+                                            converter.Options.WebPageHeight = webPageHeight;
+                                            converter.Options.MarginRight = 10;
+                                            converter.Options.MarginLeft = 10;
+                                            converter.Options.MarginTop = 10;
+
+                                            htmlString = htmlString.Replace("break;", "");
+                                            SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
+
+                                            byte[] byteArray = doc.Save();
+                                            //end process
+
+                                            //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
+                                            stream.Write(byteArray, 0, byteArray.Length);
+                                            stream.Close();
+                                            temp_printLabel.Add(path);
+                                            temp_printLabel_split = temp_printLabel_split + path + ";";
+                                        }
+                                        #endregion
+                                        /// 
+
                                         temp_htmlString.Add(htmlString);
                                     }
                                     else
@@ -44546,7 +44595,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
 
-                                if (orderItemIds.Count() == 50 || orderItemIds.Count() == hitungDetail)
+                                if (orderItemIds.Count() == 50 || orderItemIds.Count() == hitungDetail || orderItemIds.Count() == 10)
                                 {
                                     var lzdApi = new LazadaController();
                                     var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
@@ -44777,11 +44826,11 @@ namespace MasterOnline.Controllers
 
                                     hitungDetail = hitungDetail - orderItemIds.Count();
                                     orderItemIds.Clear();
-                                    foreach (SOT01B item in sot01b)
-                                    {
-                                        orderItemIds.Add(item.ORDER_ITEM_ID);
-                                        //Valid = true;
-                                    }
+                                    //foreach (SOT01B item in sot01b)
+                                    //{
+                                    //    orderItemIds.Add(item.ORDER_ITEM_ID);
+                                    //    //Valid = true;
+                                    //}
                                 }
                             }
                         }
