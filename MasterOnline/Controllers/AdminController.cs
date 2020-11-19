@@ -187,11 +187,12 @@ namespace MasterOnline.Controllers
                 var userId = Convert.ToString(accInDb.AccountId);
                 //var tujuan = "54.179.169.195\\SQLEXPRESS";
 #if AWS
-                var tujuan = "13.250.232.74\\SQLEXPRESS, 1433";
+                //var tujuan = "13.250.232.74\\SQLEXPRESS, 1433";
                 //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
-                //var tujuan = "54.179.169.195\\SQLEXPRESS, 1444";
+                var tujuan = "13.251.64.77\\SQLEXPRESS, 1433"; // T3.LARGE DB FOR REGISTER NEW ACCOUNT
 #else
-                var tujuan = "54.179.169.195\\SQLEXPRESS, 1444";
+                //var tujuan = "54.179.169.195\\SQLEXPRESS, 1444";
+                var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
 #endif
 
                 accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
@@ -2236,9 +2237,13 @@ namespace MasterOnline.Controllers
                       $" MOVE 'erasoft_log' TO '{pathRestore}\\{accInDb.DatabasePathErasoft}.ldf';";
 #if AWS
                 //add by fauzi 29 Januari 2020
-                accInDb.DataSourcePath = "13.250.232.74\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
-                                "user id=masteronline;password=M@ster123;");
+                //accInDb.DataSourcePath = "13.250.232.74\\SQLEXPRESS, 1433";
+                //SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
+                //                "user id=masteronline;password=M@ster123;");
+
+                accInDb.DataSourcePath = "13.251.64.77\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=13.251.64.77\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                      "user id=masteronline;password=M@ster123;");
 #elif Debug_AWS
                 //add by fauzi 29 Januari 2020
                 accInDb.DataSourcePath = "13.250.232.74\\SQLEXPRESS, 1433";
@@ -2246,12 +2251,12 @@ namespace MasterOnline.Controllers
                                                       "user id=masteronline;password=M@ster123;");
 #else
                 //add by fauzi 29 Januari 2020
-                //accInDb.DataSourcePath = "13.251.222.53\\SQLEXPRESS, 1433";
-                //SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
-                //                                      "user id=masteronline;password=M@ster123;");
-                accInDb.DataSourcePath = "54.179.169.195\\SQLEXPRESS, 1444";
-                SqlConnection con = new SqlConnection("Server=54.179.169.195\\SQLEXPRESS,1444;Initial Catalog=master;persist security info=True;" +
+                accInDb.DataSourcePath = "13.251.222.53\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
+                //accInDb.DataSourcePath = "54.179.169.195\\SQLEXPRESS, 1444";
+                //SqlConnection con = new SqlConnection("Server=54.179.169.195\\SQLEXPRESS,1444;Initial Catalog=master;persist security info=True;" +
+                //                                      "user id=masteronline;password=M@ster123;");
 #endif
                 SqlCommand command = new SqlCommand(sql, con);
 
