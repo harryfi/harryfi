@@ -27863,36 +27863,36 @@ namespace MasterOnline.Controllers
             //};
             //await new TokopediaControllerJob().CheckPendings(data);
 
-            var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
-            var lisTokpedShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
-            if (lisTokpedShop.Count > 0)
-            {
-                //var tokopediaApi = new TokopediaController();
-                foreach (var tblCustomer in lisTokpedShop)
-                {
-                    if (tblCustomer.Sort1_Cust != "")
-                    {
-                        if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
-                        {
-                            TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
-                            {
-                                merchant_code = tblCustomer.Sort1_Cust, //FSID
-                                API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
-                                API_client_username = tblCustomer.API_CLIENT_U, //Client ID
-                                API_secret_key = tblCustomer.API_KEY, //Shop ID 
-                                idmarket = tblCustomer.RecNum.Value,
-                                DatabasePathErasoft = dbPathEra,
-                                username = "Support"
-                            };
-                            var tokpedController = new TokopediaControllerJob();
-                            //await tokpedController.GetSingleOrder(data, tblCustomer.CUST, tblCustomer.PERSO);
-                            //await tokpedController.PostRequestPickup(dbPathEra, "SO20000388", tblCustomer.CUST, "Pesanan", "Ganti Status", data, "SO20000388", "515081892");
-                            //await tokpedController.PostAckOrder(dbPathEra, "SO20000389", tblCustomer.CUST, "Pesanan", "Accept Order", data, "SO20000389", "515083008;INV/20200604/XX/VI/556642897");
-                            await tokpedController.GetNoAWB(data, "SO20010113", "637807518;INV/20201119/XX/XI/679367470");
-                        }
-                    }
-                }
-            }
+            //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+            //var lisTokpedShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
+            //if (lisTokpedShop.Count > 0)
+            //{
+            //    //var tokopediaApi = new TokopediaController();
+            //    foreach (var tblCustomer in lisTokpedShop)
+            //    {
+            //        if (tblCustomer.Sort1_Cust != "")
+            //        {
+            //            if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
+            //            {
+            //                TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
+            //                {
+            //                    merchant_code = tblCustomer.Sort1_Cust, //FSID
+            //                    API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
+            //                    API_client_username = tblCustomer.API_CLIENT_U, //Client ID
+            //                    API_secret_key = tblCustomer.API_KEY, //Shop ID 
+            //                    idmarket = tblCustomer.RecNum.Value,
+            //                    DatabasePathErasoft = dbPathEra,
+            //                    username = "Support"
+            //                };
+            //                var tokpedController = new TokopediaControllerJob();
+            //                //await tokpedController.GetSingleOrder(data, tblCustomer.CUST, tblCustomer.PERSO);
+            //                //await tokpedController.PostRequestPickup(dbPathEra, "SO20000388", tblCustomer.CUST, "Pesanan", "Ganti Status", data, "SO20000388", "515081892");
+            //                //await tokpedController.PostAckOrder(dbPathEra, "SO20000389", tblCustomer.CUST, "Pesanan", "Accept Order", data, "SO20000389", "515083008;INV/20200604/XX/VI/556642897");
+            //                await tokpedController.GetNoAWB(data, "SO20010113", "637807518;INV/20201119/XX/XI/679367470");
+            //            }
+            //        }
+            //    }
+            //}
 
             //var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16" && m.CUST == "001030").ToList();
             //if (listBLIShop.Count > 0)
