@@ -312,7 +312,7 @@ namespace MasterOnline.Controllers
                     smtp.Host = "smtp.gmail.com";
                     smtp.Port = 587;
                     smtp.EnableSsl = true;
-                    //await smtp.SendMailAsync(message);
+                    await smtp.SendMailAsync(message);
                 }
 #endif
             }
@@ -2355,7 +2355,7 @@ namespace MasterOnline.Controllers
                     smtp.Host = "smtp.gmail.com";
                     smtp.Port = 587;
                     smtp.EnableSsl = true;
-                    //await smtp.SendMailAsync(message);
+                    await smtp.SendMailAsync(message);
                 }
 #endif
             }
