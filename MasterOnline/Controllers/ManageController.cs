@@ -47820,7 +47820,8 @@ namespace MasterOnline.Controllers
                 if (piutangInDb != null)
                 {
                     //var ssql2 = "select * from ART03B where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
-                    var ssql2 = "select [NO],NFAKTUR,SISA,BAYAR,POT from ART03B (nolock) where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
+                    //var ssql2 = "select [NO],NFAKTUR,SISA,BAYAR,POT from ART03B (nolock) where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
+                    var ssql2 = "select [NO],NFAKTUR,SISA,BAYAR,POT from ART03B (nolock) where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0";
                     var piutangDetaiInDb = ErasoftDbContext.Database.SqlQuery<tempDetailPiutang>(ssql2).ToList();
                     ret.countAll = piutangDetaiInDb.Count();
                     if (ret.statusLoop == true)
