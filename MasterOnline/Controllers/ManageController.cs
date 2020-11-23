@@ -29144,7 +29144,7 @@ namespace MasterOnline.Controllers
                 {
                     adaErr = true;
                 }
-                var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a where no_bukti in (select NFAKTUR from art03b where bukti='" + piutangInDb.BUKTI + "')").ToList();
+                var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a (nolock) where no_bukti in (select NFAKTUR from art03b where bukti='" + piutangInDb.BUKTI + "')").ToList();
                 //var getHitungHeader = ErasoftDbContext.Database.SqlQuery<tempHitungHeader>("select a.BUKTI, ISNULL(sum(SISA),0) as TotalFaktur, ISNULL(a.TBAYAR,0) as TotalBayar, ISNULL(a.TPOT,0) as TotalPotongan, ISNULL((sum(BAYAR) + sum(POT)),0) as TotalPelunasan, ISNULL((sum(SISA) - sum(BAYAR) - sum(POT)),0) as Selisih, ISNULL(TLEBIH_BAYAR,0) AS TotalLebihBayar from art03a a inner join art03b b on a.bukti=b.bukti where a.bukti='" + piutangInDb.BUKTI + "' group by a.BUKTI,TBAYAR,TPOT,TLEBIH_BAYAR").SingleOrDefault();
                 var vm = new BayarPiutangViewModel()
                 {
@@ -47791,6 +47791,7 @@ namespace MasterOnline.Controllers
 
         public class tempDetailPiutang
         {
+            public string BUKTI { get; set; }
             public int? NO { get; set; }
             public string NFAKTUR { get; set; }
             public double SISA { get; set; }
@@ -47819,15 +47820,37 @@ namespace MasterOnline.Controllers
                 var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
                 if (piutangInDb != null)
                 {
-                    //var ssql2 = "select * from ART03B where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
-                    //var ssql2 = "select [NO],NFAKTUR,SISA,BAYAR,POT from ART03B (nolock) where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
-                    var ssql2 = "select [NO],NFAKTUR,SISA,BAYAR,POT from ART03B (nolock) where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0";
-                    var piutangDetaiInDb = ErasoftDbContext.Database.SqlQuery<tempDetailPiutang>(ssql2).ToList();
-                    ret.countAll = piutangDetaiInDb.Count();
+                    //change by nurul 23/11/2020
+                    ////var ssql2 = "select * from ART03B where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
+                    ////var ssql2 = "select [NO],NFAKTUR,SISA,BAYAR,POT from ART03B (nolock) where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
+                    //var ssql2 = "select [NO],NFAKTUR,SISA,BAYAR,POT from ART03B (nolock) where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0";
+                    //var piutangDetaiInDb = ErasoftDbContext.Database.SqlQuery<tempDetailPiutang>(ssql2).ToList();
+                    //ret.countAll = piutangDetaiInDb.Count();
+                    //if (ret.statusLoop == true)
+                    //{
+                    //    prog[1] = Convert.ToString(Convert.ToInt32(prog[1]) - 1);
+                    //}
+                    List<tempDetailPiutang> piutangDetaiInDb = new List<tempDetailPiutang>();
+                    if (ret.statusLoop == false)
+                    {
+                        //EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        var dsArDel = EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM temp_Pelunasan");
+                        var sSQL4 = "insert into temp_Pelunasan (BUKTI,[NO],NFAKTUR,SISA,BAYAR,POT) ";
+                        sSQL4 += "select BUKTI,[NO],NFAKTUR,SISA,BAYAR,POT from ART03B (nolock) where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0";
+                        var dsArRow = EDB.ExecuteSQL("sConn", CommandType.Text, sSQL4);
+                        //var dsArRow = EDB.ExecuteSQL("sConn", CommandType.Text, "select BUKTI,[NO],NFAKTUR,SISA,BAYAR,POT into temp_Pelunasan from ART03B (nolock) where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0");
+                        var ssql2 = "select * from temp_Pelunasan where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0";
+                        piutangDetaiInDb = ErasoftDbContext.Database.SqlQuery<tempDetailPiutang>(ssql2).ToList();
+                        ret.countAll = piutangDetaiInDb.Count();
+                    }
                     if (ret.statusLoop == true)
                     {
+                        var ssql3 = "select * from #tempPelunasan where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0";
+                        piutangDetaiInDb.AddRange(ErasoftDbContext.Database.SqlQuery<tempDetailPiutang>(ssql3).ToList());
+                        ret.countAll = piutangDetaiInDb.Count();
                         prog[1] = Convert.ToString(Convert.ToInt32(prog[1]) - 1);
                     }
+                    //end change by nurul 23/11/2020
 
                     if (Convert.ToInt32(prog[1]) == 0)
                     {
@@ -47848,10 +47871,13 @@ namespace MasterOnline.Controllers
                             var getData = piutangDetaiInDb[i];
                             if (getData != null)
                             {
-                                getData.POT = Convert.ToDouble(Math.Abs(Math.Round(Convert.ToDecimal(getData.SISA - getData.BAYAR), 2, MidpointRounding.AwayFromZero)));
-                                Pot.Add(getData.POT);
-                                recnum.Add(Convert.ToInt32(getData.NO));
-                                //ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=(sisa - bayar) where no =" + getData.NO + " and bukti='" + ret.nobuk + "'");
+                                if (getData.SISA - getData.BAYAR - getData.POT > 0)
+                                {
+                                    getData.POT = Convert.ToDouble(Math.Abs(Math.Round(Convert.ToDecimal(getData.SISA - getData.BAYAR), 2, MidpointRounding.AwayFromZero)));
+                                    Pot.Add(getData.POT);
+                                    recnum.Add(Convert.ToInt32(getData.NO));
+                                    //ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=(sisa - bayar) where no =" + getData.NO + " and bukti='" + ret.nobuk + "'");
+                                }
                             }
                             else
                             {
