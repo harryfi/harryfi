@@ -47833,19 +47833,17 @@ namespace MasterOnline.Controllers
                     List<tempDetailPiutang> piutangDetaiInDb = new List<tempDetailPiutang>();
                     if (ret.statusLoop == false)
                     {
-                        //EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                         var dsArDel = EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM temp_Pelunasan");
                         var sSQL4 = "insert into temp_Pelunasan (BUKTI,[NO],NFAKTUR,SISA,BAYAR,POT) ";
                         sSQL4 += "select BUKTI,[NO],NFAKTUR,SISA,BAYAR,POT from ART03B (nolock) where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0";
                         var dsArRow = EDB.ExecuteSQL("sConn", CommandType.Text, sSQL4);
-                        //var dsArRow = EDB.ExecuteSQL("sConn", CommandType.Text, "select BUKTI,[NO],NFAKTUR,SISA,BAYAR,POT into temp_Pelunasan from ART03B (nolock) where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0");
                         var ssql2 = "select * from temp_Pelunasan where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0";
                         piutangDetaiInDb = ErasoftDbContext.Database.SqlQuery<tempDetailPiutang>(ssql2).ToList();
                         ret.countAll = piutangDetaiInDb.Count();
                     }
                     if (ret.statusLoop == true)
                     {
-                        var ssql3 = "select * from #tempPelunasan where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0";
+                        var ssql3 = "select * from temp_Pelunasan where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0";
                         piutangDetaiInDb.AddRange(ErasoftDbContext.Database.SqlQuery<tempDetailPiutang>(ssql3).ToList());
                         ret.countAll = piutangDetaiInDb.Count();
                         prog[1] = Convert.ToString(Convert.ToInt32(prog[1]) - 1);
