@@ -2166,6 +2166,119 @@ namespace MasterOnline.Controllers
         [Queue("3_general")]
         public async Task<string> GetOrderByStatusCompleted(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
+            SetupContext(iden);
+
+            string sSQL = "SELECT NO_REFERENSI FROM SOT01A (NOLOCK) A INNER JOIN SIT01A (NOLOCK) B ON  A.NO_BUKTI = B.NO_SO ";
+            sSQL += "WHERE STATUS_TRANSAKSI = '03' AND A.TGL >= '"+DateTime.UtcNow.AddHours(7).AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss")+"' AND A.CUST = '"+CUST+"'";
+
+            var dsPesanan = EDB.GetDataSet("CString", "SOT01", sSQL);
+
+            if(dsPesanan.Tables[0].Rows.Count > 0)
+            {
+                var listNoRef = new List<string>();
+                for(int i =0; i < dsPesanan.Tables[0].Rows.Count; i++)
+                {
+                    listNoRef.Add(dsPesanan.Tables[0].Rows[i]["NO_REFERENSI"].ToString());
+                    if(listNoRef.Count == 50 || i == dsPesanan.Tables[0].Rows.Count - 1)
+                    {
+                        await GetOrderByStatusCompletedAPI(iden, listNoRef.ToArray(), CUST);
+                        listNoRef = new List<string>();
+                    }
+                }
+            }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\\\"}\"" + "," + "\"4\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","4","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+
+            return "";
+        }
+        public async Task<string> GetOrderByStatusCompletedAPI(ShopeeAPIData iden, string[] ordersn_list, string cust)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            //Dictionary<string, string> ret = new Dictionary<string, string>();
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
+
+            GetOrderDetailsData HttpBody = new GetOrderDetailsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn_list = ordersn_list
+                //ordersn_list = ordersn_list_test.ToArray()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+                var connIdARF01C = Guid.NewGuid().ToString();
+
+                string ordList = "";
+                foreach (var order in result.orders)
+                {
+                    if(order.order_status == "COMPLETED")
+                    {
+                        ordList += "'" + order.ordersn + "',";
+                    }
+                }
+                if (!string.IsNullOrEmpty(ordList))
+                {
+                    ordList = ordList.Substring(0, ordList.Length - 1);
+                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordList + ") AND CUST = '"+cust+"' AND STATUS_TRANSAKSI = '03'");
+                    
+                    if (rowAffected > 0)
+                    {
+                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(rowAffected) + " Pesanan dari Shopee sudah selesai.");
+
+                        //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                        if (!string.IsNullOrEmpty(ordList))
+                        {
+                            var dateTimeNow = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
+                            string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + ordList + ") AND CUST = '" + cust + "'";
+                            var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                        }
+                        //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                    }
+                    
+                }
+               
+            }
+            return "";
+        }
+        public async Task<string> GetOrderByStatusCompletedOld(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        {
             int fromdt = -2;
             int todt = 0;
             SetupContext(iden);
