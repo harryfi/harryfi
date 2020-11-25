@@ -1775,22 +1775,18 @@ namespace MasterOnline.Controllers
         [Queue("3_general")]
         public async Task<string> GetOrderByStatus(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar)
         {
+            
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
+
+            var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+            
             SetupContext(iden);
             int dayFrom = -1;
             await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dayFrom);
 
             // tunning untuk tidak duplicate
-            var queryStatus = "";
-            if (stat == StatusOrder.UNPAID)
-            {
-                //queryStatus = "\"}\"" + "," + "\"6\"" + "," + "\"";
-                queryStatus = "\\\"}\"" + "," + "\"6\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","6","\"000003\""
-            }
-            else if (stat == StatusOrder.READY_TO_SHIP)
-            {
-                //queryStatus = "\"}\"" + "," + "\"3\"" + "," + "\"";
-                queryStatus = "\\\"}\"" + "," + "\"3\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","3","\"000003\""
-            }
+           
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrderByStatusCompleted%' and invocationdata not like '%GetOrderByStatusCancelled%' and invocationdata not like '%GetOrderByStatusWithDay%'");
             // end tunning untuk tidak duplicate
             return "";
