@@ -2582,7 +2582,7 @@ namespace MasterOnline.Controllers
                         SetNoLockOn(ErasoftDbContext);
                         string sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from sit01a (NOLOCK) where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "' and jenis_form='2' ";
                         var TotalPenjualan = ErasoftDbContext.Database.SqlQuery<SUM_NettoSIPB>(sSQL1).Single();
-                        sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from pbt01a (NOLOCK) where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "' and jenisform='3' ";
+                        sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from pbt01a (NOLOCK) where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "' and jenisform='1' ";
                         var TotalPembelian = ErasoftDbContext.Database.SqlQuery<SUM_NettoSIPB>(sSQL1).Single();
                         vm.totalSI = TotalPenjualan.TOTAL;
                         vm.totalPB = TotalPembelian.TOTAL;
@@ -17798,15 +17798,15 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SIT01B.Add(dataVm.FakturDetail);
                     //CHANGE BY NURUL 4/11/2020
                     //ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = dataVm.Faktur.BRUTO });
-                    //var sSQL = "UPDATE SIT01A SET BRUTO = BRUTO WHERE NO_BUKTI='" + noOrder + "' AND JENIS_FORM ='2'";
-                    //ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                    var sSQL = "UPDATE SIT01A SET BRUTO = BRUTO WHERE NO_BUKTI='" + noOrder + "' AND JENIS_FORM ='2'";
+                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
                     //add 18/10/2019, hitung ulang bruto,netto
-                    string sSQL = "UPDATE A SET BRUTO = B.harga, NETTO = (B.harga + A.MATERAI + A.NILAI_PPN - A.NILAI_DISC ) FROM SIT01A A(nolock) INNER JOIN ( ";
-                    sSQL += "select no_bukti,sum(harga) as harga from sit01b (nolock) group by no_bukti)b  ";
-                    sSQL += "on a.no_bukti=b.no_bukti ";
-                    sSQL += "WHERE A.NO_BUKTI ='" + noOrder + "' AND A.JENIS_FORM ='2'";
+                    //string sSQL = "UPDATE A SET BRUTO = B.harga, NETTO = (B.harga + A.MATERAI + A.NILAI_PPN - A.NILAI_DISC ) FROM SIT01A A(nolock) INNER JOIN ( ";
+                    //sSQL += "select no_bukti,sum(harga) as harga from sit01b (nolock) group by no_bukti)b  ";
+                    //sSQL += "on a.no_bukti=b.no_bukti ";
+                    //sSQL += "WHERE A.NO_BUKTI ='" + noOrder + "' AND A.JENIS_FORM ='2'";
 
-                    var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                    //var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                     //END CHANGE BY NURUL 4/11/2020
                 }
             }
@@ -29144,7 +29144,7 @@ namespace MasterOnline.Controllers
                 {
                     adaErr = true;
                 }
-                var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a (nolock) where no_bukti in (select NFAKTUR from art03b where bukti='" + piutangInDb.BUKTI + "')").ToList();
+                var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a (nolock) where no_bukti in (select NFAKTUR from art03b (nolock) where bukti='" + piutangInDb.BUKTI + "')").ToList();
                 //var getHitungHeader = ErasoftDbContext.Database.SqlQuery<tempHitungHeader>("select a.BUKTI, ISNULL(sum(SISA),0) as TotalFaktur, ISNULL(a.TBAYAR,0) as TotalBayar, ISNULL(a.TPOT,0) as TotalPotongan, ISNULL((sum(BAYAR) + sum(POT)),0) as TotalPelunasan, ISNULL((sum(SISA) - sum(BAYAR) - sum(POT)),0) as Selisih, ISNULL(TLEBIH_BAYAR,0) AS TotalLebihBayar from art03a a inner join art03b b on a.bukti=b.bukti where a.bukti='" + piutangInDb.BUKTI + "' group by a.BUKTI,TBAYAR,TPOT,TLEBIH_BAYAR").SingleOrDefault();
                 var vm = new BayarPiutangViewModel()
                 {
@@ -47933,7 +47933,7 @@ namespace MasterOnline.Controllers
                                         }
                                         vm.Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == ret.nobuk);
                                         vm.ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == ret.nobuk).ToList();
-                                        var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a where no_bukti in (select NFAKTUR from art03b where bukti='" + ret.nobuk + "')").ToList();
+                                        var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a (nolock) where no_bukti in (select NFAKTUR from art03b (nolock) where bukti='" + ret.nobuk + "')").ToList();
                                         vm.ListOngkir = getOngkir;
                                         vm.ret = ret;
 
@@ -48042,7 +48042,7 @@ namespace MasterOnline.Controllers
                                     }
                                     vm.Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == ret.nobuk);
                                     vm.ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == ret.nobuk).ToList();
-                                    var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a(nolock) where no_bukti in (select NFAKTUR from art03b(nolock) where bukti='" + ret.nobuk + "')").ToList();
+                                    var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a(nolock) where no_bukti in (select NFAKTUR from art03b (nolock) where bukti='" + ret.nobuk + "')").ToList();
                                     vm.ListOngkir = getOngkir;
                                     vm.ret = ret;
 
