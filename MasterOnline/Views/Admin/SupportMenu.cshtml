@@ -1,6 +1,6 @@
 ﻿@using System.Globalization
 @using MasterOnline.Models
-@model MenuSupport
+@model MasterOnline.ViewModels.SupportMenuViewModel
 @*@using MasterOnline.ViewModels
     @model MenuAccountViewModel*@
 @{
@@ -77,21 +77,49 @@
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="account-tab">
                     @*end add by nurul 13/2/2019*@
                     <div class="row user_table_section">
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="input-group">
-                                <input id="search_user" type="text" class="form-control" placeholder="Pencarian">
-                                <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
-                                        <i class="fa fa-search"></i>
-                                    </button>
+                        <div class="col-md-12 col-sm-12">
+                            <div class="col-md-6 input-group">
+                                <span class="txt1 p-b-11">
+                                    @Html.Label("Pilih Akun")
                                 </span>
-                            </div>
-                        </div>
-                        <div class="col-lg-8 col-sm-6">
-                            <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>
+                                <div class="wrap-input100 validate-input m-b-36" style="border: none">
+                                    <select id="ACCOUNT" placeholder="Harap pilih" required="required"></select>
+                                    @*@Html.HiddenFor(m => m.Email)
+                                        @Html.HiddenFor(m => m.Password)
+                                        @Html.HiddenFor(m => m.SelectedAccount)*@
+                                </div>
+
+                                <div class="row">
+                                    @if (Model != null && Model.ListTokoMPCustomers != null)
+                                    {
+                                        foreach (var customer in Model.ListTokoMPCustomers)
+                                        {
+                                            <div class="row" style="margin-bottom:5px;">
+                                                <div class="col-md-1" style="padding-bottom:10px">
+                                                    <label class="checkbox-container">
+                                                        <input id="cb_@customer.cust" type="checkbox" data-cust="@customer.cust" class="cbx ckCustomers" name="cb_@customer.cust" />
+                                                        <span id="cbsp_@customer.cust" class="checkmark"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="col-md-3" style="padding-top: 7px;">
+                                                    <label id="lblNama_@customer.cust">@customer.namaMarket (@customer.namaCust)</label>
+                                                </div>
+                                                <div class="col-md-3" style="padding-top: 7px;">
+                                                    <label id="lblRecord_@customer.cust" class="label_record" hidden="hidden"></label>
+                                                </div>
+                                                <div class="col-md-3" style="padding-top: 7px;">
+                                                    <label id="lblTotalData_@customer.cust" class="label_record" hidden="hidden"></label>
+                                                </div>
+                                                <div class="col-md-1 div-spinner" style="padding-top: 7px;" hidden="hidden" id="spinner_@customer.cust">
+                                                    <i class='fa fa-spinner fa-spin pull-right' style="color:red"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label id="hiddenlbl_@customer.cust" hidden="hidden">0</label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -140,25 +168,25 @@
                                                 </div>
                                                 <div class="x_content">
                                                     @*@if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
-                                                    {
-                                                        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
                                                         {
-                                                            <div class="alert alert-danger">
-                                                                <span class="message-error">@modelError.ErrorMessage</span>
-                                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
+                                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                                            {
+                                                                <div class="alert alert-danger">
+                                                                    <span class="message-error">@modelError.ErrorMessage</span>
+                                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                            }
                                                         }
-                                                    }
-                                                    <br>
-                                                    @using (Html.BeginForm("SaveAccNew", "Admin", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-account" }))
-                                                    {
-                                                        <div id="form-partial">
+                                                        <br>
+                                                        @using (Html.BeginForm("SaveAccNew", "Admin", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-account" }))
+                                                        {
+                                                            <div id="form-partial">
 
-                                                        </div>
+                                                            </div>
 
-                                                    }*@
+                                                        }*@
                                                 </div>
                                             </div>
                                         </div>
@@ -278,22 +306,22 @@
                         <div class="col-md-2">
                             @*@Html.Label("", "Dari Tanggal")
 
-                            <div class="input-group date">
-                                 @Html.TextBox("DrTanggal", null, new { @class = "form-control", @ReadOnly = true })
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>*@
+                                <div class="input-group date">
+                                     @Html.TextBox("DrTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>*@
                         </div>
                         <div class="col-md-2">
                             @*@Html.Label("", "S/d Tanggal")
 
-                            <div class="input-group date">
-                               @Html.TextBox("SdTanggal", null, new { @class = "form-control", @ReadOnly = true })
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>*@
+                                <div class="input-group date">
+                                   @Html.TextBox("SdTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>*@
                         </div>
                         <div class="col-md-8">
                         </div>
@@ -345,12 +373,12 @@
                         <div class="col-md-2">
                             @*@Html.Label("", "Per Tanggal")
 
-                            <div class="input-group date">
-                                @Html.TextBox("PerTanggal", null, new { @class = "form-control", @ReadOnly = true })
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>*@
+                                <div class="input-group date">
+                                    @Html.TextBox("PerTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>*@
                         </div>
                         <div class="col-md-10">
                         </div>
@@ -411,6 +439,10 @@
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript">
         //var $page = window.text;
+@{
+        var model_accountList = Model?.AccountList;
+}
+
         var $page = 0;
         var $accId = 0;
         var $status = 0;
@@ -442,6 +474,27 @@
                 //var tableExpired = $('#datatable_expired').DataTable();
                 //end add by nurul 13/2/2019
 
+                var model_listAkun = @Html.Raw(Json.Encode(model_accountList));
+                var listAccount = [];
+                $.each(model_listAkun,
+                function (i, item) {
+                    listAccount[i] = {
+                        id: item,
+                        text: item
+                    };
+                    });
+                if ($('#ACCOUNT').length > 0) {
+                var AccountSelect = $('#ACCOUNT').selectize({
+                    valueField: 'id',
+                    searchField: 'text',
+                    options: listAccount,
+                    onChange: function (value) {
+                        $('#SelectedAccount').val(value);
+                        GetMarketplaceAccount(value);
+                    }
+                    });
+                }
+
 
                 $('#search_user').keyup(function () {
                     table.search($(this).val()).draw();
@@ -461,13 +514,13 @@
                 });
 
                 $('#account-tab').click(function () {
-                    refreshTableAccount();
+                    //refreshTableAccount();
                 });
                 $('#aktif-tab').click(function () {
-                    refreshTableAktif();
+                    //refreshTableAktif();
                 });
                 $('#nonaktif-tab').click(function () {
-                    refreshTableNonaktif();
+                    //refreshTableNonaktif();
                 });
                 $('#willexpired-tab').click(function () {
                     var d = new Date();
@@ -488,7 +541,7 @@
                         $('#SdTanggal').datepicker('hide');
                         refreshTableWillexpired();
                     });
-                    refreshTableWillexpired();
+                    //refreshTableWillexpired();
                 });
                 $('#expired-tab').click(function () {
                     $('#PerTanggal').datepicker({
@@ -499,7 +552,7 @@
                         $('#PerTanggal').datepicker('hide');
                         refreshTableExpired();
                     });
-                    refreshTableExpired();
+                    //refreshTableExpired();
                 });
                 //end add by nurul 13/2/2019
 
@@ -610,6 +663,25 @@
                 //end add by nurul 12/3/2019
 
             });
+
+
+        function GetMarketplaceAccount(emailAccount) {
+            var link = '@Url.Action("GetMarketplaceAccount", "Admin", new { emailAccount = "replaceId" })';
+            link = link.replace("replaceId", emailAccount);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    //$('#form-partial-aktif').html(response);
+                    //$('.user_table_section').hide();
+                    //$('.aktif_detail_section').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
 
         function passAcc(accId, status) {
             this.$accId = accId;

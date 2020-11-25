@@ -29,6 +29,11 @@ namespace MasterOnline.Controllers
     {
         private readonly MoDbContext MoDbContext;
 
+        //add for support MO by fauzi 24 November 2020
+        public ErasoftContext ErasoftDbContext { get; set; }
+        DatabaseSQL EDB;
+        //end for support MO by fauzi 24 November 2020
+
         public AdminController()
         {
             MoDbContext = new MoDbContext("");
@@ -2208,11 +2213,55 @@ namespace MasterOnline.Controllers
         [SessionAdminCheck]
         public ActionResult SupportMenu()
         {
-            var vm = new MenuSupport()
+            var vm = new SupportMenu()
             {
-                ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList()
+                AccountList = MoDbContext.Account.Where(p => p.Status).Select(p => p.Email).ToList(),
             };
+
             return View(vm);
+        }
+
+        public ActionResult GetMarketplaceAccount(string emailAccount)
+        {
+            string dbSourceEra = "";
+            string dbPathEra = "";
+
+            var vm = new SupportMenuViewModel()
+            {
+                ListTokoMPCustomers = null
+            };
+
+            if (!string.IsNullOrEmpty(emailAccount))
+            {
+                var accountlist = MoDbContext.Account.Where(p => p.Email == emailAccount).SingleOrDefault();
+                ErasoftDbContext = new ErasoftContext(accountlist.DataSourcePath, accountlist.DatabasePathErasoft);
+
+                EDB = new DatabaseSQL(dbPathEra);
+                //EDBConnID = EDB.GetConnectionString("ConnID");
+
+                var customer = ErasoftDbContext.ARF01.Where(m => m.NAMA != "18").OrderBy(m => m.NAMA).ToList();
+                var mp = MoDbContext.Marketplaces.ToList();
+                if (customer.Count > 0)
+                {
+                    foreach (var tbl in customer)
+                    {
+                        var data = new ListMarketplaces
+                        {
+                            cust = tbl.CUST,
+                            namaCust = tbl.PERSO,
+                        };
+                        data.namaMarket = mp.Where(m => m.IdMarket.ToString() == tbl.NAMA).FirstOrDefault().NamaMarket;
+
+                        vm.ListTokoMPCustomers.Add(data);
+                    }
+                }
+
+                return View(vm);
+            }
+            else
+            {
+                return View("Error");
+            }
         }
 
         // =============================================== Bagian SUPPORT (END)

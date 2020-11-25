@@ -731,7 +731,7 @@
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
     <Compile Include="Models\LINKFTP.cs" />
     <Compile Include="Models\LOG_HARGAJUAL.cs" />
-    <Compile Include="Models\MenuSupport.cs" />
+    <Compile Include="Models\SupportMenu.cs" />
     <Compile Include="Models\STF03C.cs" />
     <Compile Include="Models\TEMP_SALDOAWAL.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS.cs" />
@@ -1113,6 +1113,7 @@
     <Compile Include="ViewModels\GudangViewModel.cs" />
     <Compile Include="ViewModels\HargaJualViewModel.cs" />
     <Compile Include="ViewModels\JurnalViewModel.cs" />
+    <Compile Include="ViewModels\SupportMenuViewModel.cs" />
     <Compile Include="ViewModels\TransferToFTPParameterLinkFtpViewModel.cs" />
     <Compile Include="Models\KabupatenKota.cs" />
     <Compile Include="Models\Marketplace.cs" />
@@ -6574,7 +6575,7 @@
     <Content Include="Views\Admin\AddonsMenu.cshtml" />
     <Content Include="Views\Admin\AddonsCustMenu.cshtml" />
     <Content Include="Views\Admin\FormAddonsCustPartial.cshtml" />
-    <Content Include="Views\Admin\MenuSupport.cshtml" />
+    <Content Include="Views\Admin\SupportMenu.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

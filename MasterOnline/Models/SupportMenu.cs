@@ -5,7 +5,7 @@ using System.Web;
 
 namespace MasterOnline.Models
 {
-    public class MenuSupport
+    public class SupportMenu
     {
         public Account Account { get; set; }
         public ARF01 TokoMarketplaces { get; set; }
@@ -16,5 +16,17 @@ namespace MasterOnline.Models
         public List<STF02H> ListBarangMP { get; set; } = new List<STF02H>();
 
         public List<String> Errors { get; set; } = new List<String>();
+
+        public List<string> AccountList { get; set; }
+
+        //public List<ListMarketplaces> ListTokoMPCustomers { get; set; }
     }
+
+    //public class ListMarketplaces
+    //{
+    //    public string cust { get; set; }
+    //    public string namaCust { get; set; }
+    //    public string namaMarket { get; set; }
+    //    public bool stat { get; set; }
+    //}
 }
