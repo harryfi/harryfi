@@ -731,6 +731,7 @@
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
     <Compile Include="Models\LINKFTP.cs" />
     <Compile Include="Models\LOG_HARGAJUAL.cs" />
+    <Compile Include="Models\MenuSupport.cs" />
     <Compile Include="Models\STF03C.cs" />
     <Compile Include="Models\TEMP_SALDOAWAL.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS.cs" />
@@ -6573,6 +6574,7 @@
     <Content Include="Views\Admin\AddonsMenu.cshtml" />
     <Content Include="Views\Admin\AddonsCustMenu.cshtml" />
     <Content Include="Views\Admin\FormAddonsCustPartial.cshtml" />
+    <Content Include="Views\Admin\MenuSupport.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

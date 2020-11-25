@@ -2203,6 +2203,20 @@ namespace MasterOnline.Controllers
             return PartialView("AccDetail", vm);
         }
 
+        // =============================================== Bagian SUPPORT (START)
+        [Route("adminCS/manage/support")]
+        [SessionAdminCheck]
+        public ActionResult SupportMenu()
+        {
+            var vm = new MenuSupport()
+            {
+                ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList()
+            };
+            return View(vm);
+        }
+
+        // =============================================== Bagian SUPPORT (END)
+
         // Mengubah status akun utama
         //public async Task<ActionResult> ChangeStatusAccount(int? accId, string stat)
         public async Task<ActionResult> ChangeStatusAccount(MenuAccount dataVm)
