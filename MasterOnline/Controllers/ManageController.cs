@@ -24106,7 +24106,7 @@ namespace MasterOnline.Controllers
 
         public ActionResult DeletePesanan(int? orderId)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.RecNum == orderId);
+            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == orderId);
 
             // ========== Hapus Barang =============
             /*var listPesananDetail = ErasoftDbContext.SOT01B.Where(pd => pd.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
@@ -24121,7 +24121,7 @@ namespace MasterOnline.Controllers
 
             //add by calvin 8 nov 2018, update stok marketplace
             List<string> listBrg = new List<string>();
-            var detailPesananInDb = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+            var detailPesananInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
             foreach (var item in detailPesananInDb)
             {
                 listBrg.Add(item.BRG);
