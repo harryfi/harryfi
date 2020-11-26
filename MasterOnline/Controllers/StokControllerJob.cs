@@ -4214,8 +4214,8 @@ namespace MasterOnline.Controllers
 
                 
                 var cekListBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03").ToList();
-                var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a inner join stf08a b on a.unit=b.brg where b.tahun='" + DateTime.Now.ToString("yyyy") + "' and b.gd ='" + default_gudang + "'").ToList();
-                var cekListBrgBundlingBelumAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a left join stf08a b on a.unit=b.brg where isnull(b.brg,'')='' ").ToList();
+                var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) inner join stf08a b (nolock) on a.unit=b.brg where b.tahun='" + DateTime.Now.ToString("yyyy") + "' and b.gd ='" + default_gudang + "'").ToList();
+                var cekListBrgBundlingBelumAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) left join stf08a b (nolock) on a.unit=b.brg where isnull(b.brg,'')='' ").ToList();
 
                 if (cekListBrgBundlingBelumAdaStok.Count() > 0)
                 {
