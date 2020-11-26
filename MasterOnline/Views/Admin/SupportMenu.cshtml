@@ -1,8 +1,6 @@
 ﻿@using System.Globalization
 @using MasterOnline.Models
-@model MasterOnline.ViewModels.SupportMenuViewModel
-@*@using MasterOnline.ViewModels
-    @model MenuAccountViewModel*@
+@model MasterOnline.Models.SupportMenu
 @{
     ViewBag.Title = "Support Menu";
     Layout = "~/Views/Shared/_LayoutAdminCS.cshtml";
@@ -88,37 +86,8 @@
                                         @Html.HiddenFor(m => m.Password)
                                         @Html.HiddenFor(m => m.SelectedAccount)*@
                                 </div>
-
-                                <div class="row">
-                                    @if (Model != null && Model.ListTokoMPCustomers != null)
-                                    {
-                                        foreach (var customer in Model.ListTokoMPCustomers)
-                                        {
-                                            <div class="row" style="margin-bottom:5px;">
-                                                <div class="col-md-1" style="padding-bottom:10px">
-                                                    <label class="checkbox-container">
-                                                        <input id="cb_@customer.cust" type="checkbox" data-cust="@customer.cust" class="cbx ckCustomers" name="cb_@customer.cust" />
-                                                        <span id="cbsp_@customer.cust" class="checkmark"></span>
-                                                    </label>
-                                                </div>
-                                                <div class="col-md-3" style="padding-top: 7px;">
-                                                    <label id="lblNama_@customer.cust">@customer.namaMarket (@customer.namaCust)</label>
-                                                </div>
-                                                <div class="col-md-3" style="padding-top: 7px;">
-                                                    <label id="lblRecord_@customer.cust" class="label_record" hidden="hidden"></label>
-                                                </div>
-                                                <div class="col-md-3" style="padding-top: 7px;">
-                                                    <label id="lblTotalData_@customer.cust" class="label_record" hidden="hidden"></label>
-                                                </div>
-                                                <div class="col-md-1 div-spinner" style="padding-top: 7px;" hidden="hidden" id="spinner_@customer.cust">
-                                                    <i class='fa fa-spinner fa-spin pull-right' style="color:red"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label id="hiddenlbl_@customer.cust" hidden="hidden">0</label>
-                                            </div>
-                                        }
-                                    }
+                                <div class="row" id="list-mp-toko">
+                                    @Html.Partial("ListMarketplacesCustomer")
                                 </div>
                             </div>
                         </div>
@@ -673,6 +642,9 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
+                    var tes = "";
+                    
+                    $('#list-mp-toko').html(response);
                     //$('#form-partial-aktif').html(response);
                     //$('.user_table_section').hide();
                     //$('.aktif_detail_section').show();

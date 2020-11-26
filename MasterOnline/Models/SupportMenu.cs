@@ -19,14 +19,14 @@ namespace MasterOnline.Models
 
         public List<string> AccountList { get; set; }
 
-        //public List<ListMarketplaces> ListTokoMPCustomers { get; set; }
+        public List<ListMarketplaces> ListTokoMPCustomers { get; set; }
     }
 
-    //public class ListMarketplaces
-    //{
-    //    public string cust { get; set; }
-    //    public string namaCust { get; set; }
-    //    public string namaMarket { get; set; }
-    //    public bool stat { get; set; }
-    //}
+    public class ListMarketplaces
+    {
+        public string cust { get; set; }
+        public string namaCust { get; set; }
+        public string namaMarket { get; set; }
+        public bool stat { get; set; }
+    }
 }

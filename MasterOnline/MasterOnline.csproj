@@ -6576,6 +6576,7 @@
     <Content Include="Views\Admin\AddonsCustMenu.cshtml" />
     <Content Include="Views\Admin\FormAddonsCustPartial.cshtml" />
     <Content Include="Views\Admin\SupportMenu.cshtml" />
+    <Content Include="Views\Admin\ListMarketplacesCustomer.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

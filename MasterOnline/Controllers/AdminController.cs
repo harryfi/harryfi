@@ -2226,9 +2226,9 @@ namespace MasterOnline.Controllers
             string dbSourceEra = "";
             string dbPathEra = "";
 
-            var vm = new SupportMenuViewModel()
+            var vm = new SupportMenu()
             {
-                ListTokoMPCustomers = null
+                ListTokoMPCustomers = new List<ListMarketplaces>()
             };
 
             if (!string.IsNullOrEmpty(emailAccount))
@@ -2236,7 +2236,7 @@ namespace MasterOnline.Controllers
                 var accountlist = MoDbContext.Account.Where(p => p.Email == emailAccount).SingleOrDefault();
                 ErasoftDbContext = new ErasoftContext(accountlist.DataSourcePath, accountlist.DatabasePathErasoft);
 
-                EDB = new DatabaseSQL(dbPathEra);
+                EDB = new DatabaseSQL(accountlist.DataSourcePath);
                 //EDBConnID = EDB.GetConnectionString("ConnID");
 
                 var customer = ErasoftDbContext.ARF01.Where(m => m.NAMA != "18").OrderBy(m => m.NAMA).ToList();
@@ -2256,11 +2256,13 @@ namespace MasterOnline.Controllers
                     }
                 }
 
-                return View(vm);
+                //return View(vm);
+                return new JsonResult { Data = new { success = true , result = vm }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             else
             {
-                return View("Error");
+                //return View("Error");
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
 
