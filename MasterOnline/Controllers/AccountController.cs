@@ -1271,7 +1271,7 @@ namespace MasterOnline.Controllers
                         //await new ShopeeControllerJob().GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
                         if (!string.IsNullOrEmpty(sync_pesanan_stok))
                         {
-                            if(sync_pesanan_stok == "ACTIVATE_SYNC")
+                            if(sync_pesanan_stok == tblCustomer.CUST)
                             {
                                 client.Enqueue<ShopeeControllerJob>(x => x.GetOrderByStatusWithDay(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0, -3));
                             }
