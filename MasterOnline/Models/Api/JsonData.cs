@@ -19,5 +19,9 @@ namespace MasterOnline.Models.Api
         public string DbPath { get; set; }
         public long AccId { get; set; }
         public string Username { get; set; }
+        
+        // Add by Fauzi for API Update Stok perbarang 26 November 2020
+        public string brg { get; set; }
+        // End 26 November 2020
     }
 }

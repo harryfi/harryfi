@@ -7,6 +7,7 @@ using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Security;
+using Erasoft.Function;
 using MasterOnline.Models.Api;
 using MasterOnline.Utils;
 using MasterOnline.ViewModels;
@@ -200,6 +201,106 @@ namespace MasterOnline.Controllers
                 }
 
                 await Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, userName));
+
+                result = new JsonApi()
+                {
+                    code = 200,
+                    message = "Success",
+                    data = null
+                };
+
+                return Json(result);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        [System.Web.Http.Route("api/updatestokmp")]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
+        public async Task<IHttpActionResult> UpdateStokMP([FromBody]JsonData data)
+        {
+
+            try
+            {
+                JsonApi result;
+                string apiKey = "";
+                string dbPathEra = "";
+                string userName = "";
+
+                var re = Request;
+                var headers = re.Headers;
+
+                if (headers.Contains("X-API-KEY"))
+                {
+                    apiKey = headers.GetValues("X-API-KEY").First();
+                }
+
+                if (apiKey != "UPDATESTOKMP_M@STERONLINE4P1K3Y")
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Wrong API KEY!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                if (headers.Contains("DBPATHERA"))
+                {
+                    dbPathEra = headers.GetValues("DBPATHERA").First();
+                }
+                else
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "DBPATHERA can not be empty!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                if (headers.Contains("USERNAME"))
+                {
+                    userName = headers.GetValues("USERNAME").First();
+                }
+                else
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "USERNAME can not be empty!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                if (data == null)
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Kode Barang can not be empty!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                var connID = "[UPDATESTOK_API_WH][" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddhhmmss") + "]";
+
+                var EDB = new DatabaseSQL(dbPathEra);
+                EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES ('" + data.brg + "', '" + connID + "')");
+
+                //await Task.Run(() => new StokControllerJob().updateStockMarketPlace(data.connID, dbPathEra, userName));
+                new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, userName);
 
                 result = new JsonApi()
                 {
