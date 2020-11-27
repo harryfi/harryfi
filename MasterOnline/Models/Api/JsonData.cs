@@ -22,6 +22,8 @@ namespace MasterOnline.Models.Api
         
         // Add by Fauzi for API Update Stok perbarang 26 November 2020
         public string brg { get; set; }
+        public string no_bukti { get; set; }
+        public string status_pesanan { get; set; }
         // End 26 November 2020
     }
 }
