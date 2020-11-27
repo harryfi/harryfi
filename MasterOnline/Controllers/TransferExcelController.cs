@@ -2222,7 +2222,7 @@ namespace MasterOnline.Controllers
                                                                                         if (cekLog == null)
                                                                                         {
                                                                                             string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
-                                                                                            (dataToko.CUST),
+                                                                                            (no_cust[0]),
                                                                                             (connID),
                                                                                             ("Upload Excel Pesanan"),
                                                                                             (DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")),
