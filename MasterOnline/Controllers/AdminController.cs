@@ -189,11 +189,12 @@ namespace MasterOnline.Controllers
 #if AWS
                 //var tujuan = "13.250.232.74\\SQLEXPRESS, 1433";
                 //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
-                var tujuan = "13.251.64.77\\SQLEXPRESS, 1433"; // T3.LARGE DB FOR REGISTER NEW ACCOUNT
+                //var tujuan = "13.251.64.77\\SQLEXPRESS, 1433"; // T3.LARGE DB FOR REGISTER NEW ACCOUNT
+                var tujuan = "172.31.20.73\\SQLEXPRESS, 1433"; // T3.LARGE DB FOR REGISTER NEW ACCOUNT
 #else
                 //var tujuan = "54.179.169.195\\SQLEXPRESS, 1444";
                 //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
-                var tujuan = "13.251.64.77\\SQLEXPRESS, 1433";
+                var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
 #endif
 
                 accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
@@ -368,7 +369,10 @@ namespace MasterOnline.Controllers
                     System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
 #elif Debug_AWS
-                    System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                    //System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                    //                                   "user id=masteronline;password=M@ster123;");
+
+                            System.Data.Entity.Database.Delete($"Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
 #else
                             System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
@@ -418,7 +422,10 @@ namespace MasterOnline.Controllers
                                         System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                            "user id=masteronline;password=M@ster123;");
 #elif Debug_AWS
-                                        System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                        //System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                        //                                   "user id=masteronline;password=M@ster123;");
+
+                            System.Data.Entity.Database.Delete($"Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                            "user id=masteronline;password=M@ster123;");
 #else
 
@@ -2242,13 +2249,21 @@ namespace MasterOnline.Controllers
                 //SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
                 //                "user id=masteronline;password=M@ster123;");
 
-                accInDb.DataSourcePath = "13.251.64.77\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=13.251.64.77\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //accInDb.DataSourcePath = "13.251.64.77\\SQLEXPRESS, 1433";
+                //SqlConnection con = new SqlConnection("Server=13.251.64.77\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //                                      "user id=masteronline;password=M@ster123;");
+
+                accInDb.DataSourcePath = "172.31.20.73\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
 #elif Debug_AWS
                 //add by fauzi 29 Januari 2020
-                accInDb.DataSourcePath = "13.250.232.74\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //accInDb.DataSourcePath = "13.250.232.74\\SQLEXPRESS, 1433";
+                //SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //                                      "user id=masteronline;password=M@ster123;");
+
+                accInDb.DataSourcePath = "172.31.20.73\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
 #else
                 //add by fauzi 29 Januari 2020
