@@ -24,7 +24,7 @@ namespace MasterOnline.Models
 
     public class ListMarketplaces
     {
-        public string cust { get; set; }
+        public int cust { get; set; }
         public string namaCust { get; set; }
         public string namaMarket { get; set; }
         public bool stat { get; set; }

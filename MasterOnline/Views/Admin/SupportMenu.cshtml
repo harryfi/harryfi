@@ -50,6 +50,73 @@
                 display: table;
                 cursor: pointer;
             }
+
+        .checkbox-container {
+            display: block;
+            position: relative;
+            /*padding-left: 35px;*/
+            margin-top: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+            /* Hide the browser's default checkbox */
+            .checkbox-container input {
+                position: relative;
+                opacity: 100;
+                cursor: pointer;
+                display: none;
+            }
+
+        /* Create a custom checkbox */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 18px;
+            height: 25px;
+            width: 25px;
+            background-color: #eee;
+            border: solid 1px #ccc;
+        }
+
+        /* On mouse-over, add a grey background color */
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        /* When the checkbox is checked, add a blue background */
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: #2196F3;
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* Style the checkmark/indicator */
+        .checkbox-container .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
     </style>
 }
 
@@ -59,318 +126,120 @@
         <div class="" role="tabpanel" data-example-id="togglable-tabs">
             <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
                 <li role="presentation" class="active">
-                    <a href="#tab_content1" id="account-tab" role="tab" data-toggle="tab" aria-expanded="true">Unlink Barang</a>
+                    <a href="#tab_content1" id="unlink-tab" role="tab" data-toggle="tab" aria-expanded="true">Unlink Barang</a>
                 </li>
                 <li role="presentation" class="">
-                    <a href="#tab_content2" id="aktif-tab" role="tab" data-toggle="tab" aria-expanded="false">Edit Kode Barang</a>
+                    <a href="#tab_content2" id="editkode-tab" role="tab" data-toggle="tab" aria-expanded="false">Edit Kode Barang</a>
                 </li>
                 <li role="presentation" class="">
-                    <a href="#tab_content3" id="nonaktif-tab" role="tab" data-toggle="tab" aria-expanded="false">Merge Kode Barang</a>
-                </li>
-                <li role="presentation" class="">
-                    <a href="#tab_content4" role="tab" id="willexpired-tab" data-toggle="tab" aria-expanded="false">Cek Barang</a>
+                    <a href="#tab_content3" id="mergekode-tab" role="tab" data-toggle="tab" aria-expanded="false">Merge Kode Barang</a>
                 </li>
             </ul>
             <div id="myTabContent" class="tab-content">
-                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="account-tab">
-                    @*end add by nurul 13/2/2019*@
-                    <div class="row user_table_section">
-                        <div class="col-md-12 col-sm-12">
-                            <div class="col-md-6 input-group">
-                                <span class="txt1 p-b-11">
-                                    @Html.Label("Pilih Akun")
-                                </span>
-                                <div class="wrap-input100 validate-input m-b-36" style="border: none">
-                                    <select id="ACCOUNT" placeholder="Harap pilih" required="required"></select>
-                                    @*@Html.HiddenFor(m => m.Email)
-                                        @Html.HiddenFor(m => m.Password)
-                                        @Html.HiddenFor(m => m.SelectedAccount)*@
-                                </div>
-                                <div class="row" id="list-mp-toko">
-                                    @*@Html.Partial("ListMarketplacesCustomer")*@
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row user_table_section">
-                        @*<div id="loading_account" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
-                        <div class="col-sm-12" id="table-account">
-                            @*@Html.Partial("TableAcc")*@
-                        </div>
-                    </div>
-                    <div class="row account_detail_section" style="display: none;">
-                        <div class="col-lg-12">
-                            <div class="page-editor">
-                                <h2 class="editor-title">Detail Account</h2>
-                                <span class="title-accent"></span>
-                                <button id="close-editor" type="button" class="pull-right page-close">
-                                    <span class="close-btn thick"></span>
-                                </button>
-                                <div id="form-partial-detail">
-                                    @*@Html.Partial("AccDetail")*@
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row account_editor_section_1" style="display: none;">
-                        <div class="col-lg-12">
-                            <div class="page-editor">
-                                <h2 class="editor-title">Account</h2>
-                                <span class="title-accent"></span>
-                                <button id="close-form-1" type="button" class="pull-right page-close">
-                                    <span class="close-btn thick"></span>
-                                </button>
-                                <div class="form-horizontal">
-                                    <div class="row">
-                                        <div class="col-md-12 col-sm-12 col-xs-12">
-                                            <div class="x_panel">
-                                                <div class="x_title">
-                                                    <h2 style="font-size: 16px">Detail Account</h2>
-                                                    <ul class="nav navbar-right panel_toolbox">
-                                                        <li>
-                                                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                                                        </li>
-                                                    </ul>
-                                                    <div class="clearfix"></div>
-                                                </div>
-                                                <div class="x_content">
-                                                    @*@if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
-                                                        {
-                                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
-                                                            {
-                                                                <div class="alert alert-danger">
-                                                                    <span class="message-error">@modelError.ErrorMessage</span>
-                                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                                        <span aria-hidden="true">&times;</span>
-                                                                    </button>
-                                                                </div>
-                                                            }
-                                                        }
-                                                        <br>
-                                                        @using (Html.BeginForm("SaveAccNew", "Admin", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-account" }))
-                                                        {
-                                                            <div id="form-partial">
-
-                                                            </div>
-
-                                                        }*@
-                                                </div>
-                                            </div>
-                                        </div>
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="unlink-tab">
+                    <div class="row">
+                        <div class="row user_table_section col-sm-12">
+                            <div class="col-md-6 col-sm-6">
+                                <div class="col-md-12 input-group">
+                                    <span class="txt1 p-b-11">
+                                        @Html.Label("Pilih Akun")
+                                    </span>
+                                    <div class="wrap-input100 validate-input m-b-36" style="border: none">
+                                        <select id="ACCOUNT" placeholder="Harap pilih" required="required"></select>
+                                    </div>
+                                    <div id="loading_account" hidden class="text-center">
+                                        <img src="~/Content/Images/spinner.gif" width="100" />
+                                    </div>
+                                    <div class="row" id="list-mp-toko">
+                                    </div>
+                                    <div class="row" hidden id="SelectedAccount">
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="aktif-tab">
-                    <div class="row user_table_section">
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="input-group">
-                                <input id="search_aktif" type="text" class="form-control" placeholder="Pencarian">
-                                <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
-                                        <i class="fa fa-search"></i>
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-lg-8 col-sm-6">
-                            <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row user_table_section">
-                        <div id="loading_aktif" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
-                        <div class="col-sm-12" id="table-account-aktif">
-                            @*@Html.Partial("TableAccAktif")*@
-                        </div>
-                    </div>
-                    <div class="row aktif_detail_section" style="display: none;">
-                        <div class="col-lg-12">
-                            <div class="page-editor">
-                                <h2 class="editor-title">Detail Account</h2>
-                                <span class="title-accent"></span>
-                                <button id="close-editor-4" type="button" class="pull-right page-close">
-                                    <span class="close-btn thick"></span>
-                                </button>
-                                <div id="form-partial-aktif">
-                                    @*@Html.Partial("AccDetail")*@
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="nonaktif-tab">
-                    <div class="row user_table_section">
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="input-group">
-                                <input id="search_nonaktif" type="text" class="form-control" placeholder="Pencarian">
-                                <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
-                                        <i class="fa fa-search"></i>
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-lg-8 col-sm-6">
-                            <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row user_table_section">
-                        <div id="loading_nonaktif" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
-                        <div class="col-sm-12" id="table-account-nonaktif">
-                            @*@Html.Partial("TableAccNonaktif")*@
-                        </div>
-                    </div>
-                    <div class="row nonaktif_detail_section" style="display: none;">
-                        <div class="col-lg-12">
-                            <div class="page-editor">
-                                <h2 class="editor-title">Detail Account</h2>
-                                <span class="title-accent"></span>
-                                <button id="close-editor-5" type="button" class="pull-right page-close">
-                                    <span class="close-btn thick"></span>
-                                </button>
-                                <div id="form-partial-nonaktif">
-                                    @*@Html.Partial("AccDetail")*@
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="willexpired-tab">
-                    <div class="row user_table_section">
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="input-group">
-                                <input id="search_willexpired" type="text" class="form-control" placeholder="Pencarian">
-                                <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
-                                        <i class="fa fa-search"></i>
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-lg-8 col-sm-6">
-                            <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row user_table_section">
-                        <div class="col-md-2">
-                            @*@Html.Label("", "Dari Tanggal")
-
-                                <div class="input-group date">
-                                     @Html.TextBox("DrTanggal", null, new { @class = "form-control", @ReadOnly = true })
-                                    <span class="input-group-addon">
-                                        <span class="glyphicon glyphicon-calendar"></span>
+                            <div class="col-md-6 col-sm-6">
+                                <div class="input-group">
+                                    <span class="txt1 p-b-11">
+                                        @Html.Label("Masukan Kode Barang: (Enter untuk pemisah kode)")
                                     </span>
-                                </div>*@
-                        </div>
-                        <div class="col-md-2">
-                            @*@Html.Label("", "S/d Tanggal")
-
-                                <div class="input-group date">
-                                   @Html.TextBox("SdTanggal", null, new { @class = "form-control", @ReadOnly = true })
-                                    <span class="input-group-addon">
-                                        <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
-                                </div>*@
-                        </div>
-                        <div class="col-md-8">
-                        </div>
-                    </div>
-                    <div class="row user_table_section">
-                        <div id="loading_willexpired" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
-                        <div class="col-sm-12" id="table-account-will-expired">
-                            @*@Html.Partial("TableAccWillExpired")*@
-                        </div>
-                    </div>
-                    <div class="row WillExpired_detail_section" style="display: none;">
-                        <div class="col-lg-12">
-                            <div class="page-editor">
-                                <h2 class="editor-title">Detail Account</h2>
-                                <span class="title-accent"></span>
-                                <button id="close-editor-2" type="button" class="pull-right page-close">
-                                    <span class="close-btn thick"></span>
-                                </button>
-                                <div id="form-partial-WillExpired">
-                                    @*@Html.Partial("AccDetail")*@
+                                    <div class="wrap-input100 validate-input m-b-36" style="border: none">
+                                        <textarea id="kode-brg" cols="100" rows="20" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
+                                    </div>
                                 </div>
+                                <button id="prosesunlink" type="button" class=" btn btn-primary" data-style="expand-right">
+                                    <span>Proses Unlink</span>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="expired-tab">
-                    <div class="row user_table_section">
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="input-group">
-                                <input id="search_expired" type="text" class="form-control" placeholder="Pencarian">
-                                <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
-                                        <i class="fa fa-search"></i>
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-lg-8 col-sm-6">
-                            <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row user_table_section">
-                        <div class="col-md-2">
-                            @*@Html.Label("", "Per Tanggal")
-
-                                <div class="input-group date">
-                                    @Html.TextBox("PerTanggal", null, new { @class = "form-control", @ReadOnly = true })
-                                    <span class="input-group-addon">
-                                        <span class="glyphicon glyphicon-calendar"></span>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="editkode-tab">
+                    <div class="row">
+                        <div class="row user_table_section col-sm-12">
+                            <div class="col-md-6 col-sm-6">
+                                <div class="col-md-12 input-group">
+                                    <span class="txt1 p-b-11">
+                                        @Html.Label("Pilih Akun")
                                     </span>
-                                </div>*@
-                        </div>
-                        <div class="col-md-10">
-                        </div>
-                    </div>
-                    <div class="row user_table_section">
-                        <div id="loading_expired" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
-                        <div class="col-sm-12" id="table-account-expired">
-                            @*@Html.Partial("TableAccExpired")*@
-                        </div>
-                    </div>
-                    <div class="row Expired_detail_section" style="display: none;">
-                        <div class="col-lg-12">
-                            <div class="page-editor">
-                                <h2 class="editor-title">Detail Account</h2>
-                                <span class="title-accent"></span>
-                                <button id="close-editor-3" type="button" class="pull-right page-close">
-                                    <span class="close-btn thick"></span>
-                                </button>
-                                <div id="form-partial-Expired">
-                                    @*@Html.Partial("AccDetail")*@
+                                    <div class="wrap-input100 validate-input m-b-36" style="border: none">
+                                        <select id="ACCOUNT" placeholder="Harap pilih" required="required"></select>
+                                    </div>
+                                    <div id="loading_account" hidden class="text-center">
+                                        <img src="~/Content/Images/spinner.gif" width="100" />
+                                    </div>
+                                    <div class="row" id="list-mp-toko">
+                                    </div>
+                                    <div class="row" hidden id="SelectedAccount">
+                                    </div>
                                 </div>
+                            </div>
+                            <div class="col-md-6 col-sm-6">
+                                <div class="input-group">
+                                    <span class="txt1 p-b-11">
+                                        @Html.Label("Masukan Kode Barang: (Enter untuk pemisah kode)")
+                                    </span>
+                                    <div class="wrap-input100 validate-input m-b-36" style="border: none">
+                                        <textarea id="kode-brg" cols="100" rows="20" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
+                                    </div>
+                                </div>
+                                <button id="prosesunlink" type="button" class=" btn btn-primary" data-style="expand-right">
+                                    <span>Proses Unlink</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="mergekode-tab">
+                    <div class="row">
+                        <div class="row user_table_section col-sm-12">
+                            <div class="col-md-6 col-sm-6">
+                                <div class="col-md-12 input-group">
+                                    <span class="txt1 p-b-11">
+                                        @Html.Label("Pilih Akun")
+                                    </span>
+                                    <div class="wrap-input100 validate-input m-b-36" style="border: none">
+                                        <select id="ACCOUNT" placeholder="Harap pilih" required="required"></select>
+                                    </div>
+                                    <div id="loading_account" hidden class="text-center">
+                                        <img src="~/Content/Images/spinner.gif" width="100" />
+                                    </div>
+                                    <div class="row" id="list-mp-toko">
+                                    </div>
+                                    <div class="row" hidden id="SelectedAccount">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-6">
+                                <div class="input-group">
+                                    <span class="txt1 p-b-11">
+                                        @Html.Label("Masukan Kode Barang: (Enter untuk pemisah kode)")
+                                    </span>
+                                    <div class="wrap-input100 validate-input m-b-36" style="border: none">
+                                        <textarea id="kode-brg" cols="100" rows="20" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
+                                    </div>
+                                </div>
+                                <button id="prosesunlink" type="button" class=" btn btn-primary" data-style="expand-right">
+                                    <span>Proses Unlink</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -407,42 +276,15 @@
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript">
-        //var $page = window.text;
 @{
         var model_accountList = Model?.AccountList;
 }
-
-        var $page = 0;
-        var $accId = 0;
-        var $status = 0;
-        var table = $('#datatable').DataTable({
-            "order": [[5, "desc"], [1, "asc"]], //or asc
-            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-        });
-        var tableAktif = $('#datatable_aktif').DataTable({
-            "order": [[5, "desc"], [1, "asc"]], //or asc
-            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-        });
-        var tableNonaktif = $('#datatable_nonaktif').DataTable({
-            "order": [[5, "desc"], [1, "asc"]], //or asc
-            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-        });
-        var tableWillexpired = $('#datatable_willexpired').DataTable({
-            "order": [[5, "desc"], [1, "asc"]], //or asc
-            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-        });
-        var tableExpired = $('#datatable_expired').DataTable({
-            "order": [[5, "desc"], [1, "asc"]], //or asc
-            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-        });
+        // Add by Fauzi 25 November 2020
+        var rows_selected = [];
+        window.selected_cust = [];
+               
         $(document).on('ready',
             function () {
-                //var table = $('#datatable').DataTable();
-                ////add by nurul 13/2/2019
-                //var tableWillexpired = $('#datatable_willexpired').DataTable();
-                //var tableExpired = $('#datatable_expired').DataTable();
-                //end add by nurul 13/2/2019
-
                 var model_listAkun = @Html.Raw(Json.Encode(model_accountList));
                 var listAccount = [];
                 $.each(model_listAkun,
@@ -458,181 +300,78 @@
                     searchField: 'text',
                     options: listAccount,
                     onChange: function (value) {
+                        rows_selected.shift();
+                        $('#list-mp-toko').html('');
                         $('#SelectedAccount').val(value);
                         GetMarketplaceAccount(value);
                     }
                     });
                 }
 
-
-                $('#search_user').keyup(function () {
-                    table.search($(this).val()).draw();
-                });
-                //add by nurul 13/2/2019
-                $('#search_aktif').keyup(function () {
-                    tableAktif.search($(this).val()).draw();
-                });
-                $('#search_nonaktif').keyup(function () {
-                    tableNonaktif.search($(this).val()).draw();
-                });
-                $('#search_willexpired').keyup(function () {
-                    tableWillexpired.search($(this).val()).draw();
-                });
-                $('#search_expired').keyup(function () {
-                    tableExpired.search($(this).val()).draw();
+                $('.ckCustomers').each(function (i, item) {
+                    $(item).prop('checked', false);
                 });
 
-                $('#account-tab').click(function () {
-                    //refreshTableAccount();
-                });
-                $('#aktif-tab').click(function () {
-                    //refreshTableAktif();
-                });
-                $('#nonaktif-tab').click(function () {
-                    //refreshTableNonaktif();
-                });
-                $('#willexpired-tab').click(function () {
-                    var d = new Date();
-                    d.setMonth(d.getMonth() + 1);
-                    $('#DrTanggal').datepicker({
-                        format: 'dd/mm/yyyy',
-                        language: 'id'
-                    }).datepicker('setDate', '0').change(function () {
-                        $('#DrTanggal').val($('#DrTanggal').val());
-                        $('#DrTanggal').datepicker('hide');
-                        refreshTableWillexpired();
-                    });
-                    $('#SdTanggal').datepicker({
-                        format: 'dd/mm/yyyy',
-                        language: 'id'
-                    }).datepicker('setDate', d).change(function () {
-                        $('#SdTanggal').val($('#SdTanggal').val());
-                        $('#SdTanggal').datepicker('hide');
-                        refreshTableWillexpired();
-                    });
-                    //refreshTableWillexpired();
-                });
-                $('#expired-tab').click(function () {
-                    $('#PerTanggal').datepicker({
-                        format: 'dd/mm/yyyy',
-                        language: 'id'
-                    }).datepicker('setDate', '0').change(function () {
-                        $('#PerTanggal').val($('#PerTanggal').val());
-                        $('#PerTanggal').datepicker('hide');
-                        refreshTableExpired();
-                    });
-                    //refreshTableExpired();
-                });
-                //end add by nurul 13/2/2019
-
-                //add by nurul 20/2/2019
-                $('#close-editor').off('click').on('click', function () {
-                        $('.user_table_section').show();
-                    $('.account_detail_section').hide();
-                    $('#myTab li a').each(function (index) {
-                        $(this).attr('data-toggle', 'tab');
-                        $(this).removeClass('disabled-tab');
-                    });
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                        refreshTableAccount();
-
-                        $('#datatable').DataTable().page($page).draw(false);
-                });
-                $('#close-editor-4').off('click').on('click', function () {
-                    $('.user_table_section').show();
-                    $('.aktif_detail_section').hide();
-                    $('#datatable_aktif').on('page.dt', function () {
-                        $page = $('#datatable_aktif').DataTable().page.info().page;
-                    });
-                    refreshTableAktif();
-
-                    $('#datatable_aktif').DataTable().page($page).draw(false);
-                });
-                $('#close-editor-5').off('click').on('click', function () {
-                    $('.user_table_section').show();
-                    $('.nonaktif_detail_section').hide();
-                    $('#datatable_nonaktif').on('page.dt', function () {
-                        $page = $('#datatable_nonaktif').DataTable().page.info().page;
-                    });
-                    refreshTableNonaktif();
-
-                    $('#datatable_nonaktif').DataTable().page($page).draw(false);
-                });
-                $('#close-editor-2').off('click').on('click', function () {
-                    $('.user_table_section').show();
-                    $('.WillExpired_detail_section').hide();
-                    $('#datatable_willexpired').on('page.dt', function () {
-                        $page = $('#datatable_willexpired').DataTable().page.info().page;
-                    });
-                    refreshTableWillexpired();
-
-                    $('#datatable_willexpired').DataTable().page($page).draw(false);
-                });
-                $('#close-editor-3').off('click').on('click', function () {
-                    $('.user_table_section').show();
-                    $('.Expired_detail_section').hide();
-                    $('#datatable_expired').on('page.dt', function () {
-                        $page = $('#datatable_expired').DataTable().page.info().page;
-                    });
-                    refreshTableExpired();
-
-                    $('#datatable_expired').DataTable().page($page).draw(false);
-                });
-
-                $('#datatable').on('page.dt', function () {
-                    $page = $('#datatable').DataTable().page.info().page;
-                });
-                $('#datatable').DataTable().page($page).draw(false);
-                //end add by nurul 20/2/2019
-
-
-                //add by nurul 12/3/2019
-                $('#close-form-1').off('click').on('click', function () {
-
-                    $('.user_table_section').show();
-                    $('.account_detail_section').hide();
-                    $('.account_editor_section_1').hide();
-
-                    $('#myTab li a').each(function (index) {
-                        $(this).attr('data-toggle', 'tab');
-                        $(this).removeClass('disabled-tab');
-                    });
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    refreshTableAccount();
-
-                    $('#datatable').DataTable().page($page).draw(false);
-                });
-                if ($('.message-error').text() !== '') {
-                    //if ($tabPage == 0) {
-                    $('.user_table_section').hide();
-                    $('.account_editor_section_1').show();
-                    $('.account_detail_section').hide();
-                    $('#photo_base').hide()
-                    if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
-                        $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
+                if (window.selected_cust.length > 0) {
+                    for (j = 0; j < window.selected_cust.length; j++) {
+                        $('#cb_' + window.selected_cust[j]).prop('checked', true);
                     }
-
-                    //$('#TGL').datepicker({
-                    //    format: 'dd/mm/yyyy',
-                    //    language: 'id'
-                    //}).change(function () {
-                    //    $('#Account_TGL_SUBSCRIPTION').val($(this).val());
-                    //    $(this).datepicker('hide');
-                    //});
-
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
+                } else {
+                    $('.ckCustomers').each(function (i, item) {
+                        $(item).prop('checked', true);
                     });
-                    $('#datatable').DataTable().page($page).draw(false);
                 }
-                //end add by nurul 12/3/2019
+                
+                $('#prosesunlink').click(function () {
+                    $('.ckCustomers').each(function (i, item) {
+                        if ($(item).is(":checked")) {
+                            rows_selected.push($(item).attr("data-cust"));
+                        }
+                    });
+
+                    if ($('#kode-brg').val() != "" && rows_selected.length > 0) {
+                        //alert(rows_selected + " _____ " + $('#kode-brg').val().replace(/\n/g, "^"));
+                        ProsesUnlinkMP($('#SelectedAccount').val(), rows_selected, $('#kode-brg').val().replace(/\n/g, "^"));
+                        rows_selected.shift();
+                    } else {
+                        if (rows_selected.length == 0) {
+                            alert("Anda belum memilih Akun Toko Marketplace Customer.");
+                        }
+                        if ($('#kode-brg').val() == "") {
+                            alert("Kode Barang masih kosong. Harap mengisi kode barang!");
+                        }
+                    }
+                });
 
             });
 
+
+        function ProsesUnlinkMP(emailAccount, listTokoMP, listKodeBRG) {
+            var link = '@Url.Action("ProsesUnlinkMP", "Admin", new { listTokoMP = "replaceEmail|replaceId|replaceKode" })';
+            link = link.replace("replaceEmail", emailAccount);
+            link = link.replace("replaceId", listTokoMP);
+            link = link.replace("replaceKode", listKodeBRG);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_account').show();
+                },
+                success: function (response) {
+                    $('#loading_account').hide();
+                    rows_selected.shift();
+                    if (response.success) {
+                        alert("Berhasil unlink.")
+                    } else {
+                        alert("Gagal unlink.")
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        } 
 
         function GetMarketplaceAccount(emailAccount) {
             var link = '@Url.Action("GetMarketplaceAccount", "Admin", new { emailAccount = "replaceId" })';
@@ -641,25 +380,21 @@
             $.ajax({
                 type: "GET",
                 url: link,
+                beforeSend: function () {
+                    $('#loading_account').show();
+                },
                 success: function (response) {
-                    var tes = "";
-
-                    //$('#list-mp-toko').html(response);
+                    $('#loading_account').hide();
                     if (response.success) {
                         if (response.result.ListTokoMPCustomers.length > 0) {
                             for (var i = 0; i < response.result.ListTokoMPCustomers.length; i++) {
-                                var checklist_Div = '<div class="row" style="margin-bottom:5px;"><div class="col-md-1" style = "padding-bottom:10px"><label class="checkbox-container"><input id="cb_"' + response.result.ListTokoMPCustomers[i].cust + '"" type="checkbox" data-cust=""' + response.result.ListTokoMPCustomers[i].cust + '"" class="cbx ckCustomers" name="cb_"' + response.result.ListTokoMPCustomers[i].cust + '"" /><span id="cbsp_"' + response.result.ListTokoMPCustomers[i].cust + '"" class="checkmark"></span></label></div>';
-                                var namalis_Div = '<div class="col-md-3" style="padding-top: 7px;"><label id="lblNama_"' + response.result.ListTokoMPCustomers[i].cust + '"">"' + response.result.ListTokoMPCustomers[i].namaMarket + '"("' + response.result.ListTokoMPCustomers[i].namaCust + '")</label></div></div>';
-
+                                var checklist_Div = '<div class="row" style="margin-bottom:5px;"><div class="col-md-1" style = "padding-bottom:10px"><label class="checkbox-container"><input id="cb_' + response.result.ListTokoMPCustomers[i].cust + '" type="checkbox" data-cust="' + response.result.ListTokoMPCustomers[i].cust + '" class="cbx ckCustomers" name="cb_' + response.result.ListTokoMPCustomers[i].cust + '" /><span id="cbsp_"' + response.result.ListTokoMPCustomers[i].cust + '" class="checkmark"></span></label></div>';
+                                var namalis_Div = '<div class="col-md-3" style="padding-top: 7px;"><label id="lblNama_' + response.result.ListTokoMPCustomers[i].cust + '">' + response.result.ListTokoMPCustomers[i].namaMarket + ' (' + response.result.ListTokoMPCustomers[i].namaCust + ')</label></div></div>';
+                                window.selected_cust.push(response.result.ListTokoMPCustomers[i].cust);
                                 $('#list-mp-toko').append(checklist_Div + namalis_Div);
                             }
                         }
                     }
-
-
-                    //$('#form-partial-aktif').html(response);
-                    //$('.user_table_section').hide();
-                    //$('.aktif_detail_section').show();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -667,349 +402,6 @@
             });
         }
 
-        function passAcc(accId, status) {
-            this.$accId = accId;
-            this.$status = status;
-
-            if (this.$status === 1) {
-                $('#will-change-to').text("menonaktifkan");
-            } else {
-                $('#will-change-to').text("mengaktifkan");
-            }
-        }
-
-        function ubahStatusAcc() {
-            var link = '@Url.Action("ChangeStatusAccount", "Admin", new { accId = "replaceId" })';
-            link = link.replace("replaceId", this.$accId);
-
-            location.href = link;
-        }
-
-        //add by nurul 13/2/2019
-        function refreshTableAccount() {
-            var link = '@Url.Action("RefreshAccMenu", "Admin")';
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                beforeSend: function () {
-                    $('#datatable').hide();
-                    //$('#loading_account').show();
-                },
-                success: function (response) {
-                    $('#table-account').html(response);
-                    var table = $('#datatable').DataTable({
-                        "order": [[5, "desc"], [1, "asc"]], //or asc
-                        "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-                    });
-                    $('#search_user').keyup(function () {
-                        table.search($(this).val()).draw();
-                    });
-                    $('#datatable').show();
-                    //$('#loading_account').hide();
-                    table.search($('#search_user').val()).draw();
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                    //$('#loading_account').hide();
-                }
-            });
-        }
-        function refreshTableAktif() {
-            @*var link = '@Url.Action("AccountMenuAktif", "Admin", new { param = "replacedrtgl;replacesdtgl" })';
-            link = link.replace("replacedrtgl", $('#DrTanggal').val());
-            link = link.replace("replacesdtgl", $('#SdTanggal').val());*@
-            var link = '@Url.Action("AccMenuAktif", "Admin")';
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                beforeSend: function () {
-                    $('#datatable_aktif').hide();
-                    $('#loading_aktif').show();
-                },
-                success: function (response) {
-                    $('#table-account-aktif').html(response);
-                    var tableAktif = $('#datatable_aktif').DataTable({
-                        "order": [[5, "desc"], [1, "asc"]], //or asc
-                        "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-                    });
-                    $('#search_aktif').keyup(function () {
-                        tableAktif.search($(this).val()).draw();
-                    });
-                    $('#datatable_aktif').show();
-                    $('#loading_aktif').hide();
-                    tableAktif.search($('#search_aktif').val()).draw();
-                    $('#datatable_aktif').on('page.dt', function () {
-                        $page = $('#datatable_aktif').DataTable().page.info().page;
-                    });
-                    $('#datatable_aktif').DataTable().page($page).draw(false);
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                    $('#loading_aktif').hide();
-                }
-            });
-        }
-        function refreshTableNonaktif() {
-            @*var link = '@Url.Action("AccountMenuNonaktif", "Admin", new { param = "replacedrtgl;replacesdtgl" })';
-            link = link.replace("replacedrtgl", $('#DrTanggal').val());
-            link = link.replace("replacesdtgl", $('#SdTanggal').val());*@
-            var link = '@Url.Action("AccMenuNonaktif", "Admin")';
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                beforeSend: function () {
-                    $('#datatable_aktif').hide();
-                    $('#loading_nonaktif').show();
-                },
-                success: function (response) {
-                    $('#table-account-nonaktif').html(response);
-                    var tableNonaktif = $('#datatable_nonaktif').DataTable({
-                        "order": [[5, "desc"], [1, "asc"]], //or asc
-                        "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-                    });
-                    $('#search_nonaktif').keyup(function () {
-                        tableNonaktif.search($(this).val()).draw();
-                    });
-                    $('#datatable_nonaktif').show();
-                    $('#loading_nonaktif').hide();
-                    tableNonaktif.search($('#search_nonaktif').val()).draw();
-                    $('#datatable_nonaktif').on('page.dt', function () {
-                        $page = $('#datatable_nonaktif').DataTable().page.info().page;
-                    });
-                    $('#datatable_nonaktif').DataTable().page($page).draw(false);
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                    $('#loading_nonaktif').hide();
-                }
-            });
-        }
-        function refreshTableWillexpired() {
-            var link = '@Url.Action("AccMenuWillExpired", "Admin", new { param = "replacedrtgl;replacesdtgl" })';
-            link = link.replace("replacedrtgl", $('#DrTanggal').val());
-            link = link.replace("replacesdtgl", $('#SdTanggal').val());
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                beforeSend: function () {
-                    $('#datatable_willexpired').hide();
-                    $('#loading_willexpired').show();
-                },
-                success: function (response) {
-                    //$('#loading_willexpired').hide();
-                    $('#table-account-will-expired').html(response);
-                    var tableWillexpired = $('#datatable_willexpired').DataTable({
-                        "order": [[5, "desc"], [1, "asc"]], //or asc
-                        "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-                    });
-                    $('#search_willexpired').keyup(function () {
-                        tableWillexpired.search($(this).val()).draw();
-                    });
-                    $('#datatable_willexpired').show();
-                    $('#loading_willexpired').hide();
-                    tableWillexpired.search($('#search_willexpired').val()).draw();
-                    $('#datatable_willexpired').on('page.dt', function () {
-                        $page = $('#datatable_willexpired').DataTable().page.info().page;
-                    });
-                    $('#datatable_willexpired').DataTable().page($page).draw(false);
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                    $('#loading_willexpired').hide();
-                }
-            });
-        }
-        function refreshTableExpired() {
-            var link = '@Url.Action("AccMenuExpired", "Admin", new { param = "replacepertgl" })';
-            link = link.replace("replacepertgl", $('#PerTanggal').val());
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                beforeSend: function () {
-                    $('#datatable_expired').hide();
-                    $('#loading_expired').show();
-                },
-                success: function (response) {
-                    //$('#loading_expired').hide();
-                    $('#table-account-expired').html(response);
-                    var tableExpired = $('#datatable_expired').DataTable({
-                        "order": [[5, "desc"], [1, "asc"]], //or asc
-                        "columnDefs": [{ "targets": 5, "type": "date-eu" }],
-                    });
-                    $('#search_expired').keyup(function () {
-                        tableExpired.search($(this).val()).draw();
-                    });
-                    $('#datatable_expired').show();
-                    $('#loading_expired').hide();
-                    tableExpired.search($('#search_expired').val()).draw();
-                    $('#datatable_expired').on('page.dt', function () {
-                        $page = $('#datatable_expired').DataTable().page.info().page;
-                    });
-                    $('#datatable_expired').DataTable().page($page).draw(false);
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                    $('#loading_expired').hide();
-                }
-            });
-        }
-        function LihatAccount(IdAccount) {
-            var link = '@Url.Action("AccDetail", "Admin", new { accId = "replaceId" })';
-            link = link.replace("replaceId", IdAccount);
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                success: function (response) {
-                    $('#form-partial-detail').html(response);
-                    $('.user_table_section').hide();
-                    $('.account_detail_section').show();
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                }
-            });
-        }
-        function LihatAccount4(IdAccount) {
-            var link = '@Url.Action("AccDetail", "Admin", new { accId = "replaceId" })';
-            link = link.replace("replaceId", IdAccount);
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                success: function (response) {
-                    $('#form-partial-aktif').html(response);
-                    $('.user_table_section').hide();
-                    $('.aktif_detail_section').show();
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                }
-            });
-        }
-        function LihatAccount5(IdAccount) {
-            var link = '@Url.Action("AccDetail", "Admin", new { accId = "replaceId" })';
-            link = link.replace("replaceId", IdAccount);
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                success: function (response) {
-                    $('#form-partial-nonaktif').html(response);
-                    $('.user_table_section').hide();
-                    $('.nonaktif_detail_section').show();
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                }
-            });
-        }
-        function LihatAccount2(IdAccount) {
-            var link = '@Url.Action("AccDetail", "Admin", new { accId = "replaceId" })';
-            link = link.replace("replaceId", IdAccount);
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                success: function (response) {
-                    $('#form-partial-WillExpired').html(response);
-                    $('.user_table_section').hide();
-                    $('.WillExpired_detail_section').show();
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                }
-            });
-        }
-        function LihatAccount3(IdAccount) {
-            var link = '@Url.Action("AccDetail", "Admin", new { accId = "replaceId" })';
-            link = link.replace("replaceId", IdAccount);
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                success: function (response) {
-                    $('#form-partial-Expired').html(response);
-                    $('.user_table_section').hide();
-                    $('.Expired_detail_section').show();
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                }
-            });
-        }
-        //end add by nurul 13/2/2019
-
-        //add by nurul 12/3/2019
-        function editAccount($Id) {
-            var link = '@Url.Action("EditAccNew", "Admin", new { accountId = "replaceId" })';
-            link = link.replace("replaceId", $Id);
-
-            //location.href = link;
-            $.ajax({
-                async: true,
-                type: "GET",
-                url: link,
-                success: function (response) {
-                    $('#form-partial').html(response);
-
-                    $('.user_table_section').hide();
-                    $('.account_detail_section').hide();
-                    $('.account_editor_section_1').show();
-                    $('#photo_base').hide()
-                    $('#myTab li a').each(function () {
-                        $(this).removeAttr('data-toggle');
-
-                        if ($(this).attr('id') === 'account-tab') return;
-
-                        $(this).addClass('disabled-tab');
-
-                    });
-
-                    if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
-                        $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                }
-            });
-
-        }
-
-        function simpanAccount($id) {
-
-            @*var link = '@Url.Action("ChangeStatusAccount", "Admin", new { accId = "replaceId" })';
-            link = link.replace("replaceId", $id);*@
-
-            $.ajax({
-                        type: "POST",
-                        url: '@Url.Action("ChangeStatusAccount", "Admin")',
-                        //url: link,
-                        data: $('#form-account').serialize(),
-                success: function (response) {
-                    alert('Data berhasil tersimpan');
-                    $('#form-partial').html(response);
-                    $('#photo_base').hide()
-                    if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
-                        $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                }
-            });
-
-        }
-        //end add by nurul 12/3/2019
+        // End Add by Fauzi 25 November 2020
     </script>
 }

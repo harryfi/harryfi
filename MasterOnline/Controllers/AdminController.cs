@@ -2221,11 +2221,8 @@ namespace MasterOnline.Controllers
             return View(vm);
         }
 
-        public ActionResult GetMarketplaceAccount(string emailAccount)
+        public async Task<ActionResult> GetMarketplaceAccount(string emailAccount)
         {
-            string dbSourceEra = "";
-            string dbPathEra = "";
-
             var vm = new SupportMenu()
             {
                 ListTokoMPCustomers = new List<ListMarketplaces>()
@@ -2235,10 +2232,7 @@ namespace MasterOnline.Controllers
             {
                 var accountlist = MoDbContext.Account.Where(p => p.Email == emailAccount).SingleOrDefault();
                 ErasoftDbContext = new ErasoftContext(accountlist.DataSourcePath, accountlist.DatabasePathErasoft);
-
-                EDB = new DatabaseSQL(accountlist.DataSourcePath);
-                //EDBConnID = EDB.GetConnectionString("ConnID");
-
+                
                 var customer = ErasoftDbContext.ARF01.Where(m => m.NAMA != "18").OrderBy(m => m.NAMA).ToList();
                 var mp = MoDbContext.Marketplaces.ToList();
                 if (customer.Count > 0)
@@ -2247,7 +2241,7 @@ namespace MasterOnline.Controllers
                     {
                         var data = new ListMarketplaces
                         {
-                            cust = tbl.CUST,
+                            cust = Convert.ToInt32(tbl.RecNum),
                             namaCust = tbl.PERSO,
                         };
                         data.namaMarket = mp.Where(m => m.IdMarket.ToString() == tbl.NAMA).FirstOrDefault().NamaMarket;
@@ -2258,6 +2252,60 @@ namespace MasterOnline.Controllers
 
                 //return View(vm);
                 return new JsonResult { Data = new { success = true , result = vm }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            else
+            {
+                //return View("Error");
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+
+        public async Task<ActionResult> ProsesUnlinkMP(string listTokoMP)
+        {
+            bool resultUnlink = false;
+            
+            if (!string.IsNullOrEmpty(listTokoMP))
+            {
+                string[] dataSplitToko = listTokoMP.Split('|');
+                string accountEmail = dataSplitToko[0];
+                string listToko = dataSplitToko[1];
+                string listkodeBRG = dataSplitToko[2];
+                string[] splitlistToko = listToko.Split(',');
+                string[] splitlistkodeBRG = listkodeBRG.Split('^');
+                
+                var sqlListKode = "";
+
+                if(!string.IsNullOrEmpty(listToko) && !string.IsNullOrEmpty(listkodeBRG))
+                {
+                    try
+                    {
+                        var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
+                        DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+
+                        foreach (var listKode in splitlistkodeBRG)
+                        {
+                            sqlListKode += "'" + listKode + "',";
+                        }
+
+                        sqlListKode = sqlListKode.Substring(0, sqlListKode.Length - 1).Replace(" ", "");
+
+                        foreach (var dataToko in splitlistToko)
+                        {
+                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '', LINK_STATUS = '', LINK_ERROR = '' WHERE BRG IN (" + sqlListKode + ") AND IDMARKET = '" + dataToko + "' ");
+                        }
+
+                        resultUnlink = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        resultUnlink = false;
+                    }
+                    
+                }
+                
+                //return View(vm);
+                return new JsonResult { Data = new { success = resultUnlink}, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             else
             {
