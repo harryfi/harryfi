@@ -294,19 +294,26 @@ namespace MasterOnline.Controllers
                     return Json(result);
                 }
 
-                var connID = "[UPDATESTOK_API_WH][" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddhhmmss") + "]";
+                result = new JsonApi();
 
-                var EDB = new DatabaseSQL(dbPathEra);
-                EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES ('" + data.brg + "', '" + connID + "')");
-
-                await Task.Run(() => new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, userName));
-
-                result = new JsonApi()
+                try
                 {
-                    code = 200,
-                    message = "Success",
-                    data = null
-                };
+                    var connID = "[UPDATESTOK_API_WH][" + DateTime.UtcNow.AddHours(7).ToString("yyyyMMddhhmmss") + "]";
+
+                    var EDB = new DatabaseSQL(dbPathEra);
+                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES ('" + data.brg + "', '" + connID + "')");
+
+                    await Task.Run(() => new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, userName));
+                    result.code = 200;
+                    result.message = "Success";
+                    result.data = null;
+                }
+                catch (Exception ex)
+                {
+                    result.code = 401;
+                    result.message = "Error API. Please check Support Masteronline";
+                    result.data = null;
+                }
 
                 return Json(result);
             }
@@ -409,59 +416,68 @@ namespace MasterOnline.Controllers
 
                 result = new JsonApi();
 
-                var EDB = new DatabaseSQL(dbPathEra);
-                string EraServerName = EDB.GetServerName("sConn");
-                var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
-
-                var pesanan = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.NO_BUKTI == data.no_bukti);
-                var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == pesanan.CUST);
-                var mp = MoDbContext.Marketplaces.AsNoTracking().Single(p => p.IdMarket.ToString() == marketPlace.NAMA);
-
-                if (marketPlace.TIDAK_HIT_UANG_R == true)
+                try
                 {
-                    if (mp.NamaMarket.ToUpper().Contains("TOKOPEDIA"))
-                    {
-                        if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
-                        {
-                            TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
-                            {
-                                merchant_code = marketPlace.Sort1_Cust, //FSID
-                                API_client_password = marketPlace.API_CLIENT_P, //Client ID
-                                API_client_username = marketPlace.API_CLIENT_U, //Client Secret
-                                API_secret_key = marketPlace.API_KEY, //Shop ID 
-                                token = marketPlace.TOKEN,
-                                idmarket = marketPlace.RecNum.Value,
-                                DatabasePathErasoft = dbPathEra,
-                                username = userName
-                            };
-                            var tokpedController = new TokopediaControllerJob();
-                            Task.Run(() => tokpedController.PostAckOrder(dbPathEra, pesanan.NO_BUKTI, marketPlace.CUST, "Pesanan", "Accept Order", iden, pesanan.NO_BUKTI, pesanan.NO_REFERENSI).Wait());
+                    var EDB = new DatabaseSQL(dbPathEra);
+                    string EraServerName = EDB.GetServerName("sConn");
+                    var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
 
-                            result.code = 200;
-                            result.message = "Success";
-                            result.data = null;
+                    var pesanan = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.NO_BUKTI == data.no_bukti);
+                    var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == pesanan.CUST);
+                    var mp = MoDbContext.Marketplaces.AsNoTracking().Single(p => p.IdMarket.ToString() == marketPlace.NAMA);
+
+                    if (marketPlace.TIDAK_HIT_UANG_R == true)
+                    {
+                        if (mp.NamaMarket.ToUpper().Contains("TOKOPEDIA"))
+                        {
+                            if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
+                            {
+                                TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                                {
+                                    merchant_code = marketPlace.Sort1_Cust, //FSID
+                                    API_client_password = marketPlace.API_CLIENT_P, //Client ID
+                                    API_client_username = marketPlace.API_CLIENT_U, //Client Secret
+                                    API_secret_key = marketPlace.API_KEY, //Shop ID 
+                                    token = marketPlace.TOKEN,
+                                    idmarket = marketPlace.RecNum.Value,
+                                    DatabasePathErasoft = dbPathEra,
+                                    username = userName
+                                };
+                                var tokpedController = new TokopediaControllerJob();
+                                Task.Run(() => tokpedController.PostAckOrder(dbPathEra, pesanan.NO_BUKTI, marketPlace.CUST, "Pesanan", "Accept Order", iden, pesanan.NO_BUKTI, pesanan.NO_REFERENSI).Wait());
+
+                                result.code = 200;
+                                result.message = "Success";
+                                result.data = null;
+                            }
+                            else
+                            {
+                                result.code = 401;
+                                result.message = "Apikey can not be empty ";
+                                result.data = null;
+                            }
                         }
                         else
                         {
                             result.code = 401;
-                            result.message = "Apikey can not be empty ";
+                            result.message = "Marketplace is not Tokopedia";
                             result.data = null;
                         }
                     }
                     else
                     {
                         result.code = 401;
-                        result.message = "Marketplace is not Tokopedia";
+                        result.message = "Marketplace not Active";
                         result.data = null;
                     }
                 }
-                else
+                catch (Exception ex)
                 {
                     result.code = 401;
-                    result.message = "Marketplace not Active";
+                    result.message = "Error API. Please check Support Masteronline";
                     result.data = null;
                 }
-
+                
                 return Json(result);
             }
             catch (Exception e)
