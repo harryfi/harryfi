@@ -87,7 +87,7 @@
                                         @Html.HiddenFor(m => m.SelectedAccount)*@
                                 </div>
                                 <div class="row" id="list-mp-toko">
-                                    @Html.Partial("ListMarketplacesCustomer")
+                                    @*@Html.Partial("ListMarketplacesCustomer")*@
                                 </div>
                             </div>
                         </div>
@@ -643,8 +643,20 @@
                 url: link,
                 success: function (response) {
                     var tes = "";
-                    
-                    $('#list-mp-toko').html(response);
+
+                    //$('#list-mp-toko').html(response);
+                    if (response.success) {
+                        if (response.result.ListTokoMPCustomers.length > 0) {
+                            for (var i = 0; i < response.result.ListTokoMPCustomers.length; i++) {
+                                var checklist_Div = '<div class="row" style="margin-bottom:5px;"><div class="col-md-1" style = "padding-bottom:10px"><label class="checkbox-container"><input id="cb_"' + response.result.ListTokoMPCustomers[i].cust + '"" type="checkbox" data-cust=""' + response.result.ListTokoMPCustomers[i].cust + '"" class="cbx ckCustomers" name="cb_"' + response.result.ListTokoMPCustomers[i].cust + '"" /><span id="cbsp_"' + response.result.ListTokoMPCustomers[i].cust + '"" class="checkmark"></span></label></div>';
+                                var namalis_Div = '<div class="col-md-3" style="padding-top: 7px;"><label id="lblNama_"' + response.result.ListTokoMPCustomers[i].cust + '"">"' + response.result.ListTokoMPCustomers[i].namaMarket + '"("' + response.result.ListTokoMPCustomers[i].namaCust + '")</label></div></div>';
+
+                                $('#list-mp-toko').append(checklist_Div + namalis_Div);
+                            }
+                        }
+                    }
+
+
                     //$('#form-partial-aktif').html(response);
                     //$('.user_table_section').hide();
                     //$('.aktif_detail_section').show();
