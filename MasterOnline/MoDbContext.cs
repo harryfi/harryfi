@@ -74,10 +74,10 @@ namespace MasterOnline
         //{
         //}
 
-         public MoDbContext(string dbSourceEra)
-            : base($"Server=172.31.20.153, 1433;initial catalog=MO;" +
-                   $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
-                   $"application name=EntityFramework")
+        public MoDbContext(string dbSourceEra)
+           : base($"Server=172.31.20.73, 1433;initial catalog=MO;" +
+                  $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                  $"application name=EntityFramework")
         {
         }
 
