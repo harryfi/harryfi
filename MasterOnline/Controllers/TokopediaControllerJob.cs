@@ -19,6 +19,7 @@ using System.Security.Cryptography;
 using System.Net.Http;
 using Hangfire;
 using Hangfire.SqlServer;
+using MasterOnline.Utils;
 
 namespace MasterOnline.Controllers
 {
@@ -2793,7 +2794,9 @@ namespace MasterOnline.Controllers
             }
             long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
-            string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
+            string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" 
+                + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) 
+                + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&encrypt=1";
 
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
@@ -2863,12 +2866,38 @@ namespace MasterOnline.Controllers
 
                     var connIdARF01C = Guid.NewGuid().ToString();
                     rowCount = result.data.Count();
+
+                    var decryptF = new EncryptTokped();//add 28 NOv 2020, decrypt tokped
                     if (orderPaid != null)
                     {
                         foreach (var order in orderPaid)
                         {
                             if (!OrderNoInDb.Contains(order.order_id + ";" + order.invoice_ref_num))
                             {
+                                //add 28 NOv 2020, decrypt tokped
+                                if (order.encryption != null)
+                                {
+                                    if (!string.IsNullOrEmpty(order.encryption.secret) && !string.IsNullOrEmpty(order.encryption.content))
+                                    {
+                                        var decryptedOrder = decryptF.DecryptOrderTokped(order.encryption.secret, order.encryption.content);
+                                        if (!string.IsNullOrEmpty(decryptedOrder))
+                                        {
+                                            DecryptedOrderList decryptedOrderData = Newtonsoft.Json.JsonConvert.DeserializeObject(decryptedOrder, typeof(DecryptedOrderList)) as DecryptedOrderList;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.buyer.name))
+                                                order.buyer.name = decryptedOrderData.buyer.name;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.buyer.phone))
+                                                order.buyer.phone = decryptedOrderData.buyer.phone;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.recipient.name))
+                                                order.recipient.name = decryptedOrderData.recipient.name;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.recipient.phone))
+                                                order.recipient.phone = decryptedOrderData.recipient.phone;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.recipient.address.address_full))
+                                                order.recipient.address.address_full = decryptedOrderData.recipient.address.address_full;
+                                        }
+                                    }
+                                }
+                                //end add 28 NOv 2020, decrypt tokped
+
                                 List<TEMP_TOKPED_ORDERS> ListNewOrders = new List<TEMP_TOKPED_ORDERS>();
                                 ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_TOKPED_ORDERS");
 
@@ -3108,7 +3137,7 @@ namespace MasterOnline.Controllers
                                             newOrder.products_fulfilled_quantity_reject = product_fulfilled.quantity_reject;
                                         }
                                         newOrder.confirm_shipping_deadline = expiredDate;
-                                        if(paymentDate != null)
+                                        if (paymentDate != null)
                                         {
                                             newOrder.create_time = paymentDate.Value;
                                         }
@@ -3160,6 +3189,30 @@ namespace MasterOnline.Controllers
                         {
                             if (!OrderNoInDb.Contains(order.order_id + ";" + order.invoice_ref_num))
                             {
+                                //add 28 NOv 2020, decrypt tokped
+                                if (order.encryption != null)
+                                {
+                                    if (!string.IsNullOrEmpty(order.encryption.secret) && !string.IsNullOrEmpty(order.encryption.content))
+                                    {
+                                        var decryptedOrder = decryptF.DecryptOrderTokped(order.encryption.secret, order.encryption.content);
+                                        if (!string.IsNullOrEmpty(decryptedOrder))
+                                        {
+                                            DecryptedOrderList decryptedOrderData = Newtonsoft.Json.JsonConvert.DeserializeObject(decryptedOrder, typeof(DecryptedOrderList)) as DecryptedOrderList;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.buyer.name))
+                                                order.buyer.name = decryptedOrderData.buyer.name;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.buyer.phone))
+                                                order.buyer.phone = decryptedOrderData.buyer.phone;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.recipient.name))
+                                                order.recipient.name = decryptedOrderData.recipient.name;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.recipient.phone))
+                                                order.recipient.phone = decryptedOrderData.recipient.phone;
+                                            if (!string.IsNullOrEmpty(decryptedOrderData.recipient.address.address_full))
+                                                order.recipient.address.address_full = decryptedOrderData.recipient.address.address_full;
+                                        }
+                                    }
+                                }
+                                //end add 28 NOv 2020, decrypt tokped
+
                                 DateTime? expiredDate = null;
                                 DateTime? paymentDate = null;
                                 //remark 13 nov 2020 tutup sementara
@@ -5981,6 +6034,32 @@ namespace MasterOnline.Controllers
         }
 
 
+        public class DecryptedOrderList
+        {
+            public BuyerDecryptedOrderList buyer { get; set; }
+            public RecipientDecryptedOrderList recipient { get; set; }
+        }
+
+        public class BuyerDecryptedOrderList
+        {
+            public long id { get; set; }
+            public string name { get; set; }
+            public string phone { get; set; }
+            public string email { get; set; }
+        }
+
+        public class RecipientDecryptedOrderList
+        {
+            public string name { get; set; }
+            public string phone { get; set; }
+            public AddressDecryptedOrderList address { get; set; }
+        }
+
+        public class AddressDecryptedOrderList
+        {
+            public string address_full { get; set; }
+        }
+
 
         public class TokopediaOrders
         {
@@ -6025,8 +6104,13 @@ namespace MasterOnline.Controllers
             public int order_status { get; set; }
             public int create_time { get; set; }
             public Custom_Fields custom_fields { get; set; }
+            public EncryptionTokped encryption { get; set; }
         }
-
+        public class EncryptionTokped
+        {
+            public string secret { get; set; }
+            public string content { get; set; }
+        }
         public class Buyer
         {
             public int id { get; set; }

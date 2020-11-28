@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Web;
 
 namespace MasterOnline.Utils
@@ -25,7 +26,7 @@ namespace MasterOnline.Utils
                 byte[] cipherTextBytes = Convert.FromBase64String(cipherText);
 
                 PemReader pr = new PemReader(
-                    (StreamReader)File.OpenText("./private_key.pem")
+                    (StreamReader)File.OpenText("C://EncryptTokped//private_key.pem")
                 );
                 AsymmetricCipherKeyPair keys = (AsymmetricCipherKeyPair)pr.ReadObject();
 
@@ -109,10 +110,19 @@ namespace MasterOnline.Utils
                 var byteData = decryptAesGcm(contentByte, secretKey, 0);
                 if(byteData != null)
                 {
-
+                    ret = Encoding.UTF8.GetString(byteData);
                 }
             }
             return ret;
+        }
+
+        public static byte[] SubArray(byte[] data, int start, int length)
+        {
+            byte[] result = new byte[length];
+
+            Array.Copy(data, start, result, 0, length);
+
+            return result;
         }
     }
 }
