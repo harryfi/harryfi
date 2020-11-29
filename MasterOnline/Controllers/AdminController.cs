@@ -29,6 +29,11 @@ namespace MasterOnline.Controllers
     {
         private readonly MoDbContext MoDbContext;
 
+        //add for support MO by fauzi 24 November 2020
+        public ErasoftContext ErasoftDbContext { get; set; }
+        DatabaseSQL EDB;
+        //end for support MO by fauzi 24 November 2020
+
         public AdminController()
         {
             MoDbContext = new MoDbContext("");
@@ -2202,6 +2207,114 @@ namespace MasterOnline.Controllers
             };
             return PartialView("AccDetail", vm);
         }
+
+        // =============================================== Bagian SUPPORT (START)
+        [Route("adminCS/manage/support")]
+        [SessionAdminCheck]
+        public ActionResult SupportMenu()
+        {
+            var vm = new SupportMenu()
+            {
+                AccountList = MoDbContext.Account.Where(p => p.Status).Select(p => p.Email).ToList(),
+            };
+
+            return View(vm);
+        }
+
+        public async Task<ActionResult> GetMarketplaceAccount(string emailAccount)
+        {
+            var vm = new SupportMenu()
+            {
+                ListTokoMPCustomers = new List<ListMarketplaces>()
+            };
+
+            if (!string.IsNullOrEmpty(emailAccount))
+            {
+                var accountlist = MoDbContext.Account.Where(p => p.Email == emailAccount).SingleOrDefault();
+                ErasoftDbContext = new ErasoftContext(accountlist.DataSourcePath, accountlist.DatabasePathErasoft);
+                
+                var customer = ErasoftDbContext.ARF01.Where(m => m.NAMA != "18").OrderBy(m => m.NAMA).ToList();
+                var mp = MoDbContext.Marketplaces.ToList();
+                if (customer.Count > 0)
+                {
+                    foreach (var tbl in customer)
+                    {
+                        var data = new ListMarketplaces
+                        {
+                            cust = Convert.ToInt32(tbl.RecNum),
+                            namaCust = tbl.PERSO,
+                        };
+                        data.namaMarket = mp.Where(m => m.IdMarket.ToString() == tbl.NAMA).FirstOrDefault().NamaMarket;
+
+                        vm.ListTokoMPCustomers.Add(data);
+                    }
+                }
+
+                //return View(vm);
+                return new JsonResult { Data = new { success = true , result = vm }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            else
+            {
+                //return View("Error");
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+
+        public async Task<ActionResult> ProsesUnlinkMP(string listTokoMP)
+        {
+            bool resultUnlink = false;
+            
+            if (!string.IsNullOrEmpty(listTokoMP))
+            {
+                string[] dataSplitToko = listTokoMP.Split('|');
+                string accountEmail = dataSplitToko[0];
+                string listToko = dataSplitToko[1];
+                string listkodeBRG = dataSplitToko[2];
+                string[] splitlistToko = listToko.Split(',');
+                string[] splitlistkodeBRG = listkodeBRG.Split('^');
+                
+                var sqlListKode = "";
+
+                if(!string.IsNullOrEmpty(listToko) && !string.IsNullOrEmpty(listkodeBRG))
+                {
+                    try
+                    {
+                        var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
+                        DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+
+                        foreach (var listKode in splitlistkodeBRG)
+                        {
+                            sqlListKode += "'" + listKode + "',";
+                        }
+
+                        sqlListKode = sqlListKode.Substring(0, sqlListKode.Length - 1).Replace(" ", "");
+
+                        foreach (var dataToko in splitlistToko)
+                        {
+                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '', LINK_STATUS = '', LINK_ERROR = '' WHERE BRG IN (" + sqlListKode + ") AND IDMARKET = '" + dataToko + "' ");
+                        }
+
+                        resultUnlink = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        resultUnlink = false;
+                    }
+                    
+                }
+                
+                //return View(vm);
+                return new JsonResult { Data = new { success = resultUnlink}, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            else
+            {
+                //return View("Error");
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+        // =============================================== Bagian SUPPORT (END)
 
         // Mengubah status akun utama
         //public async Task<ActionResult> ChangeStatusAccount(int? accId, string stat)
