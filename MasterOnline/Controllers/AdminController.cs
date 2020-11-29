@@ -2292,7 +2292,7 @@ namespace MasterOnline.Controllers
 
                         foreach (var dataToko in splitlistToko)
                         {
-                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '', LINK_STATUS = '', LINK_ERROR = '' WHERE BRG IN (" + sqlListKode + ") AND IDMARKET = '" + dataToko + "' ");
+                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET DISPLAY = 0, BRG_MP = '', LINK_STATUS = '', LINK_ERROR = '' WHERE BRG IN (" + sqlListKode + ") AND IDMARKET = '" + dataToko + "' ");
                         }
 
                         resultUnlink = true;
