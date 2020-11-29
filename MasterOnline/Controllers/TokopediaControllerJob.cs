@@ -2794,7 +2794,7 @@ namespace MasterOnline.Controllers
             }
             long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
-            string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" 
+            string urll = "https://fs.tokopedia.net/v2/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" 
                 + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) 
                 + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&encrypt=1";
 
