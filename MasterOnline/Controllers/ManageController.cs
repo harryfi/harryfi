@@ -60473,7 +60473,7 @@ namespace MasterOnline.Controllers
                                 ErasoftDbContext.SOT03C.AddRange(newPackingBarangList);
                                 ErasoftDbContext.SaveChanges();
 
-                                //transaction.Commit();
+                                transaction.Commit();
 
                                 //hitung ulang bruto,netto
                                 string sSQL = "UPDATE C SET BRUTO = QRY.NILAI, NETTO = (QRY.NILAI + C.MATERAI - C.DISCOUNT) FROM SIT01A C (nolock) INNER JOIN ( ";
