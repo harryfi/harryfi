@@ -797,7 +797,10 @@ namespace MasterOnline.Controllers
                                 //};
                                 CreateProduct_Opt newOpt = new CreateProduct_Opt()
                                 {
-                                    unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    //change 30 nov 2020, set 0 untuk custom text
+                                    //unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    unit_value_id = 0,
+                                    //end change 30 nov 2020, set 0 untuk custom text
                                     //t_id = fe_record.RECNUM,
                                     value = var_stf20.Where(p => p.LEVEL_VAR == fe_record.LEVEL_VAR && p.KODE_VAR == fe_record.KODE_VAR).FirstOrDefault()?.KET_VAR,
                                     //image = new List<CreateProduct_Image>()
@@ -866,7 +869,10 @@ namespace MasterOnline.Controllers
                                 //};
                                 CreateProduct_Opt newOpt = new CreateProduct_Opt()
                                 {
-                                    unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    //change 30 nov 2020, set 0 untuk custom text
+                                    //unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    unit_value_id = 0,
+                                    //end change 30 nov 2020, set 0 untuk custom text
                                     //t_id = fe_record.RECNUM,
                                     value = var_stf20.Where(p => p.LEVEL_VAR == fe_record.LEVEL_VAR && p.KODE_VAR == fe_record.KODE_VAR).FirstOrDefault()?.KET_VAR,
                                     //image = new List<CreateProduct_Image>()
@@ -1453,7 +1459,10 @@ namespace MasterOnline.Controllers
                                 //};
                                 CreateProduct_Opt newOpt = new CreateProduct_Opt()
                                 {
-                                    unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    //change 30 nov 2020, set 0 untuk custom text
+                                    //unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    unit_value_id = 0,
+                                    //end change 30 nov 2020, set 0 untuk custom text
                                     //t_id = fe_record.RECNUM,
                                     value = var_stf20.Where(p => p.LEVEL_VAR == fe_record.LEVEL_VAR && p.KODE_VAR == fe_record.KODE_VAR).FirstOrDefault()?.KET_VAR,
                                     //image = new List<CreateProduct_Image>()
@@ -1559,7 +1568,10 @@ namespace MasterOnline.Controllers
                                 //};
                                 CreateProduct_Opt newOpt = new CreateProduct_Opt()
                                 {
-                                    unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    //change 30 nov 2020, set 0 untuk custom text
+                                    //unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    unit_value_id = 0,
+                                    //end change 30 nov 2020, set 0 untuk custom text
                                     //t_id = fe_record.RECNUM,
                                     value = var_stf20.Where(p => p.LEVEL_VAR == fe_record.LEVEL_VAR && p.KODE_VAR == fe_record.KODE_VAR).FirstOrDefault()?.KET_VAR,
                                     //image = new List<CreateProduct_Image>()
