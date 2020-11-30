@@ -60450,8 +60450,8 @@ namespace MasterOnline.Controllers
                         //    return new JsonResult { Data = new { error_packing_list = true }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                         //}
                         ////record terakhir
-                        using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
-                        {
+                        //using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                        //{
                             try
                             {
                                 //ErasoftDbContext.ARF01C.AddRange(newARF01Cs);
@@ -60473,7 +60473,7 @@ namespace MasterOnline.Controllers
                                 ErasoftDbContext.SOT03C.AddRange(newPackingBarangList);
                                 ErasoftDbContext.SaveChanges();
 
-                                transaction.Commit();
+                                //transaction.Commit();
 
                                 //hitung ulang bruto,netto
                                 string sSQL = "UPDATE C SET BRUTO = QRY.NILAI, NETTO = (QRY.NILAI + C.MATERAI - C.DISCOUNT) FROM SIT01A C (nolock) INNER JOIN ( ";
@@ -60537,7 +60537,7 @@ namespace MasterOnline.Controllers
                                 try
                                 {
                                     ErasoftDbContext.SaveChanges();
-                                    transaction.Commit();
+                                    //transaction.Commit();
                                     //update status transaksi pesanan 
                                     if (listRecnumEnd != "")
                                     {
@@ -60551,7 +60551,7 @@ namespace MasterOnline.Controllers
                                 }
                                 catch (Exception ex2)
                                 {
-                                    transaction.Rollback();
+                                    //transaction.Rollback();
                                     //update status transaksi pesanan 
                                     if (listRecnumEnd != "")
                                     {
@@ -60564,7 +60564,7 @@ namespace MasterOnline.Controllers
                                     return new JsonResult { Data = new { error_packing_list = true }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                                 }
                             }
-                        }
+                        //}
                         #endregion
                     }
                     catch (Exception ex)
