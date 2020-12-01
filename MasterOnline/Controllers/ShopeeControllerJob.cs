@@ -1816,7 +1816,7 @@ namespace MasterOnline.Controllers
             //change by nurul 10/12/2019, change create_time_from
             //long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             //long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-3).ToUnixTimeSeconds();
-            long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(day).ToUnixTimeSeconds();
+            long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(day).AddHours(-7).ToUnixTimeSeconds();
             //change add by nurul 10/12/2019, change create_time_from
 
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
