@@ -7772,6 +7772,81 @@ namespace MasterOnline.Controllers
                 return result;
             }
         }
+
+        //add 1 Des 2020, tambah opsi varian MO
+        public async Task<ActionResult> GetAttributeOptTokpedWithMoOpt(string code, int level, string brg)
+        {
+            string[] codelist = code.Split(';');
+            try
+            {
+                int VariantID = Convert.ToInt32(codelist[0]);
+                int UnitID = Convert.ToInt32(codelist[1]);
+                int CategoryCode = Convert.ToInt32(codelist[2]);
+                var marketrecnum_int = Convert.ToInt32(codelist[3]);
+                var tblCustomer = ErasoftDbContext.ARF01.Where(p => p.RecNum == marketrecnum_int).FirstOrDefault();
+
+                TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                {
+                    merchant_code = tblCustomer.Sort1_Cust, //FSID
+                    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+                    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+                    API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                    token = tblCustomer.TOKEN,
+                    idmarket = tblCustomer.RecNum.Value,
+                    DatabasePathErasoft = dbPathEra,
+                    username = usernameLogin
+                };
+
+                var listAttributeTokped = await new TokopediaControllerJob().GetAttributeToList(iden, Convert.ToString(CategoryCode));
+
+                var listAttributeOptTokped = listAttributeTokped.attribute_opt.Where(p => p.VARIANT_ID == VariantID && p.UNIT_ID == UnitID).ToList();
+
+                //get attr option MO
+                var barang = ErasoftDbContext.STF02.Where(m => m.BRG == brg).FirstOrDefault();
+                if(barang != null)
+                {
+                    if (!string.IsNullOrEmpty(barang.Sort1))
+                    {
+                        var optMO = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == barang.Sort1 && m.LEVEL_VAR == level).ToList();
+                        if(optMO.Count > 0)
+                        {
+                            foreach(var opt in optMO)
+                            {
+                                var newOpt = new ATTRIBUTE_OPT_TOKPED();
+                                newOpt.VALUE_ID = opt.RECNUM + 1000;
+                                newOpt.VALUE = opt.KET_VAR;
+                                listAttributeOptTokped.Add(newOpt);
+                            }
+                        }
+                    }
+                }
+                //end get attr option MO
+
+                //return Json(listAttributeOptTokped, JsonRequestBehavior.AllowGet);
+                var serializer = new JavaScriptSerializer();
+                serializer.MaxJsonLength = Int32.MaxValue;
+                var result = new ContentResult
+                {
+                    Content = serializer.Serialize(listAttributeOptTokped),
+                    ContentType = "application/json"
+                };
+                return result;
+            }
+            catch (Exception ex)
+            {
+                var listAttributeOptTokped = MoDbContext.AttributeOptTokped.Where(p => 0 == 1).ToList();
+                //return Json(listAttributeOptTokped, JsonRequestBehavior.AllowGet);
+                var serializer = new JavaScriptSerializer();
+                serializer.MaxJsonLength = Int32.MaxValue;
+                var result = new ContentResult
+                {
+                    Content = serializer.Serialize(listAttributeOptTokped),
+                    ContentType = "application/json"
+                };
+                return result;
+            }
+        }
+        //end add 1 Des 2020, tambah opsi varian MO
         #endregion
         //end add by calvin 6 februari 2019
 

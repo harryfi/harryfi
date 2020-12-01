@@ -586,8 +586,13 @@
     function SearchOptVariantTokped(level, variant_id, unit_id) {
         var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtTokpedCategoryCodeFound').val() + '__CATEGORY_CODE';
 
-        var link = '@Url.Action("GetAttributeOptTokped", "Manage", new { code = "replaceCode" })';
+        //var link = '@Url.Action("GetAttributeOptTokped", "Manage", new { code = "replaceCode" })';
+        var link = '@Url.Action("GetAttributeOptTokpedWithMoOpt", "Manage", new { code = "replaceCode" })';
         link = link.replace("replaceCode", encodeURIComponent(variant_id + ';' + unit_id + ';' + $(fieldCategoryCode).val() + ';' + $('#txtTokpedMarketRecnumFound').val()));
+        //link = link.replace("replaceLevel", encodeURIComponent(level));
+        //link = link.replace("replaceBrg", encodeURIComponent($('#txtInfoKodeBarang').val()));
+        link += "&level=" + encodeURIComponent(level);
+        link += "&brg=" + encodeURIComponent($('#txtInfoKodeBarang').val());
         $.ajax({
             type: "GET",
             url: link,
@@ -984,7 +989,7 @@
                     $('#txtVariantBlibliLv' + level + '_' + data_recnum).attr('type', 'hidden');
                     $('#txtVariantBlibliLv' + level + '_' + data_recnum).removeClass('form-control');
                     $('#selectVariantBlibliLv' + level + '_' + data_recnum).hide();
-                    
+
                     var attributeOptSelect = $(item).selectize({
                         maxItems: 1,
                         valueField: 'id',
@@ -1022,7 +1027,7 @@
                     $('#txtVariantBlibliLv' + level + '_' + data_recnum).attr('type', 'text');
                     $('#txtVariantBlibliLv' + level + '_' + data_recnum).addClass('form-control');
                     $('.selectVariantBlibliLv' + level + '_').hide();
-                    
+
                 }
             });
             //if (showCombo == 1) {
