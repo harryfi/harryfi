@@ -2275,17 +2275,32 @@ namespace MasterOnline.Controllers
                 string[] splitlistkodeBRG = listkodeBRG.Split('^');
                 
                 var sqlListKode = "";
+                var sqlListKodeNotFound = "";
 
-                if(!string.IsNullOrEmpty(listToko) && !string.IsNullOrEmpty(listkodeBRG))
+                if (!string.IsNullOrEmpty(listToko) && !string.IsNullOrEmpty(listkodeBRG))
                 {
                     try
                     {
                         var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
                         DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+                        ErasoftDbContext = new ErasoftContext(accountlist.DataSourcePath, accountlist.DatabasePathErasoft);
+
+                        var listdataKodeBRG = ErasoftDbContext.STF02H.Select(p => p.BRG).ToList();
 
                         foreach (var listKode in splitlistkodeBRG)
                         {
-                            sqlListKode += "'" + listKode + "',";
+                            var kodeBRGCheck = listdataKodeBRG.Contains(listKode);
+                            if (kodeBRGCheck)
+                            {
+                                sqlListKode += "'" + listKode + "',";
+                                resultUnlink = true;
+                            }
+                            else
+                            {
+                                sqlListKodeNotFound += listKode + ",";
+                                resultUnlink = false;
+                            }
+                            
                         }
 
                         sqlListKode = sqlListKode.Substring(0, sqlListKode.Length - 1).Replace(" ", "");
@@ -2295,7 +2310,6 @@ namespace MasterOnline.Controllers
                             EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET DISPLAY = 0, BRG_MP = '', LINK_STATUS = '', LINK_ERROR = '' WHERE BRG IN (" + sqlListKode + ") AND IDMARKET = '" + dataToko + "' ");
                         }
 
-                        resultUnlink = true;
                     }
                     catch (Exception ex)
                     {
@@ -2303,9 +2317,16 @@ namespace MasterOnline.Controllers
                     }
                     
                 }
+
+                if (!string.IsNullOrEmpty(sqlListKodeNotFound))
+                {
+                    return new JsonResult { Data = new { success = resultUnlink, kodenotfound = sqlListKodeNotFound }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    return new JsonResult { Data = new { success = resultUnlink, kodenotfound = "" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
                 
-                //return View(vm);
-                return new JsonResult { Data = new { success = resultUnlink}, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             else
             {

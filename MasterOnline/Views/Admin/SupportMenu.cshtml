@@ -368,9 +368,17 @@
                     $('#loading_account').hide();
                     rows_selected.shift();
                     if (response.success) {
-                        alert("Berhasil unlink.")
+                        if (response.kodenotfound != "") {
+                            alert("Berhasil unlink. Tetapi ada kode barang yang tidak ada di MO berikut: " + response.kodenotfound);
+                        } else {
+                            alert("Berhasil unlink.");
+                        }
                     } else {
-                        alert("Gagal unlink.")
+                        if(response.kodenotfound != ""){
+                            alert("Gagal unlink. Kode barang tidak ada di MO berikut: " + response.kodenotfound);
+                        }else{
+                            alert("Gagal unlink.");
+                        }
                     }
                 },
                 error: function (xhr, status, error) {
