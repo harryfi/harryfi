@@ -1411,7 +1411,6 @@ namespace MasterOnline.Controllers
                     var var_stf02h = ErasoftDbContext.STF02H.Where(p => var_stf02_brg_list.Contains(p.BRG) && p.IDMARKET == iden.idmarket).ToList();
 
                     string category_mo = var_strukturVar.Select(p => p.CATEGORY_MO).FirstOrDefault();
-                    var var_stf20a = ErasoftDbContext.STF20.Where(p => p.CATEGORY_MO == category_mo).ToList();
                     var var_stf20 = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == category_mo).ToList();
 
                     var listRecnumLv1 = new List<int>();
@@ -1420,17 +1419,14 @@ namespace MasterOnline.Controllers
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 1).Count() > 0)
                     {
                         int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR);
-                        //int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
-                        //int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
-                        string namaVar = var_stf20a.Where(p => p.LEVEL_JUDUL_VAR == 1).FirstOrDefault().VALUE_JUDUL_VAR;
+                        int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
+                        int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
                         CreateProduct_Variant newVariasi = new CreateProduct_Variant()
                         {
                             id = variant_id,
-                            //unit_id = unit_id,
-                            unit_id = 0,
+                            unit_id = unit_id,
                             //pos = 1,
-                            options = new List<CreateProduct_Opt>(),
-                            name = namaVar
+                            options = new List<CreateProduct_Opt>()
                         };
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 1))
@@ -1439,8 +1435,7 @@ namespace MasterOnline.Controllers
                             bool add = true;
                             if (product_variant.selection.Count > 0)
                             {
-                                //foreach (var variant in product_variant.selection.Where(p => p.id == variant_id && p.unit_id == unit_id))
-                                foreach (var variant in product_variant.selection.Where(p => p.id == variant_id && p.name == namaVar))
+                                foreach (var variant in product_variant.selection.Where(p => p.id == variant_id && p.unit_id == unit_id))
                                 {
                                     var added_value_id = variant.options.Select(p => p.unit_value_id).ToList();
                                     if (add)
@@ -1533,17 +1528,14 @@ namespace MasterOnline.Controllers
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 2).Count() > 0)
                     {
                         int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR);
-                        //int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
-                        //int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
-                        string namaVar = var_stf20a.Where(p => p.LEVEL_JUDUL_VAR == 2).FirstOrDefault().VALUE_JUDUL_VAR;
+                        int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
+                        int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
                         CreateProduct_Variant newVariasi = new CreateProduct_Variant()
                         {
                             id = variant_id,
-                            //unit_id = unit_id,
-                            unit_id = 0,
+                            unit_id = unit_id,
                             //pos = 2,
-                            options = new List<CreateProduct_Opt>(),
-                            name = namaVar
+                            options = new List<CreateProduct_Opt>()
                         };
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 2))
@@ -1552,8 +1544,7 @@ namespace MasterOnline.Controllers
                             bool add = true;
                             if (product_variant.selection.Count > 0)
                             {
-                                //foreach (var variant in product_variant.selection.Where(p => p.id == variant_id && p.unit_id == unit_id))
-                                foreach (var variant in product_variant.selection.Where(p => p.id == variant_id && p.name == namaVar))
+                                foreach (var variant in product_variant.selection.Where(p => p.id == variant_id && p.unit_id == unit_id))
                                 {
                                     var added_value_id = variant.options.Select(p => p.unit_value_id).ToList();
                                     if (add)
@@ -6706,7 +6697,6 @@ namespace MasterOnline.Controllers
             public int unit_id { get; set; }
             //public int pos { get; set; }
             public List<CreateProduct_Opt> options { get; set; }
-            public string name { get; set; }
         }
 
         public class CreateProduct_Opt
