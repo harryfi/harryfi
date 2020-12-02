@@ -452,26 +452,27 @@
                                     var ANAME = item["ANAME_" + (a + 1)];
 
                                     if (VARIANT_ID != null && VARIANT_ID != "") {
-                                        if (HAS_UNIT > 0) {
+                                        //if (HAS_UNIT > 0) {
                                             $.each(data.attribute_unit,
                                                 function (j, item_unit) {
                                                     if (item_unit["VARIANT_ID"] == VARIANT_ID) {
                                                         SelectList[counter] = {
-                                                            id: VARIANT_ID + '|;|' + item_unit["UNIT_ID"],
+                                                            //id: VARIANT_ID + '|;|' + item_unit["UNIT_ID"],
+                                                            id: VARIANT_ID + ',' + item_unit["UNIT_ID"],
                                                             text: ANAME + ' ' + item_unit["UNIT_NAME"]
                                                         };
 
                                                         counter = counter + 1;
                                                     }
                                                 });
-                                        }
-                                        else {
-                                            SelectList[counter] = {
-                                                id: VARIANT_ID + '|;|' + HAS_UNIT,
-                                                text: ANAME
-                                            };
-                                            counter = counter + 1;
-                                        }
+                                        //}
+                                        //else {
+                                        //    SelectList[counter] = {
+                                        //        id: VARIANT_ID + '|;|' + HAS_UNIT,
+                                        //        text: ANAME
+                                        //    };
+                                        //    counter = counter + 1;
+                                        //}
                                     }
                                 }
                             });
@@ -483,8 +484,10 @@
                                 searchField: 'text',
                                 options: SelectList,
                                 onChange: function (value) {
-                                    var values = value.split('|;|');
-                                    $('#txtJudulVariantTokpedLv1').val(values[0]);
+                                    //var values = value.split('|;|');
+                                    //$('#txtJudulVariantTokpedLv1').val(values[0]);
+                                    var values = value.split(',');
+                                    $('#txtJudulVariantTokpedLv1').val(values);
                                     SearchOptVariantTokped(1, values[0], values[1]);
                                 }
                             });
@@ -498,8 +501,8 @@
                                     for (var d = 0; d < len; d++) {
                                         if (FoundValue == "") {
                                             var value = SelectList[d].id;
-                                            var values = value.split('|;|');
-                                            if ($('#txtJudulVariantTokpedLv1').val() == values[0]) {
+                                            //var values = value.split('|;|');
+                                            if ($('#txtJudulVariantTokpedLv1').val() == value) {
                                                 FoundValue = SelectList[d].id;
                                                 attributeSelect[0].selectize.setValue(FoundValue, false);
                                             }
@@ -515,8 +518,10 @@
                                 searchField: 'text',
                                 options: SelectList,
                                 onChange: function (value) {
-                                    var values = value.split('|;|');
-                                    $('#txtJudulVariantTokpedLv2').val(values[0]);
+                                    //var values = value.split('|;|');
+                                    //$('#txtJudulVariantTokpedLv2').val(values[0]);
+                                    var values = value.split(',');
+                                    $('#txtJudulVariantTokpedLv2').val(values);
                                     SearchOptVariantTokped(2, values[0], values[1]);
                                 }
                             });
@@ -530,8 +535,8 @@
                                     for (var d = 0; d < len; d++) {
                                         if (FoundValue == "") {
                                             var value = SelectList[d].id;
-                                            var values = value.split('|;|');
-                                            if ($('#txtJudulVariantTokpedLv2').val() == values[0]) {
+                                            //var values = value.split('|;|');
+                                            if ($('#txtJudulVariantTokpedLv2').val() == value) {
                                                 FoundValue = SelectList[d].id;
                                                 attributeSelect[0].selectize.setValue(FoundValue, false);
                                             }
