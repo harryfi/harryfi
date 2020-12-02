@@ -3108,9 +3108,26 @@ namespace MasterOnline.Controllers
             var getSiapKirim = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto  from sot01a(nolock) where status_transaksi='03' and status_kirim ='2'").Single();
             var JumlahSiapkirim = getSiapKirim.COUNT_TRANSAKSI;
             var NilaiSiapkirim = getSiapKirim.bruto;
-            var getBatal = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto  from sot01a(nolock) where status_transaksi='11' ").Single();
+            //change by nurul 1/12/2020, req pak richard hanya 1 bulan terakhir 
+            //var getBatal = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto  from sot01a(nolock) where status_transaksi='11' ").Single();
+            //var JumlahBatal = getBatal.COUNT_TRANSAKSI;
+            //var NilaiBatal = getBatal.bruto;
+            var Drtgl = DateTime.UtcNow.AddHours(7).AddMonths(-1); 
+            var Sdtgl = DateTime.UtcNow.AddHours(7);
+            var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+            var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
+            var getBatal = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto from sot01a(nolock) where status_transaksi='11' and tgl between '" + tempDrtgl + "' and '" + tempSdtgl + "'").Single();
             var JumlahBatal = getBatal.COUNT_TRANSAKSI;
             var NilaiBatal = getBatal.bruto;
+
+            var getPacking = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto from sot01a(nolock) where status_transaksi='02'").Single();
+            var JumlahPacking = getPacking.COUNT_TRANSAKSI;
+            var NilaiPacking = getPacking.bruto;
+
+            var getFaktur = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto from sot01a(nolock) where status_transaksi='03'").Single();
+            var JumlahFaktur = getFaktur.COUNT_TRANSAKSI;
+            var NilaiFaktur = getFaktur.bruto;
+            //end change by nurul 1/12/2020, req pak richard hanya 1 bulan terakhir 
             //end add by nurul 2/12/2019, penambahan dashboard pesanan
 
             //if (dataUsaha.JTRAN_RETUR != "1" && ceklistPesanan.Count() == 0)
@@ -3138,8 +3155,14 @@ namespace MasterOnline.Controllers
                 JumlahPesananSiapKirim = JumlahSiapkirim,
                 NilaiPesananSiapKirim = NilaiSiapkirim,
                 JumlahPesananBatal = JumlahBatal,
-                NilaiPesananBatal = NilaiBatal
+                NilaiPesananBatal = NilaiBatal,
                 //end add by nurul 2/12/2019, penambahan dashboard pesanan
+                //add by nurul 1/12/2020
+                JumlahPesananPacking = JumlahPacking,
+                NilaiPesananPacking = NilaiPacking,
+                JumlahPesananFaktur = JumlahFaktur,
+                NilaiPesananFaktur = NilaiFaktur
+                //end add by nurul 1/12/2020
             };
             return View(vm);
             //}

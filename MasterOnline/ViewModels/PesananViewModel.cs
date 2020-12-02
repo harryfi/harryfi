@@ -56,6 +56,13 @@ namespace MasterOnline.ViewModels
         //add by nurul 5/5/2020
         public string namaMarket { get; set; }
         //end add by nurul 5/5/2020
+
+        //add by nurul 1/12/2020
+        public int? JumlahPesananPacking { get; set; }
+        public double? NilaiPesananPacking { get; set; }
+        public int? JumlahPesananFaktur { get; set; }
+        public double? NilaiPesananFaktur { get; set; }
+        //end add by nurul 1/12/2020
     }
 
     //add by nurul 24/3/2020

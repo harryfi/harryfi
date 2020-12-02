@@ -1571,7 +1571,7 @@
     <div class="col-lg-3 col-md-3 col-xs-12">
         <div class="x_panel">
             <div class="x_title">
-                <h3>Belum Bayar</h3>
+                <h2>Belum Bayar</h2>
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
@@ -1584,14 +1584,14 @@
                     </h3>
                     <small>Jumlah Pesanan</small>
                 </div>
-                <div class="pemisah_info"></div>
-                <br />
-                <div>
-                    <h4 class="no-margins">
-                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananBelumBayar ?? 0)
-                    </h4>
-                    <small>Nilai Pesanan</small>
-                </div>
+                @*<div class="pemisah_info"></div>
+                    <br />
+                    <div>
+                        <h4 class="no-margins">
+                            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananBelumBayar ?? 0)
+                        </h4>
+                        <small>Nilai Pesanan</small>
+                    </div>*@
 
             </div>
         </div>
@@ -1599,7 +1599,7 @@
     <div class="col-lg-3 col-md-3 col-xs-12">
         <div class="x_panel">
             <div class="x_title">
-                <h3>Sudah Bayar</h3>
+                <h2>Sudah Bayar</h2>
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
@@ -1612,14 +1612,14 @@
                     </h3>
                     <small>Jumlah Pesanan</small>
                 </div>
-                <div class="pemisah_info"></div>
-                <br />
-                <div>
-                    <h4 class="no-margins">
-                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananSudahBayar ?? 0)
-                    </h4>
-                    <small>Nilai Pesanan</small>
-                </div>
+                @*<div class="pemisah_info"></div>
+                    <br />
+                    <div>
+                        <h4 class="no-margins">
+                            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananSudahBayar ?? 0)
+                        </h4>
+                        <small>Nilai Pesanan</small>
+                    </div>*@
 
             </div>
         </div>
@@ -1627,7 +1627,7 @@
     <div class="col-lg-3 col-md-3 col-xs-12">
         <div class="x_panel">
             <div class="x_title">
-                <h3>Siap Kirim</h3>
+                <h2>Siap Kirim</h2>
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
@@ -1640,14 +1640,14 @@
                     </h3>
                     <small>Jumlah Pesanan</small>
                 </div>
-                <div class="pemisah_info"></div>
-                <br />
-                <div>
-                    <h4 class="no-margins">
-                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananSiapKirim ?? 0)
-                    </h4>
-                    <small>Nilai Pesanan</small>
-                </div>
+                @*<div class="pemisah_info"></div>
+                    <br />
+                    <div>
+                        <h4 class="no-margins">
+                            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananSiapKirim ?? 0)
+                        </h4>
+                        <small>Nilai Pesanan</small>
+                    </div>*@
 
             </div>
         </div>
@@ -1655,27 +1655,32 @@
     <div class="col-lg-3 col-md-3 col-xs-12">
         <div class="x_panel">
             <div class="x_title">
-                <h3>Batal</h3>
+                <h2>Batal</h2>
+                <div class="nav navbar-right panel_toolbox" style="width:90px !important; ">
+                    <h5><span class="label label-success" style="color:white">1 Bulan Terakhir</span></h5>
+                </div>
                 <div class="clearfix"></div>
             </div>
+
             <div class="x_content">
                 @*<div class="label_waktu">
                         <span class="label label-success date_label">Hari Ini</span>
                     </div>*@
+
                 <div>
                     <h3 class="no-margins">
                         @(Model?.JumlahPesananBatal ?? 0)
                     </h3>
                     <small>Jumlah Pesanan</small>
                 </div>
-                <div class="pemisah_info"></div>
-                <br />
-                <div>
-                    <h4 class="no-margins">
-                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananBatal ?? 0)
-                    </h4>
-                    <small>Nilai Pesanan</small>
-                </div>
+                @*<div class="pemisah_info"></div>
+                    <br />
+                    <div>
+                        <h4 class="no-margins">
+                            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananBatal ?? 0)
+                        </h4>
+                        <small>Nilai Pesanan</small>
+                    </div>*@
 
             </div>
         </div>
@@ -1690,15 +1695,15 @@
                     <a href="#tab_content1" id="pesanan-tab" role="tab" data-toggle="tab" aria-expanded="true">Pesanan</a>
                 </li>
                 <li role="presentation" class="">
-                    <a href="#tab_content2" role="tab" id="nunggu-tab" data-toggle="tab" aria-expanded="false">Sudah Bayar</a>
+                    <a href="#tab_content2" role="tab" id="nunggu-tab" data-toggle="tab" aria-expanded="false">Sudah Bayar <span>(@Model.JumlahPesananSudahBayar)</span></a>
                 </li>
                 <li role="presentation" class="">
                     @*<a href="#tab_content4" role="tab" id="sedangproses-tab" data-toggle="tab" aria-expanded="false">Siap Dikirim</a>*@
-                    <a href="#tab_content4" role="tab" id="sedangproses-tab" data-toggle="tab" aria-expanded="false">Packing</a>
+                    <a href="#tab_content4" role="tab" id="sedangproses-tab" data-toggle="tab" aria-expanded="false">Packing <span>(@Model.JumlahPesananPacking)</span></a>
                 </li>
                 <li role="presentation" class="">
                     @*<a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Sudah Dikirim</a>*@
-                    <a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Faktur</a>
+                    <a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Faktur <span>(@Model.JumlahPesananFaktur)</span></a>
                 </li>
                 <li role="presentation" class="">
                     <a href="#tab_content7" role="tab" id="selesai-tab" data-toggle="tab" aria-expanded="false">Selesai</a>
@@ -1940,6 +1945,10 @@
                         </div>
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                     </div>
+                    @*<div><span id="text-check-dibayar"></span></div>*@
+                    <div class="row">
+                        <label id="text-check-dibayar" style="margin-left:10px;"></label>
+                    </div>
                     <div class="row pesanan_sudah_dibayar_section" style="margin-top: 5px;">
                         @*<div id="loading_sudah_dibayar_tab" class="text-center">
                                 <img src="~/Content/Images/spinner.gif" width="100" />
@@ -2056,6 +2065,10 @@
                             </div>
                         </div>
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
+                    </div>
+                    @*<div><span id="text-check-packing"></span></div>*@
+                    <div class="row">
+                        <label id="text-check-packing" style="margin-left:10px;"></label>
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_siap_kirim_tab" class="text-center">
@@ -4239,7 +4252,7 @@
                             $('#btnUploadExcelPesanan').removeAttr('disabled');
                             setTimeout(popupAlertUploadSaldoAwal, 500);
                         }
-                        
+
 
                         //if (response.countAll != null && response.Errors.length == 0 && response.statusLoop == true && response.statusSuccess == false) {
                         //    $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
@@ -7216,7 +7229,7 @@
                                     text: item.BRG + ' (' + item.NAMA + ' ' + nama2 + ')'
                                 };
                             });
-                        
+
                         $('#BRG').selectivity({
                             allowClear: true,
                             items: listKodeBarang,
@@ -7274,7 +7287,7 @@
                                 hitungUlangdisc2();
                                 refreshNettoBarang('0');
                             } else {
-                                
+
                                 $('#CUSTOMER')[0].selectize.enable();
 
                                 $($trElement + ' .nama-barang').text('-');
@@ -8188,25 +8201,45 @@
                 beforeSend: function () {
                     $('#table-pesanan-sudah-dibayar-partial').hide();
                     $('#loading_pesanan_nunggu_tab').show();
+                    $('#text-check-dibayar').text('');
                 },
                 success: function (response) {
                     $('#table-pesanan-sudah-dibayar-partial').html(response);
 
                     $('#table-pesanan-sudah-dibayar-partial').show();
+
                     $("#checkbox_all_gntstatus_sudahdibayar").click(function () {
                         $(".checkbox_gntstatus_sudahdibayar").prop('checked',
                             $(this).prop('checked'));
+                        var countCheck = $(".checkbox_gntstatus_sudahdibayar").length;
                         if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
                             $(".ubah-dibayar").attr('disabled', 'disabled');
+                            $('#text-check-dibayar').text(countCheck + ' Pesanan terpilih.');
                         } else {
                             $(".ubah-dibayar").removeAttr('disabled');
+                            $('#text-check-dibayar').text('');
                         }
                     });
+
                     $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
                         $(item).off('click').on('click', function () {
                             //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                            var countCheckDetail = 0;
                             if ($(item).prop('checked') == true) {
                                 $(".ubah-dibayar").attr('disabled', 'disabled');
+
+                                var cekTrue = [];
+                                $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                                    if ($(chk).prop('checked') == true) {
+                                        cekTrue.push($(chk).attr("data-rec"));
+                                    }
+                                });
+                                if (cekTrue.length == 0) {
+                                    $('#text-check-dibayar').text('');
+                                } else {
+                                    countCheckDetail = cekTrue.length;
+                                    $('#text-check-dibayar').text(countCheckDetail + ' Pesanan terpilih.');
+                                }
                             } else {
                                 var cekTrue = [];
                                 $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
@@ -8216,6 +8249,10 @@
                                 });
                                 if (cekTrue.length == 0) {
                                     $(".ubah-dibayar").removeAttr('disabled');
+                                    $('#text-check-dibayar').text('');
+                                } else {
+                                    countCheckDetail = cekTrue.length;
+                                    $('#text-check-dibayar').text(countCheckDetail + ' Pesanan terpilih.');
                                 }
                             }
                             //});
@@ -8281,24 +8318,44 @@
                 beforeSend: function () {
                     $('#search_nunggu_click')[0].disabled = true;
                     $('#loading_pesanan_nunggu_tab').show();
+                    $('#text-check-dibayar').text('');
                 },
                 success: function (response) {
                     $('#search_nunggu_click')[0].disabled = false;
                     $('#table-pesanan-sudah-dibayar-partial').html(response);
+
                     $("#checkbox_all_gntstatus_sudahdibayar").click(function () {
                         $(".checkbox_gntstatus_sudahdibayar").prop('checked',
                             $(this).prop('checked'));
+                        var countCheck = $(".checkbox_gntstatus_sudahdibayar").length;
                         if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
                             $(".ubah-dibayar").attr('disabled', 'disabled');
+                            $('#text-check-dibayar').text(countCheck + ' Pesanan terpilih.');
                         } else {
                             $(".ubah-dibayar").removeAttr('disabled');
+                            $('#text-check-dibayar').text('');
                         }
                     });
+
                     $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
                         $(item).off('click').on('click', function () {
                             //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                            var countCheckDetail = 0;
                             if ($(item).prop('checked') == true) {
                                 $(".ubah-dibayar").attr('disabled', 'disabled');
+
+                                var cekTrue = [];
+                                $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                                    if ($(chk).prop('checked') == true) {
+                                        cekTrue.push($(chk).attr("data-rec"));
+                                    }
+                                });
+                                if (cekTrue.length == 0) {
+                                    $('#text-check-dibayar').text('');
+                                } else {
+                                    countCheckDetail = cekTrue.length;
+                                    $('#text-check-dibayar').text(countCheckDetail + ' Pesanan terpilih.');
+                                }
                             } else {
                                 var cekTrue = [];
                                 $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
@@ -8308,11 +8365,16 @@
                                 });
                                 if (cekTrue.length == 0) {
                                     $(".ubah-dibayar").removeAttr('disabled');
+                                    $('#text-check-dibayar').text('');
+                                } else {
+                                    countCheckDetail = cekTrue.length;
+                                    $('#text-check-dibayar').text(countCheckDetail + ' Pesanan terpilih.');
                                 }
                             }
                             //});
                         });
                     });
+
                     //$('.checkbox_all_gntstatus_sudahdibayar').on('click', function () {
                     //    $(this).closest('table').find('tbody :checkbox')
                     //        .prop('checked', this.checked)
@@ -8420,24 +8482,43 @@
                 beforeSend: function () {
                     $('#table-pesanan-siap-kirim-partial').hide();
                     $('#loading_pesanan_packing_tab').show();
+                    $('#text-check-packing').text('');
                 },
                 success: function (response) {
                     $('#table-pesanan-siap-kirim-partial').html(response);
 
                     $('#table-pesanan-siap-kirim-partial').show();
+
                     $("#checkbox_all_gntstatus_packing").click(function () {
                         $(".checkbox_gntstatus_packing").prop('checked',
                             $(this).prop('checked'));
+                        var countCheck = $(".checkbox_gntstatus_packing").length;
                         if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
                             $(".ubah-packing").attr('disabled', 'disabled');
+                            $('#text-check-packing').text(countCheck + ' Pesanan terpilih.');
                         } else {
                             $(".ubah-packing").removeAttr('disabled');
+                            $('#text-check-packing').text('');
                         }
                     });
                     $(".checkbox_gntstatus_packing").each(function (i, item) {
                         $(item).off('click').on('click', function () {
+                            var countCheckDetail = 0;
                             if ($(item).prop('checked') == true) {
                                 $(".ubah-packing").attr('disabled', 'disabled');
+
+                                var cekTrue = [];
+                                $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                                    if ($(chk).prop('checked') == true) {
+                                        cekTrue.push($(chk).attr("data-rec"));
+                                    }
+                                });
+                                if (cekTrue.length == 0) {
+                                    $('#text-check-packing').text('');
+                                } else {
+                                    countCheckDetail = cekTrue.length;
+                                    $('#text-check-packing').text(countCheckDetail + ' Pesanan terpilih.');
+                                }
                             } else {
                                 var cekTrue = [];
                                 $(".checkbox_gntstatus_packing").each(function (z, chk) {
@@ -8447,6 +8528,10 @@
                                 });
                                 if (cekTrue.length == 0) {
                                     $(".ubah-packing").removeAttr('disabled');
+                                    $('#text-check-packing').text('');
+                                } else {
+                                    countCheckDetail = cekTrue.length;
+                                    $('#text-check-packing').text(countCheckDetail + ' Pesanan terpilih.');
                                 }
                             }
                         });
@@ -8499,23 +8584,42 @@
                 beforeSend: function () {
                     $('#search_packing_click')[0].disabled = true;
                     $('#loading_pesanan_packing_tab').show();
+                    $('#text-check-packing').text('');
                 },
                 success: function (response) {
                     $('#search_packing_click')[0].disabled = false;
                     $('#table-pesanan-siap-kirim-partial').html(response);
+
                     $("#checkbox_all_gntstatus_packing").click(function () {
                         $(".checkbox_gntstatus_packing").prop('checked',
                             $(this).prop('checked'));
+                        var countCheck = $(".checkbox_gntstatus_packing").length;
                         if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
                             $(".ubah-packing").attr('disabled', 'disabled');
+                            $('#text-check-packing').text(countCheck + ' Pesanan terpilih.');
                         } else {
                             $(".ubah-packing").removeAttr('disabled');
+                            $('#text-check-packing').text('');
                         }
                     });
                     $(".checkbox_gntstatus_packing").each(function (i, item) {
                         $(item).off('click').on('click', function () {
+                            var countCheckDetail = 0;
                             if ($(item).prop('checked') == true) {
                                 $(".ubah-packing").attr('disabled', 'disabled');
+
+                                var cekTrue = [];
+                                $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                                    if ($(chk).prop('checked') == true) {
+                                        cekTrue.push($(chk).attr("data-rec"));
+                                    }
+                                });
+                                if (cekTrue.length == 0) {
+                                    $('#text-check-packing').text('');
+                                } else {
+                                    countCheckDetail = cekTrue.length;
+                                    $('#text-check-packing').text(countCheckDetail + ' Pesanan terpilih.');
+                                }
                             } else {
                                 var cekTrue = [];
                                 $(".checkbox_gntstatus_packing").each(function (z, chk) {
@@ -8525,6 +8629,10 @@
                                 });
                                 if (cekTrue.length == 0) {
                                     $(".ubah-packing").removeAttr('disabled');
+                                    $('#text-check-packing').text('');
+                                } else {
+                                    countCheckDetail = cekTrue.length;
+                                    $('#text-check-packing').text(countCheckDetail + ' Pesanan terpilih.');
                                 }
                             }
                         });
@@ -11647,7 +11755,7 @@
                                 if (value != null) {
                                     $('#multisku-kode').text(value);
                                     $("#PesananDetail_BRG_MULTISKU").val(value).trigger('change');
-                                    
+
                                     if ($objSup[0] != null) {
                                         $('#BRG').selectivity('value', $objSup[0].acuan);
                                     }
