@@ -187,7 +187,7 @@
             if (this.href != "") {
                 //add by nurul 4/12/2019
                 var filterby = get_pesanan_cancel_filterby();
-                var filtervalue = get_pesanan_dibayar_filtervalue(filterby);
+                var filtervalue = get_pesanan_cancel_filtervalue(filterby);
                 var link = this.href;
                 link += "&filter=replaceFilter&filtervalue=replaceValueFilter";
                 link = link.replace("replaceFilter", encodeURIComponent(filterby));

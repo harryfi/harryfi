@@ -1692,7 +1692,7 @@
         <div class="" role="tabpanel" data-example-id="togglable-tabs">
             <ul id="myTab" class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
-                    <a href="#tab_content1" id="pesanan-tab" role="tab" data-toggle="tab" aria-expanded="true">Pesanan</a>
+                    <a href="#tab_content1" id="pesanan-tab" role="tab" data-toggle="tab" aria-expanded="true">Semua Pesanan</a>
                 </li>
                 <li role="presentation" class="">
                     <a href="#tab_content2" role="tab" id="nunggu-tab" data-toggle="tab" aria-expanded="false">Sudah Bayar <span>(@Model.JumlahPesananSudahBayar)</span></a>
@@ -2178,6 +2178,9 @@
                                 </select>
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
+                        <label id="text-check-faktur" style="margin-left:10px;"></label>
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_sudah_kirim_tab" class="text-center">
@@ -4483,32 +4486,32 @@
             //end add by nurul 12/2/2019
 
             //add by nurul 19/3/2019
-            $("#checkbox_all_gntstatus_sudahdibayar").click(function () {
-                $(".checkbox_gntstatus_sudahdibayar").prop('checked',
-                    $(this).prop('checked'));
-                if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
-                    $(".ubah-dibayar").attr('disabled', 'disabled');
-                } else {
-                    $(".ubah-dibayar").removeAttr('disabled');
-                }
-            });
-            $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
-                $(item).off('click').on('click', function () {
-                    if ($(item).prop('checked') == true) {
-                        $(".ubah-dibayar").attr('disabled', 'disabled');
-                    } else {
-                        var cekTrue = [];
-                        $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
-                            if ($(chk).prop('checked') == true) {
-                                cekTrue.push($(chk).attr("data-rec"));
-                            }
-                        });
-                        if (cekTrue.length == 0) {
-                            $(".ubah-dibayar").removeAttr('disabled');
-                        }
-                    }
-                });
-            });
+            //$("#checkbox_all_gntstatus_sudahdibayar").click(function () {
+            //    $(".checkbox_gntstatus_sudahdibayar").prop('checked',
+            //        $(this).prop('checked'));
+            //    if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
+            //        $(".ubah-dibayar").attr('disabled', 'disabled');
+            //    } else {
+            //        $(".ubah-dibayar").removeAttr('disabled');
+            //    }
+            //});
+            //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+            //    $(item).off('click').on('click', function () {
+            //        if ($(item).prop('checked') == true) {
+            //            $(".ubah-dibayar").attr('disabled', 'disabled');
+            //        } else {
+            //            var cekTrue = [];
+            //            $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+            //                if ($(chk).prop('checked') == true) {
+            //                    cekTrue.push($(chk).attr("data-rec"));
+            //                }
+            //            });
+            //            if (cekTrue.length == 0) {
+            //                $(".ubah-dibayar").removeAttr('disabled');
+            //            }
+            //        }
+            //    });
+            //});
             //$('.checkbox_all_gntstatus_sudahdibayar').on('click', function () {
             //    $(this).closest('table').find('tbody :checkbox')
             //        .prop('checked', this.checked)
@@ -4520,58 +4523,58 @@
 
             //    $(this).closest('table').find('.checkbox_all_gntstatus_sudahdibayar').prop('checked', ($(this).closest('table').find('tbody :checkbox:checked').length == $(this).closest('table').find('tbody :checkbox').length)); //Tira / coloca a seleção no .checkAll
             //});
-            $("#checkbox_all_gntstatus_packing").click(function () {
-                $(".checkbox_gntstatus_packing").prop('checked',
-                    $(this).prop('checked'));
-                if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
-                    $(".ubah-packing").attr('disabled', 'disabled');
-                } else {
-                    $(".ubah-packing").removeAttr('disabled');
-                }
-            });
-            $(".checkbox_gntstatus_packing").each(function (i, item) {
-                $(item).off('click').on('click', function () {
-                    if ($(item).prop('checked') == true) {
-                        $(".ubah-packing").attr('disabled', 'disabled');
-                    } else {
-                        var cekTrue = [];
-                        $(".checkbox_gntstatus_packing").each(function (z, chk) {
-                            if ($(chk).prop('checked') == true) {
-                                cekTrue.push($(chk).attr("data-rec"));
-                            }
-                        });
-                        if (cekTrue.length == 0) {
-                            $(".ubah-packing").removeAttr('disabled');
-                        }
-                    }
-                });
-            });
-            $("#checkbox_all_generateFaktur").click(function () {
-                $(".checkbox_generateFaktur").prop('checked',
-                    $(this).prop('checked'));
-                if ($("#checkbox_all_generateFaktur").prop('checked') == true) {
-                    //$(".buat_faktur").attr('disabled', 'disabled');
-                } else {
-                    //$(".buat_faktur").removeAttr('disabled');
-                }
-            });
-            $(".checkbox_generateFaktur").each(function (i, item) {
-                $(item).off('click').on('click', function () {
-                    if ($(item).prop('checked') == true) {
-                        //$(".buat_faktur").attr('disabled', 'disabled');
-                    } else {
-                        var cekTrue = [];
-                        $(".checkbox_generateFaktur").each(function (z, chk) {
-                            if ($(chk).prop('checked') == true) {
-                                cekTrue.push($(chk).attr("data-recnum"));
-                            }
-                        });
-                        if (cekTrue.length == 0) {
-                            //$(".buat_faktur").removeAttr('disabled');
-                        }
-                    }
-                });
-            });
+            //$("#checkbox_all_gntstatus_packing").click(function () {
+            //    $(".checkbox_gntstatus_packing").prop('checked',
+            //        $(this).prop('checked'));
+            //    if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
+            //        $(".ubah-packing").attr('disabled', 'disabled');
+            //    } else {
+            //        $(".ubah-packing").removeAttr('disabled');
+            //    }
+            //});
+            //$(".checkbox_gntstatus_packing").each(function (i, item) {
+            //    $(item).off('click').on('click', function () {
+            //        if ($(item).prop('checked') == true) {
+            //            $(".ubah-packing").attr('disabled', 'disabled');
+            //        } else {
+            //            var cekTrue = [];
+            //            $(".checkbox_gntstatus_packing").each(function (z, chk) {
+            //                if ($(chk).prop('checked') == true) {
+            //                    cekTrue.push($(chk).attr("data-rec"));
+            //                }
+            //            });
+            //            if (cekTrue.length == 0) {
+            //                $(".ubah-packing").removeAttr('disabled');
+            //            }
+            //        }
+            //    });
+            //});
+            //$("#checkbox_all_generateFaktur").click(function () {
+            //    $(".checkbox_generateFaktur").prop('checked',
+            //        $(this).prop('checked'));
+            //    if ($("#checkbox_all_generateFaktur").prop('checked') == true) {
+            //        //$(".buat_faktur").attr('disabled', 'disabled');
+            //    } else {
+            //        //$(".buat_faktur").removeAttr('disabled');
+            //    }
+            //});
+            //$(".checkbox_generateFaktur").each(function (i, item) {
+            //    $(item).off('click').on('click', function () {
+            //        if ($(item).prop('checked') == true) {
+            //            //$(".buat_faktur").attr('disabled', 'disabled');
+            //        } else {
+            //            var cekTrue = [];
+            //            $(".checkbox_generateFaktur").each(function (z, chk) {
+            //                if ($(chk).prop('checked') == true) {
+            //                    cekTrue.push($(chk).attr("data-recnum"));
+            //                }
+            //            });
+            //            if (cekTrue.length == 0) {
+            //                //$(".buat_faktur").removeAttr('disabled');
+            //            }
+            //        }
+            //    });
+            //});
 
             //end add by nurul 19/3/2019
 
@@ -8208,56 +8211,56 @@
 
                     $('#table-pesanan-sudah-dibayar-partial').show();
 
-                    $("#checkbox_all_gntstatus_sudahdibayar").click(function () {
-                        $(".checkbox_gntstatus_sudahdibayar").prop('checked',
-                            $(this).prop('checked'));
-                        var countCheck = $(".checkbox_gntstatus_sudahdibayar").length;
-                        if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
-                            $(".ubah-dibayar").attr('disabled', 'disabled');
-                            $('#text-check-dibayar').text(countCheck + ' Pesanan terpilih.');
-                        } else {
-                            $(".ubah-dibayar").removeAttr('disabled');
-                            $('#text-check-dibayar').text('');
-                        }
-                    });
+                    //$("#checkbox_all_gntstatus_sudahdibayar").click(function () {
+                    //    $(".checkbox_gntstatus_sudahdibayar").prop('checked',
+                    //        $(this).prop('checked'));
+                    //    var countCheck = $(".checkbox_gntstatus_sudahdibayar").length;
+                    //    if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
+                    //        $(".ubah-dibayar").attr('disabled', 'disabled');
+                    //        $('#text-check-dibayar').text(countCheck + ' Pesanan Terpilih');
+                    //    } else {
+                    //        $(".ubah-dibayar").removeAttr('disabled');
+                    //        $('#text-check-dibayar').text('');
+                    //    }
+                    //});
 
-                    $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
-                        $(item).off('click').on('click', function () {
-                            //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
-                            var countCheckDetail = 0;
-                            if ($(item).prop('checked') == true) {
-                                $(".ubah-dibayar").attr('disabled', 'disabled');
+                    //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                    //    $(item).off('click').on('click', function () {
+                    //        //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                    //        var countCheckDetail = 0;
+                    //        if ($(item).prop('checked') == true) {
+                    //            $(".ubah-dibayar").attr('disabled', 'disabled');
 
-                                var cekTrue = [];
-                                $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-rec"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    $('#text-check-dibayar').text('');
-                                } else {
-                                    countCheckDetail = cekTrue.length;
-                                    $('#text-check-dibayar').text(countCheckDetail + ' Pesanan terpilih.');
-                                }
-                            } else {
-                                var cekTrue = [];
-                                $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-rec"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    $(".ubah-dibayar").removeAttr('disabled');
-                                    $('#text-check-dibayar').text('');
-                                } else {
-                                    countCheckDetail = cekTrue.length;
-                                    $('#text-check-dibayar').text(countCheckDetail + ' Pesanan terpilih.');
-                                }
-                            }
-                            //});
-                        });
-                    });
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $('#text-check-dibayar').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-dibayar').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        } else {
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $(".ubah-dibayar").removeAttr('disabled');
+                    //                $('#text-check-dibayar').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-dibayar').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        }
+                    //        //});
+                    //    });
+                    //});
                     //$('.checkbox_all_gntstatus_sudahdibayar').on('click', function () {
                     //    $(this).closest('table').find('tbody :checkbox')
                     //        .prop('checked', this.checked)
@@ -8324,56 +8327,56 @@
                     $('#search_nunggu_click')[0].disabled = false;
                     $('#table-pesanan-sudah-dibayar-partial').html(response);
 
-                    $("#checkbox_all_gntstatus_sudahdibayar").click(function () {
-                        $(".checkbox_gntstatus_sudahdibayar").prop('checked',
-                            $(this).prop('checked'));
-                        var countCheck = $(".checkbox_gntstatus_sudahdibayar").length;
-                        if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
-                            $(".ubah-dibayar").attr('disabled', 'disabled');
-                            $('#text-check-dibayar').text(countCheck + ' Pesanan terpilih.');
-                        } else {
-                            $(".ubah-dibayar").removeAttr('disabled');
-                            $('#text-check-dibayar').text('');
-                        }
-                    });
+                    //$("#checkbox_all_gntstatus_sudahdibayar").click(function () {
+                    //    $(".checkbox_gntstatus_sudahdibayar").prop('checked',
+                    //        $(this).prop('checked'));
+                    //    var countCheck = $(".checkbox_gntstatus_sudahdibayar").length;
+                    //    if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
+                    //        $(".ubah-dibayar").attr('disabled', 'disabled');
+                    //        $('#text-check-dibayar').text(countCheck + ' Pesanan Terpilih');
+                    //    } else {
+                    //        $(".ubah-dibayar").removeAttr('disabled');
+                    //        $('#text-check-dibayar').text('');
+                    //    }
+                    //});
 
-                    $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
-                        $(item).off('click').on('click', function () {
-                            //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
-                            var countCheckDetail = 0;
-                            if ($(item).prop('checked') == true) {
-                                $(".ubah-dibayar").attr('disabled', 'disabled');
+                    //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                    //    $(item).off('click').on('click', function () {
+                    //        //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                    //        var countCheckDetail = 0;
+                    //        if ($(item).prop('checked') == true) {
+                    //            $(".ubah-dibayar").attr('disabled', 'disabled');
 
-                                var cekTrue = [];
-                                $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-rec"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    $('#text-check-dibayar').text('');
-                                } else {
-                                    countCheckDetail = cekTrue.length;
-                                    $('#text-check-dibayar').text(countCheckDetail + ' Pesanan terpilih.');
-                                }
-                            } else {
-                                var cekTrue = [];
-                                $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-rec"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    $(".ubah-dibayar").removeAttr('disabled');
-                                    $('#text-check-dibayar').text('');
-                                } else {
-                                    countCheckDetail = cekTrue.length;
-                                    $('#text-check-dibayar').text(countCheckDetail + ' Pesanan terpilih.');
-                                }
-                            }
-                            //});
-                        });
-                    });
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $('#text-check-dibayar').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-dibayar').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        } else {
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $(".ubah-dibayar").removeAttr('disabled');
+                    //                $('#text-check-dibayar').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-dibayar').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        }
+                    //        //});
+                    //    });
+                    //});
 
                     //$('.checkbox_all_gntstatus_sudahdibayar').on('click', function () {
                     //    $(this).closest('table').find('tbody :checkbox')
@@ -8489,53 +8492,53 @@
 
                     $('#table-pesanan-siap-kirim-partial').show();
 
-                    $("#checkbox_all_gntstatus_packing").click(function () {
-                        $(".checkbox_gntstatus_packing").prop('checked',
-                            $(this).prop('checked'));
-                        var countCheck = $(".checkbox_gntstatus_packing").length;
-                        if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
-                            $(".ubah-packing").attr('disabled', 'disabled');
-                            $('#text-check-packing').text(countCheck + ' Pesanan terpilih.');
-                        } else {
-                            $(".ubah-packing").removeAttr('disabled');
-                            $('#text-check-packing').text('');
-                        }
-                    });
-                    $(".checkbox_gntstatus_packing").each(function (i, item) {
-                        $(item).off('click').on('click', function () {
-                            var countCheckDetail = 0;
-                            if ($(item).prop('checked') == true) {
-                                $(".ubah-packing").attr('disabled', 'disabled');
+                    //$("#checkbox_all_gntstatus_packing").click(function () {
+                    //    $(".checkbox_gntstatus_packing").prop('checked',
+                    //        $(this).prop('checked'));
+                    //    var countCheck = $(".checkbox_gntstatus_packing").length;
+                    //    if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
+                    //        $(".ubah-packing").attr('disabled', 'disabled');
+                    //        $('#text-check-packing').text(countCheck + ' Pesanan Terpilih');
+                    //    } else {
+                    //        $(".ubah-packing").removeAttr('disabled');
+                    //        $('#text-check-packing').text('');
+                    //    }
+                    //});
+                    //$(".checkbox_gntstatus_packing").each(function (i, item) {
+                    //    $(item).off('click').on('click', function () {
+                    //        var countCheckDetail = 0;
+                    //        if ($(item).prop('checked') == true) {
+                    //            $(".ubah-packing").attr('disabled', 'disabled');
 
-                                var cekTrue = [];
-                                $(".checkbox_gntstatus_packing").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-rec"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    $('#text-check-packing').text('');
-                                } else {
-                                    countCheckDetail = cekTrue.length;
-                                    $('#text-check-packing').text(countCheckDetail + ' Pesanan terpilih.');
-                                }
-                            } else {
-                                var cekTrue = [];
-                                $(".checkbox_gntstatus_packing").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-rec"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    $(".ubah-packing").removeAttr('disabled');
-                                    $('#text-check-packing').text('');
-                                } else {
-                                    countCheckDetail = cekTrue.length;
-                                    $('#text-check-packing').text(countCheckDetail + ' Pesanan terpilih.');
-                                }
-                            }
-                        });
-                    });
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $('#text-check-packing').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-packing').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        } else {
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $(".ubah-packing").removeAttr('disabled');
+                    //                $('#text-check-packing').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-packing').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        }
+                    //    });
+                    //});
                     $('#loading_pesanan_packing_tab').hide();
                 },
                 error: function (xhr, status, error) {
@@ -8590,53 +8593,53 @@
                     $('#search_packing_click')[0].disabled = false;
                     $('#table-pesanan-siap-kirim-partial').html(response);
 
-                    $("#checkbox_all_gntstatus_packing").click(function () {
-                        $(".checkbox_gntstatus_packing").prop('checked',
-                            $(this).prop('checked'));
-                        var countCheck = $(".checkbox_gntstatus_packing").length;
-                        if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
-                            $(".ubah-packing").attr('disabled', 'disabled');
-                            $('#text-check-packing').text(countCheck + ' Pesanan terpilih.');
-                        } else {
-                            $(".ubah-packing").removeAttr('disabled');
-                            $('#text-check-packing').text('');
-                        }
-                    });
-                    $(".checkbox_gntstatus_packing").each(function (i, item) {
-                        $(item).off('click').on('click', function () {
-                            var countCheckDetail = 0;
-                            if ($(item).prop('checked') == true) {
-                                $(".ubah-packing").attr('disabled', 'disabled');
+                    //$("#checkbox_all_gntstatus_packing").click(function () {
+                    //    $(".checkbox_gntstatus_packing").prop('checked',
+                    //        $(this).prop('checked'));
+                    //    var countCheck = $(".checkbox_gntstatus_packing").length;
+                    //    if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
+                    //        $(".ubah-packing").attr('disabled', 'disabled');
+                    //        $('#text-check-packing').text(countCheck + ' Pesanan Terpilih');
+                    //    } else {
+                    //        $(".ubah-packing").removeAttr('disabled');
+                    //        $('#text-check-packing').text('');
+                    //    }
+                    //});
+                    //$(".checkbox_gntstatus_packing").each(function (i, item) {
+                    //    $(item).off('click').on('click', function () {
+                    //        var countCheckDetail = 0;
+                    //        if ($(item).prop('checked') == true) {
+                    //            $(".ubah-packing").attr('disabled', 'disabled');
 
-                                var cekTrue = [];
-                                $(".checkbox_gntstatus_packing").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-rec"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    $('#text-check-packing').text('');
-                                } else {
-                                    countCheckDetail = cekTrue.length;
-                                    $('#text-check-packing').text(countCheckDetail + ' Pesanan terpilih.');
-                                }
-                            } else {
-                                var cekTrue = [];
-                                $(".checkbox_gntstatus_packing").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-rec"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    $(".ubah-packing").removeAttr('disabled');
-                                    $('#text-check-packing').text('');
-                                } else {
-                                    countCheckDetail = cekTrue.length;
-                                    $('#text-check-packing').text(countCheckDetail + ' Pesanan terpilih.');
-                                }
-                            }
-                        });
-                    });
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $('#text-check-packing').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-packing').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        } else {
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $(".ubah-packing").removeAttr('disabled');
+                    //                $('#text-check-packing').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-packing').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        }
+                    //    });
+                    //});
                     $('#loading_pesanan_packing_tab').hide();
                 },
                 error: function (xhr, status, error) {
@@ -8708,64 +8711,86 @@
                 beforeSend: function () {
                     $('#table-pesanan-sudah-kirim-partial').hide();
                     $('#loading_pesanan_invoicing_tab').show();
+                    $('#text-check-faktur').text('');
                 },
                 success: function (response) {
                     $('#table-pesanan-sudah-kirim-partial').html(response);
 
                     $('#table-pesanan-sudah-kirim-partial').show();
-                    $("#checkbox_all_generateFaktur").click(function () {
-                        $(".checkbox_generateFaktur").prop('checked',
-                            $(this).prop('checked'));
-                        if ($("#checkbox_all_generateFaktur").prop('checked') == true) {
-                            //$(".buat_faktur").attr('disabled', 'disabled');
-                        } else {
-                            //$(".buat_faktur").removeAttr('disabled');
-                        }
-                    });
-                    $(".checkbox_generateFaktur").each(function (i, item) {
-                        $(item).off('click').on('click', function () {
-                            if ($(item).prop('checked') == true) {
-                                //$(".buat_faktur").attr('disabled', 'disabled');
-                            } else {
-                                var cekTrue = [];
-                                $(".checkbox_generateFaktur").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-recnum"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    //$(".buat_faktur").removeAttr('disabled');
-                                }
-                            }
-                        });
-                    });
+                    //$("#checkbox_all_generateFaktur").click(function () {
+                    //    $(".checkbox_generateFaktur").prop('checked',
+                    //        $(this).prop('checked'));
+                    //    var countCheck = $(".checkbox_gntstatus_packing").length;
+                    //    if ($("#checkbox_all_generateFaktur").prop('checked') == true) {
+                    //        //$(".buat_faktur").attr('disabled', 'disabled');
+                    //        $('#text-check-faktur').text(countCheck + ' Pesanan Terpilih');
+                    //    } else {
+                    //        //$(".buat_faktur").removeAttr('disabled');
+                    //        $('#text-check-faktur').text('');
+                    //    }
+                    //});
+                    //$(".checkbox_generateFaktur").each(function (i, item) {
+                    //    $(item).off('click').on('click', function () {
+                    //        var countCheckDetail = 0;
+                    //        if ($(item).prop('checked') == true) {
+                    //            //$(".buat_faktur").attr('disabled', 'disabled');
+
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $('#text-check-faktur').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-faktur').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        } else {
+                    //            var cekTrue = [];
+                    //            $(".checkbox_generateFaktur").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-recnum"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                //$(".buat_faktur").removeAttr('disabled');
+                    //                $('#text-check-faktur').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-faktur').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        }
+                    //    });
+                    //});
                     //add by calvin 29 nov 2019
-                    $("#all_checkbox_pesanan_faktur").click(function () {
-                        $(".checkbox_pesanan_faktur").prop('checked',
-                            $(this).prop('checked'));
-                        if ($("#all_checkbox_pesanan_faktur").prop('checked') == true) {
-                            $(".buat_faktur").attr('disabled', 'disabled');
-                        } else {
-                            $(".buat_faktur").removeAttr('disabled');
-                        }
-                    });
-                    $(".checkbox_pesanan_faktur").each(function (i, item) {
-                        $(item).off('click').on('click', function () {
-                            if ($(item).prop('checked') == true) {
-                                $(".buat_faktur").attr('disabled', 'disabled');
-                            } else {
-                                var cekTrue = [];
-                                $(".checkbox_pesanan_faktur").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-recnum"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    $(".buat_faktur").removeAttr('disabled');
-                                }
-                            }
-                        });
-                    });
+                    //$("#all_checkbox_pesanan_faktur").click(function () {
+                    //    $(".checkbox_pesanan_faktur").prop('checked',
+                    //        $(this).prop('checked'));
+                    //    if ($("#all_checkbox_pesanan_faktur").prop('checked') == true) {
+                    //        $(".buat_faktur").attr('disabled', 'disabled');
+                    //    } else {
+                    //        $(".buat_faktur").removeAttr('disabled');
+                    //    }
+                    //});
+                    //$(".checkbox_pesanan_faktur").each(function (i, item) {
+                    //    $(item).off('click').on('click', function () {
+                    //        if ($(item).prop('checked') == true) {
+                    //            $(".buat_faktur").attr('disabled', 'disabled');
+                    //        } else {
+                    //            var cekTrue = [];
+                    //            $(".checkbox_pesanan_faktur").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-recnum"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $(".buat_faktur").removeAttr('disabled');
+                    //            }
+                    //        }
+                    //    });
+                    //});
                     //end add by calvin 29 nov 2019
 
                     $('#loading_pesanan_invoicing_tab').hide();
