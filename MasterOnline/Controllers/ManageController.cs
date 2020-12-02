@@ -60476,29 +60476,36 @@ namespace MasterOnline.Controllers
                                 //transaction.Commit();
 
                                 //hitung ulang bruto,netto
-                                string sSQL = "UPDATE C SET BRUTO = QRY.NILAI, NETTO = (QRY.NILAI + C.MATERAI - C.DISCOUNT) FROM SIT01A C (nolock) INNER JOIN ( ";
-                                sSQL += "SELECT A.NO_BUKTI, SUM(B.HARGA) NILAI ";
-                                sSQL += "FROM SIT01A A(nolock) INNER JOIN SIT01B B(nolock) ON A.NO_BUKTI = B.NO_BUKTI ";
-                                sSQL += "GROUP BY A.NO_BUKTI ";
-                                sSQL += ") QRY ON C.NO_BUKTI = QRY.NO_BUKTI ";
-                                sSQL += "WHERE C.NO_BUKTI IN (";
-                                foreach (var faktur in newFakturs)
-                                {
-                                    sSQL += "'" + faktur.NO_BUKTI + "' , ";
-                                }
-                                sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
+                                //string sSQL = "UPDATE C SET BRUTO = QRY.NILAI, NETTO = (QRY.NILAI + C.MATERAI - C.DISCOUNT) FROM SIT01A C (nolock) INNER JOIN ( ";
+                                //sSQL += "SELECT A.NO_BUKTI, SUM(B.HARGA) NILAI ";
+                                //sSQL += "FROM SIT01A A(nolock) INNER JOIN SIT01B B(nolock) ON A.NO_BUKTI = B.NO_BUKTI ";
+                                //sSQL += "GROUP BY A.NO_BUKTI ";
+                                //sSQL += ") QRY ON C.NO_BUKTI = QRY.NO_BUKTI ";
+                                //sSQL += "WHERE C.NO_BUKTI IN (";
+                                //foreach (var faktur in newFakturs)
+                                //{
+                                //    sSQL += "'" + faktur.NO_BUKTI + "' , ";
+                                //}
+                                //sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
 
-                                var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                                //var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                                 //end hitung ulang bruto,netto
 
                                 //update status transaksi pesanan 
-                                if (listRecnumEnd != "")
-                                {
-                                    string sSQLStatus = "UPDATE A SET STATUS_TRANSAKSI = '03' , status_kirim = (CASE WHEN ISNULL(A.status_kirim,'')<>'2' THEN '0' ELSE A.status_kirim END) " +
-                                                        "FROM SOT01A A (NOLOCK) INNER JOIN SIT01A B (NOLOCK) ON A.NO_BUKTI=B.NO_SO WHERE A.RECNUM IN (" + listRecnumEnd + ")";
-                                    var resultUpdateStatusSO = EDB.ExecuteSQL("CString", CommandType.Text, sSQLStatus);
-                                }
+                                //if (listRecnumEnd != "")
+                                //{
+                                //    string sSQLStatus = "UPDATE A SET STATUS_TRANSAKSI = '03' , status_kirim = (CASE WHEN ISNULL(A.status_kirim,'')<>'2' THEN '0' ELSE A.status_kirim END) " +
+                                //                        "FROM SOT01A A (NOLOCK) INNER JOIN SIT01A B (NOLOCK) ON A.NO_BUKTI=B.NO_SO WHERE A.RECNUM IN (" + listRecnumEnd + ")";
+                                //    var resultUpdateStatusSO = EDB.ExecuteSQL("CString", CommandType.Text, sSQLStatus);
+                                //}
                                 //end update status transaksi pesanan
+                                var listNobukFaktur = "";
+                                foreach (var faktur in newFakturs)
+                                {
+                                    listNobukFaktur += "'" + faktur.NO_BUKTI + "' , ";
+                                }
+                                listNobukFaktur = listNobukFaktur.Substring(0, listNobukFaktur.Length - 2);
+                                Task.Run(() => UpdateBrutoPackingTransactionVersi2(listNobukFaktur, listRecnumEnd).Wait());
                             }
                             catch (Exception ex)
                             {
@@ -60602,6 +60609,33 @@ namespace MasterOnline.Controllers
                 return new JsonResult { Data = new { error_packing_list = true }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             return new JsonResult { Data = new { error_packing_list = false, listError, successCount = successCount, packingNo = packingNo, need_approval = 0 }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+
+        public async Task<ActionResult> UpdateBrutoPackingTransactionVersi2(string listFaktur, string listRecnumPesanan)
+        {
+            if(listFaktur != "" && listFaktur != "''")
+            {
+                string sSQL = "UPDATE C SET BRUTO = QRY.NILAI, NETTO = (QRY.NILAI + C.MATERAI - C.DISCOUNT) FROM SIT01A C (nolock) INNER JOIN ( ";
+                sSQL += "SELECT A.NO_BUKTI, SUM(B.HARGA) NILAI ";
+                sSQL += "FROM SIT01A A(nolock) INNER JOIN SIT01B B(nolock) ON A.NO_BUKTI = B.NO_BUKTI ";
+                sSQL += "GROUP BY A.NO_BUKTI ";
+                sSQL += ") QRY ON C.NO_BUKTI = QRY.NO_BUKTI ";
+                sSQL += "WHERE C.NO_BUKTI IN (" + listFaktur + ")";
+                //foreach (var faktur in newFakturs)
+                //{
+                //    sSQL += "'" + faktur.NO_BUKTI + "' , ";
+                //}
+                //sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
+
+                var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+            }
+            if(listRecnumPesanan != "" && listRecnumPesanan != "''")
+            {
+                string sSQLStatus = "UPDATE A SET STATUS_TRANSAKSI = '03' , status_kirim = (CASE WHEN ISNULL(A.status_kirim,'')<>'2' THEN '0' ELSE A.status_kirim END) " +
+                                    "FROM SOT01A A (NOLOCK) INNER JOIN SIT01A B (NOLOCK) ON A.NO_BUKTI=B.NO_SO WHERE A.RECNUM IN (" + listRecnumPesanan + ")";
+                var resultUpdateStatusSO = EDB.ExecuteSQL("CString", CommandType.Text, sSQLStatus);
+            }
+            return new EmptyResult();
         }
         //end add by nurul 21/11/2020
     }
