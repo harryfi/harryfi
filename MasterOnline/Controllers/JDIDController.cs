@@ -667,19 +667,22 @@ namespace MasterOnline.Controllers
                             retAttr.CATEGORY_CODE = catId;
                             foreach (var attr in listAttr.model)
                             {
-                                
+
                                 //a = Convert.ToString(i + 1);
                                 //retAttr["ACODE_" + a] = Convert.ToString(attr.propertyId);
                                 //retAttr["AVALUE_" + a] = attr.type.ToString();
                                 //retAttr["ANAME_" + a] = attr.nameEn;
                                 //i = i + 1;
-                                if (!attr.name.Contains("Coming Soon") && !attr.name.Contains("Warna") && !attr.name.Contains("Ukuran"))
+                                if (!string.IsNullOrEmpty(attr.name) && !string.IsNullOrEmpty(Convert.ToString(attr.propertyId)))
                                 {
-                                    a = Convert.ToString(i + 1);
-                                    retAttr["ACODE_" + a] = Convert.ToString(attr.propertyId);
-                                    retAttr["AVALUE_" + a] = attr.type.ToString();
-                                    retAttr["ANAME_" + a] = attr.nameEn;
-                                    i = i + 1;
+                                    if (!attr.name.Contains("Coming Soon") && !attr.name.Contains("Warna") && !attr.name.Contains("Ukuran"))
+                                    {
+                                        a = Convert.ToString(i + 1);
+                                        retAttr["ACODE_" + a] = Convert.ToString(attr.propertyId) ?? "";
+                                        retAttr["AVALUE_" + a] = attr.type.ToString() ?? "";
+                                        retAttr["ANAME_" + a] = attr.nameEn ?? "";
+                                        i = i + 1;
+                                    }
                                 }
                             }
                             for (int j = i; j < 20; j++)
