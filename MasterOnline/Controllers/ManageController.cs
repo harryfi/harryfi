@@ -13016,6 +13016,12 @@ namespace MasterOnline.Controllers
             }
             //end add by calvin 25 april 2019
 
+            //add by Tri 3 Des 2020, hapus que blibli
+            string sSQL = "delete c from api_log_marketplace a inner join QUEUE_FEED_BLIBLI c on a.request_id = c.LOG_REQUEST_ID ";
+            sSQL += "where marketplace = 'blibli' and a.request_action = 'Create Product' and c.status = 1 and a.request_attribute_1 = '"+barangId+"'";
+            EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+            //end add by Tri 3 Des 2020, hapus que blibli
+
             ErasoftDbContext.STF02.Remove(barangInDb);
             ErasoftDbContext.SaveChanges();
 
