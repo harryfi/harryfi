@@ -486,6 +486,7 @@
                                 onChange: function (value) {
                                     //var values = value.split('|;|');
                                     //$('#txtJudulVariantTokpedLv1').val(values[0]);
+                                    $('#save_map_var_tokped').removeAttr('disabled');
                                     var values = value.split(',');
                                     $('#txtJudulVariantTokpedLv1').val(values);
                                     SearchOptVariantTokped(1, values[0], values[1]);
@@ -520,6 +521,7 @@
                                 onChange: function (value) {
                                     //var values = value.split('|;|');
                                     //$('#txtJudulVariantTokpedLv2').val(values[0]);
+                                    $('#save_map_var_tokped').removeAttr('disabled');
                                     var values = value.split(',');
                                     $('#txtJudulVariantTokpedLv2').val(values);
                                     SearchOptVariantTokped(2, values[0], values[1]);

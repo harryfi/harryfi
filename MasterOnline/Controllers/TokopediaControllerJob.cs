@@ -756,9 +756,24 @@ namespace MasterOnline.Controllers
                     #region variant lv 1
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 1).Count() > 0)
                     {
-                        int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR);
-                        int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
-                        int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        //int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR);
+                        //int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
+                        //int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        var variant_idText = var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR;
+                        int variant_id = 0;
+                        int unit_id = 0;
+                        var sVariant_idText = variant_idText.Split(',');
+                        variant_id = Convert.ToInt32(sVariant_idText[0]);
+                        if (sVariant_idText.Length == 2)
+                        {
+                            unit_id = Convert.ToInt32(sVariant_idText[1]);
+                        }
+                        else
+                        {
+                            int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
+                            unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        }
+
                         CreateProduct_Variant newVariasi = new CreateProduct_Variant()
                         {
                             id = variant_id,
@@ -828,9 +843,24 @@ namespace MasterOnline.Controllers
                     #region variant lv 2
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 2).Count() > 0)
                     {
-                        int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR);
-                        int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
-                        int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        //int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR);
+                        //int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
+                        //int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        var variant_idText = var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR;
+                        int variant_id = 0;
+                        int unit_id = 0;
+                        var sVariant_idText = variant_idText.Split(',');
+                        variant_id = Convert.ToInt32(sVariant_idText[0]);
+                        if (sVariant_idText.Length == 2)
+                        {
+                            unit_id = Convert.ToInt32(sVariant_idText[1]);
+                        }
+                        else
+                        {
+                            int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
+                            unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        }
+
                         CreateProduct_Variant newVariasi = new CreateProduct_Variant()
                         {
                             id = variant_id,
@@ -1277,9 +1307,6 @@ namespace MasterOnline.Controllers
         public async Task<string> CreateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg)
         {
             string ret = "";
-            try
-            {
-
             var token = SetupContext(iden);
             iden.token = token;
             var brg_stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == brg).SingleOrDefault();
@@ -1928,11 +1955,6 @@ namespace MasterOnline.Controllers
 
             }
 
-            }
-            catch (Exception ex)
-            {
-
-            }
             return ret;
         }
 
