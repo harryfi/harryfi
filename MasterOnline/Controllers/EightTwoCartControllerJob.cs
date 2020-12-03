@@ -316,22 +316,22 @@ namespace MasterOnline.Controllers
 
             if (detailBrg != null)
             {
-                if (detailBrg.ACODE_1 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_1 + ",";
-                }
-                if (detailBrg.ACODE_2 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_2 + ",";
-                }
-                if (detailBrg.ACODE_3 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_3 + ",";
-                }
-                if (detailBrg.ACODE_4 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_4 + ",";
-                }
+                //if (detailBrg.ACODE_1 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_1 + ",";
+                //}
+                //if (detailBrg.ACODE_2 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_2 + ",";
+                //}
+                //if (detailBrg.ACODE_3 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_3 + ",";
+                //}
+                //if (detailBrg.ACODE_4 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_4 + ",";
+                //}
 
                 if (detailBrg.ACODE_10 != null)
                 {
@@ -341,11 +341,17 @@ namespace MasterOnline.Controllers
                 {
                     attributeIDItems = detailBrg.ACODE_11;
                 }
+
+                if (detailBrg.CATEGORY_CODE != null)
+                {
+                    categoryID = detailBrg.CATEGORY_CODE;
+                }
             }
 
-            categoryID = categoryID.Substring(0, categoryID.Length - 1);
-            string[] splitCat = categoryID.Split(',');
-            var finalCategory = splitCat.Last();
+            //categoryID = categoryID.Substring(0, categoryID.Length - 1);
+            //string[] splitCat = categoryID.Split(',');
+            //var finalCategory = splitCat.Last();
+            var finalCategory = categoryID;
             var weight = Convert.ToDouble(brgInDb.BERAT / 1000);
 
             string urll = string.Format("{0}/api/v1/addProduct", iden.API_url);
@@ -638,22 +644,22 @@ namespace MasterOnline.Controllers
 
             if (detailBrg != null)
             {
-                if (detailBrg.ACODE_1 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_1 + ",";
-                }
-                if (detailBrg.ACODE_2 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_2 + ",";
-                }
-                if (detailBrg.ACODE_3 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_3 + ",";
-                }
-                if (detailBrg.ACODE_4 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_4 + ",";
-                }
+                //if (detailBrg.ACODE_1 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_1 + ",";
+                //}
+                //if (detailBrg.ACODE_2 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_2 + ",";
+                //}
+                //if (detailBrg.ACODE_3 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_3 + ",";
+                //}
+                //if (detailBrg.ACODE_4 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_4 + ",";
+                //}
 
                 if (detailBrg.ACODE_10 != null)
                 {
@@ -663,11 +669,17 @@ namespace MasterOnline.Controllers
                 {
                     attributeIDItems = detailBrg.ACODE_11;
                 }
+
+                if (detailBrg.CATEGORY_CODE != null)
+                {
+                    categoryID = detailBrg.CATEGORY_CODE;
+                }
             }
 
-            categoryID = categoryID.Length > 0 ? categoryID.Substring(0, categoryID.Length - 1) : "2,3";
-            string[] splitCat = categoryID.Split(',');
-            var finalCategory = splitCat.Last();
+            //categoryID = categoryID.Length > 0 ? categoryID.Substring(0, categoryID.Length - 1) : "2,3";
+            //string[] splitCat = categoryID.Split(',');
+            //var finalCategory = splitCat.Last();
+            var finalCategory = categoryID;
 
             var weight = Convert.ToDouble(brgInDb.BERAT / 1000);
 
