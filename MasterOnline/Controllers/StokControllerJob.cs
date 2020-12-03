@@ -248,8 +248,13 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
+                    var maxNama2 = length_nama - lastIndexOfSpaceIn30;
+                    if(maxNama2 > 255)
+                    {
+                        maxNama2 = 255;
+                    }
                     result[0] = name.Substring(0, lastIndexOfSpaceIn30).Trim();
-                    result[1] = name.Substring(lastIndexOfSpaceIn30, length_nama - lastIndexOfSpaceIn30).Trim();
+                    result[1] = name.Substring(lastIndexOfSpaceIn30, maxNama2).Trim();
                 }
             }
             else
