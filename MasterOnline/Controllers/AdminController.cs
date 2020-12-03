@@ -2314,6 +2314,61 @@ namespace MasterOnline.Controllers
             }
         }
 
+
+        public async Task<ActionResult> ProsesEditKode(string listData)
+        {
+            bool resultUnlink = false;
+
+            if (!string.IsNullOrEmpty(listData))
+            {
+                string[] dataSplitToko = listData.Split('|');
+                string accountEmail = dataSplitToko[0];
+                string listkodeBRGBaru = dataSplitToko[1];
+                string listkodeBRGLama = dataSplitToko[2];
+                string[] splitlistBRGBaru = listkodeBRGBaru.Split(',');
+                string[] splitlistBRGLama = listkodeBRGLama.Split('^');
+
+                var sqlListKodeLama = "";
+                var sqlListKodeBaru = "";
+
+                if (!string.IsNullOrEmpty(listkodeBRGBaru) && !string.IsNullOrEmpty(listkodeBRGLama))
+                {
+                    try
+                    {
+                        var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
+                        DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+
+                        //foreach (var listKode in sqlListKodeLama)
+                        //{
+                        //    sqlListKodeLama += "'" + listKode + "',";
+                        //}
+
+                        //sqlListKode = sqlListKode.Substring(0, sqlListKode.Length - 1).Replace(" ", "");
+
+                        foreach (var dataKodeBaru in sqlListKodeBaru)
+                        {
+                            //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02 SET BRG = '" + dataKodeBaru + "' WHERE BRG = '" + sqlListKode + " AND IDMARKET = '" + dataToko + "' ");
+                        }
+
+                        resultUnlink = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        resultUnlink = false;
+                    }
+
+                }
+
+                //return View(vm);
+                return new JsonResult { Data = new { success = resultUnlink }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            else
+            {
+                //return View("Error");
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
         // =============================================== Bagian SUPPORT (END)
 
         // Mengubah status akun utama
