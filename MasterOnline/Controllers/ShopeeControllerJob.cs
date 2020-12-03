@@ -3290,6 +3290,7 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.TEMP_SHOPEE_ORDERS.Add(batchinsert);
                         ErasoftDbContext.TEMP_SHOPEE_ORDERS_ITEM.AddRange(batchinsertItem);
                         ErasoftDbContext.SaveChanges();
+
                         using (SqlCommand CommandSQL = new SqlCommand())
                         {
                             //call sp to insert buyer data
@@ -3298,6 +3299,9 @@ namespace MasterOnline.Controllers
 
                             EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
                         };
+                        //add 3 Des 2020
+                        EDB.ExecuteSQL("Con", CommandType.Text, "DELETE FROM TEMP_SHOPEE_ORDERS_ITEM WHERE ordersn <> '" + ordersn + "'");
+                        //end add 3 Des 2020
                         using (SqlCommand CommandSQL = new SqlCommand())
                         {
                             CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
