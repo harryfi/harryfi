@@ -17910,7 +17910,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SaveChanges();
                 }
 
-                var sSQL = "select isnull(sum(harga),0) from sit01b where no_bukti='" + dataVm.Faktur.NO_BUKTI + "' and JENIS_FORM ='2'";
+                var sSQL = "select isnull(sum(harga),0) from sit01b (nolock) where no_bukti='" + dataVm.Faktur.NO_BUKTI + "' and JENIS_FORM ='2'";
                 var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
                 fakturInDb.BRUTO = getSumDetailFaktur;
                 fakturInDb.NILAI_DISC = dataVm.Faktur.NILAI_DISC;
@@ -19272,7 +19272,7 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateFaktur(UpdateData dataUpdate)
         {
             var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataUpdate.OrderId && p.JENIS_FORM == "2");
-            var sSQL = "select isnull(sum(harga),0) from sit01b where no_bukti='" + dataUpdate.OrderId + "' and JENIS_FORM ='2'";
+            var sSQL = "select isnull(sum(harga),0) from sit01b (nolock) where no_bukti='" + dataUpdate.OrderId + "' and JENIS_FORM ='2'";
             var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
             //fakturInDb.BRUTO = dataUpdate.Bruto;
             //fakturInDb.NILAI_DISC = dataUpdate.NilaiDisc;
@@ -19311,7 +19311,7 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateReturFaktur(UpdateData dataUpdate)
         {
             var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataUpdate.OrderId && p.JENIS_FORM == "3");
-            var sSQL = "select isnull(sum(harga),0) from SIT01B where no_bukti='" + dataUpdate.OrderId + "' and JENIS_FORM = '3'";
+            var sSQL = "select isnull(sum(harga),0) from SIT01B (nolock) where no_bukti='" + dataUpdate.OrderId + "' and JENIS_FORM = '3'";
             var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
             //fakturInDb.BRUTO = dataUpdate.Bruto;
             //fakturInDb.NILAI_DISC = dataUpdate.NilaiDisc;
@@ -19635,7 +19635,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SaveChanges();
                 }
 
-                var sSQL = "select isnull(sum(tharga),0) from PBT01B where inv='" + dataVm.Invoice.INV + "'";
+                var sSQL = "select isnull(sum(tharga),0) from PBT01B (nolock) where inv='" + dataVm.Invoice.INV + "'";
                 var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
                 invoiceInDb.BRUTO = getSumDetailFaktur;
                 invoiceInDb.NDISC1 = dataVm.Invoice.NDISC1;
@@ -20545,7 +20545,7 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateInvoice(UpdateData dataUpdate)
         {
             var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.INV == dataUpdate.OrderId);
-            var sSQL = "select isnull(sum(tharga),0) from PBT01B where inv='" + dataUpdate.OrderId + "'";
+            var sSQL = "select isnull(sum(tharga),0) from PBT01B (nolock) where inv='" + dataUpdate.OrderId + "'";
             var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
             //invoiceInDb.BRUTO = dataUpdate.Bruto;
             //invoiceInDb.NDISC1 = dataUpdate.NilaiDisc;
@@ -20591,7 +20591,7 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateReturInvoice(UpdateData dataUpdate)
         {
             var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.INV == dataUpdate.OrderId);
-            var sSQL = "select isnull(sum(tharga),0) from PBT01B where inv='" + dataUpdate.OrderId + "'";
+            var sSQL = "select isnull(sum(tharga),0) from PBT01B (nolock) where inv='" + dataUpdate.OrderId + "'";
             var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
             //invoiceInDb.BRUTO = dataUpdate.Bruto;
             //invoiceInDb.NDISC1 = dataUpdate.NilaiDisc;
