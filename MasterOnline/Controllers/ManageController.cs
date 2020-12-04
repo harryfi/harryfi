@@ -44624,6 +44624,8 @@ namespace MasterOnline.Controllers
                                             converter.Options.MarginTop = 10;
 
                                             htmlString = htmlString.Replace("break;", "");
+                                            htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 30)");
+                                            htmlString = htmlString.Replace("font-size:10px", "font-size:9px");
                                             SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
 
                                             byte[] byteArray = doc.Save();
@@ -44873,6 +44875,8 @@ namespace MasterOnline.Controllers
                                             converter.Options.MarginTop = 10;
 
                                             htmlString = htmlString.Replace("break;", "");
+                                            htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 35)");
+                                            htmlString = htmlString.Replace("font-size:10px", "font-size:9px");
                                             SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
 
                                             byte[] byteArray = doc.Save();
