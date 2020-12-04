@@ -3199,11 +3199,13 @@ namespace MasterOnline.Controllers
                             LAST_HEARTBEAT = lastHeartbeat
                         };
 
-                        string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' " + System.Environment.NewLine;
+                        //string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' " + System.Environment.NewLine;
+                        string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' and InvocationData not like '%updateBruto%'" + System.Environment.NewLine;
                         sSQL += "union all" + System.Environment.NewLine;
                         sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%'" + System.Environment.NewLine;
                         sSQL += "union all" + System.Environment.NewLine;
-                        sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%'" + System.Environment.NewLine;
+                        //sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%'" + System.Environment.NewLine;
+                        sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%' and InvocationData not like '%stok%'" + System.Environment.NewLine;
                         var dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
                         if (dsCekQueue.Tables[0].Rows.Count > 0)
                         {
