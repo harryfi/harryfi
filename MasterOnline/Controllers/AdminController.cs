@@ -438,7 +438,7 @@ namespace MasterOnline.Controllers
                             System.Data.Entity.Database.Delete($"Server=172.31.1.127\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                            "user id=masteronline;password=M@ster123;");
 #elif Debug_AWS
-                            System.Data.Entity.Database.Delete($"Server=172.31.1.127\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                            System.Data.Entity.Database.Delete($"Server=172.31.29.78\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                "user id=masteronline;password=M@ster123;");
 
                             //System.Data.Entity.Database.Delete($"Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
@@ -2283,8 +2283,8 @@ namespace MasterOnline.Controllers
 
                 //add by fauzi 29 Januari 2020
                 // IP PRIVATE STATIC DEV
-                accInDb.DataSourcePath = "172.31.20.200\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=172.31.20.200\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                accInDb.DataSourcePath = "172.31.29.78\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=172.31.29.78\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
 #else
                 //add by fauzi 29 Januari 2020
@@ -2294,8 +2294,8 @@ namespace MasterOnline.Controllers
 
                 //add by fauzi 04/12/2020
                 //IP PRIVATE DEV 
-                accInDb.DataSourcePath = "172.31.20.200\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=172.31.20.200\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                accInDb.DataSourcePath = "172.31.29.78\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=172.31.29.78\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
 
 #endif
