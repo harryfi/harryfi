@@ -1041,6 +1041,97 @@ namespace MasterOnline.Controllers
             //return PartialView("FormAddonsCustPartial", vmNew);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveCustAddonsCS(AddonsCustomerViewModel vm)
+        {
+            //if (!ModelState.IsValid)
+            //{
+            //    return View("AddonsCustMenu", vm);
+            //}
+            DateTime tglDaftar = DateTime.Now;
+            if (vm.Addons_Customer.Account == null)
+            {
+                var eksInDb = MoDbContext.Addons_Customer.SingleOrDefault(e => e.Account == vm.Accounts.Email);
+
+                if (eksInDb != null)
+                {
+                    ModelState.AddModelError("", @"Email masih kosong!");
+                    return View("AddonsCustMenuCS", vm);
+                }
+            }
+            else
+            {
+                var idAddon = Convert.ToInt32(vm.Addons_Customer.ID_ADDON);
+                var MasterAddon = MoDbContext.Addons.SingleOrDefault(a => a.RecNum == idAddon);
+                var eksInDb = MoDbContext.Addons_Customer.SingleOrDefault(e => e.RecNum == vm.Addons_Customer.RecNum);
+                if (eksInDb == null)
+                {
+                    eksInDb = new Addons_Customer
+                    {
+                        //change by nurul 21/10/2020
+                        //TglSubscription = vm.Accounts.TGL_SUBSCRIPTION,
+                        //Account = vm.Accounts.Email,
+                        //NamaTokoOnline = vm.Accounts.NamaTokoOnline,
+                        //Harga = vm.Addons.Harga,
+                        Harga = vm.Addons_Customer.Harga,
+                        TglSubscription = vm.Addons_Customer.TglSubscription,
+                        Account = vm.Addons_Customer.Account,
+                        NamaTokoOnline = vm.Addons_Customer.NamaTokoOnline,
+                        //end change by nurul 21/10/2020
+                        NamaAddons = vm.Addons_Customer.NamaAddons,
+                        //add by nurul 21/10/2020                   
+                        TGL_DAFTAR = DateTime.Now,
+                        ID_ADDON = vm.Addons_Customer.ID_ADDON
+                        //end add by nurul 21/10/2020
+                    };
+                    //add by nurul 21/10/2020
+                    tglDaftar = Convert.ToDateTime(eksInDb.TGL_DAFTAR);
+                    if (vm.Addons_Customer.ID_ADDON == "2") //82cart FREE
+                    {
+                        eksInDb.STATUS = "1";
+                    }
+                    else
+                    {
+                        eksInDb.STATUS = "0";
+                    }
+                    if (eksInDb.Harga <= 0)
+                    {
+                        if (MasterAddon != null)
+                        {
+                            eksInDb.Harga = MasterAddon.Harga;
+                            if (eksInDb.NamaAddons == "" || eksInDb.NamaAddons == null)
+                            {
+                                eksInDb.NamaAddons = MasterAddon.Fitur;
+                            }
+                        }
+                    }
+                    //end add by nurul 21/10/2020
+                    MoDbContext.Addons_Customer.Add(eksInDb);
+                }
+                else
+                {
+                    eksInDb.TglSubscription = vm.Addons_Customer.TglSubscription;
+                    eksInDb.Account = vm.Addons_Customer.Account;
+                    eksInDb.NamaTokoOnline = vm.Addons_Customer.NamaTokoOnline;
+                    eksInDb.Harga = vm.Addons_Customer.Harga;
+                    eksInDb.NamaAddons = vm.Addons_Customer.NamaAddons;
+                }
+            }
+
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
+
+            return new EmptyResult();
+            //var vmNew = new AddonsCustomerViewModel()
+            //{
+            //    Addons_Customer = MoDbContext.Addons_Customer.SingleOrDefault(e => e.TGL_DAFTAR == tglDaftar)
+            //};
+
+            ////return Json(vmNew, JsonRequestBehavior.AllowGet);
+            //return PartialView("FormAddonsCustPartial", vmNew);
+        }
+
         [HttpGet]
         public ActionResult GetAddons()
         {
@@ -1077,7 +1168,21 @@ namespace MasterOnline.Controllers
             return RedirectToAction("AddonsCustMenu");
         }
 
-#endregion
+        public ActionResult DeleteCustAddonsCS(int? eksId)
+        {
+            var vm = new AddonsCustomerViewModel()
+            {
+                Addons_Customer = MoDbContext.Addons_Customer.Single(e => e.RecNum == eksId),
+                ListCustAddons = MoDbContext.Addons_Customer.ToList()
+            };
+
+            MoDbContext.Addons_Customer.Remove(vm.Addons_Customer);
+            MoDbContext.SaveChanges();
+
+            return RedirectToAction("AddonsCustMenuCS");
+        }
+
+        #endregion
         // =============================================== Bagian CustomerAddons (END)
 
         // =============================================== Bagian Ekpedisi (START)
@@ -1608,6 +1713,20 @@ namespace MasterOnline.Controllers
         [Route("admin/manage/custaddons")]
         [SessionAdminCheck]
         public ActionResult AddonsCustMenu()
+        {
+            var vm = new AddonsCustomerViewModel()
+            {
+                ListCustAddons = MoDbContext.Addons_Customer.ToList()
+                //,
+                //ListAddons = MoDbContext.Addons.ToList()
+            };
+
+            return View(vm);
+        }
+
+        [Route("admin/manage/custaddonscs")]
+        [SessionAdminCheck]
+        public ActionResult AddonsCustMenuCS()
         {
             var vm = new AddonsCustomerViewModel()
             {
