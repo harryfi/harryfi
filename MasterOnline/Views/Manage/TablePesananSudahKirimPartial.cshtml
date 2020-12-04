@@ -344,45 +344,62 @@
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
-        $("#checkbox_all_generateFaktur").click(function () {
-            $(".checkbox_generateFaktur").prop('checked',
+        //$("#checkbox_all_generateFaktur").click(function () {
+        //    $(".checkbox_generateFaktur").prop('checked',
+        //        $(this).prop('checked'));
+        //    if ($("#checkbox_all_generateFaktur").prop('checked') == true) {
+        //        $(".buat_faktur").attr('disabled', 'disabled');
+        //    } else {
+        //        $(".buat_faktur").removeAttr('disabled');
+        //    }
+        //});
+        //$(".checkbox_generateFaktur").each(function (i, item) {
+        //    $(item).off('click').on('click', function () {
+        //        if ($(item).prop('checked') == true) {
+        //            $(".buat_faktur").attr('disabled', 'disabled');
+        //        } else {
+        //            var cekTrue = [];
+        //            $(".checkbox_generateFaktur").each(function (z, chk) {
+        //                if ($(chk).prop('checked') == true) {
+        //                    cekTrue.push($(chk).attr("data-recnum"));
+        //                }
+        //            });
+        //            if (cekTrue.length == 0) {
+        //                $(".buat_faktur").removeAttr('disabled');
+        //            }
+        //        }
+        //    });
+        //});
+        $("#all_checkbox_pesanan_faktur").click(function () {
+            $(".checkbox_pesanan_faktur").prop('checked',
                 $(this).prop('checked'));
-            if ($("#checkbox_all_generateFaktur").prop('checked') == true) {
+            var countCheck = $(".checkbox_pesanan_faktur").length;
+            if ($("#all_checkbox_pesanan_faktur").prop('checked') == true) {
                 $(".buat_faktur").attr('disabled', 'disabled');
+                $('#text-check-faktur').text(countCheck + ' Pesanan Terpilih');
             } else {
                 $(".buat_faktur").removeAttr('disabled');
+                $('#text-check-faktur').text('');
             }
         });
-        $(".checkbox_generateFaktur").each(function (i, item) {
+        $(".checkbox_pesanan_faktur").each(function (i, item) {
             $(item).off('click').on('click', function () {
+                var countCheckDetail = 0;
                 if ($(item).prop('checked') == true) {
                     $(".buat_faktur").attr('disabled', 'disabled');
-                } else {
+
                     var cekTrue = [];
-                    $(".checkbox_generateFaktur").each(function (z, chk) {
+                    $(".checkbox_pesanan_faktur").each(function (z, chk) {
                         if ($(chk).prop('checked') == true) {
                             cekTrue.push($(chk).attr("data-recnum"));
                         }
                     });
                     if (cekTrue.length == 0) {
-                        $(".buat_faktur").removeAttr('disabled');
+                        $('#text-check-faktur').text('');
+                    } else {
+                        countCheckDetail = cekTrue.length;
+                        $('#text-check-faktur').text(countCheckDetail + ' Pesanan Terpilih');
                     }
-                }
-            });
-        });
-        $("#all_checkbox_pesanan_faktur").click(function () {
-            $(".checkbox_pesanan_faktur").prop('checked',
-                $(this).prop('checked'));
-            if ($("#all_checkbox_pesanan_faktur").prop('checked') == true) {
-                $(".buat_faktur").attr('disabled', 'disabled');
-            } else {
-                $(".buat_faktur").removeAttr('disabled');
-            }
-        });
-        $(".checkbox_pesanan_faktur").each(function (i, item) {
-            $(item).off('click').on('click', function () {
-                if ($(item).prop('checked') == true) {
-                    $(".buat_faktur").attr('disabled', 'disabled');
                 } else {
                     var cekTrue = [];
                     $(".checkbox_pesanan_faktur").each(function (z, chk) {
@@ -392,6 +409,10 @@
                     });
                     if (cekTrue.length == 0) {
                         $(".buat_faktur").removeAttr('disabled');
+                        $('#text-check-faktur').text('');
+                    } else {
+                        countCheckDetail = cekTrue.length;
+                        $('#text-check-faktur').text(countCheckDetail + ' Pesanan Terpilih');
                     }
                 }
             });
@@ -411,6 +432,7 @@
                     cache: false,
                     beforeSend: function () {
                         $('#loading_pesanan_invoicing_tab').show();
+                        $('#text-check-faktur').text('');
                     },
                     success: function (response) {
                         $('#table-pesanan-sudah-kirim-partial').html(response);

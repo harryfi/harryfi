@@ -3108,9 +3108,26 @@ namespace MasterOnline.Controllers
             var getSiapKirim = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto  from sot01a(nolock) where status_transaksi='03' and status_kirim ='2'").Single();
             var JumlahSiapkirim = getSiapKirim.COUNT_TRANSAKSI;
             var NilaiSiapkirim = getSiapKirim.bruto;
-            var getBatal = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto  from sot01a(nolock) where status_transaksi='11' ").Single();
+            //change by nurul 1/12/2020, req pak richard hanya 1 bulan terakhir 
+            //var getBatal = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto  from sot01a(nolock) where status_transaksi='11' ").Single();
+            //var JumlahBatal = getBatal.COUNT_TRANSAKSI;
+            //var NilaiBatal = getBatal.bruto;
+            var Drtgl = DateTime.UtcNow.AddHours(7).AddMonths(-1); 
+            var Sdtgl = DateTime.UtcNow.AddHours(7);
+            var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+            var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
+            var getBatal = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto from sot01a(nolock) where status_transaksi='11' and tgl between '" + tempDrtgl + "' and '" + tempSdtgl + "'").Single();
             var JumlahBatal = getBatal.COUNT_TRANSAKSI;
             var NilaiBatal = getBatal.bruto;
+
+            var getPacking = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto from sot01a(nolock) where status_transaksi='02'").Single();
+            var JumlahPacking = getPacking.COUNT_TRANSAKSI;
+            var NilaiPacking = getPacking.bruto;
+
+            var getFaktur = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto from sot01a(nolock) where status_transaksi='03'").Single();
+            var JumlahFaktur = getFaktur.COUNT_TRANSAKSI;
+            var NilaiFaktur = getFaktur.bruto;
+            //end change by nurul 1/12/2020, req pak richard hanya 1 bulan terakhir 
             //end add by nurul 2/12/2019, penambahan dashboard pesanan
 
             //if (dataUsaha.JTRAN_RETUR != "1" && ceklistPesanan.Count() == 0)
@@ -3138,8 +3155,14 @@ namespace MasterOnline.Controllers
                 JumlahPesananSiapKirim = JumlahSiapkirim,
                 NilaiPesananSiapKirim = NilaiSiapkirim,
                 JumlahPesananBatal = JumlahBatal,
-                NilaiPesananBatal = NilaiBatal
+                NilaiPesananBatal = NilaiBatal,
                 //end add by nurul 2/12/2019, penambahan dashboard pesanan
+                //add by nurul 1/12/2020
+                JumlahPesananPacking = JumlahPacking,
+                NilaiPesananPacking = NilaiPacking,
+                JumlahPesananFaktur = JumlahFaktur,
+                NilaiPesananFaktur = NilaiFaktur
+                //end add by nurul 1/12/2020
             };
             return View(vm);
             //}
@@ -17887,7 +17910,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SaveChanges();
                 }
 
-                var sSQL = "select isnull(sum(harga),0) from sit01b where no_bukti='" + dataVm.Faktur.NO_BUKTI + "' and JENIS_FORM ='2'";
+                var sSQL = "select isnull(sum(harga),0) from sit01b (nolock) where no_bukti='" + dataVm.Faktur.NO_BUKTI + "' and JENIS_FORM ='2'";
                 var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
                 fakturInDb.BRUTO = getSumDetailFaktur;
                 fakturInDb.NILAI_DISC = dataVm.Faktur.NILAI_DISC;
@@ -19249,7 +19272,7 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateFaktur(UpdateData dataUpdate)
         {
             var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataUpdate.OrderId && p.JENIS_FORM == "2");
-            var sSQL = "select isnull(sum(harga),0) from sit01b where no_bukti='" + dataUpdate.OrderId + "' and JENIS_FORM ='2'";
+            var sSQL = "select isnull(sum(harga),0) from sit01b (nolock) where no_bukti='" + dataUpdate.OrderId + "' and JENIS_FORM ='2'";
             var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
             //fakturInDb.BRUTO = dataUpdate.Bruto;
             //fakturInDb.NILAI_DISC = dataUpdate.NilaiDisc;
@@ -19288,7 +19311,7 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateReturFaktur(UpdateData dataUpdate)
         {
             var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataUpdate.OrderId && p.JENIS_FORM == "3");
-            var sSQL = "select isnull(sum(harga),0) from SIT01B where no_bukti='" + dataUpdate.OrderId + "' and JENIS_FORM = '3'";
+            var sSQL = "select isnull(sum(harga),0) from SIT01B (nolock) where no_bukti='" + dataUpdate.OrderId + "' and JENIS_FORM = '3'";
             var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
             //fakturInDb.BRUTO = dataUpdate.Bruto;
             //fakturInDb.NILAI_DISC = dataUpdate.NilaiDisc;
@@ -19612,7 +19635,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SaveChanges();
                 }
 
-                var sSQL = "select isnull(sum(tharga),0) from PBT01B where inv='" + dataVm.Invoice.INV + "'";
+                var sSQL = "select isnull(sum(tharga),0) from PBT01B (nolock) where inv='" + dataVm.Invoice.INV + "'";
                 var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
                 invoiceInDb.BRUTO = getSumDetailFaktur;
                 invoiceInDb.NDISC1 = dataVm.Invoice.NDISC1;
@@ -20522,7 +20545,7 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateInvoice(UpdateData dataUpdate)
         {
             var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.INV == dataUpdate.OrderId);
-            var sSQL = "select isnull(sum(tharga),0) from PBT01B where inv='" + dataUpdate.OrderId + "'";
+            var sSQL = "select isnull(sum(tharga),0) from PBT01B (nolock) where inv='" + dataUpdate.OrderId + "'";
             var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
             //invoiceInDb.BRUTO = dataUpdate.Bruto;
             //invoiceInDb.NDISC1 = dataUpdate.NilaiDisc;
@@ -20568,7 +20591,7 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateReturInvoice(UpdateData dataUpdate)
         {
             var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.INV == dataUpdate.OrderId);
-            var sSQL = "select isnull(sum(tharga),0) from PBT01B where inv='" + dataUpdate.OrderId + "'";
+            var sSQL = "select isnull(sum(tharga),0) from PBT01B (nolock) where inv='" + dataUpdate.OrderId + "'";
             var getSumDetailFaktur = ErasoftDbContext.Database.SqlQuery<double>(sSQL).SingleOrDefault();
             //invoiceInDb.BRUTO = dataUpdate.Bruto;
             //invoiceInDb.NDISC1 = dataUpdate.NilaiDisc;
