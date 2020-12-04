@@ -60615,18 +60615,19 @@ namespace MasterOnline.Controllers
         {
             if(listFaktur != "" && listFaktur != "''")
             {
-                string sSQL = "UPDATE C SET BRUTO = QRY.NILAI, NETTO = (QRY.NILAI + C.MATERAI - C.DISCOUNT) FROM SIT01A C (nolock) INNER JOIN ( ";
-                sSQL += "SELECT A.NO_BUKTI, SUM(B.HARGA) NILAI ";
-                sSQL += "FROM SIT01A A(nolock) INNER JOIN SIT01B B(nolock) ON A.NO_BUKTI = B.NO_BUKTI ";
-                sSQL += "GROUP BY A.NO_BUKTI ";
-                sSQL += ") QRY ON C.NO_BUKTI = QRY.NO_BUKTI ";
-                sSQL += "WHERE C.NO_BUKTI IN (" + listFaktur + ")";
-                //foreach (var faktur in newFakturs)
-                //{
-                //    sSQL += "'" + faktur.NO_BUKTI + "' , ";
-                //}
-                //sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
-
+                //string sSQL = "UPDATE C SET BRUTO = QRY.NILAI, NETTO = (QRY.NILAI + C.MATERAI - C.DISCOUNT) FROM SIT01A C (nolock) INNER JOIN ( ";
+                //sSQL += "SELECT A.NO_BUKTI, SUM(B.HARGA) NILAI ";
+                //sSQL += "FROM SIT01A A(nolock) INNER JOIN SIT01B B(nolock) ON A.NO_BUKTI = B.NO_BUKTI ";
+                //sSQL += "GROUP BY A.NO_BUKTI ";
+                //sSQL += ") QRY ON C.NO_BUKTI = QRY.NO_BUKTI ";
+                //sSQL += "WHERE C.NO_BUKTI IN (" + listFaktur + ")  AND C.JENIS_FORM='2'";
+                ////foreach (var faktur in newFakturs)
+                ////{
+                ////    sSQL += "'" + faktur.NO_BUKTI + "' , ";
+                ////}
+                ////sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
+                string sSQL = "UPDATE A SET BRUTO = A.BRUTO FROM SIT01A A (NOLOCK) WHERE A.NO_BUKTI IN (" + listFaktur + ") AND A.JENIS_FORM='2'";
+                
                 var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
             }
             if(listRecnumPesanan != "" && listRecnumPesanan != "''")
