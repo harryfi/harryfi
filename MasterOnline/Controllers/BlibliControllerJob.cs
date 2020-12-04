@@ -8383,7 +8383,12 @@ namespace MasterOnline.Controllers
                             oCommand.ExecuteNonQuery();
                         }
                     }
-                    throw new Exception("Data Produk ada yang perlu diperbaiki. Silahkan edit di Master Barang.");
+                    string errorLog = "Data Produk ada yang perlu diperbaiki. Silahkan edit di Master Barang.";
+                    if (!string.IsNullOrEmpty(resCek.message))
+                    {
+                        errorLog += " Revision Notes : " + resCek.message;
+                    }
+                    throw new Exception(errorLog);
                 }
             }
 
@@ -8680,6 +8685,7 @@ namespace MasterOnline.Controllers
                                 {
                                     EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE STF02H SET BRG_MP = 'NEED_CORRECTION;" + listBrg.content[0].product.code + "' WHERE BRG = '" + brg + "' AND IDMARKET = " + idMarket);
                                     ret.status = 1;
+                                    ret.message = data.product.revisionNotes;
                                     return ret;
                                 }
                             }
@@ -9892,6 +9898,7 @@ namespace MasterOnline.Controllers
             public string videoUrl { get; set; }
             public string uniqueSellingPoint { get; set; }
             public string description { get; set; }
+            public string revisionNotes { get; set; }
         }
 
         public class Brand
