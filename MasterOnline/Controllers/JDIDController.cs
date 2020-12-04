@@ -320,6 +320,7 @@ namespace MasterOnline.Controllers
                 {
                     if (ret.openapi_code == 0)
                     {
+                        //var listKategori = JsonConvert.DeserializeObject(ret.openapi_data, typeof(DATA_CAT)) as DATA_CAT;
                         var listKategori = JsonConvert.DeserializeObject(ret.openapi_data, typeof(DATA_CAT)) as DATA_CAT;
                         if (listKategori != null)
                         {
@@ -2353,6 +2354,21 @@ namespace MasterOnline.Controllers
         public long cate2Id { get; set; }
         public long cateId { get; set; }
         public string cateName { get; set; }
+    }
+
+    public class DATA_CAT_NEW
+    {
+        public List<Model_Cat_new> model { get; set; }
+        public int code { get; set; }
+        public bool success { get; set; }
+    }
+    public class Model_Cat_new
+    {
+        public long id { get; set; }
+        public int level { get; set; }
+        public string name { get; set; }
+        public string nameEn { get; set; }
+        public long parentId { get; set; }
     }
 
 
