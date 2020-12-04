@@ -3535,7 +3535,8 @@ namespace MasterOnline.Controllers
             var daysFrom = -1;
             var daysTo = 1;
 
-            while (daysFrom > -13)
+            //while (daysFrom > -13)
+            while (daysFrom >= -3)//pesanan sudah dibayar ambil -3 hari saja
             {
                 await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
                 //daysFrom -= 3;
