@@ -191,10 +191,14 @@ namespace MasterOnline.Controllers
                 //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
                 //var tujuan = "13.251.64.77\\SQLEXPRESS, 1433"; // T3.LARGE DB FOR REGISTER NEW ACCOUNT
                 var tujuan = "172.31.20.73\\SQLEXPRESS, 1433"; // T3.LARGE DB FOR REGISTER NEW ACCOUNT
+
 #else
                 //var tujuan = "54.179.169.195\\SQLEXPRESS, 1444";
                 //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
-                var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
+                //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
+
+                // IP PRIVATE DEV
+                var tujuan = "172.31.29.78\\SQLEXPRESS, 1433";
 #endif
 
                 accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
@@ -2265,9 +2269,11 @@ namespace MasterOnline.Controllers
                 //accInDb.DataSourcePath = "13.250.232.74\\SQLEXPRESS, 1433";
                 //SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                 //                                      "user id=masteronline;password=M@ster123;");
+
                 //add by fauzi 29 Januari 2020
-                accInDb.DataSourcePath = "13.251.222.53\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                // IP PRIVATE DEV
+                accInDb.DataSourcePath = "172.31.29.78\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=172.31.29.78\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
 
                 //accInDb.DataSourcePath = "172.31.20.73\\SQLEXPRESS, 1433";
@@ -2275,8 +2281,13 @@ namespace MasterOnline.Controllers
                 //                                      "user id=masteronline;password=M@ster123;");
 #else
                 //add by fauzi 29 Januari 2020
-                accInDb.DataSourcePath = "13.251.222.53\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //accInDb.DataSourcePath = "13.251.222.53\\SQLEXPRESS, 1433";
+                //SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //                                      "user id=masteronline;password=M@ster123;");
+
+                // IP PRIVATE DEV
+                accInDb.DataSourcePath = "172.31.29.78\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=172.31.29.78\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
                 //accInDb.DataSourcePath = "13.251.64.77\\SQLEXPRESS, 1433";
                 //SqlConnection con = new SqlConnection("Server=13.251.64.77\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
