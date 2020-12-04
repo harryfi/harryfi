@@ -172,6 +172,10 @@ namespace MasterOnline.Controllers
                     //throw e;
                 }
                 manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                //add 4 des 2020, set status pending
+                string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
+                var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PENDING;" + Convert.ToString(upload_id) + ";" + Convert.ToString(log_request_id) + "',LINK_STATUS='Buat Produk Pending', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                //end add 4 des 2020, set status pending
                 throw new Exception(currentLog.REQUEST_EXCEPTION);
             }
             //if (err != "")
@@ -349,6 +353,10 @@ namespace MasterOnline.Controllers
                 }
                 //throw new Exception(e.Message);//add by Tri 23 apr 2020
                 manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                //add 4 des 2020, set status pending
+                EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PEDITENDING;" + Convert.ToString(upload_id) + ";" + Convert.ToString(log_request_id) + ";" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                //end add 4 des 2020, set status pending
+
                 throw new Exception(currentLog.REQUEST_EXCEPTION);
             }
 
