@@ -307,6 +307,7 @@ namespace MasterOnline.Controllers
                 return "invalid passing data";
 
             var categoryID = "";
+            var categoryIDDefault = "";
             var attributeIDGroup = "";
             var attributeIDItems = "";
 
@@ -341,11 +342,18 @@ namespace MasterOnline.Controllers
                 {
                     attributeIDItems = detailBrg.ACODE_11;
                 }
+
+                if (detailBrg.CATEGORY_CODE != null)
+                {
+                    categoryIDDefault = detailBrg.CATEGORY_CODE;
+                }
             }
 
-            categoryID = categoryID.Substring(0, categoryID.Length - 1);
-            string[] splitCat = categoryID.Split(',');
-            var finalCategory = splitCat.Last();
+            if(categoryID != null)
+            {
+                categoryID = categoryID.Substring(0, categoryID.Length - 1);
+            }
+
             var weight = Convert.ToDouble(brgInDb.BERAT / 1000);
 
             string urll = string.Format("{0}/api/v1/addProduct", iden.API_url);
@@ -374,7 +382,7 @@ namespace MasterOnline.Controllers
             postData += "&additional_shipping_cost=" + Uri.EscapeDataString("0");
             postData += "&minimal_quantity=" + Uri.EscapeDataString(brgInDb.MINI.ToString());
             postData += "&out_of_stock=" + Uri.EscapeDataString("0");
-            postData += "&id_category_default=" + Uri.EscapeDataString(finalCategory.ToString());
+            postData += "&id_category_default=" + Uri.EscapeDataString(categoryIDDefault.ToString());
             postData += "&category=" + Uri.EscapeDataString("[" + categoryID.ToString() + "]");
             postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38.ToString());
 
@@ -630,6 +638,7 @@ namespace MasterOnline.Controllers
                 return "invalid passing data";
 
             var categoryID = "";
+            var categoryIDDefault = "";
             var attributeIDGroup = "";
             var attributeIDItems = "";
 
@@ -663,11 +672,17 @@ namespace MasterOnline.Controllers
                 {
                     attributeIDItems = detailBrg.ACODE_11;
                 }
+
+                if (detailBrg.CATEGORY_CODE != null)
+                {
+                    categoryIDDefault = detailBrg.CATEGORY_CODE;
+                }
             }
 
-            categoryID = categoryID.Length > 0 ? categoryID.Substring(0, categoryID.Length - 1) : "2,3";
-            string[] splitCat = categoryID.Split(',');
-            var finalCategory = splitCat.Last();
+            if(categoryID != null)
+            {
+                categoryID = categoryID.Length > 0 ? categoryID.Substring(0, categoryID.Length - 1) : "2,3";
+            }
 
             var weight = Convert.ToDouble(brgInDb.BERAT / 1000);
 
@@ -700,7 +715,7 @@ namespace MasterOnline.Controllers
             postData += "&additional_shipping_cost=" + Uri.EscapeDataString("0");
             postData += "&minimal_quantity=" + Uri.EscapeDataString(brgInDb.MINI.ToString());
             postData += "&out_of_stock=" + Uri.EscapeDataString("0");
-            postData += "&id_category_default=" + Uri.EscapeDataString(finalCategory.ToString());
+            postData += "&id_category_default=" + Uri.EscapeDataString(categoryIDDefault.ToString());
             postData += "&category=" + Uri.EscapeDataString("[" + categoryID.ToString() + "]");
             postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38.ToString());
 

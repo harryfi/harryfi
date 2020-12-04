@@ -995,8 +995,8 @@ namespace MasterOnline.Controllers
                                         //}
                                         //for (int i = 0; i < item.skuIds.Count; i++)
                                         //{
-                                        tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == item.skuId.ToString().ToUpper()).FirstOrDefault();
-                                        brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == item.skuId.ToString().ToUpper()).FirstOrDefault();
+                                        tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == item.spuId.ToString() + ";" + item.skuId.ToString().ToUpper()).FirstOrDefault();
+                                        brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == item.spuId.ToString() + ";" + item.skuId.ToString().ToUpper()).FirstOrDefault();
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
                                             var retData = getProductDetail(data, item, kdBrgInduk, createParent, item.skuId.ToString(), cust, IdMarket, itemFromList);
@@ -1017,8 +1017,8 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
-                                        tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == item.skuId.ToString().ToUpper()).FirstOrDefault();
-                                        brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == item.skuId.ToString().ToUpper()).FirstOrDefault();
+                                        tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == item.spuId.ToString() + ";" + item.skuId.ToString().ToUpper()).FirstOrDefault();
+                                        brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == item.spuId.ToString() + ";" + item.skuId.ToString().ToUpper()).FirstOrDefault();
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
                                             var retData = getProductDetail(data, item, "", false, item.skuId.ToString(), cust, IdMarket, itemFromList);
