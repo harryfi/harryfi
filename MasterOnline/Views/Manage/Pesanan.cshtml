@@ -7876,7 +7876,8 @@
             }
 
             var pList = $('#ckPackinglist').is(":checked");
-            var link = '@Url.Action("UbahStatusPesananPackingTransaction", "Manage")';
+            @*var link = '@Url.Action("UbahStatusPesananPackingTransaction", "Manage")';*@
+            var link = '@Url.Action("UbahStatusPesananPackingTransactionVersi2", "Manage")';
 
             $.ajax({
                 type: "POST",

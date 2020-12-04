@@ -4145,24 +4145,24 @@ namespace MasterOnline.Controllers
                 //ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == nobukSI && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = bruto });
                 if (nobukSI != null)
                 {
-                    var cekSI = ErasoftDbContext.SIT01A.AsNoTracking().Where(p => p.NO_BUKTI == nobukSI && p.JENIS_FORM == "2").FirstOrDefault();
-                    if (cekSI != null)
-                    {
+                    //var cekSI = ErasoftDbContext.SIT01A.AsNoTracking().Where(p => p.NO_BUKTI == nobukSI && p.JENIS_FORM == "2").FirstOrDefault();
+                    //if (cekSI != null)
+                    //{
                         //cekSI.BRUTO = bruto;
                         //string sSQL = "update sit01a set BRUTO = '" + bruto + "' where NO_BUKTI = '" + nobukSI + "' and JENIS_FORM ='2'";
                         string sSQL = "update sit01a set BRUTO = BRUTO where NO_BUKTI = '" + nobukSI + "' and JENIS_FORM ='2'";
                         ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
                         ErasoftDbContext.SaveChanges();
-                    }
-                    else
-                    {
-                        throw new Exception("Faktur Tidak Ditemukan.");
-                    }
+                    //}
+                    //else
+                    //{
+                    //    throw new Exception("Faktur Tidak Ditemukan.");
+                    //}
                 }
-                else
-                {
-                    throw new Exception("Faktur Tidak Ditemukan.");
-                }
+                //else
+                //{
+                //    throw new Exception("Faktur Tidak Ditemukan.");
+                //}
             }
             catch (WebException e)
             {
