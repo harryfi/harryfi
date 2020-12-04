@@ -756,9 +756,24 @@ namespace MasterOnline.Controllers
                     #region variant lv 1
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 1).Count() > 0)
                     {
-                        int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR);
-                        int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
-                        int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        //int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR);
+                        //int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
+                        //int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        var variant_idText = var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR;
+                        int variant_id = 0;
+                        int unit_id = 0;
+                        var sVariant_idText = variant_idText.Split(',');
+                        variant_id = Convert.ToInt32(sVariant_idText[0]);
+                        if (sVariant_idText.Length == 2)
+                        {
+                            unit_id = Convert.ToInt32(sVariant_idText[1]);
+                        }
+                        else
+                        {
+                            int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
+                            unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        }
+
                         CreateProduct_Variant newVariasi = new CreateProduct_Variant()
                         {
                             id = variant_id,
@@ -797,7 +812,10 @@ namespace MasterOnline.Controllers
                                 //};
                                 CreateProduct_Opt newOpt = new CreateProduct_Opt()
                                 {
-                                    unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    //change 30 nov 2020, set 0 untuk custom text
+                                    //unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    unit_value_id = 0,
+                                    //end change 30 nov 2020, set 0 untuk custom text
                                     //t_id = fe_record.RECNUM,
                                     value = var_stf20.Where(p => p.LEVEL_VAR == fe_record.LEVEL_VAR && p.KODE_VAR == fe_record.KODE_VAR).FirstOrDefault()?.KET_VAR,
                                     //image = new List<CreateProduct_Image>()
@@ -825,9 +843,24 @@ namespace MasterOnline.Controllers
                     #region variant lv 2
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 2).Count() > 0)
                     {
-                        int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR);
-                        int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
-                        int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        //int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR);
+                        //int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
+                        //int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        var variant_idText = var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR;
+                        int variant_id = 0;
+                        int unit_id = 0;
+                        var sVariant_idText = variant_idText.Split(',');
+                        variant_id = Convert.ToInt32(sVariant_idText[0]);
+                        if (sVariant_idText.Length == 2)
+                        {
+                            unit_id = Convert.ToInt32(sVariant_idText[1]);
+                        }
+                        else
+                        {
+                            int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
+                            unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        }
+
                         CreateProduct_Variant newVariasi = new CreateProduct_Variant()
                         {
                             id = variant_id,
@@ -866,7 +899,10 @@ namespace MasterOnline.Controllers
                                 //};
                                 CreateProduct_Opt newOpt = new CreateProduct_Opt()
                                 {
-                                    unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    //change 30 nov 2020, set 0 untuk custom text
+                                    //unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    unit_value_id = 0,
+                                    //end change 30 nov 2020, set 0 untuk custom text
                                     //t_id = fe_record.RECNUM,
                                     value = var_stf20.Where(p => p.LEVEL_VAR == fe_record.LEVEL_VAR && p.KODE_VAR == fe_record.KODE_VAR).FirstOrDefault()?.KET_VAR,
                                     //image = new List<CreateProduct_Image>()
@@ -1412,9 +1448,24 @@ namespace MasterOnline.Controllers
                     #region variant lv 1
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 1).Count() > 0)
                     {
-                        int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR);
-                        int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
-                        int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        //int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR);
+                        //int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
+                        //int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        var variant_idText = var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR;
+                        int variant_id = 0;
+                        int unit_id = 0;
+                        var sVariant_idText = variant_idText.Split(',');
+                        variant_id = Convert.ToInt32(sVariant_idText[0]);
+                        if (sVariant_idText.Length == 2)
+                        {
+                            unit_id = Convert.ToInt32(sVariant_idText[1]);
+                        }
+                        else
+                        {
+                            int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
+                            unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        }
+
                         CreateProduct_Variant newVariasi = new CreateProduct_Variant()
                         {
                             id = variant_id,
@@ -1453,7 +1504,10 @@ namespace MasterOnline.Controllers
                                 //};
                                 CreateProduct_Opt newOpt = new CreateProduct_Opt()
                                 {
-                                    unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    //change 30 nov 2020, set 0 untuk custom text
+                                    //unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    unit_value_id = 0,
+                                    //end change 30 nov 2020, set 0 untuk custom text
                                     //t_id = fe_record.RECNUM,
                                     value = var_stf20.Where(p => p.LEVEL_VAR == fe_record.LEVEL_VAR && p.KODE_VAR == fe_record.KODE_VAR).FirstOrDefault()?.KET_VAR,
                                     //image = new List<CreateProduct_Image>()
@@ -1518,9 +1572,24 @@ namespace MasterOnline.Controllers
                     #region variant lv 2
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 2).Count() > 0)
                     {
-                        int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR);
-                        int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
-                        int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        //int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR);
+                        //int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
+                        //int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        var variant_idText = var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR;
+                        int variant_id = 0;
+                        int unit_id = 0;
+                        var sVariant_idText = variant_idText.Split(',');
+                        variant_id = Convert.ToInt32(sVariant_idText[0]);
+                        if (sVariant_idText.Length == 2)
+                        {
+                            unit_id = Convert.ToInt32(sVariant_idText[1]);
+                        }
+                        else
+                        {
+                            int first_value = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_VALUE_VAR); // untuk dapatkan unit id
+                            unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
+                        }
+
                         CreateProduct_Variant newVariasi = new CreateProduct_Variant()
                         {
                             id = variant_id,
@@ -1559,7 +1628,10 @@ namespace MasterOnline.Controllers
                                 //};
                                 CreateProduct_Opt newOpt = new CreateProduct_Opt()
                                 {
-                                    unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    //change 30 nov 2020, set 0 untuk custom text
+                                    //unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    unit_value_id = 0,
+                                    //end change 30 nov 2020, set 0 untuk custom text
                                     //t_id = fe_record.RECNUM,
                                     value = var_stf20.Where(p => p.LEVEL_VAR == fe_record.LEVEL_VAR && p.KODE_VAR == fe_record.KODE_VAR).FirstOrDefault()?.KET_VAR,
                                     //image = new List<CreateProduct_Image>()
