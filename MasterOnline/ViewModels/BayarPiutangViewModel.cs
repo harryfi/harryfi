@@ -81,6 +81,8 @@ namespace MasterOnline.ViewModels
         //public bool selesaiProsesTemp { get; set; }
         public string fileCsvPath { get; set; }
         public List<TEMP_UPLOAD_EXCEL_BAYAR> list_Detail_ret = new List<TEMP_UPLOAD_EXCEL_BAYAR>();
+        public int successUpdateDetail { get; set; }
+        public int successUpdateHeader { get; set; }
     }
 
     public class DetailLazada

@@ -1775,6 +1775,37 @@ namespace MasterOnline.Controllers
         [Queue("3_general")]
         public async Task<string> GetOrderByStatus(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar)
         {
+            SetupContext(iden);
+
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
+
+            var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+
+            int dayFrom = -1;
+            await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dayFrom);
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "";
+            if (stat == StatusOrder.UNPAID)
+            {
+                //queryStatus = "\"}\"" + "," + "\"6\"" + "," + "\"";
+                queryStatus = "\\\"}\"" + "," + "\"6\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","6","\"000003\""
+            }
+            else if (stat == StatusOrder.READY_TO_SHIP)
+            {
+                //queryStatus = "\"}\"" + "," + "\"3\"" + "," + "\"";
+                queryStatus = "\\\"}\"" + "," + "\"3\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","3","\"000003\""
+            }
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrderByStatusCompleted%' and invocationdata not like '%GetOrderByStatusCancelled%' and invocationdata not like '%GetOrderByStatusWithDay%'");
+            // end tunning untuk tidak duplicate
+            return "";
+        }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> GetOrderByStatusWithDay(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, int day)
+        {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
@@ -1784,7 +1815,8 @@ namespace MasterOnline.Controllers
             long seconds = CurrentTimeSecond();
             //change by nurul 10/12/2019, change create_time_from
             //long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
-            long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-3).ToUnixTimeSeconds();
+            //long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-3).ToUnixTimeSeconds();
+            long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(day).AddHours(-7).ToUnixTimeSeconds();
             //change add by nurul 10/12/2019, change create_time_from
 
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -1846,7 +1878,9 @@ namespace MasterOnline.Controllers
                         {
                             string[] ordersn_list = listOrder.orders.Select(p => p.ordersn).ToArray();
                             //add by calvin 4 maret 2019, filter
-                            var dariTgl = DateTimeOffset.UtcNow.AddDays(-4).DateTime;
+                            //var dariTgl = DateTimeOffset.UtcNow.AddDays(-4).DateTime;
+                            var dariTgl = DateTimeOffset.UtcNow.AddDays(day - 1).DateTime;
+
                             var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto Shopee" && p.CUST == CUST && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
                             //end add by calvin
                             var filtered = ordersn_list.Where(p => !SudahAdaDiMO.Contains(p));
@@ -1887,7 +1921,7 @@ namespace MasterOnline.Controllers
                                 new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                                 //end add by Tri 4 Mei 2020, update stok di jalankan per batch karena batch berikutnya akan memiliki connID yg berbeda
 
-                                await GetOrderByStatus(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar);
+                                await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar, day);
                             }
                             else
                             {
@@ -1914,20 +1948,20 @@ namespace MasterOnline.Controllers
             }
 
 
-            // tunning untuk tidak duplicate
-            var queryStatus = "";
-            if (stat == StatusOrder.UNPAID)
-            {
-                //queryStatus = "\"}\"" + "," + "\"6\"" + "," + "\"";
-                queryStatus = "\\\"}\"" + "," + "\"6\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","6","\"000003\""
-            }
-            else if (stat == StatusOrder.READY_TO_SHIP)
-            {
-                //queryStatus = "\"}\"" + "," + "\"3\"" + "," + "\"";
-                queryStatus = "\\\"}\"" + "," + "\"3\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","3","\"000003\""
-            }
-            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrderByStatusCompleted%' and invocationdata not like '%GetOrderByStatusCancelled%' ");
-            // end tunning untuk tidak duplicate
+            //// tunning untuk tidak duplicate
+            //var queryStatus = "";
+            //if (stat == StatusOrder.UNPAID)
+            //{
+            //    //queryStatus = "\"}\"" + "," + "\"6\"" + "," + "\"";
+            //    queryStatus = "\\\"}\"" + "," + "\"6\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","6","\"000003\""
+            //}
+            //else if (stat == StatusOrder.READY_TO_SHIP)
+            //{
+            //    //queryStatus = "\"}\"" + "," + "\"3\"" + "," + "\"";
+            //    queryStatus = "\\\"}\"" + "," + "\"3\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","3","\"000003\""
+            //}
+            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrderByStatusCompleted%' and invocationdata not like '%GetOrderByStatusCancelled%' ");
+            //// end tunning untuk tidak duplicate
 
             return ret;
         }
@@ -1943,7 +1977,10 @@ namespace MasterOnline.Controllers
             SetupContext(iden);
 
             long seconds = CurrentTimeSecond();
-            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-10).ToUnixTimeSeconds();
+            //change 23 nov 2020
+            //long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-10).ToUnixTimeSeconds();
+            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            //end change 23 nov 2020
             long timeStampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -2134,6 +2171,119 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
         public async Task<string> GetOrderByStatusCompleted(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        {
+            SetupContext(iden);
+
+            string sSQL = "SELECT DISTINCT NO_REFERENSI FROM SOT01A (NOLOCK) A INNER JOIN SIT01A (NOLOCK) B ON  A.NO_BUKTI = B.NO_SO ";
+            sSQL += "WHERE STATUS_TRANSAKSI = '03' AND A.TGL >= '"+DateTime.UtcNow.AddHours(7).AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss")+"' AND A.CUST = '"+CUST+"'";
+
+            var dsPesanan = EDB.GetDataSet("CString", "SOT01", sSQL);
+
+            if(dsPesanan.Tables[0].Rows.Count > 0)
+            {
+                var listNoRef = new List<string>();
+                for(int i =0; i < dsPesanan.Tables[0].Rows.Count; i++)
+                {
+                    listNoRef.Add(dsPesanan.Tables[0].Rows[i]["NO_REFERENSI"].ToString());
+                    if(listNoRef.Count == 50 || i == dsPesanan.Tables[0].Rows.Count - 1)
+                    {
+                        await GetOrderByStatusCompletedAPI(iden, listNoRef.ToArray(), CUST);
+                        listNoRef = new List<string>();
+                    }
+                }
+            }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\\\"}\"" + "," + "\"4\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","4","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+
+            return "";
+        }
+        public async Task<string> GetOrderByStatusCompletedAPI(ShopeeAPIData iden, string[] ordersn_list, string cust)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            //Dictionary<string, string> ret = new Dictionary<string, string>();
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
+
+            GetOrderDetailsData HttpBody = new GetOrderDetailsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn_list = ordersn_list
+                //ordersn_list = ordersn_list_test.ToArray()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+                var connIdARF01C = Guid.NewGuid().ToString();
+
+                string ordList = "";
+                foreach (var order in result.orders)
+                {
+                    if(order.order_status == "COMPLETED")
+                    {
+                        ordList += "'" + order.ordersn + "',";
+                    }
+                }
+                if (!string.IsNullOrEmpty(ordList))
+                {
+                    ordList = ordList.Substring(0, ordList.Length - 1);
+                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordList + ") AND CUST = '"+cust+"' AND STATUS_TRANSAKSI = '03'");
+                    
+                    if (rowAffected > 0)
+                    {
+                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(rowAffected) + " Pesanan dari Shopee sudah selesai.");
+
+                        //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                        if (!string.IsNullOrEmpty(ordList))
+                        {
+                            var dateTimeNow = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                            string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + ordList + ") AND CUST = '" + cust + "'";
+                            var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                        }
+                        //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                    }
+                    
+                }
+               
+            }
+            return "";
+        }
+        public async Task<string> GetOrderByStatusCompletedOld(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             int fromdt = -2;
             int todt = 0;

@@ -2582,7 +2582,7 @@ namespace MasterOnline.Controllers
                         SetNoLockOn(ErasoftDbContext);
                         string sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from sit01a (NOLOCK) where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "' and jenis_form='2' ";
                         var TotalPenjualan = ErasoftDbContext.Database.SqlQuery<SUM_NettoSIPB>(sSQL1).Single();
-                        sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from pbt01a (NOLOCK) where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "' and jenisform='3' ";
+                        sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from pbt01a (NOLOCK) where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "' and jenisform='1' ";
                         var TotalPembelian = ErasoftDbContext.Database.SqlQuery<SUM_NettoSIPB>(sSQL1).Single();
                         vm.totalSI = TotalPenjualan.TOTAL;
                         vm.totalPB = TotalPembelian.TOTAL;
@@ -17800,6 +17800,13 @@ namespace MasterOnline.Controllers
                     //ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = dataVm.Faktur.BRUTO });
                     var sSQL = "UPDATE SIT01A SET BRUTO = BRUTO WHERE NO_BUKTI='" + noOrder + "' AND JENIS_FORM ='2'";
                     ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                    //add 18/10/2019, hitung ulang bruto,netto
+                    //string sSQL = "UPDATE A SET BRUTO = B.harga, NETTO = (B.harga + A.MATERAI + A.NILAI_PPN - A.NILAI_DISC ) FROM SIT01A A(nolock) INNER JOIN ( ";
+                    //sSQL += "select no_bukti,sum(harga) as harga from sit01b (nolock) group by no_bukti)b  ";
+                    //sSQL += "on a.no_bukti=b.no_bukti ";
+                    //sSQL += "WHERE A.NO_BUKTI ='" + noOrder + "' AND A.JENIS_FORM ='2'";
+
+                    //var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                     //END CHANGE BY NURUL 4/11/2020
                 }
             }
@@ -21934,7 +21941,8 @@ namespace MasterOnline.Controllers
                     {
                         dataCustomer.TIDAK_HIT_UANG_R = bstatusSync;
                         ErasoftDbContext.SaveChanges();
-                        await new AccountController().SyncMarketplace(dbSourceEra, dbPathEra, EDB.GetConnectionString("ConnID"), "", usernameLogin, 5, dataCustomer.RecNum);
+                        //await new AccountController().SyncMarketplace(dbSourceEra, dbPathEra, EDB.GetConnectionString("ConnID"), "", usernameLogin, 5, dataCustomer.RecNum);
+                        await new AccountController().SyncMarketplace(dbSourceEra, dbPathEra, EDB.GetConnectionString("ConnID"), custID, usernameLogin, 5, dataCustomer.RecNum);
                         return Json(new { success = true, status = "Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan!" }, JsonRequestBehavior.AllowGet);
                     }
                     else
@@ -22049,6 +22057,39 @@ namespace MasterOnline.Controllers
                                 var gdnSku = dataStf02h.BRG_MP.Split(';');
                                 if (gdnSku[0] != catatan_split[2])
                                     return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                            }
+                            else if (cust.NAMA == "19")//JDID
+                            {
+                                if (dataStf02h.BRG_MP.Contains(";"))
+                                {
+                                    var gdnSku = dataStf02h.BRG_MP.Split(';');
+                                    if (catatan_split[2].Contains(";"))
+                                    {
+                                        var catatanSplitJDID = catatan_split[2].Split(';');
+                                        if (gdnSku[1] != catatanSplitJDID[1])
+                                            return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                                    }
+                                    else
+                                    {
+                                        if (gdnSku[1] != catatan_split[2])
+                                            return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                                    }
+                                        
+                                }
+                                else
+                                {
+                                    if (catatan_split[2].Contains(";"))
+                                    {
+                                        var catatanSplitJDID = catatan_split[2].Split(';');
+                                        if (dataStf02h.BRG_MP != catatanSplitJDID[1])
+                                            return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                                    }
+                                    else
+                                    {
+                                        if (dataStf02h.BRG_MP != catatan_split[2])
+                                            return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                                    }
+                                }
                             }
                             else
                             {
@@ -22170,8 +22211,32 @@ namespace MasterOnline.Controllers
                                 if (dataStf02h.BRG_MP.Contains(";"))
                                 {
                                     var gdnSku = dataStf02h.BRG_MP.Split(';');
-                                    if (gdnSku[1] != catatan_split[2])
-                                        return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                                    if (catatan_split[2].Contains(";"))
+                                    {
+                                        var catatanSplitJDID = catatan_split[2].Split(';');
+                                        if (gdnSku[1] != catatanSplitJDID[1])
+                                            return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                                    }
+                                    else
+                                    {
+                                        if (gdnSku[1] != catatan_split[2])
+                                            return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                                    }
+
+                                }
+                                else
+                                {
+                                    if (catatan_split[2].Contains(";"))
+                                    {
+                                        var catatanSplitJDID = catatan_split[2].Split(';');
+                                        if (dataStf02h.BRG_MP != catatanSplitJDID[1])
+                                            return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                                    }
+                                    else
+                                    {
+                                        if (dataStf02h.BRG_MP != catatan_split[2])
+                                            return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                                    }
                                 }
                             }
                             else
@@ -24042,7 +24107,7 @@ namespace MasterOnline.Controllers
 
         public ActionResult DeletePesanan(int? orderId)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Single(p => p.RecNum == orderId);
+            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == orderId);
 
             // ========== Hapus Barang =============
             /*var listPesananDetail = ErasoftDbContext.SOT01B.Where(pd => pd.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
@@ -24057,7 +24122,7 @@ namespace MasterOnline.Controllers
 
             //add by calvin 8 nov 2018, update stok marketplace
             List<string> listBrg = new List<string>();
-            var detailPesananInDb = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+            var detailPesananInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
             foreach (var item in detailPesananInDb)
             {
                 listBrg.Add(item.BRG);
@@ -27857,7 +27922,7 @@ namespace MasterOnline.Controllers
             //await new TokopediaControllerJob().CheckPendings(data);
 
             //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
-            //var lisTokpedShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString() && m.CUST == "001028").ToList();
+            //var lisTokpedShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
             //if (lisTokpedShop.Count > 0)
             //{
             //    //var tokopediaApi = new TokopediaController();
@@ -27879,9 +27944,9 @@ namespace MasterOnline.Controllers
             //                };
             //                var tokpedController = new TokopediaControllerJob();
             //                //await tokpedController.GetSingleOrder(data, tblCustomer.CUST, tblCustomer.PERSO);
-            //                await tokpedController.PostRequestPickup(dbPathEra, "SO20000388", tblCustomer.CUST, "Pesanan", "Ganti Status", data, "SO20000388", "515081892");
+            //                //await tokpedController.PostRequestPickup(dbPathEra, "SO20000388", tblCustomer.CUST, "Pesanan", "Ganti Status", data, "SO20000388", "515081892");
             //                //await tokpedController.PostAckOrder(dbPathEra, "SO20000389", tblCustomer.CUST, "Pesanan", "Accept Order", data, "SO20000389", "515083008;INV/20200604/XX/VI/556642897");
-            //                await tokpedController.GetNoAWB(data, "SO20000389", "515083008;INV/20200604/XX/VI/556642897");
+            //                await tokpedController.GetNoAWB(data, "SO20010113", "637807518;INV/20201119/XX/XI/679367470");
             //            }
             //        }
             //    }
@@ -29137,7 +29202,7 @@ namespace MasterOnline.Controllers
                 {
                     adaErr = true;
                 }
-                var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a where no_bukti in (select NFAKTUR from art03b where bukti='" + piutangInDb.BUKTI + "')").ToList();
+                var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a (nolock) where no_bukti in (select NFAKTUR from art03b (nolock) where bukti='" + piutangInDb.BUKTI + "')").ToList();
                 //var getHitungHeader = ErasoftDbContext.Database.SqlQuery<tempHitungHeader>("select a.BUKTI, ISNULL(sum(SISA),0) as TotalFaktur, ISNULL(a.TBAYAR,0) as TotalBayar, ISNULL(a.TPOT,0) as TotalPotongan, ISNULL((sum(BAYAR) + sum(POT)),0) as TotalPelunasan, ISNULL((sum(SISA) - sum(BAYAR) - sum(POT)),0) as Selisih, ISNULL(TLEBIH_BAYAR,0) AS TotalLebihBayar from art03a a inner join art03b b on a.bukti=b.bukti where a.bukti='" + piutangInDb.BUKTI + "' group by a.BUKTI,TBAYAR,TPOT,TLEBIH_BAYAR").SingleOrDefault();
                 var vm = new BayarPiutangViewModel()
                 {
@@ -47784,6 +47849,7 @@ namespace MasterOnline.Controllers
 
         public class tempDetailPiutang
         {
+            public string BUKTI { get; set; }
             public int? NO { get; set; }
             public string NFAKTUR { get; set; }
             public double SISA { get; set; }
@@ -47812,14 +47878,35 @@ namespace MasterOnline.Controllers
                 var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
                 if (piutangInDb != null)
                 {
-                    //var ssql2 = "select * from ART03B where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
-                    var ssql2 = "select [NO],NFAKTUR,SISA,BAYAR,POT from ART03B where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
-                    var piutangDetaiInDb = ErasoftDbContext.Database.SqlQuery<tempDetailPiutang>(ssql2).ToList();
-                    ret.countAll = piutangDetaiInDb.Count();
+                    //change by nurul 23/11/2020
+                    ////var ssql2 = "select * from ART03B where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
+                    ////var ssql2 = "select [NO],NFAKTUR,SISA,BAYAR,POT from ART03B (nolock) where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
+                    //var ssql2 = "select [NO],NFAKTUR,SISA,BAYAR,POT from ART03B (nolock) where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0";
+                    //var piutangDetaiInDb = ErasoftDbContext.Database.SqlQuery<tempDetailPiutang>(ssql2).ToList();
+                    //ret.countAll = piutangDetaiInDb.Count();
+                    //if (ret.statusLoop == true)
+                    //{
+                    //    prog[1] = Convert.ToString(Convert.ToInt32(prog[1]) - 1);
+                    //}
+                    List<tempDetailPiutang> piutangDetaiInDb = new List<tempDetailPiutang>();
+                    if (ret.statusLoop == false)
+                    {
+                        var dsArDel = EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM temp_Pelunasan");
+                        var sSQL4 = "insert into temp_Pelunasan (BUKTI,[NO],NFAKTUR,SISA,BAYAR,POT) ";
+                        sSQL4 += "select BUKTI,[NO],NFAKTUR,SISA,BAYAR,POT from ART03B (nolock) where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0";
+                        var dsArRow = EDB.ExecuteSQL("sConn", CommandType.Text, sSQL4);
+                        var ssql2 = "select * from temp_Pelunasan where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0";
+                        piutangDetaiInDb = ErasoftDbContext.Database.SqlQuery<tempDetailPiutang>(ssql2).ToList();
+                        ret.countAll = piutangDetaiInDb.Count();
+                    }
                     if (ret.statusLoop == true)
                     {
+                        var ssql3 = "select * from temp_Pelunasan where bukti = '" + ret.nobuk + "' and (sisa - bayar - pot) > 0";
+                        piutangDetaiInDb.AddRange(ErasoftDbContext.Database.SqlQuery<tempDetailPiutang>(ssql3).ToList());
+                        ret.countAll = piutangDetaiInDb.Count();
                         prog[1] = Convert.ToString(Convert.ToInt32(prog[1]) - 1);
                     }
+                    //end change by nurul 23/11/2020
 
                     if (Convert.ToInt32(prog[1]) == 0)
                     {
@@ -47840,9 +47927,13 @@ namespace MasterOnline.Controllers
                             var getData = piutangDetaiInDb[i];
                             if (getData != null)
                             {
-                                getData.POT = Convert.ToDouble(Math.Abs(Math.Round(Convert.ToDecimal(getData.SISA - getData.BAYAR), 2, MidpointRounding.AwayFromZero)));
-                                Pot.Add(getData.POT);
-                                recnum.Add(Convert.ToInt32(getData.NO));
+                                if (getData.SISA - getData.BAYAR - getData.POT > 0)
+                                {
+                                    getData.POT = Convert.ToDouble(Math.Abs(Math.Round(Convert.ToDecimal(getData.SISA - getData.BAYAR), 2, MidpointRounding.AwayFromZero)));
+                                    Pot.Add(getData.POT);
+                                    recnum.Add(Convert.ToInt32(getData.NO));
+                                    //ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=(sisa - bayar) where no =" + getData.NO + " and bukti='" + ret.nobuk + "'");
+                                }
                             }
                             else
                             {
@@ -47858,49 +47949,55 @@ namespace MasterOnline.Controllers
                                     {
                                         ret.statusSuccess = true;
                                         ret.TidakLanjutProses = true;
-                                        using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
-                                        {
+                                        //using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                                        //{
                                             try
                                             {
                                                 for (int ax = 0; ax < recnum.Count(); ax++)
                                                 {
-                                                    ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=" + Pot[ax] + " where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                    //ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=(sisa - bayar) where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                    var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "update art03b set pot=(sisa - bayar) where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                    ret.successUpdateDetail += successRow;
                                                 }
-                                                ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
-                                                var totalpot = ErasoftDbContext.ART03B.Where(a => (a.SISA - a.BAYAR) > 0).Sum(a => a.POT);
+                                                //ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                                var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                                ret.successUpdateHeader += successRowHeader;
+                                                //var totalpot = ErasoftDbContext.ART03B.Where(a => (a.SISA - a.BAYAR) > 0).Sum(a => a.POT);
 
-                                                ErasoftDbContext.SaveChanges();
-                                                transaction.Commit();
+                                                //ErasoftDbContext.SaveChanges();
+                                                //transaction.Commit();
                                             }
                                             catch (Exception ex)
                                             {
-                                                transaction.Rollback();
-                                                var cekdetail = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk && (a.SISA - a.BAYAR) > 0).Sum(a => (a.SISA - a.BAYAR - a.POT));
-                                                var cekheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).Select(a => a.TPOT);
-                                                for (int ax = 0; ax < recnum.Count(); ax++)
-                                                {
-                                                    ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=0 where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
-                                                }
-                                                ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                                //transaction.Rollback();
+                                                //var cekdetail = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk && (a.SISA - a.BAYAR) > 0).Sum(a => (a.SISA - a.BAYAR - a.POT));
+                                                //var cekheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).Select(a => a.TPOT);
+                                                //for (int ax = 0; ax < recnum.Count(); ax++)
+                                                //{
+                                                //    ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=0 where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                //}
+                                                //ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                                var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                                ret.successUpdateHeader += successRowHeader;
 
                                                 var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
                                                 ret.Errors.Add(errMsg);
                                                 ret.adaError = true;
                                             }
-                                        }
+                                        //}
                                         if (ret.Errors.Count() > 0)
                                         {
                                             ret.adaError = true;
                                         }
                                         vm.Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == ret.nobuk);
                                         vm.ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == ret.nobuk).ToList();
-                                        var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a where no_bukti in (select NFAKTUR from art03b where bukti='" + ret.nobuk + "')").ToList();
+                                        var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a (nolock) where no_bukti in (select NFAKTUR from art03b (nolock) where bukti='" + ret.nobuk + "')").ToList();
                                         vm.ListOngkir = getOngkir;
                                         vm.ret = ret;
 
                                         return PartialView("DetailBayarPiutangPartial", vm);
                                     }
-                                    if (tempPercent != ret.percent)
+                                    if (tempPercent != ret.percent || recnum.Count() == 10)
                                     {
                                         if (Pot.Count() > 0)
                                         {
@@ -47910,37 +48007,43 @@ namespace MasterOnline.Controllers
                                                 ret.TPOT += Pot[ab];
                                             }
                                         }
-                                        using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
-                                        {
+                                        //using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                                        //{
                                             try
                                             {
                                                 for (int ax = 0; ax < recnum.Count(); ax++)
                                                 {
-                                                    ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=" + Pot[ax] + " where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                    //ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=(sisa - bayar) where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                    var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "update art03b set pot=(sisa - bayar) where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                    ret.successUpdateDetail += successRow;
                                                 }
-                                                ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
-                                                var totalpot = ErasoftDbContext.ART03B.Where(a => (a.SISA - a.BAYAR) > 0).Sum(a => a.POT);
+                                                //ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                                var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                                ret.successUpdateHeader += successRowHeader;
+                                                //var totalpot = ErasoftDbContext.ART03B.Where(a => (a.SISA - a.BAYAR) > 0).Sum(a => a.POT);
 
-                                                ErasoftDbContext.SaveChanges();
-                                                transaction.Commit();
+                                                //ErasoftDbContext.SaveChanges();
+                                                //transaction.Commit();
                                             }
                                             catch (Exception ex)
                                             {
-                                                transaction.Rollback();
-                                                var cekdetail = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk && (a.SISA - a.BAYAR) > 0).Sum(a => (a.SISA - a.BAYAR - a.POT));
-                                                var cekheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).Select(a => a.TPOT);
-                                                for (int ax = 0; ax < recnum.Count(); ax++)
-                                                {
-                                                    ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=0 where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
-                                                }
-                                                ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                                //transaction.Rollback();
+                                                //var cekdetail = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk && (a.SISA - a.BAYAR) > 0).Sum(a => (a.SISA - a.BAYAR - a.POT));
+                                                //var cekheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).Select(a => a.TPOT);
+                                                //for (int ax = 0; ax < recnum.Count(); ax++)
+                                                //{
+                                                //    ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=0 where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                //}
+                                                //ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                                var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                                ret.successUpdateHeader += successRowHeader;
 
                                                 var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
                                                 ret.Errors.Add(errMsg);
                                                 ret.adaError = true;
                                             }
                                             return Json(ret, JsonRequestBehavior.AllowGet);
-                                        }
+                                        //}
                                     }
                                 }
                             }
@@ -47955,43 +48058,49 @@ namespace MasterOnline.Controllers
                                 {
                                     ret.statusSuccess = true;
                                     ret.TidakLanjutProses = true;
-                                    using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
-                                    {
+                                    //using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                                    //{
                                         try
                                         {
                                             for (int ax = 0; ax < recnum.Count(); ax++)
                                             {
-                                                ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=" + Pot[ax] + " where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                //ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=(sisa - bayar) where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "update art03b set pot=(sisa - bayar) where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                ret.successUpdateDetail += successRow;
                                             }
-                                            ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
-                                            var totalpot = ErasoftDbContext.ART03B.Where(a => (a.SISA - a.BAYAR) > 0).Sum(a => a.POT);
+                                            //ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            ret.successUpdateHeader += successRowHeader;
+                                            //var totalpot = ErasoftDbContext.ART03B.Where(a => (a.SISA - a.BAYAR) > 0).Sum(a => a.POT);
 
-                                            ErasoftDbContext.SaveChanges();
-                                            transaction.Commit();
+                                            //ErasoftDbContext.SaveChanges();
+                                            //transaction.Commit();
                                         }
                                         catch (Exception ex)
                                         {
-                                            transaction.Rollback();
-                                            var cekdetail = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk && (a.SISA - a.BAYAR) > 0).Sum(a => (a.SISA - a.BAYAR - a.POT));
-                                            var cekheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).Select(a => a.TPOT);
-                                            for (int ax = 0; ax < recnum.Count(); ax++)
-                                            {
-                                                ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=0 where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
-                                            }
-                                            ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            //transaction.Rollback();
+                                            //var cekdetail = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk && (a.SISA - a.BAYAR) > 0).Sum(a => (a.SISA - a.BAYAR - a.POT));
+                                            //var cekheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).Select(a => a.TPOT);
+                                            //for (int ax = 0; ax < recnum.Count(); ax++)
+                                            //{
+                                            //    ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=0 where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                            //}
+                                            //ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            ret.successUpdateHeader += successRowHeader;
 
                                             var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
                                             ret.Errors.Add(errMsg);
                                             ret.adaError = true;
                                         }
-                                    }
+                                    //}
                                     if (ret.Errors.Count() > 0)
                                     {
                                         ret.adaError = true;
                                     }
                                     vm.Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == ret.nobuk);
                                     vm.ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == ret.nobuk).ToList();
-                                    var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a(nolock) where no_bukti in (select NFAKTUR from art03b(nolock) where bukti='" + ret.nobuk + "')").ToList();
+                                    var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a(nolock) where no_bukti in (select NFAKTUR from art03b (nolock) where bukti='" + ret.nobuk + "')").ToList();
                                     vm.ListOngkir = getOngkir;
                                     vm.ret = ret;
 
@@ -48007,36 +48116,42 @@ namespace MasterOnline.Controllers
                                             ret.TPOT += Pot[ab];
                                         }
                                     }
-                                    using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
-                                    {
+                                    //using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                                    //{
                                         try
                                         {
                                             for (int ax = 0; ax < recnum.Count(); ax++)
                                             {
-                                                ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=" + Pot[ax] + " where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                //ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=(sisa - bayar) where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "update art03b set pot=(sisa - bayar) where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                ret.successUpdateDetail += successRow;
                                             }
-                                            ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
-                                            var totalpot = ErasoftDbContext.ART03B.Where(a => (a.SISA - a.BAYAR) > 0).Sum(a => a.POT);
-                                            ErasoftDbContext.SaveChanges();
-                                            transaction.Commit();
+                                            //ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            ret.successUpdateHeader += successRowHeader;
+                                            //var totalpot = ErasoftDbContext.ART03B.Where(a => (a.SISA - a.BAYAR) > 0).Sum(a => a.POT);
+                                            //ErasoftDbContext.SaveChanges();
+                                            //transaction.Commit();
                                         }
                                         catch (Exception ex)
                                         {
-                                            transaction.Rollback();
-                                            var cekdetail = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk && (a.SISA - a.BAYAR) > 0).Sum(a => (a.SISA - a.BAYAR - a.POT));
-                                            var cekheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).Select(a => a.TPOT);
-                                            for (int ax = 0; ax < recnum.Count(); ax++)
-                                            {
-                                                ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=0 where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
-                                            }
-                                            ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            //transaction.Rollback();
+                                            //var cekdetail = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk && (a.SISA - a.BAYAR) > 0).Sum(a => (a.SISA - a.BAYAR - a.POT));
+                                            //var cekheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).Select(a => a.TPOT);
+                                            //for (int ax = 0; ax < recnum.Count(); ax++)
+                                            //{
+                                            //    ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=0 where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                            //}
+                                            //ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            ret.successUpdateHeader += successRowHeader;
                                             //transaction.Rollback();
                                             var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
                                             ret.Errors.Add(errMsg);
                                             ret.adaError = true;
                                         }
                                         return Json(ret, JsonRequestBehavior.AllowGet);
-                                    }
+                                    //}
                                 }
                             }
                         }
@@ -48055,6 +48170,16 @@ namespace MasterOnline.Controllers
                 ret.Errors.Add(ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message + "<br />");
                 ret.adaError = true;
                 ret.TidakLanjutProses = true;
+                if (ret.nobuk != null && ret.nobuk != "" && ret.nobuk != "undefined")
+                {
+                    var cekHeader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).Count();
+                    if (cekHeader > 0)
+                    {
+                        //ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                        ret.successUpdateHeader += successRowHeader;
+                    }
+                }
                 return Json(ret, JsonRequestBehavior.AllowGet);
             }
 

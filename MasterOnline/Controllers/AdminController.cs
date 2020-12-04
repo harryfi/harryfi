@@ -29,6 +29,11 @@ namespace MasterOnline.Controllers
     {
         private readonly MoDbContext MoDbContext;
 
+        //add for support MO by fauzi 24 November 2020
+        public ErasoftContext ErasoftDbContext { get; set; }
+        DatabaseSQL EDB;
+        //end for support MO by fauzi 24 November 2020
+
         public AdminController()
         {
             MoDbContext = new MoDbContext("");
@@ -186,8 +191,15 @@ namespace MasterOnline.Controllers
                 string sql = "";
                 var userId = Convert.ToString(accInDb.AccountId);
                 //var tujuan = "54.179.169.195\\SQLEXPRESS";
-                var tujuan = "13.250.232.74\\SQLEXPRESS, 1433";
+#if AWS
+                //var tujuan = "13.250.232.74\\SQLEXPRESS, 1433";
                 //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
+                var tujuan = "13.251.64.77\\SQLEXPRESS, 1433"; // T3.LARGE DB FOR REGISTER NEW ACCOUNT
+#else
+                //var tujuan = "54.179.169.195\\SQLEXPRESS, 1444";
+                //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
+                var tujuan = "13.251.64.77\\SQLEXPRESS, 1433";
+#endif
 
                 accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
                 accInDb.DataSourcePath = tujuan;
@@ -870,7 +882,7 @@ namespace MasterOnline.Controllers
         // =============================================== Bagian Marketplace (END)
 
         // =============================================== Bagian Addons (START)
-        #region Bagian Addons (START)
+#region Bagian Addons (START)
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -932,11 +944,11 @@ namespace MasterOnline.Controllers
             return RedirectToAction("AddonsMenu");
         }
 
-        #endregion
+#endregion
         // =============================================== Bagian Addons (END)
 
         // =============================================== Bagian CustomerAddons (START)
-        #region Bagian CustomerAddons (START)
+#region Bagian CustomerAddons (START)
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1065,7 +1077,7 @@ namespace MasterOnline.Controllers
             return RedirectToAction("AddonsCustMenu");
         }
 
-        #endregion
+#endregion
         // =============================================== Bagian CustomerAddons (END)
 
         // =============================================== Bagian Ekpedisi (START)
@@ -2196,6 +2208,135 @@ namespace MasterOnline.Controllers
             return PartialView("AccDetail", vm);
         }
 
+        // =============================================== Bagian SUPPORT (START)
+        [Route("adminCS/manage/support")]
+        [SessionAdminCheck]
+        public ActionResult SupportMenu()
+        {
+            var vm = new SupportMenu()
+            {
+                AccountList = MoDbContext.Account.Where(p => p.Status).Select(p => p.Email).ToList(),
+            };
+
+            return View(vm);
+        }
+
+        public async Task<ActionResult> GetMarketplaceAccount(string emailAccount)
+        {
+            var vm = new SupportMenu()
+            {
+                ListTokoMPCustomers = new List<ListMarketplaces>()
+            };
+
+            if (!string.IsNullOrEmpty(emailAccount))
+            {
+                var accountlist = MoDbContext.Account.Where(p => p.Email == emailAccount).SingleOrDefault();
+                ErasoftDbContext = new ErasoftContext(accountlist.DataSourcePath, accountlist.DatabasePathErasoft);
+                
+                var customer = ErasoftDbContext.ARF01.Where(m => m.NAMA != "18").OrderBy(m => m.NAMA).ToList();
+                var mp = MoDbContext.Marketplaces.ToList();
+                if (customer.Count > 0)
+                {
+                    foreach (var tbl in customer)
+                    {
+                        var data = new ListMarketplaces
+                        {
+                            cust = Convert.ToInt32(tbl.RecNum),
+                            namaCust = tbl.PERSO,
+                        };
+                        data.namaMarket = mp.Where(m => m.IdMarket.ToString() == tbl.NAMA).FirstOrDefault().NamaMarket;
+
+                        vm.ListTokoMPCustomers.Add(data);
+                    }
+                }
+
+                //return View(vm);
+                return new JsonResult { Data = new { success = true , result = vm }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            else
+            {
+                //return View("Error");
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+
+        public async Task<ActionResult> ProsesUnlinkMP(string listTokoMP)
+        {
+            bool resultUnlink = false;
+            
+            if (!string.IsNullOrEmpty(listTokoMP))
+            {
+                string[] dataSplitToko = listTokoMP.Split('|');
+                string accountEmail = dataSplitToko[0];
+                string listToko = dataSplitToko[1];
+                string listkodeBRG = dataSplitToko[2];
+                string[] splitlistToko = listToko.Split(',');
+                string[] splitlistkodeBRG = listkodeBRG.Split('^');
+                
+                var sqlListKode = "";
+                var sqlListKodeNotFound = "";
+
+                if (!string.IsNullOrEmpty(listToko) && !string.IsNullOrEmpty(listkodeBRG))
+                {
+                    try
+                    {
+                        var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
+                        DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+                        ErasoftDbContext = new ErasoftContext(accountlist.DataSourcePath, accountlist.DatabasePathErasoft);
+
+                        var listdataKodeBRG = ErasoftDbContext.STF02H.Select(p => p.BRG).ToList();
+
+                        foreach (var listKode in splitlistkodeBRG)
+                        {
+                            var kodeBRGCheck = listdataKodeBRG.Contains(listKode);
+                            if (kodeBRGCheck)
+                            {
+                                sqlListKode += "'" + listKode + "',";
+                                resultUnlink = true;
+                            }
+                            else
+                            {
+                                sqlListKodeNotFound += listKode + ",";
+                                resultUnlink = false;
+                            }
+                            
+                        }
+
+                        sqlListKode = sqlListKode.Substring(0, sqlListKode.Length - 1).Replace(" ", "");
+
+                        foreach (var dataToko in splitlistToko)
+                        {
+                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET DISPLAY = 0, BRG_MP = '', LINK_STATUS = '', LINK_ERROR = '' WHERE BRG IN (" + sqlListKode + ") AND IDMARKET = '" + dataToko + "' ");
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        resultUnlink = false;
+                    }
+                    
+                }
+
+                if (!string.IsNullOrEmpty(sqlListKodeNotFound))
+                {
+                    return new JsonResult { Data = new { success = resultUnlink, kodenotfound = sqlListKodeNotFound }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    return new JsonResult { Data = new { success = resultUnlink, kodenotfound = "" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                
+            }
+            else
+            {
+                //return View("Error");
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+        // =============================================== Bagian SUPPORT (END)
+
         // Mengubah status akun utama
         //public async Task<ActionResult> ChangeStatusAccount(int? accId, string stat)
         public async Task<ActionResult> ChangeStatusAccount(MenuAccount dataVm)
@@ -2231,9 +2372,13 @@ namespace MasterOnline.Controllers
                       $" MOVE 'erasoft_log' TO '{pathRestore}\\{accInDb.DatabasePathErasoft}.ldf';";
 #if AWS
                 //add by fauzi 29 Januari 2020
-                accInDb.DataSourcePath = "13.250.232.74\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
-                                "user id=masteronline;password=M@ster123;");
+                //accInDb.DataSourcePath = "13.250.232.74\\SQLEXPRESS, 1433";
+                //SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
+                //                "user id=masteronline;password=M@ster123;");
+
+                accInDb.DataSourcePath = "13.251.64.77\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=13.251.64.77\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                      "user id=masteronline;password=M@ster123;");
 #elif Debug_AWS
                 //add by fauzi 29 Januari 2020
                 accInDb.DataSourcePath = "13.250.232.74\\SQLEXPRESS, 1433";
@@ -2241,8 +2386,11 @@ namespace MasterOnline.Controllers
                                                       "user id=masteronline;password=M@ster123;");
 #else
                 //add by fauzi 29 Januari 2020
-                accInDb.DataSourcePath = "13.251.222.53\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //accInDb.DataSourcePath = "13.251.222.53\\SQLEXPRESS, 1433";
+                //SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //                                      "user id=masteronline;password=M@ster123;");
+                accInDb.DataSourcePath = "13.251.64.77\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=13.251.64.77\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
 #endif
                 SqlCommand command = new SqlCommand(sql, con);

@@ -66,6 +66,11 @@
     <Reference Include="BarcodeLib">
       <HintPath>bin\BarcodeLib.dll</HintPath>
     </Reference>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.7.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\BouncyCastle.Crypto.dll</HintPath>
+      <Aliases>BCC</Aliases>
+    </Reference>
     <Reference Include="CsvHelper, Version=12.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
       <HintPath>..\packages\CsvHelper.12.1.2\lib\net45\CsvHelper.dll</HintPath>
     </Reference>
@@ -731,6 +736,7 @@
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
     <Compile Include="Models\LINKFTP.cs" />
     <Compile Include="Models\LOG_HARGAJUAL.cs" />
+    <Compile Include="Models\SupportMenu.cs" />
     <Compile Include="Models\STF03C.cs" />
     <Compile Include="Models\TEMP_SALDOAWAL.cs" />
     <Compile Include="Models\TEMP_SHOPIFY_ORDERS.cs" />
@@ -1086,6 +1092,7 @@
     <Compile Include="Services\UploadImageService.cs" />
     <Compile Include="Utils\ApplicationPreload.cs" />
     <Compile Include="Utils\AwsConfig.cs" />
+    <Compile Include="Utils\EncryptTokped.cs" />
     <Compile Include="Utils\Functions.cs" />
     <Compile Include="Utils\HangfireBootstrapper.cs" />
     <Compile Include="Utils\Helper.cs" />
@@ -1112,6 +1119,7 @@
     <Compile Include="ViewModels\GudangViewModel.cs" />
     <Compile Include="ViewModels\HargaJualViewModel.cs" />
     <Compile Include="ViewModels\JurnalViewModel.cs" />
+    <Compile Include="ViewModels\SupportMenuViewModel.cs" />
     <Compile Include="ViewModels\TransferToFTPParameterLinkFtpViewModel.cs" />
     <Compile Include="Models\KabupatenKota.cs" />
     <Compile Include="Models\Marketplace.cs" />
@@ -6573,6 +6581,8 @@
     <Content Include="Views\Admin\AddonsMenu.cshtml" />
     <Content Include="Views\Admin\AddonsCustMenu.cshtml" />
     <Content Include="Views\Admin\FormAddonsCustPartial.cshtml" />
+    <Content Include="Views\Admin\SupportMenu.cshtml" />
+    <Content Include="Views\Admin\ListMarketplacesCustomer.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
