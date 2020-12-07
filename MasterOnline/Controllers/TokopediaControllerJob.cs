@@ -3874,7 +3874,8 @@ namespace MasterOnline.Controllers
             var daysFrom = -1;
             var daysTo = 1;
 
-            while (daysFrom > -13)
+            //while (daysFrom > -13)
+            while (daysFrom >= -7)
             {
                 await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
 
