@@ -33,10 +33,30 @@
                             <a class="close-link"><i class="fa fa-close"></i></a>
                         </li>
                     </ul>*@
+                <div class="dropdown pull-right" @*style="padding-top:1.8em;"*@ >
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuPesanan" data-toggle="dropdown">
+                            <span id="mode_statusPesanan">Semua Pesanan</span>
+                            @*<span class="caret"></span>*@
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuPesanan">
+                            <li><a onclick="changeStatus(1)">Semua Pesanan</a></li>
+                            <li><a onclick="changeStatus(2)">Belum Bayar</a></li>
+                            <li><a onclick="changeStatus(3)">Sudah Bayar</a></li>
+                            <li><a onclick="changeStatus(4)">Packing</a></li>
+                            <li><a onclick="changeStatus(5)">Selesai</a></li>
+                            <li><a onclick="changeStatus(6)">Batal</a></li>
+                        </ul>
+                    </div>
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
-                <div class="label_waktu">
+                @*<div id="loading_dashboard_baranglaku" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>*@
+                <div class="row" id="table-pesanan-partial">
+                    @Html.Partial("TableDashboardPesanan");
+                </div>
+                @*<div class="label_waktu">
                     <span class="label label-success date_label">Hari Ini</span>
                 </div>
                 <div>
@@ -68,7 +88,7 @@
                         Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananBulanIni ?? 0)
                     </h2>
                     <small>Nilai Pesanan</small>
-                </div>
+                </div>*@
             </div>
         </div>
     </div>
@@ -168,7 +188,10 @@
             </div>
             <div class="x_content">
                 <div class="hscroll table-responsive tblgrafik">
-                    <table class="table table-bordered table-striped">
+                    <div class="row" id="table-marketplace-partial">
+                        @Html.Partial("TableDashboardPesananPerMarketplace");
+                    </div>
+                    @*<table class="table table-bordered table-striped">
                         <thead>
                             <tr>
                                 <th class="text-center" rowspan="2" style="width: 300px; vertical-align: middle">Akun Marketplace</th>
@@ -207,7 +230,7 @@
                                 </tr>
                             }
                         </tbody>
-                    </table>
+                    </table>*@
                 </div>
             </div>
         </div>

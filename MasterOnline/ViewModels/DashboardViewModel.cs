@@ -70,5 +70,103 @@ namespace MasterOnline.ViewModels
         public double totalPB { get; set; }
         public double selisih { get; set; }
         //end add by nurul 18/11/2019, arus kas 
+
+        //add by nurul 7/12/2020
+        public DashboardPesanan pesananByStatus { get; set; }
+        //end add by nurul 7/12/2020
+
+        public PesananPerMarketplaceModelGroupByStatus ListPesananPerMarketplaceGroupByStatus { get; set; }
     }
+
+    //add by nurul 7/12/2020
+    public class DashboardPesanan
+    {
+        public int? JumlahPesananHariIni_Semua { get; set; }
+        public double? NilaiPesananHariIni_Semua { get; set; }
+        public int? JumlahPesananBulanIni_Semua { get; set; }
+        public double? NilaiPesananBulanIni_Semua { get; set; }
+
+        public int? JumlahPesananHariIni_Unpaid { get; set; }
+        public double? NilaiPesananHariIni_Unpaid { get; set; }
+        public int? JumlahPesananBulanIni_Unpaid { get; set; }
+        public double? NilaiPesananBulanIni_Unpaid { get; set; }
+
+        public int? JumlahPesananHariIni_Paid { get; set; }
+        public double? NilaiPesananHariIni_Paid { get; set; }
+        public int? JumlahPesananBulanIni_Paid { get; set; }
+        public double? NilaiPesananBulanIni_Paid { get; set; }
+
+        public int? JumlahPesananHariIni_Packing { get; set; }
+        public double? NilaiPesananHariIni_Packing { get; set; }
+        public int? JumlahPesananBulanIni_Packing { get; set; }
+        public double? NilaiPesananBulanIni_Packing { get; set; }
+
+        public int? JumlahPesananHariIni_Selesai { get; set; }
+        public double? NilaiPesananHariIni_Selesai { get; set; }
+        public int? JumlahPesananBulanIni_Selesai { get; set; }
+        public double? NilaiPesananBulanIni_Selesai { get; set; }
+
+        public int? JumlahPesananHariIni_Batal { get; set; }
+        public double? NilaiPesananHariIni_Batal { get; set; }
+        public int? JumlahPesananBulanIni_Batal { get; set; }
+        public double? NilaiPesananBulanIni_Batal { get; set; }
+    }
+    public class PesananPerMarketplaceModelGroupByStatus
+    {
+        public List<PesananPerMarketplaceModel_Semua> listPesananMarket_Semua = new List<PesananPerMarketplaceModel_Semua>();
+        public List<PesananPerMarketplaceModel_Unpaid> listPesananMarket_Unpaid = new List<PesananPerMarketplaceModel_Unpaid>();
+        public List<PesananPerMarketplaceModel_Paid> listPesananMarket_Paid = new List<PesananPerMarketplaceModel_Paid>();
+        public List<PesananPerMarketplaceModel_Packing> listPesananMarket_Packing = new List<PesananPerMarketplaceModel_Packing>();
+        public List<PesananPerMarketplaceModel_Selesai> listPesananMarket_Selesai = new List<PesananPerMarketplaceModel_Selesai>();
+        public List<PesananPerMarketplaceModel_Batal> listPesananMarket_Batal = new List<PesananPerMarketplaceModel_Batal>();
+    }
+    public class PesananPerMarketplaceModel_Semua
+    {
+        public string NamaMarket { get; set; }
+        public string JumlahPesananHariIni { get; set; }
+        public string NilaiPesananHariIni { get; set; }
+        public string JumlahPesananBulanIni { get; set; }
+        public string NilaiPesananBulanIni { get; set; }
+    }
+    public class PesananPerMarketplaceModel_Unpaid
+    {
+        public string NamaMarket { get; set; }
+        public string JumlahPesananHariIni { get; set; }
+        public string NilaiPesananHariIni { get; set; }
+        public string JumlahPesananBulanIni { get; set; }
+        public string NilaiPesananBulanIni { get; set; }
+    }
+    public class PesananPerMarketplaceModel_Paid
+    {
+        public string NamaMarket { get; set; }
+        public string JumlahPesananHariIni { get; set; }
+        public string NilaiPesananHariIni { get; set; }
+        public string JumlahPesananBulanIni { get; set; }
+        public string NilaiPesananBulanIni { get; set; }
+    }
+    public class PesananPerMarketplaceModel_Packing
+    {
+        public string NamaMarket { get; set; }
+        public string JumlahPesananHariIni { get; set; }
+        public string NilaiPesananHariIni { get; set; }
+        public string JumlahPesananBulanIni { get; set; }
+        public string NilaiPesananBulanIni { get; set; }
+    }
+    public class PesananPerMarketplaceModel_Selesai
+    {
+        public string NamaMarket { get; set; }
+        public string JumlahPesananHariIni { get; set; }
+        public string NilaiPesananHariIni { get; set; }
+        public string JumlahPesananBulanIni { get; set; }
+        public string NilaiPesananBulanIni { get; set; }
+    }
+    public class PesananPerMarketplaceModel_Batal
+    {
+        public string NamaMarket { get; set; }
+        public string JumlahPesananHariIni { get; set; }
+        public string NilaiPesananHariIni { get; set; }
+        public string JumlahPesananBulanIni { get; set; }
+        public string NilaiPesananBulanIni { get; set; }
+    }
+    //end add by nurul 7/12/2020
 }

@@ -1141,7 +1141,7 @@
             getTanggal();
             $('#TGL').datepicker('setDate', '0');
             //getDashboard();
-
+            
             //add by nurul 22/7/2019
             $('#ctk_pesanan').prop('checked', true);
             $('#ctk_faktur').prop('checked', true);
@@ -1248,6 +1248,7 @@
                 $('.chart-mode').hide();
                 $('.angka-mode').show();
                 $tipeTampilan = 1;
+                changeStatus(1);
             }
         }
 
@@ -1637,7 +1638,9 @@
                 },
                 success: function (response) {
                     $('#dashboard_page').html(response);
-
+                    //add by nurul 7/12/2020
+                    changeStatus(1);
+                    //end add by nurul 7/12/2020
                     //add by nurul 6/9/2019
                     $('#periode_tdklaku').hide();
                     //end add by nurul 6/9/2019
@@ -9954,5 +9957,61 @@
             });
         }
         //end add by nurul 18/11/2019
+
+        //add by nurul 7/12/2020
+        function changeStatus(status) {
+            if (status === 1) {
+                $('#mode_statusPesanan').text('Semua Pesanan');
+                $('.semua-mode').show();
+                $('.belum-mode').hide();
+                $('.sudah-mode').hide();
+                $('.packing-mode').hide();
+                $('.selesai-mode').hide();
+                $('.batal-mode').hide();
+                //$tipeStyle = 1;
+            } else if (status === 2) {
+                $('#mode_statusPesanan').text('Belum Bayar');
+                $('.semua-mode').hide();
+                $('.belum-mode').show();
+                $('.sudah-mode').hide();
+                $('.packing-mode').hide();
+                $('.selesai-mode').hide();
+                $('.batal-mode').hide();
+                //$tipeStyle = 2;
+            } else if (status === 3) {
+                $('#mode_statusPesanan').text('Sudah Bayar');
+                $('.semua-mode').hide();
+                $('.belum-mode').hide();
+                $('.sudah-mode').show();
+                $('.packing-mode').hide();
+                $('.selesai-mode').hide();
+                $('.batal-mode').hide();
+            } else if (status === 4) {
+                $('#mode_statusPesanan').text('Packing');
+                $('.semua-mode').hide();
+                $('.belum-mode').hide();
+                $('.sudah-mode').hide();
+                $('.packing-mode').show();
+                $('.selesai-mode').hide();
+                $('.batal-mode').hide();
+            } else if (status === 5) {
+                $('#mode_statusPesanan').text('Selesai');
+                $('.semua-mode').hide();
+                $('.belum-mode').hide();
+                $('.sudah-mode').hide();
+                $('.packing-mode').hide();
+                $('.selesai-mode').show();
+                $('.batal-mode').hide();
+            } else if (status === 6) {
+                $('#mode_statusPesanan').text('Batal');
+                $('.semua-mode').hide();
+                $('.belum-mode').hide();
+                $('.sudah-mode').hide();
+                $('.packing-mode').hide();
+                $('.selesai-mode').hide();
+                $('.batal-mode').show();
+            }
+        }
+        //end add by nurul 7/12/2020
     </script>
 }
