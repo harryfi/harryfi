@@ -4888,8 +4888,8 @@ namespace MasterOnline.Controllers
                     };
                     //Task.Run(() => jdAPI.checkAPICustomerShop(dataJD)).Wait();
                     //jdAPI.JDID_checkAPICustomerShop(dataJD);
-                    //jdAPI.JDID_checkAPICustomerShopNew(dataJD);
-                    Task.Run(() => jdAPI.JDID_checkAPICustomerShopNew(dataJD)).Wait();
+                    jdAPI.JDID_checkAPICustomerShopNew(dataJD);
+                    //Task.Run(() => jdAPI.JDID_checkAPICustomerShopNew(dataJD)).Wait();
                 }
 
             }
