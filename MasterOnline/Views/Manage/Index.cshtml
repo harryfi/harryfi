@@ -10014,6 +10014,20 @@
         //    }
         //}
         function changeStatus(status) {
+            if (status === 1) {
+                $('#mode_statusPesanan').text('Semua Pesanan');
+            } else if (status === 2) {
+                $('#mode_statusPesanan').text('Belum Bayar');
+            } else if (status === 3) {
+                $('#mode_statusPesanan').text('Sudah Bayar');
+            } else if (status === 4) {
+                $('#mode_statusPesanan').text('Packing');
+            } else if (status === 5) {
+                $('#mode_statusPesanan').text('Selesai');
+            } else if (status === 6) {
+                $('#mode_statusPesanan').text('Batal');
+            }
+
             var link = '@Html.Raw(Url.Action("refreshDashboardPesanan", "Manage", new { tgl = "replaceTgl", status = "replaceStatus" }))';
             link = link.replace("replaceTgl", encodeURIComponent($('#TGL').val()));
             link = link.replace("replaceStatus", encodeURIComponent(status));
@@ -10030,8 +10044,7 @@
 
                     $('#loading_dashboard_pesanan').hide();
                     $('#table-pesanan-partial').show();
-                    
-
+                         
                     var $link = '@Html.Raw(Url.Action("refreshDashboardPesananPerMarket", "Manage", new { tgl = "replaceTgl", status = "replaceStatus" }))';
                     $link = $link.replace("replaceTgl", encodeURIComponent($('#TGL').val()));
                     $link = $link.replace("replaceStatus", encodeURIComponent(status));
