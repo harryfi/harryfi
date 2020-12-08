@@ -958,8 +958,8 @@ namespace MasterOnline.Controllers
                         break;
                 }
                 var dsPesanan = EDB.GetDataSet("CString", "PESANAN", sSQL);
-                for (int i = 1; i < 2; i++)
-                {
+                //for (int i = 1; i <= 2; i++)
+                //{
                     var getData = dsPesanan.Tables[0].Select("jenis = 'hari'").FirstOrDefault();
                     if (getData != null)
                     {
@@ -972,7 +972,7 @@ namespace MasterOnline.Controllers
                         vm.JumlahPesananBulanIni = Convert.ToInt32(getData1["jumlah"]);
                         vm.NilaiPesananBulanIni = Convert.ToDouble(getData1["nilai"]);
                     }
-                }
+                //}
                 //vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
                 //{
                 //    No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
@@ -1086,8 +1086,8 @@ namespace MasterOnline.Controllers
                     {
                         NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
                     };
-                    for (int i = 1; i < 2; i++)
-                    {
+                    //for (int i = 1; i <= 2; i++)
+                    //{
                         var getData = dsPesanan.Tables[0].Select("jenis = 'hari'").FirstOrDefault();
                         if (getData != null)
                         {
@@ -1108,7 +1108,7 @@ namespace MasterOnline.Controllers
                             tempPerMarket.JumlahPesananBulanIni = Convert.ToString(getData1["jumlah"]);
                             tempPerMarket.NilaiPesananBulanIni = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Convert.ToDouble(getData1["nilai"]))}";
                         }
-                    }
+                    //}
                     vm.ListPesananPerMarketplace.Add(tempPerMarket);
                 }
             }
