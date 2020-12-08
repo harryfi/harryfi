@@ -4887,7 +4887,8 @@ namespace MasterOnline.Controllers
                         DatabasePathErasoft = dbPathEra,
                     };
                     //Task.Run(() => jdAPI.checkAPICustomerShop(dataJD)).Wait();
-                    jdAPI.JDID_checkAPICustomerShop(dataJD);
+                    //jdAPI.JDID_checkAPICustomerShop(dataJD);
+                    jdAPI.JDID_checkAPICustomerShopNew(dataJD);
                 }
 
             }

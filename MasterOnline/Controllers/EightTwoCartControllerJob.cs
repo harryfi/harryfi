@@ -565,6 +565,8 @@ namespace MasterOnline.Controllers
 
                                         c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, listattributeIDGroup, listattributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
 
+                                        listattributeIDGroup = "";
+                                        listattributeIDItems = "";
                                     }
 
 
@@ -922,6 +924,8 @@ namespace MasterOnline.Controllers
                                             c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, detailBrg.BRG_MP, listattributeIDGroup, listattributeIDItems, weight.ToString(), "0", Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
                                         }
 
+                                        listattributeIDGroup = "";
+                                        listattributeIDItems = "";
 
                                     }
 
