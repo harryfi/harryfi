@@ -2338,14 +2338,25 @@ namespace MasterOnline.Controllers
                         var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
                         DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
 
-                        //foreach (var listKode in sqlListKodeLama)
-                        //{
-                        //    sqlListKodeLama += "'" + listKode + "',";
-                        //}
+                        ErasoftDbContext = new ErasoftContext(accountlist.DataSourcePath, accountlist.DatabasePathErasoft);
+
+                        
+
+                        foreach (var listKode in splitlistBRGBaru)
+                        {
+                            var checkSI = ErasoftDbContext.SIT01B.Where(p => p.BRG == listKode).Select(p => p.NO_BUKTI).SingleOrDefault();
+                            var checkPosting = ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == checkSI).SingleOrDefault();
+                            if (checkPosting.ST_POSTING != "Y")
+                            {
+                                sqlListKodeLama += "'" + listKode + "',";
+                            }
+
+                            
+                        }
 
                         //sqlListKode = sqlListKode.Substring(0, sqlListKode.Length - 1).Replace(" ", "");
 
-                        foreach (var dataKodeBaru in sqlListKodeBaru)
+                        foreach (var dataKodeBaru in splitlistBRGBaru)
                         {
                             //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02 SET BRG = '" + dataKodeBaru + "' WHERE BRG = '" + sqlListKode + " AND IDMARKET = '" + dataToko + "' ");
                         }
