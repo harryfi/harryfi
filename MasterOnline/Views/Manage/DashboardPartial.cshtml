@@ -35,10 +35,10 @@
                     </ul>*@
                 <div class="dropdown pull-right" @*style="padding-top:1.8em;"*@ >
                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuPesanan" data-toggle="dropdown">
-                            <span id="mode_statusPesanan">Semua Pesanan</span>
-                            @*<span class="caret"></span>*@
+                            <span id="mode_statusPesanan" style="color:black !important">Semua Pesanan</span>
+                            <span class="caret" style="color:black !important"></span>
                         </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuPesanan">
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuPesanan" style="color:black !important;">
                             <li><a onclick="changeStatus(1)">Semua Pesanan</a></li>
                             <li><a onclick="changeStatus(2)">Belum Bayar</a></li>
                             <li><a onclick="changeStatus(3)">Sudah Bayar</a></li>
@@ -50,11 +50,11 @@
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
-                @*<div id="loading_dashboard_baranglaku" class="text-center">
+                <div id="loading_dashboard_pesanan" class="text-center">
                     <img src="~/Content/Images/spinner.gif" width="100" />
-                </div>*@
+                </div>
                 <div class="row" id="table-pesanan-partial">
-                    @Html.Partial("TableDashboardPesanan");
+                    @*@Html.Partial("TableDashboardPesanan");*@
                 </div>
                 @*<div class="label_waktu">
                     <span class="label label-success date_label">Hari Ini</span>
@@ -188,8 +188,11 @@
             </div>
             <div class="x_content">
                 <div class="hscroll table-responsive tblgrafik">
+                    <div id="loading_dashboard_pesananpermarket" class="text-center">
+                        <img src="~/Content/Images/spinner.gif" width="100" />
+                    </div>
                     <div class="row" id="table-marketplace-partial">
-                        @Html.Partial("TableDashboardPesananPerMarketplace");
+                        @*@Html.Partial("TableDashboardPesananPerMarketplace");*@
                     </div>
                     @*<table class="table table-bordered table-striped">
                         <thead>

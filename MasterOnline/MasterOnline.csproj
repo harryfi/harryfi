@@ -6586,6 +6586,8 @@
     <Content Include="Views\Admin\AddonsCustMenuCS.cshtml" />
     <Content Include="Views\Manage\TableDashboardPesanan.cshtml" />
     <Content Include="Views\Manage\TableDashboardPesananPerMarketplace.cshtml" />
+    <Content Include="Views\Manage\TableDashboardPesanan2.cshtml" />
+    <Content Include="Views\Manage\TableDashboardPesananPerMarketplace2.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
