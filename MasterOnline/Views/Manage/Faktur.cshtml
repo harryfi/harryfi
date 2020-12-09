@@ -4970,6 +4970,7 @@
                     $('#multisku-kode').hide();
                     getBarangMultiSKUForBarang();
                     getGudangForBarang();
+                    saveUlangHeader();
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
                 },
@@ -5237,8 +5238,10 @@
                                 $('#multisku-kode').hide();
                                 getBarangMultiSKUForBarang();
                                 getGudangForBarang();
+                                saveUlangHeader();
                                 //$('#EXPEDISI').attr('disabled', 'disabled');
                                 $('#btn-simpan-perubahan-row').show();
+                                
                             } else {
                                 //change by nurul 15/10/2018
                                 //console.log(response.Errors);
@@ -5284,7 +5287,24 @@
                 }
             }
         }
+        //add by nurul 8/12/2020
+        function saveUlangHeader() {
+            var link = '@Url.Action("UpdateFixFakturNotBalance", "Manage", new { bukti = "replaceNo" })';
+            link = link.replace("replaceNo", encodeURIComponent($('#Faktur_NO_BUKTI').val()));
 
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (response) {
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+        }
+        //end add by nurul 8/12/2020
         function checkfile(s) {
             var validExts = new Array(".xlsx", ".xls", ".csv");
             var fileExt = s.value;

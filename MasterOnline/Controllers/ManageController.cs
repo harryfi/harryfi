@@ -18414,6 +18414,25 @@ namespace MasterOnline.Controllers
             return PartialView("BarangFakturPartial", vm);
         }
 
+        //add by nurul 8/12/2020
+        public ActionResult UpdateFixFakturNotBalance(string bukti)
+        {
+            if (bukti != "" && bukti != "undefined" && bukti != null)
+            {
+                var sSQL = "SELECT A.NO_BUKTI, B.HARGA AS DETAIL_HARGA, A.BRUTO, A.NETTO,A.MATERAI,A.NILAI_DISC,A.PPN,((B.HARGA - A.NILAI_DISC) * A.PPN / 100) AS NILAI_PPN, (B.HARGA + A.MATERAI + ((B.HARGA - A.NILAI_DISC) * A.PPN / 100) - A.NILAI_DISC) AS NETTO_BARU " +
+                           "FROM SIT01A A (NOLOCK) INNER JOIN (select no_bukti,ISNULL(sum(ISNULL(harga,0)),0) as harga from sit01b (nolock) group by no_bukti)B " +
+                           "ON A.NO_BUKTI = B.NO_BUKTI WHERE A.JENIS_FORM = '2' AND A.STATUS = '1' AND A.NO_BUKTI = '" + bukti + "' AND B.HARGA<> A.BRUTO ";
+                var dsFaktur = EDB.GetDataSet("CString", "tblFaktur", sSQL);                
+                if (dsFaktur.Tables[0].Rows.Count > 0)
+                {               
+                    var sSQL2 = "UPDATE SIT01A SET BRUTO = '" + dsFaktur.Tables[0].Rows[0]["DETAIL_HARGA"].ToString() + "' , NILAI_PPN = '" + dsFaktur.Tables[0].Rows[0]["NILAI_PPN"].ToString() + "', NETTO = '" + dsFaktur.Tables[0].Rows[0]["NETTO_BARU"].ToString() + "' WHERE NO_BUKTI = '" + bukti + "'";
+                    var returnUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL2);
+                }
+            }
+            return new EmptyResult();
+        }
+        //end add by nurul 8/12/2020
+
         public ActionResult SaveReturFaktur(FakturViewModel dataVm)
         {
             if (!ModelState.IsValid)
