@@ -1,0 +1,45 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@model MasterOnline.ViewModels.DashboardViewModel
+<script type="text/javascript">
+    @*@{
+        var listPieBarang = Model.ListBarangLaku.OrderByDescending(a => a.Qty).Take(10);
+    }
+    var listPieBarang = @Html.Raw(Json.Encode(listPieBarang));*@
+</script>
+<div class="row pesanan-semua-mode">
+    <div class="label_waktu">
+        <span class="label label-success date_label">Hari Ini</span>
+    </div>
+    <div>
+        <h2 class="no-margins">
+            @(Model?.JumlahPesananHariIni ?? 0)
+        </h2>
+        <small>Jumlah Pesanan</small>
+    </div>
+    <div class="pemisah_info"></div>
+    <div>
+        <h2 class="no-margins">
+            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananHariIni ?? 0)
+        </h2>
+        <small>Nilai Pesanan</small>
+    </div>
+    <div class="divider_2"></div>
+    <div class="label_waktu">
+        <span class="label label-success month_label">Bulan Ini</span>
+    </div>
+    <div>
+        <h2 class="no-margins">
+            @(Model?.JumlahPesananBulanIni ?? 0)
+        </h2>
+        <small>Jumlah Pesanan</small>
+    </div>
+    <div class="pemisah_info"></div>
+    <div>
+        <h2 class="no-margins">
+            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananBulanIni ?? 0)
+        </h2>
+        <small>Nilai Pesanan</small>
+    </div>
+</div>
+

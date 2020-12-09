@@ -1,0 +1,219 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@model MasterOnline.ViewModels.DashboardViewModel
+<script type="text/javascript">
+    @*@{
+        var listPieBarang = Model.ListBarangLaku.OrderByDescending(a => a.Qty).Take(10);
+    }
+    var listPieBarang = @Html.Raw(Json.Encode(listPieBarang));*@
+</script>
+<div class="row semua-mode">
+    <div class="label_waktu">
+        <span class="label label-success date_label">Hari Ini</span>
+    </div>
+    <div>
+        <h2 class="no-margins">
+            @(Model?.pesananByStatus.JumlahPesananHariIni_Semua ?? 0)
+        </h2>
+        <small>Jumlah Pesanan</small>
+    </div>
+    <div class="pemisah_info"></div>
+    <div>
+        <h2 class="no-margins">
+            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.pesananByStatus.NilaiPesananHariIni_Semua ?? 0)
+        </h2>
+        <small>Nilai Pesanan</small>
+    </div>
+    <div class="divider_2"></div>
+    <div class="label_waktu">
+        <span class="label label-success month_label">Bulan Ini</span>
+    </div>
+    <div>
+        <h2 class="no-margins">
+            @(Model?.pesananByStatus.JumlahPesananBulanIni_Semua ?? 0)
+        </h2>
+        <small>Jumlah Pesanan</small>
+    </div>
+    <div class="pemisah_info"></div>
+    <div>
+        <h2 class="no-margins">
+            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.pesananByStatus.NilaiPesananBulanIni_Semua ?? 0)
+        </h2>
+        <small>Nilai Pesanan</small>
+    </div>
+</div>
+<div class="row belum-mode">
+    <div class="label_waktu">
+        <span class="label label-success date_label">Hari Ini</span>
+    </div>
+    <div>
+        <h2 class="no-margins">
+            @(Model?.pesananByStatus.JumlahPesananHariIni_Unpaid ?? 0)
+        </h2>
+        <small>Jumlah Pesanan</small>
+    </div>
+    <div class="pemisah_info"></div>
+    <div>
+        <h2 class="no-margins">
+            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.pesananByStatus.NilaiPesananHariIni_Unpaid ?? 0)
+        </h2>
+        <small>Nilai Pesanan</small>
+    </div>
+    <div class="divider_2"></div>
+    <div class="label_waktu">
+        <span class="label label-success month_label">Bulan Ini</span>
+    </div>
+    <div>
+        <h2 class="no-margins">
+            @(Model?.pesananByStatus.JumlahPesananBulanIni_Unpaid ?? 0)
+        </h2>
+        <small>Jumlah Pesanan</small>
+    </div>
+    <div class="pemisah_info"></div>
+    <div>
+        <h2 class="no-margins">
+            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.pesananByStatus.NilaiPesananBulanIni_Unpaid ?? 0)
+        </h2>
+        <small>Nilai Pesanan</small>
+    </div>
+</div>
+<div class="row sudah-mode">
+    <div class="label_waktu">
+        <span class="label label-success date_label">Hari Ini</span>
+    </div>
+    <div>
+        <h2 class="no-margins">
+            @(Model?.pesananByStatus.JumlahPesananHariIni_Paid ?? 0)
+        </h2>
+        <small>Jumlah Pesanan</small>
+    </div>
+    <div class="pemisah_info"></div>
+    <div>
+        <h2 class="no-margins">
+            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.pesananByStatus.NilaiPesananHariIni_Paid ?? 0)
+        </h2>
+        <small>Nilai Pesanan</small>
+    </div>
+    <div class="divider_2"></div>
+    <div class="label_waktu">
+        <span class="label label-success month_label">Bulan Ini</span>
+    </div>
+    <div>
+        <h2 class="no-margins">
+            @(Model?.pesananByStatus.JumlahPesananBulanIni_Paid ?? 0)
+        </h2>
+        <small>Jumlah Pesanan</small>
+    </div>
+    <div class="pemisah_info"></div>
+    <div>
+        <h2 class="no-margins">
+            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.pesananByStatus.NilaiPesananBulanIni_Paid ?? 0)
+        </h2>
+        <small>Nilai Pesanan</small>
+    </div>
+</div>
+<div class="row packing-mode">
+    <div class="label_waktu">
+        <span class="label label-success date_label">Hari Ini</span>
+    </div>
+    <div>
+        <h2 class="no-margins">
+            @(Model?.pesananByStatus.JumlahPesananHariIni_Packing ?? 0)
+        </h2>
+        <small>Jumlah Pesanan</small>
+    </div>
+    <div class="pemisah_info"></div>
+    <div>
+        <h2 class="no-margins">
+            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.pesananByStatus.NilaiPesananHariIni_Packing ?? 0)
+        </h2>
+        <small>Nilai Pesanan</small>
+    </div>
+    <div class="divider_2"></div>
+    <div class="label_waktu">
+        <span class="label label-success month_label">Bulan Ini</span>
+    </div>
+    <div>
+        <h2 class="no-margins">
+            @(Model?.pesananByStatus.JumlahPesananBulanIni_Packing ?? 0)
+        </h2>
+        <small>Jumlah Pesanan</small>
+    </div>
+    <div class="pemisah_info"></div>
+    <div>
+        <h2 class="no-margins">
+            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.pesananByStatus.JumlahPesananBulanIni_Packing ?? 0)
+        </h2>
+        <small>Nilai Pesanan</small>
+    </div>
+</div>
+<div class="row selesai-mode">
+    <div class="label_waktu">
+        <span class="label label-success date_label">Hari Ini</span>
+    </div>
+    <div>
+        <h2 class="no-margins">
+            @(Model?.pesananByStatus.JumlahPesananHariIni_Selesai ?? 0)
+        </h2>
+        <small>Jumlah Pesanan</small>
+    </div>
+    <div class="pemisah_info"></div>
+    <div>
+        <h2 class="no-margins">
+            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.pesananByStatus.NilaiPesananHariIni_Selesai ?? 0)
+        </h2>
+        <small>Nilai Pesanan</small>
+    </div>
+    <div class="divider_2"></div>
+    <div class="label_waktu">
+        <span class="label label-success month_label">Bulan Ini</span>
+    </div>
+    <div>
+        <h2 class="no-margins">
+            @(Model?.pesananByStatus.JumlahPesananBulanIni_Selesai ?? 0)
+        </h2>
+        <small>Jumlah Pesanan</small>
+    </div>
+    <div class="pemisah_info"></div>
+    <div>
+        <h2 class="no-margins">
+            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.pesananByStatus.NilaiPesananBulanIni_Selesai ?? 0)
+        </h2>
+        <small>Nilai Pesanan</small>
+    </div>
+</div>
+<div class="row batal-mode">
+    <div class="label_waktu">
+        <span class="label label-success date_label">Hari Ini</span>
+    </div>
+    <div>
+        <h2 class="no-margins">
+            @(Model?.pesananByStatus.JumlahPesananHariIni_Batal ?? 0)
+        </h2>
+        <small>Jumlah Pesanan</small>
+    </div>
+    <div class="pemisah_info"></div>
+    <div>
+        <h2 class="no-margins">
+            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.pesananByStatus.NilaiPesananHariIni_Batal ?? 0)
+        </h2>
+        <small>Nilai Pesanan</small>
+    </div>
+    <div class="divider_2"></div>
+    <div class="label_waktu">
+        <span class="label label-success month_label">Bulan Ini</span>
+    </div>
+    <div>
+        <h2 class="no-margins">
+            @(Model?.pesananByStatus.JumlahPesananBulanIni_Batal ?? 0)
+        </h2>
+        <small>Jumlah Pesanan</small>
+    </div>
+    <div class="pemisah_info"></div>
+    <div>
+        <h2 class="no-margins">
+            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.pesananByStatus.NilaiPesananBulanIni_Batal ?? 0)
+        </h2>
+        <small>Nilai Pesanan</small>
+    </div>
+</div>

@@ -436,6 +436,11 @@ namespace MasterOnline.Controllers
             var selectedMonth = (selDate != "" ? DateTime.ParseExact(selDate, "dd/MM/yyyy",
                 System.Globalization.CultureInfo.InvariantCulture).Month : DateTime.Today.Month);
 
+            var tempDrtgl = selectedDate.ToString("yyyy-MM-dd") + " 00:00:00.000";
+            var tempSdtgl = selectedDate.ToString("yyyy-MM-dd") + " 23:59:59.999";
+
+            var getDate = selectedDate.Day;
+
             if (accessDashboard == false)
             {
                 var vm = new DashboardViewModel()
@@ -536,18 +541,54 @@ namespace MasterOnline.Controllers
                 //// change by nurul 12/10/2018   vm.NilaiReturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => p.BRUTO - p.NILAI_DISC);
                 //vm.NilaiReturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => p.NETTO);
 
-                var ListPesanan = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => p.TGL.Value.Month == selectedMonth && p.TGL.Value.Year == selectedDate.Year && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04"));
+                //var ListPesanan = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => p.TGL.Value.Month == selectedMonth && p.TGL.Value.Year == selectedDate.Year && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04" || p.STATUS_TRANSAKSI == "11"));
                 var ListFaktur = ErasoftDbContext.SIT01A.AsNoTracking().Where(p => p.TGL.Month == selectedMonth && p.TGL.Year == selectedDate.Year && p.STATUS == "1");
 
                 // Pesanan
-                vm.JumlahPesananHariIni = ListPesanan.Where(p => System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Count();
-                // change by nurul 12/10/2018   vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL?.Date == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC);
-                //vm.NilaiPesananHariIni = ListPesanan.Where(p => System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.NETTO)) ?? 0;
-                vm.NilaiPesananHariIni = ListPesanan.Where(p => System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.BRUTO)) ?? 0;
-                vm.JumlahPesananBulanIni = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth).Count();
-                // change by nurul 12/10/2018   vm.NilaiPesananBulanIni = vm.ListPesanan?.Where(p => p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC);
-                //vm.NilaiPesananBulanIni = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.NETTO)) ?? 0;
-                vm.NilaiPesananBulanIni = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.BRUTO)) ?? 0;
+                //vm.JumlahPesananHariIni = ListPesanan.Where(p => System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Count();
+                //// change by nurul 12/10/2018   vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL?.Date == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC);
+                ////vm.NilaiPesananHariIni = ListPesanan.Where(p => System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.NETTO)) ?? 0;
+                //vm.NilaiPesananHariIni = ListPesanan.Where(p => System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.BRUTO)) ?? 0;
+                //vm.JumlahPesananBulanIni = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth).Count();
+                //// change by nurul 12/10/2018   vm.NilaiPesananBulanIni = vm.ListPesanan?.Where(p => p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC);
+                ////vm.NilaiPesananBulanIni = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.NETTO)) ?? 0;
+                //vm.NilaiPesananBulanIni = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.BRUTO)) ?? 0;
+
+                //var tempPesanan = new DashboardPesanan()
+                //{
+                //    JumlahPesananHariIni_Semua = ListPesanan.Where(p => p.TGL.Value.Day == getDate && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).Count(),
+                //    NilaiPesananHariIni_Semua = ListPesanan.Where(p => p.TGL.Value.Day == getDate && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).Sum(p => (double?)(p.BRUTO)) ?? 0,
+                //    JumlahPesananBulanIni_Semua = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).Count(),
+                //    NilaiPesananBulanIni_Semua = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).Sum(p => (double?)(p.BRUTO)) ?? 0,
+
+                //    JumlahPesananHariIni_Unpaid = ListPesanan.Where(p => p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "0").Count(),
+                //    NilaiPesananHariIni_Unpaid = ListPesanan.Where(p => p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "0").Sum(p => (double?)(p.BRUTO)) ?? 0,
+                //    JumlahPesananBulanIni_Unpaid = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "0").Count(),
+                //    NilaiPesananBulanIni_Unpaid = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "0").Sum(p => (double?)(p.BRUTO)) ?? 0,
+
+                //    JumlahPesananHariIni_Paid = ListPesanan.Where(p => p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "01").Count(),
+                //    NilaiPesananHariIni_Paid = ListPesanan.Where(p => p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "01").Sum(p => (double?)(p.BRUTO)) ?? 0,
+                //    JumlahPesananBulanIni_Paid = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "01").Count(),
+                //    NilaiPesananBulanIni_Paid = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "01").Sum(p => (double?)(p.BRUTO)) ?? 0,
+
+                //    JumlahPesananHariIni_Packing = ListPesanan.Where(p => p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "02").Count(),
+                //    NilaiPesananHariIni_Packing = ListPesanan.Where(p => p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "02").Sum(p => (double?)(p.BRUTO)) ?? 0,
+                //    JumlahPesananBulanIni_Packing = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "02").Count(),
+                //    NilaiPesananBulanIni_Packing = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "02").Sum(p => (double?)(p.BRUTO)) ?? 0,
+
+                //    JumlahPesananHariIni_Selesai = ListPesanan.Where(p => p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "04").Count(),
+                //    NilaiPesananHariIni_Selesai = ListPesanan.Where(p => p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "04").Sum(p => (double?)(p.BRUTO)) ?? 0,
+                //    JumlahPesananBulanIni_Selesai = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "04").Count(),
+                //    NilaiPesananBulanIni_Selesai = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "04").Sum(p => (double?)(p.BRUTO)) ?? 0,
+
+                //    JumlahPesananHariIni_Batal = ListPesanan.Where(p => p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "11").Count(),
+                //    NilaiPesananHariIni_Batal = ListPesanan.Where(p => p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "11").Sum(p => (double?)(p.BRUTO)) ?? 0,
+                //    JumlahPesananBulanIni_Batal = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "11").Count(),
+                //    NilaiPesananBulanIni_Batal = ListPesanan.Where(p => p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "11").Sum(p => (double?)(p.BRUTO)) ?? 0,
+
+                //};
+                //vm.pesananByStatus = tempPesanan;
+                //end add by nurul 7/12/2020
 
                 // Faktur
                 vm.JumlahFakturHariIni = ListFaktur.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Count();
@@ -571,47 +612,154 @@ namespace MasterOnline.Controllers
                 vm.NilaiReturBulanIni = ListFaktur.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => (double?)(p.BRUTO)) ?? 0;
                 //end change by calvin 17 september 2019
 
-                if (vm.ListAkunMarketplace.Count > 0)
-                {
-                    foreach (var marketplace in vm.ListAkunMarketplace)
-                    {
-                        var idMarket = Convert.ToInt32(marketplace.NAMA);
-                        var namaMarket = vm.ListMarket.Single(m => m.IdMarket == idMarket).NamaMarket;
+                //if (vm.ListAkunMarketplace.Count > 0)
+                //{
+                //    List<PesananPerMarketplaceModel_Semua> Allmp_Semua = new List<PesananPerMarketplaceModel_Semua>();
+                //    List<PesananPerMarketplaceModel_Unpaid> Allmp_Unpaid = new List<PesananPerMarketplaceModel_Unpaid>();
+                //    List<PesananPerMarketplaceModel_Paid> Allmp_Paid = new List<PesananPerMarketplaceModel_Paid>();
+                //    List<PesananPerMarketplaceModel_Packing> Allmp_Packing = new List<PesananPerMarketplaceModel_Packing>();
+                //    List<PesananPerMarketplaceModel_Selesai> Allmp_Selesai = new List<PesananPerMarketplaceModel_Selesai>();
+                //    List<PesananPerMarketplaceModel_Batal> Allmp_Batal = new List<PesananPerMarketplaceModel_Batal>();
+                //    foreach (var marketplace in vm.ListAkunMarketplace)
+                //    {
+                //        var idMarket = Convert.ToInt32(marketplace.NAMA);
+                //        var namaMarket = vm.ListMarket.Single(m => m.IdMarket == idMarket).NamaMarket;
 
-                        //change by calvin 17 september 2019
-                        //var jumlahPesananToday = vm.ListPesanan?
-                        //    .Where(p => p.CUST == marketplace.CUST && p.TGL?.Date == selectedDate).Count();
-                        //// change by nurul 12/10/2018   var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC))}";
-                        //var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Date == selectedDate).Sum(p => p.NETTO))}";
-
-
-                        //var jumlahPesananMonth = vm.ListPesanan?
-
-                        //    .Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Count();
-                        //// change by nurul 12/10/2018   var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC))}";
-                        //var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.NETTO))}";
-                        var jumlahPesananToday = ListPesanan.Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Count();
-                        // change by nurul 12/10/2018   var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC))}";
-                        //var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.NETTO)) ?? 0)}";
-                        var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+                //        //change by calvin 17 september 2019
+                //        //var jumlahPesananToday = vm.ListPesanan?
+                //        //    .Where(p => p.CUST == marketplace.CUST && p.TGL?.Date == selectedDate).Count();
+                //        //// change by nurul 12/10/2018   var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC))}";
+                //        //var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Date == selectedDate).Sum(p => p.NETTO))}";
 
 
-                        var jumlahPesananMonth = ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth).Count();
-                        // change by nurul 12/10/2018   var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC))}";
-                        //var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.NETTO)) ?? 0)}";
-                        var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.BRUTO)) ?? 0)}";
-                        //end change by calvin 17 september 2019
+                //        //var jumlahPesananMonth = vm.ListPesanan?
 
-                        vm.ListPesananPerMarketplace.Add(new PesananPerMarketplaceModel()
-                        {
-                            NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
-                            JumlahPesananHariIni = jumlahPesananToday.ToString(),
-                            NilaiPesananHariIni = nilaiPesananToday,
-                            JumlahPesananBulanIni = jumlahPesananMonth.ToString(),
-                            NilaiPesananBulanIni = nilaiPesananMonth
-                        });
-                    }
-                }
+                //        //    .Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Count();
+                //        //// change by nurul 12/10/2018   var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC))}";
+                //        //var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.NETTO))}";
+                //        var jumlahPesananToday = ListPesanan.Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).Count();
+                //        // change by nurul 12/10/2018   var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC))}";
+                //        //var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Sum(p => (double?)(p.NETTO)) ?? 0)}";
+                //        var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+
+
+                //        var jumlahPesananMonth = ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).Count();
+                //        // change by nurul 12/10/2018   var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC))}";
+                //        //var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth).Sum(p => (double?)(p.NETTO)) ?? 0)}";
+                //        var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+                //        //end change by calvin 17 september 2019
+
+                //        //vm.ListPesananPerMarketplace.Add(new PesananPerMarketplaceModel()
+                //        //{
+                //        //    NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
+                //        //    JumlahPesananHariIni = jumlahPesananToday.ToString(),
+                //        //    NilaiPesananHariIni = nilaiPesananToday,
+                //        //    JumlahPesananBulanIni = jumlahPesananMonth.ToString(),
+                //        //    NilaiPesananBulanIni = nilaiPesananMonth
+                //        //});
+
+                //        //add by nurul 7/12/2020
+                //        //vm.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Semua.Add(new PesananPerMarketplaceModel_Semua()
+                //        var mp_Semua = new PesananPerMarketplaceModel_Semua()
+                //        {
+                //            NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
+                //            JumlahPesananHariIni = jumlahPesananToday.ToString(),
+                //            NilaiPesananHariIni = nilaiPesananToday,
+                //            JumlahPesananBulanIni = jumlahPesananMonth.ToString(),
+                //            NilaiPesananBulanIni = nilaiPesananMonth
+                //        };
+                //        Allmp_Semua.Add(mp_Semua);
+                        
+                //        var jumlahPesananToday_Unpaid = ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "0").Count();
+                //        var nilaiPesananToday_Unpaid = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "0").Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+                        
+                //        var jumlahPesananMonth_Unpaid = ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "0").Count();
+                //        var nilaiPesananMonth_Unpaid = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "0").Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+                //        //vm.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Unpaid.Add(new PesananPerMarketplaceModel_Unpaid()
+                //        var mp_Unpaid = new PesananPerMarketplaceModel_Unpaid()
+                //        {
+                //            NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
+                //            JumlahPesananHariIni = jumlahPesananToday_Unpaid.ToString(),
+                //            NilaiPesananHariIni = nilaiPesananToday_Unpaid,
+                //            JumlahPesananBulanIni = jumlahPesananMonth_Unpaid.ToString(),
+                //            NilaiPesananBulanIni = nilaiPesananMonth_Unpaid
+                //        };
+                //        Allmp_Unpaid.Add(mp_Unpaid);
+
+                //        var jumlahPesananToday_Paid = ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "01").Count();
+                //        var nilaiPesananToday_Paid = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "01").Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+
+                //        var jumlahPesananMonth_Paid = ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "01").Count();
+                //        var nilaiPesananMonth_Paid = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "01").Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+                //        //vm.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Paid.Add(new PesananPerMarketplaceModel_Paid()
+                //        var mp_Paid = new PesananPerMarketplaceModel_Paid()
+                //        {
+                //            NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
+                //            JumlahPesananHariIni = jumlahPesananToday_Paid.ToString(),
+                //            NilaiPesananHariIni = nilaiPesananToday_Paid,
+                //            JumlahPesananBulanIni = jumlahPesananMonth_Paid.ToString(),
+                //            NilaiPesananBulanIni = nilaiPesananMonth_Paid
+                //        };
+                //        Allmp_Paid.Add(mp_Paid);
+                //        var jumlahPesananToday_Packing = ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "02").Count();
+                //        var nilaiPesananToday_Packing = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "02").Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+
+                //        var jumlahPesananMonth_Packing = ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "02").Count();
+                //        var nilaiPesananMonth_Packing = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "02").Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+                //        //vm.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Packing.Add(new PesananPerMarketplaceModel_Packing()
+                //        var mp_Packing = new PesananPerMarketplaceModel_Packing()
+                //        {
+                //            NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
+                //            JumlahPesananHariIni = jumlahPesananToday_Packing.ToString(),
+                //            NilaiPesananHariIni = nilaiPesananToday_Packing,
+                //            JumlahPesananBulanIni = jumlahPesananMonth_Packing.ToString(),
+                //            NilaiPesananBulanIni = nilaiPesananMonth_Packing
+                //        };
+                //        Allmp_Packing.Add(mp_Packing);
+                //        var jumlahPesananToday_Selesai = ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "04").Count();
+                //        var nilaiPesananToday_Selesai = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "04").Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+
+                //        var jumlahPesananMonth_Selesai = ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "04").Count();
+                //        var nilaiPesananMonth_Selesai = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "04").Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+                //        //vm.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Selesai.Add(new PesananPerMarketplaceModel_Selesai()
+                //        var mp_Selesai = new PesananPerMarketplaceModel_Selesai()
+                //        {
+                //            NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
+                //            JumlahPesananHariIni = jumlahPesananToday_Selesai.ToString(),
+                //            NilaiPesananHariIni = nilaiPesananToday_Selesai,
+                //            JumlahPesananBulanIni = jumlahPesananMonth_Selesai.ToString(),
+                //            NilaiPesananBulanIni = nilaiPesananMonth_Selesai
+                //        };
+                //        Allmp_Selesai.Add(mp_Selesai);
+                //        var jumlahPesananToday_Batal = ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "11").Count();
+                //        var nilaiPesananToday_Batal = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Day == getDate && p.STATUS_TRANSAKSI == "11").Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+
+                //        var jumlahPesananMonth_Batal = ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "11").Count();
+                //        var nilaiPesananMonth_Batal = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth && p.STATUS_TRANSAKSI == "11").Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+                //        //vm.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Batal.Add(new PesananPerMarketplaceModel_Batal()
+                //        var mp_Batal= new PesananPerMarketplaceModel_Batal()
+                //        {
+                //            NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
+                //            JumlahPesananHariIni = jumlahPesananToday_Batal.ToString(),
+                //            NilaiPesananHariIni = nilaiPesananToday_Batal,
+                //            JumlahPesananBulanIni = jumlahPesananMonth_Batal.ToString(),
+                //            NilaiPesananBulanIni = nilaiPesananMonth_Batal
+                //        };
+                //        Allmp_Batal.Add(mp_Batal);
+                        
+                //        //end add by nurul 7/12/2020
+                //    }
+                //    var tempPesananPerMarket = new PesananPerMarketplaceModelGroupByStatus()
+                //    {
+                //        listPesananMarket_Semua = Allmp_Semua,
+                //        listPesananMarket_Unpaid = Allmp_Unpaid,
+                //        listPesananMarket_Paid = Allmp_Paid,
+                //        listPesananMarket_Packing = Allmp_Packing,
+                //        listPesananMarket_Selesai = Allmp_Selesai,
+                //        listPesananMarket_Batal = Allmp_Batal
+                //    };
+                //    vm.ListPesananPerMarketplaceGroupByStatus = tempPesananPerMarket;
+                //}
 
                 //change by calvin 8 juli 2019
                 //foreach (var barang in vm.ListBarang)
@@ -729,6 +877,245 @@ namespace MasterOnline.Controllers
                 return PartialView(vm);
             }
         }
+
+        //add by nurul 8/12/2020
+        public ActionResult refreshDashboardPesanan(string tgl, string status)
+        {
+            var vm = new DashboardViewModel()
+            {
+
+            };
+                var selectedDate = (tgl != "" ? DateTime.ParseExact(tgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.Date);
+
+                var sSQL = "select 'bulan' as jenis, count(no_bukti) as jumlah, isnull(sum(isnull(bruto,0)), 0) as nilai from sot01a (nolock) where year(tgl) = '" + selectedDate.Year + "' and month(tgl)= '" + selectedDate.Month + "' ";
+                switch (status)
+                {
+                    case "2":
+                        {
+                            sSQL += " and status_transaksi in ('0') ";
+                        }
+                    break;
+                    case "3":
+                        {
+                            sSQL += " and status_transaksi in ('01') ";
+                        }
+                        break;
+                    case "4":
+                        {
+                            sSQL += " and status_transaksi in ('02') ";
+                        }
+                        break;
+                    case "5":
+                        {
+                            sSQL += " and status_transaksi in ('04') ";
+                        }
+                        break;
+                    case "6":
+                        {
+                            sSQL += " and status_transaksi in ('11') ";
+                        }
+                        break;
+                    default:
+                    {
+                        sSQL += " and status_transaksi in ('0', '01', '02', '03', '04') ";
+                    }
+                    break;
+                }
+                sSQL += "union all ";
+                sSQL += "select 'hari' as jenis, count(no_bukti) as jumlah, isnull(sum(isnull(bruto,0)), 0) as nilai from sot01a (nolock) where year(tgl) = '" + selectedDate.Year + "' and month(tgl)= '" + selectedDate.Month + "' and day(tgl)= '" + selectedDate.Day + "' ";
+                switch (status)
+                {
+                    case "2":
+                        {
+                            sSQL += " and status_transaksi in ('0') ";
+                        }
+                        break;
+                    case "3":
+                        {
+                            sSQL += " and status_transaksi in ('01') ";
+                        }
+                        break;
+                    case "4":
+                        {
+                            sSQL += " and status_transaksi in ('02') ";
+                        }
+                        break;
+                    case "5":
+                        {
+                            sSQL += " and status_transaksi in ('04') ";
+                        }
+                        break;
+                    case "6":
+                        {
+                            sSQL += " and status_transaksi in ('11') ";
+                        }
+                        break;
+                    default:
+                        {
+                            sSQL += " and status_transaksi in ('0', '01', '02', '03', '04') ";
+                        }
+                        break;
+                }
+                var dsPesanan = EDB.GetDataSet("CString", "PESANAN", sSQL);
+                //for (int i = 1; i <= 2; i++)
+                //{
+                    var getData = dsPesanan.Tables[0].Select("jenis = 'hari'").FirstOrDefault();
+                    if (getData != null)
+                    {
+                        vm.JumlahPesananHariIni = Convert.ToInt32(getData["jumlah"]);
+                        vm.NilaiPesananHariIni = Convert.ToDouble(getData["nilai"]);
+                    }
+                    var getData1 = dsPesanan.Tables[0].Select("jenis = 'bulan'").FirstOrDefault();
+                    if (getData1 != null)
+                    {
+                        vm.JumlahPesananBulanIni = Convert.ToInt32(getData1["jumlah"]);
+                        vm.NilaiPesananBulanIni = Convert.ToDouble(getData1["nilai"]);
+                    }
+                //}
+                //vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
+                //{
+                //    No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
+                //    Jumlah = Convert.ToString(getData["COUNT_TRANSAKSI"]),
+                //    Nilai = Convert.ToString(getData["TOTAL_NETTO"])
+                //});
+                
+            return PartialView("TableDashboardPesanan2", vm);
+        }
+
+        public ActionResult refreshDashboardPesananPerMarket(string tgl, string status)
+        {
+            var vm = new DashboardViewModel()
+            {
+                ListAkunMarketplace = ErasoftDbContext.ARF01.AsNoTracking().ToList(),
+                ListMarket = MoDbContext.Marketplaces.AsNoTracking().ToList(),
+            };
+            var selectedDate = (tgl != "" ? DateTime.ParseExact(tgl, "dd/MM/yyyy",
+            System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.Date);
+
+            if (vm.ListAkunMarketplace.Count > 0)
+            {
+                List<PesananPerMarketplaceModel_Semua> Allmp_Semua = new List<PesananPerMarketplaceModel_Semua>();
+                List<PesananPerMarketplaceModel_Unpaid> Allmp_Unpaid = new List<PesananPerMarketplaceModel_Unpaid>();
+                List<PesananPerMarketplaceModel_Paid> Allmp_Paid = new List<PesananPerMarketplaceModel_Paid>();
+                List<PesananPerMarketplaceModel_Packing> Allmp_Packing = new List<PesananPerMarketplaceModel_Packing>();
+                List<PesananPerMarketplaceModel_Selesai> Allmp_Selesai = new List<PesananPerMarketplaceModel_Selesai>();
+                List<PesananPerMarketplaceModel_Batal> Allmp_Batal = new List<PesananPerMarketplaceModel_Batal>();
+                foreach (var marketplace in vm.ListAkunMarketplace)
+                {
+                    var idMarket = Convert.ToInt32(marketplace.NAMA);
+                    var namaMarket = vm.ListMarket.Single(m => m.IdMarket == idMarket).NamaMarket;
+
+                    //var jumlahPesananToday = ListPesanan.Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).Count();
+                    //var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+                    //var jumlahPesananMonth = ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).Count();
+                    //var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ListPesanan.Where(p => p.CUST == marketplace.CUST && p.TGL.Value.Month == selectedMonth && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).Sum(p => (double?)(p.BRUTO)) ?? 0)}";
+                    
+                    var sSQL = "select 'bulan' as jenis, count(no_bukti) as jumlah, isnull(sum(isnull(bruto,0)), 0) as nilai from sot01a (nolock) where year(tgl) = '" + selectedDate.Year + "' and month(tgl)= '" + selectedDate.Month + "' and cust = '" + marketplace.CUST + "' ";
+                    switch (status)
+                    {
+                        case "2":
+                            {
+                                sSQL += " and status_transaksi in ('0') ";
+                            }
+                            break;
+                        case "3":
+                            {
+                                sSQL += " and status_transaksi in ('01') ";
+                            }
+                            break;
+                        case "4":
+                            {
+                                sSQL += " and status_transaksi in ('02') ";
+                            }
+                            break;
+                        case "5":
+                            {
+                                sSQL += " and status_transaksi in ('04') ";
+                            }
+                            break;
+                        case "6":
+                            {
+                                sSQL += " and status_transaksi in ('11') ";
+                            }
+                            break;
+                        default:
+                            {
+                                sSQL += " and status_transaksi in ('0', '01', '02', '03', '04') ";
+                            }
+                            break;
+                    }
+                    sSQL += "union all ";
+                    sSQL += "select 'hari' as jenis, count(no_bukti) as jumlah, isnull(sum(isnull(bruto,0)), 0) as nilai from sot01a (nolock) where year(tgl) = '" + selectedDate.Year + "' and month(tgl)= '" + selectedDate.Month + "' and day(tgl)= '" + selectedDate.Day + "' and cust = '" + marketplace.CUST + "' ";
+                    switch (status)
+                    {
+                        case "2":
+                            {
+                                sSQL += " and status_transaksi in ('0') ";
+                            }
+                            break;
+                        case "3":
+                            {
+                                sSQL += " and status_transaksi in ('01') ";
+                            }
+                            break;
+                        case "4":
+                            {
+                                sSQL += " and status_transaksi in ('02') ";
+                            }
+                            break;
+                        case "5":
+                            {
+                                sSQL += " and status_transaksi in ('04') ";
+                            }
+                            break;
+                        case "6":
+                            {
+                                sSQL += " and status_transaksi in ('11') ";
+                            }
+                            break;
+                        default:
+                            {
+                                sSQL += " and status_transaksi in ('0', '01', '02', '03', '04') ";
+                            }
+                            break;
+                    }
+                    var dsPesanan = EDB.GetDataSet("CString", "PESANAN", sSQL);
+                    //vm.ListPesananPerMarketplace.Add(new PesananPerMarketplaceModel()
+                    var tempPerMarket = new PesananPerMarketplaceModel() 
+                    {
+                        NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
+                    };
+                    //for (int i = 1; i <= 2; i++)
+                    //{
+                        var getData = dsPesanan.Tables[0].Select("jenis = 'hari'").FirstOrDefault();
+                        if (getData != null)
+                        {
+                            tempPerMarket.JumlahPesananHariIni = Convert.ToString(getData["jumlah"]);
+                            tempPerMarket.NilaiPesananHariIni = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Convert.ToDouble(getData["nilai"]))}";
+                            //vm.ListPesananPerMarketplace.Add(new PesananPerMarketplaceModel()
+                            //{
+                            //    NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
+                            //    JumlahPesananHariIni = Convert.ToString(getData["jumlah"]),
+                            //    NilaiPesananHariIni = nilaiPesananToday,
+                            //    JumlahPesananBulanIni = jumlahPesananMonth.ToString(),
+                            //    NilaiPesananBulanIni = nilaiPesananMonth
+                            //});
+                        }
+                        var getData1 = dsPesanan.Tables[0].Select("jenis = 'bulan'").FirstOrDefault();
+                        if (getData1 != null)
+                        {
+                            tempPerMarket.JumlahPesananBulanIni = Convert.ToString(getData1["jumlah"]);
+                            tempPerMarket.NilaiPesananBulanIni = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Convert.ToDouble(getData1["nilai"]))}";
+                        }
+                    //}
+                    vm.ListPesananPerMarketplace.Add(tempPerMarket);
+                }
+            }
+
+            return PartialView("TableDashboardPesananPerMarketplace2", vm);
+        }
+        //end add by nurul 8/12/2020
 
         //add by nurul 12/7/2019
         public class getLastDate

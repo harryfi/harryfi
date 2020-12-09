@@ -1,0 +1,261 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@model MasterOnline.ViewModels.DashboardViewModel
+<script type="text/javascript">
+    @*@{
+        var listPieBarang = Model.ListBarangLaku.OrderByDescending(a => a.Qty).Take(10);
+    }
+    var listPieBarang = @Html.Raw(Json.Encode(listPieBarang));*@
+</script>
+<div class="row semua-mode">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th class="text-center" rowspan="2" style="width: 300px; vertical-align: middle">Akun Marketplace</th>
+                <th class="text-center date_label" colspan="2">Hari Ini</th>
+                <th class="text-center month_label" colspan="2">Bulan Ini</th>
+            </tr>
+            <tr>
+                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                <th class="text-center">Nilai Pesanan</th>
+                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                <th class="text-center">Nilai Pesanan</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model?.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Semua.Count > 0)
+            {
+                foreach (var pesananPerMarketplace in Model.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Semua)
+                {
+                    <tr>
+                        <td class="text-center">@pesananPerMarketplace.NamaMarket</td>
+                        <td class="text-center">@pesananPerMarketplace.JumlahPesananHariIni</td>
+                        <td class="text-right">@pesananPerMarketplace.NilaiPesananHariIni</td>
+                        <td class="text-center">@pesananPerMarketplace.JumlahPesananBulanIni</td>
+                        <td class="text-right">@pesananPerMarketplace.NilaiPesananBulanIni</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="row belum-mode">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th class="text-center" rowspan="2" style="width: 300px; vertical-align: middle">Akun Marketplace</th>
+                <th class="text-center date_label" colspan="2">Hari Ini</th>
+                <th class="text-center month_label" colspan="2">Bulan Ini</th>
+            </tr>
+            <tr>
+                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                <th class="text-center">Nilai Pesanan</th>
+                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                <th class="text-center">Nilai Pesanan</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model?.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Unpaid.Count > 0)
+            {
+                foreach (var pesananPerMarketplace in Model.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Unpaid)
+                {
+                    <tr>
+                        <td class="text-center">@pesananPerMarketplace.NamaMarket</td>
+                        <td class="text-center">@pesananPerMarketplace.JumlahPesananHariIni</td>
+                        <td class="text-right">@pesananPerMarketplace.NilaiPesananHariIni</td>
+                        <td class="text-center">@pesananPerMarketplace.JumlahPesananBulanIni</td>
+                        <td class="text-right">@pesananPerMarketplace.NilaiPesananBulanIni</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="row sudah-mode">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th class="text-center" rowspan="2" style="width: 300px; vertical-align: middle">Akun Marketplace</th>
+                <th class="text-center date_label" colspan="2">Hari Ini</th>
+                <th class="text-center month_label" colspan="2">Bulan Ini</th>
+            </tr>
+            <tr>
+                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                <th class="text-center">Nilai Pesanan</th>
+                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                <th class="text-center">Nilai Pesanan</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model?.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Paid.Count > 0)
+            {
+                foreach (var pesananPerMarketplace in Model.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Paid)
+                {
+                    <tr>
+                        <td class="text-center">@pesananPerMarketplace.NamaMarket</td>
+                        <td class="text-center">@pesananPerMarketplace.JumlahPesananHariIni</td>
+                        <td class="text-right">@pesananPerMarketplace.NilaiPesananHariIni</td>
+                        <td class="text-center">@pesananPerMarketplace.JumlahPesananBulanIni</td>
+                        <td class="text-right">@pesananPerMarketplace.NilaiPesananBulanIni</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="row packing-mode">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th class="text-center" rowspan="2" style="width: 300px; vertical-align: middle">Akun Marketplace</th>
+                <th class="text-center date_label" colspan="2">Hari Ini</th>
+                <th class="text-center month_label" colspan="2">Bulan Ini</th>
+            </tr>
+            <tr>
+                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                <th class="text-center">Nilai Pesanan</th>
+                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                <th class="text-center">Nilai Pesanan</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model?.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Packing.Count > 0)
+            {
+                foreach (var pesananPerMarketplace in Model.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Packing)
+                {
+                    <tr>
+                        <td class="text-center">@pesananPerMarketplace.NamaMarket</td>
+                        <td class="text-center">@pesananPerMarketplace.JumlahPesananHariIni</td>
+                        <td class="text-right">@pesananPerMarketplace.NilaiPesananHariIni</td>
+                        <td class="text-center">@pesananPerMarketplace.JumlahPesananBulanIni</td>
+                        <td class="text-right">@pesananPerMarketplace.NilaiPesananBulanIni</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="row selesai-mode">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th class="text-center" rowspan="2" style="width: 300px; vertical-align: middle">Akun Marketplace</th>
+                <th class="text-center date_label" colspan="2">Hari Ini</th>
+                <th class="text-center month_label" colspan="2">Bulan Ini</th>
+            </tr>
+            <tr>
+                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                <th class="text-center">Nilai Pesanan</th>
+                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                <th class="text-center">Nilai Pesanan</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model?.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Selesai.Count > 0)
+            {
+                foreach (var pesananPerMarketplace in Model.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Selesai)
+                {
+                    <tr>
+                        <td class="text-center">@pesananPerMarketplace.NamaMarket</td>
+                        <td class="text-center">@pesananPerMarketplace.JumlahPesananHariIni</td>
+                        <td class="text-right">@pesananPerMarketplace.NilaiPesananHariIni</td>
+                        <td class="text-center">@pesananPerMarketplace.JumlahPesananBulanIni</td>
+                        <td class="text-right">@pesananPerMarketplace.NilaiPesananBulanIni</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="row batal-mode">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th class="text-center" rowspan="2" style="width: 300px; vertical-align: middle">Akun Marketplace</th>
+                <th class="text-center date_label" colspan="2">Hari Ini</th>
+                <th class="text-center month_label" colspan="2">Bulan Ini</th>
+            </tr>
+            <tr>
+                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                <th class="text-center">Nilai Pesanan</th>
+                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                <th class="text-center">Nilai Pesanan</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model?.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Batal.Count > 0)
+            {
+                foreach (var pesananPerMarketplace in Model.ListPesananPerMarketplaceGroupByStatus.listPesananMarket_Batal)
+                {
+                    <tr>
+                        <td class="text-center">@pesananPerMarketplace.NamaMarket</td>
+                        <td class="text-center">@pesananPerMarketplace.JumlahPesananHariIni</td>
+                        <td class="text-right">@pesananPerMarketplace.NilaiPesananHariIni</td>
+                        <td class="text-center">@pesananPerMarketplace.JumlahPesananBulanIni</td>
+                        <td class="text-right">@pesananPerMarketplace.NilaiPesananBulanIni</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                    <td class="text-center">---</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
