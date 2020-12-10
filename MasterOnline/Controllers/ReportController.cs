@@ -421,19 +421,25 @@ namespace MasterOnline.Controllers
         public string Preview13(ReportViewModel.Report13 data)
         {
 #if AWS
-            return string.Format("https://report.masteronline.co.id/Report/Form/frm_rpt_FA.aspx?UserID={0}&FromCust={1}&ToCust={2}&DrTanggal={3}&SdTanggal={4}",
+            //return string.Format("https://report.masteronline.co.id/Report/Form/frm_rpt_FA.aspx?UserID={0}&FromCust={1}&ToCust={2}&DrTanggal={3}&SdTanggal={4}",
+            return string.Format("https://report.masteronline.co.id/Report/Form/frm_rpt_FA.aspx?UserID={0}&FromCust={1}&ToCust={2}&DrTanggal={3}&SdTanggal={4}&Status={5}",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.FromCust),
                 Uri.EscapeDataString(data.ToCust),
                 Uri.EscapeDataString(data.DrTanggal),
-                Uri.EscapeDataString(data.SdTanggal));
+                //Uri.EscapeDataString(data.SdTanggal));
+                Uri.EscapeDataString(data.SdTanggal),
+                Uri.EscapeDataString(data.Status));
 #else
-            return string.Format("https://devreport.masteronline.co.id/Report/Form/frm_rpt_FA.aspx?UserID={0}&FromCust={1}&ToCust={2}&DrTanggal={3}&SdTanggal={4}",
+            //return string.Format("https://devreport.masteronline.co.id/Report/Form/frm_rpt_FA.aspx?UserID={0}&FromCust={1}&ToCust={2}&DrTanggal={3}&SdTanggal={4}",
+            return string.Format("https://devreport.masteronline.co.id/Report/Form/frm_rpt_FA.aspx?UserID={0}&FromCust={1}&ToCust={2}&DrTanggal={3}&SdTanggal={4}&Status={5}",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.FromCust),
                 Uri.EscapeDataString(data.ToCust),
                 Uri.EscapeDataString(data.DrTanggal),
-                Uri.EscapeDataString(data.SdTanggal));
+                //Uri.EscapeDataString(data.SdTanggal));
+                Uri.EscapeDataString(data.SdTanggal),
+                Uri.EscapeDataString(data.Status));
 #endif
 
         }
