@@ -51,7 +51,8 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase();
             ret.status = 0;
 
-            var urll = ("https://api.bukalapak.com/v2/authenticate.json");
+            //var urll = ("https://api.bukalapak.com/v2/authenticate.json");
+            var urll = ("https://accounts.bukalapak.com/oauth/token");
 
             //var myReq = HttpWebRequest.Create(urll);
 
@@ -82,7 +83,10 @@ namespace MasterOnline.Controllers
             //myReq.Credentials = new NetworkCredential(email, password);
             myReq.ContentType = "application/x-www-form-urlencoded";
             myReq.Accept = "application/json";
-            myReq.UserAgent = "curl/7.37.0";
+            //myReq.UserAgent = "curl/7.37.0";
+            string myData = "{\"grant_type\":\"client_credentials\",\"scope\":\"public\",";
+            myData += "\"client_id\":\"client_credentials\",\"client_secret\":\"public\"}";
+
             string stringRet = "";
             try
             {
