@@ -12,6 +12,7 @@ using System.Net;
 using System.IO;
 using Erasoft.Function;
 using System.Data.SqlClient;
+using System.Linq.Dynamic;
 
 namespace MasterOnline.Controllers
 {
@@ -22,7 +23,9 @@ namespace MasterOnline.Controllers
         DatabaseSQL EDB;
         MoDbContext MoDbContext;
         public ErasoftContext ErasoftDbContext { get; set; }
-
+        private static string callBackUrl = "https://dev.masteronline.co.id/bukalapak/auth";
+        private static string client_id = "";
+        private static string client_secret = "";
         public BukaLapakController()
         {
             MoDbContext = new MoDbContext("");
@@ -45,8 +48,67 @@ namespace MasterOnline.Controllers
                 }
             }
         }
+        [HttpGet]
+        public string BukalapakAuth(string cust)
+        {
+            long userId = 0;
+            if (sessionData?.Account != null)
+            {
+                userId = sessionData.Account.AccountId;
+
+            }
+            else
+            {
+                if (sessionData?.User != null)
+                {
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    userId = accFromUser.AccountId;
+                }
+            }
+            var dataToken = MoDbContext.BUKALAPAK_TOKEN.Where(m => m.ACCOUNT_ID == userId && m.CUST == cust).FirstOrDefault();
+            if(dataToken == null)
+            {
+                dataToken = new BUKALAPAK_TOKEN();
+                dataToken.ACCOUNT_ID = userId;
+                dataToken.CUST = cust;
+                dataToken.CODE = "";
+                dataToken.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                MoDbContext.BUKALAPAK_TOKEN.Add(dataToken);
+                MoDbContext.SaveChanges();
+            }
+            //string lzdId = cust;
+            //string compUrl = callBackUrl + userId + "_param_" + lzdId;
+
+            string uri = "https://accounts.bukalapak.com/oauth/authorize?client_id=" + client_id + "&redirect_uri="+ callBackUrl + "&scope=SCOPE&response_type=code";
+            return uri;
+        }
+
+        [Route("bukalapak/auth")]
+        [HttpGet]
+        public ActionResult BukalapakCode(string code)
+        {
+            var currentUser = MoDbContext.BUKALAPAK_TOKEN.Where(m => m.CODE == "").OrderBy(m => m.CREATED_AT).FirstOrDefault();
+            if(currentUser != null)
+            {
+                currentUser.CODE = code;
+                currentUser.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                MoDbContext.SaveChanges();
+
+                var accID = currentUser.ACCOUNT_ID;
+                var acc = MoDbContext.Account.Where(m => m.AccountId == accID).FirstOrDefault();
+                    DatabaseSQL EDB = new DatabaseSQL(acc.DatabasePathErasoft);
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET API_KEY = '" + code + "' WHERE CUST = '" + currentUser.CUST + "'");
+
+                    GetAccessKey(acc.DatabasePathErasoft, currentUser.CUST, code);
+                
+            }
+            
+            return View("BukalapakAuth");
+        }
+
         [HttpPost]
-        public BindingBase GetAccessKey(string cust, string email, string password)
+        //public BindingBase GetAccessKey(string cust, string email, string password)
+        public BindingBase GetAccessKey(string user, string cust, string code)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -62,7 +124,7 @@ namespace MasterOnline.Controllers
                 REQUEST_ACTION = "Get API Key",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = cust,
-                REQUEST_ATTRIBUTE_2 = email,
+                REQUEST_ATTRIBUTE_2 = code,
                 REQUEST_STATUS = "Pending",
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "", currentLog);
@@ -79,22 +141,22 @@ namespace MasterOnline.Controllers
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "POST";
-            myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(email + ":" + password))));
+            //myReq.Headers.Add("Authorization", ("Bearer " + code));
             //myReq.Credentials = new NetworkCredential(email, password);
-            myReq.ContentType = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
             myReq.Accept = "application/json";
             //myReq.UserAgent = "curl/7.37.0";
-            string myData = "{\"grant_type\":\"client_credentials\",\"scope\":\"public\",";
-            myData += "\"client_id\":\"client_credentials\",\"client_secret\":\"public\"}";
-
+            string myData = "{\"grant_type\":\"client_credentials\",\"code\":\""+code+"\",";
+            myData += "\"redirect_uri\":\"" + "https://dev.masteronline.co.id/manage/master/marketplace" + "\",";
+            myData += "\"client_id\":\""+client_id+"\",\"client_secret\":\""+ client_secret + "\"}";
             string stringRet = "";
             try
             {
-                //myReq.ContentLength = myData.Length;
-                //using (var dataStream = myReq.GetRequestStream())
-                //{
-                //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-                //}
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
                 using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
@@ -114,12 +176,13 @@ namespace MasterOnline.Controllers
                 AccessKeyBL retObj = JsonConvert.DeserializeObject(stringRet, typeof(AccessKeyBL)) as AccessKeyBL;
                 if (retObj != null)
                 {
-                    if (retObj.status.Equals("OK"))
-                    {
-                        //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
-                        //string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                    //if (retObj.status.Equals("OK"))
+                    //{
+                    //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                    //string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
-                        var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET API_KEY='" + retObj.user_id + "', TOKEN='" + retObj.token + "', STATUS_API = '1' WHERE CUST ='" + cust + "'");
+                    DateTime tglExpired = DateTimeOffset.FromUnixTimeSeconds(retObj.created_at).UtcDateTime.AddHours(7).AddSeconds(retObj.expires_in);
+                    var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET REFRESH_TOKEN='" + retObj.refresh_token + "', TGL_EXPIRED='" + tglExpired.ToString("yyyy-MM-dd HH:mm:ss") + "', TOKEN='" + retObj.access_token + "', STATUS_API = '1' WHERE CUST ='" + cust + "'");
                         //var a = EDB.GetDataSet("ARConnectionString", "ARF01", "SELECT * FROM ARF01");
                         if (a == 1)
                         {
@@ -131,15 +194,15 @@ namespace MasterOnline.Controllers
                             currentLog.REQUEST_EXCEPTION = "failed to update api_key;execute result=" + a;
                             manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
                         }
-                    }
-                    else
-                    {
-                        var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST ='" + cust + "'");
+                    //}
+                    //else
+                    //{
+                    //    var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST ='" + cust + "'");
 
-                        ret.message = retObj.message;
-                        currentLog.REQUEST_EXCEPTION = ret.message;
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
-                    }
+                    //    ret.message = retObj.message;
+                    //    currentLog.REQUEST_EXCEPTION = ret.message;
+                    //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
+                    //}
                 }
                 else
                 {

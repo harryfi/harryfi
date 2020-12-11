@@ -83,13 +83,19 @@ namespace MasterOnline.Models
     public class AccessKeyBL : BukaLapakResponse
     {
         //public string status { get; set; }
-        public string user_id { get; set; }
-        public string user_name { get; set; }
-        public bool confirmed { get; set; }
-        public string token { get; set; }
-        public string email { get; set; }
-        public string omnikey { get; set; }
+        //public string user_id { get; set; }
+        //public string user_name { get; set; }
+        //public bool confirmed { get; set; }
+        //public string token { get; set; }
+        //public string email { get; set; }
+        //public string omnikey { get; set; }
         //public string message { get; set; }
+        public string access_token { get; set; }
+        public string token_type { get; set; }
+        public string scope { get; set; }
+        public long expires_in { get; set; }
+        public string refresh_token { get; set; }
+        public long created_at { get; set; }
 
     }
     #endregion

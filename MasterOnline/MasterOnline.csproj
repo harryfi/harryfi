@@ -732,6 +732,7 @@
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
     <Compile Include="Models\BRAND_JDID.cs" />
+    <Compile Include="Models\BUKALAPAK_TOKEN.cs" />
     <Compile Include="Models\CATEGORY_82CART.cs" />
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
     <Compile Include="Models\LINKFTP.cs" />
@@ -6216,6 +6217,7 @@
     <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\__init__.py" />
     <Content Include="Views\Admin\PromptAccount.cshtml" />
     <Content Include="Views\Admin\TablePromptAkunPartial.cshtml" />
+    <Content Include="Views\Bukalapak\BukalapakAuth.html" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
