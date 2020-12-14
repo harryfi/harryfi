@@ -44918,6 +44918,8 @@ namespace MasterOnline.Controllers
                 var listDetailSo = ErasoftDbContext.Database.SqlQuery<ORDERITEMSO>(ssql).ToList();
                 var hitungDetail = listDetailSo.Count();
 
+                var hitungheader = 0;
+
                 //END ADD BY NURUL 24/2/2020
 
                 foreach (var so in ListStt01a)
@@ -44927,6 +44929,7 @@ namespace MasterOnline.Controllers
                         listNobuk += ",";
                     }
                     listNobuk += "'" + so.no_bukti + "'";
+                    hitungheader = hitungheader + 1;
                     if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                     {
                         if (marketPlace.STATUS_API == "1")
@@ -44934,7 +44937,7 @@ namespace MasterOnline.Controllers
                             var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
                             if (sot01b.Count > 0)
                             {
-                                if ((orderItemIds.Count() + sot01b.Count()) > 50)
+                                if ((orderItemIds.Count() + sot01b.Count()) > 50 || hitungheader == 10)
                                 {
                                     var lzdApi = new LazadaController();
                                     var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
@@ -45172,6 +45175,16 @@ namespace MasterOnline.Controllers
                                         orderItemIds.Add(item.ORDER_ITEM_ID);
                                         //Valid = true;
                                     }
+
+                                    hitungheader = 0;
+                                    gakketemulagi = false;
+                                    JNEgakketemulagi = false;
+                                    lastIndexBarcode = 0;
+                                    lastIndexPortCode = 0;
+                                    lastIndexHarga = 0;
+                                    lastIndexReferensi = 0;
+                                    lastIndexKurir = 0;
+                                    lastIndexTgl = 0;
                                 }
                                 else
                                 {
@@ -45422,6 +45435,16 @@ namespace MasterOnline.Controllers
                                     //    orderItemIds.Add(item.ORDER_ITEM_ID);
                                     //    //Valid = true;
                                     //}
+
+                                    hitungheader = 0;
+                                    gakketemulagi = false;
+                                    JNEgakketemulagi = false;
+                                    lastIndexBarcode = 0;
+                                    lastIndexPortCode = 0;
+                                    lastIndexHarga = 0;
+                                    lastIndexReferensi = 0;
+                                    lastIndexKurir = 0;
+                                    lastIndexTgl = 0;
                                 }
                             }
                         }
