@@ -542,13 +542,14 @@ namespace MasterOnline.Controllers
                                             oCommand.Parameters[1].Value = item.name;
                                             oCommand.Parameters[2].Value = 1;
                                             oCommand.Parameters[3].Value = item.level;
-                                            oCommand.Parameters[4].Value = "1";
                                             if (Convert.ToString(item.parentId) != null)
                                             {
+                                                oCommand.Parameters[4].Value = "1";
                                                 oCommand.Parameters[5].Value = item.parentId;
                                             }
                                             else
                                             {
+                                                oCommand.Parameters[4].Value = "1";
                                                 oCommand.Parameters[5].Value = "";
                                             }
                                             if (oCommand.ExecuteNonQuery() > 0)
@@ -842,41 +843,46 @@ namespace MasterOnline.Controllers
                             {
                                 foreach (var item in listKategori.model) //foreach parent level next
                                 {
-                                    oCommand.Parameters[0].Value = item.id;
-                                    oCommand.Parameters[1].Value = item.name;
-                                    oCommand.Parameters[2].Value = 1;
-                                    oCommand.Parameters[3].Value = item.level;
-                                    oCommand.Parameters[4].Value = "1";
-                                    if (Convert.ToString(item.parentId) != null)
+                                    if(item.level == 2)
                                     {
-                                        oCommand.Parameters[5].Value = item.parentId;
-                                    }
-                                    else
-                                    {
-                                        oCommand.Parameters[5].Value = "";
-                                    }
-
-                                    if (oCommand.ExecuteNonQuery() > 0)
-                                    {
+                                        oCommand.Parameters[0].Value = item.id;
+                                        oCommand.Parameters[1].Value = item.name;
+                                        oCommand.Parameters[2].Value = 1;
+                                        oCommand.Parameters[3].Value = item.level;
                                         if (Convert.ToString(item.parentId) != null)
                                         {
-                                            sArrayListLevel = sArrayListLevel + item.parentId + ",";
-                                            if (!sArrayListLevelTempNoDuplicate.Contains(Convert.ToString(item.parentId)))
+                                            oCommand.Parameters[4].Value = "0";
+                                            oCommand.Parameters[5].Value = item.parentId;
+                                        }
+                                        else
+                                        {
+                                            oCommand.Parameters[4].Value = "1";
+                                            oCommand.Parameters[5].Value = "";
+                                        }
+
+                                        if (oCommand.ExecuteNonQuery() > 0)
+                                        {
+                                            if (Convert.ToString(item.parentId) != null)
                                             {
-                                                iLimitCategory += 1;
-                                                sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate + item.parentId + ",";
-                                                if (iLimitCategory == 10)
+                                                sArrayListLevel = sArrayListLevel + item.parentId + ",";
+                                                if (!sArrayListLevelTempNoDuplicate.Contains(Convert.ToString(item.parentId)))
                                                 {
-                                                    sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
-                                                    RecursiveInsertCategoryNewLevel1(oCommand, sArrayListLevelTempNoDuplicate, data);
-                                                    iLimitCategory = 0;
-                                                    sArrayListLevelTempNoDuplicate = "";
+                                                    iLimitCategory += 1;
+                                                    sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate + item.parentId + ",";
+                                                    if (iLimitCategory == 10)
+                                                    {
+                                                        sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                                        RecursiveInsertCategoryNewLevel1(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                                        iLimitCategory = 0;
+                                                        sArrayListLevelTempNoDuplicate = "";
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                                    else
-                                    {
+                                        else
+                                        {
+
+                                        }
 
                                     }
                                 }
@@ -941,43 +947,47 @@ namespace MasterOnline.Controllers
                             {
                                 foreach (var item in listKategori.model) //foreach parent level next
                                 {
-                                    oCommand.Parameters[0].Value = item.id;
-                                    oCommand.Parameters[1].Value = item.name;
-                                    oCommand.Parameters[2].Value = 1;
-                                    oCommand.Parameters[3].Value = item.level;
-                                    oCommand.Parameters[4].Value = "1";
-                                    if (Convert.ToString(item.parentId) != null)
+                                    if(item.level == 1)
                                     {
-                                        //oCommand.Parameters[5].Value = item.parentId;
-                                    }
-                                    else
-                                    {
+                                        oCommand.Parameters[0].Value = item.id;
+                                        oCommand.Parameters[1].Value = item.name;
+                                        oCommand.Parameters[2].Value = 1;
+                                        oCommand.Parameters[3].Value = item.level;
+                                        oCommand.Parameters[4].Value = "0";
                                         oCommand.Parameters[5].Value = "";
-                                    }
-
-                                    if (oCommand.ExecuteNonQuery() > 0)
-                                    {
                                         //if (Convert.ToString(item.parentId) != null)
                                         //{
-                                        //    sArrayListLevel = sArrayListLevel + item.parentId + ",";
-                                        //    if (!sArrayListLevelTempNoDuplicate.Contains(Convert.ToString(item.parentId)))
-                                        //    {
-                                        //        iLimitCategory += 1;
-                                        //        sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate + item.parentId + ",";
-                                        //        sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
-                                        //        RecursiveInsertCategoryNewLevel1(oCommand, sArrayListLevelTempNoDuplicate, data);
-                                        //        iLimitCategory = 0;
-                                        //        sArrayListLevelTempNoDuplicate = "";
-                                        //    }
-                                        //    else
-                                        //    {
-                                        //        statusLoop = false;
-                                        //    }
+                                        //    //oCommand.Parameters[5].Value = item.parentId;
                                         //}
-                                    }
-                                    else
-                                    {
+                                        //else
+                                        //{
+                                        //    oCommand.Parameters[5].Value = "";
+                                        //}
 
+                                        if (oCommand.ExecuteNonQuery() > 0)
+                                        {
+                                            //if (Convert.ToString(item.parentId) != null)
+                                            //{
+                                            //    sArrayListLevel = sArrayListLevel + item.parentId + ",";
+                                            //    if (!sArrayListLevelTempNoDuplicate.Contains(Convert.ToString(item.parentId)))
+                                            //    {
+                                            //        iLimitCategory += 1;
+                                            //        sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate + item.parentId + ",";
+                                            //        sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                            //        RecursiveInsertCategoryNewLevel1(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                            //        iLimitCategory = 0;
+                                            //        sArrayListLevelTempNoDuplicate = "";
+                                            //    }
+                                            //    else
+                                            //    {
+                                            //        statusLoop = false;
+                                            //    }
+                                            //}
+                                        }
+                                        else
+                                        {
+
+                                        }
                                     }
                                 }
 
