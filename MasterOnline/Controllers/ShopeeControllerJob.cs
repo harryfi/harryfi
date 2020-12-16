@@ -1782,8 +1782,14 @@ namespace MasterOnline.Controllers
 
             var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
 
-            int dayFrom = -1;
-            await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, 0, 0, 0, dayFrom);
+            //int dayFrom = -1;
+
+            //add 16 des 2020, fixed date
+            var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).AddHours(-7).ToUnixTimeSeconds();
+            var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
+            //end add 16 des 2020, fixed date
+
+            await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, 0, 0, 0, fromDt, toDt);
 
             // tunning untuk tidak duplicate
             var queryStatus = "";
@@ -1804,7 +1810,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderByStatusWithDay(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, int day)
+        public async Task<string> GetOrderByStatusWithDay(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -1816,7 +1822,9 @@ namespace MasterOnline.Controllers
             //change by nurul 10/12/2019, change create_time_from
             //long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             //long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-3).ToUnixTimeSeconds();
-            long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(day).AddHours(-7).ToUnixTimeSeconds();
+            //long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(day).AddHours(-7).ToUnixTimeSeconds();
+            long timestamp7Days = daysFrom;
+
             //change add by nurul 10/12/2019, change create_time_from
 
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -1831,7 +1839,8 @@ namespace MasterOnline.Controllers
                 pagination_offset = page,
                 pagination_entries_per_page = 50,
                 create_time_from = timestamp7Days,
-                create_time_to = seconds,
+                //create_time_to = seconds,
+                create_time_to = daysTo,
                 order_status = stat.ToString()
             };
 
@@ -1879,7 +1888,8 @@ namespace MasterOnline.Controllers
                             string[] ordersn_list = listOrder.orders.Select(p => p.ordersn).ToArray();
                             //add by calvin 4 maret 2019, filter
                             //var dariTgl = DateTimeOffset.UtcNow.AddDays(-4).DateTime;
-                            var dariTgl = DateTimeOffset.UtcNow.AddDays(day - 1).DateTime;
+                            //var dariTgl = DateTimeOffset.UtcNow.AddDays(day - 1).DateTime;
+                            var dariTgl = DateTimeOffset.FromUnixTimeSeconds(daysFrom).UtcDateTime.AddHours(7).AddDays(-1);
 
                             var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto Shopee" && p.CUST == CUST && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
                             //end add by calvin
@@ -1921,7 +1931,7 @@ namespace MasterOnline.Controllers
                                 new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                                 //end add by Tri 4 Mei 2020, update stok di jalankan per batch karena batch berikutnya akan memiliki connID yg berbeda
 
-                                await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar, day);
+                                await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar, daysFrom, daysTo);
                             }
                             else
                             {
@@ -1970,6 +1980,30 @@ namespace MasterOnline.Controllers
         [Queue("3_general")]
         public async Task<string> GetOrderByStatusCancelled(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
+            SetupContext(iden);
+
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
+
+            var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+
+            //int dayFrom = -1;
+
+            //add 16 des 2020, fixed date
+            var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
+            //end add 16 des 2020, fixed date
+
+            await GetOrderByStatusCancelledAPI(iden, stat, CUST, NAMA_CUST, 0, 0, fromDt, toDt);
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+            return "";
+        }
+        public async Task<string> GetOrderByStatusCancelledAPI(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, long fromDt, long toDt)
+        {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
@@ -1979,9 +2013,11 @@ namespace MasterOnline.Controllers
             long seconds = CurrentTimeSecond();
             //change 23 nov 2020
             //long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-10).ToUnixTimeSeconds();
-            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            //long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            long timeStampFrom = fromDt;
             //end change 23 nov 2020
-            long timeStampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            //long timeStampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            long timeStampTo = toDt;
 
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
@@ -2127,7 +2163,7 @@ namespace MasterOnline.Controllers
                             jmlhNewOrder = jmlhNewOrder + rowAffected;
                             if (listOrder.more)
                             {
-                                await GetOrderByStatusCancelled(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
+                                await GetOrderByStatusCancelledAPI(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, fromDt, toDt);
                             }
                             else
                             {
@@ -2146,10 +2182,10 @@ namespace MasterOnline.Controllers
                 //}
             }
 
-            // tunning untuk tidak duplicate
-            var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
-            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
-            // end tunning untuk tidak duplicate
+            //// tunning untuk tidak duplicate
+            //var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
+            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            //// end tunning untuk tidak duplicate
 
             return ret;
         }
