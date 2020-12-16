@@ -1948,9 +1948,14 @@ namespace MasterOnline.Controllers
             var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
             //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
 
+            //add 16 des 2020, fixed date
+            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-3); 
+            var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
+            //end add 16 des 2020, fixed date
+
             while (more)
             {
-                var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page, "pending");
+                var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page, "pending", fromDt, toDt);
                 page++;
                 if (count.recordCount < 100)
                 {
@@ -1980,9 +1985,15 @@ namespace MasterOnline.Controllers
 
             var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
             //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
+
+            //add 16 des 2020, fixed date
+            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-3);
+            var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
+            //end add 16 des 2020, fixed date
+
             while (more)
             {
-                var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page, "ready_to_ship");
+                var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page, "ready_to_ship", fromDt, toDt);
                 page++;
                 if (count.recordCount < 100)
                 {
@@ -1998,7 +2009,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase GetOrdersWithPage(string cust, string accessToken, string dbPathEra, string uname, int page, string statusLzd)
+        public BindingBase GetOrdersWithPage(string cust, string accessToken, string dbPathEra, string uname, int page, string statusLzd, DateTime fromDt, DateTime toDt)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -2014,9 +2025,9 @@ namespace MasterOnline.Controllers
             string connectionID = Guid.NewGuid().ToString();
             //change by Tri 4 Nov 2019, ambil pesanan baru 3 hari terakhir saja
             //var fromDt = DateTime.Now.AddDays(-14);
-            var fromDt = DateTime.Now.AddDays(-3);
+            //var fromDt = DateTime.Now.AddDays(-3); //remark 16 des 2020, fixed date
             //end change by Tri 4 Nov 2019, ambil pesanan baru 3 hari terakhir saja
-            var toDt = DateTime.Now.AddDays(1);
+            //var toDt = DateTime.Now.AddDays(1); //remark 16 des 2020, fixed date
             //SetupContext(dbPathEra, uname);
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
@@ -2740,9 +2751,14 @@ namespace MasterOnline.Controllers
             var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
             //end add 25 jun 2020, hapus pesanan tanpa detail agar bisa insert lagi dgn benar
 
+            //add 16 des 2020, fixed date
+            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
+            var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
+            //end add 16 des 2020, fixed date
+
             while (more)
             {
-                var count = GetOrdersUnpaidWithPage(cust, accessToken, dbPathEra, uname, page);
+                var count = GetOrdersUnpaidWithPage(cust, accessToken, dbPathEra, uname, page, fromDt, toDt);
                 page++;
                 if (count.recordCount < 100)
                 {
@@ -2757,7 +2773,7 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public BindingBase GetOrdersUnpaidWithPage(string cust, string accessToken, string dbPathEra, string uname, int page)
+        public BindingBase GetOrdersUnpaidWithPage(string cust, string accessToken, string dbPathEra, string uname, int page, DateTime fromDt, DateTime toDt)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -2773,9 +2789,9 @@ namespace MasterOnline.Controllers
             string connectionID = Guid.NewGuid().ToString();
             //change by Tri 4 Nov 2019, ambil pesanan baru 3 hari terakhir saja
             //var fromDt = DateTime.Now.AddDays(-14);
-            var fromDt = DateTime.Now.AddDays(-1);
+            //var fromDt = DateTime.Now.AddDays(-1);//remark 16 des 2020, fixed date
             //end change by Tri 4 Nov 2019, ambil pesanan baru 3 hari terakhir saja
-            var toDt = DateTime.Now.AddDays(1);
+            //var toDt = DateTime.Now.AddDays(1);//remark 16 des 2020, fixed date
             //SetupContext(dbPathEra, uname);
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
@@ -4238,10 +4254,13 @@ namespace MasterOnline.Controllers
             SetupContext(dbPathEra, uname);
             int page = 0;
             var more = true;
-
+            //add 16 des 2020, fixed date
+            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-14);
+            var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
+            //end add 16 des 2020, fixed date
             while (more)
             {
-                var count = GetOrdersToUpdateMOWithPage(cust, accessToken, dbPathEra, uname, page);
+                var count = GetOrdersToUpdateMOWithPage(cust, accessToken, dbPathEra, uname, page, fromDt,  toDt);
                 page++;
                 if (count.recordCount < 100)
                 {
@@ -4669,7 +4688,7 @@ namespace MasterOnline.Controllers
             public string STATUS_TRANSAKSI { get; set; }
             public string NO_BUKTI { get; set; }
         }
-        public BindingBase GetOrdersToUpdateMOWithPage(string cust, string accessToken, string dbPathEra, string uname, int page)
+        public BindingBase GetOrdersToUpdateMOWithPage(string cust, string accessToken, string dbPathEra, string uname, int page, DateTime fromDt, DateTime toDt)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -4682,8 +4701,10 @@ namespace MasterOnline.Controllers
             var username = uname;
 
             string connectionID = Guid.NewGuid().ToString();
-            var fromDt = DateTime.Now.AddDays(-14);
-            var toDt = DateTime.Now.AddDays(1);
+            //remark 16 des 2020, fixed date
+            //var fromDt = DateTime.Now.AddDays(-14);
+            //var toDt = DateTime.Now.AddDays(1);
+            //end remark 16 des 2020, fixed date
             var list_02 = new List<string>();
             var list_03 = new List<string>();
             var list_04 = new List<string>();
