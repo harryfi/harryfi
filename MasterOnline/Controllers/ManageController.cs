@@ -7238,8 +7238,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetKategoriJDByCode(/*string code*/)
         {
-            //var listKategoriJDID = ErasoftDbContext.CATEGORY_JDID.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
-            var listKategoriJDID = ErasoftDbContext.CATEGORY_JDID.Where(k => k.TYPE == "1").OrderBy(k => k.CATEGORY_NAME).ToList();
+            var listKategoriJDID = ErasoftDbContext.CATEGORY_JDID.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
 
             var serializer = new JavaScriptSerializer();
             serializer.MaxJsonLength = Int32.MaxValue;
