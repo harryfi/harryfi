@@ -57252,12 +57252,16 @@ namespace MasterOnline.Controllers
                     {
                         if (data.Count() > 0)
                         {
-                            resi = data.Single(a => a.referensiApi == so.so_referensi).ResiApi;
-                            port = data.Single(a => a.referensiApi == so.so_referensi).PortCodeApi;
-                            ref1 = data.Single(a => a.referensiApi == so.so_referensi).referensiApi;
-                            netto = Convert.ToDouble(data.Single(a => a.referensiApi == so.so_referensi).HargaApi);
-                            logoKurir = data.Single(a => a.referensiApi == so.so_referensi).urlLogoKurirApi;
-                            tgl = Convert.ToDateTime(data.Single(a => a.referensiApi == so.so_referensi).tglApi).ToString("dd/MM/yyyy");
+                            var cekDataLazada = data.Where(a => a.referensiApi == so.so_referensi).Count();
+                            if (cekDataLazada > 0)
+                            {
+                                resi = data.Single(a => a.referensiApi == so.so_referensi).ResiApi;
+                                port = data.Single(a => a.referensiApi == so.so_referensi).PortCodeApi;
+                                ref1 = data.Single(a => a.referensiApi == so.so_referensi).referensiApi;
+                                netto = Convert.ToDouble(data.Single(a => a.referensiApi == so.so_referensi).HargaApi);
+                                logoKurir = data.Single(a => a.referensiApi == so.so_referensi).urlLogoKurirApi;
+                                tgl = Convert.ToDateTime(data.Single(a => a.referensiApi == so.so_referensi).tglApi).ToString("dd/MM/yyyy");
+                            }
                         }
                     }
 
