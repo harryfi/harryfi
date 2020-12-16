@@ -7238,16 +7238,14 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetKategoriJDByCode(/*string code*/)
         {
-            //string[] codelist = code.Split(';');
-            //var listKategoriLazada = MoDbContext.CATEGORY_LAZADA.Where(k => codelist.Contains(k.CATEGORY_ID)).OrderBy(k => k.NAME).ToList();
-            var listKategoriLazada = ErasoftDbContext.CATEGORY_JDID.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+            //var listKategoriJDID = ErasoftDbContext.CATEGORY_JDID.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+            var listKategoriJDID = ErasoftDbContext.CATEGORY_JDID.Where(k => k.TYPE == "1").OrderBy(k => k.CATEGORY_NAME).ToList();
 
-            //return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
             var serializer = new JavaScriptSerializer();
             serializer.MaxJsonLength = Int32.MaxValue;
             var result = new ContentResult
             {
-                Content = serializer.Serialize(listKategoriLazada),
+                Content = serializer.Serialize(listKategoriJDID),
                 ContentType = "application/json"
             };
             return result;
@@ -7257,8 +7255,7 @@ namespace MasterOnline.Controllers
         {
             string[] codelist = code.Split(';');
             var listKategoriLazada = ErasoftDbContext.CATEGORY_JDID.Where(k => codelist.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
-
-            //return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
+            
             var serializer = new JavaScriptSerializer();
             serializer.MaxJsonLength = Int32.MaxValue;
             var result = new ContentResult
@@ -7276,6 +7273,7 @@ namespace MasterOnline.Controllers
             var category = ErasoftDbContext.CATEGORY_JDID.Where(k => codelist.Contains(k.CATEGORY_CODE)).FirstOrDefault();
             listKategoriJD.Add(category);
 
+            if(Convert.ToString(category) != "")
             if (category.PARENT_CODE != "")
             {
                 bool TopParent = false;

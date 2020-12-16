@@ -461,9 +461,9 @@ namespace MasterOnline.Controllers
         {
             getShopID(data);
             string retr = "";
-            string sArrayListLevel3 = "";
-            string sArrayListLevel2 = "";
-            string sArrayListLevel1 = "";
+            string sArrayListLevel = "";
+            string sArrayListLevelTempNoDuplicate = "";
+            int iLimitCategory = 0;
 
             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
 
@@ -538,165 +538,50 @@ namespace MasterOnline.Controllers
                                         //{
                                         foreach (var item in listKategori.model) //foreach parent level 3
                                         {
-                                            if(item.level == 3)
+                                            oCommand.Parameters[0].Value = item.id;
+                                            oCommand.Parameters[1].Value = item.name;
+                                            oCommand.Parameters[2].Value = 1;
+                                            oCommand.Parameters[3].Value = item.level;
+                                            oCommand.Parameters[4].Value = "1";
+                                            if (Convert.ToString(item.parentId) != null)
                                             {
-                                                oCommand.Parameters[0].Value = item.id;
-                                                oCommand.Parameters[1].Value = item.name;
-                                                oCommand.Parameters[2].Value = 1;
-                                                oCommand.Parameters[3].Value = item.level;
-                                                oCommand.Parameters[4].Value = "1";
+                                                oCommand.Parameters[5].Value = item.parentId;
+                                            }
+                                            else
+                                            {
+                                                oCommand.Parameters[5].Value = "";
+                                            }
+                                            if (oCommand.ExecuteNonQuery() > 0)
+                                            {
                                                 if (Convert.ToString(item.parentId) != null)
                                                 {
-                                                    oCommand.Parameters[5].Value = item.parentId;
-                                                }
-                                                else
-                                                {
-                                                    oCommand.Parameters[5].Value = "";
-                                                }
-                                                if (oCommand.ExecuteNonQuery() > 0)
-                                                {
-                                                    sArrayListLevel2 = sArrayListLevel2 + item.parentId + ",";
-                                                    //if (item.parentCateVo != null)
-                                                    //{
-                                                    //    if (!listCategory.Contains(item.parentCateVo.cateId))
-                                                    //    {
-                                                    //        RecursiveInsertCategory(oCommand, item.parentCateVo);
-                                                    //    }
-                                                    //}
-                                                }
-                                                else
-                                                {
-
-                                                }
-                                            }
-                                        }
-
-                                        if(sArrayListLevel2 != null)
-                                        {
-                                            sArrayListLevel2 = sArrayListLevel2.Substring(0, sArrayListLevel2.Length - 1);
-
-                                            var mgrApiManager2 = new JDIDController();
-                                            mgrApiManager2.AppKey = data.appKey;
-                                            mgrApiManager2.AppSecret = data.appSecret;
-                                            mgrApiManager2.AccessToken = data.accessToken;
-                                            mgrApiManager2.Method = "epi.ware.openapi.CategoryApi.getCategoryByCatIds";
-                                            mgrApiManager2.ParamJson = "{\"catIds\": \"" + sArrayListLevel2 + "\"}";
-
-                                            var response2 = mgrApiManager2.Call(data.appKey, data.accessToken, data.appSecret);
-                                            var ret2 = JsonConvert.DeserializeObject(response2, typeof(JDID_RES)) as JDID_RES;
-                                            if (ret2 != null)
-                                            {
-                                                if (ret2.openapi_code == 0)
-                                                {
-                                                    var listKategori2 = JsonConvert.DeserializeObject(ret2.openapi_data, typeof(DATA_CAT_NEW)) as DATA_CAT_NEW;
-                                                    if (listKategori2 != null)
+                                                    sArrayListLevel = sArrayListLevel + item.parentId + ",";
+                                                    if (!sArrayListLevelTempNoDuplicate.Contains(Convert.ToString(item.parentId)))
                                                     {
-                                                        if (listKategori2.success)
+                                                        iLimitCategory += 1;
+                                                        sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate + item.parentId + ",";
+                                                        if (iLimitCategory == 50)
                                                         {
-                                                            foreach (var itemLevel2 in listKategori2.model)
-                                                            {
-                                                                if(itemLevel2.level == 2)
-                                                                {
-                                                                    oCommand.Parameters[0].Value = itemLevel2.id;
-                                                                    oCommand.Parameters[1].Value = itemLevel2.name;
-                                                                    oCommand.Parameters[2].Value = 1;
-                                                                    oCommand.Parameters[3].Value = itemLevel2.level;
-                                                                    oCommand.Parameters[4].Value = "1";
-                                                                    if (Convert.ToString(itemLevel2.parentId) != null)
-                                                                    {
-                                                                        oCommand.Parameters[5].Value = itemLevel2.parentId;
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        oCommand.Parameters[5].Value = "";
-                                                                    }
-                                                                    if (oCommand.ExecuteNonQuery() > 0)
-                                                                    {
-                                                                        sArrayListLevel1 = sArrayListLevel1 + itemLevel2.parentId + ",";
-                                                                        //if (item.parentCateVo != null)
-                                                                        //{
-                                                                        //    if (!listCategory.Contains(item.parentCateVo.cateId))
-                                                                        //    {
-                                                                        //        RecursiveInsertCategory(oCommand, item.parentCateVo);
-                                                                        //    }
-                                                                        //}
-                                                                    }
-                                                                    else
-                                                                    {
-
-                                                                    }
-                                                                }
-                                                            }
+                                                            sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                                            RecursiveInsertCategoryNewLevel2(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                                            iLimitCategory = 0;
+                                                            sArrayListLevelTempNoDuplicate = "";
                                                         }
                                                     }
                                                 }
                                             }
+                                            else
+                                            {
 
-                                                            
+                                            }
                                         }
 
-                                        if (sArrayListLevel1 != null)
+                                        if(!string.IsNullOrEmpty(sArrayListLevelTempNoDuplicate))
                                         {
-                                            sArrayListLevel1 = sArrayListLevel2.Substring(0, sArrayListLevel2.Length - 1);
-
-                                            var mgrApiManager1 = new JDIDController();
-                                            mgrApiManager1.AppKey = data.appKey;
-                                            mgrApiManager1.AppSecret = data.appSecret;
-                                            mgrApiManager1.AccessToken = data.accessToken;
-                                            mgrApiManager1.Method = "epi.ware.openapi.CategoryApi.getCategoryByCatIds";
-                                            mgrApiManager1.ParamJson = "{\"catIds\": \"" + sArrayListLevel2 + "\"}";
-
-                                            var response1 = mgrApiManager1.Call(data.appKey, data.accessToken, data.appSecret);
-                                            var ret1 = JsonConvert.DeserializeObject(response1, typeof(JDID_RES)) as JDID_RES;
-                                            if (ret1 != null)
-                                            {
-                                                if (ret1.openapi_code == 0)
-                                                {
-                                                    var listKategori1 = JsonConvert.DeserializeObject(ret1.openapi_data, typeof(DATA_CAT_NEW)) as DATA_CAT_NEW;
-                                                    if (listKategori1 != null)
-                                                    {
-                                                        if (listKategori1.success)
-                                                        {
-                                                            foreach (var itemLevel1 in listKategori1.model)
-                                                            {
-                                                                if (itemLevel1.level == 1)
-                                                                {
-                                                                    oCommand.Parameters[0].Value = itemLevel1.id;
-                                                                    oCommand.Parameters[1].Value = itemLevel1.name;
-                                                                    oCommand.Parameters[2].Value = 1;
-                                                                    oCommand.Parameters[3].Value = itemLevel1.level;
-                                                                    oCommand.Parameters[4].Value = "1";
-                                                                    if (Convert.ToString(itemLevel1.parentId) != null)
-                                                                    {
-                                                                        oCommand.Parameters[5].Value = itemLevel1.parentId;
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        oCommand.Parameters[5].Value = "";
-                                                                    }
-                                                                    if (oCommand.ExecuteNonQuery() > 0)
-                                                                    {
-                                                                        sArrayListLevel1 = sArrayListLevel1 + itemLevel1.parentId + ",";
-                                                                        //if (item.parentCateVo != null)
-                                                                        //{
-                                                                        //    if (!listCategory.Contains(item.parentCateVo.cateId))
-                                                                        //    {
-                                                                        //        RecursiveInsertCategory(oCommand, item.parentCateVo);
-                                                                        //    }
-                                                                        //}
-                                                                    }
-                                                                    else
-                                                                    {
-
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-
+                                            sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                            RecursiveInsertCategoryNewLevel2(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                            iLimitCategory = 0;
+                                            sArrayListLevelTempNoDuplicate = "";
                                         }
 
                                         //oTransaction.Commit();
@@ -925,6 +810,210 @@ namespace MasterOnline.Controllers
 
             }
             //}
+        }
+
+        protected void RecursiveInsertCategoryNewLevel2(SqlCommand oCommand, string listCategoryID, JDIDAPIData data)
+        {
+            string retr = "";
+            string sArrayListLevel = "";
+            string sArrayListLevelTempNoDuplicate = "";
+            int iLimitCategory = 0;
+
+            var mgrApiManager = new JDIDController();
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
+            mgrApiManager.Method = "epi.ware.openapi.CategoryApi.getCategoryByCatIds";
+            mgrApiManager.ParamJson = "{\"catIds\":\"" + listCategoryID + "\"}";
+
+
+            try
+            {
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
+                var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (ret != null)
+                {
+                    if (ret.openapi_code == 0)
+                    {
+                        var listKategori = JsonConvert.DeserializeObject(ret.openapi_data, typeof(DATA_CAT_NEW)) as DATA_CAT_NEW;
+                        if (listKategori != null)
+                        {
+                            if (listKategori.success)
+                            {
+                                foreach (var item in listKategori.model) //foreach parent level next
+                                {
+                                    oCommand.Parameters[0].Value = item.id;
+                                    oCommand.Parameters[1].Value = item.name;
+                                    oCommand.Parameters[2].Value = 1;
+                                    oCommand.Parameters[3].Value = item.level;
+                                    oCommand.Parameters[4].Value = "1";
+                                    if (Convert.ToString(item.parentId) != null)
+                                    {
+                                        oCommand.Parameters[5].Value = item.parentId;
+                                    }
+                                    else
+                                    {
+                                        oCommand.Parameters[5].Value = "";
+                                    }
+
+                                    if (oCommand.ExecuteNonQuery() > 0)
+                                    {
+                                        if (Convert.ToString(item.parentId) != null)
+                                        {
+                                            sArrayListLevel = sArrayListLevel + item.parentId + ",";
+                                            if (!sArrayListLevelTempNoDuplicate.Contains(Convert.ToString(item.parentId)))
+                                            {
+                                                iLimitCategory += 1;
+                                                sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate + item.parentId + ",";
+                                                if (iLimitCategory == 10)
+                                                {
+                                                    sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                                    RecursiveInsertCategoryNewLevel1(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                                    iLimitCategory = 0;
+                                                    sArrayListLevelTempNoDuplicate = "";
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                }
+
+                                if (!string.IsNullOrEmpty(sArrayListLevelTempNoDuplicate))
+                                {
+                                    sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                    RecursiveInsertCategoryNewLevel1(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                    iLimitCategory = 0;
+                                    sArrayListLevelTempNoDuplicate = "";
+                                }
+                            }
+                            else
+                            {
+                                //contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                            }
+                        }
+                        else
+                        {
+                            //contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                        }
+                    }
+                    else
+                    {
+                        //contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                    }
+                }
+                else
+                {
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+            }
+        }
+
+        protected void RecursiveInsertCategoryNewLevel1(SqlCommand oCommand, string listCategoryID, JDIDAPIData data)
+        {
+            var mgrApiManager = new JDIDController();
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
+            mgrApiManager.Method = "epi.ware.openapi.CategoryApi.getCategoryByCatIds";
+            mgrApiManager.ParamJson = "{\"catIds\":\"" + listCategoryID + "\"}";
+
+
+            try
+            {
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
+                var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (ret != null)
+                {
+                    if (ret.openapi_code == 0)
+                    {
+                        var listKategori = JsonConvert.DeserializeObject(ret.openapi_data, typeof(DATA_CAT_NEW)) as DATA_CAT_NEW;
+                        if (listKategori != null)
+                        {
+                            if (listKategori.success)
+                            {
+                                foreach (var item in listKategori.model) //foreach parent level next
+                                {
+                                    oCommand.Parameters[0].Value = item.id;
+                                    oCommand.Parameters[1].Value = item.name;
+                                    oCommand.Parameters[2].Value = 1;
+                                    oCommand.Parameters[3].Value = item.level;
+                                    oCommand.Parameters[4].Value = "1";
+                                    if (Convert.ToString(item.parentId) != null)
+                                    {
+                                        //oCommand.Parameters[5].Value = item.parentId;
+                                    }
+                                    else
+                                    {
+                                        oCommand.Parameters[5].Value = "";
+                                    }
+
+                                    if (oCommand.ExecuteNonQuery() > 0)
+                                    {
+                                        //if (Convert.ToString(item.parentId) != null)
+                                        //{
+                                        //    sArrayListLevel = sArrayListLevel + item.parentId + ",";
+                                        //    if (!sArrayListLevelTempNoDuplicate.Contains(Convert.ToString(item.parentId)))
+                                        //    {
+                                        //        iLimitCategory += 1;
+                                        //        sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate + item.parentId + ",";
+                                        //        sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                        //        RecursiveInsertCategoryNewLevel1(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                        //        iLimitCategory = 0;
+                                        //        sArrayListLevelTempNoDuplicate = "";
+                                        //    }
+                                        //    else
+                                        //    {
+                                        //        statusLoop = false;
+                                        //    }
+                                        //}
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                }
+
+                                //if (statusLoop == false && !string.IsNullOrEmpty(sArrayListLevelTempNoDuplicate))
+                                //{
+                                //    sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                //    RecursiveInsertCategoryNewLevel1(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                //    iLimitCategory = 0;
+                                //    sArrayListLevelTempNoDuplicate = "";
+                                //}
+                            }
+                            else
+                            {
+                                //contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                            }
+                        }
+                        else
+                        {
+                            //contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                        }
+                    }
+                    else
+                    {
+                        //contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                    }
+                }
+                else
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+            }
         }
 
         public ATTRIBUTE_JDID getAttribute(JDIDAPIData data, string catId)
