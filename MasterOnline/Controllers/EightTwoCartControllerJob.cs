@@ -317,22 +317,22 @@ namespace MasterOnline.Controllers
 
             if (detailBrg != null)
             {
-                if (detailBrg.ACODE_1 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_1 + ",";
-                }
-                if (detailBrg.ACODE_2 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_2 + ",";
-                }
-                if (detailBrg.ACODE_3 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_3 + ",";
-                }
-                if (detailBrg.ACODE_4 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_4 + ",";
-                }
+                //if (detailBrg.ACODE_1 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_1 + ",";
+                //}
+                //if (detailBrg.ACODE_2 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_2 + ",";
+                //}
+                //if (detailBrg.ACODE_3 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_3 + ",";
+                //}
+                //if (detailBrg.ACODE_4 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_4 + ",";
+                //}
 
                 if (detailBrg.ACODE_10 != null)
                 {
@@ -567,6 +567,8 @@ namespace MasterOnline.Controllers
 
                                         c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, listattributeIDGroup, listattributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
 
+                                        listattributeIDGroup = "";
+                                        listattributeIDItems = "";
                                     }
 
 
@@ -647,22 +649,22 @@ namespace MasterOnline.Controllers
 
             if (detailBrg != null)
             {
-                if (detailBrg.ACODE_1 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_1 + ",";
-                }
-                if (detailBrg.ACODE_2 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_2 + ",";
-                }
-                if (detailBrg.ACODE_3 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_3 + ",";
-                }
-                if (detailBrg.ACODE_4 != null)
-                {
-                    categoryID = categoryID + detailBrg.ACODE_4 + ",";
-                }
+                //if (detailBrg.ACODE_1 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_1 + ",";
+                //}
+                //if (detailBrg.ACODE_2 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_2 + ",";
+                //}
+                //if (detailBrg.ACODE_3 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_3 + ",";
+                //}
+                //if (detailBrg.ACODE_4 != null)
+                //{
+                //    categoryID = categoryID + detailBrg.ACODE_4 + ",";
+                //}
 
                 if (detailBrg.ACODE_10 != null)
                 {
@@ -925,6 +927,8 @@ namespace MasterOnline.Controllers
                                             c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, detailBrg.BRG_MP, listattributeIDGroup, listattributeIDItems, weight.ToString(), "0", Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
                                         }
 
+                                        listattributeIDGroup = "";
+                                        listattributeIDItems = "";
 
                                     }
 

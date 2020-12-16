@@ -2436,8 +2436,8 @@ namespace MasterOnline.Controllers
 
                         foreach (var listKode in splitlistkodeBRG)
                         {
-                            var kodeBRGCheck = listdataKodeBRG.Contains(listKode);
-                            if (kodeBRGCheck)
+                            var kodeBRGCheck = listdataKodeBRG.Where(p => p.ToLower().Contains(listKode.ToLower())).SingleOrDefault();
+                            if (kodeBRGCheck != null)
                             {
                                 sqlListKode += "'" + listKode + "',";
                                 resultUnlink = true;
