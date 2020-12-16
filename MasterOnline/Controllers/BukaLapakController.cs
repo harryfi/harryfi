@@ -13,6 +13,8 @@ using System.IO;
 using Erasoft.Function;
 using System.Data.SqlClient;
 using System.Linq.Dynamic;
+using System.Threading.Tasks;
+using System.Web.Util;
 
 namespace MasterOnline.Controllers
 {
@@ -24,8 +26,8 @@ namespace MasterOnline.Controllers
         MoDbContext MoDbContext;
         public ErasoftContext ErasoftDbContext { get; set; }
         private static string callBackUrl = "https://dev.masteronline.co.id/bukalapak/auth";
-        private static string client_id = "";
-        private static string client_secret = "";
+        private static string client_id = "laJXb5jh91BelPQg2VmE2ooa58UVJmlJkNq98EPJc6s";
+        private static string client_secret = "AXe5u7JcYiSNLvOsGW92Dzc4li6mbrWpN9qjlLD4OxI";
         public BukaLapakController()
         {
             MoDbContext = new MoDbContext("");
@@ -78,8 +80,8 @@ namespace MasterOnline.Controllers
             }
             //string lzdId = cust;
             //string compUrl = callBackUrl + userId + "_param_" + lzdId;
-
-            string uri = "https://accounts.bukalapak.com/oauth/authorize?client_id=" + client_id + "&redirect_uri="+ callBackUrl + "&scope=SCOPE&response_type=code";
+            string scope = "public user store";
+            string uri = "https://accounts.bukalapak.com/oauth/authorize?client_id=" + client_id + "&redirect_uri="+ callBackUrl + "&scope="+ Uri.EscapeDataString(scope) +"&response_type=code";
             return uri;
         }
 
@@ -1100,7 +1102,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase getListProduct(string cust, string userId, string token, int page, bool display, int recordCount, int totaldata)
+        public async Task<BindingBase> getListProduct(string cust, string userId, string token, int page, bool display, int recordCount, int totaldata, string storeid)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -1121,192 +1123,219 @@ namespace MasterOnline.Controllers
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, userId, currentLog);
             try
             {
-                Utils.HttpRequest req = new Utils.HttpRequest();
-                string nonaktifUrl = "&not_for_sale_only=1";
-                ProdBL resListProd = req.CallBukaLapakAPI("", "products/mylapak.json?page=" + page + "&per_page=10" + (display ? "" : nonaktifUrl), "", userId, token, typeof(ProdBL)) as ProdBL;
-                if (resListProd != null)
+                string urll = "https://api.preproduction.bukalapak.com/products?offset=" + (page * 10) + "&limit=10&store_id=" + storeid;
+                //Utils.HttpRequest req = new Utils.HttpRequest();
+                //string nonaktifUrl = "&not_for_sale_only=1";
+                //ProdBL resListProd = req.CallBukaLapakAPI("", "products/mylapak.json?page=" + page + "&per_page=10" + (display ? "" : nonaktifUrl), "", userId, token, typeof(ProdBL)) as ProdBL;
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", "Bearer " + token);
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                string responseFromServer = "";
+                //try
+                //{
+                //myReq.ContentLength = myData.Length;
+                //using (var dataStream = myReq.GetRequestStream())
+                //{
+                //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                //}
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
-                    if (resListProd.status.Equals("OK") && resListProd.products != null)
+                    using (Stream stream = response.GetResponseStream())
                     {
-                        if (resListProd.products.Count == 0)
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                if (responseFromServer != null)
+                {
+                    var resListProd = JsonConvert.DeserializeObject(responseFromServer, typeof(ProdBL)) as ProdBL;
+                    if (resListProd != null)
+                    {
+                        if (resListProd.status.Equals("OK") && resListProd.products != null)
                         {
-                            if (display)
+                            if (resListProd.products.Count == 0)
                             {
-                                ret.status = 1;
-                                ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
+                                if (display)
+                                {
+                                    ret.status = 1;
+                                    ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
+                                }
+                                else
+                                {
+                                    return ret;
+                                }
+
+                            }
+                            ret.status = 1;
+                            if (resListProd.products.Count == 10)
+                            {
+                                //ret.message = (page + 1).ToString();
+                                ret.nextPage = 1;
+                                if (!display)
+                                    ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
                             }
                             else
                             {
-                                return ret;
-                            }
-
-                        }
-                        ret.status = 1;
-                        if (resListProd.products.Count == 10)
-                        {
-                            //ret.message = (page + 1).ToString();
-                            ret.nextPage = 1;
-                            if (!display)
-                                ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
-                        }
-                        else
-                        {
-                            if (display)
-                            {
-                                ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
-                                ret.nextPage = 1;
-                            }
-                        }
-                        int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
-                        var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
-                        var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
-
-                        string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, ";
-                        sSQL += "Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, IMAGE4, IMAGE5, KODE_BRG_INDUK, TYPE";
-                        sSQL += ", ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
-                        sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
-                        sSQL += "ACODE_21, ANAME_21, AVALUE_21, ACODE_22, ANAME_22, AVALUE_22, ACODE_23, ANAME_23, AVALUE_23, ACODE_24, ANAME_24, AVALUE_24, ACODE_25, ANAME_25, AVALUE_25, ACODE_26, ANAME_26, AVALUE_26, ACODE_27, ANAME_27, AVALUE_27, ACODE_28, ANAME_28, AVALUE_28, ACODE_29, ANAME_29, AVALUE_29, ACODE_30, ANAME_30, AVALUE_30 ";
-                        //sSQL += "ACODE_31, ANAME_31, AVALUE_31, ACODE_32, ANAME_32, AVALUE_32, ACODE_33, ANAME_33, AVALUE_33, ACODE_34, ANAME_34, AVALUE_34, ACODE_35, ANAME_35, AVALUE_35, ACODE_36, ANAME_36, AVALUE_36, ACODE_37, ANAME_37, AVALUE_37, ACODE_38, ANAME_38, AVALUE_38, ACODE_39, ANAME_39, AVALUE_39, ACODE_40, ANAME_40, AVALUE_40, ";
-                        //sSQL += "ACODE_41, ANAME_41, AVALUE_41, ACODE_42, ANAME_42, AVALUE_42, ACODE_43, ANAME_43, AVALUE_43, ACODE_44, ANAME_44, AVALUE_44, ACODE_45, ANAME_45, AVALUE_45, ACODE_46, ANAME_46, AVALUE_46, ACODE_47, ANAME_47, AVALUE_47, ACODE_48, ANAME_48, AVALUE_48, ACODE_49, ANAME_49, AVALUE_49, ACODE_50, ANAME_50, AVALUE_50) VALUES ";
-                        sSQL += ") VALUES ";
-                        string sSQL_Value = "";
-                        foreach (var brg in resListProd.products)
-                        {
-                            ret.recordCount += 1;//add 18 Juli 2019, show total record
-                            bool haveVarian = false;
-                            string kdBrgInduk = "";
-                            if (brg.product_sku.Count > 0)
-                            {
-                                haveVarian = true;
-                                kdBrgInduk = brg.id;
-                                var tempbrginDBInduk = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
-                                var brgInDBInduk = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
-                                if (tempbrginDBInduk == null && brgInDBInduk == null)
+                                if (display)
                                 {
-                                    var insert1 = CreateTempQry(brg, cust, IdMarket, display, 1, "", 0);
-                                    if (insert1.exception == 1)
-                                        ret.exception = 1;
-                                    if (insert1.status == 1)
-                                        sSQL_Value += insert1.message;
-                                }
-                                else if (brgInDBInduk != null)
-                                {
-                                    kdBrgInduk = brgInDBInduk.BRG;
+                                    ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
+                                    ret.nextPage = 1;
                                 }
                             }
-                            //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
-                            //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
-                            var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brg.id.ToUpper()).FirstOrDefault();
-                            var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brg.id.ToUpper()).FirstOrDefault();
-                            if (tempbrginDB == null && brgInDB == null)
+                            int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
+                            var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
+                            var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
+
+                            string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, ";
+                            sSQL += "Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, IMAGE4, IMAGE5, KODE_BRG_INDUK, TYPE";
+                            sSQL += ", ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
+                            sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
+                            sSQL += "ACODE_21, ANAME_21, AVALUE_21, ACODE_22, ANAME_22, AVALUE_22, ACODE_23, ANAME_23, AVALUE_23, ACODE_24, ANAME_24, AVALUE_24, ACODE_25, ANAME_25, AVALUE_25, ACODE_26, ANAME_26, AVALUE_26, ACODE_27, ANAME_27, AVALUE_27, ACODE_28, ANAME_28, AVALUE_28, ACODE_29, ANAME_29, AVALUE_29, ACODE_30, ANAME_30, AVALUE_30 ";
+                            //sSQL += "ACODE_31, ANAME_31, AVALUE_31, ACODE_32, ANAME_32, AVALUE_32, ACODE_33, ANAME_33, AVALUE_33, ACODE_34, ANAME_34, AVALUE_34, ACODE_35, ANAME_35, AVALUE_35, ACODE_36, ANAME_36, AVALUE_36, ACODE_37, ANAME_37, AVALUE_37, ACODE_38, ANAME_38, AVALUE_38, ACODE_39, ANAME_39, AVALUE_39, ACODE_40, ANAME_40, AVALUE_40, ";
+                            //sSQL += "ACODE_41, ANAME_41, AVALUE_41, ACODE_42, ANAME_42, AVALUE_42, ACODE_43, ANAME_43, AVALUE_43, ACODE_44, ANAME_44, AVALUE_44, ACODE_45, ANAME_45, AVALUE_45, ACODE_46, ANAME_46, AVALUE_46, ACODE_47, ANAME_47, AVALUE_47, ACODE_48, ANAME_48, AVALUE_48, ACODE_49, ANAME_49, AVALUE_49, ACODE_50, ANAME_50, AVALUE_50) VALUES ";
+                            sSQL += ") VALUES ";
+                            string sSQL_Value = "";
+                            foreach (var brg in resListProd.products)
                             {
-                                #region remark
-                                //ret.recordCount++;
-                                //string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
-                                //urlImage = "";
-                                //urlImage2 = "";
-                                //urlImage3 = "";
-                                //if (brg.name.Length > 30)
-                                //{
-                                //    nama = brg.name.Substring(0, 30);
-                                //    //change by calvin 15 januari 2019
-                                //    //if (brg.name.Length > 60)
-                                //    //{
-                                //    //    nama2 = brg.name.Substring(30, 30);
-                                //    //    nama3 = (brg.name.Length > 90) ? brg.name.Substring(60, 30) : brg.name.Substring(60);
-                                //    //}
-                                //    if (brg.name.Length > 285)
-                                //    {
-                                //        nama2 = brg.name.Substring(30, 255);
-                                //        nama3 = "";
-                                //    }
-                                //    //end change by calvin 15 januari 2019
-                                //    else
-                                //    {
-                                //        nama2 = brg.name.Substring(30);
-                                //        nama3 = "";
-                                //    }
-                                //}
-                                //else
-                                //{
-                                //    nama = brg.name;
-                                //    nama2 = "";
-                                //    nama3 = "";
-                                //}
-
-                                //if (brg.images != null)
-                                //{
-                                //    urlImage = brg.images[0];
-                                //    if (brg.images.Length >= 2)
-                                //    {
-                                //        urlImage2 = brg.images[1];
-                                //        if (brg.images.Length >= 3)
-                                //        {
-                                //            urlImage3 = brg.images[2];
-                                //        }
-                                //    }
-                                //}
-
-                                //sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
-                                ////if (brg.name.Length > 30)
-                                ////{
-                                ////    sSQL += brg.name.Substring(0, 30) + "' , '" + brg.name.Substring(30) + "' , ";
-                                ////}
-                                ////else
-                                ////{
-                                ////    sSQL += brg.name + "' , '' , ";
-                                ////}
-                                //sSQL_Value += nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
-                                //sSQL_Value += brg.weight + " , 1, 1, 1, '" + cust + "' , '" + brg.desc.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`') + "' , " + ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum;
-                                //sSQL_Value += " , " + brg.price + " , " + brg.price + " , " + (display ? "1" : "0") + ", '";
-                                //sSQL_Value += brg.category_id + "' , '" + brg.category + "' , '" + (string.IsNullOrEmpty(brg.specs.merek) ? brg.specs.brand : brg.specs.merek);
-                                //sSQL_Value += "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "') ,";
-                                #endregion
-                                if (haveVarian)
+                                ret.recordCount += 1;//add 18 Juli 2019, show total record
+                                bool haveVarian = false;
+                                string kdBrgInduk = "";
+                                if (brg.product_sku.Count > 0)
                                 {
-                                    ret.totalData += brg.product_sku.Count;//add 18 Juli 2019, show total record
-                                    for (int i = 0; i < brg.product_sku.Count; i++)
+                                    haveVarian = true;
+                                    kdBrgInduk = brg.id;
+                                    var tempbrginDBInduk = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
+                                    var brgInDBInduk = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
+                                    if (tempbrginDBInduk == null && brgInDBInduk == null)
                                     {
-                                        var insert2 = CreateTempQry(brg, cust, IdMarket, display, 2, kdBrgInduk, i);
+                                        var insert1 = CreateTempQry(brg, cust, IdMarket, display, 1, "", 0);
+                                        if (insert1.exception == 1)
+                                            ret.exception = 1;
+                                        if (insert1.status == 1)
+                                            sSQL_Value += insert1.message;
+                                    }
+                                    else if (brgInDBInduk != null)
+                                    {
+                                        kdBrgInduk = brgInDBInduk.BRG;
+                                    }
+                                }
+                                //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brg.id.ToUpper()).FirstOrDefault();
+                                var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brg.id.ToUpper()).FirstOrDefault();
+                                if (tempbrginDB == null && brgInDB == null)
+                                {
+                                    #region remark
+                                    //ret.recordCount++;
+                                    //string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                                    //urlImage = "";
+                                    //urlImage2 = "";
+                                    //urlImage3 = "";
+                                    //if (brg.name.Length > 30)
+                                    //{
+                                    //    nama = brg.name.Substring(0, 30);
+                                    //    //change by calvin 15 januari 2019
+                                    //    //if (brg.name.Length > 60)
+                                    //    //{
+                                    //    //    nama2 = brg.name.Substring(30, 30);
+                                    //    //    nama3 = (brg.name.Length > 90) ? brg.name.Substring(60, 30) : brg.name.Substring(60);
+                                    //    //}
+                                    //    if (brg.name.Length > 285)
+                                    //    {
+                                    //        nama2 = brg.name.Substring(30, 255);
+                                    //        nama3 = "";
+                                    //    }
+                                    //    //end change by calvin 15 januari 2019
+                                    //    else
+                                    //    {
+                                    //        nama2 = brg.name.Substring(30);
+                                    //        nama3 = "";
+                                    //    }
+                                    //}
+                                    //else
+                                    //{
+                                    //    nama = brg.name;
+                                    //    nama2 = "";
+                                    //    nama3 = "";
+                                    //}
+
+                                    //if (brg.images != null)
+                                    //{
+                                    //    urlImage = brg.images[0];
+                                    //    if (brg.images.Length >= 2)
+                                    //    {
+                                    //        urlImage2 = brg.images[1];
+                                    //        if (brg.images.Length >= 3)
+                                    //        {
+                                    //            urlImage3 = brg.images[2];
+                                    //        }
+                                    //    }
+                                    //}
+
+                                    //sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
+                                    ////if (brg.name.Length > 30)
+                                    ////{
+                                    ////    sSQL += brg.name.Substring(0, 30) + "' , '" + brg.name.Substring(30) + "' , ";
+                                    ////}
+                                    ////else
+                                    ////{
+                                    ////    sSQL += brg.name + "' , '' , ";
+                                    ////}
+                                    //sSQL_Value += nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+                                    //sSQL_Value += brg.weight + " , 1, 1, 1, '" + cust + "' , '" + brg.desc.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`') + "' , " + ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum;
+                                    //sSQL_Value += " , " + brg.price + " , " + brg.price + " , " + (display ? "1" : "0") + ", '";
+                                    //sSQL_Value += brg.category_id + "' , '" + brg.category + "' , '" + (string.IsNullOrEmpty(brg.specs.merek) ? brg.specs.brand : brg.specs.merek);
+                                    //sSQL_Value += "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "') ,";
+                                    #endregion
+                                    if (haveVarian)
+                                    {
+                                        ret.totalData += brg.product_sku.Count;//add 18 Juli 2019, show total record
+                                        for (int i = 0; i < brg.product_sku.Count; i++)
+                                        {
+                                            var insert2 = CreateTempQry(brg, cust, IdMarket, display, 2, kdBrgInduk, i);
+                                            if (insert2.exception == 1)
+                                                ret.exception = 1;
+                                            if (insert2.status == 1)
+                                                sSQL_Value += insert2.message;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var insert2 = CreateTempQry(brg, cust, IdMarket, display, 0, "", 0);
                                         if (insert2.exception == 1)
                                             ret.exception = 1;
                                         if (insert2.status == 1)
                                             sSQL_Value += insert2.message;
                                     }
                                 }
-                                else
-                                {
-                                    var insert2 = CreateTempQry(brg, cust, IdMarket, display, 0, "", 0);
-                                    if (insert2.exception == 1)
-                                        ret.exception = 1;
-                                    if (insert2.status == 1)
-                                        sSQL_Value += insert2.message;
-                                }
                             }
+                            if (!string.IsNullOrEmpty(sSQL_Value))
+                            {
+                                sSQL = sSQL + sSQL_Value;
+                                sSQL = sSQL.Substring(0, sSQL.Length - 1);
+                                var a = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                                ret.recordCount += a;
+                            }
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
                         }
-                        if (!string.IsNullOrEmpty(sSQL_Value))
+                        else
                         {
-                            sSQL = sSQL + sSQL_Value;
-                            sSQL = sSQL.Substring(0, sSQL.Length - 1);
-                            var a = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
-                            ret.recordCount += a;
+                            ret.message = resListProd.message;
+                            currentLog.REQUEST_EXCEPTION = resListProd.message;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
                         }
-                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
                     }
                     else
                     {
-                        ret.message = resListProd.message;
-                        currentLog.REQUEST_EXCEPTION = resListProd.message;
+                        ret.exception = 1;
+                        ret.message = "failed to call Buka Lapak api";
+                        currentLog.REQUEST_EXCEPTION = ret.message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
                     }
                 }
-                else
-                {
-                    ret.exception = 1;
-                    ret.message = "failed to call Buka Lapak api";
-                    currentLog.REQUEST_EXCEPTION = ret.message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
-                }
+                    
             }
             catch (Exception ex)
             {
