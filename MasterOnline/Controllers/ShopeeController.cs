@@ -4305,8 +4305,10 @@ namespace MasterOnline.Controllers
             var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
             var varPromo = ErasoftDbContext.PROMOSI.Where(p => p.RecNum == recNumPromosi).FirstOrDefault();
             var varPromoDetail = ErasoftDbContext.DETAILPROMOSI.Where(p => p.RecNumPromosi == recNumPromosi).ToList();
-            long starttime = ((DateTimeOffset)varPromo.TGL_MULAI).ToUnixTimeSeconds();
-            long endtime = ((DateTimeOffset)varPromo.TGL_AKHIR).ToUnixTimeSeconds();
+            //long starttime = ((DateTimeOffset)varPromo.TGL_MULAI).ToUnixTimeSeconds();
+            //long endtime = ((DateTimeOffset)varPromo.TGL_AKHIR).ToUnixTimeSeconds();
+            long starttime = ((DateTimeOffset)varPromo.TGL_MULAI.Value.AddHours(-7)).ToUnixTimeSeconds();
+            long endtime = ((DateTimeOffset)varPromo.TGL_AKHIR.Value.AddHours(-7)).ToUnixTimeSeconds();
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
