@@ -235,7 +235,13 @@ namespace MasterOnline.Controllers
             if (_viewModel?.Account != null)
             {
                 dbPathEra = _viewModel.Account.DatabasePathErasoft;
+                //dbSourceEra = _viewModel.Account.DataSourcePath;
+#if (Debug_AWS)
+                dbSourceEra = _viewModel.Account.DataSourcePathDebug;
+#else
                 dbSourceEra = _viewModel.Account.DataSourcePath;
+#endif
+
                 erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dbSourceEra, dbPathEra);
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(_viewModel.Account.DatabasePathErasoft);
@@ -246,7 +252,12 @@ namespace MasterOnline.Controllers
             {
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
                 dbPathEra = accFromUser.DatabasePathErasoft;
+                //dbSourceEra = accFromUser.DataSourcePath;
+#if (Debug_AWS)
+                dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
                 dbSourceEra = accFromUser.DataSourcePath;
+#endif
 
                 erasoftContext = new ErasoftContext(dbSourceEra, dbPathEra);
                 //add by calvin 1 april 2019
@@ -489,7 +500,12 @@ namespace MasterOnline.Controllers
             if (_viewModel?.Account != null)
             {
                 dbPathEra = _viewModel.Account.DatabasePathErasoft;
+                //dbSourceEra = _viewModel.Account.DataSourcePath;
+#if (Debug_AWS)
+                dbSourceEra = _viewModel.Account.DataSourcePathDebug;
+#else
                 dbSourceEra = _viewModel.Account.DataSourcePath;
+#endif
                 erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dbSourceEra, dbPathEra);
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(_viewModel.Account.DatabasePathErasoft);
@@ -502,7 +518,12 @@ namespace MasterOnline.Controllers
             {
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
                 dbPathEra = accFromUser.DatabasePathErasoft;
+                //dbSourceEra = accFromUser.DataSourcePath;
+#if (Debug_AWS)
+                dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
                 dbSourceEra = accFromUser.DataSourcePath;
+#endif
 
                 erasoftContext = new ErasoftContext(dbSourceEra, dbPathEra);
                 //add by calvin 1 april 2019
@@ -1900,7 +1921,13 @@ namespace MasterOnline.Controllers
                 //add by Tri 20-09-2018, save nama toko ke SIFSYS
                 //change by calvin 3 oktober 2018
                 //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
-                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DataSourcePath, accInDb.DatabasePathErasoft);
+                string dbSourceEra = "";
+#if (Debug_AWS)
+                dbSourceEra = accInDb.DataSourcePathDebug;
+#else
+                dbSourceEra = accInDb.DataSourcePath;
+#endif
+                ErasoftContext ErasoftDbContext = new ErasoftContext(dbSourceEra, accInDb.DatabasePathErasoft);
                 //end change by calvin 3 oktober 2018
                 var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
                 if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))

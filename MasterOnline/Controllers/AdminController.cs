@@ -225,7 +225,13 @@ namespace MasterOnline.Controllers
                 //add by Tri 20-09-2018, save nama toko ke SIFSYS
                 //change by calvin 3 oktober 2018
                 //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
-                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DataSourcePath, accInDb.DatabasePathErasoft);
+                string dbSourceEra = "";
+#if (Debug_AWS)
+                dbSourceEra = accInDb.DataSourcePathDebug;
+#else
+                dbSourceEra = accInDb.DataSourcePath;
+#endif
+                ErasoftContext ErasoftDbContext = new ErasoftContext(dbSourceEra, accInDb.DatabasePathErasoft);
                 //end change by calvin 3 oktober 2018
                 var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
                 if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
@@ -2378,7 +2384,13 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(emailAccount))
             {
                 var accountlist = MoDbContext.Account.Where(p => p.Email == emailAccount).SingleOrDefault();
-                ErasoftDbContext = new ErasoftContext(accountlist.DataSourcePath, accountlist.DatabasePathErasoft);
+                string dbSourceEra = "";
+#if (Debug_AWS)
+                dbSourceEra = accountlist.DataSourcePathDebug;
+#else
+                dbSourceEra = accountlist.DataSourcePath;
+#endif
+                ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
                 
                 var customer = ErasoftDbContext.ARF01.Where(m => m.NAMA != "18").OrderBy(m => m.NAMA).ToList();
                 var mp = MoDbContext.Marketplaces.ToList();
@@ -2430,7 +2442,13 @@ namespace MasterOnline.Controllers
                     {
                         var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
                         DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
-                        ErasoftDbContext = new ErasoftContext(accountlist.DataSourcePath, accountlist.DatabasePathErasoft);
+                        string dbSourceEra = "";
+#if (Debug_AWS)
+                        dbSourceEra = accountlist.DataSourcePathDebug;
+#else
+                        dbSourceEra = accountlist.DataSourcePath;
+#endif
+                        ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
 
                         var listdataKodeBRG = ErasoftDbContext.STF02H.Select(p => p.BRG).ToList();
 
@@ -2558,8 +2576,13 @@ namespace MasterOnline.Controllers
                 command.ExecuteNonQuery();
                 con.Close();
                 con.Dispose();
-
-                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DataSourcePath, accInDb.DatabasePathErasoft);
+                string dbSourceEra = "";
+#if (Debug_AWS)
+                dbSourceEra = accInDb.DataSourcePathDebug;
+#else
+                dbSourceEra = accInDb.DataSourcePath;
+#endif
+                ErasoftContext ErasoftDbContext = new ErasoftContext(dbSourceEra, accInDb.DatabasePathErasoft);
                 var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
                 if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
                 {

@@ -96,7 +96,9 @@ namespace MasterOnline.Models
         public DateTime? LAST_LOGIN_DATE { get; set; }
 
         public string DataSourcePath { get; set; }
-        
+
+        public string DataSourcePathDebug { get; set; }
+
         public string confirm_broadcast { get; set; }
 
     }
