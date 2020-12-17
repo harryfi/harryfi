@@ -2288,11 +2288,11 @@ namespace MasterOnline.Controllers
                             sqlListKode += "'" + listKode + "',";
                         }
 
-                        sqlListKode = sqlListKode.Substring(0, sqlListKode.Length - 1).Replace(" ", "");
+                        sqlListKode = sqlListKode.Substring(0, sqlListKode.Length - 1).Replace(" ", "").ToUpper();
 
                         foreach (var dataToko in splitlistToko)
                         {
-                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET DISPLAY = 0, BRG_MP = '', LINK_STATUS = '', LINK_ERROR = '' WHERE BRG IN (" + sqlListKode + ") AND IDMARKET = '" + dataToko + "' ");
+                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET DISPLAY = 0, BRG_MP = '', LINK_STATUS = '', LINK_ERROR = '' WHERE UPPER(BRG) IN (" + sqlListKode + ") AND IDMARKET = '" + dataToko + "' ");
                         }
 
                         resultUnlink = true;
@@ -2317,7 +2317,7 @@ namespace MasterOnline.Controllers
 
         public async Task<ActionResult> ProsesEditKode(string listData)
         {
-            bool resultUnlink = false;
+            bool resultEdit = false;
 
             if (!string.IsNullOrEmpty(listData))
             {
@@ -2325,53 +2325,239 @@ namespace MasterOnline.Controllers
                 string accountEmail = dataSplitToko[0];
                 string listkodeBRGBaru = dataSplitToko[1];
                 string listkodeBRGLama = dataSplitToko[2];
-                string[] splitlistBRGBaru = listkodeBRGBaru.Split(',');
+                string[] splitlistBRGBaru = listkodeBRGBaru.Split('^');
                 string[] splitlistBRGLama = listkodeBRGLama.Split('^');
 
                 var sqlListKodeLama = "";
                 var sqlListKodeBaru = "";
+                int iurutan = 0;
+                var vlistKodeSudahPosting = "";
 
                 if (!string.IsNullOrEmpty(listkodeBRGBaru) && !string.IsNullOrEmpty(listkodeBRGLama))
                 {
-                    try
+                    if(splitlistBRGBaru.Length == splitlistBRGLama.Length)
                     {
-                        var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
-                        DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
-
-                        ErasoftDbContext = new ErasoftContext(accountlist.DataSourcePath, accountlist.DatabasePathErasoft);
-
-                        
-
-                        foreach (var listKode in splitlistBRGBaru)
+                        try
                         {
-                            var checkSI = ErasoftDbContext.SIT01B.Where(p => p.BRG == listKode).Select(p => p.NO_BUKTI).SingleOrDefault();
-                            var checkPosting = ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == checkSI).SingleOrDefault();
-                            if (checkPosting.ST_POSTING != "Y")
+                            var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
+                            DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+
+                            ErasoftDbContext = new ErasoftContext(accountlist.DataSourcePath, accountlist.DatabasePathErasoft);
+
+
+
+                            foreach (var listKodeBaru in splitlistBRGBaru)
                             {
-                                sqlListKodeLama += "'" + listKode + "',";
+                                var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG == listKodeBaru).ToList();
+                                var kodeBrgLamaCheck = splitlistBRGLama[iurutan].ToString();
+                                var checkBarangLama = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
+                                if (checkBarangBaru.Count() == 0 && checkBarangLama.Count() > 0)
+                                {
+                                    //var checkSI = ErasoftDbContext.SIT01B.Where(p => p.BRG == kodeBrgLamaCheck).SingleOrDefault();
+
+                                    var resultCekSI = (from a in ErasoftDbContext.SIT01B
+                                                       join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
+                                                       where a.BRG == kodeBrgLamaCheck
+                                                       select new
+                                                       {
+                                                           a.NO_BUKTI, a.BRG, b.ST_POSTING
+                                                       }
+                                        ).ToList();
+
+                                    var resultCekST = (from a in ErasoftDbContext.STT01B
+                                                       join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
+                                                       where a.Kobar == kodeBrgLamaCheck
+                                                       select new
+                                                       {
+                                                           a.Nobuk,
+                                                           a.Kobar,
+                                                           b.ST_Posting
+                                                       }
+                                        ).ToList();
+
+                                    //var checkPostingSI = ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == checkSI.NO_BUKTI).SingleOrDefault();
+                                    //var checkST = ErasoftDbContext.STT01B.Where(p => p.Kobar == kodeBrgLamaCheck).Select(p => p.Nobuk).SingleOrDefault();
+                                    //var checkPostingST = ErasoftDbContext.STT01A.Where(p => p.Nobuk == checkST).SingleOrDefault();
+                                    var checkResultSI = resultCekSI.Where(p => p.ST_POSTING.Contains("Y")).ToList();
+                                    var checkResultST = resultCekST.Where(p => p.ST_Posting.Contains("Y")).ToList();
+
+                                    if (checkResultSI.Count() == 0 && checkResultST.Count() == 0)
+                                    {
+                                        // kondisi kalau belum posting
+                                        sqlListKodeLama += "'" + listKodeBaru + "',";
+
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
+                                            "update stf02 set brg='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update stf02h set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update sot01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update sit01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update stt01b set kobar ='" + listKodeBaru + "' where kobar ='" + kodeBrgLamaCheck + "'; " +
+                                            "update stt04b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update pbt01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "'; " +
+                                            "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+
+                                        resultEdit = true;
+                                    }
+                                    else
+                                    {
+                                        // kondisi kalau sudah posting
+                                        vlistKodeSudahPosting += "" + kodeBrgLamaCheck + ",";
+                                    }
+                                }
+                                else
+                                {
+                                    // alert jika kode barang sudah ada lakukan Merge bukan Edit Kode Barang!.
+                                    return new JsonResult { Data = new { success = resultEdit, dataposting = "kode barang sudah ada lakukan Merge bukan Edit Kode Barang!." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                                }
+
+
+                                iurutan += 1;
                             }
 
-                            
                         }
-
-                        //sqlListKode = sqlListKode.Substring(0, sqlListKode.Length - 1).Replace(" ", "");
-
-                        foreach (var dataKodeBaru in splitlistBRGBaru)
+                        catch (Exception ex)
                         {
-                            //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02 SET BRG = '" + dataKodeBaru + "' WHERE BRG = '" + sqlListKode + " AND IDMARKET = '" + dataToko + "' ");
+                            resultEdit = false;
                         }
-
-                        resultUnlink = true;
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        resultUnlink = false;
+                        // alert bahwa jumlah list kode tidak sama.
+                        return new JsonResult { Data = new { success = resultEdit, dataposting = "Jumlah list kode barang tidak sama." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
 
                 }
 
                 //return View(vm);
-                return new JsonResult { Data = new { success = resultUnlink }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { success = resultEdit, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            else
+            {
+                //return View("Error");
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+
+        public async Task<ActionResult> ProsesMergeKode(string listData)
+        {
+            bool resultMerge = false;
+
+            if (!string.IsNullOrEmpty(listData))
+            {
+                string[] dataSplitToko = listData.Split('|');
+                string accountEmail = dataSplitToko[0];
+                string listkodeBRGBaru = dataSplitToko[1];
+                string listkodeBRGLama = dataSplitToko[2];
+                string[] splitlistBRGBaru = listkodeBRGBaru.Split('^');
+                string[] splitlistBRGLama = listkodeBRGLama.Split('^');
+
+                var sqlListKodeLama = "";
+                var sqlListKodeBaru = "";
+                int iurutan = 0;
+                var vlistKodeSudahPosting = "";
+
+                if (!string.IsNullOrEmpty(listkodeBRGBaru) && !string.IsNullOrEmpty(listkodeBRGLama))
+                {
+                    if (splitlistBRGBaru.Length == splitlistBRGLama.Length)
+                    {
+                        try
+                        {
+                            var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
+                            DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+
+                            ErasoftDbContext = new ErasoftContext(accountlist.DataSourcePath, accountlist.DatabasePathErasoft);
+
+
+
+                            foreach (var listKodeBaru in splitlistBRGBaru)
+                            {
+                                var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG == listKodeBaru).ToList();
+                                var kodeBrgLamaCheck = splitlistBRGLama[iurutan].ToString();
+                                var checkBarangLama = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
+                                if (checkBarangBaru.Count() > 0 && checkBarangLama.Count() > 0)
+                                {
+                                    //var checkSI = ErasoftDbContext.SIT01B.Where(p => p.BRG == kodeBrgLamaCheck).SingleOrDefault();
+
+                                    var resultCekSI = (from a in ErasoftDbContext.SIT01B
+                                                       join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
+                                                       where a.BRG == kodeBrgLamaCheck
+                                                       select new
+                                                       {
+                                                           a.NO_BUKTI,
+                                                           a.BRG,
+                                                           b.ST_POSTING
+                                                       }
+                                        ).ToList();
+
+                                    var resultCekST = (from a in ErasoftDbContext.STT01B
+                                                       join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
+                                                       where a.Kobar == kodeBrgLamaCheck
+                                                       select new
+                                                       {
+                                                           a.Nobuk,
+                                                           a.Kobar,
+                                                           b.ST_Posting
+                                                       }
+                                        ).ToList();
+
+                                    //var checkPostingSI = ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == checkSI.NO_BUKTI).SingleOrDefault();
+                                    //var checkST = ErasoftDbContext.STT01B.Where(p => p.Kobar == kodeBrgLamaCheck).Select(p => p.Nobuk).SingleOrDefault();
+                                    //var checkPostingST = ErasoftDbContext.STT01A.Where(p => p.Nobuk == checkST).SingleOrDefault();
+                                    var checkResultSI = resultCekSI.Where(p => p.ST_POSTING.Contains("Y")).ToList();
+                                    var checkResultST = resultCekST.Where(p => p.ST_Posting.Contains("Y")).ToList();
+
+                                    if (checkResultSI.Count() == 0 && checkResultST.Count() == 0)
+                                    {
+                                        // kondisi kalau belum posting
+                                        sqlListKodeLama += "'" + listKodeBaru + "',";
+
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
+                                            "update stf02 set brg='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update stf02h set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update sot01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update sit01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update stt01b set kobar ='" + listKodeBaru + "' where kobar ='" + kodeBrgLamaCheck + "'; " +
+                                            "update stt04b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update pbt01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "'; " +
+                                            "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+
+                                        resultMerge = true;
+                                    }
+                                    else
+                                    {
+                                        // kondisi kalau sudah posting
+                                        vlistKodeSudahPosting += kodeBrgLamaCheck + " ,";
+                                    }
+                                }
+                                else
+                                {
+                                    // alert jika kode barang sudah ada lakukan Merge bukan Edit Kode Barang!.
+                                    return new JsonResult { Data = new { success = resultMerge, dataposting = "kode barang sudah ada lakukan Merge bukan Edit Kode Barang!." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                                }
+
+
+                                iurutan += 1;
+                            }
+
+                        }
+                        catch (Exception ex)
+                        {
+                            resultMerge = false;
+                        }
+                    }
+                    else
+                    {
+                        // alert bahwa jumlah list kode tidak sama.
+                        return new JsonResult { Data = new { success = resultMerge, dataposting = "Jumlah list kode barang tidak sama." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+
+                }
+
+                //return View(vm);
+                return new JsonResult { Data = new { success = resultMerge, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             else
             {

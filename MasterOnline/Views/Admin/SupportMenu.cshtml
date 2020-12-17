@@ -147,7 +147,7 @@
                                     <div class="wrap-input100 validate-input m-b-36" style="border: none">
                                         <select id="ACCOUNT" placeholder="Harap pilih" required="required"></select>
                                     </div>
-                                    <div id="loading_account" hidden class="text-center">
+                                    <div id="loading_account1" hidden class="text-center">
                                         <img src="~/Content/Images/spinner.gif" width="100" />
                                     </div>
                                     <div class="row" id="list-mp-toko">
@@ -183,7 +183,7 @@
                                     <div class="wrap-input100 validate-input m-b-36" style="border: none">
                                         <select id="ACCOUNT2" placeholder="Harap pilih" required="required"></select>
                                     </div>
-                                    <div id="loading_account" hidden class="text-center">
+                                    <div id="loading_account2" hidden class="text-center">
                                         <img src="~/Content/Images/spinner.gif" width="100" />
                                     </div>
                                     @*<div class="row" id="list-mp-toko2">
@@ -198,7 +198,7 @@
                                         @Html.Label("Masukan Kode Barang Lama:")
                                     </span>
                                     <div class="wrap-input100 validate-input m-b-36" style="border: none">
-                                        <textarea id="kode-brg" cols="100" rows="20" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
+                                        <textarea id="kode-brg-edit-lama" cols="100" rows="20" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -208,7 +208,7 @@
                                         @Html.Label("Masukan Kode Barang Baru:")
                                     </span>
                                     <div class="wrap-input100 validate-input m-b-36" style="border: none">
-                                        <textarea id="kode-brg" cols="100" rows="20" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
+                                        <textarea id="kode-brg-edit-baru" cols="100" rows="20" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
                                     </div>
                                 </div>
                                 <button id="proseseditkode" type="button" class=" btn btn-primary" data-style="expand-right">
@@ -229,7 +229,7 @@
                                     <div class="wrap-input100 validate-input m-b-36" style="border: none">
                                         <select id="ACCOUNT3" placeholder="Harap pilih" required="required"></select>
                                     </div>
-                                    <div id="loading_account" hidden class="text-center">
+                                    <div id="loading_account3" hidden class="text-center">
                                         <img src="~/Content/Images/spinner.gif" width="100" />
                                     </div>
                                     @*<div class="row" id="list-mp-toko3">
@@ -244,7 +244,7 @@
                                         @Html.Label("Masukan Kode Barang Lama:")
                                     </span>
                                     <div class="wrap-input100 validate-input m-b-36" style="border: none">
-                                        <textarea id="kode-brg" cols="100" rows="20" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
+                                        <textarea id="kode-brg-merge-lama" cols="100" rows="20" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -254,7 +254,7 @@
                                         @Html.Label("Masukan Kode Barang Baru:")
                                     </span>
                                     <div class="wrap-input100 validate-input m-b-36" style="border: none">
-                                        <textarea id="kode-brg" cols="100" rows="20" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
+                                        <textarea id="kode-brg-merge-baru" cols="100" rows="20" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
                                     </div>
                                 </div>
                                 <button id="prosesmergekode" type="button" class=" btn btn-primary" data-style="expand-right">
@@ -337,7 +337,6 @@
                             rows_selected.shift();
                             $('#list-mp-toko2').html('');
                             $('#SelectedAccount2').val(value);
-                            GetMarketplaceAccount(value);
                         }
                     });
                 }
@@ -351,7 +350,6 @@
                             rows_selected.shift();
                             $('#list-mp-toko3').html('');
                             $('#SelectedAccount3').val(value);
-                            GetMarketplaceAccount(value);
                         }
                     });
                 }
@@ -399,8 +397,8 @@
                     });
 
                     if ($('#kode-brg-edit-baru').val() != "" && $('#kode-brg-edit-lama').val() != "") {
-                        //alert(rows_selected + " _____ " + $('#kode-brg').val().replace(/\n/g, "^"));
-                        ProsesEditKode($('#SelectedAccount2').val(), $('#kode-brg-edit-baru').val().replace(/\n/g, "^"), $('#kode-brg-edit-baru').val().replace(/\n/g, "^"));
+                        //alert($('#SelectedAccount2').val());
+                        ProsesEditKode($('#SelectedAccount2').val(), $('#kode-brg-edit-lama').val().replace(/\n/g, "^"), $('#kode-brg-edit-baru').val().replace(/\n/g, "^"));
                         //rows_selected.shift();
                     } else {
                         //if (rows_selected.length == 0) {
@@ -424,7 +422,7 @@
 
                     if ($('#kode-brg-merge-baru').val() != "" && $('#kode-brg-merge-lama').val() != "") {
                         //alert(rows_selected + " _____ " + $('#kode-brg').val().replace(/\n/g, "^"));
-                        ProsesMergeKode($('#SelectedAccount3').val(), $('#kode-brg-merge-baru').val().replace(/\n/g, "^"), $('#kode-brg-merge-baru').val().replace(/\n/g, "^"));
+                        ProsesMergeKode($('#SelectedAccount3').val(), $('#kode-brg-merge-lama').val().replace(/\n/g, "^"), $('#kode-brg-merge-baru').val().replace(/\n/g, "^"));
                         //rows_selected.shift();
                     } else {
                         //if (rows_selected.length == 0) {
@@ -452,10 +450,10 @@
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#loading_account').show();
+                    $('#loading_account1').show();
                 },
                 success: function (response) {
-                    $('#loading_account').hide();
+                    $('#loading_account1').hide();
                     rows_selected.shift();
                     if (response.success) {
                         alert("Berhasil unlink.")
@@ -470,24 +468,32 @@
         } 
 
         function ProsesEditKode(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
-            var link = '@Url.Action("ProsesEditKode", "Admin", new { listTokoMP = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
+            var link = '@Url.Action("ProsesEditKode", "Admin", new { listData = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
             link = link.replace("replaceEmail", emailAccount);
-            link = link.replace("replaceKodeBaru", listKodeBRGLama);
-            link = link.replace("replaceKodeLama", listKodeBRGBaru);
+            link = link.replace("replaceKodeBaru", listKodeBRGBaru);
+            link = link.replace("replaceKodeLama", listKodeBRGLama);
 
             $.ajax({
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#loading_account').show();
+                    $('#loading_account2').show();
                 },
                 success: function (response) {
-                    $('#loading_account').hide();
+                    $('#loading_account2').hide();
                     rows_selected.shift();
                     if (response.success) {
-                        alert("Berhasil Edit Kode Barang.")
+                        if (response.dataposting != "") {
+                            alert("Tidak berhasil Edit Kode Barang pada." + response.dataposting);
+                        } else {
+                            alert("Berhasil Edit Kode Barang.");
+                        }
                     } else {
-                        alert("Gagal Edit Kode Barang.")
+                        if (response.dataposting != "") {
+                            alert("Tidak berhasil Edit Kode Barang pada." + response.dataposting);
+                        } else {
+                            alert("Gagal Edit Kode Barang.");
+                        }
                     }
                 },
                 error: function (xhr, status, error) {
@@ -499,17 +505,17 @@
         function ProsesMergeKode(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
             var link = '@Url.Action("ProsesMergeKode", "Admin", new { listTokoMP = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
             link = link.replace("replaceEmail", emailAccount);
-            link = link.replace("replaceKodeBaru", listKodeBRGLama);
-            link = link.replace("replaceKodeLama", listKodeBRGBaru);
+            link = link.replace("replaceKodeBaru", listKodeBRGBaru);
+            link = link.replace("replaceKodeLama", listKodeBRGLama);
 
             $.ajax({
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#loading_account').show();
+                    $('#loading_account3').show();
                 },
                 success: function (response) {
-                    $('#loading_account').hide();
+                    $('#loading_account3').hide();
                     rows_selected.shift();
                     if (response.success) {
                         alert("Berhasil Merge Kode Barang.")
@@ -531,10 +537,10 @@
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#loading_account').show();
+                    $('#loading_account1').show();
                 },
                 success: function (response) {
-                    $('#loading_account').hide();
+                    $('#loading_account1').hide();
                     if (response.success) {
                         if (response.result.ListTokoMPCustomers.length > 0) {
                             for (var i = 0; i < response.result.ListTokoMPCustomers.length; i++) {
