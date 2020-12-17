@@ -44937,7 +44937,7 @@ namespace MasterOnline.Controllers
                             var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
                             if (sot01b.Count > 0)
                             {
-                                if ((orderItemIds.Count() + sot01b.Count()) > 50 || hitungheader == 10 || orderItemIds.Count() >= 10 && orderItemIds.Count() < 20)
+                                if ((orderItemIds.Count() + sot01b.Count()) > 50 || orderItemIds.Count() >= 10 && orderItemIds.Count() < 20)
                                 {
                                     var lzdApi = new LazadaController();
                                     var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
@@ -45196,7 +45196,7 @@ namespace MasterOnline.Controllers
                                 }
 
                                 if (orderItemIds.Count() == 50 || orderItemIds.Count() == hitungDetail
-                                    || orderItemIds.Count() == 10 || orderItemIds.Count() >= 10 && orderItemIds.Count() < 20
+                                    || orderItemIds.Count() >= 10 && orderItemIds.Count() < 20
                                     )
                                 {
                                     var lzdApi = new LazadaController();
