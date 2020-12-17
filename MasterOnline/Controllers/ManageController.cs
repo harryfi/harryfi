@@ -45662,7 +45662,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_error = ex.Message.ToString() + ". Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             return JsonErrorMessage("This Function is for Lazada only");
         }
