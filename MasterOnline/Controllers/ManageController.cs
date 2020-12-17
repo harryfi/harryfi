@@ -44927,6 +44927,8 @@ namespace MasterOnline.Controllers
                 var listDetailSo = ErasoftDbContext.Database.SqlQuery<ORDERITEMSO>(ssql).ToList();
                 var hitungDetail = listDetailSo.Count();
 
+                var hitungheader = 0;
+
                 //END ADD BY NURUL 24/2/2020
 
                 foreach (var so in ListStt01a)
@@ -44936,6 +44938,7 @@ namespace MasterOnline.Controllers
                         listNobuk += ",";
                     }
                     listNobuk += "'" + so.no_bukti + "'";
+                    hitungheader = hitungheader + 1;
                     if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                     {
                         if (marketPlace.STATUS_API == "1")
@@ -44943,7 +44946,7 @@ namespace MasterOnline.Controllers
                             var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
                             if (sot01b.Count > 0)
                             {
-                                if ((orderItemIds.Count() + sot01b.Count()) > 50)
+                                if ((orderItemIds.Count() + sot01b.Count()) > 50 || orderItemIds.Count() >= 10 && orderItemIds.Count() < 20)
                                 {
                                     var lzdApi = new LazadaController();
                                     var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
@@ -45143,7 +45146,7 @@ namespace MasterOnline.Controllers
                                             converter.Options.MarginTop = 10;
 
                                             htmlString = htmlString.Replace("break;", "");
-                                            htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 30)");
+                                            htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 35)");
                                             htmlString = htmlString.Replace("font-size:10px", "font-size:9px");
                                             SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
 
@@ -45181,6 +45184,16 @@ namespace MasterOnline.Controllers
                                         orderItemIds.Add(item.ORDER_ITEM_ID);
                                         //Valid = true;
                                     }
+
+                                    hitungheader = 0;
+                                    gakketemulagi = false;
+                                    JNEgakketemulagi = false;
+                                    lastIndexBarcode = 0;
+                                    lastIndexPortCode = 0;
+                                    lastIndexHarga = 0;
+                                    lastIndexReferensi = 0;
+                                    lastIndexKurir = 0;
+                                    lastIndexTgl = 0;
                                 }
                                 else
                                 {
@@ -45192,7 +45205,7 @@ namespace MasterOnline.Controllers
                                 }
 
                                 if (orderItemIds.Count() == 50 || orderItemIds.Count() == hitungDetail
-                                    || orderItemIds.Count() == 10
+                                    || orderItemIds.Count() >= 10 && orderItemIds.Count() < 20
                                     )
                                 {
                                     var lzdApi = new LazadaController();
@@ -45431,6 +45444,16 @@ namespace MasterOnline.Controllers
                                     //    orderItemIds.Add(item.ORDER_ITEM_ID);
                                     //    //Valid = true;
                                     //}
+
+                                    hitungheader = 0;
+                                    gakketemulagi = false;
+                                    JNEgakketemulagi = false;
+                                    lastIndexBarcode = 0;
+                                    lastIndexPortCode = 0;
+                                    lastIndexHarga = 0;
+                                    lastIndexReferensi = 0;
+                                    lastIndexKurir = 0;
+                                    lastIndexTgl = 0;
                                 }
                             }
                         }
@@ -45648,7 +45671,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_error = ex.Message.ToString() + ". Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             return JsonErrorMessage("This Function is for Lazada only");
         }
@@ -57238,12 +57261,16 @@ namespace MasterOnline.Controllers
                     {
                         if (data.Count() > 0)
                         {
-                            resi = data.Single(a => a.referensiApi == so.so_referensi).ResiApi;
-                            port = data.Single(a => a.referensiApi == so.so_referensi).PortCodeApi;
-                            ref1 = data.Single(a => a.referensiApi == so.so_referensi).referensiApi;
-                            netto = Convert.ToDouble(data.Single(a => a.referensiApi == so.so_referensi).HargaApi);
-                            logoKurir = data.Single(a => a.referensiApi == so.so_referensi).urlLogoKurirApi;
-                            tgl = Convert.ToDateTime(data.Single(a => a.referensiApi == so.so_referensi).tglApi).ToString("dd/MM/yyyy");
+                            var cekDataLazada = data.Where(a => a.referensiApi == so.so_referensi).Count();
+                            if (cekDataLazada > 0)
+                            {
+                                resi = data.Single(a => a.referensiApi == so.so_referensi).ResiApi;
+                                port = data.Single(a => a.referensiApi == so.so_referensi).PortCodeApi;
+                                ref1 = data.Single(a => a.referensiApi == so.so_referensi).referensiApi;
+                                netto = Convert.ToDouble(data.Single(a => a.referensiApi == so.so_referensi).HargaApi);
+                                logoKurir = data.Single(a => a.referensiApi == so.so_referensi).urlLogoKurirApi;
+                                tgl = Convert.ToDateTime(data.Single(a => a.referensiApi == so.so_referensi).tglApi).ToString("dd/MM/yyyy");
+                            }
                         }
                     }
 
