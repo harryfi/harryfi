@@ -19,11 +19,8 @@
     if (dataSession?.Account != null)
     {
         nama = dataSession.Account.Username;
-#if DEBUG
-        erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.DataSourcePathDebug, dataSession.Account.DatabasePathErasoft);
-#else
-        erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.DataSourcePathDebug, dataSession.Account.DatabasePathErasoft);
-#endif
+
+        erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.DataSourcePath, dataSession.Account.DatabasePathErasoft);
 
         namaPerAccount = dataSession.Account.DatabasePathErasoft;//add by calvin 1 april 2019
 
