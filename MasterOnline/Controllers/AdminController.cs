@@ -2512,6 +2512,11 @@ namespace MasterOnline.Controllers
                                     {
                                         // kondisi kalau belum posting
                                         sqlListKodeLama += "'" + listKodeBaru + "',";
+                                        //var checkBarangLamaLagi = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
+                                        //if (checkBarangLamaLagi.Count() > 0)
+                                        //{
+                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + kodeBrgLamaCheck + "'");
+                                        //}
 
                                         EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
                                             "update stf02 set brg='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
@@ -2524,6 +2529,7 @@ namespace MasterOnline.Controllers
                                             "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "'; " +
                                             "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
 
+                                        
                                         resultMerge = true;
                                     }
                                     else

@@ -251,7 +251,7 @@
                             <div class="col-md-4 col-sm-4">
                                 <div class="input-group">
                                     <span class="txt1 p-b-11">
-                                        @Html.Label("Masukan Kode Barang Baru:")
+                                        @Html.Label("Masukan Kode Barang Tujuan Merge:")
                                     </span>
                                     <div class="wrap-input100 validate-input m-b-36" style="border: none">
                                         <textarea id="kode-brg-merge-baru" cols="100" rows="20" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
@@ -483,14 +483,16 @@
                     $('#loading_account2').hide();
                     rows_selected.shift();
                     if (response.success) {
+                        $('#loading_account2').hide();
                         if (response.dataposting != "") {
-                            alert("Tidak berhasil Edit Kode Barang pada." + response.dataposting);
+                            alert("Tidak berhasil Edit Kode Barang. " + response.dataposting);
                         } else {
                             alert("Berhasil Edit Kode Barang.");
                         }
                     } else {
+                        $('#loading_account2').hide();
                         if (response.dataposting != "") {
-                            alert("Tidak berhasil Edit Kode Barang pada." + response.dataposting);
+                            alert("Tidak berhasil Edit Kode Barang. " + response.dataposting);
                         } else {
                             alert("Gagal Edit Kode Barang.");
                         }
@@ -498,12 +500,13 @@
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
+                    $('#loading_account2').hide();
                 }
             });
         } 
 
         function ProsesMergeKode(emailAccount, listKodeBRGLama, listKodeBRGBaru) {
-            var link = '@Url.Action("ProsesMergeKode", "Admin", new { listTokoMP = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
+            var link = '@Url.Action("ProsesMergeKode", "Admin", new { listData = "replaceEmail|replaceKodeBaru|replaceKodeLama" })';
             link = link.replace("replaceEmail", emailAccount);
             link = link.replace("replaceKodeBaru", listKodeBRGBaru);
             link = link.replace("replaceKodeLama", listKodeBRGLama);
@@ -518,13 +521,24 @@
                     $('#loading_account3').hide();
                     rows_selected.shift();
                     if (response.success) {
-                        alert("Berhasil Merge Kode Barang.")
+                        $('#loading_account3').hide();
+                        if (response.dataposting != "") {
+                            alert("Tidak berhasil Merge Kode Barang. " + response.dataposting);
+                        } else {
+                            alert("Berhasil Merge Kode Barang.");
+                        }
                     } else {
-                        alert("Gagal Merge Kode Barang.")
+                        $('#loading_account3').hide();
+                        if (response.dataposting != "") {
+                            alert("Tidak berhasil Merge Kode Barang. " + response.dataposting);
+                        } else {
+                            alert("Gagal Merge Kode Barang.");
+                        }
                     }
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
+                    $('#loading_account3').hide();
                 }
             });
         } 
