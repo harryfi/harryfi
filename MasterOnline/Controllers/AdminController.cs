@@ -2515,7 +2515,7 @@ namespace MasterOnline.Controllers
                                         //var checkBarangLamaLagi = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
                                         //if (checkBarangLamaLagi.Count() > 0)
                                         //{
-                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + kodeBrgLamaCheck + "'");
+                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + kodeBrgLamaCheck + "'; DELETE FROM STF02H WHERE BRG ='" + kodeBrgLamaCheck + "'");
                                         //}
 
                                         EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
@@ -2563,7 +2563,15 @@ namespace MasterOnline.Controllers
                 }
 
                 //return View(vm);
-                return new JsonResult { Data = new { success = resultMerge, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                if (!string.IsNullOrEmpty(vlistKodeSudahPosting))
+                {
+                    return new JsonResult { Data = new { success = resultMerge, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    return new JsonResult { Data = new { success = resultMerge, dataposting = "" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                
             }
             else
             {
