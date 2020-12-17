@@ -52,13 +52,22 @@ namespace MasterOnline.Controllers
             if (sessionData?.Account != null)
             {
                 dbPathEra = sessionData.Account.DatabasePathErasoft;
+                //dbSourceEra = sessionData.Account.DataSourcePath;
+#if (Debug_AWS)
+                dbSourceEra = sessionData.Account.DataSourcePathDebug;
+#else
                 dbSourceEra = sessionData.Account.DataSourcePath;
+#endif
 
                 if (sessionData.Account.UserId == "admin_manage")
+                {
                     ErasoftDbContext = new ErasoftContext();
+                }
                 else
+                {
                     ErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
-
+                }
+                
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 EDBConnID = EDB.GetConnectionString("ConnID");
                 usernameLogin = sessionData.Account.Username;
@@ -70,7 +79,12 @@ namespace MasterOnline.Controllers
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                     dbPathEra = accFromUser.DatabasePathErasoft;
+                    //dbSourceEra = accFromUser.DataSourcePath;
+#if (Debug_AWS)
+                    dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
                     dbSourceEra = accFromUser.DataSourcePath;
+#endif
                     ErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
 
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
