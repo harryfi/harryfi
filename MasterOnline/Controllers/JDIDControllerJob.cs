@@ -564,10 +564,29 @@ namespace MasterOnline.Controllers
                 paramQualityAsurance = " \"qualityDays\":" + detailBrg.ANAME_47 + ", ";
             }
 
+            var skeyword = "";
+
+            if (!string.IsNullOrEmpty(detailBrg.AVALUE_46))
+            {
+                skeyword = detailBrg.AVALUE_46 + ",";
+            }
+            if (!string.IsNullOrEmpty(detailBrg.AVALUE_48))
+            {
+                skeyword = skeyword + detailBrg.AVALUE_48 + ",";
+            }
+            if (!string.IsNullOrEmpty(detailBrg.AVALUE_49))
+            {
+                skeyword = skeyword + detailBrg.AVALUE_49 + ",";
+            }
+
+            if (skeyword != null)
+                skeyword = skeyword.Substring(0, skeyword.Length - 1);
+
+
             string sParamJson = "{\"spuInfo\":{\"spuName\":\"" + namafull + "\", " +
                 "\"appDescription\":\"" + vDescription + "\", " +
                 "\"description\":\"" + vDescription + "\", \"packageInfo\":\"PAKET INFO\", " +
-                "\"brandId\":" + detailBrg.AVALUE_38 + ", \"catId\":" + detailBrg.CATEGORY_CODE + ", " + commonAttribute + " \"isSequenceNumber\":1, \"keywords\":\"" + detailBrg.AVALUE_46 + "\", \"productArea\":\""+ detailBrg.ACODE_47 + "\", " +
+                "\"brandId\":" + detailBrg.AVALUE_38 + ", \"catId\":" + detailBrg.CATEGORY_CODE + ", " + commonAttribute + " \"isSequenceNumber\":1, \"keywords\":\"" + skeyword + "\", \"productArea\":\""+ detailBrg.ACODE_47 + "\", " +
                 "\"crossProductType\":\"1\", \"clearanceType\":\"2\" , \"taxesType\":\"2\", \"countryId\":\"10000000\", " +
                 paramHref +
                 "\"subtitle\":\""+detailBrg.AVALUE_43+"\", \"transportId\":42, \"isQuality\":" + detailBrg.AVALUE_47 + ", " +
@@ -1062,9 +1081,27 @@ namespace MasterOnline.Controllers
                 //paramSKUVariant = "{\"costPrice\":" + detailBrg.HJUAL + ",\"jdPrice\":" + detailBrg.HJUAL + ", \"sellerSkuId\":\"" + detailBrg.BRG + "\", \"skuName\":\"" + namafull + "\", \"stock\":" + qty_stock + ", \"upc\":\"upc\" }";
             }
 
+            var skeyword = "";
+
+            if (!string.IsNullOrEmpty(detailBrg.AVALUE_46))
+            {
+                skeyword = detailBrg.AVALUE_46 + ",";
+            }
+            if (!string.IsNullOrEmpty(detailBrg.AVALUE_48))
+            {
+                skeyword = skeyword + detailBrg.AVALUE_48 + ",";
+            }
+            if (!string.IsNullOrEmpty(detailBrg.AVALUE_49))
+            {
+                skeyword = skeyword + detailBrg.AVALUE_49 + ",";
+            }
+
+            if (skeyword != null)
+                skeyword = skeyword.Substring(0, skeyword.Length - 1);
+
             string sParamJson = "{\"spuInfo\":{\"spuName\":\"" + namafull + "\", \"spuId\":"+ spuID[0] + ", " +
                 //"\"packageInfo\":\"PAKET INFO\", " +
-                "\"brandId\":" + detailBrg.AVALUE_38 + ", \"catId\":" + detailBrg.CATEGORY_CODE + ", " + commonAttribute + " \"isSequenceNumber\":1, \"keywords\":\"" + detailBrg.AVALUE_46 + "\", \"productArea\":\"" + detailBrg.ACODE_47 + "\", " +
+                "\"brandId\":" + detailBrg.AVALUE_38 + ", \"catId\":" + detailBrg.CATEGORY_CODE + ", " + commonAttribute + " \"isSequenceNumber\":1, \"keywords\":\"" + skeyword + "\", \"productArea\":\"" + detailBrg.ACODE_47 + "\", " +
                 "\"crossProductType\":\"1\", \"clearanceType\":\"2\" , \"taxesType\":\"2\", \"countryId\":\"10000000\", " +
                 "\"subtitle\":\""+ detailBrg.AVALUE_43 +"\", \"subtitleHref\":\"" + urlHref + "\", \"subtitleHrefM\":\"" + urlHref + "\", \"transportId\":42, \"isQuality\":" + detailBrg.AVALUE_47 + ", " +
                 paramQualityAsurance +

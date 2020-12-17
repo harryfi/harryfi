@@ -5307,7 +5307,9 @@ namespace MasterOnline.Controllers
                         DatabasePathErasoft = dbPathEra,
                     };
                     //Task.Run(() => jdAPI.checkAPICustomerShop(dataJD)).Wait();
-                    jdAPI.JDID_checkAPICustomerShop(dataJD);
+                    //jdAPI.JDID_checkAPICustomerShop(dataJD);
+                    jdAPI.JDID_checkAPICustomerShopNew(dataJD);
+                    //Task.Run(() => jdAPI.JDID_checkAPICustomerShopNew(dataJD)).Wait();
                 }
 
             }
@@ -7656,16 +7658,13 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetKategoriJDByCode(/*string code*/)
         {
-            //string[] codelist = code.Split(';');
-            //var listKategoriLazada = MoDbContext.CATEGORY_LAZADA.Where(k => codelist.Contains(k.CATEGORY_ID)).OrderBy(k => k.NAME).ToList();
-            var listKategoriLazada = ErasoftDbContext.CATEGORY_JDID.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+            var listKategoriJDID = ErasoftDbContext.CATEGORY_JDID.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
 
-            //return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
             var serializer = new JavaScriptSerializer();
             serializer.MaxJsonLength = Int32.MaxValue;
             var result = new ContentResult
             {
-                Content = serializer.Serialize(listKategoriLazada),
+                Content = serializer.Serialize(listKategoriJDID),
                 ContentType = "application/json"
             };
             return result;
@@ -7673,15 +7672,14 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetKategoriJDByParentCode(string code)
         {
-            string[] codelist = code.Split(';');
-            var listKategoriLazada = ErasoftDbContext.CATEGORY_JDID.Where(k => codelist.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
-
-            //return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
+            //string[] codelist = code.Split(';');
+            var listKategoriJDID = ErasoftDbContext.CATEGORY_JDID.Where(k => code.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+            
             var serializer = new JavaScriptSerializer();
             serializer.MaxJsonLength = Int32.MaxValue;
             var result = new ContentResult
             {
-                Content = serializer.Serialize(listKategoriLazada),
+                Content = serializer.Serialize(listKategoriJDID),
                 ContentType = "application/json"
             };
             return result;
@@ -7689,11 +7687,12 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetKategoriJDByChildCode(string code)
         {
-            string[] codelist = code.Split(';');
+            //string[] codelist = code.Split(';');
             List<CATEGORY_JDID> listKategoriJD = new List<CATEGORY_JDID>();
-            var category = ErasoftDbContext.CATEGORY_JDID.Where(k => codelist.Contains(k.CATEGORY_CODE)).FirstOrDefault();
+            var category = ErasoftDbContext.CATEGORY_JDID.Where(k => code.Contains(k.CATEGORY_CODE)).FirstOrDefault();
             listKategoriJD.Add(category);
 
+            if(Convert.ToString(category) != "")
             if (category.PARENT_CODE != "")
             {
                 bool TopParent = false;
@@ -7791,7 +7790,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetAttributeJD(string code, int cust)
         {
-            string[] codelist = code.Split(';');
+            //string[] codelist = code.Split(';');
             var retData = new List<ATTRIBUTE_JDID>();
             var customer = ErasoftDbContext.ARF01.Where(m => m.RecNum == cust).FirstOrDefault();
             if (customer != null)
@@ -7805,7 +7804,7 @@ namespace MasterOnline.Controllers
                         appSecret = customer.API_CLIENT_U
                     };
                     var jdApi = new JDIDController();
-                    retData.Add(jdApi.getAttribute(data, codelist[0]));
+                    retData.Add(jdApi.getAttribute(data, code));
                 }
 
             }
@@ -7823,7 +7822,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetAttributeOptJD(string code, string kategoryCode, int cust)
         {
-            string[] codelist = code.Split(';');
+            //string[] codelist = code.Split(';');
             var retData = new List<ATTRIBUTE_OPT_JDID>();
             var customer = ErasoftDbContext.ARF01.Where(m => m.RecNum == cust).FirstOrDefault();
             if (customer != null)
@@ -7837,7 +7836,7 @@ namespace MasterOnline.Controllers
                         appSecret = customer.API_CLIENT_U
                     };
                     var jdApi = new JDIDController();
-                    var a = jdApi.getAttributeOpt(data, kategoryCode, codelist[0], 1);
+                    var a = jdApi.getAttributeOpt(data, kategoryCode, code, 1);
                     retData = a.OrderBy(m => m.OPTION_VALUE).ToList();
                 }
 
