@@ -2476,6 +2476,10 @@ namespace MasterOnline.Controllers
                                 var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG == listKodeBaru).ToList();
                                 var kodeBrgLamaCheck = splitlistBRGLama[iurutan].ToString();
                                 var checkBarangLama = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
+
+                                var checkBarangMPBaru = ErasoftDbContext.STF02H.Where(p => p.BRG == listKodeBaru).ToList();
+                                var checkBarangMPLama = ErasoftDbContext.STF02H.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
+
                                 if (checkBarangBaru.Count() > 0 && checkBarangLama.Count() > 0)
                                 {
                                     //var checkSI = ErasoftDbContext.SIT01B.Where(p => p.BRG == kodeBrgLamaCheck).SingleOrDefault();
@@ -2515,7 +2519,15 @@ namespace MasterOnline.Controllers
                                         //var checkBarangLamaLagi = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
                                         //if (checkBarangLamaLagi.Count() > 0)
                                         //{
+                                        if(checkBarangMPBaru.Count() >= checkBarangMPLama.Count())
+                                        {
                                             EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + kodeBrgLamaCheck + "'; DELETE FROM STF02H WHERE BRG ='" + kodeBrgLamaCheck + "'");
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + listKodeBaru + "'; DELETE FROM STF02H WHERE BRG ='" + listKodeBaru + "'");
+                                        }
+                                            
                                         //}
 
                                         EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
