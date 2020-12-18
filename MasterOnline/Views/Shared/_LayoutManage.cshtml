@@ -39,13 +39,8 @@
     {
         nama = dataSession?.User.Username;
         var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
-        string dataSourcePath = "";
-#if (Debug_AWS)
-        dataSourcePath = accFromUser.DataSourcePathDebug;
-#else
-        dataSourcePath = accFromUser.DataSourcePathDebug;
-#endif
-        erasoftContext = new ErasoftContext(dataSourcePath, accFromUser.DatabasePathErasoft);
+
+        erasoftContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
         namaPerAccount = accFromUser.DatabasePathErasoft;//add by calvin 1 april 2019
 
         //add by nurul 26/7/2019
