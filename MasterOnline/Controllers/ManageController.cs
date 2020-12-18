@@ -105,9 +105,9 @@ namespace MasterOnline.Controllers
                     dbPathEra = accFromUser.DatabasePathErasoft;
                     //dbSourceEra = accFromUser.DataSourcePath;
 #if (Debug_AWS)
-                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+                    dbSourceEra = accFromUser.DataSourcePathDebug;
 #else
-                    dbSourceEra = sessionData.Account.DataSourcePath;
+                    dbSourceEra = accFromUser.DataSourcePath;
 #endif
                     ErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
 
