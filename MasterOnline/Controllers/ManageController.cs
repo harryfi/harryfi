@@ -49060,12 +49060,12 @@ namespace MasterOnline.Controllers
                                                 var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "delete from art03b where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
                                                 ret.successUpdateDetail += successRow;
                                             }
-                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A (nolock) INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                             ret.successUpdateHeader += successRowHeader;
                                         }
                                         catch (Exception ex)
                                         {
-                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A (nolock) INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                             ret.successUpdateHeader += successRowHeader;
 
                                             var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
@@ -49093,12 +49093,12 @@ namespace MasterOnline.Controllers
                                                 var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "delete from art03b where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
                                                 ret.successUpdateDetail += successRow;
                                             }
-                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A (nolock) INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                             ret.successUpdateHeader += successRowHeader;
                                         }
                                         catch (Exception ex)
                                         {
-                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A (nolock) INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                             ret.successUpdateHeader += successRowHeader;
 
                                             var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
@@ -49128,14 +49128,14 @@ namespace MasterOnline.Controllers
                                             var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "delete from art03b where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
                                             ret.successUpdateDetail += successRow;
                                         }
-                                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A (nolock) INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                         ret.successUpdateHeader += successRowHeader;
 
 
                                     }
                                     catch (Exception ex)
                                     {
-                                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A (nolock) INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                         ret.successUpdateHeader += successRowHeader;
 
                                         var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
@@ -49163,13 +49163,13 @@ namespace MasterOnline.Controllers
                                             var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "delete from art03b where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
                                             ret.successUpdateDetail += successRow;
                                         }
-                                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A (nolock) INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                         ret.successUpdateHeader += successRowHeader;
 
                                     }
                                     catch (Exception ex)
                                     {
-                                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A (nolock) INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                         ret.successUpdateHeader += successRowHeader;
                                         //transaction.Rollback();
                                         var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
@@ -49200,7 +49200,7 @@ namespace MasterOnline.Controllers
                     var cekHeader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).Count();
                     if (cekHeader > 0)
                     {
-                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A (nolock) INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                         ret.successUpdateHeader += successRowHeader;
                     }
                 }
