@@ -46627,7 +46627,13 @@ namespace MasterOnline.Controllers
                                         //                                        new BlibliControllerJob().fillOrderAWB(dbPathEra, so.nama_pemesan, cust,
                                         //                                            "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi,
                                         //                                            order_item_id);
-                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, so.nama_pemesan, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id));
+                                        //change by nurul 18/12/2020
+                                        //clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, so.nama_pemesan, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id));
+#if (DEBUG || Debug_AWS)
+                                        Task.Run(() => new BlibliControllerJob().fillOrderAWBV2(dbPathEra, so.no_bukti, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id)).Wait();
+#else
+                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWBV2(dbPathEra, so.no_bukti, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id));
+#endif
                                     }
                                     listSuccess.Add(new listSuccessPrintLabel()
                                     {

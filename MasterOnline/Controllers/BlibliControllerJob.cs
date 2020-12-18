@@ -2323,6 +2323,7 @@ namespace MasterOnline.Controllers
             }
         }
 
+        //add by nurul 18/12/2020
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Konfirmasi Pengiriman Pesanan {obj} ke Blibli Gagal.")]
@@ -2344,31 +2345,19 @@ namespace MasterOnline.Controllers
                 orderNo = orderNo,
                 orderItemNo = orderItemNo
             });
-
-            //fillOrderAWBData thisData = new fillOrderAWBData();
-
-            //thisData.type = 1;
-            //thisData.awbNo = awbNo;
-            //thisData.orderNo = orderNo;
-            //thisData.orderItemNo = orderItemNo;
-            //thisData.combineShipping = combineShipping;
+            
             fillOrderAWBDataV2 thisData = new fillOrderAWBDataV2();
             thisData.awbNo = awbNo;
 
             string myData = JsonConvert.SerializeObject(thisData);
-            
-            //add by nurul 13/7/2020
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/fulfillRegular";
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            //end add by nurul 13/7/2020
 
-            //change by nurul 13/7/2020
+            string urll = "https://api.blibli.com/v2/proxy/seller/v1/orders/regular/" + awbNo + "/fulfill?";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            
             if (iden.versiToken != "2")
             {
-                //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
                 string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/fulfillRegular", iden.API_secret_key);
-                //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/order/fulfillRegular";
-                urll = "https://api.blibli.com/v2/proxy/seller/v1/orders/regular/{" + awbNo + "}/fulfill?packageId=" + Uri.EscapeDataString(awbNo) + "&requestId=" + Uri.EscapeDataString(milis.ToString()) + "&storeId=10001" + "&channelId=MasterOnline&username=" + Uri.EscapeDataString(iden.mta_username_email_merchant) + "&storeCode=" + Uri.EscapeDataString(iden.merchant_code);
+                urll = "https://api.blibli.com/v2/proxy/seller/v1/orders/regular/" + awbNo + "/fulfill?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&storeId=10001" + "&channelId=MasterOnline&username=" + Uri.EscapeDataString(iden.mta_username_email_merchant) + "&storeCode=" + Uri.EscapeDataString(iden.merchant_code);
 
                 myReq = (HttpWebRequest)WebRequest.Create(urll);
                 myReq.Method = "POST";
@@ -2386,7 +2375,7 @@ namespace MasterOnline.Controllers
                 string usernameMO = iden.API_client_username;
                 //string passMO = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
                 string passMO = iden.API_client_password;
-                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/fulfillRegular?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&storeId=10001" + "&channelId=MasterOnline";
+                urll = "https://api.blibli.com/v2/proxy/seller/v1/orders/regular/" + awbNo + "/fulfill?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&storeId=10001" + "&channelId=MasterOnline&username=" + Uri.EscapeDataString(iden.mta_username_email_merchant) + "&storeCode=" + Uri.EscapeDataString(iden.merchant_code);
 
                 myReq = (HttpWebRequest)WebRequest.Create(urll);
                 myReq.Method = "POST";
@@ -2422,24 +2411,33 @@ namespace MasterOnline.Controllers
                     using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
                     {
                         err1 = sr1.ReadToEnd();
+                        responseFromServer = err1;
                     }
                 }
-                throw new Exception(err1);
+                //throw new Exception(err1);
             }
             if (responseFromServer != "")
             {
                 dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
-                if (string.IsNullOrEmpty(result.errorCode.Value))
+                if (responseFromServer == "{}")
                 {
                     EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM = '2' WHERE CUST = '" + log_CUST + "' AND NO_REFERENSI = '" + orderNo + "'");
                 }
                 else
                 {
-                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM = '1' WHERE CUST = '" + log_CUST + "' AND NO_REFERENSI = '" + orderNo + "'");
-                    throw new Exception(result.errorMessage.Value);
+                    if (string.IsNullOrEmpty(result.errorCode.Value))
+                    {
+                        EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM = '2' WHERE CUST = '" + log_CUST + "' AND NO_REFERENSI = '" + orderNo + "'");
+                    }
+                    else
+                    {
+                        EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM = '1' WHERE CUST = '" + log_CUST + "' AND NO_REFERENSI = '" + orderNo + "'");
+                        throw new Exception(result.errorMessage.Value);
+                    }
                 }
             }
         }
+        //end add by nurul 18/12/2020
 
         public async Task<string> UpdateProdukQOH_Display(BlibliAPIData iden, BlibliProductData data)
         {
