@@ -3088,6 +3088,7 @@ namespace MasterOnline.Controllers
                 {
                     try
                     {
+                        connID = Guid.NewGuid().ToString();
                         ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS");
                         ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS_ITEM");
                         batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
