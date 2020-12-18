@@ -2948,8 +2948,10 @@ namespace MasterOnline.Controllers
                     //System.DateTime datetimeisnull = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
                     //var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && (p.TGL ?? datetimeisnull) > last21days).Select(p => p.NO_REFERENSI).ToList();
 
-                    var last21days = DateTimeOffset.UtcNow.AddHours(7).AddDays(daysFrom - 1).DateTime;
-                    var last21days2 = DateTimeOffset.UtcNow.AddHours(7).AddDays(daysTo + 1).DateTime;
+                    //var last21days = DateTimeOffset.UtcNow.AddHours(7).AddDays(daysFrom - 1).DateTime;
+                    //var last21days2 = DateTimeOffset.UtcNow.AddHours(7).AddDays(daysTo + 1).DateTime;
+                    var last21days = DateTimeOffset.FromUnixTimeMilliseconds(daysFrom).UtcDateTime.AddHours(7).AddDays(-1);
+                    var last21days2 = DateTimeOffset.FromUnixTimeMilliseconds(daysTo).UtcDateTime.AddHours(7).AddDays(1);
                     System.DateTime datetimeisnull = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
                     var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && (p.TGL ?? datetimeisnull) >= last21days && (p.TGL ?? datetimeisnull) <= last21days2).Select(p => p.NO_REFERENSI).ToList();
 
