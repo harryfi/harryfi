@@ -2454,8 +2454,10 @@ namespace MasterOnline.Controllers
 
                         foreach (var listKode in splitlistkodeBRG)
                         {
-                            var kodeBRGCheck = listdataKodeBRG.Where(p => p.ToLower().Contains(listKode.ToLower())).SingleOrDefault();
-                            if (kodeBRGCheck != null)
+                            var kodeUpper = listKode.ToUpper();
+                            listdataKodeBRG = listdataKodeBRG.ConvertAll(d => d.ToUpper());
+                            var kodeBRGCheck = listdataKodeBRG.Contains(kodeUpper);
+                            if (kodeBRGCheck)
                             {
                                 sqlListKode += "'" + listKode + "',";
                                 resultUnlink = true;
@@ -2527,8 +2529,13 @@ namespace MasterOnline.Controllers
                         {
                             var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
                             DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
-
-                            ErasoftDbContext = new ErasoftContext(accountlist.DataSourcePath, accountlist.DatabasePathErasoft);
+                            string dbSourceEra = "";
+#if (Debug_AWS)
+                            dbSourceEra = accountlist.DataSourcePathDebug;
+#else
+                            dbSourceEra = accountlist.DataSourcePath;
+#endif
+                            ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
 
 
 
@@ -2616,7 +2623,14 @@ namespace MasterOnline.Controllers
                 }
 
                 //return View(vm);
-                return new JsonResult { Data = new { success = resultEdit, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                if (!string.IsNullOrEmpty(vlistKodeSudahPosting))
+                {
+                    return new JsonResult { Data = new { success = resultEdit, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    return new JsonResult { Data = new { success = resultEdit, dataposting = "" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
             }
             else
             {
@@ -2652,8 +2666,13 @@ namespace MasterOnline.Controllers
                         {
                             var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
                             DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
-
-                            ErasoftDbContext = new ErasoftContext(accountlist.DataSourcePath, accountlist.DatabasePathErasoft);
+                            string dbSourceEra = "";
+#if (Debug_AWS)
+                            dbSourceEra = accountlist.DataSourcePathDebug;
+#else
+                            dbSourceEra = accountlist.DataSourcePath;
+#endif
+                            ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
 
 
 
@@ -2739,7 +2758,7 @@ namespace MasterOnline.Controllers
                                 else
                                 {
                                     // alert jika kode barang sudah ada lakukan Merge bukan Edit Kode Barang!.
-                                    return new JsonResult { Data = new { success = resultMerge, dataposting = "kode barang sudah ada lakukan Merge bukan Edit Kode Barang!." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                                    return new JsonResult { Data = new { success = resultMerge, dataposting = "kode barang tidak ada, lakukan Edit Kode Barang bukan Merge Kode Barang!." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                                 }
 
 
