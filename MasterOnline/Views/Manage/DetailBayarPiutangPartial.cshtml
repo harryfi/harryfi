@@ -84,7 +84,6 @@
             if (filterBy != "Harap Pilih" && $('#filter_detail_bayar_field_option').val() != "Harap Pilih") {
                 searchDetailTableBayarPiutang();
             }
-
         });
         $('#filter_detail_bayar_field_option').change(function () {
             if ($('#filter_detail_bayar_field').val() != "Harap Pilih" && $('#filter_detail_bayar_field_option').val() != "Harap Pilih") {
@@ -471,7 +470,7 @@
             <div class="col-lg-2 col-sm-6 col-md-3" style="margin-top:13px;">
                 <div class="pull-right">
                     <button type="button" id="btn_deletedetail_massal" class="btn btn-danger" @*data-style="expand-right" data-toggle="modal" data-target="#modalKonfDeleteDetailMassal"*@ onclick="passRecDetailBayar()">
-                        <span @*class="glyphicon glyphicon-trash"*@ aria-hidden="true" style="width:100px; max-width:100px"> Delete Detail</span>
+                        <span @*class="glyphicon glyphicon-trash"*@ aria-hidden="true" style="width:100px; max-width:100px"> Hapus Detail</span>
                     </button>
                 </div>
             </div>
@@ -485,9 +484,6 @@
                     </div>
                 </div>
             </div>*@
-    </div>
-    <div class="row">
-        <label id="text-check-faktur" style="margin-left:10px;"></label>
     </div>
 </div>
 @Html.HiddenFor(m => m.PiutangDetail.USERNAME, new { Value = username })

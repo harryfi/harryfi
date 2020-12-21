@@ -3523,6 +3523,7 @@
                 url: $link,
                 beforeSend: function () {
                     $('#loading_detail_piutang_tab').show();
+                    $('#all_checkbox_detail_bayar').attr('checked', false);
                 },
                 success: function (response) {
                     $('#table_detail').html(response);
