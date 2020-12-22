@@ -97,6 +97,10 @@
 
 @*//add by nurul 14/5/2019*@
 <script type="text/javascript">
+    @{
+        var flagBundling = Model?.Pesanan?.Status_Approve;
+    }
+    var flagBundling = @Html.Raw(Json.Encode(flagBundling));
 
     $(document).ready(function () {
         Initialize();
