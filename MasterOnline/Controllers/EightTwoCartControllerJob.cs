@@ -317,22 +317,22 @@ namespace MasterOnline.Controllers
 
             if (detailBrg != null)
             {
-                //if (detailBrg.ACODE_1 != null)
-                //{
-                //    categoryID = categoryID + detailBrg.ACODE_1 + ",";
-                //}
-                //if (detailBrg.ACODE_2 != null)
-                //{
-                //    categoryID = categoryID + detailBrg.ACODE_2 + ",";
-                //}
-                //if (detailBrg.ACODE_3 != null)
-                //{
-                //    categoryID = categoryID + detailBrg.ACODE_3 + ",";
-                //}
-                //if (detailBrg.ACODE_4 != null)
-                //{
-                //    categoryID = categoryID + detailBrg.ACODE_4 + ",";
-                //}
+                if (detailBrg.ACODE_1 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_1 + ",";
+                }
+                if (detailBrg.ACODE_2 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_2 + ",";
+                }
+                if (detailBrg.ACODE_3 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_3 + ",";
+                }
+                if (detailBrg.ACODE_4 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_4 + ",";
+                }
 
                 if (detailBrg.ACODE_10 != null)
                 {
