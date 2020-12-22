@@ -3934,6 +3934,9 @@ namespace MasterOnline.Controllers
 
                 var MoDbContext = new MoDbContext("");
 
+                //var akun = MoDbContext.Account.Count();
+                //var user = MoDbContext.User.Count();
+
                 var accountInDb = (from a in MoDbContext.Account
                                    where
                                    (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
@@ -3957,10 +3960,329 @@ namespace MasterOnline.Controllers
             {
                 //change by fauzi 24 Januari 2020
                 //var RemoteMODbContext = new MoDbContext(db_source);
-                var RemoteMODbContext = new MoDbContext("");
-                //end
-                RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @tahun", new SqlParameter("@db_name", db_name), new SqlParameter("@tahun", tahun));
+                //change by nurul 21/12/2020
+                //var RemoteMODbContext = new MoDbContext("");
+                var getIP = "";
+                var getPort = "1433";
+                if (db_source != "" && db_source != null)
+                {
+                    if (db_source.Contains("172.31.20.197") || db_source.Contains("13.250.232.74"))
+                    {
+                        getIP = "13.250.232.74";
+                    }
+                    else if ((db_source.Contains("172.31.20.200") || db_source.Contains("54.179.169.195")) && db_source.Contains("1433"))
+                    {
+                        getIP = "54.179.169.195";
+                    }
+                    else if (db_source.Contains("172.31.17.194") || db_source.Contains("52.76.44.100"))
+                    {
+                        getIP = "52.76.44.100";
+                    }
+                    else if (db_source.Contains("172.31.26.111") || db_source.Contains("54.254.98.21"))
+                    {
+                        getIP = "54.254.98.21";
+                    }
+                    else if (db_source.Contains("172.31.14.140") || db_source.Contains("18.141.161.81"))
+                    {
+                        getIP = "18.141.161.81";
+                    }
+                    else if (db_source.Contains("172.31.1.127") || db_source.Contains("13.251.64.77"))
+                    {
+                        getIP = "13.251.64.77";
+                    }
+                    else if (db_source.Contains("172.31.40.234") || db_source.Contains("54.179.0.52"))
+                    {
+                        getIP = "54.179.0.52";
+                    }
+                    else if (db_source.Contains("13.251.222.53") || db_source.Contains("13.251.222.53"))
+                    {
+                        getIP = "13.251.222.53";
+                    }
+                    else if ((db_source.Contains("54.179.169.195") || db_source.Contains("54.179.169.195")) && db_source.Contains("1444"))
+                    {
+                        getIP = "54.179.169.195";
+                        getPort = "1444";
+                    }
+                }
+                //var getIP = db_source.Split(new string[] { "\"" }, StringSplitOptions.None).First();
+                //var getPort = db_source.Split(new string[] { ", " }, StringSplitOptions.None).Last();
+                if (db_source != "" && db_source != null)
+                {
+                    var RemoteMODbContext = new MoDbContext(getPort, getIP);
 
+                    //var akun = MoDbContext.Account.Count();
+                    //var user = MoDbContext.User.Count();
+                    //end change by nurul 21/12/2020
+                    //end
+                    //remark dulu biar ga keproses 
+                    //RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @tahun", new SqlParameter("@db_name", db_name), new SqlParameter("@tahun", tahun));
+                    var tahunProses = Convert.ToInt16(tahun);
+
+                    object[] spParams = {
+                    new SqlParameter("@db_name", db_name),
+                    new SqlParameter("@THN", tahunProses)
+                    };
+                    RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @THN", spParams);
+
+                    return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+        //add by nurul 21/12/2020
+        public ActionResult ProsesAkhirTahunPreparePerServer(string tahun, string server, string[] db_name)
+        {
+            try
+            {
+                var lastYear = DateTime.UtcNow.AddYears(-1);
+                var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
+                var datenow = DateTime.UtcNow.AddHours(7);
+
+                //var MoDbContext = new MoDbContext("");
+                var getIP = "";
+                var getPort = "1433";
+                if (server != "" && server != null)
+                {
+                    if (server.Contains("172.31.20.197") || server.Contains("13.250.232.74"))
+                    {
+                        getIP = "13.250.232.74";
+                    }
+                    else if ((server.Contains("172.31.20.200") || server.Contains("54.179.169.195")) && server.Contains("1433"))
+                    {
+                        getIP = "54.179.169.195";
+                    }
+                    else if (server.Contains("172.31.17.194") || server.Contains("52.76.44.100"))
+                    {
+                        getIP = "52.76.44.100";
+                    }
+                    else if (server.Contains("172.31.26.111") || server.Contains("54.254.98.21"))
+                    {
+                        getIP = "54.254.98.21";
+                    }
+                    else if (server.Contains("172.31.14.140") || server.Contains("18.141.161.81"))
+                    {
+                        getIP = "18.141.161.81";
+                    }
+                    else if (server.Contains("172.31.1.127") || server.Contains("13.251.64.77"))
+                    {
+                        getIP = "13.251.64.77";
+                    }
+                    else if (server.Contains("172.31.40.234") || server.Contains("54.179.0.52"))
+                    {
+                        getIP = "54.179.0.52";
+                    }
+                    else if (server.Contains("13.251.222.53") || server.Contains("13.251.222.53"))
+                    {
+                        getIP = "13.251.222.53";
+                    }
+                    else if ((server.Contains("54.179.169.195") || server.Contains("54.179.169.195")) && server.Contains("1444"))
+                    {
+                        getIP = "54.179.169.195";
+                        getPort = "1444";
+                    }
+                }
+                //var getIP = server.Split(new string[] { "\"" }, StringSplitOptions.None).First();
+                //var getPort = server.Split(new string[] { ", " }, StringSplitOptions.None).Last();
+                var listDB = new List<string>();
+                if(db_name != null  && db_name.Count() > 0)
+                {
+                    listDB = db_name.ToList();
+                }
+                if (getIP != "")
+                {
+                    //var MoDbContext = new MoDbContext(getPort, getIP);
+                    var MoDbContext = new MoDbContext("");
+                    //var akun = MoDbContext.Account.Count();
+                    //var user = MoDbContext.User.Count();
+
+                    var accountInDb = (from a in MoDbContext.Account
+                                       where
+                                       (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                                       &&
+                                       (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                                       && listDB.Contains(a.DatabasePathErasoft)
+                                       orderby a.LAST_LOGIN_DATE descending
+                                       select new { db_name = a.DatabasePathErasoft, db_source = a.DataSourcePath, onlineshopname = a.NamaTokoOnline }).ToList();
+
+                    return new JsonResult { Data = new { arraydbname = accountInDb }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "Server tidak ditemukan." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+        public class listServer
+        {
+            public string IP { get; set; }
+        }
+        public ActionResult GetServer()
+        {
+            var MoDbContext = new MoDbContext("");
+            //listServer = MoDbContext.Account.Where(a => !string.IsNullOrEmpty(a.DataSourcePath)).Select(a => a.DataSourcePath).Distinct().ToList();
+            var listServer = (from a in MoDbContext.Account
+                         where !string.IsNullOrEmpty(a.DataSourcePath)
+                         select new listServer { IP = a.DataSourcePath }).Distinct().ToList();
+            return Json(listServer, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult PromptAccountUserPerServer(string server)
+        {
+            var vm = new PromptAccountServerAkhirTahunViewModel()
+            {
+                
+            };
+            if(server != "" && server != null)
+            {
+                var lastYear = DateTime.UtcNow.AddYears(-1);
+                var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
+                var datenow = DateTime.UtcNow.AddHours(7);
+                //var MoDbContext = new MoDbContext("");
+
+                var getIP = "";
+                var getPort = "1433";
+                var getIPPrivate = "";
+                if (server.Contains("172.31.20.197") || server.Contains("13.250.232.74"))
+                {
+                    getIP = "13.250.232.74";
+                    getIPPrivate = "172.31.20.197";
+                }else if ((server.Contains("172.31.20.200") || server.Contains("54.179.169.195")) && server.Contains("1433"))
+                {
+                    getIP = "54.179.169.195";
+                    getIPPrivate = "172.31.20.200";
+                }
+                else if (server.Contains("172.31.17.194") || server.Contains("52.76.44.100"))
+                {
+                    getIP = "52.76.44.100";
+                    getIPPrivate = "172.31.17.194";
+                }
+                else if (server.Contains("172.31.26.111") || server.Contains("54.254.98.21"))
+                {
+                    getIP = "54.254.98.21";
+                    getIPPrivate = "172.31.26.111";
+                }
+                else if (server.Contains("172.31.14.140") || server.Contains("18.141.161.81"))
+                {
+                    getIP = "18.141.161.81";
+                    getIPPrivate = "172.31.14.140";
+                }
+                else if (server.Contains("172.31.1.127") || server.Contains("13.251.64.77"))
+                {
+                    getIP = "13.251.64.77";
+                    getIPPrivate = "172.31.1.127";
+                }
+                else if (server.Contains("172.31.40.234") || server.Contains("54.179.0.52"))
+                {
+                    getIP = "54.179.0.52";
+                    getIPPrivate = "172.31.40.234";
+                }
+                else if (server.Contains("13.251.222.53") || server.Contains("13.251.222.53"))
+                {
+                    getIP = "13.251.222.53";
+                    getIPPrivate = "13.251.222.53";
+                }
+                else if ((server.Contains("54.179.169.195") || server.Contains("54.179.169.195")) && server.Contains("1444"))
+                {
+                    getIP = "54.179.169.195";
+                    getIPPrivate = "54.179.169.195";
+                    getPort = "1444";
+                }
+                if (getIP != "")
+                {
+                    //var MoDbContext = new MoDbContext(getPort, getIP);
+                    var MoDbContext = new MoDbContext("");
+                    //var akun = MoDbContext.Account.Count();
+                    //var user = MoDbContext.User.Count();
+
+                    var listAkun = (from a in MoDbContext.Account
+                                    where
+                                    (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                                    &&
+                                    (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                                    && a.DataSourcePath.Contains(getIPPrivate)
+                                    orderby a.LAST_LOGIN_DATE descending
+                                    select new listAkunPerServer { db_name = a.DatabasePathErasoft, db_source = a.DataSourcePath, onlineshopname = a.NamaTokoOnline, email = a.Email, accountid = a.AccountId }).ToList();
+                    vm.listAkun = listAkun;
+                }
+            }
+            return PartialView("TablePromptAkunProsesAkhirTahun", vm);
+        }
+        [Queue("3_general")]
+        public ActionResult ProsesAkhirTahunPerServer(string db_source, string db_name, string tahun)
+        {
+            try
+            {
+                //change by fauzi 24 Januari 2020
+                //var RemoteMODbContext = new MoDbContext(db_source);
+                //change by nurul 21/12/2020
+                //var RemoteMODbContext = new MoDbContext("");
+                var getIP = "";
+                var getPort = "1433";
+                if (db_source != "" && db_source != null)
+                {
+                    if (db_source.Contains("172.31.20.197") || db_source.Contains("13.250.232.74"))
+                    {
+                        getIP = "13.250.232.74";
+                    }
+                    else if ((db_source.Contains("172.31.20.200") || db_source.Contains("54.179.169.195")) && db_source.Contains("1433"))
+                    {
+                        getIP = "54.179.169.195";
+                    }
+                    else if (db_source.Contains("172.31.17.194") || db_source.Contains("52.76.44.100"))
+                    {
+                        getIP = "52.76.44.100";
+                    }
+                    else if (db_source.Contains("172.31.26.111") || db_source.Contains("54.254.98.21"))
+                    {
+                        getIP = "54.254.98.21";
+                    }
+                    else if (db_source.Contains("172.31.14.140") || db_source.Contains("18.141.161.81"))
+                    {
+                        getIP = "18.141.161.81";
+                    }
+                    else if (db_source.Contains("172.31.1.127") || db_source.Contains("13.251.64.77"))
+                    {
+                        getIP = "13.251.64.77";
+                    }
+                    else if (db_source.Contains("172.31.40.234") || db_source.Contains("54.179.0.52"))
+                    {
+                        getIP = "54.179.0.52";
+                    }
+                    else if (db_source.Contains("13.251.222.53") || db_source.Contains("13.251.222.53"))
+                    {
+                        getIP = "13.251.222.53";
+                    }
+                    else if ((db_source.Contains("54.179.169.195") || db_source.Contains("54.179.169.195")) && db_source.Contains("1444"))
+                    {
+                        getIP = "54.179.169.195";
+                        getPort = "1444";
+                    }
+                }
+                //var getIP = db_source.Split(new string[] { "\"" }, StringSplitOptions.None).First();
+                //var getPort = db_source.Split(new string[] { ", " }, StringSplitOptions.None).Last();
+                if (getIP != "")
+                {
+                    var RemoteMODbContext = new MoDbContext(getPort, getIP);
+                    //var akun = RemoteMODbContext.Account.Count();
+                    //var user = RemoteMODbContext.User.Count();
+                    //end change by nurul 21/12/2020
+                    //end
+                    //remark dulu biar ga keproses 
+                    var tahunProses = Convert.ToInt16(tahun);
+
+                    object[] spParams = {
+                    new SqlParameter("@db_name", db_name),
+                    new SqlParameter("@THN", tahunProses)
+                    };
+                    RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @THN", spParams);
+                    //RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @THN", new SqlParameter("@db_name", db_name), new SqlParameter("@THN", tahunProses));
+                }
                 return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
@@ -3968,6 +4290,7 @@ namespace MasterOnline.Controllers
                 return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
+        //end add by nurul 21/12/2020
 
         //add by fauzi 21 Februari 2020
         [Queue("3_general")]
