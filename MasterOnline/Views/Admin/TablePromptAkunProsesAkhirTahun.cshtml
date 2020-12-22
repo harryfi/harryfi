@@ -1,0 +1,194 @@
+﻿@using System.Globalization
+@using PagedList.Mvc
+@using MasterOnline.ViewModels
+@model MasterOnline.ViewModels.PromptAccountServerAkhirTahunViewModel
+@*@model PagedList.IPagedList<PromptAccountServerAkhirTahunViewModel>*@
+@*@{
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
+
+}
+<style>
+    #loading_perserver_tab {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0);
+    }
+
+    #loading_perserver_tab_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+</style>
+<div id="loading_perserver_tab">
+    <div id="loading_perserver_tab_image">
+        <img src="~/Content/Images/spinner.gif" />
+    </div>
+</div>
+<input id="txt_last_page" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+<table class="table table-striped table-bordered table-hover">
+    <thead>
+        <tr role="row">
+            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">Username</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 130px;">Email</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 130px;">Nama Toko</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Pilih</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var brg in Model)
+        {
+            <tr>
+                <td>@brg.nama</td>
+                <td>@brg.email</td>
+                <td>@brg.namatoko</td>
+                <td class="edit-hapus-col">
+                    <button class="btn btn-primary" data-dbpath="@brg.era_db_path" data-username="@brg.nama" data-email="@brg.email" data-namatoko="@brg.namatoko" onclick="pilihPrompt(this)">
+                        <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@if (Model.PageCount > 1)
+{
+    <div id="tabelperserverpartialpager" class="pager">
+        @Html.PagedListPager(Model, page => Url.Action("TablePromptAkunPartial", new
+    {
+       page,
+       search = ViewData["searchParam"]
+    }),
+        new PagedListRenderOptions
+        {
+            LinkToFirstPageFormat = "<<",
+            LinkToPreviousPageFormat = "prev",
+            LinkToNextPageFormat = "next",
+            LinkToLastPageFormat = ">>",
+            DisplayEllipsesWhenNotShowingAllPageNumbers = false
+        })
+        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+    </div>
+}
+<script type="text/javascript">
+
+    $(function () {
+        $('#tabelperserverpartialpager').on('click', 'a', function () {
+            if (this.href != "") {
+                var link = this.href;
+                link += "&search=replaceSearch";
+                link = link.replace("replaceSearch", encodeURIComponent($('#search_promptakun').val()));
+
+                $.ajax({
+                    url: link,
+                    type: 'GET',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#table-prompt-akun-partial').hide();
+                        $('#loading_promptakun_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-prompt-akun-partial').html(response);
+                        $('#table-prompt-akun-partial').show();
+                        $('#loading_promptakun_tab').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            }
+            return false;
+        });
+    });
+</script>*@
+
+<div class="hscroll table-responsive pesanantblfaktur">
+    <table class="table table-striped table-bordered" id="datatable">
+        <thead>
+            <tr role="row">
+                <th class="sorting text-center center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; align-self:flex-start"><input type="checkbox" class="dt-checkboxes-select-all center" id="all_checkbox_akun" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">Email</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Akun</th>
+                @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Nilai Bayar</th>*@
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var akun in Model.listAkun)
+            {
+                <tr>
+                    <td style="text-align:center">
+                        <input type="checkbox" class="dt-checkboxes center checkbox_akun" data-recnum="@akun.accountid" data-path="@akun.db_name" style="align-self:flex-start; width:30px; height:28px;" />
+                    </td>
+                    <td class="get_recnum" data-recnum="@akun.accountid" style="width:100px">@akun.email</td>
+                    <td style="width:300px">@akun.onlineshopname</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#all_checkbox_akun").click(function () {
+            $(".checkbox_akun").prop('checked',
+                $(this).prop('checked'));
+            var countCheck = $(".checkbox_akun").length;
+            if ($("#all_checkbox_akun").prop('checked') == true) {
+                $('#text-check-akun').text(countCheck + ' Akun Terpilih');
+            } else {
+                $('#text-check-akun').text('');
+            }
+        });
+        $(".checkbox_akun").each(function (i, item) {
+            $(item).off('click').on('click', function () {
+                var countCheckDetail = 0;
+                if ($(item).prop('checked') == true) {
+
+                    var cekTrue = [];
+                    $(".checkbox_akun").each(function (z, chk) {
+                        if ($(chk).prop('checked') == true) {
+                            cekTrue.push($(chk).attr("data-recnum"));
+                        }
+                    });
+                    if (cekTrue.length == 0) {
+                        $('#text-check-akun').text('');
+                    } else {
+                        countCheckDetail = cekTrue.length;
+                        $('#text-check-akun').text(countCheckDetail + ' Akun Terpilih');
+                    }
+                } else {
+                    var cekTrue = [];
+                    $(".checkbox_akun").each(function (z, chk) {
+                        if ($(chk).prop('checked') == true) {
+                            cekTrue.push($(chk).attr("data-recnum"));
+                        }
+                    });
+                    if (cekTrue.length == 0) {
+                        $('#text-check-akun').text('');
+                    } else {
+                        countCheckDetail = cekTrue.length;
+                        $('#text-check-akun').text(countCheckDetail + ' Pesanan Terpilih');
+                    }
+                }
+            });
+        });
+    });
+    $(function () {
+
+    });
+</script>
+
