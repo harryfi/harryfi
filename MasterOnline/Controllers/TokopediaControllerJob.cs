@@ -976,7 +976,11 @@ namespace MasterOnline.Controllers
                             {
                                 if (dataTokpedVarian != null)
                                 {
-                                    newProductVariasi.stock = Convert.ToInt32(dataTokped.data[0].stock.value);
+                                    //newProductVariasi.stock = Convert.ToInt32(dataTokped.data[0].stock.value);
+                                    if (dataTokpedVarian.data[0].stock.value > 0)
+                                    {
+                                        newProductVariasi.stock = Convert.ToInt32(dataTokpedVarian.data[0].stock.value);
+                                    }
                                 }
                             }
                             if (dataTokpedVarian != null)

@@ -1776,10 +1776,34 @@ namespace MasterOnline.Controllers
                                     listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
                                     listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
                                                                         
-                                    new ShopifyControllerJob().Shopify_CreateProductVariant(iden, resServer.product.id, itemData.Ket_Sort8, itemData.HJUAL.ToString(), itemData.LINK_GAMBAR_1.ToString());
+                                    new ShopifyControllerJob().Shopify_CreateProductVariant(iden, resServer.product.id, itemData.Ket_Sort8, itemData.HJUAL.ToString(), itemData.LINK_GAMBAR_1.ToString(), itemData.BRG);
 
                                 }
                                 //END HANDLE VARIANT SHOPIFY
+                            }
+                            else
+                            {
+                                if (marketplace.TIDAK_HIT_UANG_R)
+                                {
+                                    StokControllerJob.ShopifyAPIData data = new StokControllerJob.ShopifyAPIData()
+                                    {
+                                        no_cust = iden.no_cust,
+                                        account_store = iden.account_store,
+                                        API_key = iden.API_key,
+                                        API_password = iden.API_password,
+                                        email = iden.email
+                                    };
+#if (DEBUG || Debug_AWS)
+                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+
+                                    await stokAPI.Shopify_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null);
+#else
+                                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    var clients = new BackgroundJobClient(sqlStorage);
+                                    clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null));
+#endif
+                                }
                             }
 
 
@@ -1865,12 +1889,11 @@ namespace MasterOnline.Controllers
                 //        throw new Exception("error");
                 //    }
                 //}
-
             }
             return ret;
         }
 
-        public async Task<string> Shopify_CreateProductVariant(ShopifyAPIData iden, long product_id, string option, string price, string urlImage)
+        public async Task<string> Shopify_CreateProductVariant(ShopifyAPIData iden, long product_id, string option, string price, string urlImage, string kodeProduk)
         {
             string ret = "";
             string urll = "https://{0}:{1}@{2}.myshopify.com/admin/api/2020-07/products/{3}/variants.json";
@@ -1915,6 +1938,29 @@ namespace MasterOnline.Controllers
                     if (resServer.variant != null)
                     {
                         new ShopifyControllerJob().Shopify_CreateProductImageVariant(iden, product_id, resServer.variant.id, urlImage);
+
+                        var marketplace = ErasoftDbContext.ARF01.Where(m => m.CUST == iden.no_cust).FirstOrDefault();
+                        if (marketplace.TIDAK_HIT_UANG_R)
+                        {
+                            StokControllerJob.ShopifyAPIData data = new StokControllerJob.ShopifyAPIData()
+                            {
+                                no_cust = iden.no_cust,
+                                account_store = iden.account_store,
+                                API_key = iden.API_key,
+                                API_password = iden.API_password,
+                                email = iden.email
+                            };
+#if (DEBUG || Debug_AWS)
+                            StokControllerJob stokAPI = new StokControllerJob(iden.DatabasePathErasoft, username);
+
+                            await stokAPI.Shopify_updateStock(iden.DatabasePathErasoft, kodeProduk, marketplace.CUST, "Stock", "Update Stok", data, resServer.variant.id.ToString(), 0, username, null);
+#else
+                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clients = new BackgroundJobClient(sqlStorage);
+                    clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null));
+#endif
+                        }
                     }
                     else
                     {
