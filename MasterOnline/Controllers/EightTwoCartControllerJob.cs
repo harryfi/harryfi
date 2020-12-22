@@ -317,22 +317,22 @@ namespace MasterOnline.Controllers
 
             if (detailBrg != null)
             {
-                //if (detailBrg.ACODE_1 != null)
-                //{
-                //    categoryID = categoryID + detailBrg.ACODE_1 + ",";
-                //}
-                //if (detailBrg.ACODE_2 != null)
-                //{
-                //    categoryID = categoryID + detailBrg.ACODE_2 + ",";
-                //}
-                //if (detailBrg.ACODE_3 != null)
-                //{
-                //    categoryID = categoryID + detailBrg.ACODE_3 + ",";
-                //}
-                //if (detailBrg.ACODE_4 != null)
-                //{
-                //    categoryID = categoryID + detailBrg.ACODE_4 + ",";
-                //}
+                if (detailBrg.ACODE_1 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_1 + ",";
+                }
+                if (detailBrg.ACODE_2 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_2 + ",";
+                }
+                if (detailBrg.ACODE_3 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_3 + ",";
+                }
+                if (detailBrg.ACODE_4 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_4 + ",";
+                }
 
                 if (detailBrg.ACODE_10 != null)
                 {
@@ -349,9 +349,9 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            if(categoryID != null)
+            if (!string.IsNullOrEmpty(categoryID))
             {
-                categoryID = categoryID.Substring(0, categoryID.Length - 1);
+                categoryID = categoryID.Length > 0 ? categoryID.Substring(0, categoryID.Length - 1) : "2,3";
             }
 
             var weight = Convert.ToDouble(brgInDb.BERAT / 1000);
@@ -649,22 +649,22 @@ namespace MasterOnline.Controllers
 
             if (detailBrg != null)
             {
-                //if (detailBrg.ACODE_1 != null)
-                //{
-                //    categoryID = categoryID + detailBrg.ACODE_1 + ",";
-                //}
-                //if (detailBrg.ACODE_2 != null)
-                //{
-                //    categoryID = categoryID + detailBrg.ACODE_2 + ",";
-                //}
-                //if (detailBrg.ACODE_3 != null)
-                //{
-                //    categoryID = categoryID + detailBrg.ACODE_3 + ",";
-                //}
-                //if (detailBrg.ACODE_4 != null)
-                //{
-                //    categoryID = categoryID + detailBrg.ACODE_4 + ",";
-                //}
+                if (detailBrg.ACODE_1 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_1 + ",";
+                }
+                if (detailBrg.ACODE_2 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_2 + ",";
+                }
+                if (detailBrg.ACODE_3 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_3 + ",";
+                }
+                if (detailBrg.ACODE_4 != null)
+                {
+                    categoryID = categoryID + detailBrg.ACODE_4 + ",";
+                }
 
                 if (detailBrg.ACODE_10 != null)
                 {
@@ -681,9 +681,9 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            if(categoryID != null)
+            if (!string.IsNullOrEmpty(categoryID))
             {
-                categoryID = categoryID.Length > 0 ? categoryID.Substring(0, categoryID.Length - 1) : "2,3";
+                categoryID = categoryID.Substring(0, categoryID.Length - 1);
             }
 
             var weight = Convert.ToDouble(brgInDb.BERAT / 1000);

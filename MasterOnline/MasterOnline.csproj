@@ -6588,6 +6588,7 @@
     <Content Include="Views\Manage\TableDashboardPesananPerMarketplace.cshtml" />
     <Content Include="Views\Manage\TableDashboardPesanan2.cshtml" />
     <Content Include="Views\Manage\TableDashboardPesananPerMarketplace2.cshtml" />
+    <Content Include="Views\Manage\KonfirmasiDeleteDetailBayarPiutang.cshtml" />
     <Content Include="Views\Admin\TablePromptAkunProsesAkhirTahun.cshtml" />
   </ItemGroup>
   <ItemGroup>
