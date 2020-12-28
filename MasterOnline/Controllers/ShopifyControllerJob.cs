@@ -1957,12 +1957,12 @@ namespace MasterOnline.Controllers
 #if (DEBUG || Debug_AWS)
                             StokControllerJob stokAPI = new StokControllerJob(iden.DatabasePathErasoft, username);
 
-                            await stokAPI.Shopify_updateStock(iden.DatabasePathErasoft, kodeProduk, marketplace.CUST, "Stock", "Update Stok", data, resServer.variant.id.ToString(), 0, username, null);
+                            await stokAPI.Shopify_updateStock(iden.DatabasePathErasoft, kode_brg, marketplace.CUST, "Stock", "Update Stok", data, resServer.variant.id.ToString(), 0, username, null);
 #else
                     string EDBConnID = EDB.GetConnectionString("ConnId");
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clients = new BackgroundJobClient(sqlStorage);
-                    clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null));
+                    clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, kode_brg, log_CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null));
 #endif
                         }
                     }
