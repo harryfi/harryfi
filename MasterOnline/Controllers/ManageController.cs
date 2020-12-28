@@ -9947,7 +9947,7 @@ namespace MasterOnline.Controllers
                     saveBarangShopee(1, dataBarang, false);
                     saveBarangTokpedVariant(1, barangInDb.BRG, false);
 #region SHOPIFY
-                    saveBarangShopify(1, dataBarang);
+                    saveBarangShopify(1, barangInDb.BRG, false);
 #endregion
                     //add by fauzi for 82Cart
                     //saveBarang82Cart(1, dataBarang, false);
@@ -9965,7 +9965,7 @@ namespace MasterOnline.Controllers
                     saveBarangBlibli(2, dataBarang);
                     saveBarangElevenia(2, dataBarang, imgPath);
                     saveBarangShopee(2, dataBarang, updateHarga);
-                    saveBarangShopify(2, dataBarang);
+                    //saveBarangShopify(2, dataBarang); // remark bby fauzi  26 Des 2020
 
 
                     //get image
@@ -9989,8 +9989,9 @@ namespace MasterOnline.Controllers
                     saveBarangTokpedVariant(2, barang.BRG, false);
 
                     saveBarangJDID(2, barang.BRG, false);
+                    saveBarangShopify(2, barang.BRG, false); // yang baru by fauzi 26 Des 2020
 
-#region lazada
+                    #region lazada
                     if (listLazadaShop.Count > 0)
                     {
                         foreach (ARF01 tblCustomer in listLazadaShop)
@@ -11642,10 +11643,10 @@ namespace MasterOnline.Controllers
         }
 
         //add by fauzi for shopify
-        public void saveBarangShopify(int mode, BarangViewModel dataBarang)
+        public void saveBarangShopify(int mode, string dataBarang_Stf02_BRG, bool updateHarga)
         {
             //var ret = "";
-            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID || b.BRG == dataBarang.Stf02.BRG);
+            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == dataBarang_Stf02_BRG);
             var kdShopify = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPIFY");
             if (barangInDb != null && kdShopify != null)
             {
@@ -11661,11 +11662,11 @@ namespace MasterOnline.Controllers
                                 {
                                     if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
                                     {
-                                        var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
+                                        var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
                                         if (display)
                                         {
 
-                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) + "'";
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
                                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 
                                             ShopifyControllerJob.ShopifyAPIData data = new ShopifyControllerJob.ShopifyAPIData();
@@ -11675,12 +11676,13 @@ namespace MasterOnline.Controllers
                                             data.account_store = tblCustomer.PERSO;
                                             data.API_key = tblCustomer.API_KEY;
                                             data.API_password = tblCustomer.API_CLIENT_P;
+                                            data.ID_MARKET = tblCustomer.RecNum.Value.ToString();
 #if (DEBUG || Debug_AWS)
-                                            new ShopifyControllerJob().Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data);
+                                            new ShopifyControllerJob().Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data);
 #else
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                            clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data));
+                                            clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data));
 #endif
                                         }
                                     }
@@ -11705,6 +11707,7 @@ namespace MasterOnline.Controllers
                                                 iden.account_store = tblCustomer.PERSO;
                                                 iden.API_key = tblCustomer.API_KEY;
                                                 iden.API_password = tblCustomer.API_CLIENT_P;
+                                                iden.ID_MARKET = tblCustomer.RecNum.Value.ToString();
 
                                                 ShopifyControllerJob ShopifyAPI = new ShopifyControllerJob();
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -11714,10 +11717,10 @@ namespace MasterOnline.Controllers
                                                 //var checkProductExist = ShopifyAPI.GetItemSingle(iden, stf02h.BRG);
                                                 //ShopifyAPI.CheckProduct(iden, stf02h.BRG_MP, stf02h.BRG);
 
-                                                ShopifyAPI.Shopify_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Update Produk", iden, stf02h.BRG_MP);
+                                                ShopifyAPI.Shopify_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Update Produk", iden, stf02h.BRG_MP);
 
 #else
-                                                clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Update Produk", iden, stf02h.BRG_MP));
+                                                clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Update Produk", iden, stf02h.BRG_MP));
 #endif
                                                 //end unremark by nurul 15/1/2020, biar bisa update deskripsi, tapi panjang lebar dan tinggi harus <= 40 cm
                                                 //end remark by calvin 26 februari 2019
@@ -11752,7 +11755,7 @@ namespace MasterOnline.Controllers
                                                     //ShopeeController shoAPI = new ShopeeController();
                                                     //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
 
-                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) + "'";
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
                                                     EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                                     ShopifyControllerJob.ShopifyAPIData data = new ShopifyControllerJob.ShopifyAPIData();
                                                     data.no_cust = tblCustomer.CUST;
@@ -11761,12 +11764,13 @@ namespace MasterOnline.Controllers
                                                     data.account_store = tblCustomer.PERSO;
                                                     data.API_key = tblCustomer.API_KEY;
                                                     data.API_password = tblCustomer.API_CLIENT_P;
+                                                    data.ID_MARKET = tblCustomer.RecNum.Value.ToString();
 #if (DEBUG || Debug_AWS)
-                                                    Task.Run(() => new ShopifyControllerJob().Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data).Wait());
+                                                    Task.Run(() => new ShopifyControllerJob().Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data).Wait());
 #else
                                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                    clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data));
+                                                    clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data));
 #endif
                                                 }
                                             }
@@ -14824,6 +14828,7 @@ namespace MasterOnline.Controllers
             createBarangLazadaVariant(brg);
             saveBarang82CartVariant(2, brg, false);
             saveBarangJDID(2, brg, false);
+            saveBarangShopify(2, brg, false);
             //}
 
             //change by calvin 26 april 2019
