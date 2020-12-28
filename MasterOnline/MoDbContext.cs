@@ -74,6 +74,15 @@ namespace MasterOnline
         {
         }
 
+        //add by nurul 21/12/2020, khusus proses akhir tahun
+        public MoDbContext(string dbSourceEra, string dbSourceEra2)
+            : base($"Server=" + dbSourceEra2 + ", 1433;initial catalog=MO;" +
+                   $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                   $"application name=EntityFramework")
+        {
+        }
+        //end add by nurul 21/12/2020, khusus proses akhir tahun
+
         //public MoDbContext(string dbSourceEra)
         //   : base($"Server=172.31.20.73, 1433;initial catalog=MO;" +
         //          $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
@@ -89,6 +98,15 @@ namespace MasterOnline
                     $"application name=EntityFramework")
         {
         }
+
+        //add by nurul 21/12/2020, khusus proses akhir tahun
+        public MoDbContext(string dbSourceEra, string dbSourceEra2)
+             : base($"Server=" + dbSourceEra2 + ", " + dbSourceEra + ";initial catalog=MO;" +
+                    $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                    $"application name=EntityFramework")
+        {
+        }
+        //end add by nurul 21/12/2020, khusus proses akhir tahun
 
 #endif
 

@@ -8,6 +8,8 @@
 
 @section styles
 {
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
     <style>
         #loading_barang_tab {
             display: none;
@@ -35,9 +37,285 @@
         }
     </style>
 }
+<div class="modal fade" id="konfTarikData" tabindex="-1" role="dialog" aria-labelledby="konfTarikDataLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfTarikDataLabel">Proses Akhir Tahun All DB</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4 id="txtDeskripsi">Pilih akun dan tahun proses.</h4>
+                </div>
+                <div class="row text-center" style="display:none;">
+                    <div class="col-md-2 col-sm-2 col-xs-12">Akun</div>
+                    <div class="col-md-8 col-sm-4 col-xs-12">
+                        <div class="input-group text">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <input value="" class="form-control" style="display:none;" disabled="disabled" id="txtDbName" name="txtDbName" type="text">
+                                        <input value="" class="form-control" disabled="disabled" id="txtCustomer" name="txtCustomer" type="text">
+                                    </td>
+                                    <td>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptAccountUser();">
+                                                <span class="glyphicon glyphicon-option-horizontal"></span>
+                                            </button>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <div class="col-md-2 col-sm-2 col-xs-12">Tahun</div>
+                    <div class="col-md-8 col-sm-4 col-xs-12">
+                        <div class="input-group text">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <input class="form-control" id="txtTahun" name="txtTahun" type="text">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="input-group text">
+                            <label id="proses_akhir_tahun_label">Proses akhir tahun siap dimulai</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <textarea id="proses_akhir_tahun_log" style="width:100%" rows="12"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnCloseProsesAkhirTahun" class="btn btn-danger" data-dismiss="modal">Close</button>
+                <button type="button" id="btnSyncAll" class="btn btn-success" onclick="ProsesAkhirTahunPrepare();">Proses All Account</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="loading_barang_tab" style="display: none;width: 100%;height: 100%;position: absolute;z-index: 100;top: 0;right: 0;bottom: 0;left: 0;background-color: rgba(0,0,0,0);">
+    <div id="loading_barang_tab_image">
+        <img src="~/Content/Images/spinner.gif" />
+    </div>
+</div>
+<div class="modal fade" id="konfTarikPesananHangfireJob" tabindex="-1" role="dialog" aria-labelledby="konfTarikPesananHangfireJobLabel">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+        <div class="modal-content" style="width:1350px; left:-230px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfTarikPesananHangfireJobLabel">Pesanan Hangfire Job</h4>
+            </div>
+            <div class="modal-body" style="max-height: calc(100vh - 210px); overflow-y: auto;">
+                <div class="row" style="margin-top: 15px;">
+                    <div class="x_content">
+                        @*<ul id="detail-jobpesanan-tabs" class="nav nav-tabs">
+                                <li id="li_jobpesanan_tab_focus" style="display:none"><a data-toggle="tab" id="jobpesanan_tab_focus" href="#packing_jobpesanan" aria-expanded="false">Report Result</a></li>
+                            </ul>*@
+                        <div id="loading_job" class="text-center" hidden="hidden">
+                            <div id="loading_job_image">
+                                <img style="width: 40px;" src="~/Content/Images/spinner.gif" />
+                            </div>
+                        </div>
+                        @*<div class="tab-content">*@
+                        <div id="packing_jobpesanan" class="tab-pane fade in">
+                            <div class="col-lg-12" id="jobpesanan_content">
 
-<script src="~/Content/vendors/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnClosePesananHangfireJob" class="btn btn-danger" data-dismiss="modal" onclick="$('#konfTarikPesananHangfireJob').modal('hide');">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="row">
+            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                <div class="input-group">
+                    <input id="search_api_log" type="text" class="form-control" placeholder="Pencarian">
+                    <span class="input-group-btn">
+                        <button type="button" id="search_api_log_btn" class="btn btn-primary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
+                <button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px" title="Start Recurring Jobs"
+                        onclick="StartActiveUserServers()">
+                    <span>Activate All Active Users</span>
+                </button>
+                <button class="btn btn-danger" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px" title="Start Recurring Jobs"
+                        onclick="StopActiveUserServers()">
+                    <span>Deactivate All Active Users</span>
+                </button>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12" style="text-align: right">
+                @*<button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px" title="Proses Akhir Tahun Per Server"
+                            onclick="popupProsesAkhirTahunPerServer()">
+                        <span>Akhir Tahun Per DB</span>
+                    </button>*@
+                @*<button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px" title="Proses Akhir Tahun"
+                            onclick="popupProsesAkhirTahun()">
+                        <span>Akhir Tahun All DB</span>
+                    </button>*@
+
+                <div class="btn-group" role="group">
+                    <button id="akhir_tahun_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Proses Akhir Tahun <span class="caret"></span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btn_akhir_tahun_all" class="btn btn-primary" onclick="popupProsesAkhirTahunPerServer()">
+                            <span aria-hidden="true"> Akhir Tahun Per DB</span>
+                        </button>
+                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important; text-align:center;" id="btn_akhir_tahun_perdb" class="btn btn-primary" onclick="popupProsesAkhirTahun()">
+                            <span aria-hidden="true"> Akhir Tahun All DB</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+                <div class="input-group">
+                    <input id="broadcase_message_text" type="text" class="form-control" placeholder="Pesan">
+                    <span class="input-group-btn">
+                        <button type="button" id="broadcase_message_btn" class="btn btn-primary">
+                            <i class="fa fa-arrow-right"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="row" style="margin-top: 5px;">
+            <div class="col-sm-12" id="table-market-log-partial-div">
+                @* TableMarketPlaceLog.cshtml *@
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfTarikDataPerServer" tabindex="-1" role="dialog" aria-labelledby="konfTarikDataPerServerLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfTarikDataPerServerLabel">Proses Akhir Tahun Per DB</h4>
+            </div>
+            <div class="modal-body" style="margin:auto;height:350px;overflow-x:auto">
+                <div class="row text-center">
+                    <h4 id="txtDeskripsiPerServer">Pilih akun dan tahun proses.</h4>
+                </div>
+                @*<div class="row text-center">
+                        <div class="col-md-2 col-sm-2 col-xs-12">Pilih Akun</div>
+                        <div class="col-md-8 col-sm-4 col-xs-12">
+                            <div class="input-group text">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <input value="" class="form-control" style="display:none;" disabled="disabled" id="txtDbName" name="txtDbName" type="text">
+                                            <input value="" class="form-control" disabled="disabled" id="txtCustomer" name="txtCustomer" type="text">
+                                        </td>
+                                        <td>
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptAccountUser();">
+                                                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                </button>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>*@
+                <div class="row">
+                    <div class="col-md-9">
+                        @*<div class="col-md-3 col-sm-3 col-xs-12 control-label">Tahun</div>*@
+                        @Html.Label("", "Tahun", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
+                        <div class="col-md-9 col-sm-4 col-xs-12">
+                            <div class="input-group text">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <input class="form-control" id="txtTahun2" name="txtTahun2" type="text">
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3"></div>
+                </div>
+                <div class="row">
+                        <div class="col-md-9">
+                            @*<div class="form-group">*@
+                                @*@Html.Label("", "Pilih Server")*@
+                                @Html.Label("", "Pilih Server", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    @Html.Hidden("ServerIdx")
+                                    <select id="SERVER" placeholder="Harap Pilih" ></select>
+                                </div>
+                            @*</div>*@
+                        </div>
+                        <div class="col-md-3">
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary" type="button" style="height: 34px;" onclick="PromptAccountUserPerServer();">
+                                    <span aria-hidden="true">Pilih Server</span>
+                                </button>
+                            </span>
+                        </div>
+                    @*<div class="col-md-2 col-sm-2 col-xs-12">Pilih Akun</div>*@
+                </div>
+                <div class="row">
+                        <label id="text-check-akun" style="margin-left:10px;"></label>
+                    </div>
+                <div class="row">
+                    <div id="table-pilih-akun">
+                        @*@Html.Partial("TablePromptAkunProsesAkhirTahun", vm);*@
+                    </div>
+                </div>
+
+                <div class="row text-center">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="input-group text">
+                            <label id="proses_akhir_tahun_label_perserver">Proses akhir tahun siap dimulai</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <textarea id="proses_akhir_tahun_log_perserver" style="width:100%" rows="12"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnCloseProsesAkhirTahunPerServer" class="btn btn-danger" data-dismiss="modal">Close</button>
+                <button type="button" id="btnSyncAllPerServer" class="btn btn-success" onclick="ProsesAkhirTahunPreparePerServer();">Proses</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    @*<script src="~/Content/vendors/jquery/dist/jquery.min.js"></script>*@
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
 
     $(document).ready(function () {
         $('#search_api_log_btn').click(function () {
@@ -68,6 +346,7 @@
         var d = new Date();
 
         $('#txtTahun').val(d.getFullYear());
+        $('#txtTahun2').val(d.getFullYear());
         refreshTableLog();
     });
 
@@ -295,6 +574,15 @@
         });
     }
 
+    function popupProsesAkhirTahunPerServer() {
+        $('#konfTarikDataPerServer').modal({
+            show: true,
+            backdrop: 'static',
+            keyboard: false
+        });
+        getServer();
+    }
+
     var refreshingPesanan = false;
     function onRefreshSemuaPesananMPComplete() {
         if (!refreshingPesanan
@@ -303,160 +591,182 @@
             $('#loading_job').hide();
         }
     }
-</script>
-<div class="modal fade" id="konfTarikData" tabindex="-1" role="dialog" aria-labelledby="konfTarikDataLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="konfTarikDataLabel">Proses Akhir Tahun</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row text-center">
-                    <h4 id="txtDeskripsi">Pilih akun dan tahun proses.</h4>
-                </div>
-                <div class="row text-center" style="display:none;">
-                    <div class="col-md-2 col-sm-2 col-xs-12">Akun</div>
-                    <div class="col-md-8 col-sm-4 col-xs-12">
-                        <div class="input-group text">
-                            <table>
-                                <tr>
-                                    <td>
-                                        <input value="" class="form-control" style="display:none;" disabled="disabled" id="txtDbName" name="txtDbName" type="text">
-                                        <input value="" class="form-control" disabled="disabled" id="txtCustomer" name="txtCustomer" type="text">
-                                    </td>
-                                    <td>
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptAccountUser();">
-                                                <span class="glyphicon glyphicon-option-horizontal"></span>
-                                            </button>
-                                        </span>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="row text-center">
-                    <div class="col-md-2 col-sm-2 col-xs-12">Tahun</div>
-                    <div class="col-md-8 col-sm-4 col-xs-12">
-                        <div class="input-group text">
-                            <table>
-                                <tr>
-                                    <td>
-                                        <input class="form-control" id="txtTahun" name="txtTahun" type="text">
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="row text-center">
-                    <div class="col-md-12 col-sm-12 col-xs-12">
-                        <div class="input-group text">
-                            <label id="proses_akhir_tahun_label">Proses akhir tahun siap dimulai</label>
-                        </div>
-                    </div>
-                    <div class="col-md-12 col-sm-12 col-xs-12">
-                        <textarea id="proses_akhir_tahun_log" style="width:100%" rows="12"></textarea>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="btnCloseProsesAkhirTahun" class="btn btn-danger" data-dismiss="modal">Close</button>
-                <button type="button" id="btnSyncAll" class="btn btn-success" onclick="ProsesAkhirTahunPrepare();">Proses</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div id="loading_barang_tab" style="display: none;width: 100%;height: 100%;position: absolute;z-index: 100;top: 0;right: 0;bottom: 0;left: 0;background-color: rgba(0,0,0,0);">
-    <div id="loading_barang_tab_image">
-        <img src="~/Content/Images/spinner.gif" />
-    </div>
-</div>
-<div class="modal fade" id="konfTarikPesananHangfireJob" tabindex="-1" role="dialog" aria-labelledby="konfTarikPesananHangfireJobLabel">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-        <div class="modal-content" style="width:1350px; left:-230px;">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="konfTarikPesananHangfireJobLabel">Pesanan Hangfire Job</h4>
-            </div>
-            <div class="modal-body" style="max-height: calc(100vh - 210px); overflow-y: auto;">
-                <div class="row" style="margin-top: 15px;">
-                    <div class="x_content">
-                        @*<ul id="detail-jobpesanan-tabs" class="nav nav-tabs">
-                            <li id="li_jobpesanan_tab_focus" style="display:none"><a data-toggle="tab" id="jobpesanan_tab_focus" href="#packing_jobpesanan" aria-expanded="false">Report Result</a></li>
-                        </ul>*@
-                        <div id="loading_job" class="text-center" hidden="hidden">
-                            <div id="loading_job_image">
-                                <img style="width: 40px;" src="~/Content/Images/spinner.gif" />
-                            </div>
-                        </div>
-                        @*<div class="tab-content">*@
-                            <div id="packing_jobpesanan" class="tab-pane fade in">
-                                <div class="col-lg-12" id="jobpesanan_content">
 
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            <div class="modal-footer">
-                <button type="button" id="btnClosePesananHangfireJob" class="btn btn-danger" data-dismiss="modal" onclick="$('#konfTarikPesananHangfireJob').modal('hide');">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="row">
-            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                <div class="input-group">
-                    <input id="search_api_log" type="text" class="form-control" placeholder="Pencarian">
-                    <span class="input-group-btn">
-                        <button type="button" id="search_api_log_btn" class="btn btn-primary">
-                            <i class="fa fa-search"></i>
-                        </button>
-                    </span>
-                </div>
-            </div>
-            <div class="col-lg-5 col-md-5 col-sm-12 col-xs-12">
-                <button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px" title="Start Recurring Jobs"
-                        onclick="StartActiveUserServers()">
-                    <span>Activate All Active Users</span>
-                </button>
-                <button class="btn btn-danger" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px" title="Start Recurring Jobs"
-                        onclick="StopActiveUserServers()">
-                    <span>Deactivate All Active Users</span>
-                </button>
-            </div>
-            <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12" style="text-align: right">
-                <button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px" title="Proses Akhir Tahun"
-                        onclick="popupProsesAkhirTahun()">
-                    <span>Akhir Tahun</span>
-                </button>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="row">
-            <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
-                <div class="input-group">
-                    <input id="broadcase_message_text" type="text" class="form-control" placeholder="Pesan">
-                    <span class="input-group-btn">
-                        <button type="button" id="broadcase_message_btn" class="btn btn-primary">
-                            <i class="fa fa-arrow-right"></i>
-                        </button>
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="row" style="margin-top: 5px;">
-            <div class="col-sm-12" id="table-market-log-partial-div">
-                @* TableMarketPlaceLog.cshtml *@
-            </div>
-        </div>
-    </div>
-</div>
+    //ADD BY NURUL 21/12/2020
+    function getServer() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetServer", "Admin")',
+                contentType: 'application/json',
+                cache: false,
+                success: function(data) {
+                    var listServer = [];
+
+                    $.each(data,
+                        function(i, item) {
+                            listServer[i] = {
+                                id: item.IP,
+                                text: item.IP
+                            };
+                        });
+
+                    var serverSelect = $('#SERVER').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listServer,
+                        onChange: function (value) {
+                            if (value == null) {
+                                $('#ServerIdx').val(null);
+                                //$('#ServerIdx').val($("#SERVER option:selected").text());
+                                serverSelect[0].selectize.setValue($('#ServerIdx').val(), true);
+                            } else {
+                                $('#ServerIdx').val(value);
+                                serverSelect[0].selectize.setValue($('#ServerIdx').val(), true);
+                            }
+                        }
+                    });
+
+                    serverSelect[0].selectize.setValue($('#ServerIdx').val());
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+    }
+
+    function PromptAccountUserPerServer() {
+        if ($('#ServerIdx').val() == "") {
+            alert("Silahkan pilih server terlebih dahulu.");
+            return false;
+        }
+        var $link = '@Html.Raw(Url.Action("PromptAccountUserPerServer", "Admin", new { server = "replaceServer" }))';
+        $link = $link.replace("replaceServer", $('#ServerIdx').val());
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                $('#table-pilih-akun').hide();
+                //$('#search_api_log_btn')[0].disabled = true;
+                //$('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                //$('#search_api_log_btn')[0].disabled = false;
+                $('#table-pilih-akun').html(response);
+                $('#table-pilih-akun').show();
+                //$('#loading_barang_tab').hide();
+            },
+            error: function (xhr, status, error) {
+                $('#table-pilih-akun').hide();
+                //$('#search_api_log_btn')[0].disabled = false;
+                console.log(error);
+            }
+        });
+    }
+
+    function ProsesAkhirTahunPreparePerServer() {
+        let tahun = $('#txtTahun').val();
+        var rows_selected = [];
+        $('.checkbox_akun').each(function (i, item) {
+            if ($(item).is(":checked")) {
+                rows_selected.push($(item).attr("data-path"));
+            }
+        });
+        if (rows_selected.length <= 0) {
+            alert("Mohon pilih akun.");
+            return false;
+        }
+        if(tahun){
+            var $link = '@Url.Action("ProsesAkhirTahunPreparePerServer", "Admin")';
+
+            $postdata = {
+                tahun: tahun,
+                server: $('#ServerIdx').val(),
+                db_name: rows_selected
+            };
+
+            $.ajax({
+                type: "POST",
+                url: $link,
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                data: JSON.stringify($postdata),
+                beforeSend: function () {
+                    // $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#txtTahun2').attr('disabled', true);
+                    $('#btnSyncAllPerServer').attr('disabled', true);
+                    $('#btnCloseProsesAkhirTahunPerServer').attr('disabled', true);
+
+                    $('#proses_akhir_tahun_log_perserver').val('');
+                    $('#proses_akhir_tahun_label_perserver').html(response.arraydbname.length + ' accounts left, processing [' + response.arraydbname[0].onlineshopname + '] ');
+                    ProsesAkhirTahunAccountPerServer(response.arraydbname, response.arraydbname[0].db_source, response.arraydbname[0].db_name, response.arraydbname[0].onlineshopname);
+                },
+                complete: function () {
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }else{
+            alert('Silahkan isi tahun proses terlebih dahulu.');
+        }
+    }
+
+    function ProsesAkhirTahunAccountPerServer(listdb, db_source, db_name, shopname) {
+        let local_listdb = listdb;
+        let tahun = $('#txtTahun2').val();
+
+        var $link = '@Url.Action("ProsesAkhirTahunPerServer", "Admin")';
+
+        $postdata = {
+            db_source: db_source,
+            db_name: db_name,
+            shopname: shopname,
+            tahun: tahun
+        };
+
+        $.ajax({
+            type: "POST",
+            url: $link,
+            contentType: "application/json; charset=UTF-8",
+            cache: false,
+            data: JSON.stringify($postdata),
+            beforeSend: function () {
+                // $('#loading_spinner').show();
+            },
+            success: function (response) {
+
+                if (!response.mo_error) {
+                    $('#proses_akhir_tahun_log').val($('#proses_akhir_tahun_log').val() + '\n' + '[' + shopname + '] berhasil diproses.');
+                }
+                else {
+                    $('#proses_akhir_tahun_log').val($('#proses_akhir_tahun_log').val() + '\n' + '[' + shopname + '] gagal memproses akhir tahun. Internal Server Error.');
+                }
+
+                if (local_listdb.length === 1) {
+                    $('#proses_akhir_tahun_label_perserver').html('All account processed.');
+                    $('#txtTahun2').attr('disabled', false);
+                    $('#btnSyncAllPerServer').attr('disabled', false);
+                    $('#btnCloseProsesAkhirTahunPerServer').attr('disabled', false);
+
+                } else if (local_listdb.length > 0) {
+                    local_listdb = local_listdb.splice(1, local_listdb.length - 1);
+
+                    $('#proses_akhir_tahun_label_perserver').html(local_listdb.length + ' accounts left, processing [' + local_listdb[0].onlineshopname + '] ');
+                    ProsesAkhirTahunAccountPerServer(local_listdb, local_listdb[0].db_source, local_listdb[0].db_name, local_listdb[0].onlineshopname);
+                }
+            },
+            complete: function () {
+
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+    //END ADD BY NURUL 21/12/2020
+    </script>
+}

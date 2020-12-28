@@ -1741,7 +1741,7 @@ namespace MasterOnline.Controllers
                                 var listattributeIDItems = "";
 
                                 var ListVariantSTF02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
-                                var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "JDID").ToList();
+                                var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "SHOPIFY").ToList();
                                 List<string> byteGambarUploaded = new List<string>();
                                 
                                 foreach (var itemData in ListVariantSTF02)
@@ -1776,7 +1776,7 @@ namespace MasterOnline.Controllers
                                     listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
                                     listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
                                                                         
-                                    new ShopifyControllerJob().Shopify_CreateProductVariant(iden, resServer.product.id, itemData.Ket_Sort8, itemData.HJUAL.ToString(), itemData.LINK_GAMBAR_1.ToString(), itemData.BRG);
+                                    new ShopifyControllerJob().Shopify_CreateProductVariant(iden, itemData.BRG, resServer.product.id, itemData.Ket_Sort8, itemData.HJUAL.ToString(), itemData.LINK_GAMBAR_1.ToString());
 
                                 }
                                 //END HANDLE VARIANT SHOPIFY
@@ -1893,7 +1893,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> Shopify_CreateProductVariant(ShopifyAPIData iden, long product_id, string option, string price, string urlImage, string kodeProduk)
+        public async Task<string> Shopify_CreateProductVariant(ShopifyAPIData iden, string kode_brg, long product_id, string option, string price, string urlImage)
         {
             string ret = "";
             string urll = "https://{0}:{1}@{2}.myshopify.com/admin/api/2020-07/products/{3}/variants.json";
@@ -1937,6 +1937,10 @@ namespace MasterOnline.Controllers
                 {
                     if (resServer.variant != null)
                     {
+                        var idAttribute = resServer.variant.id;
+                        string Link_Error = "0;Buat Produk;;";
+                        var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(product_id + ";" + idAttribute) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(kode_brg) + "' AND IDMARKET = '" + Convert.ToString(iden.ID_MARKET) + "'");
+
                         new ShopifyControllerJob().Shopify_CreateProductImageVariant(iden, product_id, resServer.variant.id, urlImage);
 
                         var marketplace = ErasoftDbContext.ARF01.Where(m => m.CUST == iden.no_cust).FirstOrDefault();
@@ -2358,6 +2362,7 @@ namespace MasterOnline.Controllers
             public string DatabasePathErasoft { get; set; }
             public string email { get; set; }
             public int rec_num { get; set; }
+            public string ID_MARKET { get; set; }
 
         }
 

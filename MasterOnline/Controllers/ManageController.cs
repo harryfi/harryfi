@@ -9947,7 +9947,7 @@ namespace MasterOnline.Controllers
                     saveBarangShopee(1, dataBarang, false);
                     saveBarangTokpedVariant(1, barangInDb.BRG, false);
 #region SHOPIFY
-                    saveBarangShopify(1, dataBarang);
+                    saveBarangShopify(1, barangInDb.BRG, false);
 #endregion
                     //add by fauzi for 82Cart
                     //saveBarang82Cart(1, dataBarang, false);
@@ -9965,7 +9965,7 @@ namespace MasterOnline.Controllers
                     saveBarangBlibli(2, dataBarang);
                     saveBarangElevenia(2, dataBarang, imgPath);
                     saveBarangShopee(2, dataBarang, updateHarga);
-                    saveBarangShopify(2, dataBarang);
+                    //saveBarangShopify(2, dataBarang); // remark bby fauzi  26 Des 2020
 
 
                     //get image
@@ -9989,8 +9989,9 @@ namespace MasterOnline.Controllers
                     saveBarangTokpedVariant(2, barang.BRG, false);
 
                     saveBarangJDID(2, barang.BRG, false);
+                    saveBarangShopify(2, barang.BRG, false); // yang baru by fauzi 26 Des 2020
 
-#region lazada
+                    #region lazada
                     if (listLazadaShop.Count > 0)
                     {
                         foreach (ARF01 tblCustomer in listLazadaShop)
@@ -11658,10 +11659,10 @@ namespace MasterOnline.Controllers
         }
 
         //add by fauzi for shopify
-        public void saveBarangShopify(int mode, BarangViewModel dataBarang)
+        public void saveBarangShopify(int mode, string dataBarang_Stf02_BRG, bool updateHarga)
         {
             //var ret = "";
-            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID || b.BRG == dataBarang.Stf02.BRG);
+            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == dataBarang_Stf02_BRG);
             var kdShopify = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPIFY");
             if (barangInDb != null && kdShopify != null)
             {
@@ -11677,11 +11678,11 @@ namespace MasterOnline.Controllers
                                 {
                                     if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
                                     {
-                                        var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
+                                        var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
                                         if (display)
                                         {
 
-                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) + "'";
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
                                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 
                                             ShopifyControllerJob.ShopifyAPIData data = new ShopifyControllerJob.ShopifyAPIData();
@@ -11691,12 +11692,13 @@ namespace MasterOnline.Controllers
                                             data.account_store = tblCustomer.PERSO;
                                             data.API_key = tblCustomer.API_KEY;
                                             data.API_password = tblCustomer.API_CLIENT_P;
+                                            data.ID_MARKET = tblCustomer.RecNum.Value.ToString();
 #if (DEBUG || Debug_AWS)
-                                            new ShopifyControllerJob().Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data);
+                                            new ShopifyControllerJob().Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data);
 #else
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                            clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data));
+                                            clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data));
 #endif
                                         }
                                     }
@@ -11721,6 +11723,7 @@ namespace MasterOnline.Controllers
                                                 iden.account_store = tblCustomer.PERSO;
                                                 iden.API_key = tblCustomer.API_KEY;
                                                 iden.API_password = tblCustomer.API_CLIENT_P;
+                                                iden.ID_MARKET = tblCustomer.RecNum.Value.ToString();
 
                                                 ShopifyControllerJob ShopifyAPI = new ShopifyControllerJob();
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -11730,10 +11733,10 @@ namespace MasterOnline.Controllers
                                                 //var checkProductExist = ShopifyAPI.GetItemSingle(iden, stf02h.BRG);
                                                 //ShopifyAPI.CheckProduct(iden, stf02h.BRG_MP, stf02h.BRG);
 
-                                                ShopifyAPI.Shopify_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Update Produk", iden, stf02h.BRG_MP);
+                                                ShopifyAPI.Shopify_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Update Produk", iden, stf02h.BRG_MP);
 
 #else
-                                                clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Update Produk", iden, stf02h.BRG_MP));
+                                                clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Update Produk", iden, stf02h.BRG_MP));
 #endif
                                                 //end unremark by nurul 15/1/2020, biar bisa update deskripsi, tapi panjang lebar dan tinggi harus <= 40 cm
                                                 //end remark by calvin 26 februari 2019
@@ -11768,7 +11771,7 @@ namespace MasterOnline.Controllers
                                                     //ShopeeController shoAPI = new ShopeeController();
                                                     //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
 
-                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) + "'";
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
                                                     EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                                     ShopifyControllerJob.ShopifyAPIData data = new ShopifyControllerJob.ShopifyAPIData();
                                                     data.no_cust = tblCustomer.CUST;
@@ -11777,12 +11780,13 @@ namespace MasterOnline.Controllers
                                                     data.account_store = tblCustomer.PERSO;
                                                     data.API_key = tblCustomer.API_KEY;
                                                     data.API_password = tblCustomer.API_CLIENT_P;
+                                                    data.ID_MARKET = tblCustomer.RecNum.Value.ToString();
 #if (DEBUG || Debug_AWS)
-                                                    Task.Run(() => new ShopifyControllerJob().Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data).Wait());
+                                                    Task.Run(() => new ShopifyControllerJob().Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data).Wait());
 #else
                                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                    clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data));
+                                                    clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data));
 #endif
                                                 }
                                             }
@@ -14939,6 +14943,7 @@ namespace MasterOnline.Controllers
             createBarangLazadaVariant(brg);
             saveBarang82CartVariant(2, brg, false);
             saveBarangJDID(2, brg, false);
+            saveBarangShopify(2, brg, false);
             //}
 
             //change by calvin 26 april 2019
@@ -46774,7 +46779,13 @@ namespace MasterOnline.Controllers
                                         //                                        new BlibliControllerJob().fillOrderAWB(dbPathEra, so.nama_pemesan, cust,
                                         //                                            "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi,
                                         //                                            order_item_id);
-                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, so.nama_pemesan, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id));
+                                        //change by nurul 18/12/2020
+                                        //clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, so.nama_pemesan, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id));
+#if (DEBUG || Debug_AWS)
+                                        Task.Run(() => new BlibliControllerJob().fillOrderAWBV2(dbPathEra, so.no_bukti, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id)).Wait();
+#else
+                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWBV2(dbPathEra, so.no_bukti, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id));
+#endif
                                     }
                                     listSuccess.Add(new listSuccessPrintLabel()
                                     {
@@ -48920,7 +48931,7 @@ namespace MasterOnline.Controllers
                                                 var cekcount = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk).Count();
                                                 if (cekcount > 0)
                                                 {
-                                                    ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                                    ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                                 }
                                                 else
                                                 {
@@ -48936,7 +48947,7 @@ namespace MasterOnline.Controllers
                                                 var cekcount = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk).Count();
                                                 if (cekcount > 0)
                                                 {
-                                                    ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                                    ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                                 }
                                                 else
                                                 {
@@ -48972,7 +48983,7 @@ namespace MasterOnline.Controllers
                                             catch (Exception ex)
                                             {
                                                 transaction.Rollback();
-                                                ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                                ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                                 transaction.Commit();
                                                 var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                                                 ret.Errors.Add(errMsg);
@@ -49005,7 +49016,7 @@ namespace MasterOnline.Controllers
                                             var cekcount = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk).Count();
                                             if (cekcount > 0)
                                             {
-                                                ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                                ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                             }
                                             else
                                             {
@@ -49021,7 +49032,7 @@ namespace MasterOnline.Controllers
                                             var cekcount = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk).Count();
                                             if (cekcount > 0)
                                             {
-                                                ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                                ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                             }
                                             else
                                             {
@@ -49056,7 +49067,7 @@ namespace MasterOnline.Controllers
                                         catch (Exception ex)
                                         {
                                             transaction.Rollback();
-                                            ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                             transaction.Commit();
                                             var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                                             ret.Errors.Add(errMsg);
@@ -49097,6 +49108,265 @@ namespace MasterOnline.Controllers
             }
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
+
+        //add by nurul 14/12/2020
+        public ActionResult RefreshKonfirmasiDeleteDetailBayarPiutang(string[] rows_selected_recnum)
+        {
+            if (rows_selected_recnum == null)
+            {
+                var vmError = new BayarPiutangViewModel() { };
+
+                vmError.Errors.Add("Silahkan pilih faktur yang akan dihapus !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+
+            var string_rec = "";
+            foreach (var rec in rows_selected_recnum)
+            {
+                if (string_rec != "")
+                {
+                    string_rec += ",";
+                }
+                string_rec += "'" + rec + "'";
+            }
+            var sSQL = "SELECT * FROM ART03B WHERE NO IN (" + string_rec + ")";
+            var listDetail = ErasoftDbContext.Database.SqlQuery<ART03B>(sSQL).ToList();
+
+            var vm = new BayarPiutangViewModel()
+            {
+                ListPiutangDetail = listDetail
+            };
+            return PartialView("KonfirmasiDeleteDetailBayarPiutang", vm);
+        }
+        [HttpPost]
+        public ActionResult deleteDetailBayarPiutangMassal(string[] rows_selected, string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess)
+        {
+            BindUploadExcelBayar ret = new BindUploadExcelBayar();
+            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            string uname = sessionData.Account.Username;
+            string cust_id = Request["cust"];
+            ret.Errors = new List<string>();
+            ret.cust = new List<string>();
+            var vm = new BayarPiutangViewModel() { };
+
+            string[] status = statusLoopSuccess.Split(';');
+            string[] prog = percentDanprogress.Split(';');
+
+            ret.nobuk = nobuk;
+            ret.statusLoop = Convert.ToBoolean(status[0]);
+            ret.statusSuccess = Convert.ToBoolean(status[1]);
+            try
+            {
+                if (rows_selected == null)
+                {
+                    var errMsg = "Silahkan pilih faktur yang akan dihapus !/ n";
+                    ret.Errors.Add(errMsg);
+                    ret.adaError = true;
+                    return Json(ret, JsonRequestBehavior.AllowGet);
+                }
+
+                var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
+                if (piutangInDb != null)
+                {
+                    var piutangDetaiInDb = new List<int>();
+                    foreach (var rec in rows_selected)
+                    {
+                        piutangDetaiInDb.Add(Convert.ToInt32(rec));
+                    }
+                    
+                    if (ret.statusLoop == false)
+                    {
+                        ret.countAll = piutangDetaiInDb.Count();
+                    }
+                    if (ret.statusLoop == true)
+                    {
+                        ret.countAll = countAll;
+                        prog[1] = Convert.ToString(Convert.ToInt32(prog[1]) - 1);
+                    }
+                    
+                    if (Convert.ToInt32(prog[1]) == 0)
+                    {
+                        prog[1] = "0";
+                    }
+                    if (piutangDetaiInDb.Count() > 0)
+                    {
+                        var tempPercent = Convert.ToInt32(prog[0]);
+                        var cekPer10 = (ret.countAll / 10);
+                        var temp40 = Convert.ToInt32(prog[1]) + 70;
+                        List<int> recnum = new List<int>();
+                        for (int i = Convert.ToInt32(prog[1]); i < piutangDetaiInDb.Count(); i++)
+                        {
+                            ret.statusLoop = true;
+                            ret.progress = i + 1;
+                            ret.percent = ((ret.progress) * 100) / ret.countAll;
+                            var getData = piutangDetaiInDb[i];
+                            recnum.Add(Convert.ToInt32(getData));
+                            
+                            if (cekPer10 > 70)
+                            {
+                                if ((ret.progress == temp40) || ret.percent == 100)
+                                {
+                                    ret.statusSuccess = false;
+                                    if (ret.percent > 99 && ret.percent <= 101)
+                                    {
+                                        ret.statusSuccess = true;
+                                        ret.TidakLanjutProses = true;
+                                        try
+                                        {
+                                            for (int ax = 0; ax < recnum.Count(); ax++)
+                                            {
+                                                var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "delete from art03b where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                ret.successUpdateDetail += successRow;
+                                            }
+                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            ret.successUpdateHeader += successRowHeader;
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            ret.successUpdateHeader += successRowHeader;
+
+                                            var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
+                                            ret.Errors.Add(errMsg);
+                                            ret.adaError = true;
+                                        }
+                                        if (ret.Errors.Count() > 0)
+                                        {
+                                            ret.adaError = true;
+                                        }
+                                        vm.Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == ret.nobuk);
+                                        vm.ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == ret.nobuk).ToList();
+                                        var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a (nolock) where no_bukti in (select NFAKTUR from art03b (nolock) where bukti='" + ret.nobuk + "')").ToList();
+                                        vm.ListOngkir = getOngkir;
+                                        vm.ret = ret;
+
+                                        return PartialView("DetailBayarPiutangPartial", vm);
+                                    }
+                                    if (tempPercent != ret.percent || recnum.Count() == 70)
+                                    {
+                                        try
+                                        {
+                                            for (int ax = 0; ax < recnum.Count(); ax++)
+                                            {
+                                                var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "delete from art03b where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                                ret.successUpdateDetail += successRow;
+                                            }
+                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            ret.successUpdateHeader += successRowHeader;
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                            ret.successUpdateHeader += successRowHeader;
+
+                                            var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
+                                            ret.Errors.Add(errMsg);
+                                            ret.adaError = true;
+                                        }
+                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                            }
+                            else if (ret.percent == 10 || ret.percent == 20 ||
+                            ret.percent == 30 || ret.percent == 40 ||
+                            ret.percent == 50 || ret.percent == 60 ||
+                            ret.percent == 70 || ret.percent == 80 ||
+                            ret.percent == 90 || ret.percent == 100)
+                            {
+                                ret.statusSuccess = false;
+                                if (ret.percent > 99 && ret.percent <= 101)
+                                {
+                                    ret.statusSuccess = true;
+                                    ret.TidakLanjutProses = true;
+
+                                    try
+                                    {
+                                        for (int ax = 0; ax < recnum.Count(); ax++)
+                                        {
+                                            var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "delete from art03b where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                            ret.successUpdateDetail += successRow;
+                                        }
+                                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                        ret.successUpdateHeader += successRowHeader;
+
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                        ret.successUpdateHeader += successRowHeader;
+
+                                        var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
+                                        ret.Errors.Add(errMsg);
+                                        ret.adaError = true;
+                                    }
+                                    if (ret.Errors.Count() > 0)
+                                    {
+                                        ret.adaError = true;
+                                    }
+                                    vm.Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == ret.nobuk);
+                                    vm.ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == ret.nobuk).ToList();
+                                    var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a(nolock) where no_bukti in (select NFAKTUR from art03b (nolock) where bukti='" + ret.nobuk + "')").ToList();
+                                    vm.ListOngkir = getOngkir;
+                                    vm.ret = ret;
+
+                                    return PartialView("DetailBayarPiutangPartial", vm);
+                                }
+                                if (tempPercent != ret.percent)
+                                {
+                                    try
+                                    {
+                                        for (int ax = 0; ax < recnum.Count(); ax++)
+                                        {
+                                            var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "delete from art03b where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
+                                            ret.successUpdateDetail += successRow;
+                                        }
+                                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                        ret.successUpdateHeader += successRowHeader;
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                                        ret.successUpdateHeader += successRowHeader;
+                                        //transaction.Rollback();
+                                        var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
+                                        ret.Errors.Add(errMsg);
+                                        ret.adaError = true;
+                                    }
+                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    ret.Errors.Add("No Bukti " + ret.nobuk + " tidak ditemukan./n");
+                    ret.adaError = true;
+                    ret.TidakLanjutProses = true;
+                    return Json(ret, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.Errors.Add(ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message + "<br />");
+                ret.adaError = true;
+                ret.TidakLanjutProses = true;
+                if (ret.nobuk != null && ret.nobuk != "" && ret.nobuk != "undefined")
+                {
+                    var cekHeader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).Count();
+                    if (cekHeader > 0)
+                    {
+                        var successRowHeader = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE A SET A.TPOT = ISNULL(B.TOTALPOT,0), A.TBAYAR = ISNULL(B.TOTALBAYAR,0), A.TLEBIH_BAYAR = ISNULL(B.TOTALLBAYAR,0) FROM ART03A AS A (nolock) LEFT JOIN (SELECT ISNULL(SUM(POT),0) AS TOTALPOT, ISNULL(SUM(BAYAR),0) AS TOTALBAYAR, ISNULL(SUM(LEBIH_BAYAR),0) AS TOTALLBAYAR, BUKTI FROM ART03B (nolock) WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
+                        ret.successUpdateHeader += successRowHeader;
+                    }
+                }
+                return Json(ret, JsonRequestBehavior.AllowGet);
+            }
+            return Json(ret, JsonRequestBehavior.AllowGet);
+        }
+        //end add by nurul 14/12/2020
 
         [HttpGet]
         public ActionResult ListLogBayarPiutang(string cust)
