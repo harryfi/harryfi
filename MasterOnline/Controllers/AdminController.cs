@@ -4090,9 +4090,10 @@ namespace MasterOnline.Controllers
 
                 var accountInDb = (from a in MoDbContext.Account
                                    where
-                                   (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
-                                   &&
+                                   //(a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                                   //&&
                                    (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                                   && !string.IsNullOrEmpty(a.DatabasePathErasoft)
                                    orderby a.LAST_LOGIN_DATE descending
                                    select new { db_name = a.DatabasePathErasoft, db_source = a.DataSourcePath, onlineshopname = a.NamaTokoOnline }).ToList();
 
@@ -4167,13 +4168,22 @@ namespace MasterOnline.Controllers
                     //end
                     //remark dulu biar ga keproses 
                     //RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @tahun", new SqlParameter("@db_name", db_name), new SqlParameter("@tahun", tahun));
-                    var tahunProses = Convert.ToInt16(tahun);
+                    try
+                    {
+                        var cekExist = RemoteMODbContext.Database.ExecuteSqlCommand("use " + db_name);
 
-                    object[] spParams = {
-                    new SqlParameter("@db_name", db_name),
-                    new SqlParameter("@THN", tahunProses)
-                    };
-                    RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @THN", spParams);
+                        var tahunProses = Convert.ToInt16(tahun);
+
+                        object[] spParams = {
+                        new SqlParameter("@db_name", db_name),
+                        new SqlParameter("@THN", tahunProses)
+                        };
+                        RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @THN", spParams);
+                    }
+                    catch
+                    {
+                        return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Database " + db_name + " tidak ditemukan." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
 
                     return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
@@ -4253,10 +4263,12 @@ namespace MasterOnline.Controllers
 
                     var accountInDb = (from a in MoDbContext.Account
                                        where
-                                       (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
-                                       &&
+                                       //(a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                                       //&&
                                        (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
-                                       && listDB.Contains(a.DatabasePathErasoft)
+                                       && !string.IsNullOrEmpty(a.DatabasePathErasoft)
+                                       &&
+                                       listDB.Contains(a.DatabasePathErasoft)
                                        orderby a.LAST_LOGIN_DATE descending
                                        select new { db_name = a.DatabasePathErasoft, db_source = a.DataSourcePath, onlineshopname = a.NamaTokoOnline }).ToList();
 
@@ -4353,10 +4365,12 @@ namespace MasterOnline.Controllers
 
                     var listAkun = (from a in MoDbContext.Account
                                     where
-                                    (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
-                                    &&
+                                    //(a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                                    //&&
                                     (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
-                                    && a.DataSourcePath.Contains(getIPPrivate)
+                                    && !string.IsNullOrEmpty(a.DatabasePathErasoft)
+                                    &&
+                                    a.DataSourcePath.Contains(getIPPrivate)
                                     orderby a.LAST_LOGIN_DATE descending
                                     select new listAkunPerServer { db_name = a.DatabasePathErasoft, db_source = a.DataSourcePath, onlineshopname = a.NamaTokoOnline, email = a.Email, accountid = a.AccountId }).ToList();
                     vm.listAkun = listAkun;
@@ -4364,83 +4378,83 @@ namespace MasterOnline.Controllers
             }
             return PartialView("TablePromptAkunProsesAkhirTahun", vm);
         }
-        [Queue("3_general")]
-        public ActionResult ProsesAkhirTahunPerServer(string db_source, string db_name, string tahun)
-        {
-            try
-            {
-                //change by fauzi 24 Januari 2020
-                //var RemoteMODbContext = new MoDbContext(db_source);
-                //change by nurul 21/12/2020
-                //var RemoteMODbContext = new MoDbContext("");
-                var getIP = "";
-                var getPort = "1433";
-                if (db_source != "" && db_source != null)
-                {
-                    if (db_source.Contains("172.31.20.197") || db_source.Contains("13.250.232.74"))
-                    {
-                        getIP = "13.250.232.74";
-                    }
-                    else if ((db_source.Contains("172.31.20.200") || db_source.Contains("54.179.169.195")) && db_source.Contains("1433"))
-                    {
-                        getIP = "54.179.169.195";
-                    }
-                    else if (db_source.Contains("172.31.17.194") || db_source.Contains("52.76.44.100"))
-                    {
-                        getIP = "52.76.44.100";
-                    }
-                    else if (db_source.Contains("172.31.26.111") || db_source.Contains("54.254.98.21"))
-                    {
-                        getIP = "54.254.98.21";
-                    }
-                    else if (db_source.Contains("172.31.14.140") || db_source.Contains("18.141.161.81"))
-                    {
-                        getIP = "18.141.161.81";
-                    }
-                    else if (db_source.Contains("172.31.1.127") || db_source.Contains("13.251.64.77"))
-                    {
-                        getIP = "13.251.64.77";
-                    }
-                    else if (db_source.Contains("172.31.40.234") || db_source.Contains("54.179.0.52"))
-                    {
-                        getIP = "54.179.0.52";
-                    }
-                    else if (db_source.Contains("13.251.222.53") || db_source.Contains("13.251.222.53"))
-                    {
-                        getIP = "13.251.222.53";
-                    }
-                    else if ((db_source.Contains("54.179.169.195") || db_source.Contains("54.179.169.195")) && db_source.Contains("1444"))
-                    {
-                        getIP = "54.179.169.195";
-                        getPort = "1444";
-                    }
-                }
-                //var getIP = db_source.Split(new string[] { "\"" }, StringSplitOptions.None).First();
-                //var getPort = db_source.Split(new string[] { ", " }, StringSplitOptions.None).Last();
-                if (getIP != "")
-                {
-                    var RemoteMODbContext = new MoDbContext(getPort, getIP);
-                    //var akun = RemoteMODbContext.Account.Count();
-                    //var user = RemoteMODbContext.User.Count();
-                    //end change by nurul 21/12/2020
-                    //end
-                    //remark dulu biar ga keproses 
-                    var tahunProses = Convert.ToInt16(tahun);
+        //[Queue("3_general")]
+        //public ActionResult ProsesAkhirTahunPerServer(string db_source, string db_name, string tahun)
+        //{
+        //    try
+        //    {
+        //        //change by fauzi 24 Januari 2020
+        //        //var RemoteMODbContext = new MoDbContext(db_source);
+        //        //change by nurul 21/12/2020
+        //        //var RemoteMODbContext = new MoDbContext("");
+        //        var getIP = "";
+        //        var getPort = "1433";
+        //        if (db_source != "" && db_source != null)
+        //        {
+        //            if (db_source.Contains("172.31.20.197") || db_source.Contains("13.250.232.74"))
+        //            {
+        //                getIP = "13.250.232.74";
+        //            }
+        //            else if ((db_source.Contains("172.31.20.200") || db_source.Contains("54.179.169.195")) && db_source.Contains("1433"))
+        //            {
+        //                getIP = "54.179.169.195";
+        //            }
+        //            else if (db_source.Contains("172.31.17.194") || db_source.Contains("52.76.44.100"))
+        //            {
+        //                getIP = "52.76.44.100";
+        //            }
+        //            else if (db_source.Contains("172.31.26.111") || db_source.Contains("54.254.98.21"))
+        //            {
+        //                getIP = "54.254.98.21";
+        //            }
+        //            else if (db_source.Contains("172.31.14.140") || db_source.Contains("18.141.161.81"))
+        //            {
+        //                getIP = "18.141.161.81";
+        //            }
+        //            else if (db_source.Contains("172.31.1.127") || db_source.Contains("13.251.64.77"))
+        //            {
+        //                getIP = "13.251.64.77";
+        //            }
+        //            else if (db_source.Contains("172.31.40.234") || db_source.Contains("54.179.0.52"))
+        //            {
+        //                getIP = "54.179.0.52";
+        //            }
+        //            else if (db_source.Contains("13.251.222.53") || db_source.Contains("13.251.222.53"))
+        //            {
+        //                getIP = "13.251.222.53";
+        //            }
+        //            else if ((db_source.Contains("54.179.169.195") || db_source.Contains("54.179.169.195")) && db_source.Contains("1444"))
+        //            {
+        //                getIP = "54.179.169.195";
+        //                getPort = "1444";
+        //            }
+        //        }
+        //        //var getIP = db_source.Split(new string[] { "\"" }, StringSplitOptions.None).First();
+        //        //var getPort = db_source.Split(new string[] { ", " }, StringSplitOptions.None).Last();
+        //        if (getIP != "")
+        //        {
+        //            var RemoteMODbContext = new MoDbContext(getPort, getIP);
+        //            //var akun = RemoteMODbContext.Account.Count();
+        //            //var user = RemoteMODbContext.User.Count();
+        //            //end change by nurul 21/12/2020
+        //            //end
+        //            //remark dulu biar ga keproses 
+        //            var tahunProses = Convert.ToInt16(tahun);
 
-                    object[] spParams = {
-                    new SqlParameter("@db_name", db_name),
-                    new SqlParameter("@THN", tahunProses)
-                    };
-                    RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @THN", spParams);
-                    //RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @THN", new SqlParameter("@db_name", db_name), new SqlParameter("@THN", tahunProses));
-                }
-                return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-            }
-            catch (Exception ex)
-            {
-                return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-            }
-        }
+        //            object[] spParams = {
+        //            new SqlParameter("@db_name", db_name),
+        //            new SqlParameter("@THN", tahunProses)
+        //            };
+        //            RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @THN", spParams);
+        //            //RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @THN", new SqlParameter("@db_name", db_name), new SqlParameter("@THN", tahunProses));
+        //        }
+        //        return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        //    }
+        //}
         //end add by nurul 21/12/2020
 
         //add by fauzi 21 Februari 2020
