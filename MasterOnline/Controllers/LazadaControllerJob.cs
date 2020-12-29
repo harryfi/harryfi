@@ -1679,6 +1679,7 @@ namespace MasterOnline.Controllers
                     if (order != null)
                     {
                         order.TRACKING_SHIPMENT = ret.data.order_items[0].tracking_number;
+                        order.SHIPMENT = ret.data.order_items[0].shipment_provider;
                         //order.status_kirim = "2"; -- remark by fauzi 04 November 2020
                         if (string.IsNullOrWhiteSpace(order.TRACKING_SHIPMENT))
                         {
