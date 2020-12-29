@@ -99,9 +99,11 @@ namespace MasterOnline.Controllers
             var daysFrom = -3;
             var daysTo = 1;
 
+            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
             //while (daysFrom > -13)
             //{
-                await Shopify_GetOrderByStatusUnpaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, daysFrom, daysTo);
+            await Shopify_GetOrderByStatusUnpaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
             //    daysFrom -= 3;
             //    daysTo -= 3;
             //}
@@ -125,14 +127,17 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> Shopify_GetOrderByStatusUnpaid_List3Days(ShopifyAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, int daysFrom, int daysTo)
+        //public async Task<string> Shopify_GetOrderByStatusUnpaid_List3Days(ShopifyAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, int daysFrom, int daysTo)
+        public async Task<string> Shopify_GetOrderByStatusUnpaid_List3Days(ShopifyAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, string daysFrom, string daysTo)
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
             SetupContext(iden);
 
-            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
-            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+            //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            var dateFrom = daysFrom;
+            var dateTo = daysTo;
 
             string urll = "https://{0}:{1}@{2}.myshopify.com/admin/orders.json?status=any&created_at_min=" + dateFrom + "&created_at_max=" + dateTo;
             var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store);
@@ -414,9 +419,11 @@ namespace MasterOnline.Controllers
             var daysFrom = -3;
             var daysTo = 1;
 
+            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
             //while (daysFrom > -13)
             //{
-                await Shopify_GetOrderByStatusPaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
+            await Shopify_GetOrderByStatusPaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
             //    daysFrom -= 3;
             //    daysTo -= 3;
             //}
@@ -440,15 +447,17 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> Shopify_GetOrderByStatusPaid_List3Days(ShopifyAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderPaid, int daysFrom, int daysTo)
+        public async Task<string> Shopify_GetOrderByStatusPaid_List3Days(ShopifyAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderPaid, string daysFrom, string daysTo)
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
 
             SetupContext(iden);
 
-            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
-            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+            //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            var dateFrom = daysFrom;
+            var dateTo = daysTo;
 
             string urll = "https://{0}:{1}@{2}.myshopify.com/admin/orders.json?status=any&created_at_min=" + dateFrom + "&created_at_max=" + dateTo;
             var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store);
@@ -828,9 +837,11 @@ namespace MasterOnline.Controllers
             var daysFrom = -5;
             var daysTo = 1;
 
+            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
             //while (daysFrom > -13)
             //{
-                await Shopify_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
+            await Shopify_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
             //    daysFrom -= 3;
             //    daysTo -= 3;
             //}
@@ -843,15 +854,17 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> Shopify_GetOrderByStatusCancelledList3Days(ShopifyAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCancel, int daysFrom, int daysTo)
+        public async Task<string> Shopify_GetOrderByStatusCancelledList3Days(ShopifyAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCancel, string daysFrom, string daysTo)
         {
             string ret = "";
 
             string connID = Guid.NewGuid().ToString();
             SetupContext(iden);
 
-            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
-            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+            //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            var dateFrom = daysFrom;
+            var dateTo = daysTo;
 
             string urll = "https://{0}:{1}@{2}.myshopify.com/admin/orders.json?status=cancelled&created_at_min=" + dateFrom + "&created_at_max=" + dateTo;
             var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store);

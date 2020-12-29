@@ -2530,7 +2530,9 @@ namespace MasterOnline.Controllers
 
             while (daysFrom > -13)
             {
-                await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, daysFrom, daysTo);
+                var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
+                var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
+                await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
                 daysFrom -= 3;
                 daysTo -= 3;
             }
@@ -2547,7 +2549,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> JD_GetOrderByStatusPaidList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, int daysFrom, int daysTo)
+        public async Task<string> JD_GetOrderByStatusPaidList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         {
             //1:Waiting for delivery, 2:Shipped, 3:Waiting_Cancel, 4:Waiting_Refuse, 5:Canceled, 6:Completed, 7:Ready to Ship
 
@@ -2556,7 +2558,7 @@ namespace MasterOnline.Controllers
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
             var listOrderId = new List<long>();
-            listOrderId.AddRange(GetOrderList(iden, "1", 0, daysFrom));
+            listOrderId.AddRange(GetOrderList(iden, "1", 0, daysFrom, daysTo));
 
             string connectionID = Guid.NewGuid().ToString();
             var connIdARF01C = Guid.NewGuid().ToString();
@@ -2652,7 +2654,9 @@ namespace MasterOnline.Controllers
 
             while (daysFrom > -13)
             {
-                await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, daysFrom, daysTo);
+                var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
+                var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
+                await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
                 daysFrom -= 3;
                 daysTo -= 3;
             }
@@ -2669,7 +2673,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> JD_GetOrderByStatusRTSList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, int daysFrom, int daysTo)
+        public async Task<string> JD_GetOrderByStatusRTSList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         {
             //1:Waiting for delivery, 2:Shipped, 3:Waiting_Cancel, 4:Waiting_Refuse, 5:Canceled, 6:Completed, 7:Ready to Ship
 
@@ -2678,7 +2682,7 @@ namespace MasterOnline.Controllers
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
             var listOrderId = new List<long>();
-            listOrderId.AddRange(GetOrderList(iden, "7", 0, daysFrom));
+            listOrderId.AddRange(GetOrderList(iden, "7", 0, daysFrom, daysTo));
 
             string connectionID = Guid.NewGuid().ToString();
             var connIdARF01C = Guid.NewGuid().ToString();
@@ -2774,7 +2778,9 @@ namespace MasterOnline.Controllers
 
             while (daysFrom > -13)
             {
-                await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, daysFrom, daysTo);
+                var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
+                var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
+                await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
                 daysFrom -= 3;
                 daysTo -= 3;
             }
@@ -2791,7 +2797,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> JD_GetOrderByStatusCancelList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, int daysFrom, int daysTo)
+        public async Task<string> JD_GetOrderByStatusCancelList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         {
             //1:Waiting for delivery, 2:Shipped, 3:Waiting_Cancel, 4:Waiting_Refuse, 5:Canceled, 6:Completed, 7:Ready to Ship
 
@@ -2800,7 +2806,7 @@ namespace MasterOnline.Controllers
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
             var listOrderId = new List<long>();
-            listOrderId.AddRange(GetOrderList(iden, "5", 0, daysFrom));
+            listOrderId.AddRange(GetOrderList(iden, "5", 0, daysFrom, daysTo));
 
             string connectionID = Guid.NewGuid().ToString();
             var connIdARF01C = Guid.NewGuid().ToString();
@@ -2904,7 +2910,9 @@ namespace MasterOnline.Controllers
 
             while (daysFrom > -13)
             {
-                await JD_GetOrderByStatusCompleteList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, daysFrom, daysTo);
+                var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
+                var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
+                await JD_GetOrderByStatusCompleteList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
                 daysFrom -= 3;
                 daysTo -= 3;
             }
@@ -2922,7 +2930,7 @@ namespace MasterOnline.Controllers
         }
 
 
-        public async Task<string> JD_GetOrderByStatusCompleteList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, int daysFrom, int daysTo)
+        public async Task<string> JD_GetOrderByStatusCompleteList3Days(JDIDAPIDataJob iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         {
             //1:Waiting for delivery, 2:Shipped, 3:Waiting_Cancel, 4:Waiting_Refuse, 5:Canceled, 6:Completed, 7:Ready to Ship
 
@@ -2931,7 +2939,7 @@ namespace MasterOnline.Controllers
             SetupContext(iden.DatabasePathErasoft, iden.username);
 
             var listOrderId = new List<long>();
-            listOrderId.AddRange(GetOrderList(iden, "6", 0, daysFrom));
+            listOrderId.AddRange(GetOrderList(iden, "6", 0, daysFrom, daysTo));
 
             string connectionID = Guid.NewGuid().ToString();
             var connIdARF01C = Guid.NewGuid().ToString();
@@ -2984,12 +2992,12 @@ namespace MasterOnline.Controllers
             //1:Waiting for delivery, 2:Shipped, 3:Waiting_Cancel, 4:Waiting_Refuse, 5:Canceled, 6:Completed, 7:Ready to Ship
             var listOrderId = new List<long>();
             SetupContext(data.DatabasePathErasoft, uname);
-            listOrderId.AddRange(GetOrderList(data, "1", 1, 1));
-            listOrderId.AddRange(GetOrderList(data, "2", 1, 1));
-            listOrderId.AddRange(GetOrderList(data, "3", 1, 1));
-            listOrderId.AddRange(GetOrderList(data, "4", 1, 1));
-            listOrderId.AddRange(GetOrderList(data, "5", 0, 1));
-            listOrderId.AddRange(GetOrderList(data, "6", 1, 1));
+            //listOrderId.AddRange(GetOrderList(data, "1", 1, 1));
+            //listOrderId.AddRange(GetOrderList(data, "2", 1, 1));
+            //listOrderId.AddRange(GetOrderList(data, "3", 1, 1));
+            //listOrderId.AddRange(GetOrderList(data, "4", 1, 1));
+            //listOrderId.AddRange(GetOrderList(data, "5", 0, 1));
+            //listOrderId.AddRange(GetOrderList(data, "6", 1, 1));
             string connectionID = Guid.NewGuid().ToString();
             var connIdARF01C = Guid.NewGuid().ToString();
 
@@ -3070,7 +3078,7 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public List<long> GetOrderList(JDIDAPIDataJob data, string status, int page, int addDays)
+        public List<long> GetOrderList(JDIDAPIDataJob data, string status, int page, long addDays, long addDays2)
         {
             var ret = new List<long>();
             //var mgrApiManager = new JDIDControllerJob();
@@ -3083,8 +3091,10 @@ namespace MasterOnline.Controllers
             //    + DateTimeOffset.Now.AddDays(-14).ToUnixTimeSeconds() + "}";
 
             string sMethod = "epi.popOrder.getOrderIdListByCondition";
-            string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"bookTimeBegin\": "
-                + DateTimeOffset.Now.AddDays(addDays).AddHours(7).ToUnixTimeSeconds() + "000 }";
+            //string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"bookTimeBegin\": "
+            //    + DateTimeOffset.Now.AddDays(addDays).AddHours(7).ToUnixTimeSeconds() + "000 }";
+            string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"createdTimeBegin\": "
+                + addDays + ", \"createdTimeEnd\": " + addDays2 + " }";
             //string sParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + "}";
 
             try
@@ -3099,7 +3109,7 @@ namespace MasterOnline.Controllers
                         ret = listOrderId.model;
                         if (listOrderId.model.Count == 20)
                         {
-                            var nextOrders = GetOrderList(data, status, page + 1, addDays);
+                            var nextOrders = GetOrderList(data, status, page + 1, addDays, addDays2);
                             ret.AddRange(nextOrders);
                         }
                     }

@@ -1227,7 +1227,10 @@ namespace MasterOnline.Controllers
 
             while (daysFrom > -13)
             {
-                await E2Cart_GetOrderByStatusList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, daysFrom, daysTo);
+                var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+                var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+
+                await E2Cart_GetOrderByStatusList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
                 daysFrom -= 3;
                 daysTo -= 3;
             }
@@ -1251,7 +1254,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> E2Cart_GetOrderByStatusList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, int daysFrom, int daysTo)
+        public async Task<string> E2Cart_GetOrderByStatusList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, string daysFrom, string daysTo)
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
@@ -1260,8 +1263,10 @@ namespace MasterOnline.Controllers
 
             //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
             //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
-            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+            //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            var dateFrom = daysFrom;
+            var dateTo = daysTo;
 
             string urll = string.Format("{0}/api/v1/getOrder?apiKey={1}&apiCredential={2}&date_add_from={3}&date_add_to={4}", iden.API_url, iden.API_key, iden.API_credential, dateFrom, dateTo);
 
@@ -1760,7 +1765,10 @@ namespace MasterOnline.Controllers
 
             while (daysFrom > -13)
             {
-                await E2Cart_GetOrderByStatusCompletedList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
+                var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+                var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+
+                await E2Cart_GetOrderByStatusCompletedList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
                 daysFrom -= 3;
                 daysTo -= 3;
             }
@@ -1774,7 +1782,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> E2Cart_GetOrderByStatusCompletedList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCompeleted, int daysFrom, int daysTo)
+        public async Task<string> E2Cart_GetOrderByStatusCompletedList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCompeleted, string daysFrom, string daysTo)
         {
             string ret = "";
 
@@ -1782,8 +1790,10 @@ namespace MasterOnline.Controllers
 
             //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
             //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
-            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+            //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            var dateFrom = daysFrom;
+            var dateTo = daysTo;
 
             string urll = string.Format("{0}/api/v1/getOrder?apiKey={1}&apiCredential={2}&date_add_from={3}&date_add_to={4}", iden.API_url, iden.API_key, iden.API_credential, dateFrom, dateTo);
 
@@ -1873,7 +1883,10 @@ namespace MasterOnline.Controllers
 
             while (daysFrom > -13)
             {
-                await E2Cart_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
+                var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+                var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+
+                await E2Cart_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
                 daysFrom -= 3;
                 daysTo -= 3;
             }
@@ -1886,7 +1899,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> E2Cart_GetOrderByStatusCancelledList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCancel, int daysFrom, int daysTo)
+        public async Task<string> E2Cart_GetOrderByStatusCancelledList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCancel, string daysFrom, string daysTo)
         {
             string ret = "";
 
@@ -1895,8 +1908,10 @@ namespace MasterOnline.Controllers
 
             //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
             //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
-            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+            //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            var dateFrom = daysFrom;
+            var dateTo = daysTo;
 
             string urll = string.Format("{0}/api/v1/getOrder?apiKey={1}&apiCredential={2}&date_add_from={3}&date_add_to={4}", iden.API_url, iden.API_key, iden.API_credential, dateFrom, dateTo);
 

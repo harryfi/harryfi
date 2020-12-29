@@ -2836,7 +2836,7 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 1/4/2020
 
-        public async Task<string> GetOrderList3days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int daysFrom, int daysTo)
+        public async Task<string> GetOrderList3days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, long daysFrom, long daysTo)
         {
             //if merchant code diisi. barulah GetOrderList
             string ret = "";
@@ -2877,8 +2877,12 @@ namespace MasterOnline.Controllers
                 default:
                     break;
             }
-            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
-            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+            //change 16 des 2020, fixed date
+            //long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
+            //long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+            long unixTimestampFrom = daysFrom;
+            long unixTimestampTo = daysTo;
+            //end change 16 des 2020, fixed date
             string urll = "https://fs.tokopedia.net/v2/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" 
                 + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) 
                 + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&encrypt=1";
@@ -2944,8 +2948,10 @@ namespace MasterOnline.Controllers
                     //System.DateTime datetimeisnull = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
                     //var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && (p.TGL ?? datetimeisnull) > last21days).Select(p => p.NO_REFERENSI).ToList();
 
-                    var last21days = DateTimeOffset.UtcNow.AddHours(7).AddDays(daysFrom - 1).DateTime;
-                    var last21days2 = DateTimeOffset.UtcNow.AddHours(7).AddDays(daysTo + 1).DateTime;
+                    //var last21days = DateTimeOffset.UtcNow.AddHours(7).AddDays(daysFrom - 1).DateTime;
+                    //var last21days2 = DateTimeOffset.UtcNow.AddHours(7).AddDays(daysTo + 1).DateTime;
+                    var last21days = DateTimeOffset.FromUnixTimeMilliseconds(daysFrom * 1000).UtcDateTime.AddHours(7).AddDays(-1);
+                    var last21days2 = DateTimeOffset.FromUnixTimeMilliseconds(daysTo * 1000).UtcDateTime.AddHours(7).AddDays(1);
                     System.DateTime datetimeisnull = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
                     var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && (p.TGL ?? datetimeisnull) >= last21days && (p.TGL ?? datetimeisnull) <= last21days2).Select(p => p.NO_REFERENSI).ToList();
 
@@ -3623,7 +3629,12 @@ namespace MasterOnline.Controllers
             //while (daysFrom > -13)
             while (daysFrom >= -3)//pesanan sudah dibayar ambil -3 hari saja
             {
-                await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
+                //add 16 des 2020, fixed date
+                var fromDt = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
+                var toDt = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+                //end add 16 des 2020, fixed date
+
+                await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
                 //daysFrom -= 3;
                 //daysTo -= 3;
                 daysFrom -= 2;
@@ -3637,7 +3648,7 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public async Task<string> GetOrderListCompleted3Days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete, int daysFrom, int daysTo)
+        public async Task<string> GetOrderListCompleted3Days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete, long daysFrom, long daysTo)
         {
             string ret = "";
             string connId = Guid.NewGuid().ToString();
@@ -3677,8 +3688,12 @@ namespace MasterOnline.Controllers
                 default:
                     break;
             }
-            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
-            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+            //change 16 des 2020, fixed date
+            //long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
+            //long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+            long unixTimestampFrom = daysFrom;
+            long unixTimestampTo = daysTo;
+            //end change 16 des 2020, fixed date
 
             ////untuk perbaiki data
             //unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-106).ToUnixTimeSeconds();
@@ -3794,9 +3809,14 @@ namespace MasterOnline.Controllers
             var daysFrom = -1;
             var daysTo = 1;
 
-            while (daysFrom > -13)
+            while (daysFrom >= -13)
             {
-                await GetOrderListCompleted3Days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
+                //add 16 des 2020, fixed date
+                var fromDt = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
+                var toDt = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+                //end add 16 des 2020, fixed date
+
+                await GetOrderListCompleted3Days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
 
                 //daysFrom -= 3;
                 //daysTo -= 3;
@@ -3812,19 +3832,23 @@ namespace MasterOnline.Controllers
             return ret;
 
         }
-        public async Task<string> GetOrderListCancel3days(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder, int daysFrom, int daysTo)
+        public async Task<string> GetOrderListCancel3days(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder, long daysFrom, long daysTo)
         {
-            //request by Pak Richard, cek pesanan cancel tokped mulai dari tgl publish agar tidak menumpuk antrian hangfire
-            var fixedDate = new DateTime(2020, 3, 20);
-            if (DateTimeOffset.UtcNow.AddDays(daysFrom) < fixedDate)
-                return "";
-            //end request by Pak Richard, cek pesanan cancel tokped mulai dari tgl publish agar tidak menumpuk antrian hangfire
+            ////request by Pak Richard, cek pesanan cancel tokped mulai dari tgl publish agar tidak menumpuk antrian hangfire
+            //var fixedDate = new DateTime(2020, 3, 20);
+            //if (DateTimeOffset.UtcNow.AddDays(daysFrom) < fixedDate)
+            //    return "";
+            ////end request by Pak Richard, cek pesanan cancel tokped mulai dari tgl publish agar tidak menumpuk antrian hangfire
             string connId = Guid.NewGuid().ToString();
             var token = SetupContext(iden);
             iden.token = token;
             long milis = CurrentTimeMillis();
-            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
-            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+            //change 16 des 2020, fixed date
+            //long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
+            //long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+            long unixTimestampFrom = daysFrom;
+            long unixTimestampTo = daysTo;
+            //end change 16 des 2020, fixed date
 
             string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
 
@@ -3962,7 +3986,12 @@ namespace MasterOnline.Controllers
             //while (daysFrom > -13)
             while (daysFrom >= -7)
             {
-                await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
+                //add 16 des 2020, fixed date
+                var fromDt = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
+                var toDt = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+                //end add 16 des 2020, fixed date
+
+                await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
 
                 //daysFrom -= 3;
                 //daysTo -= 3;
