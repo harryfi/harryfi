@@ -1895,6 +1895,8 @@ namespace MasterOnline.Controllers
 
         public async Task<string> Shopify_CreateProductVariant(ShopifyAPIData iden, string kode_brg, long product_id, string option, string price, string urlImage)
         {
+            SetupContext(iden);
+
             string ret = "";
             string urll = "https://{0}:{1}@{2}.myshopify.com/admin/api/2020-07/products/{3}/variants.json";
             var vformatUrl = String.Format(urll, iden.API_key, iden.API_password, iden.account_store, product_id);

@@ -11041,7 +11041,7 @@ namespace MasterOnline.Controllers
             {
                 var barangInDb = ErasoftDbContext.STF02.AsNoTracking().SingleOrDefault(b => b.BRG == brg);
                 var lzdApi = new LazadaController();
-                string[] imgPath = new string[3];
+                string[] imgPath = new string[5];
                 if (!string.IsNullOrWhiteSpace(barangInDb.LINK_GAMBAR_1))
                 {
                     imgPath[0] = barangInDb.LINK_GAMBAR_1;
@@ -11053,6 +11053,14 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrWhiteSpace(barangInDb.LINK_GAMBAR_3))
                 {
                     imgPath[2] = barangInDb.LINK_GAMBAR_3;
+                }
+                if (!string.IsNullOrWhiteSpace(barangInDb.LINK_GAMBAR_4))
+                {
+                    imgPath[3] = barangInDb.LINK_GAMBAR_4;
+                }
+                if (!string.IsNullOrWhiteSpace(barangInDb.LINK_GAMBAR_5))
+                {
+                    imgPath[4] = barangInDb.LINK_GAMBAR_5;
                 }
                 string[] imageUrl = new string[imgPath.Length];
                 var productMarketPlace = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum);

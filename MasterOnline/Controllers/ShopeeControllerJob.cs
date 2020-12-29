@@ -5454,7 +5454,16 @@ namespace MasterOnline.Controllers
                 {
                     if (string.IsNullOrEmpty(resServer.error))
                     {
-                        var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+                        if (!string.IsNullOrEmpty(resServer.err_msg))
+                        {
+                            if (resServer.error == "err_gateway")
+                            {
+                                currentLog.REQUEST_EXCEPTION = "item data have special character.";
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                throw new Exception(currentLog.REQUEST_EXCEPTION);
+                            }
+                        }
+                            var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
                         if (item != null)
                         {
                             item.BRG_MP = Convert.ToString(resServer.item_id) + ";0";
@@ -6507,13 +6516,13 @@ namespace MasterOnline.Controllers
 
 #if (DEBUG || Debug_AWS)
                                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-                                    Task.Run(() => stokAPI.Shopee_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id), 0, username, null)).Wait();
+                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id), 0, username, null)).Wait();
 #else
                                                         string EDBConnID = EDB.GetConnectionString("ConnId");
                                                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id), 0, username, null));
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id), 0, username, null));
 #endif
                                 }
                             }
@@ -8851,6 +8860,7 @@ namespace MasterOnline.Controllers
             public string msg { get; set; }
             public string request_id { get; set; }
             public string error { get; set; }
+            public string err_msg { get; set; }
         }
         public class ShopeeGetLogisticsData
         {
