@@ -4734,8 +4734,8 @@ namespace MasterOnline.Controllers
 
                                             //add by Tri 10 Jan 2019, update stok setelah create product sukses 
                                             //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
-                                            if (createProduct)
-                                                if (customer != null)
+                                            //if (createProduct)//remark 29 des 2020, update stok setelah update juga
+                                            if (customer != null)
                                                 {
                                                     if (customer.TIDAK_HIT_UANG_R)
                                                     {
@@ -4791,7 +4791,7 @@ namespace MasterOnline.Controllers
 
                                         //add by Tri 21 Jan 2019, update stok setelah create product sukses  
                                         //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
-                                        if (createProduct)
+                                        //if (createProduct)//remark 29 des 2020, update stok setelah update juga
                                             if (customer != null)
                                             {
                                                 if (customer.TIDAK_HIT_UANG_R)
@@ -5113,8 +5113,8 @@ namespace MasterOnline.Controllers
                         }
                         //end change by Tri 3 nov 2020, selalu update brg mp tokped karena bisa berubah saat edit nama
                         //add by Tri 21 Jan 2019, update stok setelah create product sukses 
-                        if (createBrg || brgInDB.DISPLAY)
-                            if (customer != null)
+                        //if (createBrg || brgInDB.DISPLAY)//remark 29 des 2020, update stok setelah update juga
+                        if (customer != null)
                             {
                                 if (customer.TIDAK_HIT_UANG_R)
                                 {
