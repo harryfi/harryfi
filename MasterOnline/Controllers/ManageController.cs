@@ -13258,13 +13258,20 @@ namespace MasterOnline.Controllers
 
             //add by nurul 19/10/2020
             var string_Brg = "";
-            foreach (var barang in listBrgVariantMO)
+            if (listBrgVariantMO.Count() > 0)
             {
-                if (string_Brg != "")
+                foreach (var barang in listBrgVariantMO)
                 {
-                    string_Brg += ",";
+                    if (string_Brg != "")
+                    {
+                        string_Brg += ",";
+                    }
+                    string_Brg += "'" + barang + "'";
                 }
-                string_Brg += "'" + barang + "'";
+            }
+            else
+            {
+                string_Brg = "''";
             }
             var sSQL = "select brg as brgVarianMo, isnull(unit,'') as brgBundling from stf02 a left join (select distinct unit from stf03) b on a.brg=b.unit where a.brg in (" + string_Brg + ")";
             var listBundlingBrg = ErasoftDbContext.Database.SqlQuery<getListBrgYgBundling>(sSQL).ToList();
