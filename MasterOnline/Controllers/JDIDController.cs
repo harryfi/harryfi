@@ -1077,7 +1077,7 @@ namespace MasterOnline.Controllers
                                 //i = i + 1;
                                 if (!string.IsNullOrEmpty(attr.name) && !string.IsNullOrEmpty(Convert.ToString(attr.propertyId)))
                                 {
-                                    if (!attr.name.Contains("Coming Soon") && !attr.name.Contains("Warna") && !attr.name.Contains("Ukuran"))
+                                    if (!attr.name.Contains("Coming Soon") && !attr.name.Contains("Warna") && !attr.name.Contains("Ukuran") && !attr.name.Contains("Test11"))
                                     {
                                         a = Convert.ToString(i + 1);
                                         retAttr["ACODE_" + a] = Convert.ToString(attr.propertyId) ?? "";
