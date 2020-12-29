@@ -40672,7 +40672,7 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
-                                        var result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, page + 1, (statBL == 1 ? true : false), recordCount, totalData);
+                                        var result = await blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, page + 1, (statBL == 1 ? true : false), recordCount, totalData, "storeid");
                                         retBarang.exception = result.exception;
                                         retBarang.totalData = result.totalData;
                                         //change 18 juli 2019, error tetap lanjut next page
@@ -42516,8 +42516,8 @@ namespace MasterOnline.Controllers
                                 lzdApi.GetBrgLazada(cust, arf01.TOKEN, Convert.ToInt32(apiLog.REQUEST_ATTRIBUTE_3), 0, 0);
                                 break;
                             case "Bukalapak":
-                                var blApi = new BukaLapakController();
-                                blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(apiLog.REQUEST_ATTRIBUTE_3), (apiLog.REQUEST_ACTION.Contains("Not Active") ? false : true), 0, 0);
+                                //var blApi = new BukaLapakController();
+                                //blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(apiLog.REQUEST_ATTRIBUTE_3), (apiLog.REQUEST_ACTION.Contains("Not Active") ? false : true), 0, 0);
                                 break;
                             case "Tokopedia":
                                 var TokoAPI = new TokopediaController();

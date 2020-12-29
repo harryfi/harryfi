@@ -103,18 +103,18 @@ namespace MasterOnline.Controllers
                         //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
                         //string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
-                        var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET API_KEY='" + retObj.user_id + "', TOKEN='" + retObj.token + "', STATUS_API = '1' WHERE CUST ='" + cust + "'");
-                        //var a = EDB.GetDataSet("ARConnectionString", "ARF01", "SELECT * FROM ARF01");
-                        if (a == 1)
-                        {
-                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
-                            ret.status = 1;
-                        }
-                        else
-                        {
-                            currentLog.REQUEST_EXCEPTION = "failed to update api_key;execute result=" + a;
-                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
-                        }
+                        //var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET API_KEY='" + retObj.user_id + "', TOKEN='" + retObj.token + "', STATUS_API = '1' WHERE CUST ='" + cust + "'");
+                        ////var a = EDB.GetDataSet("ARConnectionString", "ARF01", "SELECT * FROM ARF01");
+                        //if (a == 1)
+                        //{
+                        //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
+                        //    ret.status = 1;
+                        //}
+                        //else
+                        //{
+                        //    currentLog.REQUEST_EXCEPTION = "failed to update api_key;execute result=" + a;
+                        //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
+                        //}
                     }
                     else
                     {

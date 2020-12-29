@@ -6217,7 +6217,6 @@
     <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\__init__.py" />
     <Content Include="Views\Admin\PromptAccount.cshtml" />
     <Content Include="Views\Admin\TablePromptAkunPartial.cshtml" />
-    <Content Include="Views\Bukalapak\BukalapakAuth.html" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -6590,6 +6589,7 @@
     <Content Include="Views\Manage\TableDashboardPesananPerMarketplace.cshtml" />
     <Content Include="Views\Manage\TableDashboardPesanan2.cshtml" />
     <Content Include="Views\Manage\TableDashboardPesananPerMarketplace2.cshtml" />
+    <Content Include="Views\Bukalapak\BukalapakAuth.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
