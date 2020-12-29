@@ -2506,6 +2506,7 @@ namespace MasterOnline.Controllers
         public async Task<ActionResult> ProsesEditKode(string listData)
         {
             bool resultEdit = false;
+            var vkodebarangsudahada = "";
 
             if (!string.IsNullOrEmpty(listData))
             {
@@ -2523,7 +2524,7 @@ namespace MasterOnline.Controllers
 
                 if (!string.IsNullOrEmpty(listkodeBRGBaru) && !string.IsNullOrEmpty(listkodeBRGLama))
                 {
-                    if(splitlistBRGBaru.Length == splitlistBRGLama.Length)
+                    if (splitlistBRGBaru.Length == splitlistBRGLama.Length)
                     {
                         try
                         {
@@ -2555,7 +2556,9 @@ namespace MasterOnline.Controllers
                                                        where a.BRG == kodeBrgLamaCheck
                                                        select new
                                                        {
-                                                           a.NO_BUKTI, a.BRG, b.ST_POSTING
+                                                           a.NO_BUKTI,
+                                                           a.BRG,
+                                                           b.ST_POSTING
                                                        }
                                         ).ToList();
 
@@ -2603,33 +2606,34 @@ namespace MasterOnline.Controllers
                                 else
                                 {
                                     // alert jika kode barang sudah ada lakukan Merge bukan Edit Kode Barang!.
-                                    return new JsonResult { Data = new { success = resultEdit, dataposting = "kode barang sudah ada lakukan Merge bukan Edit Kode Barang!." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                                    vkodebarangsudahada += kodeBrgLamaCheck + " *** " + listKodeBaru + "  | ";
+                                    //return new JsonResult { Data = new { success = resultEdit, dataposting = "kode barang sudah ada lakukan Merge bukan Edit Kode Barang!." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                                 }
 
-                                if(checkBarangVariant.Count() > 0)
+                                if (checkBarangVariant.Count() > 0)
                                 {
-                                    foreach(var barangvariant in checkBarangVariant)
+                                    foreach (var barangvariant in checkBarangVariant)
                                     {
                                         var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
-                                                           join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
-                                                           where a.BRG == barangvariant.BRG.ToString()
-                                                           select new
-                                                           {
-                                                               a.NO_BUKTI,
-                                                               a.BRG,
-                                                               b.ST_POSTING
-                                                           }
+                                                                 join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
+                                                                 where a.BRG == barangvariant.BRG.ToString()
+                                                                 select new
+                                                                 {
+                                                                     a.NO_BUKTI,
+                                                                     a.BRG,
+                                                                     b.ST_POSTING
+                                                                 }
                                                                                 ).ToList();
 
                                         var resultCekSTVarian = (from a in ErasoftDbContext.STT01B
-                                                           join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
-                                                           where a.Kobar == barangvariant.BRG.ToString()
-                                                           select new
-                                                           {
-                                                               a.Nobuk,
-                                                               a.Kobar,
-                                                               b.ST_Posting
-                                                           }
+                                                                 join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
+                                                                 where a.Kobar == barangvariant.BRG.ToString()
+                                                                 select new
+                                                                 {
+                                                                     a.Nobuk,
+                                                                     a.Kobar,
+                                                                     b.ST_Posting
+                                                                 }
                                             ).ToList();
 
                                         var checkResultSIVarian = resultCekSIVarian.Where(p => p.ST_POSTING.Contains("Y")).ToList();
@@ -2642,14 +2646,6 @@ namespace MasterOnline.Controllers
 
                                             EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
                                                 "update stf02 set part='" + listKodeBaru + "' where brg ='" + barangvariant.BRG.ToString() + "'; "
-                                                //"update stf02h set brg ='" + listKodeBaru + "' where brg ='" + barangvariant.BRG.ToString() + "'; " +
-                                                //"update sot01b set brg ='" + listKodeBaru + "' where brg ='" + barangvariant.BRG.ToString() + "'; " +
-                                                //"update sit01b set brg ='" + listKodeBaru + "' where brg ='" + barangvariant.BRG.ToString() + "'; " +
-                                                //"update stt01b set kobar ='" + listKodeBaru + "' where kobar ='" + barangvariant.BRG.ToString() + "'; " +
-                                                //"update stt04b set brg ='" + listKodeBaru + "' where brg ='" + barangvariant.BRG.ToString() + "'; " +
-                                                //"update pbt01b set brg ='" + listKodeBaru + "' where brg ='" + barangvariant.BRG.ToString() + "'; " +
-                                                //"update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + barangvariant.BRG.ToString() + "'; " +
-                                                //"update sot03c set brg ='" + listKodeBaru + "' where brg ='" + barangvariant.BRG.ToString() + "';"
                                                 );
 
                                             resultEdit = true;
@@ -2686,6 +2682,10 @@ namespace MasterOnline.Controllers
                 {
                     return new JsonResult { Data = new { success = resultEdit, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
+                else if (!string.IsNullOrEmpty(vkodebarangsudahada))
+                {
+                    return new JsonResult { Data = new { success = resultEdit, dataposting = "Terdapat kode barang sudah ada." + vkodebarangsudahada }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
                 else
                 {
                     return new JsonResult { Data = new { success = resultEdit, dataposting = "" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
@@ -2702,6 +2702,7 @@ namespace MasterOnline.Controllers
         public async Task<ActionResult> ProsesMergeKode(string listData)
         {
             bool resultMerge = false;
+            var vkodebarangtidakada = "";
 
             if (!string.IsNullOrEmpty(listData))
             {
@@ -2732,7 +2733,6 @@ namespace MasterOnline.Controllers
                             dbSourceEra = accountlist.DataSourcePath;
 #endif
                             ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
-
 
 
                             foreach (var listKodeBaru in splitlistBRGBaru)
@@ -2786,7 +2786,7 @@ namespace MasterOnline.Controllers
                                         //var checkBarangLamaLagi = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
                                         //if (checkBarangLamaLagi.Count() > 0)
                                         //{
-                                        if(checkBarangMPBaru.Count() >= checkBarangMPLama.Count())
+                                        if (checkBarangMPBaru.Count() >= checkBarangMPLama.Count())
                                         {
                                             EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + kodeBrgLamaCheck + "'; DELETE FROM STF02H WHERE BRG ='" + kodeBrgLamaCheck + "'");
                                         }
@@ -2794,7 +2794,7 @@ namespace MasterOnline.Controllers
                                         {
                                             EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + listKodeBaru + "'; DELETE FROM STF02H WHERE BRG ='" + listKodeBaru + "'");
                                         }
-                                            
+
                                         //}
 
                                         EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
@@ -2808,7 +2808,7 @@ namespace MasterOnline.Controllers
                                             "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "'; " +
                                             "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
 
-                                        
+
                                         resultMerge = true;
                                     }
                                     else
@@ -2820,7 +2820,8 @@ namespace MasterOnline.Controllers
                                 else
                                 {
                                     // alert jika kode barang sudah ada lakukan Merge bukan Edit Kode Barang!.
-                                    return new JsonResult { Data = new { success = resultMerge, dataposting = "kode barang tidak ada, lakukan Edit Kode Barang bukan Merge Kode Barang!." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                                    vkodebarangtidakada += kodeBrgLamaCheck + " *** " + listKodeBaru + "  | ";
+                                    //return new JsonResult { Data = new { success = resultMerge, dataposting = "kode barang tidak ada, lakukan Edit Kode Barang bukan Merge Kode Barang!." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                                 }
 
 
@@ -2829,10 +2830,10 @@ namespace MasterOnline.Controllers
                                     int iurutanVariant = 0;
                                     foreach (var barangvariant in checkBarangVariantLama)
                                     {
-                                        var checkBarangMPLamaVariant = ErasoftDbContext.STF02H.Where(p => p.BRG == barangvariant.BRG).ToList();
-                                        var kodeBrgBaruVariantCheck = checkBarangVariantBaru[iurutanVariant].BRG.ToString();
-                                        var checkBarangMPBaruVariant = ErasoftDbContext.STF02H.Where(p => p.BRG == kodeBrgBaruVariantCheck).ToList();
-                                        
+                                        //var checkBarangMPLamaVariant = ErasoftDbContext.STF02H.Where(p => p.BRG == barangvariant.BRG).ToList();
+                                        //var kodeBrgBaruVariantCheck = checkBarangVariantBaru[iurutanVariant].BRG.ToString();
+                                        //var checkBarangMPBaruVariant = ErasoftDbContext.STF02H.Where(p => p.BRG == kodeBrgBaruVariantCheck).ToList();
+
                                         var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
                                                                  join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
                                                                  where a.BRG == barangvariant.BRG.ToString()
@@ -2861,10 +2862,10 @@ namespace MasterOnline.Controllers
                                         if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
                                         {
                                             // kondisi kalau belum posting
-                                            sqlListKodeLama += "'" + kodeBrgBaruVariantCheck + "',";
+                                            sqlListKodeLama += "'" + barangvariant.BRG.ToString() + "',";
 
                                             //if (checkBarangMPBaruVariant.Count() >= checkBarangMPLamaVariant.Count()) {
-                                                EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + barangvariant.BRG + "'; DELETE FROM STF02H WHERE BRG ='" + barangvariant.BRG + "'");
+                                            //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + barangvariant.BRG + "'; DELETE FROM STF02H WHERE BRG ='" + barangvariant.BRG + "'");
                                             //}
                                             //else
                                             //{
@@ -2872,15 +2873,7 @@ namespace MasterOnline.Controllers
                                             //}
 
                                             EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
-                                                "update stf02 set part='" + kodeBrgBaruVariantCheck + "' where brg ='" + barangvariant.BRG.ToString() + "'; "
-                                                //"update stf02h set brg ='" + kodeBrgBaruVariantCheck + "' where brg ='" + barangvariant.BRG.ToString() + "'; " +
-                                                //"update sot01b set brg ='" + kodeBrgBaruVariantCheck + "' where brg ='" + barangvariant.BRG.ToString() + "'; " +
-                                                //"update sit01b set brg ='" + kodeBrgBaruVariantCheck + "' where brg ='" + barangvariant.BRG.ToString() + "'; " +
-                                                //"update stt01b set kobar ='" + kodeBrgBaruVariantCheck + "' where kobar ='" + barangvariant.BRG.ToString() + "'; " +
-                                                //"update stt04b set brg ='" + kodeBrgBaruVariantCheck + "' where brg ='" + barangvariant.BRG.ToString() + "'; " +
-                                                //"update pbt01b set brg ='" + kodeBrgBaruVariantCheck + "' where brg ='" + barangvariant.BRG.ToString() + "'; " +
-                                                //"update detailpromosis set KODE_BRG ='" + kodeBrgBaruVariantCheck + "' where KODE_BRG ='" + barangvariant.BRG.ToString() + "'; " +
-                                                //"update sot03c set brg ='" + kodeBrgBaruVariantCheck + "' where brg ='" + barangvariant.BRG.ToString() + "';"
+                                                "update stf02 set part='" + listKodeBaru + "' where brg ='" + barangvariant.BRG.ToString() + "'; "
                                                 );
 
                                             resultMerge = true;
@@ -2888,7 +2881,7 @@ namespace MasterOnline.Controllers
                                         else
                                         {
                                             // kondisi kalau sudah posting
-                                            vlistKodeSudahPosting += "" + kodeBrgBaruVariantCheck + ",";
+                                            vlistKodeSudahPosting += "" + barangvariant.BRG.ToString() + ",";
                                         }
 
                                         iurutanVariant += 1;
@@ -2918,11 +2911,16 @@ namespace MasterOnline.Controllers
                 {
                     return new JsonResult { Data = new { success = resultMerge, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
+                else if (!string.IsNullOrEmpty(vkodebarangtidakada))
+                {
+                    return new JsonResult { Data = new { success = resultMerge, dataposting = " Terdapat kode barang yang tidak ada : " + vkodebarangtidakada }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
                 else
                 {
                     return new JsonResult { Data = new { success = resultMerge, dataposting = "" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+
                 }
-                
+
             }
             else
             {
