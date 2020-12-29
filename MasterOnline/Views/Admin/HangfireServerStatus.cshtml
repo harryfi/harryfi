@@ -517,7 +517,7 @@
         $postdata = {
             db_source: db_source,
             db_name: db_name,
-            shopname: shopname,
+            //shopname: shopname,
             tahun: tahun
         };
 
@@ -724,12 +724,12 @@
         let local_listdb = listdb;
         let tahun = $('#txtTahun2').val();
 
-        var $link = '@Url.Action("ProsesAkhirTahunPerServer", "Admin")';
+        var $link = '@Url.Action("ProsesAkhirTahun", "Admin")';
 
         $postdata = {
             db_source: db_source,
             db_name: db_name,
-            shopname: shopname,
+            //shopname: shopname,
             tahun: tahun
         };
 

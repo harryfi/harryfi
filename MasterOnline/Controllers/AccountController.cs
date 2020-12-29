@@ -695,8 +695,15 @@ namespace MasterOnline.Controllers
 
             connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_2";
             //1 januari jam 00:30 (UTC+7) setiap tahun, jalankan proses akhir tahun untuk tahun sebelumnya
+            var today = DateTime.UtcNow.AddHours(7);
+            var setTahun = DateTime.UtcNow.AddHours(7).Year;
+            if(today.Month == 1 && today.Day == 1)
+            {
+                setTahun = today.Year - 1;
+            }
             recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
-            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, (DateTime.UtcNow.AddHours(7).Year - 1).ToString())), "30 17 31 12 *", recurJobOpt);
+            //recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, (DateTime.UtcNow.AddHours(7).Year - 1).ToString())), "30 17 31 12 *", recurJobOpt);
+            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, setTahun.ToString())), "30 17 31 12 *", recurJobOpt);
 
             //connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test";
             //23 desember jam 12 siang
