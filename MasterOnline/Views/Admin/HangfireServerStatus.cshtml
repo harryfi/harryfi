@@ -536,7 +536,7 @@
                     $('#proses_akhir_tahun_log').val($('#proses_akhir_tahun_log').val() + '\n' + '[' + shopname + '] berhasil diproses.');
                 }
                 else {
-                    $('#proses_akhir_tahun_log').val($('#proses_akhir_tahun_log').val() + '\n' + '[' + shopname + '] gagal memproses akhir tahun. Internal Server Error.');
+                    $('#proses_akhir_tahun_log').val($('#proses_akhir_tahun_log').val() + '\n' + '[' + shopname + '] ' + response.mo_error);
                 }
 
                 if (local_listdb.length === 1) {
@@ -748,7 +748,7 @@
                     $('#proses_akhir_tahun_log_perserver').val($('#proses_akhir_tahun_log_perserver').val() + '\n' + '[' + shopname + '] berhasil diproses.');
                 }
                 else {
-                    $('#proses_akhir_tahun_log_perserver').val($('#proses_akhir_tahun_log_perserver').val() + '\n' + '[' + shopname + '] gagal memproses akhir tahun. Internal Server Error.');
+                    $('#proses_akhir_tahun_log_perserver').val($('#proses_akhir_tahun_log_perserver').val() + '\n' + '[' + shopname + '] ' + response.mo_error);
                 }
 
                 if (local_listdb.length === 1) {

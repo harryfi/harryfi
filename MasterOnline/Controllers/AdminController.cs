@@ -4170,13 +4170,22 @@ namespace MasterOnline.Controllers
                     //end
                     //remark dulu biar ga keproses 
                     //RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @tahun", new SqlParameter("@db_name", db_name), new SqlParameter("@tahun", tahun));
-                    var tahunProses = Convert.ToInt16(tahun);
+                    try
+                    {
+                        var cekExist = RemoteMODbContext.Database.ExecuteSqlCommand("use " + db_name);
 
-                    object[] spParams = {
-                    new SqlParameter("@db_name", db_name),
-                    new SqlParameter("@THN", tahunProses)
-                    };
-                    RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @THN", spParams);
+                        var tahunProses = Convert.ToInt16(tahun);
+
+                        object[] spParams = {
+                        new SqlParameter("@db_name", db_name),
+                        new SqlParameter("@THN", tahunProses)
+                        };
+                        RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @THN", spParams);
+                    }
+                    catch
+                    {
+                        return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Database " + db_name + " tidak ditemukan." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
 
                     return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
