@@ -45093,7 +45093,8 @@ namespace MasterOnline.Controllers
                                         //change by nurul 6/1/2020
                                         ////htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
                                         htmlString += "var item = document.getElementsByClassName('order_item_table'); ";
-                                        htmlString += "for (var b = 0; b < item.length; b++){ item[b].style.fontSize  = 'xx-small'; } ; ";
+                                        //htmlString += "for (var b = 0; b < item.length; b++){ item[b].style.fontSize  = 'xx-small'; } ; ";
+                                        htmlString += "for (var b = 0; b < item.length; b++){ item[b].style.fontSize  = '7px'; } ; ";
                                         htmlString += "var harga = document.getElementsByClassName('box text-left'); ";
                                         htmlString += "for (var d = 0; d < harga.length; d++){ harga[d].style.fontSize  = '10px'; } ; ";
                                         //end change by nurul 6/1/2020
@@ -45355,6 +45356,7 @@ namespace MasterOnline.Controllers
                                         //change by nurul 6/1/2020
                                         ////htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
                                         htmlString += "var item = document.getElementsByClassName('order_item_table'); ";
+                                        //htmlString += "for (var b = 0; b < item.length; b++){ item[b].style.fontSize  = 'xx-small'; } ; ";
                                         htmlString += "for (var b = 0; b < item.length; b++){ item[b].style.fontSize  = '7px'; } ; ";
                                         htmlString += "var harga = document.getElementsByClassName('box text-left'); ";
                                         htmlString += "for (var d = 0; d < harga.length; d++){ harga[d].style.fontSize  = '10px'; } ; ";
