@@ -2929,6 +2929,218 @@ namespace MasterOnline.Controllers
             }
         }
 
+
+        public async Task<ActionResult> ProsesDeleteKode(string listData)
+        {
+            bool resultDelete = false;
+            var vkodebarangtidakada = "";
+
+            if (!string.IsNullOrEmpty(listData))
+            {
+                string[] dataSplitToko = listData.Split('|');
+                string accountEmail = dataSplitToko[0];
+                string listkodeBRGBaru = dataSplitToko[1];
+                //string listkodeBRGLama = dataSplitToko[2];
+                string[] splitlistBRGBaru = listkodeBRGBaru.Split('^');
+                //string[] splitlistBRGLama = listkodeBRGLama.Split('^');
+
+                //var sqlListKodeLama = "";
+                var sqlListKodeBaru = "";
+                int iurutan = 0;
+                var vlistKodeSudahPosting = "";
+
+                if (!string.IsNullOrEmpty(listkodeBRGBaru))
+                {
+                    if (splitlistBRGBaru.Length > 0 )
+                    {
+                        try
+                        {
+                            var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
+                            DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+                            string dbSourceEra = "";
+#if (Debug_AWS)
+                            dbSourceEra = accountlist.DataSourcePathDebug;
+#else
+                            dbSourceEra = accountlist.DataSourcePath;
+#endif
+                            ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
+
+
+                            foreach (var listKodeBaru in splitlistBRGBaru)
+                            {
+                                var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG == listKodeBaru).ToList();
+                                //var kodeBrgLamaCheck = splitlistBRGLama[iurutan].ToString();
+                                //var checkBarangLama = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
+
+                                //var checkBarangMPBaru = ErasoftDbContext.STF02H.Where(p => p.BRG == listKodeBaru).ToList();
+                                //var checkBarangMPLama = ErasoftDbContext.STF02H.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
+
+                                //var checkBarangVariantLama = ErasoftDbContext.STF02.Where(p => p.PART == kodeBrgLamaCheck).ToList();
+                                //var checkBarangVariantBaru = ErasoftDbContext.STF02.Where(p => p.PART == listKodeBaru).ToList();
+
+                                if (checkBarangBaru.Count() > 0)
+                                {
+                                    //var checkSI = ErasoftDbContext.SIT01B.Where(p => p.BRG == kodeBrgLamaCheck).SingleOrDefault();
+
+                                    var resultCekSI = (from a in ErasoftDbContext.SIT01B
+                                                       join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
+                                                       where a.BRG == listKodeBaru
+                                                       select new
+                                                       {
+                                                           a.NO_BUKTI,
+                                                           a.BRG,
+                                                           b.ST_POSTING
+                                                       }
+                                        ).ToList();
+
+                                    var resultCekST = (from a in ErasoftDbContext.STT01B
+                                                       join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
+                                                       where a.Kobar == listKodeBaru
+                                                       select new
+                                                       {
+                                                           a.Nobuk,
+                                                           a.Kobar,
+                                                           b.ST_Posting
+                                                       }
+                                        ).ToList();
+
+                                    var checkResultSI = resultCekSI.Where(p => p.ST_POSTING.Contains("Y")).ToList();
+                                    var checkResultST = resultCekST.Where(p => p.ST_Posting.Contains("Y")).ToList();
+
+                                    if (checkResultSI.Count() == 0 && checkResultST.Count() == 0)
+                                    {
+                                        // kondisi kalau belum posting
+                                        sqlListKodeBaru += "'" + listKodeBaru + "',";
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
+                                            "delete from stf02h where brg ='" + listKodeBaru + "'; " +
+                                            "delete from stf02 where brg ='" + listKodeBaru + "'; " +
+                                            "delete from stt01b where kobar ='" + listKodeBaru + "'; " +
+                                            "delete from stt04b where brg ='" + listKodeBaru + "'; " +
+                                            "delete from pbt01b where brg ='" + listKodeBaru + "'; " +
+                                            "delete from detailpromosis where KODE_BRG ='" + listKodeBaru + "'; " +
+                                            "delete from sot03c where brg ='" + listKodeBaru + "';");
+
+
+                                        resultDelete = true;
+                                    }
+                                    else
+                                    {
+                                        // kondisi kalau sudah posting
+                                        vlistKodeSudahPosting += listKodeBaru + " ,";
+                                    }
+                                }
+                                else
+                                {
+                                    // alert jika kode barang sudah ada lakukan Merge bukan Edit Kode Barang!.
+                                    vkodebarangtidakada += listKodeBaru + "| ";
+                                    //return new JsonResult { Data = new { success = resultMerge, dataposting = "kode barang tidak ada, lakukan Edit Kode Barang bukan Merge Kode Barang!." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                                }
+
+
+                                //if (checkBarangVariantLama.Count() > 0)
+                                //{
+                                //    int iurutanVariant = 0;
+                                //    foreach (var barangvariant in checkBarangVariantLama)
+                                //    {
+                                //        //var checkBarangMPLamaVariant = ErasoftDbContext.STF02H.Where(p => p.BRG == barangvariant.BRG).ToList();
+                                //        //var kodeBrgBaruVariantCheck = checkBarangVariantBaru[iurutanVariant].BRG.ToString();
+                                //        //var checkBarangMPBaruVariant = ErasoftDbContext.STF02H.Where(p => p.BRG == kodeBrgBaruVariantCheck).ToList();
+
+                                //        var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
+                                //                                 join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
+                                //                                 where a.BRG == barangvariant.BRG.ToString()
+                                //                                 select new
+                                //                                 {
+                                //                                     a.NO_BUKTI,
+                                //                                     a.BRG,
+                                //                                     b.ST_POSTING
+                                //                                 }
+                                //                                                ).ToList();
+
+                                //        var resultCekSTVarian = (from a in ErasoftDbContext.STT01B
+                                //                                 join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
+                                //                                 where a.Kobar == barangvariant.BRG.ToString()
+                                //                                 select new
+                                //                                 {
+                                //                                     a.Nobuk,
+                                //                                     a.Kobar,
+                                //                                     b.ST_Posting
+                                //                                 }
+                                //            ).ToList();
+
+                                //        var checkResultSIVarian = resultCekSIVarian.Where(p => p.ST_POSTING.Contains("Y")).ToList();
+                                //        var checkResultSTVarian = resultCekSTVarian.Where(p => p.ST_Posting.Contains("Y")).ToList();
+
+                                //        if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
+                                //        {
+                                //            // kondisi kalau belum posting
+                                //            sqlListKodeBaru += "'" + barangvariant.BRG.ToString() + "',";
+
+                                //            //if (checkBarangMPBaruVariant.Count() >= checkBarangMPLamaVariant.Count()) {
+                                //            //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + barangvariant.BRG + "'; DELETE FROM STF02H WHERE BRG ='" + barangvariant.BRG + "'");
+                                //            //}
+                                //            //else
+                                //            //{
+                                //            //    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + kodeBrgBaruVariantCheck + "'; DELETE FROM STF02H WHERE BRG ='" + kodeBrgBaruVariantCheck + "'");
+                                //            //}
+
+                                //            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
+                                //                "update stf02 set part='" + listKodeBaru + "' where brg ='" + barangvariant.BRG.ToString() + "'; "
+                                //                );
+
+                                //            resultDelete = true;
+                                //        }
+                                //        else
+                                //        {
+                                //            // kondisi kalau sudah posting
+                                //            vlistKodeSudahPosting += "" + barangvariant.BRG.ToString() + ",";
+                                //        }
+
+                                //        iurutanVariant += 1;
+                                //    }
+                                //}
+
+
+                                iurutan += 1;
+                            }
+
+                        }
+                        catch (Exception ex)
+                        {
+                            resultDelete = false;
+                        }
+                    }
+                    else
+                    {
+                        // alert bahwa jumlah list kode tidak sama.
+                        return new JsonResult { Data = new { success = resultDelete, dataposting = "Jumlah list kode barang tidak ada." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+
+                }
+
+                //return View(vm);
+                if (!string.IsNullOrEmpty(vlistKodeSudahPosting))
+                {
+                    return new JsonResult { Data = new { success = resultDelete, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else if (!string.IsNullOrEmpty(vkodebarangtidakada))
+                {
+                    return new JsonResult { Data = new { success = resultDelete, dataposting = " Terdapat kode barang yang tidak ada : " + vkodebarangtidakada }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    return new JsonResult { Data = new { success = resultDelete, dataposting = "" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+
+                }
+
+            }
+            else
+            {
+                //return View("Error");
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
         // =============================================== Bagian SUPPORT (END)
 
         // Mengubah status akun utama

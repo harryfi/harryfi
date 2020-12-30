@@ -134,6 +134,9 @@
                 <li role="presentation" class="">
                     <a href="#tab_content3" id="mergekode-tab" role="tab" data-toggle="tab" aria-expanded="false">Merge Kode Barang</a>
                 </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content5" id="deletekode-tab" role="tab" data-toggle="tab" aria-expanded="false">Delete Kode Barang</a>
+                </li>
             </ul>
             <div id="myTabContent" class="tab-content">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="unlink-tab">
@@ -187,7 +190,7 @@
                                         <img src="~/Content/Images/spinner.gif" width="100" />
                                     </div>
                                     @*<div class="row" id="list-mp-toko2">
-                                    </div>*@
+                            </div>*@
                                     <div class="row" hidden id="SelectedAccount2">
                                     </div>
                                 </div>
@@ -233,7 +236,7 @@
                                         <img src="~/Content/Images/spinner.gif" width="100" />
                                     </div>
                                     @*<div class="row" id="list-mp-toko3">
-                                    </div>*@
+                            </div>*@
                                     <div class="row" hidden id="SelectedAccount3">
                                     </div>
                                 </div>
@@ -259,6 +262,42 @@
                                 </div>
                                 <button id="prosesmergekode" type="button" class=" btn btn-primary" data-style="expand-right">
                                     <span>Proses Merge</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content5" aria-labelledby="deletekode-tab">
+                    <div class="row">
+                        <div class="row user_table_section col-sm-12">
+                            <div class="col-md-4 col-sm-4">
+                                <div class="col-md-12 input-group">
+                                    <span class="txt1 p-b-11">
+                                        @Html.Label("Pilih Akun")
+                                    </span>
+                                    <div class="wrap-input100 validate-input m-b-36" style="border: none">
+                                        <select id="ACCOUNT5" placeholder="Harap pilih" required="required"></select>
+                                    </div>
+                                    <div id="loading_account5" hidden class="text-center">
+                                        <img src="~/Content/Images/spinner.gif" width="100" />
+                                    </div>
+                                    @*<div class="row" id="list-mp-toko3">
+                            </div>*@
+                                    <div class="row" hidden id="SelectedAccount5">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-4">
+                                <div class="input-group">
+                                    <span class="txt1 p-b-11">
+                                        @Html.Label("Masukan Kode Barang yang akan di delete:")
+                                    </span>
+                                    <div class="wrap-input100 validate-input m-b-36" style="border: none">
+                                        <textarea id="kode-brg-delete" cols="100" rows="20" style="width:50%;" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."></textarea>
+                                    </div>
+                                </div>
+                                <button id="prosesdeletekode" type="button" class=" btn btn-primary" data-style="expand-right">
+                                    <span>Proses Delete</span>
                                 </button>
                             </div>
                         </div>
@@ -354,6 +393,19 @@
                     });
                 }
 
+                if ($('#ACCOUNT5').length > 0) {
+                    var AccountSelect = $('#ACCOUNT5').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAccount,
+                        onChange: function (value) {
+                            rows_selected.shift();
+                            $('#list-mp-toko5').html('');
+                            $('#SelectedAccount5').val(value);
+                        }
+                    });
+                }
+
                 $('.ckCustomers').each(function (i, item) {
                     $(item).prop('checked', false);
                 });
@@ -433,6 +485,27 @@
                         }
                         if ($('#kode-brg-merge-lama').val() == "") {
                             alert("Kode Barang Lama masih kosong. Harap mengisi kode barang!");
+                        }
+                    }
+                });
+
+
+                $('#prosesdeletekode').click(function () {
+                    $('.ckCustomers').each(function (i, item) {
+                        if ($(item).is(":checked")) {
+                            //rows_selected.push($(item).attr("data-cust"));
+                        }
+                    });
+
+                    if ($('#kode-brg-delete').val() != "") {
+                        ProsesDeleteKode($('#SelectedAccount5').val(), $('#kode-brg-delete').val().replace(/\n/g, "^"));
+                        //rows_selected.shift();
+                    } else {
+                        //if (rows_selected.length == 0) {
+                        //    //alert("Anda belum memilih Akun Toko Marketplace Customer.");
+                        //}
+                        if ($('#kode-brg-delete').val() == "") {
+                            alert("Kode Barang masih kosong. Harap mengisi kode barang!");
                         }
                     }
                 });
@@ -547,6 +620,43 @@
                 error: function (xhr, status, error) {
                     console.log(error);
                     $('#loading_account3').hide();
+                }
+            });
+        } 
+
+        function ProsesDeleteKode(emailAccount, listKodeBRGDelete) {
+            var link = '@Url.Action("ProsesDeleteKode", "Admin", new { listData = "replaceEmail|replaceKodeDelete" })';
+            link = link.replace("replaceEmail", emailAccount);
+            link = link.replace("replaceKodeDelete", listKodeBRGDelete);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_account5').show();
+                },
+                success: function (response) {
+                    $('#loading_account5').hide();
+                    rows_selected.shift();
+                    if (response.success) {
+                        $('#loading_account5').hide();
+                        if (response.dataposting != "") {
+                            alert("Tidak berhasil Delete Kode Barang. " + response.dataposting);
+                        } else {
+                            alert("Berhasil Delete Kode Barang.");
+                        }
+                    } else {
+                        $('#loading_account5').hide();
+                        if (response.dataposting != "") {
+                            alert("Tidak berhasil Delete Kode Barang. " + response.dataposting);
+                        } else {
+                            alert("Gagal Delete Kode Barang.");
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_account5').hide();
                 }
             });
         } 
