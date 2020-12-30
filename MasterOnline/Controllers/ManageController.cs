@@ -12853,6 +12853,19 @@ namespace MasterOnline.Controllers
                                                 else
                                                 {
                                                     #region update
+                                                    BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                                    {
+                                                        kode = barangInDb.BRG,
+                                                        kode_mp = stf02h.BRG_MP,
+                                                        Qty = Convert.ToString(qtyOnHand),
+                                                        MinQty = "0"
+                                                    };
+                                                    data.Price = barangInDb.HJUAL.ToString();
+                                                    data.MarketPrice = stf02h.HJUAL.ToString();
+                                                    var display = Convert.ToBoolean(stf02h.DISPLAY);
+                                                    data.display = display ? "true" : "false";
+                                                    Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
+
                                                     if (tblCustomer.TIDAK_HIT_UANG_R)
                                                     {
                                                         StokControllerJob.BlibliAPIData iden2 = new StokControllerJob.BlibliAPIData
@@ -12867,7 +12880,7 @@ namespace MasterOnline.Controllers
                                                             idmarket = tblCustomer.RecNum.Value,
                                                             versiToken = tblCustomer.KD_ANALISA
                                                         };
-                                                        StokControllerJob.BlibliProductData data = new StokControllerJob.BlibliProductData
+                                                        StokControllerJob.BlibliProductData dataStok = new StokControllerJob.BlibliProductData
                                                         {
                                                             kode = barangInDb.BRG,
                                                             kode_mp = stf02h.BRG_MP,
@@ -12876,31 +12889,31 @@ namespace MasterOnline.Controllers
                                                         };
 #if (DEBUG || Debug_AWS)
                                                         StokControllerJob stokAPI = new StokControllerJob(dbPathEra, usernameLogin);
-                                                        Task.Run(() => stokAPI.Blibli_updateStock(dbPathEra, barangInDb.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, data, usernameLogin, null)).Wait();
+                                                        Task.Run(() => stokAPI.Blibli_updateStock(dbPathEra, barangInDb.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, dataStok, usernameLogin, null)).Wait();
 #else
                                                         string EDBConnID = EDB.GetConnectionString("ConnId");
                                                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Blibli_updateStock(dbPathEra, barangInDb.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, data, usernameLogin, null));
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Blibli_updateStock(dbPathEra, barangInDb.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, dataStok, usernameLogin, null));
 #endif
                                                     }
-                                                    else
-                                                    {
-                                                        BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
-                                                        {
-                                                            kode = barangInDb.BRG,
-                                                            kode_mp = stf02h.BRG_MP,
-                                                            Qty = Convert.ToString(qtyOnHand),
-                                                            MinQty = "0"
-                                                        };
-                                                        data.Price = barangInDb.HJUAL.ToString();
-                                                        data.MarketPrice = stf02h.HJUAL.ToString();
-                                                        var display = Convert.ToBoolean(stf02h.DISPLAY);
-                                                        data.display = display ? "true" : "false";
-                                                        Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
-                                                    }
-#endregion
+                                                    //else
+                                                    //{
+                                                    //    BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                                    //    {
+                                                    //        kode = barangInDb.BRG,
+                                                    //        kode_mp = stf02h.BRG_MP,
+                                                    //        Qty = Convert.ToString(qtyOnHand),
+                                                    //        MinQty = "0"
+                                                    //    };
+                                                    //    data.Price = barangInDb.HJUAL.ToString();
+                                                    //    data.MarketPrice = stf02h.HJUAL.ToString();
+                                                    //    var display = Convert.ToBoolean(stf02h.DISPLAY);
+                                                    //    data.display = display ? "true" : "false";
+                                                    //    Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
+                                                    //}
+                                                    #endregion
                                                 }
                                             }
                                             else
@@ -13193,6 +13206,20 @@ namespace MasterOnline.Controllers
                                                         {
                                                             if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                                             {
+                                                                BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                                                {
+                                                                    kode = barangInDb.BRG,
+                                                                    kode_mp = stf02h.BRG_MP,
+                                                                    Qty = Convert.ToString(qtyOnHand),
+                                                                    MinQty = "0"
+                                                                };
+                                                                data.Price = barangInDb.HJUAL.ToString();
+                                                                data.MarketPrice = stf02h.HJUAL.ToString();
+                                                                var display = Convert.ToBoolean(stf02h.DISPLAY);
+                                                                data.display = display ? "true" : "false";
+                                                                var BliApi2 = new BlibliController();
+                                                                Task.Run(() => BliApi2.UpdateProdukQOH_Display(iden, data).Wait());
+
                                                                 if (tblCustomer.TIDAK_HIT_UANG_R)
                                                                 {
                                                                     StokControllerJob.BlibliAPIData iden2 = new StokControllerJob.BlibliAPIData
@@ -13207,7 +13234,7 @@ namespace MasterOnline.Controllers
                                                                         idmarket = tblCustomer.RecNum.Value,
                                                                         versiToken = tblCustomer.KD_ANALISA
                                                                     };
-                                                                    StokControllerJob.BlibliProductData data = new StokControllerJob.BlibliProductData
+                                                                    StokControllerJob.BlibliProductData dataStok = new StokControllerJob.BlibliProductData
                                                                     {
                                                                         kode = barangInDb.BRG,
                                                                         kode_mp = stf02h.BRG_MP,
@@ -13216,32 +13243,32 @@ namespace MasterOnline.Controllers
                                                                     };
 #if (DEBUG || Debug_AWS)
                                                                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, usernameLogin);
-                                                                    Task.Run(() => stokAPI.Blibli_updateStock(dbPathEra, barangInDb.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, data, usernameLogin, null)).Wait();
+                                                                    Task.Run(() => stokAPI.Blibli_updateStock(dbPathEra, barangInDb.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, dataStok, usernameLogin, null)).Wait();
 #else
                                                         string EDBConnID = EDB.GetConnectionString("ConnId");
                                                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Blibli_updateStock(dbPathEra, barangInDb.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, data, usernameLogin, null));
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Blibli_updateStock(dbPathEra, barangInDb.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, dataStok, usernameLogin, null));
 #endif
                                                                 }
-                                                                else
-                                                                {
-                                                                    BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
-                                                                    {
-                                                                        kode = barangInDb.BRG,
-                                                                        kode_mp = stf02h.BRG_MP,
-                                                                        Qty = Convert.ToString(qtyOnHand),
-                                                                        MinQty = "0"
-                                                                    };
-                                                                    data.Price = barangInDb.HJUAL.ToString();
-                                                                    data.MarketPrice = stf02h.HJUAL.ToString();
-                                                                    var display = Convert.ToBoolean(stf02h.DISPLAY);
-                                                                    data.display = display ? "true" : "false";
-                                                                    var BliApi2 = new BlibliController();
-                                                                    Task.Run(() => BliApi2.UpdateProdukQOH_Display(iden, data).Wait());
+                                                                //else
+                                                                //{
+                                                                //    BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                                                //    {
+                                                                //        kode = barangInDb.BRG,
+                                                                //        kode_mp = stf02h.BRG_MP,
+                                                                //        Qty = Convert.ToString(qtyOnHand),
+                                                                //        MinQty = "0"
+                                                                //    };
+                                                                //    data.Price = barangInDb.HJUAL.ToString();
+                                                                //    data.MarketPrice = stf02h.HJUAL.ToString();
+                                                                //    var display = Convert.ToBoolean(stf02h.DISPLAY);
+                                                                //    data.display = display ? "true" : "false";
+                                                                //    var BliApi2 = new BlibliController();
+                                                                //    Task.Run(() => BliApi2.UpdateProdukQOH_Display(iden, data).Wait());
 
-                                                                }
+                                                                //}
                                                             }
                                                         }
                                                     }
