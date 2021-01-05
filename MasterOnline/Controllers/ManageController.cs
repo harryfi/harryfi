@@ -13236,20 +13236,20 @@ namespace MasterOnline.Controllers
                                                                     };
                                                                     StokControllerJob.BlibliProductData dataStok = new StokControllerJob.BlibliProductData
                                                                     {
-                                                                        kode = barangInDb.BRG,
+                                                                        kode = stf02h.BRG,
                                                                         kode_mp = stf02h.BRG_MP,
                                                                         Qty = Convert.ToString(qtyOnHand),
                                                                         MinQty = "0"
                                                                     };
 #if (DEBUG || Debug_AWS)
                                                                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, usernameLogin);
-                                                                    Task.Run(() => stokAPI.Blibli_updateStock(dbPathEra, barangInDb.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, dataStok, usernameLogin, null)).Wait();
+                                                                    Task.Run(() => stokAPI.Blibli_updateStock(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, dataStok, usernameLogin, null)).Wait();
 #else
                                                         string EDBConnID = EDB.GetConnectionString("ConnId");
                                                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Blibli_updateStock(dbPathEra, barangInDb.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, dataStok, usernameLogin, null));
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Blibli_updateStock(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, dataStok, usernameLogin, null));
 #endif
                                                                 }
                                                                 //else
