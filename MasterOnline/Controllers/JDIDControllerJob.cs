@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web;
 using System.Web.Mvc;
+using Hangfire.SqlServer;
 
 namespace MasterOnline.Controllers
 {
@@ -721,7 +722,7 @@ namespace MasterOnline.Controllers
                                                     ErasoftDbContext.SaveChanges();
                                                 }
 
-                                                JD_doAuditProduct(data, Convert.ToString(retData.model.spuId));
+                                                JD_doAuditProduct(data, Convert.ToString(retData.model.spuId), kodeProduk);
                                             }                                          
                                         }
                                         
@@ -1251,7 +1252,7 @@ namespace MasterOnline.Controllers
                                                 }
                                             }
                                         }
-                                        JD_doAuditProduct(data, Convert.ToString(dataSkuResult.model[0].spuId));
+                                        JD_doAuditProduct(data, Convert.ToString(dataSkuResult.model[0].spuId), kodeProduk);
                                     }
                                 }
                             }
@@ -1427,7 +1428,7 @@ namespace MasterOnline.Controllers
             return "";
         }
 
-        public async Task<string> JD_doAuditProduct(JDIDAPIDataJob data, string spuid)
+        public async Task<string> JD_doAuditProduct(JDIDAPIDataJob data, string spuid, string brg)
         {
             try
             {
@@ -1451,6 +1452,63 @@ namespace MasterOnline.Controllers
                             //{
                             //    throw new Exception(result.message.ToString());
                             //}
+                        }
+                        var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == data.no_cust).FirstOrDefault();
+                        if (tblCustomer.TIDAK_HIT_UANG_R)
+                        {
+                            var stf02 = ErasoftDbContext.STF02.Where(m => m.BRG == brg).FirstOrDefault();
+                            if(stf02 != null)
+                            {
+                               MasterOnline.Controllers.JDIDAPIData dataStok = new MasterOnline.Controllers.JDIDAPIData()
+                                {
+                                    accessToken = data.accessToken,
+                                    appKey = data.appKey,
+                                    appSecret = data.appSecret,
+                                };
+                                StokControllerJob stokAPI = new StokControllerJob(data.DatabasePathErasoft, username);
+                                if (stf02.TYPE == "4")
+                                {
+                                    var listStf02 = ErasoftDbContext.STF02.Where(m => m.PART == brg).ToList();
+                                    foreach(var barang in listStf02)
+                                    {
+                                        var stf02h = ErasoftDbContext.STF02H.Where(m => m.BRG == barang.BRG && m.IDMARKET == tblCustomer.RecNum).FirstOrDefault();
+                                        if(stf02h != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                            {
+#if (DEBUG || Debug_AWS)
+                                                Task.Run(() => stokAPI.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null)).Wait();
+#else
+                                                string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                                var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null));
+#endif
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    var stf02h = ErasoftDbContext.STF02H.Where(m => m.BRG == stf02.BRG && m.IDMARKET == tblCustomer.RecNum).FirstOrDefault();
+                                    if (stf02h != null)
+                                    {
+                                        if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                        {
+#if (DEBUG || Debug_AWS)
+                                                Task.Run(() => stokAPI.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null)).Wait();
+#else
+                                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                            var Jobclient = new BackgroundJobClient(sqlStorage);
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.JD_updateStock(data.DatabasePathErasoft, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", dataStok, stf02h.BRG_MP, 0, username, null));
+#endif
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     else

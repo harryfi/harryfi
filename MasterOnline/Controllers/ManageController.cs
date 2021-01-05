@@ -11041,7 +11041,7 @@ namespace MasterOnline.Controllers
             {
                 var barangInDb = ErasoftDbContext.STF02.AsNoTracking().SingleOrDefault(b => b.BRG == brg);
                 var lzdApi = new LazadaController();
-                string[] imgPath = new string[3];
+                string[] imgPath = new string[5];
                 if (!string.IsNullOrWhiteSpace(barangInDb.LINK_GAMBAR_1))
                 {
                     imgPath[0] = barangInDb.LINK_GAMBAR_1;
@@ -11053,6 +11053,14 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrWhiteSpace(barangInDb.LINK_GAMBAR_3))
                 {
                     imgPath[2] = barangInDb.LINK_GAMBAR_3;
+                }
+                if (!string.IsNullOrWhiteSpace(barangInDb.LINK_GAMBAR_4))
+                {
+                    imgPath[3] = barangInDb.LINK_GAMBAR_4;
+                }
+                if (!string.IsNullOrWhiteSpace(barangInDb.LINK_GAMBAR_5))
+                {
+                    imgPath[4] = barangInDb.LINK_GAMBAR_5;
                 }
                 string[] imageUrl = new string[imgPath.Length];
                 var productMarketPlace = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum);
@@ -11137,6 +11145,14 @@ namespace MasterOnline.Controllers
                         {
                             dataLazada.imageUrl = imageUrl[0];
                         }
+                        if (!string.IsNullOrEmpty(imageUrl[3]))
+                        {
+                            dataLazada.imageUrl4 = imageUrl[3];
+                        }
+                        if (!string.IsNullOrEmpty(imageUrl[4]))
+                        {
+                            dataLazada.imageUrl5 = imageUrl[4];
+                        }
 
                         string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + dataLazada.kdBrg + "'";
                         EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
@@ -11179,7 +11195,15 @@ namespace MasterOnline.Controllers
                         {
                             dataLazada.imageUrl = imageUrl[0];
                         }
-                        var result = lzdApi.UpdateProduct(dataLazada);
+                        if (!string.IsNullOrEmpty(imageUrl[3]))
+                        {
+                            dataLazada.imageUrl4 = imageUrl[3];
+                        }
+                        if (!string.IsNullOrEmpty(imageUrl[4]))
+                        {
+                            dataLazada.imageUrl5 = imageUrl[4];
+                        }
+                        var result = lzdApi.UpdateProduct(dataLazada, usernameLogin);
                     }
                 }
             }
@@ -11351,7 +11375,7 @@ namespace MasterOnline.Controllers
                     {
                         dataLazada.imageUrl5 = imageUrl[4];
                     }
-                    var result = lzdApi.UpdateProduct(dataLazada);
+                    var result = lzdApi.UpdateProduct(dataLazada, usernameLogin);
                 }
                 //clientJobServer.Enqueue<LazadaControllerJob>(x => x.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada));
                 //end change by calvin 9 juni 2019
@@ -11899,6 +11923,34 @@ namespace MasterOnline.Controllers
                                                         }
                                                     }
                                                 }
+                                                if (tblCustomer.TIDAK_HIT_UANG_R)
+                                                {
+                                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, usernameLogin);
+                                                    StokControllerJob.ShopeeAPIData data2 = new StokControllerJob.ShopeeAPIData()
+                                                    {
+                                                        merchant_code = iden.merchant_code,
+                                                    };
+                                                    if (brg_mp.Count() == 2)
+                                                    {
+                                                        if (brg_mp[1] == "0")
+                                                        {
+#if (Debug_AWS || DEBUG)
+                                                            Task.Run(() => stokAPI.Shopee_updateStock(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", data2, stf02h.BRG_MP, 0, usernameLogin, null)).Wait();
+#else
+                                                            clientJobServer.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", data2, stf02h.BRG_MP, 0, usernameLogin, null));
+#endif
+                                                        }
+                                                        else if (brg_mp[1] != "")
+                                                        {
+
+#if (Debug_AWS || DEBUG)
+                                                            Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", data2, stf02h.BRG_MP, 0, usernameLogin, null)).Wait();
+#else
+                                                            clientJobServer.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Stock", "Update Stok", data2, stf02h.BRG_MP, 0, usernameLogin, null));
+#endif
+                                                        }
+                                                    }
+                                                }
                                             }
                                             else
                                             {
@@ -12016,7 +12068,7 @@ namespace MasterOnline.Controllers
                                                     username = usernameLogin
                                                 };
 #if (DEBUG || Debug_AWS)
-                                                //Task.Run(() => new ShopeeControllerJob().InitTierVariation(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer, null).Wait());
+                                                Task.Run(() => new ShopeeControllerJob().InitTierVariation(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer, null).Wait());
 #else
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
@@ -12800,7 +12852,7 @@ namespace MasterOnline.Controllers
                                                 }
                                                 else
                                                 {
-#region update
+                                                    #region update
                                                     BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
                                                     {
                                                         kode = barangInDb.BRG,
@@ -12813,7 +12865,55 @@ namespace MasterOnline.Controllers
                                                     var display = Convert.ToBoolean(stf02h.DISPLAY);
                                                     data.display = display ? "true" : "false";
                                                     Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
-#endregion
+
+                                                    if (tblCustomer.TIDAK_HIT_UANG_R)
+                                                    {
+                                                        StokControllerJob.BlibliAPIData iden2 = new StokControllerJob.BlibliAPIData
+                                                        {
+                                                            merchant_code = tblCustomer.Sort1_Cust,
+                                                            API_client_password = tblCustomer.API_CLIENT_P,
+                                                            API_client_username = tblCustomer.API_CLIENT_U,
+                                                            API_secret_key = tblCustomer.API_KEY,
+                                                            token = tblCustomer.TOKEN,
+                                                            mta_username_email_merchant = tblCustomer.EMAIL,
+                                                            mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                            idmarket = tblCustomer.RecNum.Value,
+                                                            versiToken = tblCustomer.KD_ANALISA
+                                                        };
+                                                        StokControllerJob.BlibliProductData dataStok = new StokControllerJob.BlibliProductData
+                                                        {
+                                                            kode = barangInDb.BRG,
+                                                            kode_mp = stf02h.BRG_MP,
+                                                            Qty = Convert.ToString(qtyOnHand),
+                                                            MinQty = "0"
+                                                        };
+#if (DEBUG || Debug_AWS)
+                                                        StokControllerJob stokAPI = new StokControllerJob(dbPathEra, usernameLogin);
+                                                        Task.Run(() => stokAPI.Blibli_updateStock(dbPathEra, barangInDb.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, dataStok, usernameLogin, null)).Wait();
+#else
+                                                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Blibli_updateStock(dbPathEra, barangInDb.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, dataStok, usernameLogin, null));
+#endif
+                                                    }
+                                                    //else
+                                                    //{
+                                                    //    BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                                    //    {
+                                                    //        kode = barangInDb.BRG,
+                                                    //        kode_mp = stf02h.BRG_MP,
+                                                    //        Qty = Convert.ToString(qtyOnHand),
+                                                    //        MinQty = "0"
+                                                    //    };
+                                                    //    data.Price = barangInDb.HJUAL.ToString();
+                                                    //    data.MarketPrice = stf02h.HJUAL.ToString();
+                                                    //    var display = Convert.ToBoolean(stf02h.DISPLAY);
+                                                    //    data.display = display ? "true" : "false";
+                                                    //    Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
+                                                    //}
+                                                    #endregion
                                                 }
                                             }
                                             else
@@ -13119,6 +13219,56 @@ namespace MasterOnline.Controllers
                                                                 data.display = display ? "true" : "false";
                                                                 var BliApi2 = new BlibliController();
                                                                 Task.Run(() => BliApi2.UpdateProdukQOH_Display(iden, data).Wait());
+
+                                                                if (tblCustomer.TIDAK_HIT_UANG_R)
+                                                                {
+                                                                    StokControllerJob.BlibliAPIData iden2 = new StokControllerJob.BlibliAPIData
+                                                                    {
+                                                                        merchant_code = tblCustomer.Sort1_Cust,
+                                                                        API_client_password = tblCustomer.API_CLIENT_P,
+                                                                        API_client_username = tblCustomer.API_CLIENT_U,
+                                                                        API_secret_key = tblCustomer.API_KEY,
+                                                                        token = tblCustomer.TOKEN,
+                                                                        mta_username_email_merchant = tblCustomer.EMAIL,
+                                                                        mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                                        idmarket = tblCustomer.RecNum.Value,
+                                                                        versiToken = tblCustomer.KD_ANALISA
+                                                                    };
+                                                                    StokControllerJob.BlibliProductData dataStok = new StokControllerJob.BlibliProductData
+                                                                    {
+                                                                        kode = barangInDb.BRG,
+                                                                        kode_mp = stf02h.BRG_MP,
+                                                                        Qty = Convert.ToString(qtyOnHand),
+                                                                        MinQty = "0"
+                                                                    };
+#if (DEBUG || Debug_AWS)
+                                                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, usernameLogin);
+                                                                    Task.Run(() => stokAPI.Blibli_updateStock(dbPathEra, barangInDb.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, dataStok, usernameLogin, null)).Wait();
+#else
+                                                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Blibli_updateStock(dbPathEra, barangInDb.BRG, tblCustomer.CUST, "Stock", "Update Stok", iden2, dataStok, usernameLogin, null));
+#endif
+                                                                }
+                                                                //else
+                                                                //{
+                                                                //    BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                                                //    {
+                                                                //        kode = barangInDb.BRG,
+                                                                //        kode_mp = stf02h.BRG_MP,
+                                                                //        Qty = Convert.ToString(qtyOnHand),
+                                                                //        MinQty = "0"
+                                                                //    };
+                                                                //    data.Price = barangInDb.HJUAL.ToString();
+                                                                //    data.MarketPrice = stf02h.HJUAL.ToString();
+                                                                //    var display = Convert.ToBoolean(stf02h.DISPLAY);
+                                                                //    data.display = display ? "true" : "false";
+                                                                //    var BliApi2 = new BlibliController();
+                                                                //    Task.Run(() => BliApi2.UpdateProdukQOH_Display(iden, data).Wait());
+
+                                                                //}
                                                             }
                                                         }
                                                     }

@@ -677,11 +677,26 @@ namespace MasterOnline.Controllers
             if (res.code.Equals("0"))
             {
                 ret.status = 1;
+                var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                 //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
                 var result = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + res.data.item_id + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '0;Buat Produk;;' WHERE BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'");
                 foreach (var item in res.data.sku_list)
                 {
                     EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + item.seller_sku + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '0;;;' WHERE BRG = '" + item.seller_sku + "' AND IDMARKET = '" + data.idMarket + "'");
+                    if (tblCustomer.TIDAK_HIT_UANG_R)
+                    {
+                        
+#if (DEBUG || Debug_AWS)
+                        StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                        Task.Run(() => stokAPI.Lazada_updateStock(dbPathEra, item.seller_sku, log_CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null)).Wait();
+#else
+                                                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbPathEra, item.seller_sku, log_CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null));
+#endif
+                    }
                 }
 
                 if (result == 1)
