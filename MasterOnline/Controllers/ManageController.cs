@@ -42227,7 +42227,7 @@ namespace MasterOnline.Controllers
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
         // =============================================== Bagian Upload Barang (END)
-        protected double GetQOHSTF08A(string Barang, string Gudang)
+        public double GetQOHSTF08A(string Barang, string Gudang)
         {
             //ADD BY NURUL 4/9/2020, handle cek stok brg multi sku 
             var cekBrgMultiSKU = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.BRG == Barang).SingleOrDefault();
