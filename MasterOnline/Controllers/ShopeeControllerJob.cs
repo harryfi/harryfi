@@ -5456,7 +5456,7 @@ namespace MasterOnline.Controllers
                     {
                         if (!string.IsNullOrEmpty(resServer.err_msg))
                         {
-                            if (resServer.error == "err_gateway")
+                            if (resServer.err_msg == "err_gateway")
                             {
                                 currentLog.REQUEST_EXCEPTION = "item data have special character.";
                                 manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
