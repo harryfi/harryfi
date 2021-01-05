@@ -52,13 +52,13 @@
     <div class="col-md-2">
         @Html.Label("", "Tahun")
         <div class="input-group number">
-            @Html.TextBox("Tahun", null, new { @class = "form-control", @MaxLength = "4", @disabled = "disabled" })
+            @Html.TextBox("Tahun", null, new { @class = "form-control", @MaxLength = "4" , @disabled = "disabled" })
         </div>
     </div>
     <div class="col-md-2">
         @Html.Label("", "Bulan")
         <div class="input-group number">
-            @Html.TextBox("Bulan", null, new { @class = "form-control", @ReadOnly = true, @disabled = "disabled" })
+            @Html.TextBox("Bulan", null, new { @class = "form-control", @ReadOnly = true , @disabled = "disabled" })
         </div>
     </div>
     <div class="col-md-8">
@@ -516,6 +516,36 @@
         }
         //end add by nurul 3/8/2020
 
+        //add by nurul 4/1/2021
+        function prosesAkhirTahunGL() {
+            var link = '@Url.Action("prosesAkhirTahunGL", "Manage")';
+            var tahunProses = "";
+            if ($('#Tahun').val() != "") {
+                tahunProses = $('#Tahun').val();
+            }
+            var a = new Date();
+            var getThisYear = a.getFullYear();
+            if (getThisYear == parseInt(tahunProses) || getThisYear == parseInt(tahunProses) + 1) {
+                $postdata = {
+                    Tahun: tahunProses,
+                };
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    data: JSON.stringify($postdata),
+                    success: function (value) {
+                        console.log(value);
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+        //end add by nurul 4/1/2021
+
         window.addEventListener('message', function (event) {
 
             //if (~event.origin.indexOf('http://13.251.222.53')) {
@@ -543,6 +573,10 @@
                     tempLog = $('#infoPosting').val();
                     showError();
                     setTimeout(function () { $("#LoadPostingMO").remove(); }, 2000);
+                    var tempbulan = FormatMonth();
+                    if (tempbulan == 12) {
+                        prosesAkhirTahunGL();
+                    }
                 }
             } else {
                 return;

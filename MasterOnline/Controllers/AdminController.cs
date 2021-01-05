@@ -4457,6 +4457,194 @@ namespace MasterOnline.Controllers
         //}
         //end add by nurul 21/12/2020
 
+        //add by nurul 5/1/2021
+        [Queue("3_general")]
+        public ActionResult ProsesAkhirTahunGL(string db_source, string db_name, string tahun)
+        {
+            try
+            {
+                var getIP = "";
+                var getPort = "1433";
+                if (db_source != "" && db_source != null)
+                {
+                    if (db_source.Contains("172.31.20.197") || db_source.Contains("13.250.232.74"))
+                    {
+                        getIP = "13.250.232.74";
+                    }
+                    else if ((db_source.Contains("172.31.20.200") || db_source.Contains("54.179.169.195")) && db_source.Contains("1433"))
+                    {
+                        getIP = "54.179.169.195";
+                    }
+                    else if (db_source.Contains("172.31.17.194") || db_source.Contains("52.76.44.100"))
+                    {
+                        getIP = "52.76.44.100";
+                    }
+                    else if (db_source.Contains("172.31.26.111") || db_source.Contains("54.254.98.21"))
+                    {
+                        getIP = "54.254.98.21";
+                    }
+                    else if (db_source.Contains("172.31.14.140") || db_source.Contains("18.141.161.81"))
+                    {
+                        getIP = "18.141.161.81";
+                    }
+                    else if (db_source.Contains("172.31.1.127") || db_source.Contains("13.251.64.77"))
+                    {
+                        getIP = "13.251.64.77";
+                    }
+                    else if (db_source.Contains("172.31.40.234") || db_source.Contains("54.179.0.52"))
+                    {
+                        getIP = "54.179.0.52";
+                    }
+                    else if (db_source.Contains("13.251.222.53") || db_source.Contains("13.251.222.53"))
+                    {
+                        getIP = "13.251.222.53";
+                    }
+                    else if ((db_source.Contains("54.179.169.195") || db_source.Contains("54.179.169.195")) && db_source.Contains("1444"))
+                    {
+                        getIP = "54.179.169.195";
+                        getPort = "1444";
+                    }
+                }
+                if (db_source != "" && db_source != null)
+                {
+                    var RemoteMODbContext = new MoDbContext(getPort, getIP);
+                    
+                    try
+                    {
+                        var cekExist = RemoteMODbContext.Database.ExecuteSqlCommand("use " + db_name);
+
+                        var tahunProses = Convert.ToInt16(tahun);
+
+                        object[] spParams = {
+                        new SqlParameter("@db_name", db_name),
+                        new SqlParameter("@THN", tahunProses)
+                        };
+                        RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN_GL] @db_name, @THN", spParams);
+
+                        #region REMARK
+                        //short tahunProses1 = Convert.ToInt16(tahunProses + 1);
+
+                        //ErasoftContext ErasoftDbContext = new ErasoftContext(getIP, db_name);
+                        //var test = ErasoftDbContext.SOT01A.OrderByDescending(A => A.TGL).FirstOrDefault();
+
+                        //#region GLFMUT
+                        //string sSQL = "";
+                        //sSQL += "DECLARE @THN_PROSES AS INT; " + Environment.NewLine + Environment.NewLine +
+                        //"SET @THN_PROSES = " + tahunProses + "; " + Environment.NewLine + Environment.NewLine +
+                        //"SELECT LKS, KODE, @THN_PROSES +1 THN, " +
+                        //"JUMLAH = ISNULL(SUM(SA + (DEBET1 + DEBET2 + DEBET3 + DEBET4 + DEBET5 + DEBET6 + DEBET7 + DEBET8 + DEBET9 + DEBET10 + DEBET11 + DEBET12) - (KREDIT1 + KREDIT2 + KREDIT3 + KREDIT4 + KREDIT5 + KREDIT6 + KREDIT7 + KREDIT8 + KREDIT9 + KREDIT10 + KREDIT11 + KREDIT12)), 0) " +
+                        //"INTO #TEMP_GL " +
+                        //"FROM GLFMUT(NOLOCK) " +
+                        //"WHERE THN = @THN_PROSES " +
+                        //"GROUP BY LKS,KODE; " + Environment.NewLine + Environment.NewLine +
+
+                        //"UPDATE A SET SA = TEMP.JUMLAH " +
+                        //"FROM GLFMUT A " +
+                        //"INNER JOIN #TEMP_GL TEMP ON A.LKS = TEMP.LKS AND A.KODE = TEMP.KODE AND A.THN = TEMP.THN; " + Environment.NewLine + Environment.NewLine +
+
+                        //"INSERT INTO GLFMUT(THN, LKS, KODE, SA, " +
+                        //"DEBET1, DEBET2, DEBET3, DEBET4, DEBET5, DEBET6, DEBET7, DEBET8, DEBET9, DEBET10, DEBET11, DEBET12, " +
+                        //"KREDIT1, KREDIT2, KREDIT3, KREDIT4, KREDIT5, KREDIT6, KREDIT7, KREDIT8, KREDIT9, KREDIT10, KREDIT11, KREDIT12) " +
+                        //"SELECT TEMP.THN,TEMP.LKS,TEMP.KODE,TEMP.JUMLAH, " +
+                        //"0,0,0,0,0,0,0,0,0,0,0,0, " +
+                        //"0,0,0,0,0,0,0,0,0,0,0,0 " +
+                        //"FROM #TEMP_GL TEMP  " +
+                        //"LEFT JOIN GLFMUT GL ON GL.KODE = TEMP.KODE AND GL.LKS = TEMP.LKS AND GL.THN = @THN_PROSES + 1 " +
+                        //"WHERE ISNULL(GL.KODE,'') = ''; " + Environment.NewLine + Environment.NewLine +
+
+                        //"DROP TABLE #TEMP_GL; " + Environment.NewLine;
+                        ////var resultProsesAkhirTahunGLFMUT = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        //var resultProsesAkhirTahunGLFMUT = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                        //ErasoftDbContext.SaveChanges();
+                        //#endregion GLFMUT
+
+                        //#region STF08
+                        //string sSQL2 = "";
+                        //sSQL2 += "DECLARE @THN_PROSES_ST AS INT; " + Environment.NewLine + Environment.NewLine +
+                        //"SET @THN_PROSES_ST = " + tahunProses + "; " + Environment.NewLine + Environment.NewLine +
+                        //"SELECT GD,BRG,@THN_PROSES_ST + 1 TAHUN, " +
+                        //"JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) " +
+                        //"INTO #TEMP_ST " +
+                        //"FROM STF08(NOLOCK) " +
+                        //"INNER JOIN STF18(NOLOCK) ON STF08.GD = STF18.KODE_GUDANG " +
+                        //"WHERE STF08.TAHUN = @THN_PROSES_ST " +
+                        //"GROUP BY GD,BRG; " + Environment.NewLine + Environment.NewLine +
+
+                        //"UPDATE A SET QAWAL = TEMP.JUMLAH " +
+                        //"FROM STF08 A " +
+                        //"INNER JOIN #TEMP_ST TEMP ON A.GD = TEMP.GD AND A.BRG = TEMP.BRG AND A.TAHUN = TEMP.TAHUN; " + Environment.NewLine + Environment.NewLine +
+
+                        //"INSERT INTO STF08(GD, BRG, TAHUN, QAWAL, NAWAL, " +
+                        //"QM1, QM2, QM3, QM4, QM5, QM6, QM7, QM8, QM9, QM10, QM11, QM12, " +
+                        //"QK1, QK2, QK3, QK4, QK5, QK6, QK7, QK8, QK9, QK10, QK11, QK12, " +
+                        //"NM1, NM2, NM3, NM4, NM5, NM6, NM7, NM8, NM9, NM10, NM11, NM12, " +
+                        //"NK1, NK2, NK3, NK4, NK5, NK6, NK7, NK8, NK9, NK10, NK11, NK12) " +
+                        //"SELECT TEMP.GD,TEMP.BRG,TEMP.TAHUN,TEMP.JUMLAH,0, " +
+                        //"0,0,0,0,0,0,0,0,0,0,0,0, " +
+                        //"0,0,0,0,0,0,0,0,0,0,0,0, " +
+                        //"0,0,0,0,0,0,0,0,0,0,0,0, " +
+                        //"0,0,0,0,0,0,0,0,0,0,0,0 " +
+                        //"FROM #TEMP_ST TEMP  " +
+                        //"LEFT JOIN STF08 ST ON ST.BRG = TEMP.BRG AND ST.GD = TEMP.GD AND ST.TAHUN = @THN_PROSES_ST + 1 " +
+                        //"WHERE ISNULL(ST.BRG,'') = ''; " + Environment.NewLine + Environment.NewLine +
+
+                        //"DROP TABLE #TEMP_ST; " + Environment.NewLine;
+
+                        ////var resultProsesAkhirTahunSTF08 = EDB.ExecuteSQL("CString", CommandType.Text, sSQL2);
+                        //var resultProsesAkhirTahunSTF08 = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL2);
+                        //ErasoftDbContext.SaveChanges();
+                        //#endregion STF08
+
+                        //#region GLFMTL
+                        //string sSQL3 = "";
+                        //sSQL2 += "DECLARE @THN_PROSES_GLFMTL AS INT; " + Environment.NewLine + Environment.NewLine +
+                        //"SET @THN_PROSES_GLFMTL = " + tahunProses + "; " + Environment.NewLine + Environment.NewLine +
+
+                        //"SELECT @THN_PROSES_GLFMTL +1 TAHUN,LKS,KODE, " +
+                        //"THI1 AS THL1, THI2 AS THL2, THI3 AS THL3, THI4 AS THL4, THI5 AS THL5, THI6 AS THL6, THI7 AS THL7, THI8 AS THL8, THI9 AS THL9, THI10 AS THL10, THI11 AS THL11, THI12 AS THL12 " +
+                        //"INTO #TEMP_GLFMTL " +
+                        //"FROM GLFMTL " +
+                        //"WHERE Thn = @THN_PROSES_GLFMTL; " + Environment.NewLine + Environment.NewLine +
+
+
+                        //"UPDATE A SET THL1 = TEMP.THL1, THL2 = TEMP.THL2, THL3 = TEMP.THL3, THL4 = TEMP.THL4, THL5 = TEMP.THL5, THL6 = TEMP.THL6, THL7 = TEMP.THL7, THL8 = TEMP.THL8, THL9 = TEMP.THL9, THL10 = TEMP.THL10, THL11 = TEMP.THL11, THL12 = TEMP.THL12 " +
+                        //"FROM GLFMTL A " +
+                        //"INNER JOIN #TEMP_GLFMTL TEMP ON A.KODE = TEMP.KODE AND A.LKS = TEMP.LKS AND A.THN = TEMP.TAHUN; " + Environment.NewLine + Environment.NewLine +
+
+                        //"INSERT INTO GLFMTL(THN, LKS, KODE, " +
+                        //"THI1, THI2, THI3, THI4, THI5, THI6, THI7, THI8, THI9, THI10, THI11, THI12, " +
+                        //"THL1, THL2, THL3, THL4, THL5, THL6, THL7, THL8, THL9, THL10, THL11, THL12) " +
+                        //"SELECT TEMP.TAHUN,TEMP.LKS,TEMP.KODE, " +
+                        //"0,0,0,0,0,0,0,0,0,0,0,0, " +
+                        //"TEMP.THL1,TEMP.THL2,TEMP.THL3,TEMP.THL4,TEMP.THL5,TEMP.THL6,TEMP.THL7,TEMP.THL8,TEMP.THL9,TEMP.THL10,TEMP.THL11,TEMP.THL12 " +
+                        //"FROM #TEMP_GLFMTL TEMP  " +
+                        //"LEFT JOIN GLFMTL MTL ON MTL.KODE = TEMP.KODE AND MTL.LKS = TEMP.LKS AND MTL.THN = @THN_PROSES_GLFMTL + 1 " +
+                        //"WHERE ISNULL(MTL.KODE,'') = ''; " + Environment.NewLine + Environment.NewLine +
+
+                        //"DROP TABLE #TEMP_GLFMTL; " + Environment.NewLine;
+
+                        ////var resultProsesAkhirTahunGLFMTL = EDB.ExecuteSQL("CString", CommandType.Text, sSQL3);
+                        //var resultProsesAkhirTahunGLFMTL = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
+                        //ErasoftDbContext.SaveChanges();
+                        //#endregion GLFMTL
+                        #endregion REMARK
+                    }
+                    catch (Exception ex)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Database " + db_name + " tidak ditemukan." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+
+                    return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+        //end add by nurul 5/1/2021
+
         //add by fauzi 21 Februari 2020
         [Queue("3_general")]
         public async Task<ActionResult> ReminderEmailExpiredAccountMP(string dbPathEra, string susername, string semail, string snamatoko, string smarketplace, DateTime? expired_date)

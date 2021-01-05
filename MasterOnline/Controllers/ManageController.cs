@@ -61584,6 +61584,79 @@ namespace MasterOnline.Controllers
             return new EmptyResult();
         }
         //end add by nurul 21/11/2020
+
+        //add by nurul 4/1/2021
+        public ActionResult prosesAkhirTahunGL(string Tahun)
+        {
+            if (Tahun != "" && Tahun != null)
+            {
+                try
+                {
+                    var getIP = "";
+                    var getPort = "1433";
+                    if (dbSourceEra != "" && dbSourceEra != null)
+                    {
+                        if (dbSourceEra.Contains("172.31.20.197") || dbSourceEra.Contains("13.250.232.74"))
+                        {
+                            getIP = "13.250.232.74";
+                        }
+                        else if ((dbSourceEra.Contains("172.31.20.200") || dbSourceEra.Contains("54.179.169.195")) && dbSourceEra.Contains("1433"))
+                        {
+                            getIP = "54.179.169.195";
+                        }
+                        else if (dbSourceEra.Contains("172.31.17.194") || dbSourceEra.Contains("52.76.44.100"))
+                        {
+                            getIP = "52.76.44.100";
+                        }
+                        else if (dbSourceEra.Contains("172.31.26.111") || dbSourceEra.Contains("54.254.98.21"))
+                        {
+                            getIP = "54.254.98.21";
+                        }
+                        else if (dbSourceEra.Contains("172.31.14.140") || dbSourceEra.Contains("18.141.161.81"))
+                        {
+                            getIP = "18.141.161.81";
+                        }
+                        else if (dbSourceEra.Contains("172.31.1.127") || dbSourceEra.Contains("13.251.64.77"))
+                        {
+                            getIP = "13.251.64.77";
+                        }
+                        else if (dbSourceEra.Contains("172.31.40.234") || dbSourceEra.Contains("54.179.0.52"))
+                        {
+                            getIP = "54.179.0.52";
+                        }
+                        else if (dbSourceEra.Contains("13.251.222.53") || dbSourceEra.Contains("13.251.222.53"))
+                        {
+                            getIP = "13.251.222.53";
+                        }
+                        else if ((dbSourceEra.Contains("54.179.169.195") || dbSourceEra.Contains("54.179.169.195")) && dbSourceEra.Contains("1444"))
+                        {
+                            getIP = "54.179.169.195";
+                            getPort = "1444";
+                        }
+                    }
+                    var RemoteMODbContext = new MoDbContext(getPort, getIP);
+                    var cekExist = RemoteMODbContext.Database.ExecuteSqlCommand("use " + dbPathEra);
+
+                    //int tahunProses = Convert.ToInt32(Tahun);
+                    short tahunProses = Convert.ToInt16(Tahun);
+                    short tahunProses1 = Convert.ToInt16(tahunProses + 1);
+
+                    object[] spParams = {
+                        new SqlParameter("@db_name", dbPathEra),
+                        new SqlParameter("@THN", tahunProses)
+                        };
+                    RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN_GL] @db_name, @THN", spParams);
+                }
+                catch(Exception ex)
+                {
+                    return Json($"Gagal proses akhir tahun GL.", JsonRequestBehavior.AllowGet);
+                }
+
+                return Json($"Berhasil proses akhir tahun GL", JsonRequestBehavior.AllowGet);
+            }
+            return Json($"Gagal proses akhir tahun GL, tahun tidak ada.", JsonRequestBehavior.AllowGet);
+        }
+        //end add by nurul 4/1/2021
     }
     public class smolSTF02
     {

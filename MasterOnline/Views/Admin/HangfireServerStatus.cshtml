@@ -307,6 +307,7 @@
             <div class="modal-footer">
                 <button type="button" id="btnCloseProsesAkhirTahunPerServer" class="btn btn-danger" data-dismiss="modal">Close</button>
                 <button type="button" id="btnSyncAllPerServer" class="btn btn-success" onclick="ProsesAkhirTahunPreparePerServer();">Proses</button>
+                <button type="button" id="btnSyncAllGLPerServer" class="btn btn-success" onclick="ProsesAkhirTahunPrepareGLPerServer();">Proses GL</button>
             </div>
         </div>
     </div>
@@ -702,6 +703,7 @@
                 success: function (response) {
                     $('#txtTahun2').attr('disabled', true);
                     $('#btnSyncAllPerServer').attr('disabled', true);
+                    $('#btnSyncAllGLPerServer').attr('disabled', true);
                     $('#btnCloseProsesAkhirTahunPerServer').attr('disabled', true);
 
                     $('#proses_akhir_tahun_log_perserver').val('');
@@ -755,6 +757,7 @@
                     $('#proses_akhir_tahun_label_perserver').html('All account processed.');
                     $('#txtTahun2').attr('disabled', false);
                     $('#btnSyncAllPerServer').attr('disabled', false);
+                    $('#btnSyncAllGLPerServer').attr('disabled', false);
                     $('#btnCloseProsesAkhirTahunPerServer').attr('disabled', false);
 
                 } else if (local_listdb.length > 0) {
@@ -773,5 +776,113 @@
         });
     }
     //END ADD BY NURUL 21/12/2020
+
+    //add by nurul 5/1/2021
+    function ProsesAkhirTahunPrepareGLPerServer() {
+        let tahun = $('#txtTahun').val();
+        var rows_selected = [];
+        $('.checkbox_akun').each(function (i, item) {
+            if ($(item).is(":checked")) {
+                rows_selected.push($(item).attr("data-path"));
+            }
+        });
+        if (rows_selected.length <= 0) {
+            alert("Mohon pilih akun.");
+            return false;
+        }
+        if(tahun){
+            var $link = '@Url.Action("ProsesAkhirTahunPreparePerServer", "Admin")';
+
+            $postdata = {
+                tahun: tahun,
+                server: $('#ServerIdx').val(),
+                db_name: rows_selected
+            };
+
+            $.ajax({
+                type: "POST",
+                url: $link,
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                data: JSON.stringify($postdata),
+                beforeSend: function () {
+                    // $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#txtTahun2').attr('disabled', true);
+                    $('#btnSyncAllPerServer').attr('disabled', true);
+                    $('#btnSyncAllGLPerServer').attr('disabled', true);
+                    $('#btnCloseProsesAkhirTahunPerServer').attr('disabled', true);
+
+                    $('#proses_akhir_tahun_log_perserver').val('');
+                    $('#proses_akhir_tahun_label_perserver').html(response.arraydbname.length + ' accounts left, processing [' + response.arraydbname[0].onlineshopname + '] ');
+                    ProsesAkhirTahunAccountGLPerServer(response.arraydbname, response.arraydbname[0].db_source, response.arraydbname[0].db_name, response.arraydbname[0].onlineshopname);
+                },
+                complete: function () {
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }else{
+            alert('Silahkan isi tahun proses terlebih dahulu.');
+        }
+    }
+
+    function ProsesAkhirTahunAccountGLPerServer(listdb, db_source, db_name, shopname) {
+        let local_listdb = listdb;
+        let tahun = $('#txtTahun2').val();
+
+        var $link = '@Url.Action("ProsesAkhirTahunGL", "Admin")';
+
+        $postdata = {
+            db_source: db_source,
+            db_name: db_name,
+            //shopname: shopname,
+            tahun: tahun
+        };
+
+        $.ajax({
+            type: "POST",
+            url: $link,
+            contentType: "application/json; charset=UTF-8",
+            cache: false,
+            data: JSON.stringify($postdata),
+            beforeSend: function () {
+                // $('#loading_spinner').show();
+            },
+            success: function (response) {
+
+                if (!response.mo_error) {
+                    $('#proses_akhir_tahun_log_perserver').val($('#proses_akhir_tahun_log_perserver').val() + '\n' + '[' + shopname + '] berhasil proses akhir tahun GL.');
+                }
+                else {
+                    $('#proses_akhir_tahun_log_perserver').val($('#proses_akhir_tahun_log_perserver').val() + '\n' + '[' + shopname + '] ' + response.mo_error);
+                }
+
+                if (local_listdb.length === 1) {
+                    $('#proses_akhir_tahun_label_perserver').html('All account processed.');
+                    $('#txtTahun2').attr('disabled', false);
+                    $('#btnSyncAllPerServer').attr('disabled', false);
+                    $('#btnSyncAllGLPerServer').attr('disabled', false);
+                    $('#btnCloseProsesAkhirTahunPerServer').attr('disabled', false);
+
+                } else if (local_listdb.length > 0) {
+                    local_listdb = local_listdb.splice(1, local_listdb.length - 1);
+
+                    $('#proses_akhir_tahun_label_perserver').html(local_listdb.length + ' accounts left, processing [' + local_listdb[0].onlineshopname + '] ');
+                    ProsesAkhirTahunAccountGLPerServer(local_listdb, local_listdb[0].db_source, local_listdb[0].db_name, local_listdb[0].onlineshopname);
+                }
+            },
+            complete: function () {
+
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+    //end add by nurul 5/1/2021
     </script>
 }
