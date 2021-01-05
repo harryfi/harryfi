@@ -2685,6 +2685,9 @@ namespace MasterOnline.Controllers
             SetupContext(iden);
             //if merchant code diisi. barulah upload produk
             string ret = "";
+            StokControllerJob stokAPI = new StokControllerJob(dbPathEra, iden.username);
+
+            var qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
 
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -2718,7 +2721,8 @@ namespace MasterOnline.Controllers
                         myData += "\"price\": " + data.Price + ", ";
                         myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
                                                                               //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
-                        myData += "\"buyable\": " + data.display + ", ";
+                        //myData += "\"buyable\": " + data.display + ", ";
+                        myData += "\"buyable\": " + (qtyOnHand > 0 ? data.display : "false") + ", ";
                         myData += "\"displayable\": " + data.display + " "; // true=tampil    
                         myData += "},";
                     }
