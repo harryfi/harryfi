@@ -1790,7 +1790,10 @@ namespace MasterOnline.Controllers
         {
             //if merchant code diisi. barulah upload produk
             string ret = "";
-            var qtyOnHand = new ManageController().GetQOHSTF08A(data.kode, "ALL");
+            //var qtyOnHand = new ManageController().GetQOHSTF08A(data.kode, "ALL");
+            StokControllerJob stokAPI = new StokControllerJob(dbSourceEra, username);
+
+            var qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
 
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
