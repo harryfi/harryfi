@@ -33,6 +33,7 @@ namespace MasterOnline.Controllers
         DatabaseSQL EDB;
         string username;
         string dbSourceEra = "";
+        private string dbPathEra = "";
         public BlibliController()
         {
             MoDbContext = new MoDbContext("");
@@ -53,7 +54,7 @@ namespace MasterOnline.Controllers
 #endif
                     ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
                 }
-
+                dbPathEra = sessionData.Account.DatabasePathErasoft;
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 username = sessionData.Account.Username;
             }
@@ -68,6 +69,7 @@ namespace MasterOnline.Controllers
                     dbSourceEra = accFromUser.DataSourcePath;
 #endif
                     ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
+                    dbPathEra = accFromUser.DatabasePathErasoft;
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     username = accFromUser.Username;
                 }
@@ -1791,7 +1793,7 @@ namespace MasterOnline.Controllers
             //if merchant code diisi. barulah upload produk
             string ret = "";
             //var qtyOnHand = new ManageController().GetQOHSTF08A(data.kode, "ALL");
-            StokControllerJob stokAPI = new StokControllerJob(dbSourceEra, username);
+            StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
 
             var qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
 
