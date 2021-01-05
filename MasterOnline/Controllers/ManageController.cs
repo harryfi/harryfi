@@ -13108,7 +13108,7 @@ namespace MasterOnline.Controllers
                                                             {
                                                                 BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
                                                                 {
-                                                                    kode = barangInDb.BRG,
+                                                                    kode = varian.BRG,
                                                                     kode_mp = stf02h.BRG_MP,
                                                                     Qty = Convert.ToString(qtyOnHand),
                                                                     MinQty = "0"
