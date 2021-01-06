@@ -2542,10 +2542,10 @@ namespace MasterOnline.Controllers
 
                             foreach (var listKodeBaru in splitlistBRGBaru)
                             {
-                                var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG == listKodeBaru).ToList();
+                                var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).ToList();
                                 var kodeBrgLamaCheck = splitlistBRGLama[iurutan].ToString();
-                                var checkBarangLama = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
-                                var checkBarangVariant = ErasoftDbContext.STF02.Where(p => p.PART == kodeBrgLamaCheck).ToList();
+                                var checkBarangLama = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == kodeBrgLamaCheck.ToUpper()).ToList();
+                                var checkBarangVariant = ErasoftDbContext.STF02.Where(p => p.PART.ToUpper() == kodeBrgLamaCheck.ToUpper()).ToList();
 
                                 if (checkBarangBaru.Count() == 0 && checkBarangLama.Count() > 0)
                                 {
@@ -2553,7 +2553,7 @@ namespace MasterOnline.Controllers
 
                                     var resultCekSI = (from a in ErasoftDbContext.SIT01B
                                                        join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
-                                                       where a.BRG == kodeBrgLamaCheck
+                                                       where a.BRG.ToUpper() == kodeBrgLamaCheck.ToUpper()
                                                        select new
                                                        {
                                                            a.NO_BUKTI,
@@ -2564,7 +2564,7 @@ namespace MasterOnline.Controllers
 
                                     var resultCekST = (from a in ErasoftDbContext.STT01B
                                                        join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
-                                                       where a.Kobar == kodeBrgLamaCheck
+                                                       where a.Kobar.ToUpper() == kodeBrgLamaCheck.ToUpper()
                                                        select new
                                                        {
                                                            a.Nobuk,
@@ -2616,7 +2616,7 @@ namespace MasterOnline.Controllers
                                     {
                                         var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
                                                                  join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
-                                                                 where a.BRG == barangvariant.BRG.ToString()
+                                                                 where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
                                                                  select new
                                                                  {
                                                                      a.NO_BUKTI,
@@ -2627,7 +2627,7 @@ namespace MasterOnline.Controllers
 
                                         var resultCekSTVarian = (from a in ErasoftDbContext.STT01B
                                                                  join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
-                                                                 where a.Kobar == barangvariant.BRG.ToString()
+                                                                 where a.Kobar.ToUpper() == barangvariant.BRG.ToString().ToUpper()
                                                                  select new
                                                                  {
                                                                      a.Nobuk,
@@ -2737,15 +2737,15 @@ namespace MasterOnline.Controllers
 
                             foreach (var listKodeBaru in splitlistBRGBaru)
                             {
-                                var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG == listKodeBaru).ToList();
+                                var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).ToList();
                                 var kodeBrgLamaCheck = splitlistBRGLama[iurutan].ToString();
-                                var checkBarangLama = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
+                                var checkBarangLama = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == kodeBrgLamaCheck.ToUpper()).ToList();
 
-                                var checkBarangMPBaru = ErasoftDbContext.STF02H.Where(p => p.BRG == listKodeBaru).ToList();
-                                var checkBarangMPLama = ErasoftDbContext.STF02H.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
+                                var checkBarangMPBaru = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).ToList();
+                                var checkBarangMPLama = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == kodeBrgLamaCheck.ToUpper()).ToList();
 
-                                var checkBarangVariantLama = ErasoftDbContext.STF02.Where(p => p.PART == kodeBrgLamaCheck).ToList();
-                                var checkBarangVariantBaru = ErasoftDbContext.STF02.Where(p => p.PART == listKodeBaru).ToList();
+                                var checkBarangVariantLama = ErasoftDbContext.STF02.Where(p => p.PART.ToUpper() == kodeBrgLamaCheck.ToUpper()).ToList();
+                                var checkBarangVariantBaru = ErasoftDbContext.STF02.Where(p => p.PART.ToUpper() == listKodeBaru.ToUpper()).ToList();
 
                                 if (checkBarangBaru.Count() > 0 && checkBarangLama.Count() > 0)
                                 {
@@ -2753,7 +2753,7 @@ namespace MasterOnline.Controllers
 
                                     var resultCekSI = (from a in ErasoftDbContext.SIT01B
                                                        join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
-                                                       where a.BRG == kodeBrgLamaCheck
+                                                       where a.BRG.ToUpper() == kodeBrgLamaCheck.ToUpper()
                                                        select new
                                                        {
                                                            a.NO_BUKTI,
@@ -2764,7 +2764,7 @@ namespace MasterOnline.Controllers
 
                                     var resultCekST = (from a in ErasoftDbContext.STT01B
                                                        join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
-                                                       where a.Kobar == kodeBrgLamaCheck
+                                                       where a.Kobar.ToUpper() == kodeBrgLamaCheck.ToUpper()
                                                        select new
                                                        {
                                                            a.Nobuk,
@@ -2836,7 +2836,7 @@ namespace MasterOnline.Controllers
 
                                         var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
                                                                  join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
-                                                                 where a.BRG == barangvariant.BRG.ToString()
+                                                                 where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
                                                                  select new
                                                                  {
                                                                      a.NO_BUKTI,
@@ -2847,7 +2847,7 @@ namespace MasterOnline.Controllers
 
                                         var resultCekSTVarian = (from a in ErasoftDbContext.STT01B
                                                                  join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
-                                                                 where a.Kobar == barangvariant.BRG.ToString()
+                                                                 where a.Kobar.ToUpper() == barangvariant.BRG.ToString().ToUpper()
                                                                  select new
                                                                  {
                                                                      a.Nobuk,
@@ -2968,7 +2968,7 @@ namespace MasterOnline.Controllers
 
                             foreach (var listKodeBaru in splitlistBRGBaru)
                             {
-                                var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG == listKodeBaru).ToList();
+                                var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).ToList();
                                 //var kodeBrgLamaCheck = splitlistBRGLama[iurutan].ToString();
                                 //var checkBarangLama = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
 
@@ -2984,7 +2984,7 @@ namespace MasterOnline.Controllers
 
                                     var resultCekSI = (from a in ErasoftDbContext.SIT01B
                                                        join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
-                                                       where a.BRG == listKodeBaru
+                                                       where a.BRG.ToUpper() == listKodeBaru.ToUpper()
                                                        select new
                                                        {
                                                            a.NO_BUKTI,
@@ -2995,7 +2995,7 @@ namespace MasterOnline.Controllers
 
                                     var resultCekST = (from a in ErasoftDbContext.STT01B
                                                        join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
-                                                       where a.Kobar == listKodeBaru
+                                                       where a.Kobar.ToUpper() == listKodeBaru.ToUpper()
                                                        select new
                                                        {
                                                            a.Nobuk,
@@ -3137,6 +3137,119 @@ namespace MasterOnline.Controllers
             else
             {
                 //return View("Error");
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+        public async Task<ActionResult> ProsesCekVariantKode(string listData)
+        {
+            bool resultCekVariant = false;
+            var vmessage = "";
+
+            if (!string.IsNullOrEmpty(listData))
+            {
+                string[] dataSplitToko = listData.Split('|');
+                string accountEmail = dataSplitToko[0];
+                string listkodeBRGBaru = dataSplitToko[1].ToUpper();
+
+                var dataInduk = "";
+                var dataVar = "";
+
+                if (!string.IsNullOrEmpty(listkodeBRGBaru))
+                {
+                    try
+                    {
+                        var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
+                        DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+                        string dbSourceEra = "";
+#if (Debug_AWS)
+                            dbSourceEra = accountlist.DataSourcePathDebug;
+#else
+                        dbSourceEra = accountlist.DataSourcePath;
+#endif
+                        ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
+
+                        //listdataKodeBRG = listdataKodeBRG.ConvertAll(d => d.ToUpper());
+                        //var kodeBRGCheck = listdataKodeBRG.Contains(kodeUpper);
+
+                        var checkBrgStrukturInduk = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listkodeBRGBaru).SingleOrDefault();
+
+                        if(checkBrgStrukturInduk.BRG != "")
+                        {
+                            resultCekVariant = true;
+
+                            if (checkBrgStrukturInduk.TYPE == "4")
+                            {
+                                dataInduk = checkBrgStrukturInduk.BRG.ToString();
+                                var checkBrgVariant = ErasoftDbContext.STF02.Where(p => p.PART.ToUpper() == listkodeBRGBaru).ToList();
+                                if (checkBrgVariant.Count() > 0)
+                                {
+                                    foreach (var datavariant in checkBrgVariant)
+                                    {
+                                        dataVar = dataVar + datavariant.BRG.ToString() + "\n";
+                                    }
+                                }
+                                else
+                                {
+                                    dataVar = "";
+                                }
+                            }
+                            else if(checkBrgStrukturInduk.TYPE == "3")
+                            {
+                                var checkBrgInduk = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listkodeBRGBaru).SingleOrDefault();
+                                if (!string.IsNullOrEmpty(checkBrgInduk.PART))
+                                {
+                                    dataInduk = checkBrgInduk.PART.ToString();
+                                }
+                                else
+                                {
+                                    dataInduk = checkBrgInduk.BRG.ToString();
+                                }
+
+                                var checkBrgVariant = ErasoftDbContext.STF02.Where(p => p.PART.ToUpper() == dataInduk.ToUpper()).ToList();
+                                if (checkBrgVariant.Count() > 0)
+                                {
+                                    foreach (var datavariant in checkBrgVariant)
+                                    {
+                                        dataVar = dataVar + datavariant.BRG.ToString() + "\n";
+                                    }
+                                }
+                                else
+                                {
+                                    vmessage = "Kode barang variant tidak ada.";
+                                    dataVar = "";
+                                }
+                            }
+                            else
+                            {
+                                dataInduk = checkBrgStrukturInduk.BRG;
+                                vmessage = "Kode barang tidak diatur sebagai induk ataupun variant. Harap hubungi IT Support.";
+                            }
+                        }
+                        else
+                        {
+                            vmessage = "Kode barang tidak ada.";
+                        }                
+
+                    }
+                    catch (Exception ex)
+                    {
+                        resultCekVariant = false;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(vmessage))
+                {
+                    return new JsonResult { Data = new { success = resultCekVariant, message = vmessage, datainduk = dataInduk, datavar = dataVar }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    return new JsonResult { Data = new { success = resultCekVariant, message = "", datainduk = dataInduk , datavar = dataVar }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+            }
+            else
+            {
                 return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
