@@ -2788,11 +2788,11 @@ namespace MasterOnline.Controllers
                                         //{
                                         if (checkBarangMPBaru.Count() >= checkBarangMPLama.Count())
                                         {
-                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + kodeBrgLamaCheck + "'; DELETE FROM STF02H WHERE BRG ='" + kodeBrgLamaCheck + "'");
+                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + kodeBrgLamaCheck + "'");
                                         }
                                         else
                                         {
-                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + listKodeBaru + "'; DELETE FROM STF02H WHERE BRG ='" + listKodeBaru + "'");
+                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + listKodeBaru + "'");
                                         }
 
                                         //}
@@ -2808,6 +2808,14 @@ namespace MasterOnline.Controllers
                                             "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "'; " +
                                             "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
 
+                                        if (checkBarangMPBaru.Count() >= checkBarangMPLama.Count())
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + kodeBrgLamaCheck + "';");
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + listKodeBaru + "';");
+                                        }
 
                                         resultMerge = true;
                                     }
