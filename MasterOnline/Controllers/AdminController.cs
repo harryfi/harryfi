@@ -680,6 +680,15 @@ namespace MasterOnline.Controllers
             akun.jumlahUser = vm.Payment.jumlahUser;
             akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
             MoDbContext.SaveChanges();
+            //add by nurul 7/1/2021
+            var addOnCust = MoDbContext.Addons_Customer.Where(a => a.Account == vm.Payment.Email).ToList();
+            if (addOnCust.Count() > 0)
+            {
+                var sSQLUpdateAddOn = "update a set TglSubscription=b.Tgl_Subscription from Addons_Customer a inner join Account b on a.account=b.email where a.account='" + vm.Payment.Email + "'";
+                MoDbContext.Database.ExecuteSqlCommand(sSQLUpdateAddOn);
+                MoDbContext.SaveChanges();
+            }
+            //end add by nurul 7/1/2021
             ModelState.Clear();
             if (newPayment == true)
             {
@@ -1405,6 +1414,15 @@ namespace MasterOnline.Controllers
             }
 
             MoDbContext.SaveChanges();
+            //add by nurul 7/1/2021
+            var addOnCust = MoDbContext.Addons_Customer.Where(a => a.Account == data.Account.Email).ToList();
+            if (addOnCust.Count() > 0)
+            {
+                var sSQLUpdateAddOn = "update a set TglSubscription=b.Tgl_Subscription from Addons_Customer a inner join Account b on a.account=b.email where a.account='" + data.Account.Email + "'";
+                MoDbContext.Database.ExecuteSqlCommand(sSQLUpdateAddOn);
+                MoDbContext.SaveChanges();
+            }
+            //end add by nurul 7/1/2021
             ModelState.Clear();
 
             var vm = new MenuAccount()
@@ -3610,6 +3628,17 @@ namespace MasterOnline.Controllers
             akun.jumlahUser = vm.Payment.jumlahUser;
             akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
             MoDbContext.SaveChanges();
+
+            //add by nurul 7/1/2021
+            var addOnCust = MoDbContext.Addons_Customer.Where(a => a.Account == vm.Payment.Email).ToList();
+            if(addOnCust.Count() > 0)
+            {
+                var sSQLUpdateAddOn = "update a set TglSubscription=b.Tgl_Subscription from Addons_Customer a inner join Account b on a.account=b.email where a.account='" + vm.Payment.Email +"'";
+                MoDbContext.Database.ExecuteSqlCommand(sSQLUpdateAddOn);
+                MoDbContext.SaveChanges();
+            }
+            //end add by nurul 7/1/2021
+            
             ModelState.Clear();
             if (newPayment == true)
             {
