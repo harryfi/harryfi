@@ -3180,15 +3180,15 @@ namespace MasterOnline.Controllers
                         //listdataKodeBRG = listdataKodeBRG.ConvertAll(d => d.ToUpper());
                         //var kodeBRGCheck = listdataKodeBRG.Contains(kodeUpper);
 
-                        var checkBrgStrukturInduk = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listkodeBRGBaru).SingleOrDefault();
+                        var checkBrgStrukturInduk = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listkodeBRGBaru).ToList();
 
-                        if(checkBrgStrukturInduk.BRG != "")
+                        if(checkBrgStrukturInduk.Count() > 0)
                         {
                             resultCekVariant = true;
 
-                            if (checkBrgStrukturInduk.TYPE == "4")
+                            if (checkBrgStrukturInduk[0].TYPE == "4")
                             {
-                                dataInduk = checkBrgStrukturInduk.BRG.ToString();
+                                dataInduk = checkBrgStrukturInduk[0].BRG.ToString();
                                 var checkBrgVariant = ErasoftDbContext.STF02.Where(p => p.PART.ToUpper() == listkodeBRGBaru).ToList();
                                 if (checkBrgVariant.Count() > 0)
                                 {
@@ -3202,7 +3202,7 @@ namespace MasterOnline.Controllers
                                     dataVar = "";
                                 }
                             }
-                            else if(checkBrgStrukturInduk.TYPE == "3")
+                            else if(checkBrgStrukturInduk[0].TYPE == "3")
                             {
                                 var checkBrgInduk = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listkodeBRGBaru).SingleOrDefault();
                                 if (!string.IsNullOrEmpty(checkBrgInduk.PART))
@@ -3230,7 +3230,7 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                dataInduk = checkBrgStrukturInduk.BRG;
+                                dataInduk = checkBrgStrukturInduk[0].BRG;
                                 vmessage = "Kode barang tidak diatur sebagai induk ataupun variant. Harap hubungi IT Support.";
                             }
                         }
