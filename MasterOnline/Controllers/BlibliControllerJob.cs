@@ -8637,9 +8637,10 @@ namespace MasterOnline.Controllers
                         {
                             string BRG = Convert.ToString(dsStf02Variant.Tables[0].Rows[i]["BRG"]);
                             merchantskus.Add(BRG);
-                        }
+                            if(merchantskus.Count == 50 || i == dsStf02Variant.Tables[0].Rows.Count - 1)
+                            {
 #if (DEBUG || Debug_AWS)
-                        await CekProductActive(DatabasePathErasoft, kodeProduk, log_CUST, "Barang", "Cek Active/Reject", iden, kodeProduk, merchantskus, log_CUST, requestID, api_log_requestId);
+                                await CekProductActive(DatabasePathErasoft, kodeProduk, log_CUST, "Barang", "Cek Active/Reject", iden, kodeProduk, merchantskus, log_CUST, requestID, api_log_requestId);
 
 #else
                                         string EDBConnID = EDB.GetConnectionString("ConnId");
@@ -8647,6 +8648,18 @@ namespace MasterOnline.Controllers
                                         var client = new BackgroundJobClient(sqlStorage);
                                         client.Enqueue<BlibliControllerJob>(x => x.CekProductActive(DatabasePathErasoft, kodeProduk, log_CUST, "Barang", "Cek Active/Reject", iden, kodeProduk, merchantskus, log_CUST, requestID, api_log_requestId));
 #endif
+                                merchantskus = new List<string>();
+                            }
+                        }
+//#if (DEBUG || Debug_AWS)
+//                        await CekProductActive(DatabasePathErasoft, kodeProduk, log_CUST, "Barang", "Cek Active/Reject", iden, kodeProduk, merchantskus, log_CUST, requestID, api_log_requestId);
+
+//#else
+//                                        string EDBConnID = EDB.GetConnectionString("ConnId");
+//                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+//                                        var client = new BackgroundJobClient(sqlStorage);
+//                                        client.Enqueue<BlibliControllerJob>(x => x.CekProductActive(DatabasePathErasoft, kodeProduk, log_CUST, "Barang", "Cek Active/Reject", iden, kodeProduk, merchantskus, log_CUST, requestID, api_log_requestId));
+//#endif
                     }
                 }
                 //change by nurul 14/9/2020, handle barang multi sku juga 
@@ -9990,6 +10003,8 @@ namespace MasterOnline.Controllers
         public class BlibliCekProductActive
         {
             public string[] merchantSkus { get; set; }
+            public bool isArchive { get; set; }
+            public int size { get; set; }
         }
 
         public class BlibliGetQueueProductCode
@@ -10134,7 +10149,7 @@ namespace MasterOnline.Controllers
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
-            string myData = JsonConvert.SerializeObject(new BlibliCekProductActive() { merchantSkus = merchantskus.ToArray() });
+            string myData = JsonConvert.SerializeObject(new BlibliCekProductActive() { merchantSkus = merchantskus.ToArray(), isArchive = false, size = 100 });
 
             //change by nurul 13/7/2020
             //    string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
