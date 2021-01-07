@@ -5222,16 +5222,17 @@ namespace MasterOnline.Controllers
             ErasoftDbContext.SaveChanges();
             var Marketplaces = MoDbContext.Marketplaces.ToList();
             //add by Tri call bl/lzd api get access key
-            if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK").IdMarket.ToString()))
-            {
-                var getKey = new BukaLapakController().GetAccessKey(kdCustomer, customer.Customers.EMAIL, customer.Customers.PASSWORD);
-            }
+            //if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK").IdMarket.ToString()))
+            //{
+            //    var getKey = new BukaLapakController().GetAccessKey(kdCustomer, customer.Customers.EMAIL, customer.Customers.PASSWORD);
+            //}
             //else if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString()))
             //{
             //    var getToken = new LazadaController().GetToken(kdCustomer, customer.Customers.API_KEY);
             //}
             #region Elevenia get deliveryTemp
-            else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket.ToString()))
+            //else 
+            if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket.ToString()))
             {
                 var elApi = new EleveniaController();
                 elApi.GetDeliveryTemp(Convert.ToString(customer.Customers.RecNum), Convert.ToString(customer.Customers.API_KEY));
@@ -5373,6 +5374,11 @@ namespace MasterOnline.Controllers
             else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString()))
             {
                 partialVm.marketplace = "SHOPEE";
+                return Json(partialVm, JsonRequestBehavior.AllowGet);
+            }
+            else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK").IdMarket.ToString()))
+            {
+                partialVm.marketplace = "BUKALAPAK";
                 return Json(partialVm, JsonRequestBehavior.AllowGet);
             }
             else
