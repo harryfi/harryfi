@@ -18463,6 +18463,7 @@ namespace MasterOnline.Controllers
 
                     ////var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                     ////END CHANGE BY NURUL 4/11/2020
+                    ErasoftDbContext.SaveChanges();
                     var sSQL = "";
                     sSQL += "UPDATE A SET A.BRUTO = ISNULL(B.BRUTO, 0), A.NILAI_PPN = ISNULL(B.NILAI_PPN, 0), A.NETTO = ISNULL(B.NETTO, 0) " +
                             "from sit01a a (NOLOCK)inner  " +
