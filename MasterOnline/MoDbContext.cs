@@ -47,6 +47,7 @@ namespace MasterOnline
         //end by fauzi
 
 
+        public DbSet<CATEGORY_JDID> CATEGORY_JDID { get; set; }
         public DbSet<CATEGORY_SHOPIFY> CategoryShopify { get; set; }
 
         //add by fauzi for 82cart

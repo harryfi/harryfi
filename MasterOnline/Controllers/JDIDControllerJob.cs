@@ -1005,9 +1005,12 @@ namespace MasterOnline.Controllers
             string sMethod = "epi.ware.openapi.SpuApi.updateSpuInfo";
 
             var urlHref = detailBrg.AVALUE_44;
-            if (!urlHref.Contains("http://"))
+            if (!string.IsNullOrEmpty(urlHref))
             {
-                urlHref = "http://" + urlHref;
+                if (!urlHref.Contains("http://"))
+                {
+                    urlHref = "http://" + urlHref;
+                }
             }
             string[] spuID = detailBrg.BRG_MP.Split(';');
 

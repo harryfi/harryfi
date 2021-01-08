@@ -5308,7 +5308,7 @@ namespace MasterOnline.Controllers
                     };
                     //Task.Run(() => jdAPI.checkAPICustomerShop(dataJD)).Wait();
                     //jdAPI.JDID_checkAPICustomerShop(dataJD);
-                    jdAPI.JDID_checkAPICustomerShopNew(dataJD);
+                    //jdAPI.JDID_checkAPICustomerShopNew(dataJD);
                     //Task.Run(() => jdAPI.JDID_checkAPICustomerShopNew(dataJD)).Wait();
                 }
 
@@ -7658,7 +7658,8 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetKategoriJDByCode(/*string code*/)
         {
-            var listKategoriJDID = ErasoftDbContext.CATEGORY_JDID.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+            //var listKategoriJDID = ErasoftDbContext.CATEGORY_JDID.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+            var listKategoriJDID = MoDbContext.CATEGORY_JDID.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
 
             var serializer = new JavaScriptSerializer();
             serializer.MaxJsonLength = Int32.MaxValue;
@@ -7673,8 +7674,9 @@ namespace MasterOnline.Controllers
         public ActionResult GetKategoriJDByParentCode(string code)
         {
             //string[] codelist = code.Split(';');
-            var listKategoriJDID = ErasoftDbContext.CATEGORY_JDID.Where(k => code.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
-            
+            //var listKategoriJDID = ErasoftDbContext.CATEGORY_JDID.Where(k => code.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+            var listKategoriJDID = MoDbContext.CATEGORY_JDID.Where(k => code.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+
             var serializer = new JavaScriptSerializer();
             serializer.MaxJsonLength = Int32.MaxValue;
             var result = new ContentResult
@@ -7689,7 +7691,8 @@ namespace MasterOnline.Controllers
         {
             //string[] codelist = code.Split(';');
             List<CATEGORY_JDID> listKategoriJD = new List<CATEGORY_JDID>();
-            var category = ErasoftDbContext.CATEGORY_JDID.Where(k => code.Contains(k.CATEGORY_CODE)).FirstOrDefault();
+            //var category = ErasoftDbContext.CATEGORY_JDID.Where(k => code.Contains(k.CATEGORY_CODE)).FirstOrDefault();
+            var category = MoDbContext.CATEGORY_JDID.Where(k => code.Contains(k.CATEGORY_CODE)).FirstOrDefault();
             listKategoriJD.Add(category);
 
             if(Convert.ToString(category) != "")
@@ -7698,7 +7701,8 @@ namespace MasterOnline.Controllers
                 bool TopParent = false;
                 while (!TopParent)
                 {
-                    category = ErasoftDbContext.CATEGORY_JDID.Where(k => k.CATEGORY_CODE.Equals(category.PARENT_CODE)).FirstOrDefault();
+                    //category = ErasoftDbContext.CATEGORY_JDID.Where(k => k.CATEGORY_CODE.Equals(category.PARENT_CODE)).FirstOrDefault();
+                    category = MoDbContext.CATEGORY_JDID.Where(k => k.CATEGORY_CODE.Equals(category.PARENT_CODE)).FirstOrDefault();
                     listKategoriJD.Add(category);
                     if (string.IsNullOrEmpty(category.PARENT_CODE))
                     {
