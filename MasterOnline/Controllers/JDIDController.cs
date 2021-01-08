@@ -1077,13 +1077,57 @@ namespace MasterOnline.Controllers
                                 //i = i + 1;
                                 if (!string.IsNullOrEmpty(attr.name) && !string.IsNullOrEmpty(Convert.ToString(attr.propertyId)))
                                 {
-                                    if (!attr.name.Contains("Coming Soon") && !attr.name.Contains("Warna") && !attr.name.Contains("Ukuran") && !attr.name.Contains("Test11"))
+                                    if (!attr.name.Contains("Coming Soon") && !attr.name.Contains("Warna") && !attr.name.Contains("Ukuran") && !attr.name.Contains("Test11")
+                                        //&& !attr.name.Contains("Network") 
+                                        && !attr.name.Contains("Operating system")
+                                        && !attr.name.Contains("Upgradable")
+                                        //&& !attr.name.Contains("OS Upgrade to") 
+                                        //&& !attr.name.Contains("Chipset") 
+                                        //&& !attr.name.Contains("CPU")
+                                        && !attr.name.Contains("GPU")
+                                        //&& !attr.name.Contains("RAM") 
+                                        //&& !attr.name.Contains("Memory Internal")
+                                        //&& !attr.name.Contains("Memory External") 
+                                        //&& !attr.name.Contains("Rear Camera 1") 
+                                        //&& !attr.name.Contains("Rear Camera 2")
+                                        //&& !attr.name.Contains("Rear Camera 3") 
+                                        //&& !attr.name.Contains("Rear Camera 4") 
+                                        //&& !attr.name.Contains("Front Camera 1")
+                                        && !attr.name.Contains("Front Camera 2")
+                                        && !attr.name.Contains("Video")
+                                        //&& !attr.name.Contains("Battery Type")
+                                        //&& !attr.name.Contains("Removable Battery") 
+                                        //&& !attr.name.Contains("Battery Capacity") 
+                                        && !attr.name.Contains("LCD Size")
+                                        //&& !attr.name.Contains("LCD Type") 
+                                        //&& !attr.name.Contains("Screen Resolution") && !attr.name.Contains("Dimensions")
+                                        //&& !attr.name.Contains("Sensor") 
+                                        //&& !attr.name.Contains("SIM Card") 
+                                        //&& !attr.name.Contains("WLAN")
+                                        //&& !attr.name.Contains("NFC") 
+                                        && !attr.name.Contains("ROM")
+                                        && !attr.name.Contains("Megapixel(MP)")
+                                        && !attr.name.Contains("MicroSD")
+                                        //&& !attr.name.Contains("OS") 
+                                        && !attr.name.Contains("Secondary")
+                                        && !attr.name.Contains("Primary")
+                                        && !attr.name.Contains("GPRS")
+                                        && !attr.name.Contains("Multitouch")
+                                        && !attr.name.Contains("EDGE")
+                                        //&& !attr.name.Contains("Dual SIM") 
+                                        && !attr.name.Contains("Screen size (inch)")
+                                        //&& !attr.name.Contains("Price") 
+                                        //&& !attr.name.Contains("Kapasitas")
+                                        )
                                     {
-                                        a = Convert.ToString(i + 1);
-                                        retAttr["ACODE_" + a] = Convert.ToString(attr.propertyId) ?? "";
-                                        retAttr["AVALUE_" + a] = attr.type.ToString() ?? "";
-                                        retAttr["ANAME_" + a] = attr.nameEn ?? "";
-                                        i = i + 1;
+                                        if(i < 20)
+                                        {
+                                            a = Convert.ToString(i + 1);
+                                            retAttr["ACODE_" + a] = Convert.ToString(attr.propertyId) ?? "";
+                                            retAttr["AVALUE_" + a] = attr.type.ToString() ?? "";
+                                            retAttr["ANAME_" + a] = attr.nameEn ?? "";
+                                            i = i + 1;
+                                        }
                                     }
                                 }
                             }
