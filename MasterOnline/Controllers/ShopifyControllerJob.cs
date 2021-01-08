@@ -1580,38 +1580,115 @@ namespace MasterOnline.Controllers
                 available = true,
                 published = true,
                 variants = new List<ShopifyCreateProductDataVariant>(),
+                //options = new List<ShopifyCreateProductDataVariantOptions>(),
                 images = new List<ShopifyCreateProductImages>()
             };
 
-            ShopifyCreateProductDataVariant variants = new ShopifyCreateProductDataVariant
+            if (brgInDb.TYPE == "4")
             {
-                title = brgInDb.NAMA,
-                option1 = brgInDb.NAMA2,
-                price = detailBrg.HJUAL.ToString(),
-                inventory_quantity = 1,
-                //grams = Convert.ToInt32(brgInDb.BERAT * 1000),
-                grams = Convert.ToInt32(brgInDb.BERAT),
-                //weight = Convert.ToInt64(brgInDb.BERAT),
-                weight = Convert.ToInt64(brgInDb.BERAT / 1000),
-                weight_unit = "kg",
-                sku = detailBrg.BRG
-            };
+                //HANDLE VARIANT SHOPIFY
+                var listattributeIDGroup = "";
+                var listattributeIDItems = "";
 
-            //change by nurul 14/9/2020, handle barang multi sku juga 
-            //if (brgInDb.TYPE == "3")
-            if (brgInDb.TYPE == "3" || brgInDb.TYPE == "6")
-            //end change by nurul 14/9/2020, handle barang multi sku juga 
-            {
-                variants.option1 = null;
-                variants.title = null;
+                var ListVariantSTF02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
+                var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "SHOPIFY").ToList();
+                List<string> byteGambarUploaded = new List<string>();
+
+                foreach (var itemData in ListVariantSTF02)
+                {
+                    #region varian LV1
+                    if (!string.IsNullOrEmpty(itemData.Sort8))
+                    {
+                        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == itemData.Sort8).FirstOrDefault();
+                        listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ",";
+                        listattributeIDItems = variant_id_group.MP_VALUE_VAR + ",";
+                    }
+                    #endregion
+
+
+                    #region varian LV2
+                    if (!string.IsNullOrEmpty(itemData.Sort9))
+                    {
+                        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == itemData.Sort9).FirstOrDefault();
+                        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
+                        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                    }
+                    #endregion
+
+
+                    #region varian LV3
+                    if (!string.IsNullOrEmpty(itemData.Sort10))
+                    {
+                        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
+                        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
+                        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                    }
+                    #endregion
+
+
+                    listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
+                    listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
+
+                    ShopifyCreateProductDataVariant variants = new ShopifyCreateProductDataVariant
+                    {
+                        title = itemData.NAMA,
+                        option1 = itemData.Ket_Sort8,
+                        option2 = itemData.Ket_Sort9,
+                        price = itemData.HJUAL.ToString(),
+                        inventory_quantity = 1,
+                        grams = Convert.ToInt32(itemData.BERAT),
+                        weight = Convert.ToInt64(itemData.BERAT / 1000),
+                        weight_unit = "kg",
+                        sku = itemData.BRG
+                    };
+
+                    if (brgInDb.BERAT < 1000)
+                    {
+                        variants.weight_unit = "g";
+                        variants.weight = Convert.ToInt64(brgInDb.BERAT);
+                    }
+
+                    body.variants.Add(variants);
+                }
             }
             else
             {
-                variants.option1 = brgInDb.NAMA;
-                variants.title = brgInDb.NAMA;
-            }
+                ShopifyCreateProductDataVariant variants = new ShopifyCreateProductDataVariant
+                {
+                    title = brgInDb.NAMA,
+                    option1 = brgInDb.NAMA2,
+                    price = detailBrg.HJUAL.ToString(),
+                    inventory_quantity = 1,
+                    grams = Convert.ToInt32(brgInDb.BERAT),
+                    weight = Convert.ToInt64(brgInDb.BERAT / 1000),
+                    weight_unit = "kg",
+                    sku = detailBrg.BRG
+                };
 
-            body.variants.Add(variants);
+                if (brgInDb.BERAT < 1000)
+                {
+                    variants.weight_unit = "g";
+                    variants.weight = Convert.ToInt64(brgInDb.BERAT);
+                }
+
+                //change by nurul 14/9/2020, handle barang multi sku juga 
+                //if (brgInDb.TYPE == "3")
+                if (brgInDb.TYPE == "3" || brgInDb.TYPE == "6")
+                //end change by nurul 14/9/2020, handle barang multi sku juga 
+                {
+                    variants.option1 = null;
+                    variants.title = null;
+                }
+                else
+                {
+                    variants.option1 = brgInDb.NAMA;
+                    variants.title = brgInDb.NAMA;
+                }
+
+                body.variants.Add(variants);
+
+            }         
+
 
             ShopifyCreateProduct HttpBody = new ShopifyCreateProduct
             {
@@ -1659,29 +1736,6 @@ namespace MasterOnline.Controllers
             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 
             string responseFromServer = "";
-            //var client = new HttpClient();
-            //client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", (iden.API_password));
-            //var content = new StringContent(myData, Encoding.UTF8, "application/json");
-            //content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-
-            //try
-            //{
-            //    ////manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-            //    HttpResponseMessage clientResponse = await client.PostAsync(vformatUrl, content);
-
-            //    using (HttpContent responseContent = clientResponse.Content)
-            //    {
-            //        using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
-            //        {
-            //            responseFromServer = await reader.ReadToEndAsync();
-            //        }
-            //    };
-            //}
-            //catch (Exception ex)
-            //{
-            //    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-            //    ////manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-            //}
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
             myReq.Method = "POST";
@@ -1711,128 +1765,185 @@ namespace MasterOnline.Controllers
                 {
                     if (resServer != null)
                     {
-                        var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
-                        if (item != null)
+                        if (brgInDb.TYPE == "4")
                         {
                             var brg_mp = "";
                             if (resServer.product.variants.Count() > 0)
                             {
-                                brg_mp = Convert.ToString(resServer.product.id) + ";" + Convert.ToString(resServer.product.variants[0].id);
-                                item.BRG_MP = brg_mp;
-                            }
-                            else
-                            {
-                                brg_mp = Convert.ToString(resServer.product.id) + ";0";
-                                item.BRG_MP = brg_mp;
-                            }
-
-                            item.LINK_STATUS = "Buat Produk Berhasil";
-                            item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
-                            item.LINK_ERROR = "0;Buat Produk;;";
-                            ErasoftDbContext.SaveChanges();
-                                                        
-                            if (brgInDb.TYPE == "4")
-                            {
-                                //await InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, resServer.item_id, marketplace);
-                                string EDBConnID = EDB.GetConnectionString("ConnId");
-                                var sqlStorage = new SqlServerStorage(EDBConnID);
-                                var clients = new BackgroundJobClient(sqlStorage);
-
-                                //delay 1 menit, karena API shopee ada delay saat create barang.
-                                //clients.Enqueue<ShopifyControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog));
-#if (DEBUG || Debug_AWS)
-                                //await InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog);
-#else
-                                //clients.Schedule<ShopifyControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog), TimeSpan.FromSeconds(30));
-#endif
-
-                                //HANDLE VARIANT SHOPIFY
-                                var attributeIDGroup = "";
-                                var attributeIDItems = "";
-
-                                var listattributeIDGroup = "";
-                                var listattributeIDItems = "";
-
-                                var ListVariantSTF02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
-                                var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "SHOPIFY").ToList();
-                                List<string> byteGambarUploaded = new List<string>();
-                                
-                                foreach (var itemData in ListVariantSTF02)
+                                foreach(var dataVarShopify in resServer.product.variants)
                                 {
-                                    #region varian LV1
-                                    if (!string.IsNullOrEmpty(itemData.Sort8))
+                                    var itemImage = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == dataVarShopify.sku.ToUpper()).SingleOrDefault();
+                                    var itemVar = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == dataVarShopify.sku.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+                                    if (itemVar != null)
                                     {
-                                        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == itemData.Sort8).FirstOrDefault();
-                                        listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ",";
-                                        listattributeIDItems = variant_id_group.MP_VALUE_VAR + ",";
+                                        brg_mp = Convert.ToString(resServer.product.id) + ";" + Convert.ToString(dataVarShopify.id);
+                                        itemVar.BRG_MP = brg_mp;
+                                        itemVar.LINK_STATUS = "Buat Produk Berhasil";
+                                        itemVar.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                        itemVar.LINK_ERROR = "0;Buat Produk;;";
+                                        ErasoftDbContext.SaveChanges();
+
+                                        Task.Run(() => new ShopifyControllerJob().Shopify_CreateProductImageVariant(iden, resServer.product.id, dataVarShopify.id, itemImage.LINK_GAMBAR_1.ToString())).Wait();
+
+                                        Task.Run(() => new ShopifyControllerJob().Shopify_UpdateInventoryItemSKU(iden, dataVarShopify.sku, dataVarShopify.id)).Wait();
                                     }
-                                    #endregion
-
-                                    #region varian LV2
-                                    if (!string.IsNullOrEmpty(itemData.Sort9))
-                                    {
-                                        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == itemData.Sort9).FirstOrDefault();
-                                        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
-                                        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
-                                    }
-                                    #endregion
-
-                                    #region varian LV3
-                                    if (!string.IsNullOrEmpty(itemData.Sort10))
-                                    {
-                                        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
-                                        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
-                                        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
-                                    }
-                                    #endregion
-
-                                    listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
-                                    listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
-                                                                        
-                                    new ShopifyControllerJob().Shopify_CreateProductVariant(iden, itemData.BRG, resServer.product.id, itemData.Ket_Sort8, itemData.HJUAL.ToString(), itemData.LINK_GAMBAR_1.ToString());
-
-                                }
-                                //END HANDLE VARIANT SHOPIFY
-                            }
-                            else
-                            {
-                                if (marketplace.TIDAK_HIT_UANG_R)
-                                {
-                                    StokControllerJob.ShopifyAPIData data = new StokControllerJob.ShopifyAPIData()
-                                    {
-                                        no_cust = iden.no_cust,
-                                        account_store = iden.account_store,
-                                        API_key = iden.API_key,
-                                        API_password = iden.API_password,
-                                        email = iden.email
-                                    };
-#if (DEBUG || Debug_AWS)
-                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
-
-                                    await stokAPI.Shopify_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null);
-#else
-                                    string EDBConnID = EDB.GetConnectionString("ConnId");
-                                    var sqlStorage = new SqlServerStorage(EDBConnID);
-                                    var clients = new BackgroundJobClient(sqlStorage);
-                                    clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null));
-#endif
-                                }
-                            }
-
-
-                            if (resServer.product.variants.Count() > 0)
-                            {
-                                foreach (var variant in resServer.product.variants)
-                                {
-                                    //Task.Run(() => shopify.Shopify_UpdateInventoryItemSKU(dataAPI, variant.sku ,variant.inventory_item_id).Wait());
-                                    new ShopifyControllerJob().Shopify_UpdateInventoryItemSKU(iden, variant.sku, variant.inventory_item_id);
                                 }
                             }
                         }
                         else
                         {
-                            throw new Exception("item not found");
+                            var itemNonVar = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+                            var brg_mp = "";
+                            if (resServer.product.variants.Count() > 0)
+                            {
+                                brg_mp = Convert.ToString(resServer.product.id) + ";" + Convert.ToString(resServer.product.variants[0].id);
+                                itemNonVar.BRG_MP = brg_mp;
+                            }
+                            else
+                            {
+                                brg_mp = Convert.ToString(resServer.product.id) + ";0";
+                                itemNonVar.BRG_MP = brg_mp;
+                            }
+
+                            itemNonVar.LINK_STATUS = "Buat Produk Berhasil";
+                            itemNonVar.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                            itemNonVar.LINK_ERROR = "0;Buat Produk;;";
+                            ErasoftDbContext.SaveChanges();
+
+                            Task.Run(() => new ShopifyControllerJob().Shopify_UpdateInventoryItemSKU(iden, resServer.product.variants[0].sku, resServer.product.variants[0].id)).Wait();
+
+                            if (marketplace.TIDAK_HIT_UANG_R)
+                            {
+                                StokControllerJob.ShopifyAPIData data = new StokControllerJob.ShopifyAPIData()
+                                {
+                                    no_cust = iden.no_cust,
+                                    account_store = iden.account_store,
+                                    API_key = iden.API_key,
+                                    API_password = iden.API_password,
+                                    email = iden.email
+                                };
+#if (DEBUG || Debug_AWS)
+                                StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+
+                                await stokAPI.Shopify_updateStock(dbPathEra, resServer.product.variants[0].sku, log_CUST, "Stock", "Update Stok", data, brg_mp, 0, username, null);
+#else
+                                                                string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                                var clients = new BackgroundJobClient(sqlStorage);
+                                                                clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, resServer.product.variants[0].sku, log_CUST, "Stock", "Update Stok", data, brg_mp, 0, username, null));
+#endif
+                            }
                         }
+
+                        //                        var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+                        //                        if (item != null)
+                        //                        {
+                        //                            var brg_mp = "";
+                        //                            if (resServer.product.variants.Count() > 0)
+                        //                            {
+                        //                                brg_mp = Convert.ToString(resServer.product.id) + ";" + Convert.ToString(resServer.product.variants[0].id);
+                        //                                item.BRG_MP = brg_mp;
+                        //                            }
+                        //                            else
+                        //                            {
+                        //                                brg_mp = Convert.ToString(resServer.product.id) + ";0";
+                        //                                item.BRG_MP = brg_mp;
+                        //                            }
+
+                        //                            item.LINK_STATUS = "Buat Produk Berhasil";
+                        //                            item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                        //                            item.LINK_ERROR = "0;Buat Produk;;";
+                        //                            ErasoftDbContext.SaveChanges();
+
+                        //                            if (brgInDb.TYPE == "4")
+                        //                            {
+                        //                                ////HANDLE VARIANT SHOPIFY
+                        //                                //var attributeIDGroup = "";
+                        //                                //var attributeIDItems = "";
+
+                        //                                //var listattributeIDGroup = "";
+                        //                                //var listattributeIDItems = "";
+
+                        //                                //var ListVariantSTF02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
+                        //                                //var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "SHOPIFY").ToList();
+                        //                                //List<string> byteGambarUploaded = new List<string>();
+
+                        //                                //foreach (var itemData in ListVariantSTF02)
+                        //                                //{
+                        //                                //    #region varian LV1
+                        //                                //    if (!string.IsNullOrEmpty(itemData.Sort8))
+                        //                                //    {
+                        //                                //        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == itemData.Sort8).FirstOrDefault();
+                        //                                //        listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ",";
+                        //                                //        listattributeIDItems = variant_id_group.MP_VALUE_VAR + ",";
+                        //                                //    }
+                        //                                //    #endregion
+
+                        //                                //    #region varian LV2
+                        //                                //    if (!string.IsNullOrEmpty(itemData.Sort9))
+                        //                                //    {
+                        //                                //        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == itemData.Sort9).FirstOrDefault();
+                        //                                //        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
+                        //                                //        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                        //                                //    }
+                        //                                //    #endregion
+
+                        //                                //    #region varian LV3
+                        //                                //    if (!string.IsNullOrEmpty(itemData.Sort10))
+                        //                                //    {
+                        //                                //        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
+                        //                                //        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
+                        //                                //        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                        //                                //    }
+                        //                                //    #endregion
+
+                        //                                //    listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
+                        //                                //    listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
+
+                        //                                //    new ShopifyControllerJob().Shopify_CreateProductVariant(iden, itemData.BRG, resServer.product.id, itemData.Ket_Sort8, itemData.HJUAL.ToString(), itemData.LINK_GAMBAR_1.ToString());
+
+                        //                                //}
+                        //                                //END HANDLE VARIANT SHOPIFY
+                        //                            }
+                        //                            else
+                        //                            {
+                        //                                if (marketplace.TIDAK_HIT_UANG_R)
+                        //                                {
+                        //                                    StokControllerJob.ShopifyAPIData data = new StokControllerJob.ShopifyAPIData()
+                        //                                    {
+                        //                                        no_cust = iden.no_cust,
+                        //                                        account_store = iden.account_store,
+                        //                                        API_key = iden.API_key,
+                        //                                        API_password = iden.API_password,
+                        //                                        email = iden.email
+                        //                                    };
+                        //#if (DEBUG || Debug_AWS)
+                        //                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+
+                        //                                    await stokAPI.Shopify_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null);
+                        //#else
+                        //                                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                        //                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                        //                                    var clients = new BackgroundJobClient(sqlStorage);
+                        //                                    clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null));
+                        //#endif
+                        //                                }
+                        //                            }
+
+
+                        //                            if (resServer.product.variants.Count() > 0)
+                        //                            {
+                        //                                foreach (var variant in resServer.product.variants)
+                        //                                {
+                        //                                    //Task.Run(() => shopify.Shopify_UpdateInventoryItemSKU(dataAPI, variant.sku ,variant.inventory_item_id).Wait());
+                        //                                    new ShopifyControllerJob().Shopify_UpdateInventoryItemSKU(iden, variant.sku, variant.inventory_item_id);
+                        //                                }
+                        //                            }
+                        //                        }
+                        //                        else
+                        //                        {
+                        //                            throw new Exception("item not found");
+                        //                        }
                     }
                     else
                     {
@@ -2040,36 +2151,147 @@ namespace MasterOnline.Controllers
                 images = new List<ImagesUpdateProduct>()
             };
 
-            VariantProductUpdate variantsData = new VariantProductUpdate
-            {
-                id = Convert.ToInt64(brg_mp_split[1]),
-                //title = brgInDb.NAMA,
-                //option1 = brgInDb.NAMA,
-                price = Convert.ToInt32(detailBrg.HJUAL),
-                inventory_quantity = 1,
-                //grams = Convert.ToInt32(brgInDb.BERAT * 1000),
-                grams = Convert.ToInt32(brgInDb.BERAT),
-                //weight = Convert.ToInt32(brgInDb.BERAT),
-                weight = Convert.ToInt32(brgInDb.BERAT / 1000),
-                unit_weight = "kg",
-                sku = detailBrg.BRG
-            };
+            //VariantProductUpdate variantsData = new VariantProductUpdate
+            //{
+            //    id = Convert.ToInt64(brg_mp_split[1]),
+            //    //title = brgInDb.NAMA,
+            //    //option1 = brgInDb.NAMA,
+            //    price = Convert.ToInt32(detailBrg.HJUAL),
+            //    inventory_quantity = 1,
+            //    //grams = Convert.ToInt32(brgInDb.BERAT * 1000),
+            //    grams = Convert.ToInt32(brgInDb.BERAT),
+            //    //weight = Convert.ToInt32(brgInDb.BERAT),
+            //    weight = Convert.ToInt32(brgInDb.BERAT / 1000),
+            //    unit_weight = "kg",
+            //    sku = detailBrg.BRG
+            //};
                         
-            //change by nurul 14/9/2020, handle barang multi sku juga 
-            //if (brgInDb.TYPE == "3")
-            if (brgInDb.TYPE == "3" || brgInDb.TYPE == "6")
-            //end change by nurul 14/9/2020, handle barang multi sku juga 
+            ////change by nurul 14/9/2020, handle barang multi sku juga 
+            ////if (brgInDb.TYPE == "3")
+            //if (brgInDb.TYPE == "3" || brgInDb.TYPE == "6")
+            ////end change by nurul 14/9/2020, handle barang multi sku juga 
+            //{
+            //    variantsData.option1 = "";
+            //    variantsData.title = "";
+            //}
+            //else
+            //{
+            //    variantsData.option1 = brgInDb.NAMA;
+            //    variantsData.title = brgInDb.NAMA;
+            //}
+
+            //body.variants.Add(variantsData);
+
+
+
+            if (brgInDb.TYPE == "4")
             {
-                variantsData.option1 = "Default Title";
-                variantsData.title = "Default Title";
+                //HANDLE VARIANT SHOPIFY
+                var listattributeIDGroup = "";
+                var listattributeIDItems = "";
+
+                var ListVariantSTF02 = ErasoftDbContext.STF02.Where(p => p.PART == kdbrgMO).ToList();
+                var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == kdbrgMO && p.MARKET == "SHOPIFY").ToList();
+                List<string> byteGambarUploaded = new List<string>();
+
+                foreach (var itemData in ListVariantSTF02)
+                {
+                    #region varian LV1
+                    if (!string.IsNullOrEmpty(itemData.Sort8))
+                    {
+                        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == itemData.Sort8).FirstOrDefault();
+                        listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ",";
+                        listattributeIDItems = variant_id_group.MP_VALUE_VAR + ",";
+                    }
+                    #endregion
+
+
+                    #region varian LV2
+                    if (!string.IsNullOrEmpty(itemData.Sort9))
+                    {
+                        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == itemData.Sort9).FirstOrDefault();
+                        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
+                        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                    }
+                    #endregion
+
+
+                    #region varian LV3
+                    if (!string.IsNullOrEmpty(itemData.Sort10))
+                    {
+                        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
+                        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
+                        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                    }
+                    #endregion
+
+
+                    listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
+                    listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
+
+                    VariantProductUpdate variants = new VariantProductUpdate
+                    {
+                        id = Convert.ToInt64(brg_mp_split[1]),
+                        title = itemData.NAMA,
+                        option1 = itemData.Ket_Sort8,
+                        option2 = itemData.Ket_Sort9,
+                        price = Convert.ToInt32(itemData.HJUAL),
+                        inventory_quantity = 1,
+                        grams = Convert.ToInt32(itemData.BERAT),
+                        weight = Convert.ToInt32(itemData.BERAT / 1000),
+                        unit_weight = "kg",
+                        sku = itemData.BRG
+                    };
+
+                    if (brgInDb.BERAT < 1000)
+                    {
+                        variants.unit_weight = "g";
+                        variants.weight = Convert.ToInt32(brgInDb.BERAT);
+                    }
+
+                    body.variants.Add(variants);
+                }
             }
             else
             {
-                variantsData.option1 = brgInDb.NAMA;
-                variantsData.title = brgInDb.NAMA;
+                VariantProductUpdate variants = new VariantProductUpdate
+                {
+                    id = Convert.ToInt64(brg_mp_split[1]),
+                    title = brgInDb.NAMA,
+                    option1 = brgInDb.NAMA2,
+                    price = Convert.ToInt32(detailBrg.HJUAL),
+                    inventory_quantity = 1,
+                    grams = Convert.ToInt32(brgInDb.BERAT),
+                    weight = Convert.ToInt32(brgInDb.BERAT / 1000),
+                    unit_weight = "kg",
+                    sku = detailBrg.BRG
+                };
+
+                if (brgInDb.BERAT < 1000)
+                {
+                    variants.unit_weight = "g";
+                    variants.weight = Convert.ToInt32(brgInDb.BERAT);
+                }
+
+                //change by nurul 14/9/2020, handle barang multi sku juga 
+                //if (brgInDb.TYPE == "3")
+                if (brgInDb.TYPE == "3" || brgInDb.TYPE == "6")
+                //end change by nurul 14/9/2020, handle barang multi sku juga 
+                {
+                    variants.option1 = null;
+                    variants.title = null;
+                }
+                else
+                {
+                    variants.option1 = brgInDb.NAMA;
+                    variants.title = brgInDb.NAMA;
+                }
+
+                body.variants.Add(variants);
+
             }
 
-            body.variants.Add(variantsData);
+
 
             ShopifyAPIUpdateProduct HttpBody = new ShopifyAPIUpdateProduct
             {
@@ -2430,6 +2652,7 @@ namespace MasterOnline.Controllers
             public bool published { get; set; }
             public bool available { get; set; }
             public List<ShopifyCreateProductDataVariant> variants { get; set; }
+            //public List<ShopifyCreateProductDataVariantOptions> options { get; set; }
             public List<ShopifyCreateProductImages> images { get; set; }
         }
 
@@ -2437,12 +2660,19 @@ namespace MasterOnline.Controllers
         {
             public string title { get; set; }
             public string option1 { get; set; }
+            public string option2 { get; set; }
             public string price { get; set; }
             public object sku { get; set; }
             public int inventory_quantity { get; set; }
             public int grams { get; set; }
             public float weight { get; set; }
             public string weight_unit { get; set; }
+        }
+
+        public class ShopifyCreateProductDataVariantOptions
+        {
+            public string name { get; set; }
+            public string[] values { get; set; }
         }
 
         public class ShopifyCreateProductImages
