@@ -49,7 +49,7 @@
         @*@Html.TextBoxFor(m => String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", m.Addons.Harga), new { @class = "form-control", @ReadOnly = true, })*@
         @*//change by nurul 21/10/2020*@
         @*@Html.TextBoxFor(m => m.Addons.Harga, new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Addons.Harga), disabled = "disabled", maxlength = "12" })*@
-        @Html.TextBoxFor(m => m.Addons_Customer.Harga, new { @class = "form-control", @style = "text-align:right", Value = (Model?.Addons_Customer?.Harga >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Addons_Customer?.Harga) : "0,00"), disabled = "disabled", maxlength = "12" })
+        @Html.TextBoxFor(m => m.Addons_Customer.Harga, new { @class = "form-control", @style = "text-align:right", Value = (Model?.Addons_Customer?.Harga >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Addons_Customer?.Harga) : "0,00"), @ReadOnly = true, maxlength = "12" })
         @*//end change by nurul 21/10/2020*@
     </div>
 </div>

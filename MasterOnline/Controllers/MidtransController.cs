@@ -426,6 +426,16 @@ namespace MasterOnline.Controllers
                                         dataAddonCheck.ForEach(p => p.STATUS = "1");
                                     }
                                     #endregion
+
+                                    //add by nurul 7/1/2021, update tgl subs di addon cust
+                                    var cekAddOn = MoDbContext.Addons_Customer.Where(a => a.Account == userData.Email).ToList();
+                                    if (cekAddOn.Count() > 0)
+                                    {
+                                        var tglSubs = sdTgl?.ToString("yyyy-MM-dd");
+                                        var sSQLUpdateAddon = "update Addons_Customer set TglSubscription='" + tglSubs + "' where account='" + userData.Email +"'";
+                                        MoDbContext.Database.ExecuteSqlCommand(sSQLUpdateAddon);
+                                    }
+                                    //end add by nurul 7/1/2021
                                 }
 
                             }
