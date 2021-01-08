@@ -2119,7 +2119,7 @@ namespace MasterOnline.Controllers
                     string EDBConnID = EDB.GetConnectionString("ConnId");
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clients = new BackgroundJobClient(sqlStorage);
-                    clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(dbPathEra, kode_brg, log_CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null));
+                    //clients.Enqueue<StokControllerJob>(x => x.Shopify_updateStock(iden.DatabasePathErasoft, kode_brg, marketplace.CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null));
 #endif
                         }
                     }
