@@ -4476,15 +4476,29 @@ namespace MasterOnline.Controllers
 
         }
 
+        //public class ShopifyAPIData
+        //{
+        //    public string no_cust { get; set; }
+        //    public string account_store { get; set; }
+        //    public string API_key { get; set; }
+        //    public string API_password { get; set; }
+        //    public string DatabasePathErasoft { get; set; }
+        //    public string email { get; set; }
+        //    public int rec_num { get; set; }
+        //}
+
         public class ShopifyAPIData
         {
             public string no_cust { get; set; }
+            public string username { get; set; }
             public string account_store { get; set; }
             public string API_key { get; set; }
             public string API_password { get; set; }
             public string DatabasePathErasoft { get; set; }
             public string email { get; set; }
             public int rec_num { get; set; }
+            public string ID_MARKET { get; set; }
+
         }
 
         public class ShopifyUpdateData
