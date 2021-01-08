@@ -1770,7 +1770,16 @@ namespace MasterOnline.Controllers
                             var brg_mp = "";
                             if (resServer.product.variants.Count() > 0)
                             {
-                                foreach(var dataVarShopify in resServer.product.variants)
+                                var itemInduk = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == kodeProduk.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+                                brg_mp = Convert.ToString(resServer.product.id) + ";0";
+                                itemInduk.BRG_MP = brg_mp;
+
+                                itemInduk.LINK_STATUS = "Buat Produk Berhasil";
+                                itemInduk.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                itemInduk.LINK_ERROR = "0;Buat Produk;;";
+                                ErasoftDbContext.SaveChanges();
+
+                                foreach (var dataVarShopify in resServer.product.variants)
                                 {
                                     var itemImage = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == dataVarShopify.sku.ToUpper()).SingleOrDefault();
                                     var itemVar = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == dataVarShopify.sku.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
