@@ -1580,19 +1580,27 @@ namespace MasterOnline.Controllers
                 available = true,
                 published = true,
                 variants = new List<ShopifyCreateProductDataVariant>(),
-                //options = new List<ShopifyCreateProductDataVariantOptions>(),
+                options = new List<ShopifyCreateProductDataVariantOptions>(),
                 images = new List<ShopifyCreateProductImages>()
             };
 
             if (brgInDb.TYPE == "4")
             {
                 //HANDLE VARIANT SHOPIFY
-                var listattributeIDGroup = "";
-                var listattributeIDItems = "";
+                var listattributeIDGrouplv1 = "";
+                var listattributeIDItemslv1 = "";
+                var listattributeIDGrouplv2 = "";
+                var listattributeIDItemslv2 = "";
 
                 var ListVariantSTF02 = ErasoftDbContext.STF02.Where(p => p.PART == kodeProduk).ToList();
                 var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == kodeProduk && p.MARKET == "SHOPIFY").ToList();
                 List<string> byteGambarUploaded = new List<string>();
+                List<string> varlv1 = new List<string>();
+                List<string> varlv2 = new List<string>();
+
+
+                ShopifyCreateProductDataVariantOptions optionvarlv1 = new ShopifyCreateProductDataVariantOptions();
+                ShopifyCreateProductDataVariantOptions optionvarlv2 = new ShopifyCreateProductDataVariantOptions();
 
                 foreach (var itemData in ListVariantSTF02)
                 {
@@ -1600,34 +1608,41 @@ namespace MasterOnline.Controllers
                     if (!string.IsNullOrEmpty(itemData.Sort8))
                     {
                         var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == itemData.Sort8).FirstOrDefault();
-                        listattributeIDGroup = variant_id_group.MP_JUDUL_VAR + ",";
-                        listattributeIDItems = variant_id_group.MP_VALUE_VAR + ",";
+                        listattributeIDGrouplv1 = variant_id_group.MP_JUDUL_VAR + ",";
+                        listattributeIDItemslv1 = variant_id_group.MP_VALUE_VAR + ",";
+                        optionvarlv1.name = variant_id_group.MP_JUDUL_VAR;
+                        if (!varlv1.Contains(variant_id_group.MP_VALUE_VAR))
+                        {
+                            varlv1.Add(variant_id_group.MP_VALUE_VAR);
+                        }
                     }
                     #endregion
+
 
 
                     #region varian LV2
                     if (!string.IsNullOrEmpty(itemData.Sort9))
                     {
                         var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == itemData.Sort9).FirstOrDefault();
-                        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
-                        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                        listattributeIDGrouplv2 = variant_id_group.MP_JUDUL_VAR + ",";
+                        listattributeIDItemslv2 = variant_id_group.MP_VALUE_VAR + ",";
+                        optionvarlv2.name = variant_id_group.MP_JUDUL_VAR;
+                        if (!varlv2.Contains(variant_id_group.MP_VALUE_VAR))
+                        {
+                            varlv2.Add(variant_id_group.MP_VALUE_VAR);
+                        }
                     }
                     #endregion
 
 
                     #region varian LV3
-                    if (!string.IsNullOrEmpty(itemData.Sort10))
-                    {
-                        var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
-                        listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
-                        listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
-                    }
-                    #endregion
-
-
-                    listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
-                    listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
+                    //if (!string.IsNullOrEmpty(itemData.Sort10))
+                    //{
+                    //    var variant_id_group = ListSettingVariasi.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == itemData.Sort10).FirstOrDefault();
+                    //    listattributeIDGroup = listattributeIDGroup + variant_id_group.MP_JUDUL_VAR + ",";
+                    //    listattributeIDItems = listattributeIDItems + variant_id_group.MP_VALUE_VAR + ",";
+                    //}
+                    #endregion                    
 
                     ShopifyCreateProductDataVariant variants = new ShopifyCreateProductDataVariant
                     {
@@ -1650,6 +1665,13 @@ namespace MasterOnline.Controllers
 
                     body.variants.Add(variants);
                 }
+
+                optionvarlv1.values = varlv1;
+                optionvarlv2.values = varlv2;
+
+                body.options.Add(optionvarlv1);
+                body.options.Add(optionvarlv2);
+
             }
             else
             {
@@ -2661,7 +2683,7 @@ namespace MasterOnline.Controllers
             public bool published { get; set; }
             public bool available { get; set; }
             public List<ShopifyCreateProductDataVariant> variants { get; set; }
-            //public List<ShopifyCreateProductDataVariantOptions> options { get; set; }
+            public List<ShopifyCreateProductDataVariantOptions> options { get; set; }
             public List<ShopifyCreateProductImages> images { get; set; }
         }
 
@@ -2681,7 +2703,7 @@ namespace MasterOnline.Controllers
         public class ShopifyCreateProductDataVariantOptions
         {
             public string name { get; set; }
-            public string[] values { get; set; }
+            public List<string> values { get; set; }
         }
 
         public class ShopifyCreateProductImages
