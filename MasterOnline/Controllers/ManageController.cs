@@ -45152,8 +45152,10 @@ namespace MasterOnline.Controllers
                                             converter.Options.MarginTop = 10;
 
                                             htmlString = htmlString.Replace("break;", "");
-                                            htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 40)");
-                                            //htmlString = htmlString.Replace("font-size:10px", "font-size:9px");
+                                            htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 48)");
+                                            htmlString = htmlString.Replace("height: 82.5px; width: 55px; border-right: 1;", "height: 82.5px; width: 30px; border-right: 1;");
+                                            htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width: 15%;", "height: 2.2cm; font-size:8px; width:8%;");
+                                            htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width:85%;", "height: 2.2cm; font-size:8px; width:92%;");
                                             htmlString = htmlString.Replace("font-size:10px", "font-size:7px");
                                             htmlString = htmlString.Replace("font-size:8px;", "font-size:7px;");
                                             SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
@@ -45416,8 +45418,10 @@ namespace MasterOnline.Controllers
                                             converter.Options.MarginTop = 10;
 
                                             htmlString = htmlString.Replace("break;", "");
-                                            htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 40)");
-                                            //htmlString = htmlString.Replace("font-size:10px", "font-size:9px");
+                                            htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 48)");
+                                            htmlString = htmlString.Replace("height: 82.5px; width: 55px; border-right: 1;", "height: 82.5px; width: 30px; border-right: 1;");
+                                            htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width: 15%;", "height: 2.2cm; font-size:8px; width:8%;");
+                                            htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width:85%;", "height: 2.2cm; font-size:8px; width:92%;");
                                             htmlString = htmlString.Replace("font-size:10px", "font-size:7px");
                                             htmlString = htmlString.Replace("font-size:8px;", "font-size:7px;");
                                             SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
