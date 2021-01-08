@@ -18457,16 +18457,34 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SIT01B.Add(dataVm.FakturDetail);
                     //CHANGE BY NURUL 4/11/2020
                     //ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = dataVm.Faktur.BRUTO });
-                    var sSQL = "UPDATE SIT01A SET BRUTO = BRUTO WHERE NO_BUKTI='" + noOrder + "' AND JENIS_FORM ='2'";
-                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
-                    //add 18/10/2019, hitung ulang bruto,netto
-                    //string sSQL = "UPDATE A SET BRUTO = B.harga, NETTO = (B.harga + A.MATERAI + A.NILAI_PPN - A.NILAI_DISC ) FROM SIT01A A(nolock) INNER JOIN ( ";
-                    //sSQL += "select no_bukti,sum(harga) as harga from sit01b (nolock) group by no_bukti)b  ";
-                    //sSQL += "on a.no_bukti=b.no_bukti ";
-                    //sSQL += "WHERE A.NO_BUKTI ='" + noOrder + "' AND A.JENIS_FORM ='2'";
+                    //var sSQL = "UPDATE SIT01A SET BRUTO = BRUTO WHERE NO_BUKTI='" + noOrder + "' AND JENIS_FORM ='2'";
+                    //ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                    ////add 18/10/2019, hitung ulang bruto,netto
+                    ////string sSQL = "UPDATE A SET BRUTO = B.harga, NETTO = (B.harga + A.MATERAI + A.NILAI_PPN - A.NILAI_DISC ) FROM SIT01A A(nolock) INNER JOIN ( ";
+                    ////sSQL += "select no_bukti,sum(harga) as harga from sit01b (nolock) group by no_bukti)b  ";
+                    ////sSQL += "on a.no_bukti=b.no_bukti ";
+                    ////sSQL += "WHERE A.NO_BUKTI ='" + noOrder + "' AND A.JENIS_FORM ='2'";
 
-                    //var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
-                    //END CHANGE BY NURUL 4/11/2020
+                    ////var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                    ////END CHANGE BY NURUL 4/11/2020
+                    ErasoftDbContext.SaveChanges();
+                    var sSQL = "";
+                    sSQL += "UPDATE A SET A.BRUTO = ISNULL(B.BRUTO, 0), A.NILAI_PPN = ISNULL(B.NILAI_PPN, 0), A.NETTO = ISNULL(B.NETTO, 0) " +
+                            "from sit01a a (NOLOCK)inner  " +
+                            "join (select B.NO_BUKTI, " +
+                            "ISNULL(SUM(ISNULL(ISNULL(C.QTY, 0) * ISNULL(C.H_SATUAN, 0), 0) - ISNULL(ISNULL(C.NILAI_DISC_1, 0) + ISNULL(C.NILAI_DISC_2, 0), 0)), 0) AS BRUTO, " +
+                            "ISNULL( (ISNULL(SUM(ISNULL(ISNULL(C.QTY, 0) * ISNULL(C.H_SATUAN, 0), 0) - ISNULL(ISNULL(C.NILAI_DISC_1, 0) + ISNULL(C.NILAI_DISC_2, 0), 0)), 0) - ISNULL(B.NILAI_DISC, 0)) * ISNULL(B.PPN, 0) / 100, 0) AS NILAI_PPN, " +
+                            "ISNULL( " +
+                            "ISNULL(SUM(ISNULL(ISNULL(ISNULL(C.QTY, 0) * ISNULL(C.H_SATUAN, 0), 0) - ISNULL(ISNULL(C.NILAI_DISC_1, 0) + ISNULL(C.NILAI_DISC_2, 0), 0), 0)), 0) " +
+                            "- ISNULL(B.NILAI_DISC, 0) + ISNULL(B.MATERAI, 0) " +
+                            "+ ISNULL((ISNULL(SUM(ISNULL(ISNULL(C.QTY, 0) * ISNULL(C.H_SATUAN, 0), 0) - ISNULL(ISNULL(C.NILAI_DISC_1, 0) + ISNULL(C.NILAI_DISC_2, 0), 0)), 0) - ISNULL(B.NILAI_DISC, 0)) * ISNULL(B.PPN, 0) / 100, 0) " +
+                            ", 0) AS NETTO " +
+                            "FROM SIT01A B(NOLOCK) INNER JOIN SIT01B C(NOLOCK) ON C.NO_BUKTI = B.NO_BUKTI " +
+                            "WHERE B.NO_BUKTI = '" + noOrder + "' " +
+                            "GROUP BY B.NO_BUKTI, B.MATERAI,B.DISCOUNT,B.NILAI_DISC,B.PPN,B.NILAI_PPN " +
+                            ")B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.NO_BUKTI = '" + noOrder + "' AND JENIS_FORM ='2'";
+                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                    ErasoftDbContext.SaveChanges();
                 }
             }
             else
@@ -18554,6 +18572,7 @@ namespace MasterOnline.Controllers
                 fakturInDb.PPN = dataVm.Faktur.PPN;
                 fakturInDb.NILAI_PPN = Math.Ceiling((double)fakturInDb.PPN * ((double)fakturInDb.BRUTO - (double)fakturInDb.NILAI_DISC) / 100);
                 fakturInDb.NETTO = fakturInDb.BRUTO + fakturInDb.MATERAI + fakturInDb.NILAI_PPN - fakturInDb.NILAI_DISC;
+                ErasoftDbContext.SaveChanges();
             }
 
             ErasoftDbContext.SaveChanges();
@@ -61614,7 +61633,8 @@ namespace MasterOnline.Controllers
                                     listNobukFaktur += "'" + faktur.NO_BUKTI + "' , ";
                                 }
                                 listNobukFaktur = listNobukFaktur.Substring(0, listNobukFaktur.Length - 2);
-                                Task.Run(() => UpdateBrutoPackingTransactionVersi2(listNobukFaktur, listRecnumEnd).Wait());
+                                var listFakturArray = newFakturs.Select(a => a.NO_BUKTI).ToList();
+                                Task.Run(() => UpdateBrutoPackingTransactionVersi2(listNobukFaktur, listRecnumEnd, listFakturArray).Wait());
                             }
                             catch (Exception ex)
                             {
@@ -61720,24 +61740,32 @@ namespace MasterOnline.Controllers
             return new JsonResult { Data = new { error_packing_list = false, listError, successCount = successCount, packingNo = packingNo, need_approval = 0 }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
 
-        public async Task<ActionResult> UpdateBrutoPackingTransactionVersi2(string listFaktur, string listRecnumPesanan)
+        public async Task<ActionResult> UpdateBrutoPackingTransactionVersi2(string listFaktur, string listRecnumPesanan, List<string> listFakturArray)
         {
-            if(listFaktur != "" && listFaktur != "''")
-            {
-                //string sSQL = "UPDATE C SET BRUTO = QRY.NILAI, NETTO = (QRY.NILAI + C.MATERAI - C.DISCOUNT) FROM SIT01A C (nolock) INNER JOIN ( ";
-                //sSQL += "SELECT A.NO_BUKTI, SUM(B.HARGA) NILAI ";
-                //sSQL += "FROM SIT01A A(nolock) INNER JOIN SIT01B B(nolock) ON A.NO_BUKTI = B.NO_BUKTI ";
-                //sSQL += "GROUP BY A.NO_BUKTI ";
-                //sSQL += ") QRY ON C.NO_BUKTI = QRY.NO_BUKTI ";
-                //sSQL += "WHERE C.NO_BUKTI IN (" + listFaktur + ")  AND C.JENIS_FORM='2'";
-                ////foreach (var faktur in newFakturs)
-                ////{
-                ////    sSQL += "'" + faktur.NO_BUKTI + "' , ";
-                ////}
-                ////sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
-                string sSQL = "UPDATE A SET BRUTO = A.BRUTO FROM SIT01A A (NOLOCK) WHERE A.NO_BUKTI IN (" + listFaktur + ") AND A.JENIS_FORM='2'";
+            //if(listFaktur != "" && listFaktur != "''")
+            //{
+                ////string sSQL = "UPDATE C SET BRUTO = QRY.NILAI, NETTO = (QRY.NILAI + C.MATERAI - C.DISCOUNT) FROM SIT01A C (nolock) INNER JOIN ( ";
+                ////sSQL += "SELECT A.NO_BUKTI, SUM(B.HARGA) NILAI ";
+                ////sSQL += "FROM SIT01A A(nolock) INNER JOIN SIT01B B(nolock) ON A.NO_BUKTI = B.NO_BUKTI ";
+                ////sSQL += "GROUP BY A.NO_BUKTI ";
+                ////sSQL += ") QRY ON C.NO_BUKTI = QRY.NO_BUKTI ";
+                ////sSQL += "WHERE C.NO_BUKTI IN (" + listFaktur + ")  AND C.JENIS_FORM='2'";
+                //////foreach (var faktur in newFakturs)
+                //////{
+                //////    sSQL += "'" + faktur.NO_BUKTI + "' , ";
+                //////}
+                //////sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
+                //string sSQL = "UPDATE A SET BRUTO = A.BRUTO FROM SIT01A A (NOLOCK) WHERE A.NO_BUKTI IN (" + listFaktur + ") AND A.JENIS_FORM='2'";
                 
-                var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                //var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+            //}
+            if(listFakturArray.Count() > 0 && listFakturArray != null)
+            {
+                for (int i = 0; i < listFakturArray.Count(); i++)
+                {
+                    string sSQLUpdate = "UPDATE A SET BRUTO = A.BRUTO, NETTO = A.NETTO FROM SIT01A A (NOLOCK) WHERE A.NO_BUKTI = '" + listFakturArray[i] + "' AND A.JENIS_FORM='2' ";
+                    var resultUpdateArray = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdate);
+                }
             }
             if(listRecnumPesanan != "" && listRecnumPesanan != "''")
             {
