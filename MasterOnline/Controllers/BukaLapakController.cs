@@ -15,6 +15,7 @@ using System.Data.SqlClient;
 using System.Linq.Dynamic;
 using System.Threading.Tasks;
 using System.Web.Util;
+using RestSharp;
 
 namespace MasterOnline.Controllers
 {
@@ -153,48 +154,71 @@ namespace MasterOnline.Controllers
             //var myreader = new System.IO.StreamReader(myResp.GetResponseStream());
             ////Dim myText As String;
             //var stringRet = myreader.ReadToEnd();
+            //string myData = "?grant_type=client_credentials&code=" + code;
+            //myData += "&redirect_uri=https://dev.masteronline.co.id/manage/master/marketplace";
+            //myData += "&client_id=" + client_id;
+            //myData += "&client_secret=" + client_secret;
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "POST";
-            //myReq.Headers.Add("Authorization", ("Bearer " + code));
-            //myReq.Credentials = new NetworkCredential(email, password);
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            //myReq.Method = "POST";
+            ////myReq.Headers.Add("Authorization", ("Bearer " + code));
+            ////myReq.Credentials = new NetworkCredential(email, password);
             //myReq.ContentType = "application/json";
-            myReq.ContentType = "application/x-www-form-urlencoded";
+            ////myReq.ContentType = "application/x-www-form-urlencoded";
             //myReq.Accept = "application/json";
-            //myReq.UserAgent = "curl/7.37.0";
-            //string myData = "{\"grant_type\":\"client_credentials\",\"code\":\""+code+"\",";
-            //myData += "\"redirect_uri\":\"" + "https://dev.masteronline.co.id/manage/master/marketplace" + "\",";
-            //myData += "\"client_id\":\""+client_id+"\",\"client_secret\":\""+ client_secret + "\"}";
-            string myData = "grant_type=client_credentials&code=" + code;
-            myData += "&redirect_uri=https://dev.masteronline.co.id/manage/master/marketplace";
-            myData += "&client_id=" + client_id;
-            myData += "&client_secret=" + client_secret;
+            ////myReq.UserAgent = "curl/7.37.0";
+            //string myData = "{\"grant_type\":\"client_credentials\",\"code\":\"" + code + "\",";
+            //myData += "\"redirect_uri\":\"" + HttpUtility.UrlEncode("https://dev.masteronline.co.id/manage/master/marketplace") + "\",";
+            //myData += "\"client_id\":\"" + client_id + "\",\"client_secret\":\"" + client_secret + "\"}";
 
-            var data = Encoding.ASCII.GetBytes(myData);
+            //var data = Encoding.ASCII.GetBytes(myData);
+            var client = new RestClient(urll);
+            client.Timeout = -1;
+            var request = new RestRequest(Method.POST);
+            request.AlwaysMultipartFormData = true;
+            request.AddParameter("grant_type", "client_credentials");
+            request.AddParameter("client_id", client_id);
+            request.AddParameter("client_secret", client_secret);
+            request.AddParameter("code", code);
+            request.AddParameter("redirect_uri", "https://dev.masteronline.co.id/manage/master/marketplace");
+            //IRestResponse response = client.Execute(request);
+            //Console.WriteLine(response.Content);
             string stringRet = "";
             try
             {
-                myReq.ContentLength = myData.Length;
+                IRestResponse response = client.Execute(request);
+                stringRet = response.Content;
+                //myReq.ContentLength = myData.Length;
                 //using (var dataStream = myReq.GetRequestStream())
                 //{
                 //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 //}
-                using (var dataStream = myReq.GetRequestStream())
+                ////using (var dataStream = myReq.GetRequestStream())
+                ////{
+                ////    dataStream.Write(data, 0, data.Length);
+                ////}
+                //using (WebResponse response = myReq.GetResponse())
+                //{
+                //    using (Stream stream = response.GetResponseStream())
+                //    {
+                //        StreamReader reader = new StreamReader(stream);
+                //        stringRet = reader.ReadToEnd();
+                //    }
+                //}
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                if (e.Status == WebExceptionStatus.ProtocolError)
                 {
-                    dataStream.Write(data, 0, data.Length);
-                }
-                using (WebResponse response = myReq.GetResponse())
-                {
-                    using (Stream stream = response.GetResponseStream())
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
                     {
-                        StreamReader reader = new StreamReader(stream);
-                        stringRet = reader.ReadToEnd();
+                        err = sr.ReadToEnd();
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-
             }
 
             if (!string.IsNullOrEmpty(stringRet))
