@@ -1224,15 +1224,19 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 1;
-
+            var daysNow = DateTime.UtcNow.AddHours(7);
             while (daysFrom > -13)
             {
-                var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
-                var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+                //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+                //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+                var dateFrom = daysNow.AddDays(daysFrom).ToString("yyyy-MM-dd HH:mm:ss");
+                var dateTo = daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToString("yyyy-MM-dd HH:mm:ss");
 
                 await E2Cart_GetOrderByStatusList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                daysFrom -= 3;
-                daysTo -= 3;
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
 
 
@@ -1762,15 +1766,19 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 1;
-
+            var daysNow = DateTime.UtcNow.AddHours(7);
             while (daysFrom > -13)
             {
-                var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
-                var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+                //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+                //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+                var dateFrom = daysNow.AddDays(daysFrom).ToString("yyyy-MM-dd HH:mm:ss");
+                var dateTo = daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToString("yyyy-MM-dd HH:mm:ss");
 
                 await E2Cart_GetOrderByStatusCompletedList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
-                daysFrom -= 3;
-                daysTo -= 3;
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
 
 
@@ -1880,15 +1888,19 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 1;
-
+            var daysNow = DateTime.UtcNow.AddHours(7);
             while (daysFrom > -13)
             {
-                var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
-                var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+                //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+                //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+                var dateFrom = daysNow.AddDays(daysFrom).ToString("yyyy-MM-dd HH:mm:ss");
+                var dateTo = daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToString("yyyy-MM-dd HH:mm:ss");
 
                 await E2Cart_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
-                daysFrom -= 3;
-                daysTo -= 3;
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
 
             // tunning untuk tidak duplicate

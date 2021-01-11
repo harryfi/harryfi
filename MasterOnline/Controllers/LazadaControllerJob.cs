@@ -1966,7 +1966,8 @@ namespace MasterOnline.Controllers
 
             //add 16 des 2020, fixed date
             var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-3); 
-            var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
+            //var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
+            var toDt = DateTime.UtcNow.AddHours(7);
             //end add 16 des 2020, fixed date
 
             while (more)
@@ -2004,7 +2005,8 @@ namespace MasterOnline.Controllers
 
             //add 16 des 2020, fixed date
             var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-3);
-            var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
+            //var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
+            var toDt = DateTime.UtcNow.AddHours(7);
             //end add 16 des 2020, fixed date
 
             while (more)
@@ -2769,7 +2771,8 @@ namespace MasterOnline.Controllers
 
             //add 16 des 2020, fixed date
             var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-1);
-            var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
+            //var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
+            var toDt = DateTime.UtcNow.AddHours(7);
             //end add 16 des 2020, fixed date
 
             while (more)
@@ -3271,10 +3274,11 @@ namespace MasterOnline.Controllers
 
             //var jmlhNewOrder = 0;//add by calvin 1 april 2019
             //string connectionID = Guid.NewGuid().ToString();
-            var fromDt = DateTime.Now.AddDays(-14);
-            var toDt = DateTime.Now.AddDays(1);
+            var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-14);
+            //var toDt = DateTime.Now.AddDays(1);
+            var toDt = DateTime.UtcNow.AddHours(7);
 
-            
+
 
             var orderUnpaidList = (from a in ErasoftDbContext.SOT01A
                                        //change by nurul 10/10/2019, cari semua status kecuali cancel (11)
@@ -4272,7 +4276,8 @@ namespace MasterOnline.Controllers
             var more = true;
             //add 16 des 2020, fixed date
             var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-14);
-            var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
+            //var toDt = DateTime.UtcNow.AddHours(7).AddDays(1);
+            var toDt = DateTime.UtcNow.AddHours(7);
             //end add 16 des 2020, fixed date
             while (more)
             {

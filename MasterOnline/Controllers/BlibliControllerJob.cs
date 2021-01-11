@@ -705,7 +705,8 @@ namespace MasterOnline.Controllers
                 {
                     fromDt = DateTime.UtcNow.AddHours(7).AddDays(-7);
                 }
-                var toDt = DateTime.UtcNow.AddHours(14);
+                //var toDt = DateTime.UtcNow.AddHours(14);
+                var toDt = DateTime.UtcNow.AddHours(7);
                 //end add 16 des 2020, fixed date
                 while (more)
                 {
