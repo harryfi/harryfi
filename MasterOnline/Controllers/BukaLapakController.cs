@@ -25,7 +25,7 @@ namespace MasterOnline.Controllers
         DatabaseSQL EDB;
         MoDbContext MoDbContext;
         public ErasoftContext ErasoftDbContext { get; set; }
-        private static string callBackUrl = "https://dev.masteronline.co.id/bukalapak/auth";
+        private static string callBackUrl = "https://dev.masteronline.co.id/bukalapak/auth?userid=";
         private static string client_id = "laJXb5jh91BelPQg2VmE2ooa58UVJmlJkNq98EPJc6s";
         private static string client_secret = "AXe5u7JcYiSNLvOsGW92Dzc4li6mbrWpN9qjlLD4OxI";
         public BukaLapakController()
@@ -53,10 +53,10 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public string BukalapakAuth(string cust)
         {
-            long userId = 0;
+            string userId = "";
             if (sessionData?.Account != null)
             {
-                userId = sessionData.Account.AccountId;
+                userId = sessionData.Account.DatabasePathErasoft;
 
             }
             else
@@ -64,47 +64,54 @@ namespace MasterOnline.Controllers
                 if (sessionData?.User != null)
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    userId = accFromUser.AccountId;
+                    userId = accFromUser.DatabasePathErasoft;
                 }
             }
-            var dataToken = MoDbContext.BUKALAPAK_TOKEN.Where(m => m.ACCOUNT_ID == userId && m.CUST == cust).FirstOrDefault();
-            if(dataToken == null)
-            {
-                dataToken = new BUKALAPAK_TOKEN();
-                dataToken.ACCOUNT_ID = userId;
-                dataToken.CUST = cust;
-                dataToken.CODE = "";
-                dataToken.CREATED_AT = DateTime.UtcNow.AddHours(7);
-                MoDbContext.BUKALAPAK_TOKEN.Add(dataToken);
-                MoDbContext.SaveChanges();
-            }
+            //var dataToken = MoDbContext.BUKALAPAK_TOKEN.Where(m => m.ACCOUNT_ID == userId && m.CUST == cust).FirstOrDefault();
+            //if(dataToken == null)
+            //{
+            //    dataToken = new BUKALAPAK_TOKEN();
+            //    dataToken.ACCOUNT_ID = userId;
+            //    dataToken.CUST = cust;
+            //    dataToken.CODE = "";
+            //    dataToken.CREATED_AT = DateTime.UtcNow.AddHours(7);
+            //    MoDbContext.BUKALAPAK_TOKEN.Add(dataToken);
+            //    MoDbContext.SaveChanges();
+            //}
             //string lzdId = cust;
-            //string compUrl = callBackUrl + userId + "_param_" + lzdId;
+            string compUrl = callBackUrl + userId + "_param_" + cust;
             string scope = "public user store";
-            string uri = "https://accounts.bukalapak.com/oauth/authorize?client_id=" + client_id + "&redirect_uri="+ callBackUrl + "&scope="+ Uri.EscapeDataString(scope) +"&response_type=code";
+            string uri = "https://accounts.bukalapak.com/oauth/authorize?client_id=" + client_id + "&redirect_uri="+ compUrl + "&scope="+ Uri.EscapeDataString(scope) +"&response_type=code";
             return uri;
         }
 
         [Route("bukalapak/auth")]
         [HttpGet]
-        public ActionResult BukalapakCode(string code)
+        public ActionResult BukalapakCode(string code, string userid)
         {
-            var currentUser = MoDbContext.BUKALAPAK_TOKEN.Where(m => m.CODE == "").OrderBy(m => m.CREATED_AT).FirstOrDefault();
-            if(currentUser != null)
+            var param = userid.Split(new string[] { "_param_" }, StringSplitOptions.None);
+            if (param.Count() == 2)
             {
-                currentUser.CODE = code;
-                currentUser.CREATED_AT = DateTime.UtcNow.AddHours(7);
-                MoDbContext.SaveChanges();
-
-                var accID = currentUser.ACCOUNT_ID;
-                var acc = MoDbContext.Account.Where(m => m.AccountId == accID).FirstOrDefault();
-                    DatabaseSQL EDB = new DatabaseSQL(acc.DatabasePathErasoft);
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET API_KEY = '" + code + "' WHERE CUST = '" + currentUser.CUST + "'");
-
-                    GetAccessKey(acc.DatabasePathErasoft, currentUser.CUST, code);
-                
+                DatabaseSQL EDB = new DatabaseSQL(param[0]);
+                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET API_KEY = '" + code + "' WHERE CUST = '" + param[1] + "'");
+                GetAccessKey(param[0], param[1], code);
             }
-            
+            //var currentUser = MoDbContext.BUKALAPAK_TOKEN.Where(m => m.ACCOUNT_ID == accid && m.CUST == cust).OrderBy(m => m.CREATED_AT).FirstOrDefault();
+            //if(currentUser != null)
+            //{
+            //    currentUser.CODE = code;
+            //    currentUser.CREATED_AT = DateTime.UtcNow.AddHours(7);
+            //    MoDbContext.SaveChanges();
+
+            //    var accID = currentUser.ACCOUNT_ID;
+            //    var acc = MoDbContext.Account.Where(m => m.AccountId == accID).FirstOrDefault();
+            //        DatabaseSQL EDB = new DatabaseSQL(acc.DatabasePathErasoft);
+            //        var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET API_KEY = '" + code + "' WHERE CUST = '" + currentUser.CUST + "'");
+
+            //        GetAccessKey(acc.DatabasePathErasoft, currentUser.CUST, code);
+
+            //}
+
             return View("BukalapakAuth");
         }
 
@@ -114,6 +121,12 @@ namespace MasterOnline.Controllers
         {
             var ret = new BindingBase();
             ret.status = 0;
+            //var accountUser = MoDbContext.Account.Where(m => m.DatabasePathErasoft == user).FirstOrDefault();
+
+            EDB = new DatabaseSQL(user);
+            string EraServerName = EDB.GetServerName("sConn");
+
+            ErasoftDbContext = new ErasoftContext(EraServerName, user);
 
             //var urll = ("https://api.bukalapak.com/v2/authenticate.json");
             var urll = ("https://accounts.bukalapak.com/oauth/token");
@@ -145,19 +158,30 @@ namespace MasterOnline.Controllers
             myReq.Method = "POST";
             //myReq.Headers.Add("Authorization", ("Bearer " + code));
             //myReq.Credentials = new NetworkCredential(email, password);
-            myReq.ContentType = "application/json";
-            myReq.Accept = "application/json";
+            //myReq.ContentType = "application/json";
+            myReq.ContentType = "application/x-www-form-urlencoded";
+            //myReq.Accept = "application/json";
             //myReq.UserAgent = "curl/7.37.0";
-            string myData = "{\"grant_type\":\"client_credentials\",\"code\":\""+code+"\",";
-            myData += "\"redirect_uri\":\"" + "https://dev.masteronline.co.id/manage/master/marketplace" + "\",";
-            myData += "\"client_id\":\""+client_id+"\",\"client_secret\":\""+ client_secret + "\"}";
+            //string myData = "{\"grant_type\":\"client_credentials\",\"code\":\""+code+"\",";
+            //myData += "\"redirect_uri\":\"" + "https://dev.masteronline.co.id/manage/master/marketplace" + "\",";
+            //myData += "\"client_id\":\""+client_id+"\",\"client_secret\":\""+ client_secret + "\"}";
+            string myData = "grant_type=client_credentials&code=" + code;
+            myData += "&redirect_uri=https://dev.masteronline.co.id/manage/master/marketplace";
+            myData += "&client_id=" + client_id;
+            myData += "&client_secret=" + client_secret;
+
+            var data = Encoding.ASCII.GetBytes(myData);
             string stringRet = "";
             try
             {
                 myReq.ContentLength = myData.Length;
+                //using (var dataStream = myReq.GetRequestStream())
+                //{
+                //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                //}
                 using (var dataStream = myReq.GetRequestStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    dataStream.Write(data, 0, data.Length);
                 }
                 using (WebResponse response = myReq.GetResponse())
                 {
