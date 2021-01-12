@@ -58453,17 +58453,29 @@ namespace MasterOnline.Controllers
                                         dataVm.Errors.Add("Kode barang bundling tidak boleh sama dengan kode barang komponen.");
                                         return Json(dataVm, JsonRequestBehavior.AllowGet);
                                     }
-                                    //var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.BRG == cekBarang);
-                                    //var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == cekBarang);
-                                    //var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == cekBarang);
-                                    //var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == cekBarang);
-                                    //var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
 
-                                    //if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
-                                    //{
-                                    //    dataVm.Errors.Add("Barang " + cekBarang + " sudah dipakai di transaksi tidak bisa dijadikan barang multi SKU !");
-                                    //    return Json(dataVm, JsonRequestBehavior.AllowGet);
-                                    //}
+                                    var cekBundling = ErasoftDbContext.STF03.Where(a => a.Unit == dataVm.Bundling.Unit).ToList();
+                                    if (cekBundling.Count() == 0)
+                                    {
+                                        var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.BRG == cekBarang);
+                                        var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == cekBarang);
+                                        var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == cekBarang);
+                                        var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == cekBarang);
+                                        var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
+
+                                        if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
+                                        {
+                                            dataVm.Errors.Add("Barang " + dataVm.Bundling.Unit + " sudah dipakai di transaksi, tidak bisa dijadikan barang bundling !");
+                                            return Json(dataVm, JsonRequestBehavior.AllowGet);
+                                        }
+                                    }
+
+                                    var cekKomponenIncekBundling = cekBundling.Select(a => a.Brg).ToList();
+                                    if (cekKomponenIncekBundling.Contains(dataVm.Bundling.Brg))
+                                    {
+                                        dataVm.Errors.Add("Kode barang " + dataVm.Bundling.Brg + " sudah ada di bundling brg " + dataVm.Bundling.Unit + ".");
+                                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                                    }
 
                                     //cekBrgKomponen.TYPE = "6"; --tipe tetep 3 untuk barang komponen 
                                     cekBrgKomponen.GENERIC = true;
