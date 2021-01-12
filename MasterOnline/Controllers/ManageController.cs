@@ -61745,30 +61745,62 @@ namespace MasterOnline.Controllers
         {
             //if(listFaktur != "" && listFaktur != "''")
             //{
-                ////string sSQL = "UPDATE C SET BRUTO = QRY.NILAI, NETTO = (QRY.NILAI + C.MATERAI - C.DISCOUNT) FROM SIT01A C (nolock) INNER JOIN ( ";
-                ////sSQL += "SELECT A.NO_BUKTI, SUM(B.HARGA) NILAI ";
-                ////sSQL += "FROM SIT01A A(nolock) INNER JOIN SIT01B B(nolock) ON A.NO_BUKTI = B.NO_BUKTI ";
-                ////sSQL += "GROUP BY A.NO_BUKTI ";
-                ////sSQL += ") QRY ON C.NO_BUKTI = QRY.NO_BUKTI ";
-                ////sSQL += "WHERE C.NO_BUKTI IN (" + listFaktur + ")  AND C.JENIS_FORM='2'";
-                //////foreach (var faktur in newFakturs)
-                //////{
-                //////    sSQL += "'" + faktur.NO_BUKTI + "' , ";
-                //////}
-                //////sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
-                //string sSQL = "UPDATE A SET BRUTO = A.BRUTO FROM SIT01A A (NOLOCK) WHERE A.NO_BUKTI IN (" + listFaktur + ") AND A.JENIS_FORM='2'";
-                
-                //var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+            ////string sSQL = "UPDATE C SET BRUTO = QRY.NILAI, NETTO = (QRY.NILAI + C.MATERAI - C.DISCOUNT) FROM SIT01A C (nolock) INNER JOIN ( ";
+            ////sSQL += "SELECT A.NO_BUKTI, SUM(B.HARGA) NILAI ";
+            ////sSQL += "FROM SIT01A A(nolock) INNER JOIN SIT01B B(nolock) ON A.NO_BUKTI = B.NO_BUKTI ";
+            ////sSQL += "GROUP BY A.NO_BUKTI ";
+            ////sSQL += ") QRY ON C.NO_BUKTI = QRY.NO_BUKTI ";
+            ////sSQL += "WHERE C.NO_BUKTI IN (" + listFaktur + ")  AND C.JENIS_FORM='2'";
+            //////foreach (var faktur in newFakturs)
+            //////{
+            //////    sSQL += "'" + faktur.NO_BUKTI + "' , ";
+            //////}
+            //////sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
+            //string sSQL = "UPDATE A SET BRUTO = A.BRUTO FROM SIT01A A (NOLOCK) WHERE A.NO_BUKTI IN (" + listFaktur + ") AND A.JENIS_FORM='2'";
+
+            //var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
             //}
-            if(listFakturArray.Count() > 0 && listFakturArray != null)
+            
+            if (listFakturArray.Count() > 0 && listFakturArray != null)
             {
                 for (int i = 0; i < listFakturArray.Count(); i++)
                 {
                     string sSQLUpdate = "UPDATE A SET BRUTO = A.BRUTO, NETTO = A.NETTO FROM SIT01A A (NOLOCK) WHERE A.NO_BUKTI = '" + listFakturArray[i] + "' AND A.JENIS_FORM='2' ";
                     var resultUpdateArray = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdate);
                 }
+
+                //add by nurul 12/1/2021, tambah validasi untuk cek art01d 
+                if (listFaktur != "" && listFaktur != "''")
+                {
+                    var sSQLCek = "SELECT A.NO_BUKTI FROM SIT01A A (NOLOCK) LEFT JOIN ART01D B (NOLOCK) ON A.NO_BUKTI=B.FAKTUR WHERE ISNULL(B.FAKTUR,'')='' AND A.NO_BUKTI IN (" + listFaktur + ")";
+                    var dsGagalCreateART01D = EDB.GetDataSet("CString", "SIT01A", sSQLCek);
+                    if (dsGagalCreateART01D.Tables[0].Rows.Count > 0)
+                    {
+                        for (int i = 0; i < dsGagalCreateART01D.Tables[0].Rows.Count; i++)
+                        {
+                            var a = dsGagalCreateART01D.Tables[0].Rows[i]["NO_BUKTI"].ToString();
+                            string sSQLUpdate = "UPDATE A SET BRUTO = A.BRUTO, NETTO = A.NETTO FROM SIT01A A (NOLOCK) WHERE A.NO_BUKTI = '" + dsGagalCreateART01D.Tables[0].Rows[i]["NO_BUKTI"].ToString() + "' AND A.JENIS_FORM='2' ";
+                            var resultUpdateArray = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdate);
+                        }
+                    }
+                }
+                if (listFaktur != "" && listFaktur != "''")
+                {
+                    var sSQLCek = "SELECT A.NO_BUKTI FROM SIT01A A (NOLOCK) LEFT JOIN ART01D B (NOLOCK) ON A.NO_BUKTI=B.FAKTUR WHERE ISNULL(B.FAKTUR,'')='' AND A.NO_BUKTI IN (" + listFaktur + ")";
+                    var dsGagalCreateART01D = EDB.GetDataSet("CString", "SIT01A", sSQLCek);
+                    if (dsGagalCreateART01D.Tables[0].Rows.Count > 0)
+                    {
+                        for (int i = 0; i < dsGagalCreateART01D.Tables[0].Rows.Count; i++)
+                        {
+                            var a = dsGagalCreateART01D.Tables[0].Rows[i]["NO_BUKTI"].ToString();
+                            string sSQLUpdate = "UPDATE A SET BRUTO = A.BRUTO, NETTO = A.NETTO FROM SIT01A A (NOLOCK) WHERE A.NO_BUKTI = '" + dsGagalCreateART01D.Tables[0].Rows[i]["NO_BUKTI"].ToString() + "' AND A.JENIS_FORM='2' ";
+                            var resultUpdateArray = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdate);
+                        }
+                    }
+                }
+                //end add by nurul 12/1/2021, tambah validasi untuk cek art01d 
             }
-            if(listRecnumPesanan != "" && listRecnumPesanan != "''")
+            if (listRecnumPesanan != "" && listRecnumPesanan != "''")
             {
                 string sSQLStatus = "UPDATE A SET STATUS_TRANSAKSI = '03' , status_kirim = (CASE WHEN ISNULL(A.status_kirim,'')<>'2' THEN '0' ELSE A.status_kirim END) " +
                                     "FROM SOT01A A (NOLOCK) INNER JOIN SIT01A B (NOLOCK) ON A.NO_BUKTI=B.NO_SO WHERE A.RECNUM IN (" + listRecnumPesanan + ")";
