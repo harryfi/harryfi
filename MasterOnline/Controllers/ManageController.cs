@@ -8350,10 +8350,12 @@ namespace MasterOnline.Controllers
 
         //add by fauzi 20 Mei 2020
 #region category 82Cart
-        public ActionResult GetAttribute82CartByCode_varian_group()
+        public ActionResult GetAttribute82CartByCode_varian_group(string code)
         {
+            string[] codelist = code.Split(';');
+            int recNum = Convert.ToInt32(codelist[1]);
             var e2CartController = new EightTwoCartController();
-            var groupAttributes = e2CartController.E2Cart_GetAttributeGroup_Varian();
+            var groupAttributes = e2CartController.E2Cart_GetAttributeGroup_Varian(recNum);
 
             var serializer = new JavaScriptSerializer();
             serializer.MaxJsonLength = Int32.MaxValue;
@@ -8369,8 +8371,9 @@ namespace MasterOnline.Controllers
         public ActionResult GetAttribute82CartByCode_varian_item(string code)
         {
             string[] codelist = code.Split(';');
+            int recNum = Convert.ToInt32(codelist[2]);
             var e2CartController = new EightTwoCartController();
-            var itemAttributes = e2CartController.E2Cart_GetAttributeItem_Varian(codelist[0]);
+            var itemAttributes = e2CartController.E2Cart_GetAttributeItem_Varian(codelist[0], recNum);
 
             var serializer = new JavaScriptSerializer();
             serializer.MaxJsonLength = Int32.MaxValue;
@@ -11745,7 +11748,7 @@ namespace MasterOnline.Controllers
                                                 //var checkProductExist = ShopifyAPI.GetItemSingle(iden, stf02h.BRG);
                                                 //ShopifyAPI.CheckProduct(iden, stf02h.BRG_MP, stf02h.BRG);
 
-                                                ShopifyAPI.Shopify_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Update Produk", iden, stf02h.BRG_MP);
+                                                Task.Run(() => ShopifyAPI.Shopify_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Update Produk", iden, stf02h.BRG_MP)).Wait();
 
 #else
                                                 clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_UpdateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Update Produk", iden, stf02h.BRG_MP));
