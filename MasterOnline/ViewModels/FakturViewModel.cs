@@ -86,7 +86,10 @@ namespace MasterOnline.ViewModels
         public string alamatPenerima { get; set; }
         public SIT01A Faktur { get; set; }
         public List<ARF01C> ListPembeli { get; set; } = new List<ARF01C>();
-        public List<SIT01B> ListFakturDetail { get; set; } = new List<SIT01B>();
+        //change by nurul 13/1/2021, barang bundling
+        //public List<SIT01B> ListFakturDetail { get; set; } = new List<SIT01B>();
+        public List<tempDetailFaktur> ListFakturDetail { get; set; } = new List<tempDetailFaktur>();
+        //end change by nurul 13/1/2021, barang bundling
         public List<STF02> ListBarang { get; set; } = new List<STF02>();
         
         public string linktotal { get; set; }
@@ -137,4 +140,16 @@ namespace MasterOnline.ViewModels
         public string gudang { get; set; }
     }
     //end add by nurul 8/6/2020
+
+    //add by nurul 13/1/2021, barang bundling
+    public class tempDetailFaktur
+    {
+        public string BRG { get; set; }
+        public double? QTY { get; set; }
+        public double? H_SATUAN { get; set; }
+        public double? NILAI_DISC { get; set; }
+        public double? HARGA { get; set; }
+        public string BRG_MULTISKU { get; set; }
+    }
+    //end add by nurul 13/1/2021, barang bundling
 }

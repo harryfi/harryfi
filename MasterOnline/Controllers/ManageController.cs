@@ -25052,13 +25052,57 @@ namespace MasterOnline.Controllers
                 var listSi = ListSot01a.Select(p => p.si_bukti).ToList();
                 var faktur = ErasoftDbContext.SIT01A.Where(a => listSi.Contains(a.NO_BUKTI)).ToList();
                 var detailFaktur = ErasoftDbContext.SIT01B.Where(a => listSi.Contains(a.NO_BUKTI)).ToList(); ;
+                //add by nurul 13/1/2021, barang bundling
+                var detailFakturBundling = ErasoftDbContext.SIT01H.Where(a => listSi.Contains(a.NO_BUKTI)).ToList();
+                //add by nurul 13/1/2021, barang bundling
 
                 foreach (var so in ListSot01a)
                 {
                     var detailFakturIndb = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList();
+                    //add by nurul 13/1/2021, barang bundling
+                    var ListTempDetailFaktur = new List<tempDetailFaktur>();
+                    if (detailFakturIndb.Count() > 0)
+                    {
+                        for (int i = 0; i < detailFakturIndb.Count; i++)
+                        {
+                            if (string.IsNullOrEmpty(detailFakturIndb[i].BRG_BUNDLING))
+                            {
+                                var detailSOT01B = new tempDetailFaktur() { };
+                                detailSOT01B.BRG = detailFakturIndb[i].BRG;
+                                detailSOT01B.QTY = detailFakturIndb[i].QTY;
+                                detailSOT01B.H_SATUAN = detailFakturIndb[i].H_SATUAN;
+                                detailSOT01B.NILAI_DISC = detailFakturIndb[i].NILAI_DISC;
+                                detailSOT01B.HARGA = detailFakturIndb[i].HARGA;
+                                detailSOT01B.BRG_MULTISKU = detailFakturIndb[i].BRG_MULTISKU;
+                                ListTempDetailFaktur.Add(detailSOT01B);
+                            }
+                        }
+                    }
+                    var detailFakturBundlingIndb = detailFakturBundling.Where(a => a.NO_BUKTI == so.si_bukti).ToList();
+                    if (detailFakturBundlingIndb.Count() > 0)
+                    {
+                        for (int i = 0; i < detailFakturBundlingIndb.Count; i++)
+                        {
+                            var detailSOT01B = new tempDetailFaktur() { };
+                            detailSOT01B.BRG = detailFakturBundlingIndb[i].BRG;
+                            detailSOT01B.QTY = detailFakturBundlingIndb[i].QTY;
+                            detailSOT01B.H_SATUAN = (detailFakturBundlingIndb[i].HARGA / detailFakturBundlingIndb[i].QTY);
+                            detailSOT01B.NILAI_DISC = 0;
+                            detailSOT01B.HARGA = detailFakturBundlingIndb[i].HARGA;
+                            detailSOT01B.BRG_MULTISKU = "";
+                            ListTempDetailFaktur.Add(detailSOT01B);
+                        }
+                    }
+                    //end add by nurul 13/1/2021, barang bundling
+
                     //var listBarangInFakturDetail = detailFakturIndb.Select(p => p.BRG).ToList();
-                    var listBarangInFakturDetail = (from p in detailFakturIndb
+                    //change by nurul 13/1/2021, barang bundling
+                    //var listBarangInFakturDetail = (from p in detailFakturIndb
+                    //                                select new { BRG_NEW = p.BRG_MULTISKU != "" && p.BRG_MULTISKU != null ? p.BRG_MULTISKU : p.BRG }).Select(a => a.BRG_NEW).ToList();
+                    var listBarangInFakturDetail = (from p in ListTempDetailFaktur
                                                     select new { BRG_NEW = p.BRG_MULTISKU != "" && p.BRG_MULTISKU != null ? p.BRG_MULTISKU : p.BRG }).Select(a => a.BRG_NEW).ToList();
+                    //end change by nurul 13/1/2021, barang bundling
+
                     var al_buyer = so.so_alamat + ' ' + so.so_kota + ' ' + so.so_propinsi + ' ' + so.so_pos;
                     var resi = so.no_resi;
                     //add by nurul 26/3/2020
@@ -25105,7 +25149,10 @@ namespace MasterOnline.Controllers
                         namaPembeli = so.namapembeli,
                         tlpPembeli = so.tlppembeli,
                         ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && (a.TYPE == "3" || a.TYPE == "6")).ToList(),
-                        ListFakturDetail = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList(),
+                        //change by nurul 13/1/2021, barang bundling
+                        //ListFakturDetail = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList(),
+                        ListFakturDetail = ListTempDetailFaktur,
+                        //end change by nurul 13/1/2021, barang bundling
                         AlamatToko = alamat1,
                         TlpToko = tlp,
                         //noRef = so.so_referensi,
@@ -55360,7 +55407,7 @@ namespace MasterOnline.Controllers
             //return JsonErrorMessage("This Function is for JD.ID only");
         }
         //end by fauzi
-
+                
         //add by nurul 11/12/2019, cetak label pesanan
         public ActionResult CetakLabelMo(string cust, string bukti, string[] rows_selected, string toko, string tlpToko, string ctkLabel, string alLink, string noLink, string namaLink, string mpLink, string nobukLink, string totalLink, string portLink, string refLink, List<tempBarcodeLazada> data, string ketLink)
         {
@@ -55433,16 +55480,60 @@ namespace MasterOnline.Controllers
 
                 var listSi = ListSot01a.Select(p => p.si_bukti).ToList();
                 var faktur = ErasoftDbContext.SIT01A.Where(a => listSi.Contains(a.NO_BUKTI)).ToList();
-                var detailFaktur = ErasoftDbContext.SIT01B.Where(a => listSi.Contains(a.NO_BUKTI)).ToList(); ;
+                var detailFaktur = ErasoftDbContext.SIT01B.Where(a => listSi.Contains(a.NO_BUKTI)).ToList();
+                //add by nurul 13/1/2021, barang bundling
+                var detailFakturBundling = ErasoftDbContext.SIT01H.Where(a => listSi.Contains(a.NO_BUKTI)).ToList();
+                //add by nurul 13/1/2021, barang bundling
 
                 foreach (var so in ListSot01a)
                 {
                     var detailFakturIndb = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList();
+
+                    //add by nurul 13/1/2021, barang bundling
+                    var ListTempDetailFaktur = new List<tempDetailFaktur>();
+                    if (detailFakturIndb.Count() > 0)
+                    {
+                        for (int i = 0; i < detailFakturIndb.Count; i++)
+                        {
+                            if (string.IsNullOrEmpty(detailFakturIndb[i].BRG_BUNDLING))
+                            {
+                                var detailSOT01B = new tempDetailFaktur() { };
+                                detailSOT01B.BRG = detailFakturIndb[i].BRG;
+                                detailSOT01B.QTY = detailFakturIndb[i].QTY;
+                                detailSOT01B.H_SATUAN = detailFakturIndb[i].H_SATUAN;
+                                detailSOT01B.NILAI_DISC = detailFakturIndb[i].NILAI_DISC;
+                                detailSOT01B.HARGA = detailFakturIndb[i].HARGA;
+                                detailSOT01B.BRG_MULTISKU = detailFakturIndb[i].BRG_MULTISKU;
+                                ListTempDetailFaktur.Add(detailSOT01B);
+                            }
+                        }
+                    }
+                    var detailFakturBundlingIndb = detailFakturBundling.Where(a => a.NO_BUKTI == so.si_bukti).ToList();
+                    if (detailFakturBundlingIndb.Count() > 0)
+                    {
+                        for (int i = 0; i < detailFakturBundlingIndb.Count; i++)
+                        {
+                            var detailSOT01B = new tempDetailFaktur() { };
+                            detailSOT01B.BRG = detailFakturBundlingIndb[i].BRG;
+                            detailSOT01B.QTY = detailFakturBundlingIndb[i].QTY;
+                            detailSOT01B.H_SATUAN = (detailFakturBundlingIndb[i].HARGA / detailFakturBundlingIndb[i].QTY);
+                            detailSOT01B.NILAI_DISC = 0;
+                            detailSOT01B.HARGA = detailFakturBundlingIndb[i].HARGA;
+                            detailSOT01B.BRG_MULTISKU = "";
+                            ListTempDetailFaktur.Add(detailSOT01B);
+                        }
+                    }
+                    //end add by nurul 13/1/2021, barang bundling
+
                     //change by nurul 16/9/2020, barang multi sku 
                     //var listBarangInFakturDetail = detailFakturIndb.Select(p => p.BRG).ToList();
-                    var listBarangInFakturDetail = (from p in detailFakturIndb
+                    //change by nurul 13/1/2021, barang bundling
+                    //var listBarangInFakturDetail = (from p in detailFakturIndb
+                    //                                select new { BRG_NEW = p.BRG_MULTISKU != "" && p.BRG_MULTISKU != null ? p.BRG_MULTISKU : p.BRG }).Select(a => a.BRG_NEW).ToList();
+                    var listBarangInFakturDetail = (from p in ListTempDetailFaktur
                                                     select new { BRG_NEW = p.BRG_MULTISKU != "" && p.BRG_MULTISKU != null ? p.BRG_MULTISKU : p.BRG }).Select(a => a.BRG_NEW).ToList();
-                    //change by nurul 16/9/2020, barang multi sku 
+                    //end change by nurul 13/1/2021, barang bundling
+                    //end change by nurul 16/9/2020, barang multi sku 
                     var al_buyer = so.so_alamat + ' ' + so.so_kota + ' ' + so.so_propinsi + ' ' + so.so_pos;
                     var resi = so.no_resi;
                     //add by nurul 26/3/2020
@@ -55505,7 +55596,10 @@ namespace MasterOnline.Controllers
                         namaPembeli = so.namapembeli,
                         tlpPembeli = so.tlppembeli,
                         ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && (a.TYPE == "3" || a.TYPE == "6")).ToList(),
-                        ListFakturDetail = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList(),
+                        //change by nurul 13/1/2021, barang bundling
+                        //ListFakturDetail = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList(),
+                        ListFakturDetail = ListTempDetailFaktur,
+                        //end change by nurul 13/1/2021, barang bundling
                         AlamatToko = alamat1,
                         TlpToko = tlp,
                         //noRef = so.so_referensi,
@@ -58457,11 +58551,11 @@ namespace MasterOnline.Controllers
                                     var cekBundling = ErasoftDbContext.STF03.Where(a => a.Unit == dataVm.Bundling.Unit).ToList();
                                     if (cekBundling.Count() == 0)
                                     {
-                                        var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.BRG == cekBarang);
-                                        var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == cekBarang);
-                                        var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == cekBarang);
-                                        var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == cekBarang);
-                                        var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == cekBarang);
+                                        var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.BRG == dataVm.Bundling.Unit);
+                                        var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == dataVm.Bundling.Unit);
+                                        var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == dataVm.Bundling.Unit);
+                                        var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == dataVm.Bundling.Unit);
+                                        var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == dataVm.Bundling.Unit);
 
                                         if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
                                         {
