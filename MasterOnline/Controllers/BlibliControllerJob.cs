@@ -8506,7 +8506,7 @@ namespace MasterOnline.Controllers
             if (iden.versiToken == "2")
             {
                 var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
-                var resCek = cekProductQC(productCodeBlibli, iden, customer.RecNum ?? 0, kodeProduk);
+                var resCek = cekProductQC(productCodeBlibli, iden, customer.RecNum ?? 0, kodeProduk, 0);
                 if (resCek.status == 1)//need correction
                 {
                     using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
@@ -8704,7 +8704,9 @@ namespace MasterOnline.Controllers
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
 
             string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/inProcessProduct", iden.API_secret_key);
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/inProcessProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&size=50&channelId=MasterOnline";
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/inProcessProduct?requestId=" 
+                + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) 
+                + "&size=50&channelId=MasterOnline&page=" + page;
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -8764,7 +8766,7 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public BindingBase cekProductQC(string kodeProduk, BlibliAPIData iden, int idMarket, string brg)
+        public BindingBase cekProductQC(string kodeProduk, BlibliAPIData iden, int idMarket, string brg, int page)
         {
 
             long milis = CurrentTimeMillis();
@@ -8791,7 +8793,7 @@ namespace MasterOnline.Controllers
             string myData = "{ \"filter\" : { ";
             myData += "\"state\": \"NEED_CORRECTION\"},";
             myData += "\"paging\": {";
-            myData += "\"page\": 0, ";
+            myData += "\"page\": "+page+", ";
             myData += "\"size\": 100 } ";
             myData += "}";
             string responseFromServer = "";
@@ -8839,6 +8841,11 @@ namespace MasterOnline.Controllers
                                     ret.message = data.product.revisionNotes;
                                     return ret;
                                 }
+                            }
+
+                            if(listBrg.content.Length == 100)
+                            {
+                                cekProductQC( kodeProduk,  iden,  idMarket,  brg,  page + 1);
                             }
                         }
                     }
@@ -10005,6 +10012,7 @@ namespace MasterOnline.Controllers
             public string[] merchantSkus { get; set; }
             public bool isArchive { get; set; }
             public int size { get; set; }
+            public int page { get; set; }
         }
 
         public class BlibliGetQueueProductCode
@@ -10142,6 +10150,11 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Create Product {obj} ke Blibli Berhasil. Cek Active Gagal.")]
         public async Task<string> CekProductActive(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, string kodeInduk, List<string> merchantskus, string cust, string queue_feed_requestid, string api_log_requestId)
         {
+            await CekProductActiveWithPage(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, kodeInduk, merchantskus, cust, queue_feed_requestid, api_log_requestId, 0);
+            return "";
+        }
+        public async Task<string> CekProductActiveWithPage(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, string kodeInduk, List<string> merchantskus, string cust, string queue_feed_requestid, string api_log_requestId, int page)
+        {
 
             var token = SetupContext(iden);
             iden.token = token;
@@ -10149,7 +10162,7 @@ namespace MasterOnline.Controllers
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
-            string myData = JsonConvert.SerializeObject(new BlibliCekProductActive() { merchantSkus = merchantskus.ToArray(), isArchive = false, size = 100 });
+            string myData = JsonConvert.SerializeObject(new BlibliCekProductActive() { merchantSkus = merchantskus.ToArray(), isArchive = false, size = 100, page = page });
 
             //change by nurul 13/7/2020
             //    string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
@@ -10294,31 +10307,6 @@ namespace MasterOnline.Controllers
                                 itemUpdateStok.Add(item.merchantSku);
                             }
 
-                            #region update stok
-                            string ConnId = "[BLI_QC][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]";
-                            string sSQLValues = "";
-
-                            foreach (var item in itemUpdateStok)
-                            {
-                                sSQLValues = sSQLValues + "('" + item + "', '" + ConnId + "'),";
-                            }
-                            if (sSQLValues != "")
-                            {
-                                sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
-                                using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
-                                {
-                                    oConnection.Open();
-                                    using (SqlCommand oCommand = oConnection.CreateCommand())
-                                    {
-                                        oCommand.CommandType = CommandType.Text;
-                                        oCommand.CommandText = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues;
-                                        oCommand.ExecuteNonQuery();
-                                    }
-                                }
-
-                                new StokControllerJob().updateStockMarketPlace(ConnId, dbPathEra, "BlibliActive");
-                            }
-                            #endregion
                             string STF02_BRG = kodeInduk;
 
                             var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == api_log_requestId).SingleOrDefault();
@@ -10359,6 +10347,36 @@ namespace MasterOnline.Controllers
                                     oCommand.Parameters[2].Value = kodeInduk;
                                     oCommand.ExecuteNonQuery();
                                 }
+                            }
+
+                            #region update stok
+                            string ConnId = "[BLI_QC][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]";
+                            string sSQLValues = "";
+
+                            foreach (var item in itemUpdateStok)
+                            {
+                                sSQLValues = sSQLValues + "('" + item + "', '" + ConnId + "'),";
+                            }
+                            if (sSQLValues != "")
+                            {
+                                sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
+                                using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                {
+                                    oConnection.Open();
+                                    using (SqlCommand oCommand = oConnection.CreateCommand())
+                                    {
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.CommandText = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues;
+                                        oCommand.ExecuteNonQuery();
+                                    }
+                                }
+
+                                new StokControllerJob().updateStockMarketPlace(ConnId, dbPathEra, "BlibliActive");
+                            }
+                            #endregion
+                            if (listBrg.content.Count() == 100)
+                            {
+                                await CekProductActiveWithPage(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, kodeInduk, merchantskus, cust, queue_feed_requestid, api_log_requestId, page + 1);
                             }
                         }
                         else
