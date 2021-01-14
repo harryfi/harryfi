@@ -3274,13 +3274,13 @@ namespace MasterOnline.Controllers
                                     var vNamaKurir = order.carrierCompany != null ? order.carrierCompany.Replace('\'', '`').Replace("'", "") : "";
                                     var vNoResi = order.expressNo != null ? order.expressNo.Replace('\'', '`').Replace("'", "") : "";
 
-                                    if (!string.IsNullOrEmpty(vNamaKurir))
-                                    {
-                                        if (vNamaKurir.Contains("Gosend"))
-                                        {
-                                            vNamaKurir = "Go-Send";
-                                        }
-                                    }
+                                    //if (!string.IsNullOrEmpty(vNamaKurir))
+                                    //{
+                                    //    if (vNamaKurir.Contains("Gosend"))
+                                    //    {
+                                    //        vNamaKurir = "Go-Send";
+                                    //    }
+                                    //}
 
                                     //insertQ += "('" + order.address.Replace('\'', '`') + "','" + order.area.Replace('\'', '`') + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + order.city.Replace('\'', '`') + "'," + order.couponAmount + ",'" + order.customerName + "','";
                                     //var insertQValue = "('" + vOrderAddress + "','" + vArea + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + vCity + "'," + order.couponAmount + ",'" + nama + "','";
