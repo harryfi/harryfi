@@ -2791,13 +2791,25 @@ namespace MasterOnline.Controllers
                                                        }
                                         ).ToList();
 
+                                    var resultCekPB = (from a in ErasoftDbContext.PBT01B
+                                                       join b in ErasoftDbContext.PBT01A on a.INV equals b.INV
+                                                       where a.BRG.ToUpper() == listKodeBaru.ToUpper()
+                                                       select new
+                                                       {
+                                                           a.INV,
+                                                           a.BRG,
+                                                           b.POSTING
+                                                       }
+                                        ).ToList();
+
                                     //var checkPostingSI = ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == checkSI.NO_BUKTI).SingleOrDefault();
                                     //var checkST = ErasoftDbContext.STT01B.Where(p => p.Kobar == kodeBrgLamaCheck).Select(p => p.Nobuk).SingleOrDefault();
                                     //var checkPostingST = ErasoftDbContext.STT01A.Where(p => p.Nobuk == checkST).SingleOrDefault();
                                     var checkResultSI = resultCekSI.Where(p => p.ST_POSTING.Contains("Y")).ToList();
                                     var checkResultST = resultCekST.Where(p => p.ST_Posting.Contains("Y")).ToList();
+                                    var checkResultPB = resultCekPB.Where(p => p.POSTING.Contains("Y")).ToList();
 
-                                    if (checkResultSI.Count() == 0 && checkResultST.Count() == 0)
+                                    if (checkResultSI.Count() == 0 && checkResultST.Count() == 0 && checkResultPB.Count() == 0 && resultCekPB.Count() == 0)
                                     {
                                         // kondisi kalau belum posting
                                         sqlListKodeLama += "'" + listKodeBaru + "',";
@@ -3030,10 +3042,23 @@ namespace MasterOnline.Controllers
                                                        }
                                         ).ToList();
 
+                                    var resultCekPB = (from a in ErasoftDbContext.PBT01B
+                                                       join b in ErasoftDbContext.PBT01A on a.INV equals b.INV
+                                                       where a.BRG.ToUpper() == listKodeBaru.ToUpper()
+                                                       select new
+                                                       {
+                                                           a.INV,
+                                                           a.BRG,
+                                                           b.POSTING
+                                                       }
+                                        ).ToList();
+
                                     var checkResultSI = resultCekSI.Where(p => p.ST_POSTING.Contains("Y")).ToList();
                                     var checkResultST = resultCekST.Where(p => p.ST_Posting.Contains("Y")).ToList();
+                                    var checkResultPB = resultCekPB.Where(p => p.POSTING.Contains("Y")).ToList();
 
-                                    if (checkResultSI.Count() == 0 && checkResultST.Count() == 0)
+                                    if (checkResultSI.Count() == 0 && checkResultST.Count() == 0 && checkResultPB.Count() == 0 &&
+                                        resultCekSI.Count() == 0 && resultCekST.Count() == 0 && resultCekPB.Count() == 0)
                                     {
                                         // kondisi kalau belum posting
                                         sqlListKodeBaru += "'" + listKodeBaru + "',";
@@ -3147,7 +3172,7 @@ namespace MasterOnline.Controllers
                 //return View(vm);
                 if (!string.IsNullOrEmpty(vlistKodeSudahPosting))
                 {
-                    return new JsonResult { Data = new { success = resultDelete, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    return new JsonResult { Data = new { success = resultDelete, dataposting = "Terdapat kode barang yang sudah posting / ada transaksi. mohon konfirmasi ulang dengan customer. : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
                 else if (!string.IsNullOrEmpty(vkodebarangtidakada))
                 {
