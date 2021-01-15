@@ -1594,7 +1594,7 @@
                                         //$('#attribute_blibli_' + listMarketRecNum).append('<div class="col-md-2" style="margin-top:10px;">' + label + fieldACODE + fieldANAME + '</div>');
 
                                         var fieldAVALUE_ID = 'ListHargaJualPermarket_' + listmarket_i + '__AVALUE_' + (i + 1);
-
+                                      
                                         var adaValue = "";
                                         if (ListHargaJualPermarketView != null) {
                                             if (ListHargaJualPermarketView.length > 0) {
@@ -1609,7 +1609,12 @@
                                                 //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
                                         }
-
+                                        if (adaValue == null) {
+                                            adaValue = "";
+                                        }
+                                        else if (adaValue.includes( "<p>null</p>")) {
+                                            adaValue = "";
+                                        }
                                         if (AINPUT_TYPE.toUpperCase().includes("MULTI") || AINPUT_TYPE.toUpperCase().includes("SELECT") || AINPUT_TYPE.toUpperCase().includes("ENUMINPUT")) {
                                             //hidden
                                             fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
