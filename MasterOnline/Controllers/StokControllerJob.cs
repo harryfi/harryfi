@@ -2479,6 +2479,8 @@ namespace MasterOnline.Controllers
                             }
                             //end change by nurul 13/7/2020
                             string responseFromServer = "";
+                            try
+                            {
 
                             myReq.ContentLength = myData.Length;
                             using (var dataStream = myReq.GetRequestStream())
@@ -2491,6 +2493,49 @@ namespace MasterOnline.Controllers
                                 {
                                     StreamReader reader = new StreamReader(stream);
                                     responseFromServer = reader.ReadToEnd();
+                                }
+                                }
+                            }
+                            catch (WebException e)
+                            {
+                                string err = "";
+                                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                                if (e.Status == WebExceptionStatus.ProtocolError)
+                                {
+                                    WebResponse resp = e.Response;
+                                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                                    {
+                                        err = sr.ReadToEnd();
+                                    }
+                                    var response = e.Response as HttpWebResponse;
+                                    var status = (int)response.StatusCode;
+                                    if(status == 429)
+                                    {
+                                        if (string.IsNullOrEmpty(data.berat))
+                                        {
+                                            data.berat = "0";
+                                        }
+                                        var loop = Convert.ToInt32(data.berat);
+                                        if(loop < 2)
+                                        {
+                                            await Task.Delay(60000);
+                                            data.berat = (loop + 1).ToString();
+                                            await Blibli_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, log_ActionCategory, log_ActionName, iden, data, uname, context);
+                                        }
+                                        else
+                                        {
+                                            throw new Exception(err);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new Exception(err);
+                                    }
+                                }
+                                else
+                                {
+                                    throw new Exception(e.Message);
                                 }
                             }
                             if (responseFromServer != null)
