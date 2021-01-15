@@ -1609,7 +1609,10 @@
                                                 //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
                                         }
-                                        if (adaValue.includes( "<p>null</p>")) {
+                                        if (adaValue == null) {
+                                            adaValue = "";
+                                        }
+                                        else if (adaValue.includes( "<p>null</p>")) {
                                             adaValue = "";
                                         }
                                         if (AINPUT_TYPE.toUpperCase().includes("MULTI") || AINPUT_TYPE.toUpperCase().includes("SELECT") || AINPUT_TYPE.toUpperCase().includes("ENUMINPUT")) {
