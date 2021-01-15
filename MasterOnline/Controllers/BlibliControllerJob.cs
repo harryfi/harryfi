@@ -2805,12 +2805,60 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (WebException e)
                 {
-                    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                    throw new Exception(currentLog.REQUEST_EXCEPTION);
+                    string err = "";
+                    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    if (e.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        WebResponse resp = e.Response;
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            err = sr.ReadToEnd();
+                        }
+                        var response = e.Response as HttpWebResponse;
+                        var status = (int)response.StatusCode;
+                        if (status == 429)
+                        {
+                            if (string.IsNullOrEmpty(data.berat))
+                            {
+                                data.berat = "0";
+                            }
+                            var loop = Convert.ToInt32(data.berat);
+                            if (loop < 2)
+                            {
+                                await Task.Delay(60000);
+                                data.berat = (loop + 1).ToString();
+                                await UpdateProdukQOH_Display_Job(dbPathEra, kdbrgMO, log_CUST, log_ActionCategory, log_ActionName, product_id, iden, data);
+                            }
+                            else
+                            {
+                                currentLog.REQUEST_EXCEPTION = err;
+                                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                                throw new Exception(err);
+                            }
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_EXCEPTION = err;
+                            manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                            throw new Exception(err);
+                        }
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_EXCEPTION = e.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                        throw new Exception(e.Message);
+                    }
                 }
+                //catch (Exception ex)
+                //{
+                //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //    throw new Exception(currentLog.REQUEST_EXCEPTION);
+                //}
                 if (responseFromServer != "")
                 {
                     dynamic result2 = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
