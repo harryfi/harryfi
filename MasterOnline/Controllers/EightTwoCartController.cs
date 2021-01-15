@@ -1776,10 +1776,10 @@ namespace MasterOnline.Controllers
 
         }
 
-        public E2CartAttributeResult E2Cart_GetAttributeGroup_Varian()
+        public E2CartAttributeResult E2Cart_GetAttributeGroup_Varian(int recnum)
         {
             var retAttr = new E2CartAttributeResult();
-            var account = ErasoftDbContext.ARF01.Where(m => m.NAMA == "20").SingleOrDefault();
+            var account = ErasoftDbContext.ARF01.Where(m => m.NAMA == "20" && m.RecNum == recnum).SingleOrDefault();
             string urll = string.Format("{0}/api/v1/getAttribute?apiKey={1}&apiCredential={2}", account.PERSO, account.API_KEY, account.Sort1_Cust);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
@@ -1819,10 +1819,10 @@ namespace MasterOnline.Controllers
             return retAttr;
         }
 
-        public E2CartAttribute E2Cart_GetAttributeItem_Varian(string codeGroup)
+        public E2CartAttribute E2Cart_GetAttributeItem_Varian(string codeGroup, int recnum)
         {
             var retAttr = new E2CartAttribute();
-            var account = ErasoftDbContext.ARF01.Where(m => m.NAMA == "20").SingleOrDefault();
+            var account = ErasoftDbContext.ARF01.Where(m => m.NAMA == "20" && m.RecNum == recnum).SingleOrDefault();
             string urll = string.Format("{0}/api/v1/getAttribute?apiKey={1}&apiCredential={2}&id_attribute_group={3}", account.PERSO, account.API_KEY, account.Sort1_Cust, codeGroup);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);

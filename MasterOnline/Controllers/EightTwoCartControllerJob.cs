@@ -607,6 +607,7 @@ namespace MasterOnline.Controllers
                         {
                             if (resultAPI.error != null && resultAPI.error != "none")
                             {
+                                throw new Exception(responseFromServer);
                                 //currentLog.REQUEST_EXCEPTION = resultAPI.error.ToString();
                                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             }
@@ -616,6 +617,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                throw new Exception(ex.Message.ToString());
                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
@@ -967,6 +969,7 @@ namespace MasterOnline.Controllers
                         {
                             if (resultAPI.error != null && resultAPI.error != "none")
                             {
+                                throw new Exception(responseFromServer);
                                 //currentLog.REQUEST_EXCEPTION = resultAPI.error.ToString();
                                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             }
@@ -976,6 +979,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                throw new Exception(ex.Message.ToString());
                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
