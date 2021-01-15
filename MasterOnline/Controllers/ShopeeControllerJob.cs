@@ -6650,12 +6650,59 @@ namespace MasterOnline.Controllers
 
             foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE" && p.fee_type.ToUpper() != "SIZE_SELECTION"))
             {
-                logistics.Add(new ShopeeLogisticsClass()
+                //logistics.Add(new ShopeeLogisticsClass()
+                //{
+                //    enabled = log.enabled,
+                //    is_free = false,
+                //    logistic_id = log.logistic_id,
+                //});
+                bool lolosValidLogistic = true;
+                if (log.weight_limits != null)
                 {
-                    enabled = log.enabled,
-                    is_free = false,
-                    logistic_id = log.logistic_id,
-                });
+                    if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                    {
+                        lolosValidLogistic = false;
+                    }
+                    if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
+                    {
+                        lolosValidLogistic = false;
+                    }
+                }
+
+                if (log.item_max_dimension != null)
+                {
+                    if (log.item_max_dimension.length > 0)
+                    {
+                        if (log.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+                        {
+                            lolosValidLogistic = false;
+                        }
+                    }
+                    if (log.item_max_dimension.height > 0)
+                    {
+                        if (log.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+                        {
+                            lolosValidLogistic = false;
+                        }
+                    }
+                    if (log.item_max_dimension.width > 0)
+                    {
+                        if (log.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
+                        {
+                            lolosValidLogistic = false;
+                        }
+                    }
+                }
+
+                if (lolosValidLogistic)
+                {
+                    logistics.Add(new ShopeeLogisticsClass()
+                    {
+                        enabled = log.enabled,
+                        is_free = false,
+                        logistic_id = log.logistic_id,
+                    });
+                }
             }
             //end add by calvin 21 desember 2018, default nya semua logistic enabled
 
