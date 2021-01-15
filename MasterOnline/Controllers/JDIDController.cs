@@ -1065,8 +1065,17 @@ namespace MasterOnline.Controllers
                         if (listAttr.model.Count > 0)
                         {
                             string a = "";
-                            int i = 0;
+                            int i = 2;
                             retAttr.CATEGORY_CODE = catId;
+
+                            retAttr["ACODE_1"] = "9170";
+                            retAttr["AVALUE_1"] = "";
+                            retAttr["ANAME_1"] = "Warna";
+
+                            retAttr["ACODE_2"] = "9248";
+                            retAttr["AVALUE_2"] = "";
+                            retAttr["ANAME_2"] = "Ukuran";
+
                             foreach (var attr in listAttr.model)
                             {
 
@@ -1077,6 +1086,7 @@ namespace MasterOnline.Controllers
                                 //i = i + 1;
                                 if (!string.IsNullOrEmpty(attr.name) && !string.IsNullOrEmpty(Convert.ToString(attr.propertyId)))
                                 {
+
                                     if (!attr.name.Contains("Coming Soon") 
                                         //&& !attr.name.Contains("Warna") 
                                         //&& !attr.name.Contains("Ukuran") 
