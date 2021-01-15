@@ -1077,7 +1077,10 @@ namespace MasterOnline.Controllers
                                 //i = i + 1;
                                 if (!string.IsNullOrEmpty(attr.name) && !string.IsNullOrEmpty(Convert.ToString(attr.propertyId)))
                                 {
-                                    if (!attr.name.Contains("Coming Soon") && !attr.name.Contains("Warna") && !attr.name.Contains("Ukuran") && !attr.name.Contains("Test11")
+                                    if (!attr.name.Contains("Coming Soon") 
+                                        //&& !attr.name.Contains("Warna") 
+                                        //&& !attr.name.Contains("Ukuran") 
+                                        && !attr.name.Contains("Test11")
                                         //&& !attr.name.Contains("Network") 
                                         && !attr.name.Contains("Operating system")
                                         && !attr.name.Contains("Upgradable")
