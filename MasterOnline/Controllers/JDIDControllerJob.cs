@@ -2588,14 +2588,19 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 1;
+            var daysNow = DateTime.UtcNow;
 
             while (daysFrom > -13)
             {
-                var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
-                var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
+                //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
+                //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
+                var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                daysFrom -= 3;
-                daysTo -= 3;
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
 
             // tunning untuk tidak duplicate
@@ -2712,14 +2717,19 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 1;
+            var daysNow = DateTime.UtcNow;
 
             while (daysFrom > -13)
             {
-                var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
-                var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
+                //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
+                //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
+                var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                daysFrom -= 3;
-                daysTo -= 3;
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
 
             // tunning untuk tidak duplicate
@@ -2836,14 +2846,18 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 1;
-
+            var daysNow = DateTime.UtcNow;
             while (daysFrom > -13)
             {
-                var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
-                var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
+                //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
+                //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
+                var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                daysFrom -= 3;
-                daysTo -= 3;
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
 
             // tunning untuk tidak duplicate
@@ -2968,14 +2982,18 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 1;
-
+            var daysNow = DateTime.UtcNow;
             while (daysFrom > -13)
             {
-                var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
-                var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
+                //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
+                //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
+                var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 await JD_GetOrderByStatusCompleteList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
-                daysFrom -= 3;
-                daysTo -= 3;
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
 
             // tunning untuk tidak duplicate

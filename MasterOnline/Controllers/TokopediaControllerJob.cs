@@ -3629,13 +3629,16 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 1;
-
+            var daysNow = DateTime.UtcNow.AddHours(7);
             //while (daysFrom > -13)
             while (daysFrom >= -3)//pesanan sudah dibayar ambil -3 hari saja
             {
                 //add 16 des 2020, fixed date
-                var fromDt = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
-                var toDt = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+                //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
+                //var toDt = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+                var fromDt = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+                var toDt = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+
                 //end add 16 des 2020, fixed date
 
                 await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
@@ -3812,12 +3815,14 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 1;
-
+            var daysNow = DateTime.UtcNow.AddHours(7);
             while (daysFrom >= -13)
             {
                 //add 16 des 2020, fixed date
-                var fromDt = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
-                var toDt = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+                //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
+                //var toDt = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+                var fromDt = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+                var toDt = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
                 //end add 16 des 2020, fixed date
 
                 await GetOrderListCompleted3Days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
@@ -3986,13 +3991,15 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 1;
-
+            var daysNow = DateTime.UtcNow.AddHours(7);
             //while (daysFrom > -13)
             while (daysFrom >= -7)
             {
                 //add 16 des 2020, fixed date
-                var fromDt = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
-                var toDt = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+                //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
+                //var toDt = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
+                var fromDt = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+                var toDt = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
                 //end add 16 des 2020, fixed date
 
                 await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, fromDt, toDt);

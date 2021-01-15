@@ -1785,8 +1785,10 @@ namespace MasterOnline.Controllers
             //int dayFrom = -1;
 
             //add 16 des 2020, fixed date
-            var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).AddHours(-7).ToUnixTimeSeconds();
-            var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
+            //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).AddHours(-7).ToUnixTimeSeconds();
+            //var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
+            var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
+            var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             //end add 16 des 2020, fixed date
 
             await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, 0, 0, 0, fromDt, toDt);
@@ -1990,8 +1992,10 @@ namespace MasterOnline.Controllers
             //int dayFrom = -1;
 
             //add 16 des 2020, fixed date
+            //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            //var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
             var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
-            var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
+            var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             //end add 16 des 2020, fixed date
 
             await GetOrderByStatusCancelledAPI(iden, stat, CUST, NAMA_CUST, 0, 0, fromDt, toDt);
