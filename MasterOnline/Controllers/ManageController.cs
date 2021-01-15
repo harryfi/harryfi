@@ -20430,8 +20430,8 @@ namespace MasterOnline.Controllers
                                     NO_BUKTI = dataVm.Pesanan.NO_BUKTI,
                                     BRG = komponen.Brg,
                                     QTY = Convert.ToDouble(komponen.Qty * dataVm.PesananBundling.QTY),
-                                    H_SATUAN = Convert.ToDouble(komponen.TOTALHARGA),
-                                    HARGA = Convert.ToDouble(komponen.TOTALHARGA * dataVm.PesananBundling.QTY),
+                                    H_SATUAN = Convert.ToDouble(komponen.HARGA),
+                                    HARGA = Convert.ToDouble(komponen.HARGA * komponen.Qty * dataVm.PesananBundling.QTY),
                                     BRG_BUNDLING = komponen.Unit,
                                     USER_NAME = usernameLogin,
                                     TGL_INPUT = DateTime.Now,
@@ -58541,6 +58541,12 @@ namespace MasterOnline.Controllers
                             {
                                 try
                                 {
+                                    //if(cekBarangBundling.TYPE == "4" || !string.IsNullOrEmpty(cekBarangBundling.PART))
+                                    //{
+                                    //    dataVm.Errors.Add("Untuk saat ini barang bundling hanya bisa dibuat dari barang non varian.");
+                                    //    return Json(dataVm, JsonRequestBehavior.AllowGet);
+                                    //}
+
                                     var cekBarang = dataVm.Bundling.Brg;
                                     if (cekBarang == dataVm.Bundling.Unit)
                                     {
@@ -58720,6 +58726,10 @@ namespace MasterOnline.Controllers
                             var sSQL = "update stf02h set hjual='" + HargaBundling + "' where recnum in (" + string_rec + ")";
                             ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
 
+                            brg.HJUAL = HargaBundling;
+                            brg.Tgl_Input = DateTime.UtcNow.AddHours(7);
+                            ErasoftDbContext.SaveChanges();
+
                             foreach (var hJualInDb in cekStf02h)
                             {
                                 //add by Tri, validasi harga per marketplace            
@@ -58763,98 +58773,98 @@ namespace MasterOnline.Controllers
                                             if (!string.IsNullOrEmpty(customer.TOKEN))//add by Tri, 24-06-2019
                                                 blApi.updateProduk(hJualInDb.BRG, hJualInDb.BRG_MP, HargaBundling.ToString(), "", customer.API_KEY, customer.TOKEN);
                                         }
-                                        else if (customer.NAMA.Equals(kdBlibli))
-                                        {
-#if Debug_AWS || DEBUG
-                                            //BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
-                                            //{
-                                            //    merchant_code = customer.Sort1_Cust,
-                                            //    API_client_password = customer.API_CLIENT_P,
-                                            //    API_client_username = customer.API_CLIENT_U,
-                                            //    API_secret_key = customer.API_KEY,
-                                            //    token = customer.TOKEN,
-                                            //    mta_username_email_merchant = customer.EMAIL,
-                                            //    mta_password_password_merchant = customer.PASSWORD,
-                                            //    idmarket = customer.RecNum.Value
-                                            //};
-                                            //BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
-                                            //{
-                                            //    kode = brg.BRG,
-                                            //    kode_mp = hJualInDb.BRG_MP,
-                                            //    Qty = Convert.ToString(qtyOnHand),
-                                            //    MinQty = "0",
-                                            //    nama = brg.NAMA
-                                            //};
-                                            //data.Price = brg.HJUAL.ToString();
-                                            //data.MarketPrice = hJualInDb.HJUAL.ToString();
-                                            //var display = Convert.ToBoolean(hJualInDb.DISPLAY);
-                                            //data.display = display ? "true" : "false";
-                                            //var BliApi = new BlibliController();
-                                            //Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
+                                        //                                        else if (customer.NAMA.Equals(kdBlibli))
+                                        //                                        {
+                                        //#if Debug_AWS || DEBUG
+                                        //                                            //BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                                        //                                            //{
+                                        //                                            //    merchant_code = customer.Sort1_Cust,
+                                        //                                            //    API_client_password = customer.API_CLIENT_P,
+                                        //                                            //    API_client_username = customer.API_CLIENT_U,
+                                        //                                            //    API_secret_key = customer.API_KEY,
+                                        //                                            //    token = customer.TOKEN,
+                                        //                                            //    mta_username_email_merchant = customer.EMAIL,
+                                        //                                            //    mta_password_password_merchant = customer.PASSWORD,
+                                        //                                            //    idmarket = customer.RecNum.Value
+                                        //                                            //};
+                                        //                                            //BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                        //                                            //{
+                                        //                                            //    kode = brg.BRG,
+                                        //                                            //    kode_mp = hJualInDb.BRG_MP,
+                                        //                                            //    Qty = Convert.ToString(qtyOnHand),
+                                        //                                            //    MinQty = "0",
+                                        //                                            //    nama = brg.NAMA
+                                        //                                            //};
+                                        //                                            //data.Price = brg.HJUAL.ToString();
+                                        //                                            //data.MarketPrice = hJualInDb.HJUAL.ToString();
+                                        //                                            //var display = Convert.ToBoolean(hJualInDb.DISPLAY);
+                                        //                                            //data.display = display ? "true" : "false";
+                                        //                                            //var BliApi = new BlibliController();
+                                        //                                            //Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
 
-                                            BlibliControllerJob.BlibliAPIData idenJob = new BlibliControllerJob.BlibliAPIData
-                                            {
-                                                merchant_code = customer.Sort1_Cust,
-                                                API_client_password = customer.API_CLIENT_P,
-                                                API_client_username = customer.API_CLIENT_U,
-                                                API_secret_key = customer.API_KEY,
-                                                //API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
-                                                //API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
-                                                token = customer.TOKEN,
-                                                mta_username_email_merchant = customer.EMAIL,
-                                                mta_password_password_merchant = customer.PASSWORD,
-                                                idmarket = customer.RecNum.Value,
-                                                DatabasePathErasoft = dbPathEra,
-                                                versiToken = customer.KD_ANALISA
-                                            };
-                                            BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
-                                            {
-                                                kode = brg.BRG,
-                                                kode_mp = hJualInDb.BRG_MP,
-                                                Qty = Convert.ToString(qtyOnHand),
-                                                MinQty = "0",
-                                                nama = brg.NAMA
-                                            };
-                                            dataJob.Price = brg.HJUAL.ToString();
-                                            dataJob.MarketPrice = hJualInDb.HJUAL.ToString();
-                                            var displayJob = Convert.ToBoolean(hJualInDb.DISPLAY);
-                                            dataJob.display = displayJob ? "true" : "false";
+                                        //                                            BlibliControllerJob.BlibliAPIData idenJob = new BlibliControllerJob.BlibliAPIData
+                                        //                                            {
+                                        //                                                merchant_code = customer.Sort1_Cust,
+                                        //                                                API_client_password = customer.API_CLIENT_P,
+                                        //                                                API_client_username = customer.API_CLIENT_U,
+                                        //                                                API_secret_key = customer.API_KEY,
+                                        //                                                //API_client_password = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk",
+                                        //                                                //API_secret_key = "2232587F9E9C2A58E8C75BBF8DF302D43B209E0E9F66C60756FFB0E7F16DFD8F",
+                                        //                                                token = customer.TOKEN,
+                                        //                                                mta_username_email_merchant = customer.EMAIL,
+                                        //                                                mta_password_password_merchant = customer.PASSWORD,
+                                        //                                                idmarket = customer.RecNum.Value,
+                                        //                                                DatabasePathErasoft = dbPathEra,
+                                        //                                                versiToken = customer.KD_ANALISA
+                                        //                                            };
+                                        //                                            BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
+                                        //                                            {
+                                        //                                                kode = brg.BRG,
+                                        //                                                kode_mp = hJualInDb.BRG_MP,
+                                        //                                                Qty = Convert.ToString(qtyOnHand),
+                                        //                                                MinQty = "0",
+                                        //                                                nama = brg.NAMA
+                                        //                                            };
+                                        //                                            dataJob.Price = brg.HJUAL.ToString();
+                                        //                                            dataJob.MarketPrice = hJualInDb.HJUAL.ToString();
+                                        //                                            var displayJob = Convert.ToBoolean(hJualInDb.DISPLAY);
+                                        //                                            dataJob.display = displayJob ? "true" : "false";
 
-                                            var BliApiJob = new BlibliControllerJob();
-                                            BliApiJob.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "Update Price", dataJob.kode_mp, idenJob, dataJob);
+                                        //                                            var BliApiJob = new BlibliControllerJob();
+                                        //                                            BliApiJob.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "Update Price", dataJob.kode_mp, idenJob, dataJob);
 
-#else
-                    BlibliControllerJob.BlibliAPIData idenJob = new BlibliControllerJob.BlibliAPIData
-                    {
-                        merchant_code = customer.Sort1_Cust,
-                        API_client_password = customer.API_CLIENT_P,
-                        API_client_username = customer.API_CLIENT_U,
-                        API_secret_key = customer.API_KEY,
-                        token = customer.TOKEN,
-                        mta_username_email_merchant = customer.EMAIL,
-                        mta_password_password_merchant = customer.PASSWORD,
-                        idmarket = customer.RecNum.Value,
-                        DatabasePathErasoft = dbPathEra,
-                        versiToken = customer.KD_ANALISA
-                    };
-                    BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
-                    {
-                        kode = brg.BRG,
-                        kode_mp = hJualInDb.BRG_MP,
-                        Qty = Convert.ToString(qtyOnHand),
-                        MinQty = "0",
-                        nama = brg.NAMA
-                    };
-                    dataJob.Price = brg.HJUAL.ToString();
-                    dataJob.MarketPrice = hJualInDb.HJUAL.ToString();
-                    var displayJob = Convert.ToBoolean(hJualInDb.DISPLAY);
-                    dataJob.display = displayJob ? "true" : "false";
+                                        //#else
+                                        //                    BlibliControllerJob.BlibliAPIData idenJob = new BlibliControllerJob.BlibliAPIData
+                                        //                    {
+                                        //                        merchant_code = customer.Sort1_Cust,
+                                        //                        API_client_password = customer.API_CLIENT_P,
+                                        //                        API_client_username = customer.API_CLIENT_U,
+                                        //                        API_secret_key = customer.API_KEY,
+                                        //                        token = customer.TOKEN,
+                                        //                        mta_username_email_merchant = customer.EMAIL,
+                                        //                        mta_password_password_merchant = customer.PASSWORD,
+                                        //                        idmarket = customer.RecNum.Value,
+                                        //                        DatabasePathErasoft = dbPathEra,
+                                        //                        versiToken = customer.KD_ANALISA
+                                        //                    };
+                                        //                    BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
+                                        //                    {
+                                        //                        kode = brg.BRG,
+                                        //                        kode_mp = hJualInDb.BRG_MP,
+                                        //                        Qty = Convert.ToString(qtyOnHand),
+                                        //                        MinQty = "0",
+                                        //                        nama = brg.NAMA
+                                        //                    };
+                                        //                    dataJob.Price = brg.HJUAL.ToString();
+                                        //                    dataJob.MarketPrice = hJualInDb.HJUAL.ToString();
+                                        //                    var displayJob = Convert.ToBoolean(hJualInDb.DISPLAY);
+                                        //                    dataJob.display = displayJob ? "true" : "false";
 
-                    var sqlStorage = new SqlServerStorage(EDBConnID);
-                    var clientJobServer = new BackgroundJobClient(sqlStorage);
-                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "Update Price", dataJob.kode_mp, idenJob, dataJob));
-#endif
-                                        }
+                                        //                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                        //                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                        //                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(dbPathEra, dataJob.kode, customer.CUST, "Price", "Update Price", dataJob.kode_mp, idenJob, dataJob));
+                                        //#endif
+                                        //                                        }
                                         else if (customer.NAMA.Equals(kdElevenia))
                                         {
                                             string[] imgID = new string[3];
@@ -59069,6 +59079,132 @@ namespace MasterOnline.Controllers
                                                 }
                                             }
                                         }
+                                        //add by nurul 14/1/2021
+                                        else if (customer.NAMA.Equals(kdBlibli))
+                                        {
+                                            //brg.HJUAL = HargaBundling;
+                                            ////add by nurul 27/11/2019, add tgl last edit
+                                            //brg.Tgl_Input = DateTime.UtcNow.AddHours(7);
+                                            ////end add by nurul 27/11/2019, add tgl last edit
+                                            //hJualInDb.HJUAL = HargaBundling;
+                                            //ErasoftDbContext.SaveChanges();
+
+#if Debug_AWS || DEBUG
+                                            BlibliControllerJob.BlibliAPIData idenJob = new BlibliControllerJob.BlibliAPIData
+                                            {
+                                                merchant_code = customer.Sort1_Cust,
+                                                API_client_password = customer.API_CLIENT_P,
+                                                API_client_username = customer.API_CLIENT_U,
+                                                API_secret_key = customer.API_KEY,
+                                                token = customer.TOKEN,
+                                                mta_username_email_merchant = customer.EMAIL,
+                                                mta_password_password_merchant = customer.PASSWORD,
+                                                idmarket = customer.RecNum.Value,
+                                                DatabasePathErasoft = dbPathEra,
+                                                versiToken = customer.KD_ANALISA
+                                            };
+                                            BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
+                                            {
+                                                kode = brg.BRG,
+                                                kode_mp = hJualInDb.BRG_MP,
+                                                Qty = Convert.ToString(qtyOnHand),
+                                                MinQty = "0",
+                                                nama = brg.NAMA
+                                            };
+                                            //dataJob.Price = brg.HJUAL.ToString();
+                                            //dataJob.MarketPrice = hJualInDb.HJUAL.ToString();
+                                            dataJob.Price = HargaBundling.ToString();
+                                            dataJob.MarketPrice = HargaBundling.ToString();
+                                            var displayJob = Convert.ToBoolean(hJualInDb.DISPLAY);
+                                            dataJob.display = displayJob ? "true" : "false";
+
+                                            var BliApiJob = new BlibliControllerJob();
+                                            Task.Run(() => BliApiJob.UpdateProdukQOH_Display_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", hJualInDb.BRG_MP, idenJob, dataJob)).Wait();
+#else
+                    BlibliControllerJob.BlibliAPIData idenJob = new BlibliControllerJob.BlibliAPIData
+                    {
+                        merchant_code = customer.Sort1_Cust,
+                        API_client_password = customer.API_CLIENT_P,
+                        API_client_username = customer.API_CLIENT_U,
+                        API_secret_key = customer.API_KEY,
+                        token = customer.TOKEN,
+                        mta_username_email_merchant = customer.EMAIL,
+                        mta_password_password_merchant = customer.PASSWORD,
+                        idmarket = customer.RecNum.Value,
+                        DatabasePathErasoft = dbPathEra,
+                        versiToken = customer.KD_ANALISA
+                    };
+                    BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
+                    {
+                        kode = brg.BRG,
+                        kode_mp = hJualInDb.BRG_MP,
+                        Qty = Convert.ToString(qtyOnHand),
+                        MinQty = "0",
+                        nama = brg.NAMA
+                    };
+                    dataJob.Price = brg.HJUAL.ToString();
+                    dataJob.MarketPrice = hJualInDb.HJUAL.ToString();
+                    var displayJob = Convert.ToBoolean(hJualInDb.DISPLAY);
+                    dataJob.display = displayJob ? "true" : "false";
+
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", hJualInDb.BRG_MP, idenJob, dataJob));
+#endif
+                                        }
+                                        else if (customer.NAMA.Equals(kd82Cart))
+                                        {
+                                            //brg.HJUAL = HargaBundling;
+                                            //brg.Tgl_Input = DateTime.UtcNow.AddHours(7);
+                                            //hJualInDb.HJUAL = HargaBundling;
+                                            //ErasoftDbContext.SaveChanges();
+                                            var hargaJualDampakBaru = "";
+                                            double hargaJualIndukBaru = HargaBundling;
+                                            if (!string.IsNullOrEmpty(brg.PART))
+                                            {
+                                                var cekBrgInduk = ErasoftDbContext.STF02.Where(a => a.BRG == brg.PART).FirstOrDefault();
+                                                if(cekBrgInduk != null)
+                                                {
+                                                    hargaJualIndukBaru = cekBrgInduk.HJUAL;
+                                                    var getHargaVarian = HargaBundling - cekBrgInduk.HJUAL;
+                                                    if(getHargaVarian > 0)
+                                                    {
+                                                        hargaJualDampakBaru = "+" + Convert.ToString(getHargaVarian);
+                                                    }
+                                                    else
+                                                    {
+                                                        hargaJualDampakBaru = Convert.ToString(getHargaVarian);
+                                                    }
+                                                }
+                                            }
+
+                                            var v82CartAPI = new EightTwoCartControllerJob();
+                                            EightTwoCartControllerJob.E2CartAPIData data = new EightTwoCartControllerJob.E2CartAPIData()
+                                            {
+                                                no_cust = customer.CUST,
+                                                account_store = customer.PERSO,
+                                                API_key = customer.API_KEY,
+                                                API_credential = customer.Sort1_Cust,
+                                                API_url = customer.PERSO,
+                                                DatabasePathErasoft = dbPathEra
+                                            };
+                                            
+                                            if (hJualInDb.BRG_MP.Contains("PENDING") || hJualInDb.BRG_MP.Contains("PEDITENDING"))
+                                            {
+
+                                            }
+                                            else
+                                            {
+#if (DEBUG || Debug_AWS)
+                                                Task.Run(() => v82CartAPI.E2Cart_UpdatePrice_82Cart(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, hargaJualDampakBaru)).Wait();
+#else
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                        var clientJobServer = new BackgroundJobClient(sqlStorage);
+                        clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(dbPathEra, hJualInDb.BRG, customer.CUST, "Price", "Update Price", data, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, hargaJualDampakBaru));
+#endif
+                                            }
+                                        }
+                                        //end add by nurul 14/1/2021
                                     }
                                 }
                             }
@@ -59202,6 +59338,9 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.SaveChanges();
                         //getQtyBundling();
                         new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin);
+                        List<string> listBrg = new List<string>();
+                        listBrg.Add(kdBrg);
+                        updateStockMarketPlace(listBrg, "[DEL_BDL][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
                     }
                 }
             }
@@ -59243,18 +59382,6 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-                    ErasoftDbContext.STF03.Remove(KomponenInDb);
-                    ErasoftDbContext.SaveChanges();
-                    //getQtyBundling();
-                    new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin);
-                    var listKomponen = ErasoftDbContext.STF03.Where(b => b.Unit == Unit).ToList();
-                    var getBrgFromlistKomponen = listKomponen.Select(a => a.Brg).ToList();
-                    getBrgFromlistKomponen.Add(Unit);
-
-                    vm.listBundling = listKomponen;
-                    vm.Brg_Bundling = Unit;
-                    vm.Bundling = ErasoftDbContext.STF03.Where(a => a.Unit == Unit).FirstOrDefault();
-                    vm.listDetailBundling = ErasoftDbContext.STF02.Where(a => getBrgFromlistKomponen.Contains(a.BRG)).ToList();
 
                     var default_gudang = "";
                     using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
@@ -59270,6 +59397,27 @@ namespace MasterOnline.Controllers
                             default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
                         }
                     }
+                    var Tahun = Convert.ToInt16(DateTime.Now.ToString("yyyy"));
+                    var sSQL1 = "update stf08a set qawal = 0 where brg= '" + Unit + "' and gd = '" + default_gudang + "' and tahun='" + Tahun + "'";
+                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL1);
+
+                    ErasoftDbContext.STF03.Remove(KomponenInDb);
+                    ErasoftDbContext.SaveChanges();
+                    //getQtyBundling();
+                    new StokControllerJob().getQtyBundling(dbPathEra, usernameLogin);
+                    List<string> listBrg = new List<string>();
+                    listBrg.Add(Unit);
+                    updateStockMarketPlace(listBrg, "[DEL_BDL][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+
+                    var listKomponen = ErasoftDbContext.STF03.Where(b => b.Unit == Unit).ToList();
+                    var getBrgFromlistKomponen = listKomponen.Select(a => a.Brg).ToList();
+                    getBrgFromlistKomponen.Add(Unit);
+
+                    vm.listBundling = listKomponen;
+                    vm.Brg_Bundling = Unit;
+                    vm.Bundling = ErasoftDbContext.STF03.Where(a => a.Unit == Unit).FirstOrDefault();
+                    vm.listDetailBundling = ErasoftDbContext.STF02.Where(a => getBrgFromlistKomponen.Contains(a.BRG)).ToList();
+
                     vm.Qty_Bundling = ErasoftDbContext.STF08A.Where(a => a.BRG == Unit && a.GD == default_gudang).Select(a => a.QAwal).FirstOrDefault();
                 }
             }
