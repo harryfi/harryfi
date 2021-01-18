@@ -240,7 +240,7 @@
         <div class="col-md-6"></div>
         <div class="col-md-6">
             <div class="form-group">
-                @Html.LabelFor(m => m.Pesanan.Status_Approve, "Pesanan ini ada bundling", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+                @Html.LabelFor(m => m.Pesanan.Status_Approve, "Bundling", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
                 @Html.HiddenFor(m => m.Pesanan.Status_Approve, new { data_cbx = $"cbx-Bundling", @class = "cbxBundling" })
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     @if ((Model.Pesanan == null ? "" : Model.Pesanan.Status_Approve) == "1")
@@ -371,13 +371,13 @@
             @*//add by nurul 20/10/2020*@
             <table id="table_tambah_bundling" class="table table-bordered" role="grid">
                 <thead>
-                    <tr>
+                    <tr style="background-color:#c7f1f5;">
                         <th width="200">Kode Brg Bundling</th>
                         <th width="200">Nama Brg Bundling</th>
                         <th width="30">Qty Bundling</th>
                         <th width="60">Harga Bundling</th>
-                        <th width="35">Simpan</th>
-                        <th width="35">Hapus</th>
+                        @*<th width="35">Simpan</th>
+                        <th width="35">Hapus</th>*@
                     </tr>
                 </thead>
                 <tbody>
@@ -386,18 +386,29 @@
                     }
                     @foreach (var bundling in Model.ListPesananBundling.Where(pb => pb.NO_BUKTI == Model?.Pesanan?.NO_BUKTI).ToList())
                     {
+                        string detail_komp = "";
+                        var cekListKomp = Model.listKomponen.Where(a => a.bundling == bundling.BRG).SingleOrDefault();
+                        if (cekListKomp != null)
+                        {
+                            detail_komp = cekListKomp.komponen.ToString();
+                        }
                         <tr data-bundling-id="bundling-@bundling.RECNUM">
                             @{
                                 var barang = listBarangBundling.SingleOrDefault(b => b.BRG.ToUpper() == bundling.BRG.ToUpper());
                                 var namaBarang = barang == null ? "" : (barang.NAMA + " " + barang.NAMA2);
                             }
-                            <td class="brg-bundling">@bundling.BRG</td>
+                            <td class="brg-bundling">
+                                @*@bundling.BRG*@
+                                <div data-tip="@detail_komp">
+                                    @bundling.BRG
+                                </div>
+                            </td>
                             <td class="nama-bundling">@namaBarang</td>
                             <td class="qty-bundling">@bundling.QTY</td>
                             <td class="harga-bundling" style="text-align:right">
                                 @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", bundling.HARGA)
                             </td>
-                            <td class="edit-hapus-col">
+                            @*<td class="edit-hapus-col">
                                 <button type="button" class="btn btn-primary btn-save-bundling" disabled="disabled">
                                     <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                                 </button>
@@ -406,15 +417,14 @@
                                 <button class="btn btn-danger btn-delete-bundling" type="button" data-toggle="modal" data-target="#konfHapusBundling" onclick="passBundling('@bundling.RECNUM')">
                                     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                                 </button>
-                            </td>
+                            </td>*@
                         </tr>
                     }
-                    <tr data-bundling-id="0">
+                    @*<tr data-bundling-id="0">
                         @Html.HiddenFor(m => m.PesananBundling.RECNUM)
                         @Html.HiddenFor(m => m.PesananBundling.TGL_EDIT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
                         @Html.HiddenFor(m => m.PesananBundling.USERNAME, new { Value = username })
                         <td class="brg-bundling" style="width: 120px; max-width: 120px;">
-                            @*<div id="BRG_BUNDLING" class="selectivity-input" tabindex="0"></div>*@
                             <span id="harga-satuan-bundling" style="display: none;"></span>
                             <div id="bundling-select" style="display: none;">
                                 <select id="BRG_BUNDLING" placeholder="Pilih Barang" class="barang_bundling"></select>
@@ -430,7 +440,7 @@
                             0,00
                             @Html.HiddenFor(m => m.PesananBundling.HARGA)
                         </td>
-                        <td class="edit-hapus-col">
+                        @*<td class="edit-hapus-col">
                             <button type="button" class="btn btn-primary btn-save-bundling" disabled="disabled" onclick="simpanBundling('bundling-0')">
                                 <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                             </button>
@@ -440,7 +450,7 @@
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                             </button>
                         </td>
-                    </tr>
+                    </tr>*@
                 </tbody>
             </table>
             @*//end add by nurul 20/10/2020*@

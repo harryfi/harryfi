@@ -282,7 +282,7 @@
         <div class="col-md-6">
             @*//add by nurul 26/10/2020*@
             <div class="form-group">
-                @Html.LabelFor(m => m.Faktur.APPROVAL, "Faktur ini ada bundling", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "top: -10px;" })
+                @Html.LabelFor(m => m.Faktur.APPROVAL, "Bundling", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "top: -10px;" })
                 @Html.HiddenFor(m => m.Faktur.APPROVAL, new { data_cbx = $"cbx-Bundling", @class = "cbxBundling" })
                 <div class="col-md-6 col-sm-6 col-xs-6">
                     <div class="input-group">
@@ -416,7 +416,7 @@
             @*//add by nurul 20/10/2020*@
             <table id="table_tambah_bundling" class="table table-bordered" role="grid">
                 <thead>
-                    <tr>
+                    <tr style="background-color:#c7f1f5;">
                         <th width="200px">Kode Brg Bundling</th>
                         <th width="200px">Nama Brg Bundling</th>
                         <th width="80px">Gudang</th>

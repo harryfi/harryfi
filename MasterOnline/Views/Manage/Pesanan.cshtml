@@ -7587,6 +7587,9 @@
                         $(this).attr('disabled', 'disabled');
                     });
                     $('tr[data-pesanan-id="0"]').remove();
+                    //add by nurul 18/1/2021, bundling
+                    $('tr[data-bundling-id="0"]').remove();
+                    //end add by nurul 18/1/2021, bundling
                     $('#myTab li a').each(function () {
                         $(this).removeAttr('data-toggle');
 

@@ -17122,7 +17122,7 @@ namespace MasterOnline.Controllers
                     {
                         if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
                         {
-                            detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                            detail_komp = detail_komp + " - " + getKomponen.Brg + " (" + getKomponen.Qty.ToString() + ")" + Environment.NewLine;
                         }
                     }
                     komponen.komponen = detail_komp;
@@ -18237,7 +18237,7 @@ namespace MasterOnline.Controllers
                     {
                         if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
                         {
-                            detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                            detail_komp = detail_komp + " - " + getKomponen.Brg + " (" + getKomponen.Qty.ToString() + ")" + Environment.NewLine;
                         }
                     }
                     komponen.komponen = detail_komp;
@@ -18442,7 +18442,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
                             {
-                                detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                                detail_komp = detail_komp + " - " + getKomponen.Brg + " (" + getKomponen.Qty.ToString() + ")" + Environment.NewLine;
                             }
                         }
                         komponen.komponen = detail_komp;
@@ -20566,7 +20566,7 @@ namespace MasterOnline.Controllers
                     {
                         if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
                         {
-                            detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                            detail_komp = detail_komp + " - " + getKomponen.Brg + " (" + getKomponen.Qty.ToString() + ")" + Environment.NewLine;
                         }
                     }
                     komponen.komponen = detail_komp;
@@ -22740,7 +22740,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
                             {
-                                detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                                detail_komp = detail_komp + " - " + getKomponen.Brg + " (" + getKomponen.Qty.ToString() + ")" + Environment.NewLine;
                             }
                         }
                         komponen.komponen = detail_komp;
@@ -23471,7 +23471,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
                             {
-                                detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                                detail_komp = detail_komp + " - " + getKomponen.Brg + " (" + getKomponen.Qty.ToString() + ")" + Environment.NewLine;
                             }
                         }
                         komponen.komponen = detail_komp;
@@ -23616,7 +23616,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
                             {
-                                detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                                detail_komp = detail_komp + " - " + getKomponen.Brg + " (" + getKomponen.Qty.ToString() + ")" + Environment.NewLine;
                             }
                         }
                         komponen.komponen = detail_komp;
@@ -58514,17 +58514,25 @@ namespace MasterOnline.Controllers
                 return Json(dataVm, JsonRequestBehavior.AllowGet);
             }
             var default_gudang = "";
-            using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
+            var cekGudangBundling = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == "GB" && a.Nama_Gudang == "Gudang Bundling").FirstOrDefault();
+            if (cekGudangBundling != null)
             {
-                var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
-                var cekgudang = context.STF18.ToList();
-                if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
+                default_gudang = cekGudangBundling.Kode_Gudang;
+            }
+            else
+            {
+                using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
                 {
-                    default_gudang = gudang_parsys;
-                }
-                else
-                {
-                    default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                    var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
+                    var cekgudang = context.STF18.ToList();
+                    if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
+                    {
+                        default_gudang = gudang_parsys;
+                    }
+                    else
+                    {
+                        default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                    }
                 }
             }
             if (dataVm.Bundling.Brg != null && dataVm.Bundling.Brg != "")
@@ -58576,6 +58584,33 @@ namespace MasterOnline.Controllers
                                         dataVm.Errors.Add("Kode barang " + dataVm.Bundling.Brg + " sudah ada di bundling brg " + dataVm.Bundling.Unit + ".");
                                         return Json(dataVm, JsonRequestBehavior.AllowGet);
                                     }
+
+                                    //add by nurul 18/1/2021, tambah gudang bundling jika pertama buat bundling
+                                    var cekSudahAdaBundling = ErasoftDbContext.STF03.Count();
+                                    if (cekSudahAdaBundling == 0)
+                                    {
+                                        var cekCountGudangBundling = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == "GB" && a.Nama_Gudang == "Gudang Bundling").Count();
+                                        if (cekCountGudangBundling == 0)
+                                        {
+                                            var stf18 = new STF18()
+                                            {
+                                                Kode_Gudang = "GB",
+                                                Nama_Gudang = "Gudang Bundling",
+                                                KD_HARGA_JUAL = "0",
+                                                QOH_SALES = false,
+                                                AL1 = " ",
+                                                AL2 = " ",
+                                                AL3 = " ",
+                                                GD_KONSINYASI = false,
+                                                CUSTOMER = " ",
+                                                DISCOUNT = false,
+                                                USERNAME = usernameLogin
+                                            };
+                                            ErasoftDbContext.STF18.Add(stf18);
+                                            ErasoftDbContext.SaveChanges();
+                                        }
+                                    }
+                                    //end add by nurul 18/1/2021, tambah gudang bundling jika pertama buat bundling
 
                                     //cekBrgKomponen.TYPE = "6"; --tipe tetep 3 untuk barang komponen 
                                     cekBrgKomponen.GENERIC = true;
@@ -59280,8 +59315,8 @@ namespace MasterOnline.Controllers
             {
                 if (BundlingInDb.Count() > 0)
                 {
-                    var cekPesanan = ErasoftDbContext.SOT01B.Where(a => a.BRG_MULTISKU == kdBrg).Count();
-                    var cekFaktur = ErasoftDbContext.SIT01B.Where(a => a.BRG_MULTISKU == kdBrg).Count();
+                    var cekPesanan = ErasoftDbContext.SOT01B.Where(a => a.BRG_BUNDLING == kdBrg).Count();
+                    var cekFaktur = ErasoftDbContext.SIT01B.Where(a => a.BRG_BUNDLING == kdBrg).Count();
                     var cekTransaksi = ErasoftDbContext.STT01B.Where(a => a.Kobar == kdBrg).Count();
                     if (cekFaktur > 0 || cekTransaksi > 0 || cekPesanan > 0)
                     {
@@ -59364,6 +59399,15 @@ namespace MasterOnline.Controllers
             {
                 if (KomponenInDb != null)
                 {
+                    var cekPesanan = ErasoftDbContext.SOT01B.Where(a => a.BRG_BUNDLING == Unit).Count();
+                    var cekFaktur = ErasoftDbContext.SIT01B.Where(a => a.BRG_BUNDLING == Unit).Count();
+                    var cekTransaksi = ErasoftDbContext.STT01B.Where(a => a.Kobar == Unit).Count();
+                    if (cekFaktur > 0 || cekTransaksi > 0 || cekPesanan > 0)
+                    {
+                        vm.Errors.Add("Barang bundling " + Unit + " sudah dipakai di transaksi, tidak bisa hapus komponennya !");
+                        return Json(vm, JsonRequestBehavior.AllowGet);
+                    }
+
                     var cekKomponenInOtherBundling = ErasoftDbContext.STF03.Where(a => a.Brg == KomponenInDb.Brg && a.Unit != KomponenInDb.Unit).Count();
                     if (cekKomponenInOtherBundling == 0)
                     {
@@ -59858,7 +59902,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
                             {
-                                detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                                detail_komp = detail_komp + " - " + getKomponen.Brg + " (" + getKomponen.Qty.ToString() + ")" + Environment.NewLine;
                             }
                         }
                         komponen.komponen = detail_komp;
@@ -59949,7 +59993,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(getKomponen.Brg) && !string.IsNullOrWhiteSpace(getKomponen.Unit))
                             {
-                                detail_komp = detail_komp + " - " + getKomponen.Brg + Environment.NewLine;
+                                detail_komp = detail_komp + " - " + getKomponen.Brg + " (" + getKomponen.Qty.ToString() + ")" + Environment.NewLine;
                             }
                         }
                         komponen.komponen = detail_komp;

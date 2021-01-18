@@ -3622,6 +3622,9 @@
                     $('#tambah-pembeli').hide();
 
                     $('tr[data-faktur-id="0"]').remove();
+                    //add by nurul 18/1/2021, bundling
+                    $('tr[data-bundling-id="0"]').remove();
+                    //end add by nurul 18/1/2021, bundling
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {

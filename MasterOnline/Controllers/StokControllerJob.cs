@@ -4182,15 +4182,23 @@ namespace MasterOnline.Controllers
             if (cekBundling > 0)
             {
                 var default_gudang = "";
-                var gudang_parsys = ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG;
-                var cekgudang = ErasoftDbContext.STF18.ToList();
-                if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
+                var cekGudangBundling = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == "GB" && a.Nama_Gudang == "Gudang Bundling").FirstOrDefault();
+                if (cekGudangBundling != null)
                 {
-                    default_gudang = gudang_parsys;
+                    default_gudang = cekGudangBundling.Kode_Gudang;
                 }
                 else
                 {
-                    default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                    var gudang_parsys = ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG;
+                    var cekgudang = ErasoftDbContext.STF18.ToList();
+                    if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
+                    {
+                        default_gudang = gudang_parsys;
+                    }
+                    else
+                    {
+                        default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                    }
                 }
                 var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) and gd<>'" + default_gudang + "' and tahun='" + DateTime.Now.ToString("yyyy") + "'";
                 var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
