@@ -82,7 +82,8 @@ namespace MasterOnline.Controllers
             //string lzdId = cust;
             string compUrl = callBackUrl + userId + "_param_" + cust;
             string scope = "public user store";
-            string uri = "https://accounts.bukalapak.com/oauth/authorize?client_id=" + client_id + "&redirect_uri="+ compUrl + "&scope="+ Uri.EscapeDataString(scope) +"&response_type=code";
+            string uri = "https://accounts.bukalapak.com/oauth/authorize?client_id=" + client_id + "&scope="+ Uri.EscapeDataString(scope) 
+                + "&response_type=code" + "&redirect_uri=" + Uri.EscapeDataString("https://dev.masteronline.co.id/bukalapak/auth");
             return uri;
         }
 
@@ -176,7 +177,7 @@ namespace MasterOnline.Controllers
             client.Timeout = -1;
             var request = new RestRequest(Method.POST);
             request.AlwaysMultipartFormData = true;
-            request.AddParameter("grant_type", "client_credentials");
+            request.AddParameter("grant_type", "authorization_code");
             request.AddParameter("client_id", client_id);
             request.AddParameter("client_secret", client_secret);
             request.AddParameter("code", code);
