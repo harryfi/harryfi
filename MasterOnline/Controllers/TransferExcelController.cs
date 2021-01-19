@@ -38,6 +38,7 @@ namespace MasterOnline.Controllers
 
         string dbPathEra = "";
         string DataSourcePath = "";
+        string dbSourceEra = "";
         public TransferExcelController()
         {
             MoDbContext = new MoDbContext("");
@@ -46,13 +47,23 @@ namespace MasterOnline.Controllers
             if (sessionData?.Account != null)
             {
                 if (sessionData.Account.UserId == "admin_manage")
+                {
                     ErasoftDbContext = new ErasoftContext();
+                }
                 else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DataSourcePath, sessionData.Account.DatabasePathErasoft);
+                {
+#if (Debug_AWS)
+                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+#else
+                    dbSourceEra = sessionData.Account.DataSourcePath;
+#endif
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
+                }
 
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 dbPathEra = sessionData.Account.DatabasePathErasoft;
-                DataSourcePath = sessionData.Account.DataSourcePath;
+                //DataSourcePath = sessionData.Account.DataSourcePath;
+                DataSourcePath = dbSourceEra;
                 username = sessionData.Account.Username;
             }
             else
@@ -60,15 +71,21 @@ namespace MasterOnline.Controllers
                 if (sessionData?.User != null)
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+#if (Debug_AWS)
+                    dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
+                    dbSourceEra = accFromUser.DataSourcePath;
+#endif
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     dbPathEra = accFromUser.DatabasePathErasoft;
-                    DataSourcePath = accFromUser.DataSourcePath;
+                    //DataSourcePath = accFromUser.DataSourcePath;
+                    DataSourcePath = dbSourceEra;
                     username = accFromUser.Username;
                 }
             }
-            //if (username.Length > 20)
-            //    username = username.Substring(0, 17) + "...";
+            if (username.Length > 20)
+                username = username.Substring(0, 20);
         }
 
         public ActionResult SQLtoExcel(string cust)
@@ -201,11 +218,11 @@ namespace MasterOnline.Controllers
                                 worksheet.Cells[19 + i, 4].Value = dsBarang.Tables[0].Rows[i]["KODE_BRG_INDUK"].ToString();
                                 //worksheet.Cells[10 + i, 5].Value = "KODE_KATEGORI_MO";
                                 //worksheet.Cells[10 + i, 6].Value = "KODE_MEREK_MO";
-                                worksheet.Cells[19 + i, 7].Value = dsBarang.Tables[0].Rows[i]["HJUAL"].ToString();
-                                worksheet.Cells[19 + i, 8].Value = dsBarang.Tables[0].Rows[i]["HJUAL_MP"].ToString();
-                                worksheet.Cells[19 + i, 9].Value = dsBarang.Tables[0].Rows[i]["BERAT"].ToString();
-                                worksheet.Cells[19 + i, 10].Value = dsBarang.Tables[0].Rows[i]["IMAGE"].ToString();
-                                worksheet.Cells[19 + i, 11].Value = dsBarang.Tables[0].Rows[i]["BRG_MP"].ToString();
+                                worksheet.Cells[19 + i, 9].Value = dsBarang.Tables[0].Rows[i]["HJUAL"].ToString();
+                                worksheet.Cells[19 + i, 10].Value = dsBarang.Tables[0].Rows[i]["HJUAL_MP"].ToString();
+                                worksheet.Cells[19 + i, 11].Value = dsBarang.Tables[0].Rows[i]["BERAT"].ToString();
+                                worksheet.Cells[19 + i, 12].Value = dsBarang.Tables[0].Rows[i]["IMAGE"].ToString();
+                                worksheet.Cells[19 + i, 13].Value = dsBarang.Tables[0].Rows[i]["BRG_MP"].ToString();
                             }
 
                             #region formatting
@@ -243,7 +260,7 @@ namespace MasterOnline.Controllers
                                 //range.Style.Font.Color.SetColor(Color.White);
                             }
 
-                            using (var range = worksheet.Cells[18, 1, 18, 11])
+                            using (var range = worksheet.Cells[18, 1, 18, 13])
                             {
                                 range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
                                 range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
@@ -252,20 +269,22 @@ namespace MasterOnline.Controllers
                             }
                             #endregion
 
-                            ExcelRange rg0 = worksheet.Cells[18, 1, worksheet.Dimension.End.Row, 11];
+                            ExcelRange rg0 = worksheet.Cells[18, 1, worksheet.Dimension.End.Row, 13];
                             string tableName0 = "TableBarang";
                             ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
                             table0.Columns[0].Name = "NAMA1";
                             table0.Columns[1].Name = "NAMA2";
                             table0.Columns[2].Name = "KODE_BRG_MO";
                             table0.Columns[3].Name = "KODE_BRG_INDUK_MO (diisi khusus untuk barang variasi)";
-                            table0.Columns[4].Name = "KODE_KATEGORI_MO";
-                            table0.Columns[5].Name = "KODE_MEREK_MO";
-                            table0.Columns[6].Name = "HJUAL";
-                            table0.Columns[7].Name = "HJUAL_MARKETPLACE";
-                            table0.Columns[8].Name = "BERAT";
-                            table0.Columns[9].Name = "IMAGE";
-                            table0.Columns[10].Name = "KODE_BRG_MARKETPLACE";
+                            table0.Columns[4].Name = "KODE_BARCODE";
+                            table0.Columns[5].Name = "LOKASI_RAK";
+                            table0.Columns[6].Name = "KODE_KATEGORI_MO";
+                            table0.Columns[7].Name = "KODE_MEREK_MO";
+                            table0.Columns[8].Name = "HJUAL";
+                            table0.Columns[9].Name = "HJUAL_MARKETPLACE";
+                            table0.Columns[10].Name = "BERAT";
+                            table0.Columns[11].Name = "IMAGE";
+                            table0.Columns[12].Name = "KODE_BRG_MARKETPLACE";
                             table0.ShowHeader = true;
                             table0.ShowFilter = true;
                             table0.ShowRowStripes = false;
@@ -302,7 +321,7 @@ namespace MasterOnline.Controllers
 
                             if (dsBarang.Tables[0].Rows.Count > 0)
                             {
-                                var validation = worksheet.DataValidations.AddListValidation(worksheet.Cells[19, 5, worksheet.Dimension.End.Row, 5].Address);
+                                var validation = worksheet.DataValidations.AddListValidation(worksheet.Cells[19, 7, worksheet.Dimension.End.Row, 7].Address);
                                 validation.ShowErrorMessage = true;
                                 validation.ErrorStyle = ExcelDataValidationWarningStyle.warning;
                                 validation.ErrorTitle = "An invalid value was entered";
@@ -321,7 +340,7 @@ namespace MasterOnline.Controllers
                             //var a = new OfficeOpenXml.ExcelTableAddress[3, 1, 3, 2];
                             if (dsBarang.Tables[0].Rows.Count > 0)
                             {
-                                var validation2 = worksheet.DataValidations.AddListValidation(worksheet.Cells[19, 6, worksheet.Dimension.End.Row, 6].Address);
+                                var validation2 = worksheet.DataValidations.AddListValidation(worksheet.Cells[19, 8, worksheet.Dimension.End.Row, 8].Address);
                                 validation2.ShowErrorMessage = true;
                                 validation2.ErrorStyle = ExcelDataValidationWarningStyle.warning;
                                 validation2.ErrorTitle = "An invalid value was entered";
@@ -661,7 +680,7 @@ namespace MasterOnline.Controllers
                     ////end change by calvin 16 september 2019
                     string sSQL = "select a.brg, nama + ' ' + isnull(nama2, '') as nama from stf02 a (nolock) " +
                                   "left join (select distinct unit from stf03 (nolock)) b on a.brg=b.unit " +
-                                  "where type = 3 and isnull(b.unit,'')='' order by nama,nama2";
+                                  "where type = '3' and isnull(b.unit,'')='' order by nama,nama2";
                     //end change by nurul 9/11/2020, bundling
 
                     var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
@@ -914,7 +933,7 @@ namespace MasterOnline.Controllers
                             {
                                 using (System.Data.Entity.DbContextTransaction transaction = eraDB.Database.BeginTransaction())
                                 {
-                                    eraDB.Database.CommandTimeout = 1800;
+                                    eraDB.Database.CommandTimeout = 0;
                                     //loop all worksheets
                                     var worksheet = excelPackage.Workbook.Worksheets[1];
                                     string gd = worksheet.Cells[2, 1].Value == null ? "" : worksheet.Cells[2, 1].Value.ToString();
@@ -948,7 +967,7 @@ namespace MasterOnline.Controllers
                                             #region create induk
                                             if (ret.statusLoop == false)
                                             {
-                                                eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+                                                //eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
 
                                                 var stt01a = new STT01A
                                                 {
@@ -1075,18 +1094,26 @@ namespace MasterOnline.Controllers
                                                             if (!listTempBundling.Contains(Convert.ToString(worksheet.Cells[i, 1].Value))){
                                                                 if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
                                                                 {
-                                                                    if (Convert.ToInt32(worksheet.Cells[i, 3].Value) >= 0)
+                                                                    var qtyTemp = worksheet.Cells[i, 3].Value.ToString().Replace("\r", "").Replace("\n", "").Replace(" ", "");
+                                                                    double dqty = Convert.ToDouble(qtyTemp);
+
+                                                                    if (dqty >= 0)
+                                                                        //if (Convert.ToInt32(worksheet.Cells[i, 3].Value) >= 0)
                                                                     {
                                                                         TEMP_SALDOAWAL newrecord = new TEMP_SALDOAWAL()
                                                                         {
                                                                             BRG = Convert.ToString(worksheet.Cells[i, 1].Value),
-                                                                            QTY = Convert.ToInt32(worksheet.Cells[i, 3].Value)
+                                                                            //QTY = Convert.ToInt32(worksheet.Cells[i, 3].Value)
+                                                                            QTY = dqty
                                                                         };
                                                                         if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 4].Value)))
                                                                         {
-                                                                            if (Convert.ToInt32(worksheet.Cells[i, 4].Value) >= 0)
+                                                                            var modalTemp = worksheet.Cells[i, 4].Value.ToString().Replace("\r", "").Replace("\n", "").Replace(" ", "").Replace("&nbsp;", "").Replace("\r\n", "");
+                                                                            var te = modalTemp.Replace("\r", "").Replace("\n", "").Replace("\r\r", "").Replace("&nbsp;", "").Replace("\r\n", "");
+                                                                            double dmodal = Convert.ToDouble(modalTemp);
+                                                                            if (dmodal >= 0)
                                                                             {
-                                                                                newrecord.HARGA_SATUAN = Convert.ToDouble(worksheet.Cells[i, 4].Value);
+                                                                                newrecord.HARGA_SATUAN = dmodal;
                                                                             }
                                                                             else
                                                                             {
@@ -1160,6 +1187,7 @@ namespace MasterOnline.Controllers
                                                 if (ret.countAll == 0)
                                                 {
                                                     transaction.Rollback();
+                                                    eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
                                                     ret.Errors.Add("Mohon untuk mengisi kolom Quantity dan Harga Modal (jika diperlukan) untuk proses Upload Excel Saldo Awal.");
                                                     ret.statusSuccess = false;
                                                     return Json(ret, JsonRequestBehavior.AllowGet);
@@ -1456,11 +1484,11 @@ namespace MasterOnline.Controllers
 
                                 //change by nurul 17/9/2020, brg multi sku 
                                 //var dataMasterSTF02 = eraDB.STF02.Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3 }).ToList();
-                                var dataMasterSTF02 = eraDB.STF02.Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3, p.TYPE, p.KUBILASI, p.BRG_NON_OS }).ToList();
+                                var dataMasterSTF02 = eraDB.STF02.AsNoTracking().Select(p => new { p.BRG, p.NAMA, p.NAMA2, p.NAMA3, p.TYPE, p.KUBILASI, p.BRG_NON_OS }).ToList();
                                 //end change by nurul 17/9/2020, brg multi sku 
-                                var dataMasterSTF02H = eraDB.STF02H.Select(p => new { p.BRG, p.BRG_MP, p.IDMARKET }).ToList();
-                                var dataMasterKurir = MoDbContext.Ekspedisi.ToList();
-                                var dataMasterARF01 = eraDB.ARF01.ToList();
+                                var dataMasterSTF02H = eraDB.STF02H.AsNoTracking().Select(p => new { p.BRG, p.BRG_MP, p.IDMARKET }).ToList();
+                                var dataMasterKurir = MoDbContext.Ekspedisi.AsNoTracking().ToList();
+                                var dataMasterARF01 = eraDB.ARF01.AsNoTracking().ToList();
 
                                 //eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_UPLOADPESANAN");
                                 //List<TEMP_UPLOADPESANAN> batchinsertItem = new List<TEMP_UPLOADPESANAN>();
@@ -1504,13 +1532,13 @@ namespace MasterOnline.Controllers
                                             string[] splitRef = refCheck.Split(';');
                                             var resNoref = splitRef[0].ToString();
                                             var resNocust = splitRef[1].ToString();
-                                            var checkDB = eraDB.SOT01A.Where(c => c.NO_REFERENSI == resNoref && c.CUST == resNocust).SingleOrDefault();
-                                            if (checkDB != null)
+                                            var checkDB = eraDB.SOT01A.AsNoTracking().Where(c => c.NO_REFERENSI == resNoref && c.CUST == resNocust).SingleOrDefault();
+                                            if(checkDB != null)
                                             {
                                                 messageErrorLog = "No Referensi pesanan " + resNoref + " dan Kode Customer toko " + resNocust + " sudah pernah dimasukan.Proses Upload Pesanan dibatalkan.";
                                                 tw.WriteLine(messageErrorLog);
 
-                                                var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                 if (cekLog == null)
                                                 {
                                                     string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -1640,15 +1668,34 @@ namespace MasterOnline.Controllers
 
                                                                                                 var kodePembeli = "";
                                                                                                 string address = "";
-                                                                                                var dataPembeli = eraDB.ARF01C.Where(p => p.NAMA == nama_pembeli && p.TLP == no_telpPembeli).FirstOrDefault();
-                                                                                                var alamatAutoSplit1 = alamat_kirim.Length > 30 ? alamat_kirim.Substring(0, 29) : alamat_kirim.ToString();
-                                                                                                var alamatAutoSplit2 = alamat_kirim.Length > 80 ? alamat_kirim.Substring(40, 79) : alamatAutoSplit1;
-                                                                                                //var alamatAutoSplit3 = alamat_kirim.Length > 120 ? alamat_kirim.Substring(80, 119) : alamat_kirim.ToString();
+                                                                                                var dataPembeli = eraDB.ARF01C.Where(p => p.NAMA == nama_pembeli.Replace("'", "`") && p.TLP == no_telpPembeli.Replace(" ", "").Replace("'", "`").Replace("`", "").Replace("+", "").Replace("-", "")).FirstOrDefault();
+
+                                                                                                var alamatAutoSplit1 = "";
+                                                                                                var alamatAutoSplit2 = "";
+                                                                                                var alamatAutoSplit3 = "";
+
+                                                                                                if (alamat_kirim.Length >= 40)
+                                                                                                {
+                                                                                                    alamatAutoSplit1 = alamat_kirim.Substring(0, 40);
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    alamatAutoSplit1 = alamat_kirim.ToString();
+                                                                                                }
+                                                                                                //if (alamat_kirim.Length > 30 && alamat_kirim.Length <= 40)
+                                                                                                //    alamatAutoSplit2 = alamat_kirim.Substring(30, alamat_kirim.Length - 30);
+                                                                                                //if (alamat_kirim.Length > 60 && alamat_kirim.Length <= 70)
+                                                                                                //    alamatAutoSplit3 = alamat_kirim.Substring(60, alamat_kirim.Length - 60);
+
+
+                                                                                                //var alamatAutoSplit1 = alamat_kirim.Length > 40 ? alamat_kirim.Substring(0, 40) : alamat_kirim.ToString();
+                                                                                                //var alamatAutoSplit2 = alamat_kirim.Length > 80 ? alamat_kirim.Substring(30, 40) : "";
+                                                                                                //var alamatAutoSplit3 = alamat_kirim.Length > 120 ? alamat_kirim.Substring(80, 119) : "";
 
                                                                                                 if (dataPembeli == null)
                                                                                                 {
                                                                                                     var connIdARF01C = Guid.NewGuid().ToString();
-                                                                                                    var kodePembeliLast = eraDB.ARF01C.Select(p => p.BUYER_CODE).ToList().LastOrDefault();
+                                                                                                    var kodePembeliLast = eraDB.ARF01C.AsNoTracking().Select(p => p.BUYER_CODE).ToList().LastOrDefault();
                                                                                                     kodePembeliLast = Convert.ToString(Convert.ToInt32(kodePembeliLast) + 1).PadLeft(10, '0');
 
                                                                                                     string insertPembeli = "INSERT INTO ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
@@ -1663,10 +1710,10 @@ namespace MasterOnline.Controllers
 
                                                                                                     insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01', 1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
                                                                                                         ((nama_pembeli ?? "").Replace("'", "`")),
-                                                                                                        ((address ?? "").Replace("'", "`")),
-                                                                                                         ((no_telpPembeli).Replace("'", "`")),
+                                                                                                        (alamatAutoSplit1.Length > 30 ? alamatAutoSplit1.Substring(0, 30).Replace("'", "`") : alamatAutoSplit1.Replace("'", "`")),
+                                                                                                         ((no_telpPembeli).Replace("'", "`").Replace("`", "").Replace("+", "").Replace(" ", "").Replace("-", "")),
                                                                                                         (dataToko.PERSO.Replace(',', '.')),
-                                                                                                        ((address ?? "").Replace("'", "`")),
+                                                                                                        (alamatAutoSplit1.Length > 30 ? alamatAutoSplit1.Substring(0, 30).Replace("'", "`") : alamatAutoSplit1.Replace("'", "`")),
                                                                                                         DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                                                                                                         (username),
                                                                                                         (("").Replace("'", "`")),
@@ -1676,7 +1723,7 @@ namespace MasterOnline.Controllers
                                                                                                         );
                                                                                                     insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
                                                                                                     EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
-                                                                                                    kodePembeli = eraDB.ARF01C.Where(p => p.NAMA == nama_pembeli && p.TLP == no_telpPembeli).Select(p => p.BUYER_CODE).FirstOrDefault();
+                                                                                                    kodePembeli = eraDB.ARF01C.Where(p => p.NAMA == nama_pembeli.Replace("'", "`") && p.TLP == no_telpPembeli.Replace("-", "").Replace(" ", "").Replace("'", "`").Replace("`", "").Replace("+", "")).Select(p => p.BUYER_CODE).FirstOrDefault();
                                                                                                     //kodePembeli = dataMasterARF01C.Where(p => p.NAMA == nama).Select(p => p.BUYER_CODE).FirstOrDefault();
                                                                                                 }
                                                                                                 else
@@ -1697,7 +1744,7 @@ namespace MasterOnline.Controllers
                                                                                                         AL = alamatAutoSplit1,
                                                                                                         AL1 = alamatAutoSplit1,
                                                                                                         AL2 = alamatAutoSplit2,
-                                                                                                        AL3 = "",
+                                                                                                        AL3 = alamatAutoSplit3,
                                                                                                         ALAMAT_KIRIM = alamat_kirim,
                                                                                                         AL_CUST = "",
                                                                                                         BRUTO = Convert.ToInt32(bruto),
@@ -1717,7 +1764,7 @@ namespace MasterOnline.Controllers
                                                                                                         KODE_WIL = "",
                                                                                                         KOMISI = 0,
                                                                                                         KOTA = null,
-                                                                                                        NAMAPEMESAN = nama_pembeli,
+                                                                                                        NAMAPEMESAN = nama_pembeli.Replace("'", "`"),
                                                                                                         NAMAPENGIRIM = null,
                                                                                                         NAMA_CUST = dataToko.PERSO,
                                                                                                         NETTO = Convert.ToInt32(netto),
@@ -1751,7 +1798,7 @@ namespace MasterOnline.Controllers
                                                                                                         TGL_JTH_TEMPO = DateTime.Now.AddHours(7).AddDays(Convert.ToInt32(top)),
                                                                                                         TGL_KIRIM = null,
                                                                                                         TIPE_KIRIM = 0,
-                                                                                                        TOTAL_SEMUA = Convert.ToInt32(total),
+                                                                                                        TOTAL_SEMUA = Convert.ToInt32(bruto),
                                                                                                         TOTAL_TITIPAN = 0,
                                                                                                         TRACKING_SHIPMENT = null,
                                                                                                         UCAPAN = "",
@@ -1773,7 +1820,7 @@ namespace MasterOnline.Controllers
                                                                                                         messageErrorLog = "terjadi error pada insert header pesanan pada row " + i;
                                                                                                         tw.WriteLine(messageErrorLog);
 
-                                                                                                        var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                                                                        var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                                                                         if (cekLog == null)
                                                                                                         {
                                                                                                             string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -1809,13 +1856,13 @@ namespace MasterOnline.Controllers
                                                                                                     noBuktiSO = checkDuplicateHeader.NO_BUKTI;
                                                                                                 }
 
-                                                                                                if (!string.IsNullOrEmpty(diskon) || !string.IsNullOrEmpty(ndisc1) || !string.IsNullOrEmpty(nilai_ppn) || !string.IsNullOrEmpty(netto) || !string.IsNullOrEmpty(total))
+                                                                                                if (string.IsNullOrEmpty(diskon) || string.IsNullOrEmpty(ndisc1) || string.IsNullOrEmpty(nilai_ppn))
                                                                                                 {
                                                                                                     diskon = "0";
                                                                                                     ndisc1 = "0";
                                                                                                     nilai_ppn = "0";
-                                                                                                    netto = "0";
-                                                                                                    total = "0";
+                                                                                                    //netto = "0";
+                                                                                                    //total = "0";
                                                                                                 }
 
                                                                                                 var sot01b = new SOT01B
@@ -1828,7 +1875,7 @@ namespace MasterOnline.Controllers
                                                                                                     QTY = Convert.ToInt32(qty),
                                                                                                     DISCOUNT = Convert.ToInt32(diskon),
                                                                                                     NILAI_DISC = Convert.ToInt32(ndisc1),
-                                                                                                    HARGA = Convert.ToInt32(harga_satuan),
+                                                                                                    HARGA = Convert.ToInt32(total),
                                                                                                     WRITE_KONFIG = false,
                                                                                                     QTY_KIRIM = 0,
                                                                                                     QTY_RETUR = 0,
@@ -1886,7 +1933,7 @@ namespace MasterOnline.Controllers
                                                                                                     //}
                                                                                                     messageErrorLog = "terjadi error pada insert detail pesanan pada row " + i;
                                                                                                     tw.WriteLine(messageErrorLog);
-                                                                                                    var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                                                                    var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                                                                     if (cekLog == null)
                                                                                                     {
                                                                                                         string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -1935,10 +1982,10 @@ namespace MasterOnline.Controllers
                                                                                                 Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
 
                                                                                                 int IDMarket = Convert.ToInt32(dataToko.NAMA);
-                                                                                                var dataMP = MoDbContext.Marketplaces.Where(p => p.IdMarket == IDMarket).SingleOrDefault();
-                                                                                                messageErrorLog = "Kode Barang " + kode_brg + " saat ini link di toko " + dataToko.PERSO + " (" + dataMP.NamaMarket.ToString() + ")";
+                                                                                                var dataMP = MoDbContext.Marketplaces.AsNoTracking().Where(p => p.IdMarket == IDMarket).SingleOrDefault();
+                                                                                                messageErrorLog = "Kode Barang " + kode_brg + " saat ini tidak link di toko " + dataToko.PERSO + " (" + dataMP.NamaMarket.ToString() + ")";
                                                                                                 tw.WriteLine(messageErrorLog);
-                                                                                                var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                                                                var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                                                                 if (cekLog == null)
                                                                                                 {
                                                                                                     string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -1976,10 +2023,10 @@ namespace MasterOnline.Controllers
                                                                                             Functions.SendProgress("Process in progress...", iProcess, Convert.ToInt32(ret.countAll - 1));
 
                                                                                             int IDMarket = Convert.ToInt32(dataToko.NAMA);
-                                                                                            var dataMP = MoDbContext.Marketplaces.Where(p => p.IdMarket == IDMarket).SingleOrDefault();
+                                                                                            var dataMP = MoDbContext.Marketplaces.AsNoTracking().Where(p => p.IdMarket == IDMarket).SingleOrDefault();
                                                                                             messageErrorLog = "Toko " + dataToko.PERSO + " saat ini link ke marketplaces (" + dataMP.NamaMarket.ToString() + ").";
                                                                                             tw.WriteLine(messageErrorLog);
-                                                                                            var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                                                            var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                                                             if (cekLog == null)
                                                                                             {
                                                                                                 string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2017,7 +2064,7 @@ namespace MasterOnline.Controllers
 
                                                                                         messageErrorLog = "Kode Customer Toko " + no_cust[0] + " tidak ditemukan.";
                                                                                         tw.WriteLine(messageErrorLog);
-                                                                                        var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                                                        var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                                                         if (cekLog == null)
                                                                                         {
                                                                                             string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2055,7 +2102,7 @@ namespace MasterOnline.Controllers
 
                                                                                     messageErrorLog = "Kode Kurir " + kode_kurir[0] + " tidak ditemukan.";
                                                                                     tw.WriteLine(messageErrorLog);
-                                                                                    var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                                                    var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                                                     if (cekLog == null)
                                                                                     {
                                                                                         string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2093,7 +2140,7 @@ namespace MasterOnline.Controllers
 
                                                                                 messageErrorLog = "Kode Barang " + kode_brg + " tidak ditemukan.";
                                                                                 tw.WriteLine(messageErrorLog);
-                                                                                var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                                                var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                                                 if (cekLog == null)
                                                                                 {
                                                                                     string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2132,7 +2179,7 @@ namespace MasterOnline.Controllers
 
                                                                             messageErrorLog = "kode barang lebih dari 20 karakter pada row " + i;
                                                                             tw.WriteLine(messageErrorLog);
-                                                                            var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                                            var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                                             if (cekLog == null)
                                                                             {
                                                                                 string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2179,7 +2226,7 @@ namespace MasterOnline.Controllers
                                                                         }
                                                                         messageErrorLog = errorMessage;
                                                                         tw.WriteLine(messageErrorLog);
-                                                                        var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                                        var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                                         if (cekLog == null)
                                                                         {
                                                                             string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2217,7 +2264,7 @@ namespace MasterOnline.Controllers
 
                                                                     messageErrorLog = "kode barang kosong pada row " + i;
                                                                     tw.WriteLine(messageErrorLog);
-                                                                    var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                                    var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                                     if (cekLog == null)
                                                                     {
                                                                         string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2255,7 +2302,7 @@ namespace MasterOnline.Controllers
 
                                                                 messageErrorLog = "terdapat karakter koma pada kolom pengisian angka di row " + i;
                                                                 tw.WriteLine(messageErrorLog);
-                                                                var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                                var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                                 if (cekLog == null)
                                                                 {
                                                                     string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2293,7 +2340,7 @@ namespace MasterOnline.Controllers
 
                                                             messageErrorLog = "terdapat karakter titik pada kolom pengisian angka di row " + i;
                                                             tw.WriteLine(messageErrorLog);
-                                                            var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                            var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                             if (cekLog == null)
                                                             {
                                                                 string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2331,7 +2378,7 @@ namespace MasterOnline.Controllers
 
                                                         messageErrorLog = "no telepon kosong di row " + i;
                                                         tw.WriteLine(messageErrorLog);
-                                                        var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                        var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                         if (cekLog == null)
                                                         {
                                                             string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2371,7 +2418,7 @@ namespace MasterOnline.Controllers
                                                     tw.WriteLine(messageErrorLog);
                                                     string[] no_cust2 = marketplace.Split(';');
                                                     var noCust = no_cust2[0];
-                                                    var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                    var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                     if (cekLog == null)
                                                     {
                                                         string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2409,7 +2456,7 @@ namespace MasterOnline.Controllers
                                                 tw.WriteLine(messageErrorLog);
                                                 string[] no_cust2 = marketplace.Split(';');
                                                 var noCust = no_cust2[0];
-                                                var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                                var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                                 if (cekLog == null)
                                                 {
                                                     string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2437,7 +2484,7 @@ namespace MasterOnline.Controllers
 
                                             messageErrorLog = "no referensi lebih dari 70 karakter pada row " + i;
                                             tw.WriteLine(messageErrorLog);
-                                            var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                            var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                             if (cekLog == null)
                                             {
                                                 string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2473,7 +2520,7 @@ namespace MasterOnline.Controllers
                                         }
                                         messageErrorLog = "no referensi kosong pada row " + i;
                                         tw.WriteLine(messageErrorLog);
-                                        var cekLog = eraDB.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
+                                        var cekLog = eraDB.API_LOG_MARKETPLACE.AsNoTracking().Where(p => p.REQUEST_ACTION == "Upload Excel Pesanan" && p.REQUEST_ID == connID).FirstOrDefault();
                                         if (cekLog == null)
                                         {
                                             string InsertLogError = string.Format("('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')",
@@ -2501,7 +2548,7 @@ namespace MasterOnline.Controllers
                             }
                             catch (Exception ex)
                             {
-                                tw.WriteLine(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+                                 tw.WriteLine(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
                                 //transaction.Rollback();
                                 //new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
                                 ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
@@ -2593,7 +2640,7 @@ namespace MasterOnline.Controllers
                                                 var listCurrentBrg = new List<string>();
                                                 for (int j = 19 + (page * dataPerPage); j <= maxData; j++)
                                                 {
-                                                    var brg_mp = worksheet.Cells[j, 11].Value == null ? "" : worksheet.Cells[j, 11].Value.ToString();
+                                                    var brg_mp = worksheet.Cells[j, 13].Value == null ? "" : worksheet.Cells[j, 13].Value.ToString();
                                                     if (!string.IsNullOrEmpty(brg_mp))
                                                     {
                                                         //if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[j, 3].Value)))
@@ -2610,7 +2657,7 @@ namespace MasterOnline.Controllers
                                                     //for (int i = 19; i <= worksheet.Dimension.End.Row; i++)
                                                     for (int i = 19 + (page * dataPerPage); i <= maxData; i++)
                                                     {
-                                                        var kd_brg_mp = worksheet.Cells[i, 11].Value == null ? "" : worksheet.Cells[i, 11].Value.ToString();
+                                                        var kd_brg_mp = worksheet.Cells[i, 13].Value == null ? "" : worksheet.Cells[i, 13].Value.ToString();
                                                         if (!string.IsNullOrEmpty(kd_brg_mp))
                                                         {
                                                             ////loop all columns in a row
@@ -2641,14 +2688,17 @@ namespace MasterOnline.Controllers
                                                                         current_brg.KODE_BRG_INDUK = worksheet.Cells[i, 4].Value == null ? "" : worksheet.Cells[i, 4].Value.ToString().Trim();
                                                                         //change 14 juni 2019, kode kategori mo disimpan di avalue_40, kode kategory mp tetap di category_code
                                                                         //current_brg.CATEGORY_CODE = worksheet.Cells[i, 5].Value == null ? "" : worksheet.Cells[i, 5].Value.ToString();
-                                                                        current_brg.AVALUE_40 = worksheet.Cells[i, 5].Value == null ? "" : worksheet.Cells[i, 5].Value.ToString().Trim();
+                                                                        current_brg.AVALUE_40 = worksheet.Cells[i, 7].Value == null ? "" : worksheet.Cells[i, 7].Value.ToString().Trim();
                                                                         //end change 14 juni 2019, kode kategori mo disimpan di avalue_40, kode kategory mp tetap di category_code
-                                                                        current_brg.MEREK = worksheet.Cells[i, 6].Value == null ? "" : worksheet.Cells[i, 6].Value.ToString().Trim();
+                                                                        current_brg.MEREK = worksheet.Cells[i, 8].Value == null ? "" : worksheet.Cells[i, 8].Value.ToString().Trim();
                                                                         //current_brg.HJUAL_MP = Convert.ToDouble(worksheet.Cells[i, 7].Value == null ? "0" : worksheet.Cells[i, 7].Value.ToString());
-                                                                        current_brg.HJUAL = Convert.ToDouble(worksheet.Cells[i, 7].Value == null ? "0" : worksheet.Cells[i, 7].Value.ToString());
+                                                                        //current_brg.HJUAL = Convert.ToDouble(worksheet.Cells[i, 7].Value == null ? "0" : worksheet.Cells[i, 7].Value.ToString());
                                                                         //current_brg.BERAT = Convert.ToDouble(worksheet.Cells[i, 9].Value == null ? "0" : worksheet.Cells[i, 9].Value.ToString());
                                                                         //current_brg.IMAGE = worksheet.Cells[i, 10].Value == null ? "" : worksheet.Cells[i, 10].Value.ToString();
                                                                         current_brg.AVALUE_36 = "Auto Process";// barang yg akan di transfer ke master hasil upload excel saja
+                                                                        current_brg.BARCODE = worksheet.Cells[i, 5].Value == null ? "" : worksheet.Cells[i, 5].Value.ToString().Trim();
+                                                                        current_brg.RAK = worksheet.Cells[i, 6].Value == null ? "" : worksheet.Cells[i, 6].Value.ToString().Trim();
+
                                                                         try
                                                                         {
                                                                             eraDB.SaveChanges();
@@ -2755,10 +2805,10 @@ namespace MasterOnline.Controllers
                         "ALAMAT_KIRIM, A.TERM AS [TOP],  SHIPMENT AS KURIR, TGL_JTH_TEMPO AS TGL_JATUH_TEMPO, A.KET AS KETERANGAN, A.BRUTO, A.DISCOUNT AS DISC, A.PPN, A.NILAI_PPN, A.ONGKOS_KIRIM, A.NETTO, " +
                         "A.STATUS_TRANSAKSI AS STATUS_PESANAN, B.BRG AS KODE_BRG, ISNULL(C.NAMA,'') + ' ' + ISNULL(C.NAMA2, '') AS NAMA_BARANG, QTY, " +
                         "H_SATUAN AS HARGA_SATUAN, B.DISCOUNT AS DISC1, B.NILAI_DISC_1 AS NDISC1, B.DISCOUNT_2 AS DISC2, B.NILAI_DISC_2 AS NDISC2, HARGA AS TOTAL " +
-                        "FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI " +
-                        "LEFT JOIN STF02 C ON B.BRG = C.BRG " +
-                        "INNER JOIN ARF01 D ON A.CUST = D.CUST " +
-                        "INNER JOIN MO..MARKETPLACE E ON D.NAMA = E.IDMARKET " +
+                        "FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI " +
+                        "LEFT JOIN STF02 C(NOLOCK) ON B.BRG = C.BRG " +
+                        "INNER JOIN ARF01 D(NOLOCK) ON A.CUST = D.CUST " +
+                        "INNER JOIN MO..MARKETPLACE E(NOLOCK) ON D.NAMA = E.IDMARKET " +
                         "WHERE A.TGL BETWEEN '" + dt1 + "' AND '" + dt2 + "'";
 
                     if (orid != "ALL")
@@ -3078,8 +3128,8 @@ namespace MasterOnline.Controllers
 
                     // MARKETPLACES
                     var sSQL = "SELECT ISNULL(A.CUST, '') AS KODE_MP, ISNULL(B.NAMAMARKET, '') + '(' + ISNULL(A.PERSO, '') + ')' AS MARKETPLACE " +
-                        "FROM ARF01 A " +
-                        "LEFT JOIN MO..MARKETPLACE B ON A.NAMA = B.IDMARKET";
+                        "FROM ARF01 A (NOLOCK) " +
+                        "LEFT JOIN MO..MARKETPLACE B(NOLOCK) ON A.NAMA = B.IDMARKET";
 
                     var resultMarketplace = EDB.GetDataSet("CString", "ARF01", sSQL);
                     if (resultMarketplace.Tables[0].Rows.Count > 0)
@@ -3981,9 +4031,9 @@ namespace MasterOnline.Controllers
                         else
                         {
                             ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Picking List");
-                            string sSQL = "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY " +
+                            string sSQL = "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(A.RAK,'') as RAK " +
                                 "from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG " +
-                                "WHERE NO_BUKTI = '" + noPackingList + "' GROUP BY A.BRG, B.NAMA, B.NAMA2 ";
+                                "WHERE NO_BUKTI = '" + noPackingList + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE, A.RAK ";
                             var lsPicking = EDB.GetDataSet("CString", "SO", sSQL);
                             if (lsPicking.Tables[0].Rows.Count > 0)
                             {
@@ -3993,18 +4043,22 @@ namespace MasterOnline.Controllers
                                 for (int i = 0; i < lsPicking.Tables[0].Rows.Count; i++)
                                 {
                                     worksheet.Cells[6 + i, 1].Value = lsPicking.Tables[0].Rows[i]["BRG"];
-                                    worksheet.Cells[6 + i, 2].Value = lsPicking.Tables[0].Rows[i]["NAMA_BARANG"];
-                                    worksheet.Cells[6 + i, 3].Value = lsPicking.Tables[0].Rows[i]["QTY"];
+                                    worksheet.Cells[6 + i, 2].Value = lsPicking.Tables[0].Rows[i]["BARCODE"];
+                                    worksheet.Cells[6 + i, 3].Value = lsPicking.Tables[0].Rows[i]["NAMA_BARANG"];
+                                    worksheet.Cells[6 + i, 4].Value = lsPicking.Tables[0].Rows[i]["RAK"];
+                                    worksheet.Cells[6 + i, 5].Value = lsPicking.Tables[0].Rows[i]["QTY"];
                                 }
-                                ExcelRange rg0 = worksheet.Cells[5, 1, worksheet.Dimension.End.Row, 3];
+                                ExcelRange rg0 = worksheet.Cells[5, 1, worksheet.Dimension.End.Row, 5];
                                 string tableName0 = "TablePackingList";
                                 ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
 
                                 table0.Columns[0].Name = "KODE BARANG";
-                                table0.Columns[1].Name = "NAMA BARANG";
-                                table0.Columns[2].Name = "QTY";
+                                table0.Columns[1].Name = "KODE BARCODE";
+                                table0.Columns[2].Name = "NAMA BARANG";
+                                table0.Columns[3].Name = "LOKASI RAK";
+                                table0.Columns[4].Name = "QTY";
 
-                                using (var range = worksheet.Cells[5, 1, 5, 3])
+                                using (var range = worksheet.Cells[5, 1, 5, 5])
                                 {
                                     range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
                                     range.Style.Border.Left.Style = ExcelBorderStyle.Thin;

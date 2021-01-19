@@ -34,6 +34,59 @@ namespace MasterOnline.Models
         public dataUploadBrg data { get; set; }
     }
 
+    public class LazadaItemDetailResponse
+    {
+        public string code { get; set; }
+        public DataItemDetail data { get; set; }
+        public string request_id { get; set; }
+    }
+
+    public class DataItemDetail
+    {
+        public SkuItemDetail[] skus { get; set; }
+        public string item_id { get; set; }
+        public string primary_category { get; set; }
+        public AttributesItemDetail attributes { get; set; }
+    }
+
+    public class AttributesItemDetail
+    {
+        public string short_description { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public string warranty_type { get; set; }
+        public string brand { get; set; }
+    }
+
+    public class SkuItemDetail
+    {
+        public string Status { get; set; }
+        public int quantity { get; set; }
+        public string product_weight { get; set; }
+        public string[] Images { get; set; }
+        public string SellerSku { get; set; }
+        public string ShopSku { get; set; }
+        public string Url { get; set; }
+        public MultiwarehouseinventoryItemDetail[] multiWarehouseInventories { get; set; }
+        public string package_width { get; set; }
+        public string special_to_time { get; set; }
+        public string special_from_time { get; set; }
+        public string package_height { get; set; }
+        public double special_price { get; set; }
+        public double price { get; set; }
+        public string package_length { get; set; }
+        public string package_weight { get; set; }
+        public int Available { get; set; }
+        public long SkuId { get; set; }
+        public string special_to_date { get; set; }
+    }
+
+    public class MultiwarehouseinventoryItemDetail
+    {
+        public int quantity { get; set; }
+        public string warehouseCode { get; set; }
+    }
+
     public class LazadaCreateBarangResponse : LazadaCommonRes
     {
         public detailUpdateBrg[] detail { get; set; }
@@ -349,6 +402,7 @@ namespace MasterOnline.Models
         public string extra_attributes { get; set; }
         public string order_id { get; set; }
         public string status { get; set; }
+        public string sla_time_stamp { get; set; }
     }
 
 

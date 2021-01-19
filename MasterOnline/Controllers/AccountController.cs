@@ -100,7 +100,7 @@ namespace MasterOnline.Controllers
         }
 
         [System.Web.Mvc.Route("loginSubs")]
-        public ActionResult LoginSubs(string Ref, string kode, string bln, int jmlUser)
+        public ActionResult LoginSubs(string Ref, string kode, string bln, int jmlUser, string addons)
         {
             var partnerInDb = MoDbContext.Partner.FirstOrDefault(p => p.KodeRefPilihan == Ref);
 
@@ -121,7 +121,8 @@ namespace MasterOnline.Controllers
             {
                 DatabasePathMo = bln,
                 KODE_SUBSCRIPTION = kode,
-                jumlahUser = jmlUser
+                jumlahUser = jmlUser,
+                confirm_broadcast = addons
             };
             return View("Register", vm);
         }
@@ -234,7 +235,13 @@ namespace MasterOnline.Controllers
             if (_viewModel?.Account != null)
             {
                 dbPathEra = _viewModel.Account.DatabasePathErasoft;
+                //dbSourceEra = _viewModel.Account.DataSourcePath;
+#if (Debug_AWS)
+                dbSourceEra = _viewModel.Account.DataSourcePathDebug;
+#else
                 dbSourceEra = _viewModel.Account.DataSourcePath;
+#endif
+
                 erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dbSourceEra, dbPathEra);
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(_viewModel.Account.DatabasePathErasoft);
@@ -245,7 +252,12 @@ namespace MasterOnline.Controllers
             {
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
                 dbPathEra = accFromUser.DatabasePathErasoft;
+                //dbSourceEra = accFromUser.DataSourcePath;
+#if (Debug_AWS)
+                dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
                 dbSourceEra = accFromUser.DataSourcePath;
+#endif
 
                 erasoftContext = new ErasoftContext(dbSourceEra, dbPathEra);
                 //add by calvin 1 april 2019
@@ -488,7 +500,12 @@ namespace MasterOnline.Controllers
             if (_viewModel?.Account != null)
             {
                 dbPathEra = _viewModel.Account.DatabasePathErasoft;
+                //dbSourceEra = _viewModel.Account.DataSourcePath;
+#if (Debug_AWS)
+                dbSourceEra = _viewModel.Account.DataSourcePathDebug;
+#else
                 dbSourceEra = _viewModel.Account.DataSourcePath;
+#endif
                 erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dbSourceEra, dbPathEra);
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(_viewModel.Account.DatabasePathErasoft);
@@ -501,7 +518,12 @@ namespace MasterOnline.Controllers
             {
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
                 dbPathEra = accFromUser.DatabasePathErasoft;
+                //dbSourceEra = accFromUser.DataSourcePath;
+#if (Debug_AWS)
+                dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
                 dbSourceEra = accFromUser.DataSourcePath;
+#endif
 
                 erasoftContext = new ErasoftContext(dbSourceEra, dbPathEra);
                 //add by calvin 1 april 2019
@@ -667,19 +689,51 @@ namespace MasterOnline.Controllers
             };
 
             var connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_1";
-            //31 desember jam 23:55 (UTC+7) setiap tahun, jalankan proses akhir tahun untuk tahun sekarang
+            //31 desember jam 23:30 (UTC+7) setiap tahun, jalankan proses akhir tahun untuk tahun sekarang
             recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
-            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "55 16 31 12 *", recurJobOpt);
+            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "30 16 31 12 *", recurJobOpt);
 
             connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_2";
-            //1 januari jam 00:05 (UTC+7) setiap tahun, jalankan proses akhir tahun untuk tahun sebelumnya
+            //1 januari jam 00:30 (UTC+7) setiap tahun, jalankan proses akhir tahun untuk tahun sebelumnya
+            var today = DateTime.UtcNow.AddHours(7);
+            var setTahun = DateTime.UtcNow.AddHours(7).Year;
+            if(today.Month == 1 && today.Day == 1)
+            {
+                setTahun = today.Year - 1;
+            }
             recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
-            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, (DateTime.UtcNow.AddHours(7).Year - 1).ToString())), "5 17 31 12 *", recurJobOpt);
+            //recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, (DateTime.UtcNow.AddHours(7).Year - 1).ToString())), "30 17 31 12 *", recurJobOpt);
+            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, setTahun.ToString())), "30 17 31 12 *", recurJobOpt);
 
-            connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test";
+            //connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test";
             //23 desember jam 12 siang
+            //recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
+            //recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "0 5 23 12 *", recurJobOpt);
+
+            //28 desember jam 23:30 (UTC+7) setiap tahun
+            connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test_1";
             recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
-            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "0 5 23 12 *", recurJobOpt);
+            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "30 16 28 12 *", recurJobOpt);
+            //28 desember jam 00:30 (UTC+7) setiap tahun
+            connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test_2";
+            recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
+            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, (DateTime.UtcNow.AddHours(7).Year).ToString())), "30 17 28 12 *", recurJobOpt);
+
+//#if Dev
+//            //22 desember jam 21:15 (UTC+7) setiap tahun
+//            connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test_3";
+//            recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
+//            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "15 14 22 12 *", recurJobOpt);
+            
+//            //22 desember jam 23:30 (UTC+7) setiap tahun
+//            connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test_1";
+//            recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
+//            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "30 16 22 12 *", recurJobOpt);
+//            //22 desember jam 00:30 (UTC+7) setiap tahun
+//            connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test_2";
+//            recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
+//            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, (DateTime.UtcNow.AddHours(7).Year).ToString())), "30 17 22 12 *", recurJobOpt);
+//#endif
 
             //using (var connection = sqlStorage.GetConnection())
             //{
@@ -879,7 +933,8 @@ namespace MasterOnline.Controllers
                             connId_JobId = dbPathEra + "_lazada_pesanan_update_" + Convert.ToString(tblCustomer.RecNum.Value);
                             //change by nurul 21/1/2020, interval ubah jadi 30 
                             //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(30), recurJobOpt);
+                            //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(30), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.HourInterval(6), recurJobOpt);
                             //end change by nurul 21/1/2020, interval ubah jadi 30
 #endif
 
@@ -1247,7 +1302,8 @@ namespace MasterOnline.Controllers
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(30), recurJobOpt);
+                        //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.HourInterval(1), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.HourInterval(6), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_shopee_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCancelled(iden, ShopeeControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
@@ -1266,6 +1322,15 @@ namespace MasterOnline.Controllers
                         //end add by nurul 17/3/2020
                         ////hanya untuk testing
                         //await new ShopeeControllerJob().GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                        if (!string.IsNullOrEmpty(sync_pesanan_stok))
+                        {
+                            if(sync_pesanan_stok == tblCustomer.CUST)
+                            {
+                                var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-3).AddHours(-7).ToUnixTimeSeconds();
+                                var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
+                                client.Enqueue<ShopeeControllerJob>(x => x.GetOrderByStatusWithDay(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0, fromDt, toDt));
+                            }
+                        }
                     }
                     else
                     {
@@ -1790,7 +1855,7 @@ namespace MasterOnline.Controllers
             if (userSubs != "01")
             {
                 var midtrans = new MidtransController();
-                return await midtrans.PaymentMidtrans(userSubs, account.DatabasePathMo, Convert.ToInt32(account.AccountId), account.jumlahUser);
+                return await midtrans.PaymentMidtrans(userSubs, account.DatabasePathMo, account.confirm_broadcast, Convert.ToInt32(account.AccountId), account.jumlahUser);
             }
 
             //ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> melalui email dari admin kami, terima kasih.";
@@ -1870,7 +1935,10 @@ namespace MasterOnline.Controllers
             SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
                                 "user id=masteronline;password=M@ster123;");
 #elif Debug_AWS
-                SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //                                      "user id=masteronline;password=M@ster123;");
+
+                SqlConnection con = new SqlConnection("Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
 #else
                 SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
@@ -1887,7 +1955,13 @@ namespace MasterOnline.Controllers
                 //add by Tri 20-09-2018, save nama toko ke SIFSYS
                 //change by calvin 3 oktober 2018
                 //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
-                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DataSourcePath, accInDb.DatabasePathErasoft);
+                string dbSourceEra = "";
+#if (Debug_AWS)
+                dbSourceEra = accInDb.DataSourcePathDebug;
+#else
+                dbSourceEra = accInDb.DataSourcePath;
+#endif
+                ErasoftContext ErasoftDbContext = new ErasoftContext(dbSourceEra, accInDb.DatabasePathErasoft);
                 //end change by calvin 3 oktober 2018
                 var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
                 if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))

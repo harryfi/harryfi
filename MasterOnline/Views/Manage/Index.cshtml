@@ -329,6 +329,7 @@
                     margin-right: 10px;
                     width: 10px;
                 }
+
         [class$="-legendPie"] {
             list-style: none;
             cursor: pointer;
@@ -1028,8 +1029,8 @@
                             @Html.Label("", "Faktur")
                         </div>
                         @*<div class="col-md-1" style="padding-top: 7px;">
-                        Faktur
-                    </div>*@
+                                Faktur
+                            </div>*@
                     </div>
 
                     <div class="col-md-4" style="padding-bottom:10px">
@@ -1042,8 +1043,8 @@
                         </div>
                     </div>
                     @*<div class="col-md-1" style="padding-top: 7px;">
-                    Retur
-                </div>*@
+                            Retur
+                        </div>*@
                 </div>
                 @*<div class="col-md-1"></div>*@
                 <div class="col-md-1" style="padding-top: 7px;">
@@ -1061,8 +1062,8 @@
                 <div class="col-md-4"></div>
             </div>
             @*<div id="loading_dashboard_line" class="row col-md-12 text-center">
-                <img src="~/Content/Images/spinner.gif" width="100" />
-            </div>*@
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>*@
             <div class="row col-md-12" id="grafik-line-section">
                 @*<canvas id="chartMingguan" height="400"></canvas>*@
                 @*<canvas id="chart-mingguan" height="200"></canvas>*@
@@ -1137,10 +1138,10 @@
         var $href = "";
 
         $(document).ready(function () {
-            getTanggal();            
+            getTanggal();
             $('#TGL').datepicker('setDate', '0');
             //getDashboard();
-
+            
             //add by nurul 22/7/2019
             $('#ctk_pesanan').prop('checked', true);
             $('#ctk_faktur').prop('checked', true);
@@ -1247,6 +1248,7 @@
                 $('.chart-mode').hide();
                 $('.angka-mode').show();
                 $tipeTampilan = 1;
+                changeStatus(1);
             }
         }
 
@@ -1636,7 +1638,7 @@
                 },
                 success: function (response) {
                     $('#dashboard_page').html(response);
-
+                    
                     //add by nurul 6/9/2019
                     $('#periode_tdklaku').hide();
                     //end add by nurul 6/9/2019
@@ -1656,6 +1658,9 @@
                     else {
                         $('.chart-mode').hide();
                         $('.angka-mode').show();
+                        //add by nurul 7/12/2020
+                        changeStatus(1);
+                        //end add by nurul 7/12/2020
                     }
                     //if ($tipeTampilan == 0)
                     //{
@@ -1831,7 +1836,7 @@
                         });
                     RefreshTableDashboardArusKas();
                     //end add by nurul 18/11/2019
-                                        
+
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -2059,7 +2064,7 @@
                         jumlahreturMingguan.push(listDataReturM[i].Jumlah);
                         nilaireturMingguan.push(listDataReturM[i].Nilai);
                     }
-                    
+
                     var maxJumlahPesananMingguan = Math.max.apply(Math, jumlahpesananMingguan);
                     var maxJumlahFakturMingguan = Math.max.apply(Math, jumlahfakturMingguan);
                     var maxJumlahReturMingguan = Math.max.apply(Math, jumlahreturMingguan);
@@ -4038,13 +4043,13 @@
                         jumlahpesananTahunan.push(listDataPesananT[i].Jumlah);
                         nilaipesananTahunan.push(listDataPesananT[i].Nilai);
                     }
-                                        
+
                     var maxJumlahPesananTahunan = Math.max.apply(Math, jumlahpesananTahunan);
                     var dataMaxJumlahPesananTahunan = [maxJumlahPesananTahunan];
                     var maxJumlahPT = Math.max.apply(Math, dataMaxJumlahPesananTahunan);
                     var maxTicksBasicPesananTahunan = Math.ceil(maxJumlahPT / 10) * 10;
                     var steppingBasicPesananTahunan = (Math.ceil(maxJumlahPT / 10) * 10) / 5;
-                    
+
                     var ctxPesananTahunan = document.getElementById("chartPesananTahunan").getContext('2d');
 
                     var dataPesananTahunan = {
@@ -5750,7 +5755,7 @@
                 $('#PesananReturTahunan').hide();
                 $('#FakturReturTahunan').show();
             } else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "1" || $('#periode').val() == "2" || $('#periode').val() == "3") {
-                
+
                 $('#allMingguan').hide();
                 $('#PesananMingguan').hide();
                 $('#FakturMingguan').hide();
@@ -9898,7 +9903,7 @@
                 },
                 success: function (response) {
                     $('#table-barang-tidaklaku-partial').html(response);
-                    
+
                     $('#loading_barang_tidaklaku').hide();
                     $('#table-barang-tidaklaku-partial').show();
                 },
@@ -9943,7 +9948,7 @@
                 },
                 success: function (response) {
                     $('#table-aruskas-partial').html(response);
-                    
+
                     $('#loading_aruskas').hide();
                     $('#table-aruskas-partial').show();
                 },
@@ -9953,5 +9958,120 @@
             });
         }
         //end add by nurul 18/11/2019
+
+        //add by nurul 7/12/2020
+        //function changeStatus(status) {
+        //    if (status === 1) {
+        //        $('#mode_statusPesanan').text('Semua Pesanan');
+        //        $('.semua-mode').show();
+        //        $('.belum-mode').hide();
+        //        $('.sudah-mode').hide();
+        //        $('.packing-mode').hide();
+        //        $('.selesai-mode').hide();
+        //        $('.batal-mode').hide();
+        //        //$tipeStyle = 1;
+        //    } else if (status === 2) {
+        //        $('#mode_statusPesanan').text('Belum Bayar');
+        //        $('.semua-mode').hide();
+        //        $('.belum-mode').show();
+        //        $('.sudah-mode').hide();
+        //        $('.packing-mode').hide();
+        //        $('.selesai-mode').hide();
+        //        $('.batal-mode').hide();
+        //        //$tipeStyle = 2;
+        //    } else if (status === 3) {
+        //        $('#mode_statusPesanan').text('Sudah Bayar');
+        //        $('.semua-mode').hide();
+        //        $('.belum-mode').hide();
+        //        $('.sudah-mode').show();
+        //        $('.packing-mode').hide();
+        //        $('.selesai-mode').hide();
+        //        $('.batal-mode').hide();
+        //    } else if (status === 4) {
+        //        $('#mode_statusPesanan').text('Packing');
+        //        $('.semua-mode').hide();
+        //        $('.belum-mode').hide();
+        //        $('.sudah-mode').hide();
+        //        $('.packing-mode').show();
+        //        $('.selesai-mode').hide();
+        //        $('.batal-mode').hide();
+        //    } else if (status === 5) {
+        //        $('#mode_statusPesanan').text('Selesai');
+        //        $('.semua-mode').hide();
+        //        $('.belum-mode').hide();
+        //        $('.sudah-mode').hide();
+        //        $('.packing-mode').hide();
+        //        $('.selesai-mode').show();
+        //        $('.batal-mode').hide();
+        //    } else if (status === 6) {
+        //        $('#mode_statusPesanan').text('Batal');
+        //        $('.semua-mode').hide();
+        //        $('.belum-mode').hide();
+        //        $('.sudah-mode').hide();
+        //        $('.packing-mode').hide();
+        //        $('.selesai-mode').hide();
+        //        $('.batal-mode').show();
+        //    }
+        //}
+        function changeStatus(status) {
+            if (status === 1) {
+                $('#mode_statusPesanan').text('Semua Pesanan');
+            } else if (status === 2) {
+                $('#mode_statusPesanan').text('Belum Bayar');
+            } else if (status === 3) {
+                $('#mode_statusPesanan').text('Sudah Bayar');
+            } else if (status === 4) {
+                $('#mode_statusPesanan').text('Packing');
+            } else if (status === 5) {
+                $('#mode_statusPesanan').text('Selesai');
+            } else if (status === 6) {
+                $('#mode_statusPesanan').text('Batal');
+            }
+
+            var link = '@Html.Raw(Url.Action("refreshDashboardPesanan", "Manage", new { tgl = "replaceTgl", status = "replaceStatus" }))';
+            link = link.replace("replaceTgl", encodeURIComponent($('#TGL').val()));
+            link = link.replace("replaceStatus", encodeURIComponent(status));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-pesanan-partial').hide();
+                    $('#loading_dashboard_pesananper').show();
+                },
+                success: function (response) {
+                    $('#table-pesanan-partial').html(response);
+
+                    $('#loading_dashboard_pesanan').hide();
+                    $('#table-pesanan-partial').show();
+                         
+                    var $link = '@Html.Raw(Url.Action("refreshDashboardPesananPerMarket", "Manage", new { tgl = "replaceTgl", status = "replaceStatus" }))';
+                    $link = $link.replace("replaceTgl", encodeURIComponent($('#TGL').val()));
+                    $link = $link.replace("replaceStatus", encodeURIComponent(status));
+
+                    $.ajax({
+                        type: "GET",
+                        url: $link,
+                        beforeSend: function () {
+                            $('#table-marketplace-partial').hide();
+                            $('#loading_dashboard_pesananpermarket').show();
+                        },
+                        success: function (response) {
+                            $('#table-marketplace-partial').html(response);
+
+                            $('#loading_dashboard_pesananpermarket').hide();
+                            $('#table-marketplace-partial').show();
+                        },
+                        error: function (xhr, status, error) {
+                            console.log(error);
+                        }
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 7/12/2020
     </script>
 }

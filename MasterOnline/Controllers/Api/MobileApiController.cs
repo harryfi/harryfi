@@ -143,15 +143,25 @@ namespace MasterOnline.Controllers.Api
 
                 _viewModel.Account = accFromDb;
             }
-
+            string dbSourceEra = "";
             if (_viewModel?.Account != null)
             {
-                ErasoftDbContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(_viewModel.Account.DataSourcePath,_viewModel.Account.UserId);
+#if (Debug_AWS)
+                    dbSourceEra = _viewModel.Account.DataSourcePathDebug;
+#else
+                    dbSourceEra = _viewModel.Account.DataSourcePath;
+#endif
+                ErasoftDbContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dbSourceEra, _viewModel.Account.UserId);
             }
             else
             {
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
-                ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.UserId);
+#if (Debug_AWS)
+                dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
+                dbSourceEra = accFromUser.DataSourcePath;
+#endif
+                ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.UserId);
             }
 
             result = new JsonApi()

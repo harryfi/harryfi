@@ -452,26 +452,27 @@
                                     var ANAME = item["ANAME_" + (a + 1)];
 
                                     if (VARIANT_ID != null && VARIANT_ID != "") {
-                                        if (HAS_UNIT > 0) {
+                                        //if (HAS_UNIT > 0) {
                                             $.each(data.attribute_unit,
                                                 function (j, item_unit) {
                                                     if (item_unit["VARIANT_ID"] == VARIANT_ID) {
                                                         SelectList[counter] = {
-                                                            id: VARIANT_ID + '|;|' + item_unit["UNIT_ID"],
+                                                            //id: VARIANT_ID + '|;|' + item_unit["UNIT_ID"],
+                                                            id: VARIANT_ID + ',' + item_unit["UNIT_ID"],
                                                             text: ANAME + ' ' + item_unit["UNIT_NAME"]
                                                         };
 
                                                         counter = counter + 1;
                                                     }
                                                 });
-                                        }
-                                        else {
-                                            SelectList[counter] = {
-                                                id: VARIANT_ID + '|;|' + HAS_UNIT,
-                                                text: ANAME
-                                            };
-                                            counter = counter + 1;
-                                        }
+                                        //}
+                                        //else {
+                                        //    SelectList[counter] = {
+                                        //        id: VARIANT_ID + '|;|' + HAS_UNIT,
+                                        //        text: ANAME
+                                        //    };
+                                        //    counter = counter + 1;
+                                        //}
                                     }
                                 }
                             });
@@ -483,8 +484,11 @@
                                 searchField: 'text',
                                 options: SelectList,
                                 onChange: function (value) {
-                                    var values = value.split('|;|');
-                                    $('#txtJudulVariantTokpedLv1').val(values[0]);
+                                    //var values = value.split('|;|');
+                                    //$('#txtJudulVariantTokpedLv1').val(values[0]);
+                                    $('#save_map_var_tokped').removeAttr('disabled');
+                                    var values = value.split(',');
+                                    $('#txtJudulVariantTokpedLv1').val(values);
                                     SearchOptVariantTokped(1, values[0], values[1]);
                                 }
                             });
@@ -498,8 +502,8 @@
                                     for (var d = 0; d < len; d++) {
                                         if (FoundValue == "") {
                                             var value = SelectList[d].id;
-                                            var values = value.split('|;|');
-                                            if ($('#txtJudulVariantTokpedLv1').val() == values[0]) {
+                                            //var values = value.split('|;|');
+                                            if ($('#txtJudulVariantTokpedLv1').val() == value) {
                                                 FoundValue = SelectList[d].id;
                                                 attributeSelect[0].selectize.setValue(FoundValue, false);
                                             }
@@ -515,8 +519,11 @@
                                 searchField: 'text',
                                 options: SelectList,
                                 onChange: function (value) {
-                                    var values = value.split('|;|');
-                                    $('#txtJudulVariantTokpedLv2').val(values[0]);
+                                    //var values = value.split('|;|');
+                                    //$('#txtJudulVariantTokpedLv2').val(values[0]);
+                                    $('#save_map_var_tokped').removeAttr('disabled');
+                                    var values = value.split(',');
+                                    $('#txtJudulVariantTokpedLv2').val(values);
                                     SearchOptVariantTokped(2, values[0], values[1]);
                                 }
                             });
@@ -530,8 +537,8 @@
                                     for (var d = 0; d < len; d++) {
                                         if (FoundValue == "") {
                                             var value = SelectList[d].id;
-                                            var values = value.split('|;|');
-                                            if ($('#txtJudulVariantTokpedLv2').val() == values[0]) {
+                                            //var values = value.split('|;|');
+                                            if ($('#txtJudulVariantTokpedLv2').val() == value) {
                                                 FoundValue = SelectList[d].id;
                                                 attributeSelect[0].selectize.setValue(FoundValue, false);
                                             }
@@ -586,8 +593,13 @@
     function SearchOptVariantTokped(level, variant_id, unit_id) {
         var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtTokpedCategoryCodeFound').val() + '__CATEGORY_CODE';
 
-        var link = '@Url.Action("GetAttributeOptTokped", "Manage", new { code = "replaceCode" })';
+        //var link = '@Url.Action("GetAttributeOptTokped", "Manage", new { code = "replaceCode" })';
+        var link = '@Url.Action("GetAttributeOptTokpedWithMoOpt", "Manage", new { code = "replaceCode" })';
         link = link.replace("replaceCode", encodeURIComponent(variant_id + ';' + unit_id + ';' + $(fieldCategoryCode).val() + ';' + $('#txtTokpedMarketRecnumFound').val()));
+        //link = link.replace("replaceLevel", encodeURIComponent(level));
+        //link = link.replace("replaceBrg", encodeURIComponent($('#txtInfoKodeBarang').val()));
+        link += "&level=" + encodeURIComponent(level);
+        link += "&brg=" + encodeURIComponent($('#txtInfoKodeBarang').val());
         $.ajax({
             type: "GET",
             url: link,
@@ -984,7 +996,7 @@
                     $('#txtVariantBlibliLv' + level + '_' + data_recnum).attr('type', 'hidden');
                     $('#txtVariantBlibliLv' + level + '_' + data_recnum).removeClass('form-control');
                     $('#selectVariantBlibliLv' + level + '_' + data_recnum).hide();
-                    
+
                     var attributeOptSelect = $(item).selectize({
                         maxItems: 1,
                         valueField: 'id',
@@ -1022,7 +1034,7 @@
                     $('#txtVariantBlibliLv' + level + '_' + data_recnum).attr('type', 'text');
                     $('#txtVariantBlibliLv' + level + '_' + data_recnum).addClass('form-control');
                     $('.selectVariantBlibliLv' + level + '_').hide();
-                    
+
                 }
             });
             //if (showCombo == 1) {
@@ -1340,14 +1352,14 @@
                     success: function (data) {
                         var SelectList = [];
                         var counter = 0;
-                        $.each(data.attributes,
+                        $.each(data,
                             function (i, item) {
                                 for (var a = 0; a < 30; a++) {
                                     var ACODE = item["ACODE_" + (a + 1)];
-                                    var ATYPE = item["ATYPE_" + (a + 1)];
+                                    var AVALUE = item["AVALUE_" + (a + 1)];
                                     var ANAME = item["ANAME_" + (a + 1)];
-                                    var AOPTIONS = item["AOPTIONS_" + (a + 1)];
-                                    if (ATYPE == "DEFINING_ATTRIBUTE") {
+                                    //var AOPTIONS = item["AOPTIONS_" + (a + 1)];
+                                    //if (ATYPE == "DEFINING_ATTRIBUTE") {
                                         if (ACODE != null && ACODE != "") {
                                             SelectList[counter] = {
                                                 id: ACODE,
@@ -1355,7 +1367,7 @@
                                             };
                                             counter = counter + 1;
                                         }
-                                    }
+                                    //}
                                 }
                             });
 
@@ -1367,7 +1379,7 @@
                                 options: SelectList,
                                 onChange: function (value) {
                                     $('#txtJudulVariantJdidLv1').val(value);
-                                    SearchOptVariantJdid(1, value, data.attribute_opt);
+                                    SearchOptVariantJdid(1, $(fieldCategoryCode).val(), value, $('#txtJdidMarketRecnumFound').val());
                                 }
                             });
                             attributeSelect[0].selectize.clearOptions();
@@ -1396,7 +1408,7 @@
                                 options: SelectList,
                                 onChange: function (value) {
                                     $('#txtJudulVariantJdidLv2').val(value);
-                                    SearchOptVariantJdid(2, value, data.attribute_opt);
+                                    SearchOptVariantJdid(2, $(fieldCategoryCode).val(), value, $('#txtJdidMarketRecnumFound').val());
                                 }
                             });
                             attributeSelect[0].selectize.clearOptions();
@@ -1426,7 +1438,7 @@
                                 options: SelectList,
                                 onChange: function (value) {
                                     $('#txtJudulVariantJdidLv3').val(value);
-                                    SearchOptVariantJdid(3, value, data.attribute_opt);
+                                    SearchOptVariantJdid(3, $(fieldCategoryCode).val(), value, $('#txtJdidMarketRecnumFound').val());
                                 }
                             });
                             attributeSelect[0].selectize.clearOptions();
@@ -1459,65 +1471,66 @@
             $('#jdid_detail_tab_variant_button').remove();
         }
     }
-    function SearchOptVariantJdid(level, variant_id, optAttributes) {
-        @*var link = '@Url.Action("GetAttributeOptJdidVar", "Manage", new { code = "replaceCode" })';
-        link = link.replace("replaceCode", variant_id);
+        function SearchOptVariantJdid(level, categoryID, codeValue, cust) {
+            var link = '@Url.Action("GetAttributeOptJdidVar", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", encodeURIComponent(codeValue + ';' + categoryID  + ';' + cust));
         $.ajax({
             type: "GET",
             url: link,
             contentType: 'application/json',
             cache: false,
-            success: function (data) {*@
-        var SelectList = [];
-        $.each(optAttributes.filter(p=>p.ACODE == variant_id),
-            function (i, item) {
-                SelectList[i] = {
-                    id: item.OPTION_VALUE,
-                    text: item.OPTION_VALUE
-                };
-            });
+            success: function (data) {
+                var SelectList = [];
 
-        $(".selectVariantJdidLv" + level + "_").each(function (i, item) {
-            //var data_recnum = $(item).attr("data-recnum");
-            var data_recnum = $($(item).closest('.tampungdatarecnum')).attr('data-recnum');
-            var len = SelectList.length;
+            $.each(data,
+                function (i, item) {
+                    SelectList[i] = {
+                        id: item.ACODE,
+                        text: item.OPTION_VALUE
+                    };
+                    });
 
-            var attributeOptSelect = $(item).selectize({
-                maxItems: 1,
-                valueField: 'id',
-                searchField: 'text',
-                options: SelectList,
-                onChange: function (value) {
-                    $('#save_map_var_jdid').removeAttr('disabled');
-                    var input_data_recnum = $($(this.$input).closest('.tampungdatarecnum')).attr('data-recnum');
-                    $('#txtVariantJdidLv' + level + '_' + input_data_recnum).val(value);
-                }
-            });
+                $(".selectVariantJdidLv" + level + "_").each(function (i, item) {
+                    //var data_recnum = $(item).attr("data-recnum");
+                    var data_recnum = $($(item).closest('.tampungdatarecnum')).attr('data-recnum');
+                    var len = SelectList.length;
 
-            attributeOptSelect[0].selectize.clearOptions();
-            //attributeOptSelect[0].selectize.renderCache = {};
-            attributeOptSelect[0].selectize.load(function (callback) {
-                callback(SelectList);
+                    var attributeOptSelect = $(item).selectize({
+                        maxItems: 1,
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: SelectList,
+                        onChange: function (value) {
+                            $('#save_map_var_jdid').removeAttr('disabled');
+                            var input_data_recnum = $($(this.$input).closest('.tampungdatarecnum')).attr('data-recnum');
+                            $('#txtVariantJdidLv' + level + '_' + input_data_recnum).val(value);
+                        }
+                    });
 
-                if ($('#txtVariantJdidLv' + level + '_' + data_recnum).val() != "") {
-                    var FoundValue = "";
-                    for (var d = 0; d < len; d++) {
-                        if (FoundValue == "") {
-                            var value = SelectList[d].id;
-                            if ($('#txtVariantJdidLv' + level + '_' + data_recnum).val() == value) {
-                                FoundValue = SelectList[d].id;
-                                attributeOptSelect[0].selectize.setValue(FoundValue, true);//silent = true, agar tidak set button save_map_var_jdid enable
+                    attributeOptSelect[0].selectize.clearOptions();
+                    //attributeOptSelect[0].selectize.renderCache = {};
+                    attributeOptSelect[0].selectize.load(function (callback) {
+                        callback(SelectList);
+
+                        if ($('#txtVariantJdidLv' + level + '_' + data_recnum).val() != "") {
+                            var FoundValue = "";
+                            for (var d = 0; d < len; d++) {
+                                if (FoundValue == "") {
+                                    var value = SelectList[d].id;
+                                    if ($('#txtVariantJdidLv' + level + '_' + data_recnum).val() == value) {
+                                        FoundValue = SelectList[d].id;
+                                        attributeOptSelect[0].selectize.setValue(FoundValue, true);//silent = true, agar tidak set button save_map_var_jdid enable
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-            });
+                    });
+                });
+            },
+            error: function (xhr) {
+                console.log(xhr);
+            }
         });
-        //    },
-        //    error: function (xhr) {
-        //        console.log(xhr);
-        //    }
-        //});
     }
 
     function getOptSelectMultiple(level) {
@@ -1683,6 +1696,7 @@
                     lazada_code: lazada_code,
                     e2cart_code: e2cart_code,
                     shopify_code: shopify_code,
+                    jdid_code: jdid_code,
                     code: $('#txtKodeKategori').val(),
                     opt_selected_1: $('#select_opt_level_1').val(),
                     opt_selected_2: $('#select_opt_level_2').val(),
@@ -2267,10 +2281,10 @@
                 validasi_autoloadStf02Variant = false;
             }
         });
-        message_validasi_autoloadStf02Variant = "Mohon isi semua Opsi Jdid.";
+        message_validasi_autoloadStf02Variant = "Mohon isi semua Opsi JDID.";
         if (validasi_autoloadStf02Variant) {
             if (!$('#save_map_var_jdid').prop('disabled')) {
-                message_validasi_autoloadStf02Variant = "Mohon simpan setting Opsi Jdid.";
+                message_validasi_autoloadStf02Variant = "Mohon simpan setting Opsi JDID.";
             }
         }
     }
@@ -2979,6 +2993,7 @@
                                         {
                                             e2cartCategoryCodeFound = i;
                                             @Html.TextBox("txt82CartCategoryCodeFound", @e2cartCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                            @Html.TextBox("txt82CartMarketRecnumFound", @recnumArf01, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
                                         }
                                     }
                                 }
@@ -2994,6 +3009,7 @@
                                         {
                                             shopifyCategoryCodeFound = i;
                                             @Html.TextBox("txtshopifyCategoryCodeFound", @shopifyCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                            @Html.TextBox("txtshopifyMarketRecnumFound", @recnumArf01, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
                                         }
                                     }
                                 }
@@ -3058,15 +3074,15 @@
                             {
                                 if (idMarket == 19)
                                 {
-                                    if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
+                                    if (!string.IsNullOrEmpty(listMarket[i].API_KEY))
                                     {
                                         //add by calvin 24 april 2019
                                         var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault()?.DISPLAY;
                                         if (cekDisplay ?? false)
                                         {
                                             //end add by calvin 24 april 2019
-                                            blibliCategoryCodeFound = i;
-                                            @Html.TextBox("txtJdidCategoryCodeFound", @blibliCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                            jdidCategoryCodeFound = i;
+                                            @Html.TextBox("txtJdidCategoryCodeFound", jdidCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
                                             @Html.TextBox("txtJdidMarketRecnumFound", @recnumArf01, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
                                         }
                                     }
@@ -5067,7 +5083,7 @@
                             <div class="col-md-4 col-sm-4 col-xs-12">
                                 @Html.TextBox("txtNamaKategoriMOJdid", Model.Kategori.KET, new { @class = "form-control", disabled = "disabled" })
                             </div>
-                            @Html.Label("lblNamaKategoriJdid", "Kategori Jdid", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
+                            @Html.Label("lblNamaKategoriJdid", "Kategori JDID", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
                             <div class="col-md-4 col-sm-4 col-xs-12">
                                 @Html.TextBox("txtNamaKategoriJdid", "", new { @class = "form-control", disabled = "disabled" })
                             </div>
@@ -5096,7 +5112,7 @@
                                                             </tr>
                                                             <tr>
                                                                 <th width="50%" style="border-right:none">Master Online</th>
-                                                                <th width="50%" style="border-right:none">Jdid</th>
+                                                                <th width="50%" style="border-right:none">JDID</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -5125,7 +5141,7 @@
                                                             </tr>
                                                             <tr>
                                                                 <th width="50%" style="border-right:none">Master Online</th>
-                                                                <th width="50%" style="border-right:none">Jdid</th>
+                                                                <th width="50%" style="border-right:none">JDID</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -5148,7 +5164,7 @@
                                                                     </td>
                                                                     <td>
                                                                         <div class="tampungdatarecnum" data-recnum="@VariantPerMpJdidLv1[i].RECNUM">
-                                                                            <select id="selectVariantJdidLv1_@(VariantPerMpJdidLv1[i].RECNUM)" data-recnum="@VariantPerMpJdidLv1[i].RECNUM" class="selectVariantJdidLv1_" placeholder="Nama Variasi" required="required"></select>
+                                                                            <select id="selectVariantJdidLv1_@(VariantPerMpJdidLv1[i].RECNUM)" data-recnum="@VariantPerMpJdidLv1[i].RECNUM" class="selectVariantJdidLv1_" placeholder="Nama Opsi" required="required"></select>
                                                                             @Html.Hidden("txtVariantJdidLv1_" + VariantPerMpJdidLv1[i].RECNUM, VariantPerMpJdidLv1[i].MP_VALUE_VAR, new { @class = "txtVariantJdidLv1_" })
                                                                         </div>
                                                                     </td>
@@ -5185,7 +5201,7 @@
                                                             </tr>
                                                             <tr>
                                                                 <th width="50%" style="border-right:none">Master Online</th>
-                                                                <th width="50%" style="border-right:none">Jdid</th>
+                                                                <th width="50%" style="border-right:none">JDID</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -5214,7 +5230,7 @@
                                                             </tr>
                                                             <tr>
                                                                 <th width="50%" style="border-right:none">Master Online</th>
-                                                                <th width="50%" style="border-right:none">Jdid</th>
+                                                                <th width="50%" style="border-right:none">JDID</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -5237,7 +5253,7 @@
                                                                     </td>
                                                                     <td>
                                                                         <div class="tampungdatarecnum" data-recnum="@VariantPerMpJdidLv2[i].RECNUM">
-                                                                            <select id="selectVariantJdidLv2_@(VariantPerMpJdidLv2[i].RECNUM)" data-recnum="@VariantPerMpJdidLv2[i].RECNUM" class="selectVariantJdidLv2_" placeholder="Nama Variasi" required="required"></select>
+                                                                            <select id="selectVariantJdidLv2_@(VariantPerMpJdidLv2[i].RECNUM)" data-recnum="@VariantPerMpJdidLv2[i].RECNUM" class="selectVariantJdidLv2_" placeholder="Nama Opsi" required="required"></select>
                                                                             @Html.Hidden("txtVariantJdidLv2_" + VariantPerMpJdidLv2[i].RECNUM, VariantPerMpJdidLv2[i].MP_VALUE_VAR, new { @class = "txtVariantJdidLv2_" })
                                                                         </div>
                                                                     </td>
@@ -5274,7 +5290,7 @@
                                                             </tr>
                                                             <tr>
                                                                 <th width="50%" style="border-right:none">Master Online</th>
-                                                                <th width="50%" style="border-right:none">Jdid</th>
+                                                                <th width="50%" style="border-right:none">JDID</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -5303,7 +5319,7 @@
                                                             </tr>
                                                             <tr>
                                                                 <th width="50%" style="border-right:none">Master Online</th>
-                                                                <th width="50%" style="border-right:none">Jdid</th>
+                                                                <th width="50%" style="border-right:none">JDID</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -5326,7 +5342,7 @@
                                                                     </td>
                                                                     <td>
                                                                         <div class="tampungdatarecnum" data-recnum="@VariantPerMpJdidLv3[i].RECNUM">
-                                                                            <select id="selectVariantJdidLv3_@(VariantPerMpJdidLv3[i].RECNUM)" data-recnum="@VariantPerMpJdidLv3[i].RECNUM" class="selectVariantJdidLv3_" placeholder="Nama Variasi" required="required"></select>
+                                                                            <select id="selectVariantJdidLv3_@(VariantPerMpJdidLv3[i].RECNUM)" data-recnum="@VariantPerMpJdidLv3[i].RECNUM" class="selectVariantJdidLv3_" placeholder="Nama Opsi" required="required"></select>
                                                                             @Html.Hidden("txtVariantJdidLv3_" + VariantPerMpJdidLv3[i].RECNUM, VariantPerMpJdidLv3[i].MP_VALUE_VAR, new { @class = "txtVariantJdidLv3_" })
                                                                         </div>
                                                                     </td>

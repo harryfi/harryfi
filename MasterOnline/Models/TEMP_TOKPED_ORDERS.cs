@@ -124,6 +124,7 @@ namespace MasterOnline
         public string CUST { get; set; }
         public string NAMA_CUST { get; set; }
 
+        public DateTime? confirm_shipping_deadline { get; set; }
     }
 
 }

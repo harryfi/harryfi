@@ -307,6 +307,7 @@ namespace MasterOnline.Controllers
                 return "invalid passing data";
 
             var categoryID = "";
+            var categoryIDDefault = "";
             var attributeIDGroup = "";
             var attributeIDItems = "";
 
@@ -341,11 +342,18 @@ namespace MasterOnline.Controllers
                 {
                     attributeIDItems = detailBrg.ACODE_11;
                 }
+
+                if (detailBrg.CATEGORY_CODE != null)
+                {
+                    categoryIDDefault = detailBrg.CATEGORY_CODE;
+                }
             }
 
-            categoryID = categoryID.Substring(0, categoryID.Length - 1);
-            string[] splitCat = categoryID.Split(',');
-            var finalCategory = splitCat.Last();
+            if (!string.IsNullOrEmpty(categoryID))
+            {
+                categoryID = categoryID.Length > 0 ? categoryID.Substring(0, categoryID.Length - 1) : "2,3";
+            }
+
             var weight = Convert.ToDouble(brgInDb.BERAT / 1000);
 
             string urll = string.Format("{0}/api/v1/addProduct", iden.API_url);
@@ -366,7 +374,7 @@ namespace MasterOnline.Controllers
             postData += "&wholesale_price=" + Uri.EscapeDataString("0");
             postData += "&price=" + Uri.EscapeDataString(detailBrg.HJUAL.ToString());
             postData += "&on_sale=" + Uri.EscapeDataString("1");
-            postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").ToLower());
+            postData += "&link_rewrite=" + Uri.EscapeDataString(brgInDb.NAMA.Replace(" ", "-").Replace("+", "plus").ToLower());
             postData += "&width=" + Uri.EscapeDataString(brgInDb.LEBAR.ToString());
             postData += "&height=" + Uri.EscapeDataString(brgInDb.TINGGI.ToString());
             postData += "&depth=" + Uri.EscapeDataString("0");
@@ -374,7 +382,7 @@ namespace MasterOnline.Controllers
             postData += "&additional_shipping_cost=" + Uri.EscapeDataString("0");
             postData += "&minimal_quantity=" + Uri.EscapeDataString(brgInDb.MINI.ToString());
             postData += "&out_of_stock=" + Uri.EscapeDataString("0");
-            postData += "&id_category_default=" + Uri.EscapeDataString(finalCategory.ToString());
+            postData += "&id_category_default=" + Uri.EscapeDataString(categoryIDDefault.ToString());
             postData += "&category=" + Uri.EscapeDataString("[" + categoryID.ToString() + "]");
             postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38.ToString());
 
@@ -557,8 +565,10 @@ namespace MasterOnline.Controllers
                                         listattributeIDGroup = listattributeIDGroup.Substring(0, listattributeIDGroup.Length - 1);
                                         listattributeIDItems = listattributeIDItems.Substring(0, listattributeIDItems.Length - 1);
 
-                                        c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, listattributeIDGroup, listattributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
+                                        await c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, item.BRG_MP, listattributeIDGroup, listattributeIDItems, weight.ToString(), detailBrg.HJUAL.ToString(), Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
 
+                                        listattributeIDGroup = "";
+                                        listattributeIDItems = "";
                                     }
 
 
@@ -597,6 +607,7 @@ namespace MasterOnline.Controllers
                         {
                             if (resultAPI.error != null && resultAPI.error != "none")
                             {
+                                throw new Exception(responseFromServer);
                                 //currentLog.REQUEST_EXCEPTION = resultAPI.error.ToString();
                                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             }
@@ -606,6 +617,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                throw new Exception(ex.Message.ToString());
                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
@@ -630,6 +642,7 @@ namespace MasterOnline.Controllers
                 return "invalid passing data";
 
             var categoryID = "";
+            var categoryIDDefault = "";
             var attributeIDGroup = "";
             var attributeIDItems = "";
 
@@ -663,11 +676,17 @@ namespace MasterOnline.Controllers
                 {
                     attributeIDItems = detailBrg.ACODE_11;
                 }
+
+                if (detailBrg.CATEGORY_CODE != null)
+                {
+                    categoryIDDefault = detailBrg.CATEGORY_CODE;
+                }
             }
 
-            categoryID = categoryID.Length > 0 ? categoryID.Substring(0, categoryID.Length - 1) : "2,3";
-            string[] splitCat = categoryID.Split(',');
-            var finalCategory = splitCat.Last();
+            if (!string.IsNullOrEmpty(categoryID))
+            {
+                categoryID = categoryID.Substring(0, categoryID.Length - 1);
+            }
 
             var weight = Convert.ToDouble(brgInDb.BERAT / 1000);
 
@@ -700,7 +719,7 @@ namespace MasterOnline.Controllers
             postData += "&additional_shipping_cost=" + Uri.EscapeDataString("0");
             postData += "&minimal_quantity=" + Uri.EscapeDataString(brgInDb.MINI.ToString());
             postData += "&out_of_stock=" + Uri.EscapeDataString("0");
-            postData += "&id_category_default=" + Uri.EscapeDataString(finalCategory.ToString());
+            postData += "&id_category_default=" + Uri.EscapeDataString(categoryIDDefault.ToString());
             postData += "&category=" + Uri.EscapeDataString("[" + categoryID.ToString() + "]");
             postData += "&id_manufacturer=" + Uri.EscapeDataString(detailBrg.AVALUE_38.ToString());
 
@@ -910,6 +929,8 @@ namespace MasterOnline.Controllers
                                             c82CartController.E2Cart_AddAttributeProduct(dataLocal, itemData.BRG, detailBrg.BRG_MP, listattributeIDGroup, listattributeIDItems, weight.ToString(), "0", Convert.ToInt32(qty_stock), itemData.LINK_GAMBAR_1.ToString());
                                         }
 
+                                        listattributeIDGroup = "";
+                                        listattributeIDItems = "";
 
                                     }
 
@@ -948,6 +969,7 @@ namespace MasterOnline.Controllers
                         {
                             if (resultAPI.error != null && resultAPI.error != "none")
                             {
+                                throw new Exception(responseFromServer);
                                 //currentLog.REQUEST_EXCEPTION = resultAPI.error.ToString();
                                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             }
@@ -957,6 +979,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                throw new Exception(ex.Message.ToString());
                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
@@ -1205,12 +1228,19 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 1;
-
+            var daysNow = DateTime.UtcNow.AddHours(7);
             while (daysFrom > -13)
             {
-                await E2Cart_GetOrderByStatusList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, daysFrom, daysTo);
-                daysFrom -= 3;
-                daysTo -= 3;
+                //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+                //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+                var dateFrom = daysNow.AddDays(daysFrom).ToString("yyyy-MM-dd HH:mm:ss");
+                var dateTo = daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToString("yyyy-MM-dd HH:mm:ss");
+
+                await E2Cart_GetOrderByStatusList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
 
 
@@ -1236,7 +1266,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> E2Cart_GetOrderByStatusList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, int daysFrom, int daysTo)
+        public async Task<string> E2Cart_GetOrderByStatusList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, string daysFrom, string daysTo)
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
@@ -1245,8 +1275,10 @@ namespace MasterOnline.Controllers
 
             //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
             //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
-            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+            //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            var dateFrom = daysFrom;
+            var dateTo = daysTo;
 
             string urll = string.Format("{0}/api/v1/getOrder?apiKey={1}&apiCredential={2}&date_add_from={3}&date_add_to={4}", iden.API_url, iden.API_key, iden.API_credential, dateFrom, dateTo);
 
@@ -1298,7 +1330,7 @@ namespace MasterOnline.Controllers
                                 if (resultStatusAwaiting.dataObject.Count() > 0)
                                     foreach (var itemOrder in resultStatusAwaiting.dataObject)
                                     {
-                                        if (itemOrder.name.ToString().ToLower().Contains("awaiting") && itemOrder.name.ToString().ToLower().Contains("payment"))
+                                        if (itemOrder.name.ToString().ToLower().Contains("awaiting") && itemOrder.name.ToString().ToLower().Contains("payment") || itemOrder.name.ToString().ToLower().Contains("payment confirm"))
                                         {
                                             var orderFilter = listOrder.data.Where(p => p.current_state == itemOrder.id_order_state).ToList();
                                             if (orderFilter.Count() > 0)
@@ -1742,12 +1774,19 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 1;
-
+            var daysNow = DateTime.UtcNow.AddHours(7);
             while (daysFrom > -13)
             {
-                await E2Cart_GetOrderByStatusCompletedList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
-                daysFrom -= 3;
-                daysTo -= 3;
+                //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+                //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+                var dateFrom = daysNow.AddDays(daysFrom).ToString("yyyy-MM-dd HH:mm:ss");
+                var dateTo = daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToString("yyyy-MM-dd HH:mm:ss");
+
+                await E2Cart_GetOrderByStatusCompletedList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
 
 
@@ -1759,7 +1798,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> E2Cart_GetOrderByStatusCompletedList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCompeleted, int daysFrom, int daysTo)
+        public async Task<string> E2Cart_GetOrderByStatusCompletedList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCompeleted, string daysFrom, string daysTo)
         {
             string ret = "";
 
@@ -1767,8 +1806,10 @@ namespace MasterOnline.Controllers
 
             //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
             //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
-            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+            //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            var dateFrom = daysFrom;
+            var dateTo = daysTo;
 
             string urll = string.Format("{0}/api/v1/getOrder?apiKey={1}&apiCredential={2}&date_add_from={3}&date_add_to={4}", iden.API_url, iden.API_key, iden.API_credential, dateFrom, dateTo);
 
@@ -1827,6 +1868,15 @@ namespace MasterOnline.Controllers
                             {
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                 contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderCompeleted) + " Pesanan dari 82Cart sudah selesai.");
+
+                                //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                                if (!string.IsNullOrEmpty(ordersn))
+                                {
+                                    var dateTimeNow = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
+                                    string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + ordersn + ")";
+                                    var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                                }
+                                //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
                             }
                         }
                     }
@@ -1846,12 +1896,19 @@ namespace MasterOnline.Controllers
 
             var daysFrom = -1;
             var daysTo = 1;
-
+            var daysNow = DateTime.UtcNow.AddHours(7);
             while (daysFrom > -13)
             {
-                await E2Cart_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
-                daysFrom -= 3;
-                daysTo -= 3;
+                //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+                //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+                var dateFrom = daysNow.AddDays(daysFrom).ToString("yyyy-MM-dd HH:mm:ss");
+                var dateTo = daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToString("yyyy-MM-dd HH:mm:ss");
+
+                await E2Cart_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
 
             // tunning untuk tidak duplicate
@@ -1866,7 +1923,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> E2Cart_GetOrderByStatusCancelledList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCancel, int daysFrom, int daysTo)
+        public async Task<string> E2Cart_GetOrderByStatusCancelledList3Days(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderCancel, string daysFrom, string daysTo)
         {
             string ret = "";
 
@@ -1875,8 +1932,10 @@ namespace MasterOnline.Controllers
 
             //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
             //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-            var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
-            var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
+            //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).AddHours(7).ToString("yyyy-MM-dd") + " 23:59:59";
+            var dateFrom = daysFrom;
+            var dateTo = daysTo;
 
             string urll = string.Format("{0}/api/v1/getOrder?apiKey={1}&apiCredential={2}&date_add_from={3}&date_add_to={4}", iden.API_url, iden.API_key, iden.API_credential, dateFrom, dateTo);
 

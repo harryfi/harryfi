@@ -1583,7 +1583,7 @@
     <div class="col-lg-3 col-md-3 col-xs-12">
         <div class="x_panel">
             <div class="x_title">
-                <h3>Belum Bayar</h3>
+                <h2>Belum Bayar</h2>
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
@@ -1596,14 +1596,14 @@
                     </h3>
                     <small>Jumlah Pesanan</small>
                 </div>
-                <div class="pemisah_info"></div>
-                <br />
-                <div>
-                    <h4 class="no-margins">
-                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananBelumBayar ?? 0)
-                    </h4>
-                    <small>Nilai Pesanan</small>
-                </div>
+                @*<div class="pemisah_info"></div>
+                    <br />
+                    <div>
+                        <h4 class="no-margins">
+                            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananBelumBayar ?? 0)
+                        </h4>
+                        <small>Nilai Pesanan</small>
+                    </div>*@
 
             </div>
         </div>
@@ -1611,7 +1611,7 @@
     <div class="col-lg-3 col-md-3 col-xs-12">
         <div class="x_panel">
             <div class="x_title">
-                <h3>Sudah Bayar</h3>
+                <h2>Sudah Bayar</h2>
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
@@ -1624,14 +1624,14 @@
                     </h3>
                     <small>Jumlah Pesanan</small>
                 </div>
-                <div class="pemisah_info"></div>
-                <br />
-                <div>
-                    <h4 class="no-margins">
-                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananSudahBayar ?? 0)
-                    </h4>
-                    <small>Nilai Pesanan</small>
-                </div>
+                @*<div class="pemisah_info"></div>
+                    <br />
+                    <div>
+                        <h4 class="no-margins">
+                            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananSudahBayar ?? 0)
+                        </h4>
+                        <small>Nilai Pesanan</small>
+                    </div>*@
 
             </div>
         </div>
@@ -1639,7 +1639,7 @@
     <div class="col-lg-3 col-md-3 col-xs-12">
         <div class="x_panel">
             <div class="x_title">
-                <h3>Siap Kirim</h3>
+                <h2>Siap Kirim</h2>
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
@@ -1652,14 +1652,14 @@
                     </h3>
                     <small>Jumlah Pesanan</small>
                 </div>
-                <div class="pemisah_info"></div>
-                <br />
-                <div>
-                    <h4 class="no-margins">
-                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananSiapKirim ?? 0)
-                    </h4>
-                    <small>Nilai Pesanan</small>
-                </div>
+                @*<div class="pemisah_info"></div>
+                    <br />
+                    <div>
+                        <h4 class="no-margins">
+                            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananSiapKirim ?? 0)
+                        </h4>
+                        <small>Nilai Pesanan</small>
+                    </div>*@
 
             </div>
         </div>
@@ -1667,27 +1667,32 @@
     <div class="col-lg-3 col-md-3 col-xs-12">
         <div class="x_panel">
             <div class="x_title">
-                <h3>Batal</h3>
+                <h2>Batal</h2>
+                <div class="nav navbar-right panel_toolbox" style="width:90px !important; ">
+                    <h5><span class="label label-success" style="color:white">1 Bulan Terakhir</span></h5>
+                </div>
                 <div class="clearfix"></div>
             </div>
+
             <div class="x_content">
                 @*<div class="label_waktu">
                         <span class="label label-success date_label">Hari Ini</span>
                     </div>*@
+
                 <div>
                     <h3 class="no-margins">
                         @(Model?.JumlahPesananBatal ?? 0)
                     </h3>
                     <small>Jumlah Pesanan</small>
                 </div>
-                <div class="pemisah_info"></div>
-                <br />
-                <div>
-                    <h4 class="no-margins">
-                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananBatal ?? 0)
-                    </h4>
-                    <small>Nilai Pesanan</small>
-                </div>
+                @*<div class="pemisah_info"></div>
+                    <br />
+                    <div>
+                        <h4 class="no-margins">
+                            Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananBatal ?? 0)
+                        </h4>
+                        <small>Nilai Pesanan</small>
+                    </div>*@
 
             </div>
         </div>
@@ -1699,18 +1704,18 @@
         <div class="" role="tabpanel" data-example-id="togglable-tabs">
             <ul id="myTab" class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
-                    <a href="#tab_content1" id="pesanan-tab" role="tab" data-toggle="tab" aria-expanded="true">Pesanan</a>
+                    <a href="#tab_content1" id="pesanan-tab" role="tab" data-toggle="tab" aria-expanded="true">Semua Pesanan</a>
                 </li>
                 <li role="presentation" class="">
-                    <a href="#tab_content2" role="tab" id="nunggu-tab" data-toggle="tab" aria-expanded="false">Sudah Bayar</a>
+                    <a href="#tab_content2" role="tab" id="nunggu-tab" data-toggle="tab" aria-expanded="false">Sudah Bayar <span>(@Model.JumlahPesananSudahBayar)</span></a>
                 </li>
                 <li role="presentation" class="">
                     @*<a href="#tab_content4" role="tab" id="sedangproses-tab" data-toggle="tab" aria-expanded="false">Siap Dikirim</a>*@
-                    <a href="#tab_content4" role="tab" id="sedangproses-tab" data-toggle="tab" aria-expanded="false">Packing</a>
+                    <a href="#tab_content4" role="tab" id="sedangproses-tab" data-toggle="tab" aria-expanded="false">Packing <span>(@Model.JumlahPesananPacking)</span></a>
                 </li>
                 <li role="presentation" class="">
                     @*<a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Sudah Dikirim</a>*@
-                    <a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Faktur</a>
+                    <a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Faktur <span>(@Model.JumlahPesananFaktur)</span></a>
                 </li>
                 <li role="presentation" class="">
                     <a href="#tab_content7" role="tab" id="selesai-tab" data-toggle="tab" aria-expanded="false">Selesai</a>
@@ -1750,7 +1755,7 @@
                             </div>
                              //remark by calvin 22 mei 2019 <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />
                         </div>*@
-                    <div class="row pesanan_table_section" style="margin-top:5px;">
+                    <div class="row pesanan_table_section" style="margin-top:13px;">
                         <div class="col-lg-4 col-sm-6 mrgbttmpesanan">
                             <div class="input-group">
                                 <input id="search_pesanan" type="text" class="form-control" placeholder="Pencarian">
@@ -1899,6 +1904,7 @@
                             <select class="form-control" id="filter_pesanan_dibayar_field" required="required">
                                 <option value="tanggal">Tgl. Pesanan</option>
                                 <option value="marketplace">Marketplace</option>
+                                <option value="exp_tgl">Tgl. Expired Pesanan</option>
                             </select>
                         </div>
                         <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
@@ -1931,9 +1937,9 @@
                                 <button type="button" id="btn_ubahStatusmulti_pesanan_dibayar" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiDibayar" onclick="passRecStatusMultiDibayar()">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
                                 </button>
-                                <button type="button" id="btn_refresh_pesanan_dibayar" class="btn btn-default" data-style="expand-right">
+                                @*<button type="button" id="btn_refresh_pesanan_dibayar" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
-                                </button>
+                                </button>*@
 
                             </div>
                         </div>
@@ -1950,6 +1956,10 @@
                             </div>
                         </div>
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
+                    </div>
+                    @*<div><span id="text-check-dibayar"></span></div>*@
+                    <div class="row">
+                        <label id="text-check-dibayar" style="margin-left:10px;"></label>
                     </div>
                     <div class="row pesanan_sudah_dibayar_section" style="margin-top: 5px;">
                         @*<div id="loading_sudah_dibayar_tab" class="text-center">
@@ -2007,6 +2017,7 @@
                             <select class="form-control" id="filter_pesanan_packing_field" required="required">
                                 <option value="tanggal">Tgl. Pesanan</option>
                                 <option value="marketplace">Marketplace</option>
+                                <option value="exp_tgl">Tgl. Expired Pesanan</option>
                             </select>
                         </div>
                         <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
@@ -2067,6 +2078,10 @@
                         </div>
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                     </div>
+                    @*<div><span id="text-check-packing"></span></div>*@
+                    <div class="row">
+                        <label id="text-check-packing" style="margin-left:10px;"></label>
+                    </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_siap_kirim_tab" class="text-center">
                                 <img src="~/Content/Images/spinner.gif" width="100" />
@@ -2097,6 +2112,7 @@
                             <select class="form-control" id="filter_pesanan_faktur_field" required="required">
                                 <option value="tanggal">Tgl. Pesanan</option>
                                 <option value="marketplace">Marketplace</option>
+                                <option value="exp_tgl">Tgl. Expired Pesanan</option>
                                 <option value="statuskirim">Status Kirim</option>
                                 <option value="statusprint">Status Print</option>
                             </select>
@@ -2174,6 +2190,9 @@
                                 </select>
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
+                        <label id="text-check-faktur" style="margin-left:10px;"></label>
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_sudah_kirim_tab" class="text-center">
@@ -3532,7 +3551,7 @@
                     <h4>Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Packing?</h4>
                 </div>
                 <div id="modal-status-multi-body">
-                    @Html.Partial("UbahStatusMultiPartial")
+                    @*@Html.Partial("UbahStatusMultiPartial")*@
                 </div>
             </div>
             <br />
@@ -3561,7 +3580,7 @@
                     <h4>Apakah Anda yakin ingin mengubah status dari Packing menjadi Faktur?</h4>
                 </div>
                 <div id="modal-status-multi-packing-body">
-                    @Html.Partial("UbahStatusMultiPacking")
+                    @*@Html.Partial("UbahStatusMultiPacking")*@
                 </div>
             </div>
             <br />
@@ -3661,7 +3680,7 @@
                     <h4>Apakah Anda yakin ingin buat faktur?</h4>
                 </div>
                 <div id="modal-generate-faktur-body">
-                    @Html.Partial("KonfirmasiGenerateFakturNew")
+                    @*@Html.Partial("KonfirmasiGenerateFakturNew")*@
                 </div>
             </div>
             <br />
@@ -4498,32 +4517,32 @@
             //end add by nurul 12/2/2019
 
             //add by nurul 19/3/2019
-            $("#checkbox_all_gntstatus_sudahdibayar").click(function () {
-                $(".checkbox_gntstatus_sudahdibayar").prop('checked',
-                    $(this).prop('checked'));
-                if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
-                    $(".ubah-dibayar").attr('disabled', 'disabled');
-                } else {
-                    $(".ubah-dibayar").removeAttr('disabled');
-                }
-            });
-            $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
-                $(item).off('click').on('click', function () {
-                    if ($(item).prop('checked') == true) {
-                        $(".ubah-dibayar").attr('disabled', 'disabled');
-                    } else {
-                        var cekTrue = [];
-                        $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
-                            if ($(chk).prop('checked') == true) {
-                                cekTrue.push($(chk).attr("data-rec"));
-                            }
-                        });
-                        if (cekTrue.length == 0) {
-                            $(".ubah-dibayar").removeAttr('disabled');
-                        }
-                    }
-                });
-            });
+            //$("#checkbox_all_gntstatus_sudahdibayar").click(function () {
+            //    $(".checkbox_gntstatus_sudahdibayar").prop('checked',
+            //        $(this).prop('checked'));
+            //    if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
+            //        $(".ubah-dibayar").attr('disabled', 'disabled');
+            //    } else {
+            //        $(".ubah-dibayar").removeAttr('disabled');
+            //    }
+            //});
+            //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+            //    $(item).off('click').on('click', function () {
+            //        if ($(item).prop('checked') == true) {
+            //            $(".ubah-dibayar").attr('disabled', 'disabled');
+            //        } else {
+            //            var cekTrue = [];
+            //            $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+            //                if ($(chk).prop('checked') == true) {
+            //                    cekTrue.push($(chk).attr("data-rec"));
+            //                }
+            //            });
+            //            if (cekTrue.length == 0) {
+            //                $(".ubah-dibayar").removeAttr('disabled');
+            //            }
+            //        }
+            //    });
+            //});
             //$('.checkbox_all_gntstatus_sudahdibayar').on('click', function () {
             //    $(this).closest('table').find('tbody :checkbox')
             //        .prop('checked', this.checked)
@@ -4535,58 +4554,58 @@
 
             //    $(this).closest('table').find('.checkbox_all_gntstatus_sudahdibayar').prop('checked', ($(this).closest('table').find('tbody :checkbox:checked').length == $(this).closest('table').find('tbody :checkbox').length)); //Tira / coloca a seleção no .checkAll
             //});
-            $("#checkbox_all_gntstatus_packing").click(function () {
-                $(".checkbox_gntstatus_packing").prop('checked',
-                    $(this).prop('checked'));
-                if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
-                    $(".ubah-packing").attr('disabled', 'disabled');
-                } else {
-                    $(".ubah-packing").removeAttr('disabled');
-                }
-            });
-            $(".checkbox_gntstatus_packing").each(function (i, item) {
-                $(item).off('click').on('click', function () {
-                    if ($(item).prop('checked') == true) {
-                        $(".ubah-packing").attr('disabled', 'disabled');
-                    } else {
-                        var cekTrue = [];
-                        $(".checkbox_gntstatus_packing").each(function (z, chk) {
-                            if ($(chk).prop('checked') == true) {
-                                cekTrue.push($(chk).attr("data-rec"));
-                            }
-                        });
-                        if (cekTrue.length == 0) {
-                            $(".ubah-packing").removeAttr('disabled');
-                        }
-                    }
-                });
-            });
-            $("#checkbox_all_generateFaktur").click(function () {
-                $(".checkbox_generateFaktur").prop('checked',
-                    $(this).prop('checked'));
-                if ($("#checkbox_all_generateFaktur").prop('checked') == true) {
-                    //$(".buat_faktur").attr('disabled', 'disabled');
-                } else {
-                    //$(".buat_faktur").removeAttr('disabled');
-                }
-            });
-            $(".checkbox_generateFaktur").each(function (i, item) {
-                $(item).off('click').on('click', function () {
-                    if ($(item).prop('checked') == true) {
-                        //$(".buat_faktur").attr('disabled', 'disabled');
-                    } else {
-                        var cekTrue = [];
-                        $(".checkbox_generateFaktur").each(function (z, chk) {
-                            if ($(chk).prop('checked') == true) {
-                                cekTrue.push($(chk).attr("data-recnum"));
-                            }
-                        });
-                        if (cekTrue.length == 0) {
-                            //$(".buat_faktur").removeAttr('disabled');
-                        }
-                    }
-                });
-            });
+            //$("#checkbox_all_gntstatus_packing").click(function () {
+            //    $(".checkbox_gntstatus_packing").prop('checked',
+            //        $(this).prop('checked'));
+            //    if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
+            //        $(".ubah-packing").attr('disabled', 'disabled');
+            //    } else {
+            //        $(".ubah-packing").removeAttr('disabled');
+            //    }
+            //});
+            //$(".checkbox_gntstatus_packing").each(function (i, item) {
+            //    $(item).off('click').on('click', function () {
+            //        if ($(item).prop('checked') == true) {
+            //            $(".ubah-packing").attr('disabled', 'disabled');
+            //        } else {
+            //            var cekTrue = [];
+            //            $(".checkbox_gntstatus_packing").each(function (z, chk) {
+            //                if ($(chk).prop('checked') == true) {
+            //                    cekTrue.push($(chk).attr("data-rec"));
+            //                }
+            //            });
+            //            if (cekTrue.length == 0) {
+            //                $(".ubah-packing").removeAttr('disabled');
+            //            }
+            //        }
+            //    });
+            //});
+            //$("#checkbox_all_generateFaktur").click(function () {
+            //    $(".checkbox_generateFaktur").prop('checked',
+            //        $(this).prop('checked'));
+            //    if ($("#checkbox_all_generateFaktur").prop('checked') == true) {
+            //        //$(".buat_faktur").attr('disabled', 'disabled');
+            //    } else {
+            //        //$(".buat_faktur").removeAttr('disabled');
+            //    }
+            //});
+            //$(".checkbox_generateFaktur").each(function (i, item) {
+            //    $(item).off('click').on('click', function () {
+            //        if ($(item).prop('checked') == true) {
+            //            //$(".buat_faktur").attr('disabled', 'disabled');
+            //        } else {
+            //            var cekTrue = [];
+            //            $(".checkbox_generateFaktur").each(function (z, chk) {
+            //                if ($(chk).prop('checked') == true) {
+            //                    cekTrue.push($(chk).attr("data-recnum"));
+            //                }
+            //            });
+            //            if (cekTrue.length == 0) {
+            //                //$(".buat_faktur").removeAttr('disabled');
+            //            }
+            //        }
+            //    });
+            //});
 
             //end add by nurul 19/3/2019
 
@@ -4841,6 +4860,11 @@
                         $('#filter_pesanan_dibayar_field_marketplace_div').hide();
                         searchTablePesananSudahDibayar();
                         break;
+                    case "exp_tgl":
+                        $('#filter_pesanan_dibayar_field_tanggal_div').show();
+                        $('#filter_pesanan_dibayar_field_marketplace_div').hide();
+                        searchTablePesananSudahDibayar();
+                        break;
                     case "marketplace":
                         $('#filter_pesanan_dibayar_field_tanggal_div').hide();
                         $('#filter_pesanan_dibayar_field_marketplace_div').show();
@@ -4866,6 +4890,11 @@
                 var filterBy = $(this).val();
                 switch (filterBy) {
                     case "tanggal":
+                        $('#filter_pesanan_packing_field_tanggal_div').show();
+                        $('#filter_pesanan_packing_field_marketplace_div').hide();
+                        searchTablePesananPacking();
+                        break;
+                    case "exp_tgl":
                         $('#filter_pesanan_packing_field_tanggal_div').show();
                         $('#filter_pesanan_packing_field_marketplace_div').hide();
                         searchTablePesananPacking();
@@ -4896,6 +4925,12 @@
                 var filterBy = $(this).val();
                 switch (filterBy) {
                     case "tanggal":
+                        $('#filter_pesanan_faktur_field_tanggal_div').show();
+                        $('#filter_pesanan_faktur_field_marketplace_div').hide();
+                        $('#filter_pesanan_faktur_field_statuskirim_div').hide();
+                        $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        break;
+                    case "exp_tgl":
                         $('#filter_pesanan_faktur_field_tanggal_div').show();
                         $('#filter_pesanan_faktur_field_marketplace_div').hide();
                         $('#filter_pesanan_faktur_field_statuskirim_div').hide();
@@ -7949,7 +7984,8 @@
             }
 
             var pList = $('#ckPackinglist').is(":checked");
-            var link = '@Url.Action("UbahStatusPesananPackingTransaction", "Manage")';
+            @*var link = '@Url.Action("UbahStatusPesananPackingTransaction", "Manage")';*@
+            var link = '@Url.Action("UbahStatusPesananPackingTransactionVersi2", "Manage")';
 
             $.ajax({
                 type: "POST",
@@ -8277,39 +8313,63 @@
                 beforeSend: function () {
                     $('#table-pesanan-sudah-dibayar-partial').hide();
                     $('#loading_pesanan_nunggu_tab').show();
+                    $('#text-check-dibayar').text('');
                 },
                 success: function (response) {
                     $('#table-pesanan-sudah-dibayar-partial').html(response);
 
                     $('#table-pesanan-sudah-dibayar-partial').show();
-                    $("#checkbox_all_gntstatus_sudahdibayar").click(function () {
-                        $(".checkbox_gntstatus_sudahdibayar").prop('checked',
-                            $(this).prop('checked'));
-                        if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
-                            $(".ubah-dibayar").attr('disabled', 'disabled');
-                        } else {
-                            $(".ubah-dibayar").removeAttr('disabled');
-                        }
-                    });
-                    $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
-                        $(item).off('click').on('click', function () {
-                            //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
-                            if ($(item).prop('checked') == true) {
-                                $(".ubah-dibayar").attr('disabled', 'disabled');
-                            } else {
-                                var cekTrue = [];
-                                $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-rec"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    $(".ubah-dibayar").removeAttr('disabled');
-                                }
-                            }
-                            //});
-                        });
-                    });
+
+                    //$("#checkbox_all_gntstatus_sudahdibayar").click(function () {
+                    //    $(".checkbox_gntstatus_sudahdibayar").prop('checked',
+                    //        $(this).prop('checked'));
+                    //    var countCheck = $(".checkbox_gntstatus_sudahdibayar").length;
+                    //    if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
+                    //        $(".ubah-dibayar").attr('disabled', 'disabled');
+                    //        $('#text-check-dibayar').text(countCheck + ' Pesanan Terpilih');
+                    //    } else {
+                    //        $(".ubah-dibayar").removeAttr('disabled');
+                    //        $('#text-check-dibayar').text('');
+                    //    }
+                    //});
+
+                    //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                    //    $(item).off('click').on('click', function () {
+                    //        //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                    //        var countCheckDetail = 0;
+                    //        if ($(item).prop('checked') == true) {
+                    //            $(".ubah-dibayar").attr('disabled', 'disabled');
+
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $('#text-check-dibayar').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-dibayar').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        } else {
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $(".ubah-dibayar").removeAttr('disabled');
+                    //                $('#text-check-dibayar').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-dibayar').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        }
+                    //        //});
+                    //    });
+                    //});
                     //$('.checkbox_all_gntstatus_sudahdibayar').on('click', function () {
                     //    $(this).closest('table').find('tbody :checkbox')
                     //        .prop('checked', this.checked)
@@ -8340,6 +8400,9 @@
                 case "tanggal":
                     filtervalue = $('#filter_pesanan_dibayar_field_tanggal').val();
                     break;
+                case "exp_tgl":
+                    filtervalue = $('#filter_pesanan_dibayar_field_tanggal').val();
+                    break;
                 case "marketplace":
                     filtervalue = $('#filter_pesanan_dibayar_field_marketplace').val();
                     break;
@@ -8367,38 +8430,63 @@
                 beforeSend: function () {
                     $('#search_nunggu_click')[0].disabled = true;
                     $('#loading_pesanan_nunggu_tab').show();
+                    $('#text-check-dibayar').text('');
                 },
                 success: function (response) {
                     $('#search_nunggu_click')[0].disabled = false;
                     $('#table-pesanan-sudah-dibayar-partial').html(response);
-                    $("#checkbox_all_gntstatus_sudahdibayar").click(function () {
-                        $(".checkbox_gntstatus_sudahdibayar").prop('checked',
-                            $(this).prop('checked'));
-                        if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
-                            $(".ubah-dibayar").attr('disabled', 'disabled');
-                        } else {
-                            $(".ubah-dibayar").removeAttr('disabled');
-                        }
-                    });
-                    $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
-                        $(item).off('click').on('click', function () {
-                            //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
-                            if ($(item).prop('checked') == true) {
-                                $(".ubah-dibayar").attr('disabled', 'disabled');
-                            } else {
-                                var cekTrue = [];
-                                $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-rec"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    $(".ubah-dibayar").removeAttr('disabled');
-                                }
-                            }
-                            //});
-                        });
-                    });
+
+                    //$("#checkbox_all_gntstatus_sudahdibayar").click(function () {
+                    //    $(".checkbox_gntstatus_sudahdibayar").prop('checked',
+                    //        $(this).prop('checked'));
+                    //    var countCheck = $(".checkbox_gntstatus_sudahdibayar").length;
+                    //    if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
+                    //        $(".ubah-dibayar").attr('disabled', 'disabled');
+                    //        $('#text-check-dibayar').text(countCheck + ' Pesanan Terpilih');
+                    //    } else {
+                    //        $(".ubah-dibayar").removeAttr('disabled');
+                    //        $('#text-check-dibayar').text('');
+                    //    }
+                    //});
+
+                    //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                    //    $(item).off('click').on('click', function () {
+                    //        //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                    //        var countCheckDetail = 0;
+                    //        if ($(item).prop('checked') == true) {
+                    //            $(".ubah-dibayar").attr('disabled', 'disabled');
+
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $('#text-check-dibayar').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-dibayar').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        } else {
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $(".ubah-dibayar").removeAttr('disabled');
+                    //                $('#text-check-dibayar').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-dibayar').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        }
+                    //        //});
+                    //    });
+                    //});
+
                     //$('.checkbox_all_gntstatus_sudahdibayar').on('click', function () {
                     //    $(this).closest('table').find('tbody :checkbox')
                     //        .prop('checked', this.checked)
@@ -8506,37 +8594,60 @@
                 beforeSend: function () {
                     $('#table-pesanan-siap-kirim-partial').hide();
                     $('#loading_pesanan_packing_tab').show();
+                    $('#text-check-packing').text('');
                 },
                 success: function (response) {
                     $('#table-pesanan-siap-kirim-partial').html(response);
 
                     $('#table-pesanan-siap-kirim-partial').show();
-                    $("#checkbox_all_gntstatus_packing").click(function () {
-                        $(".checkbox_gntstatus_packing").prop('checked',
-                            $(this).prop('checked'));
-                        if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
-                            $(".ubah-packing").attr('disabled', 'disabled');
-                        } else {
-                            $(".ubah-packing").removeAttr('disabled');
-                        }
-                    });
-                    $(".checkbox_gntstatus_packing").each(function (i, item) {
-                        $(item).off('click').on('click', function () {
-                            if ($(item).prop('checked') == true) {
-                                $(".ubah-packing").attr('disabled', 'disabled');
-                            } else {
-                                var cekTrue = [];
-                                $(".checkbox_gntstatus_packing").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-rec"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    $(".ubah-packing").removeAttr('disabled');
-                                }
-                            }
-                        });
-                    });
+
+                    //$("#checkbox_all_gntstatus_packing").click(function () {
+                    //    $(".checkbox_gntstatus_packing").prop('checked',
+                    //        $(this).prop('checked'));
+                    //    var countCheck = $(".checkbox_gntstatus_packing").length;
+                    //    if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
+                    //        $(".ubah-packing").attr('disabled', 'disabled');
+                    //        $('#text-check-packing').text(countCheck + ' Pesanan Terpilih');
+                    //    } else {
+                    //        $(".ubah-packing").removeAttr('disabled');
+                    //        $('#text-check-packing').text('');
+                    //    }
+                    //});
+                    //$(".checkbox_gntstatus_packing").each(function (i, item) {
+                    //    $(item).off('click').on('click', function () {
+                    //        var countCheckDetail = 0;
+                    //        if ($(item).prop('checked') == true) {
+                    //            $(".ubah-packing").attr('disabled', 'disabled');
+
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $('#text-check-packing').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-packing').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        } else {
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $(".ubah-packing").removeAttr('disabled');
+                    //                $('#text-check-packing').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-packing').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        }
+                    //    });
+                    //});
                     $('#loading_pesanan_packing_tab').hide();
                 },
                 error: function (xhr, status, error) {
@@ -8553,6 +8664,9 @@
             var filtervalue = "";
             switch (filterby) {
                 case "tanggal":
+                    filtervalue = $('#filter_pesanan_packing_field_tanggal').val();
+                    break;
+                case "exp_tgl":
                     filtervalue = $('#filter_pesanan_packing_field_tanggal').val();
                     break;
                 case "marketplace":
@@ -8582,36 +8696,59 @@
                 beforeSend: function () {
                     $('#search_packing_click')[0].disabled = true;
                     $('#loading_pesanan_packing_tab').show();
+                    $('#text-check-packing').text('');
                 },
                 success: function (response) {
                     $('#search_packing_click')[0].disabled = false;
                     $('#table-pesanan-siap-kirim-partial').html(response);
-                    $("#checkbox_all_gntstatus_packing").click(function () {
-                        $(".checkbox_gntstatus_packing").prop('checked',
-                            $(this).prop('checked'));
-                        if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
-                            $(".ubah-packing").attr('disabled', 'disabled');
-                        } else {
-                            $(".ubah-packing").removeAttr('disabled');
-                        }
-                    });
-                    $(".checkbox_gntstatus_packing").each(function (i, item) {
-                        $(item).off('click').on('click', function () {
-                            if ($(item).prop('checked') == true) {
-                                $(".ubah-packing").attr('disabled', 'disabled');
-                            } else {
-                                var cekTrue = [];
-                                $(".checkbox_gntstatus_packing").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-rec"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    $(".ubah-packing").removeAttr('disabled');
-                                }
-                            }
-                        });
-                    });
+
+                    //$("#checkbox_all_gntstatus_packing").click(function () {
+                    //    $(".checkbox_gntstatus_packing").prop('checked',
+                    //        $(this).prop('checked'));
+                    //    var countCheck = $(".checkbox_gntstatus_packing").length;
+                    //    if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
+                    //        $(".ubah-packing").attr('disabled', 'disabled');
+                    //        $('#text-check-packing').text(countCheck + ' Pesanan Terpilih');
+                    //    } else {
+                    //        $(".ubah-packing").removeAttr('disabled');
+                    //        $('#text-check-packing').text('');
+                    //    }
+                    //});
+                    //$(".checkbox_gntstatus_packing").each(function (i, item) {
+                    //    $(item).off('click').on('click', function () {
+                    //        var countCheckDetail = 0;
+                    //        if ($(item).prop('checked') == true) {
+                    //            $(".ubah-packing").attr('disabled', 'disabled');
+
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $('#text-check-packing').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-packing').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        } else {
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $(".ubah-packing").removeAttr('disabled');
+                    //                $('#text-check-packing').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-packing').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        }
+                    //    });
+                    //});
                     $('#loading_pesanan_packing_tab').hide();
                 },
                 error: function (xhr, status, error) {
@@ -8683,64 +8820,86 @@
                 beforeSend: function () {
                     $('#table-pesanan-sudah-kirim-partial').hide();
                     $('#loading_pesanan_invoicing_tab').show();
+                    $('#text-check-faktur').text('');
                 },
                 success: function (response) {
                     $('#table-pesanan-sudah-kirim-partial').html(response);
 
                     $('#table-pesanan-sudah-kirim-partial').show();
-                    $("#checkbox_all_generateFaktur").click(function () {
-                        $(".checkbox_generateFaktur").prop('checked',
-                            $(this).prop('checked'));
-                        if ($("#checkbox_all_generateFaktur").prop('checked') == true) {
-                            //$(".buat_faktur").attr('disabled', 'disabled');
-                        } else {
-                            //$(".buat_faktur").removeAttr('disabled');
-                        }
-                    });
-                    $(".checkbox_generateFaktur").each(function (i, item) {
-                        $(item).off('click').on('click', function () {
-                            if ($(item).prop('checked') == true) {
-                                //$(".buat_faktur").attr('disabled', 'disabled');
-                            } else {
-                                var cekTrue = [];
-                                $(".checkbox_generateFaktur").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-recnum"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    //$(".buat_faktur").removeAttr('disabled');
-                                }
-                            }
-                        });
-                    });
+                    //$("#checkbox_all_generateFaktur").click(function () {
+                    //    $(".checkbox_generateFaktur").prop('checked',
+                    //        $(this).prop('checked'));
+                    //    var countCheck = $(".checkbox_gntstatus_packing").length;
+                    //    if ($("#checkbox_all_generateFaktur").prop('checked') == true) {
+                    //        //$(".buat_faktur").attr('disabled', 'disabled');
+                    //        $('#text-check-faktur').text(countCheck + ' Pesanan Terpilih');
+                    //    } else {
+                    //        //$(".buat_faktur").removeAttr('disabled');
+                    //        $('#text-check-faktur').text('');
+                    //    }
+                    //});
+                    //$(".checkbox_generateFaktur").each(function (i, item) {
+                    //    $(item).off('click').on('click', function () {
+                    //        var countCheckDetail = 0;
+                    //        if ($(item).prop('checked') == true) {
+                    //            //$(".buat_faktur").attr('disabled', 'disabled');
+
+                    //            var cekTrue = [];
+                    //            $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-rec"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $('#text-check-faktur').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-faktur').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        } else {
+                    //            var cekTrue = [];
+                    //            $(".checkbox_generateFaktur").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-recnum"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                //$(".buat_faktur").removeAttr('disabled');
+                    //                $('#text-check-faktur').text('');
+                    //            } else {
+                    //                countCheckDetail = cekTrue.length;
+                    //                $('#text-check-faktur').text(countCheckDetail + ' Pesanan Terpilih');
+                    //            }
+                    //        }
+                    //    });
+                    //});
                     //add by calvin 29 nov 2019
-                    $("#all_checkbox_pesanan_faktur").click(function () {
-                        $(".checkbox_pesanan_faktur").prop('checked',
-                            $(this).prop('checked'));
-                        if ($("#all_checkbox_pesanan_faktur").prop('checked') == true) {
-                            $(".buat_faktur").attr('disabled', 'disabled');
-                        } else {
-                            $(".buat_faktur").removeAttr('disabled');
-                        }
-                    });
-                    $(".checkbox_pesanan_faktur").each(function (i, item) {
-                        $(item).off('click').on('click', function () {
-                            if ($(item).prop('checked') == true) {
-                                $(".buat_faktur").attr('disabled', 'disabled');
-                            } else {
-                                var cekTrue = [];
-                                $(".checkbox_pesanan_faktur").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-recnum"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    $(".buat_faktur").removeAttr('disabled');
-                                }
-                            }
-                        });
-                    });
+                    //$("#all_checkbox_pesanan_faktur").click(function () {
+                    //    $(".checkbox_pesanan_faktur").prop('checked',
+                    //        $(this).prop('checked'));
+                    //    if ($("#all_checkbox_pesanan_faktur").prop('checked') == true) {
+                    //        $(".buat_faktur").attr('disabled', 'disabled');
+                    //    } else {
+                    //        $(".buat_faktur").removeAttr('disabled');
+                    //    }
+                    //});
+                    //$(".checkbox_pesanan_faktur").each(function (i, item) {
+                    //    $(item).off('click').on('click', function () {
+                    //        if ($(item).prop('checked') == true) {
+                    //            $(".buat_faktur").attr('disabled', 'disabled');
+                    //        } else {
+                    //            var cekTrue = [];
+                    //            $(".checkbox_pesanan_faktur").each(function (z, chk) {
+                    //                if ($(chk).prop('checked') == true) {
+                    //                    cekTrue.push($(chk).attr("data-recnum"));
+                    //                }
+                    //            });
+                    //            if (cekTrue.length == 0) {
+                    //                $(".buat_faktur").removeAttr('disabled');
+                    //            }
+                    //        }
+                    //    });
+                    //});
                     //end add by calvin 29 nov 2019
 
                     $('#loading_pesanan_invoicing_tab').hide();
@@ -8757,6 +8916,9 @@
             var filtervalue = "";
             switch (filterby) {
                 case "tanggal":
+                    filtervalue = $('#filter_pesanan_faktur_field_tanggal').val();
+                    break;
+                case "exp_tgl":
                     filtervalue = $('#filter_pesanan_faktur_field_tanggal').val();
                     break;
                 case "marketplace":

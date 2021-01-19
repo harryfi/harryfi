@@ -1748,7 +1748,7 @@
         if (confirm('Selesai setting gambar dan harga per variasi ?')) {
             validasi_simpanBarangVariant = true;
             message_validasi_simpanBarangVariant = "";
-
+            UpdateBarcodedanRak();//add 8 okt 2020
             if (validasi_simpanBarangVariant) {
                 var idBarang = $('#gambarInduk_ID').val();
                 var listGambarVariant = new FormData();
@@ -1886,6 +1886,42 @@
         });
     }
 
+    function UpdateBarcodedanRak() {
+        
+        dataBarang = [];
+        
+        indexBrg = 0;
+        $('.barcode_variant').each(function (i, item) {
+            var data_barang_id = $(item).attr("id-brg");
+            barang = {
+                id : data_barang_id,
+                barcode : $('#data_barcode_' + data_barang_id).val(),
+                rak : $('#data_rak_' + data_barang_id).val(),
+            }
+            dataBarang[indexBrg] = barang;
+            indexBrg = indexBrg + 1;
+        });
+        var post_data = {
+            listBrg : dataBarang
+        }
+        var $link = '@Url.Action("UpdateBarcodedanRakVarian", "Manage")';
+                $.ajax({
+                    type: "POST",
+                    url: $link,
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    data: JSON.stringify(post_data),
+                    beforeSend: function () {
+
+                    },
+                    success: function (response) {
+                        
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+    }
     //add by nurul 6/3/2020
     function dataURLtoFile(dataurl, filename) {
         var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
@@ -2059,45 +2095,57 @@
                         <table id="datatable_detail_var_mo" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
                             <thead>
                                 <tr role="row">
-                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 20%;">Kode</th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 20%;">Kode Barang</th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 15%;">Kode Barcode</th>
                                     <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 30%;">Nama</th>
-                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 50%;">Gambar</th>
+                                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 10%;">Lokasi Rak</th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 25%;">Gambar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var barang in Model.VariantMO)
                                 {
-                                    <tr>
-                                        <td>@barang.BRG</td>
-                                        <td>@barang.NAMA @barang.NAMA2</td>
-                                        <td class="text-center">
-                                            <table style="margin:auto;">
-                                                <tr>
-                                                    <td style="padding-right:5px;">
-                                                        <div class="foto_produk_section">
-                                                            <div class="box_upload_var" data-barang-id="@barang.ID" id="box_upload_var_@barang.ID">
-                                                                <span class="box_upload_placeholder">Tambah Gambar</span>
-                                                                <input type='file' id='foto_produk_var_@barang.ID' data-barang-id="@barang.ID" class="foto_produk_var" accept=".jpg" />
-                                                                <input type="hidden" id="hidden_url_gambar_var_@barang.ID" data-barang-id="@barang.ID" class="hidden_url_gambar_var" value="@(barang.LINK_GAMBAR_1)" />
-                                                            </div>
-                                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var_@barang.ID">Hapus</button>
+                                <tr>
+                                    <td>@barang.BRG</td>
+                                    <td>
+                                        <div class="form-group">
+                                            <input class="form-control barcode_variant" data-val="true" id="data_barcode_@barang.ID" id-brg="@barang.ID" value="@barang.Ket_Sort7" />
+                                        </div>
+                                    </td>
+                                    <td>@barang.NAMA @barang.NAMA2</td>
+                                    <td>
+                                        <div class="form-group">
+                                            <input class="form-control" data-val="true" id="data_rak_@barang.ID" id-brg="@barang.ID" value="@barang.LKS" />
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <table style="margin:auto;">
+                                            <tr>
+                                                <td style="padding-right:5px;">
+                                                    <div class="foto_produk_section">
+                                                        <div class="box_upload_var" data-barang-id="@barang.ID" id="box_upload_var_@barang.ID">
+                                                            <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                            <input type='file' id='foto_produk_var_@barang.ID' data-barang-id="@barang.ID" class="foto_produk_var" accept=".jpg" />
+                                                            <input type="hidden" id="hidden_url_gambar_var_@barang.ID" data-barang-id="@barang.ID" class="hidden_url_gambar_var" value="@(barang.LINK_GAMBAR_1)" />
                                                         </div>
-                                                    </td>
-                                                    <td style="padding-left:5px;display:none;">
-                                                        @* add 6/9/2019, barang varian 2 gambar *@
-                                                        <div class="foto_produk_section">
-                                                            <div class="box_upload_var_2" data-barang-id="@barang.ID" id="box_upload_var2_@barang.ID">
-                                                                <span class="box_upload_placeholder">Tambah Gambar</span>
-                                                                <input type='file' id='foto_produk_var2_@barang.ID' data-barang-id="@barang.ID" class="foto_produk_var_2" accept=".jpg" />
-                                                                <input type="hidden" id="hidden_url_gambar_var2_@barang.ID" data-barang-id="@barang.ID" class="hidden_url_gambar_var_2" value="@(barang.LINK_GAMBAR_2)" />
-                                                            </div>
-                                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_2" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var2_@barang.ID">Hapus</button>
+                                                        <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var_@barang.ID">Hapus</button>
+                                                    </div>
+                                                </td>
+                                                <td style="padding-left:5px;display:none;">
+                                                    @* add 6/9/2019, barang varian 2 gambar *@
+                                                    <div class="foto_produk_section">
+                                                        <div class="box_upload_var_2" data-barang-id="@barang.ID" id="box_upload_var2_@barang.ID">
+                                                            <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                            <input type='file' id='foto_produk_var2_@barang.ID' data-barang-id="@barang.ID" class="foto_produk_var_2" accept=".jpg" />
+                                                            <input type="hidden" id="hidden_url_gambar_var2_@barang.ID" data-barang-id="@barang.ID" class="hidden_url_gambar_var_2" value="@(barang.LINK_GAMBAR_2)" />
                                                         </div>
-                                                        @* end add 6/9/2019, barang varian 2 gambar *@
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                    </tr>
+                                                        <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_2" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var2_@barang.ID">Hapus</button>
+                                                    </div>
+                                                    @* end add 6/9/2019, barang varian 2 gambar *@
+                                                </td>
+                                            </tr>
+                                        </table>
+                                </tr>
                                 }
                             </tbody>
                         </table>

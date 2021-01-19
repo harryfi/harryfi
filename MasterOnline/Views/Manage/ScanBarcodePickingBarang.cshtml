@@ -1,0 +1,312 @@
+﻿@using System.Globalization
+@model MasterOnline.ViewModels.ScanBarcodePickingBarangViewModel
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-3">
+            <div class="col-md-3">
+                <label>No Packing List</label>
+            </div>
+            <div class="col-md-3">
+                <label>:</label>
+                <label id="txtNoPL">@Model.NO_PL</label>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-3">
+            <div class="col-md-3">
+                <label>Total Barang </label>
+            </div>
+            <div class="col-md-3">
+                <label>:</label>
+                <label id="txtJmlBrg">@Model.jmlBrg</label>
+                <label>/</label>
+                <label id="txtMaxBrg">@Model.maxBrg</label>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-3">
+            <div class="col-md-3">
+                <label>Total Qty </label>
+            </div>
+            <div class="col-md-3">
+                <label>:</label>
+                <label id="txtJmlQty">@Model.jmlQty</label>
+                <label>/</label>
+                <label id="txtMaxQty">@Model.maxQty</label>
+            </div>
+        </div>
+    </div>
+    <input id="maxDataPicking" style="display:none;" value="@Model.dataScan.Count" />
+</div>
+<div class="row">
+    <div class="col-md-9">
+    </div>
+    <div class="col-md-3" style="text-align:right;">
+        <button type="button" class="btn btn-danger" id="btnHapusPickingBarang" onclick="HapusPickingBarang();">Hapus</button>
+    </div>
+</div>
+<div>
+    <table class="table table-striped table-bordered" id="tblScan">
+        <thead>
+            <tr role="row">
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; align-self:flex-start"><input type="checkbox" onclick="clickAllPicking();" class="dt-checkboxes-select-all center" id="checkbox_all_delete_picking_barang" style="margin-top: 20px; border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">Scan Barcode</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 50px;">Qty</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 70px;">Lokasi Rak</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 120px;">Valid</th>
+            </tr>
+        </thead>
+        <tbody>
+            @*@foreach (var brgScan in Model.dataScan)
+                {
+                <tr>
+                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].RecNum)
+                    <td class="get_data_picking kode_barcode" id-brg="@brgScan.brg">@brgScan.code</td>
+                    <td class="get_data_picking" id-brg="@brgScan.brg">
+                        <input value="@brgScan.qty" />
+                    </td>
+                    @if (@brgScan.isValid)
+                    {
+                        <td class="get_data_picking">VALID</td>
+                    }
+                    else
+                    {
+                        <td class="get_data_picking">TIDAK VALID</td>
+                    }
+                </tr>
+                }*@
+            @for (int i = 0; i < Model.dataScan.Count; i++)
+            {
+            <tr>
+                @Html.HiddenFor(m => m.dataScan[i].code)
+                @Html.HiddenFor(m => m.dataScan[i].brg)
+                @Html.HiddenFor(m => m.dataScan[i].qty)
+                @Html.HiddenFor(m => m.dataScan[i].isValid)
+                @Html.HiddenFor(m => m.dataScan[i].rak)
+                <td style="width: 40px; max-width: 40px; align-self:center; text-align:center;">
+                    <input type="checkbox" class="dt-checkboxes checkbox_delete_picking_barang center" id-brg="@Model.dataScan[i].brg" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
+                </td>
+                <td class="get_data_picking kode_barcode" id-brg="@Model.dataScan[i].brg">@Model.dataScan[i].code</td>
+                <td class="get_data_picking" id-brg="@Model.dataScan[i].brg">
+                    <div class="form-group">
+                        <input class="form-control limited_number_textbox num-only" data-val="true" id="data_qty_@i" id-brg="@Model.dataScan[i].brg"
+                               value="@Model.dataScan[i].input_qty" onchange="changeQtyPacking('data_qty_@i', @Model.dataScan[i].qty);" />
+                        @*@Html.TextBoxFor(m => m.dataScan[i].qty, new { @class = "form-control limited_number_textbox num-only", min = 1, max = 99999999, maxlength = 8 })*@
+                    </div>
+                </td>
+                <td class="get_data_picking" id-brg="@Model.dataScan[i].brg">@Model.dataScan[i].rak</td>
+                @if (Model.dataScan[i].isValid)
+                {
+                    <td class="get_data_picking" id="data_isvalid_@i">VALID</td>
+                }
+                else
+                {
+                    <td class="get_data_picking" id="data_isvalid_@i">TIDAK VALID</td>
+                }
+            </tr>
+            }
+        <tr>
+            <td style="width: 40px; max-width: 40px; align-self:flex-start;">
+            </td>
+            <td>
+                <input class="form-control" data-val="true" id="txtScanBarcode" name="txtScanBarcode" id-brg="0" autofocus />
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function () {
+        //alert('test');
+        $("#txtScanBarcode").focus();
+    });
+
+    $("input.num-only").off('keydown').on('keydown',
+        function (e) {
+
+            // Allow: backspace, delete, tab, escape, enter and .
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                // Allow: Ctrl+A, Command+A
+                (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                // Allow: home, end, left, right, down, up
+                (e.keyCode >= 35 && e.keyCode <= 40)) {
+                // let it happen, don't do anything
+                return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+
+    function changeQtyPacking(id, qty) {
+        //alert('id : ' + id + ' ,qty : ' + qty + ' ,value : ' + $('#' + id).val());
+        if ($('#' + id).val() != qty) {
+            if (document.getElementById('data_isvalid_' + id.split('_')[2]).innerText != "TIDAK VALID") {
+                document.getElementById('txtJmlBrg').innerText = document.getElementById('txtJmlBrg').innerText - 1;
+                document.getElementById('txtJmlQty').innerText = document.getElementById('txtJmlQty').innerText - qty;
+            }
+            $('#dataScan_' + id.split('_')[2] + '__isValid').val('False');
+            document.getElementById('data_isvalid_' + id.split('_')[2]).innerText = "TIDAK VALID";
+        }
+        else {
+            if (document.getElementById('data_isvalid_' + id.split('_')[2]).innerText != "VALID") {
+                document.getElementById('txtJmlBrg').innerText = parseInt(document.getElementById('txtJmlBrg').innerText) + 1;
+                document.getElementById('txtJmlQty').innerText = parseInt(document.getElementById('txtJmlQty').innerText) + parseInt(qty);
+            }
+            $('#dataScan_' + id.split('_')[2] + '__isValid').val('True');
+            document.getElementById('data_isvalid_' + id.split('_')[2]).innerText = "VALID";
+            
+        }
+    }
+
+    $("#txtScanBarcode").keyup(function (event) {
+        event.preventDefault();
+        if (event.keyCode === 13 || event.keyCode === 9) {
+            if ($("#txtScanBarcode").val() == '') {
+                alert('Silahkan scan barcode barang.');
+            }
+            else {
+                ScanBarcodeBarang();
+            }
+        }
+        return false;
+    });
+
+    function ScanBarcodeBarang() {
+        listBrg = [];
+            for (i = 0; i < $('#maxDataPicking').val(); i++) {
+                listBrg[i] = {
+                    brg: $('#dataScan_' + i + '__brg').val(),
+                    code: $('#dataScan_'+i+'__code').val(),
+                    qty: $('#dataScan_' + i + '__qty').val(),
+                    isValid: $('#dataScan_' + i + '__isValid').val(),
+                    input_qty: $('#data_qty_' + i).val(),
+                    rak: $('#dataScan_' + i + '__rak').val(),
+                };
+
+            }
+            $postdata = {
+                NO_PL: document.getElementById('txtNoPL').innerText,
+                maxBrg: document.getElementById('txtMaxBrg').innerText,
+                jmlBrg: document.getElementById('txtJmlBrg').innerText,
+                maxQty: document.getElementById('txtMaxQty').innerText,
+                jmlQty: document.getElementById('txtJmlQty').innerText,
+                dataScan: listBrg,
+                currentScan: $("#txtScanBarcode").val(),
+            };
+
+            var $link = '@Url.Action("ScanBarcodeBarang", "Manage")';
+                $.ajax({
+                    type: "POST",
+                    url: $link,
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    data: JSON.stringify($postdata),
+                    beforeSend: function () {
+                        document.getElementById("btnCancelPickingBrg").disabled = true;
+                        document.getElementById("btnSimpanPickingBrg").disabled = true;
+                    },
+                    success: function (response) {
+                        document.getElementById("btnCancelPickingBrg").disabled = false;
+                        document.getElementById("btnSimpanPickingBrg").disabled = false;
+                        //$('#modalPickingBarang').modal('hide');
+                        if (response.Errors == undefined) {
+                            //editPackinglist1(response.Errors[0]);
+                            $('#modal-picking').html(response);
+                            $("#txtScanBarcode").focus();
+                        }
+                        else {
+                            alert(response.Errors[0]);
+                            $("#txtScanBarcode").val('');
+                            $("#txtScanBarcode").focus();
+                        }
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        document.getElementById("btnCancelPickingBrg").disabled = false;
+                        document.getElementById("btnSimpanPickingBrg").disabled = false;
+                    }
+                });
+    }
+
+    function HapusPickingBarang() {
+        var cekTrue = [];
+        $(".checkbox_delete_picking_barang").each(function (z, chk) {
+            if ($(chk).prop('checked') == true) {
+                cekTrue.push($(chk).attr("id-brg"));
+            }
+        });
+
+        if (cekTrue.length == 0) {
+            alert('Silahkan pilih data yang anda ingin hapus.');
+            return false;
+        }
+
+        listBrg = [];
+            for (i = 0; i < $('#maxDataPicking').val(); i++) {
+                listBrg[i] = {
+                    brg: $('#dataScan_' + i + '__brg').val(),
+                    code: $('#dataScan_'+i+'__code').val(),
+                    qty: $('#dataScan_' + i + '__qty').val(),
+                    isValid: $('#dataScan_' + i + '__isValid').val(),
+                    input_qty: $('#data_qty_' + i).val(),
+                    rak: $('#dataScan_' + i + '__rak').val(),
+                };
+
+            }
+            $postdata = {
+                NO_PL: document.getElementById('txtNoPL').innerText,
+                maxBrg: document.getElementById('txtMaxBrg').innerText,
+                jmlBrg: document.getElementById('txtJmlBrg').innerText,
+                maxQty: document.getElementById('txtMaxQty').innerText,
+                jmlQty: document.getElementById('txtJmlQty').innerText,
+                dataScan: listBrg,
+                listDelete: cekTrue,
+            };
+
+            var $link = '@Url.Action("HapusPickingBarang", "Manage")';
+                $.ajax({
+                    type: "POST",
+                    url: $link,
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    data: JSON.stringify($postdata),
+                    beforeSend: function () {
+                        document.getElementById("btnCancelPickingBrg").disabled = true;
+                        document.getElementById("btnSimpanPickingBrg").disabled = true;
+                    },
+                    success: function (response) {
+                        document.getElementById("btnCancelPickingBrg").disabled = false;
+                        document.getElementById("btnSimpanPickingBrg").disabled = false;
+                        //$('#modalPickingBarang').modal('hide');
+                        if (response.Errors == undefined) {
+                            //editPackinglist1(response.Errors[0]);
+                            $('#modal-picking').html(response);
+                        }
+                        else {
+                            alert(response.Errors[0]);
+                            $("#txtScanBarcode").val('');
+                            $("#txtScanBarcode").focus();
+                        }
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        document.getElementById("btnCancelPickingBrg").disabled = false;
+                        document.getElementById("btnSimpanPickingBrg").disabled = false;
+                    }
+                });
+    }
+
+</script>

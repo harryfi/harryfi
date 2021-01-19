@@ -97,5 +97,9 @@ namespace MasterOnline.Models
 
         public string DataSourcePath { get; set; }
 
+        public string DataSourcePathDebug { get; set; }
+
+        public string confirm_broadcast { get; set; }
+
     }
 }

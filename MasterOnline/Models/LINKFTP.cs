@@ -9,8 +9,13 @@
     [Table("LINKFTP")]
     public partial class LINKFTP
     {
+
         [Key]
-        [RegularExpression(@"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int? RecNum { get; set; }
+
+        //[Key]
+        //[RegularExpression(@"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$")]
         [StringLength(15)]
         public string IP { get; set; }
 

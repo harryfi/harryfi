@@ -19,13 +19,13 @@ namespace MasterOnline.Models
         [StringLength(30)]
         public string NAMA_MARKET { get; set; }
 
-        [Column(TypeName = "date")]
+        //[Column(TypeName = "date")]
         public DateTime? TGL_MULAI { get; set; }
 
-        [Column(TypeName = "date")]
+        //[Column(TypeName = "date")]
         public DateTime? TGL_AKHIR { get; set; }
 
-        [Column(TypeName = "date")]
+        //[Column(TypeName = "date")]
         public DateTime? TGL_INPUT { get; set; }
 
         [StringLength(100)]

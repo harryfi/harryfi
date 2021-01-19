@@ -10,7 +10,7 @@
   },
   "include": [
     "scripts", "Views/Manage/TablePromptBrand82Cart.cshtml", "Models/TEMP_82CART_ORDERS_ITEM.cs",
-     "Models/STT.cs", "Views/Manage/BarangStokOpnamePartial.cshtml", "Models/TEMP_SALDOAWAL.cs", "Views/Admin/TablePesananHangfireJob.cshtml"
+     "Models/STT.cs", "Views/Manage/BarangStokOpnamePartial.cshtml", "Models/TEMP_SALDOAWAL.cs", "Views/Admin/TablePesananHangfireJob.cshtml", "ViewModels/TransferToFTPParameterLinkFtpModel.cs", "Views/Admin/SupportMenu.cshtml", "Models/SupportMenu.cs"
   ],
   "exclude": [
 

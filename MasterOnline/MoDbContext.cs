@@ -47,11 +47,19 @@ namespace MasterOnline
         //end by fauzi
 
 
+        public DbSet<CATEGORY_JDID> CATEGORY_JDID { get; set; }
         public DbSet<CATEGORY_SHOPIFY> CategoryShopify { get; set; }
 
         //add by fauzi for 82cart
         public DbSet<CATEGORY_82CART> Category82Cart { get; set; }
         public DbSet<ATTRIBUTE_82CART> Attribute82Cart { get; set; }
+        public DbSet<Tutorial_Header> Tutorial_Header { get; set; }
+        public DbSet<Tutorial_Detail> Tutorial_Detail { get; set; }
+
+
+
+        public DbSet<Addons> Addons { get; set; }
+        public DbSet<Addons_Customer> Addons_Customer { get; set; }
 
         public MoDbContext()
             : base("name=MoDbContext")
@@ -67,6 +75,22 @@ namespace MasterOnline
         {
         }
 
+        //add by nurul 21/12/2020, khusus proses akhir tahun
+        public MoDbContext(string dbSourceEra, string dbSourceEra2)
+            : base($"Server=" + dbSourceEra2 + ", 1433;initial catalog=MO;" +
+                   $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                   $"application name=EntityFramework")
+        {
+        }
+        //end add by nurul 21/12/2020, khusus proses akhir tahun
+
+        //public MoDbContext(string dbSourceEra)
+        //   : base($"Server=172.31.20.73, 1433;initial catalog=MO;" +
+        //          $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+        //          $"application name=EntityFramework")
+        //{
+        //}
+
 #elif (DEV || DEBUG)
 
         public MoDbContext(string dbSourceEra)
@@ -75,6 +99,15 @@ namespace MasterOnline
                     $"application name=EntityFramework")
         {
         }
+
+        //add by nurul 21/12/2020, khusus proses akhir tahun
+        public MoDbContext(string dbSourceEra, string dbSourceEra2)
+             : base($"Server=" + dbSourceEra2 + ", " + dbSourceEra + ";initial catalog=MO;" +
+                    $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                    $"application name=EntityFramework")
+        {
+        }
+        //end add by nurul 21/12/2020, khusus proses akhir tahun
 
 #endif
 

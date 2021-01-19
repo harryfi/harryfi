@@ -248,8 +248,13 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
+                    var maxNama2 = length_nama - lastIndexOfSpaceIn30;
+                    if(maxNama2 > 255)
+                    {
+                        maxNama2 = 255;
+                    }
                     result[0] = name.Substring(0, lastIndexOfSpaceIn30).Trim();
-                    result[1] = name.Substring(lastIndexOfSpaceIn30, length_nama - lastIndexOfSpaceIn30).Trim();
+                    result[1] = name.Substring(lastIndexOfSpaceIn30, maxNama2).Trim();
                 }
             }
             else
@@ -858,7 +863,7 @@ namespace MasterOnline.Controllers
 
             //ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
 
-            double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND B.LOKASI = CASE '" + Gudang + "' WHEN 'ALL' THEN B.LOKASI ELSE '" + Gudang + "' END AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
+            double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND B.LOKASI = CASE '" + Gudang + "' WHEN 'ALL' THEN B.LOKASI ELSE '" + Gudang + "' END AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
             qtyOnHand = qtyOnHand - qtySO;
 
             #region Hitung Qty Reserved Blibli
@@ -2421,10 +2426,12 @@ namespace MasterOnline.Controllers
                                         //myData += "\"price\": " + data.Price + ", ";
                                         //myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
                                         //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
-                                        myData += "\"price\": " + result.value.items[0].prices[0].price + ", ";
-                                        myData += "\"salePrice\": " + result.value.items[0].prices[0].salePrice + ", ";
+                                        //myData += "\"price\": " + result.value.items[0].prices[0].price + ", ";
+                                        //myData += "\"salePrice\": " + result.value.items[0].prices[0].salePrice + ", ";
                                         //end change by Tri 30 Jan 2020, harga dan harga promo ikut harga di blibli saja karena function ini untuk update stok
-                                        myData += "\"buyable\": " + data.display + ", ";
+                                        //myData += "\"buyable\": " + data.display + ", ";
+                                        myData += "\"buyable\": " + (data.Qty != "0" ? data.display : "false") + ", ";
+
                                         myData += "\"displayable\": " + data.display + " "; // true=tampil    
                                         myData += "},";
                                     }
@@ -2472,6 +2479,8 @@ namespace MasterOnline.Controllers
                             }
                             //end change by nurul 13/7/2020
                             string responseFromServer = "";
+                            try
+                            {
 
                             myReq.ContentLength = myData.Length;
                             using (var dataStream = myReq.GetRequestStream())
@@ -2484,6 +2493,49 @@ namespace MasterOnline.Controllers
                                 {
                                     StreamReader reader = new StreamReader(stream);
                                     responseFromServer = reader.ReadToEnd();
+                                }
+                                }
+                            }
+                            catch (WebException e)
+                            {
+                                string err = "";
+                                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                                if (e.Status == WebExceptionStatus.ProtocolError)
+                                {
+                                    WebResponse resp = e.Response;
+                                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                                    {
+                                        err = sr.ReadToEnd();
+                                    }
+                                    var response = e.Response as HttpWebResponse;
+                                    var status = (int)response.StatusCode;
+                                    if(status == 429)
+                                    {
+                                        if (string.IsNullOrEmpty(data.berat))
+                                        {
+                                            data.berat = "0";
+                                        }
+                                        var loop = Convert.ToInt32(data.berat);
+                                        if(loop < 2)
+                                        {
+                                            await Task.Delay(60000);
+                                            data.berat = (loop + 1).ToString();
+                                            await Blibli_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, log_ActionCategory, log_ActionName, iden, data, uname, context);
+                                        }
+                                        else
+                                        {
+                                            throw new Exception(err);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new Exception(err);
+                                    }
+                                }
+                                else
+                                {
+                                    throw new Exception(e.Message);
                                 }
                             }
                             if (responseFromServer != null)
@@ -4054,6 +4106,17 @@ namespace MasterOnline.Controllers
         {
             SetupContext(DatabasePathErasoft, uname);
 
+            var brgMp = "";
+            if (id.Contains(";"))
+            {
+                string[] brgSplit = id.Split(';');
+                brgMp = brgSplit[1].ToString();
+            }
+            else
+            {
+                brgMp = id;
+            }
+
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
 
             if (qtyOnHand < 0)
@@ -4066,7 +4129,7 @@ namespace MasterOnline.Controllers
             try
             {
                 string sMethod = "epi.ware.openapi.warestock.updateWareStock";
-                string sParamJson = "{\"jsonStr\":[{\"skuId\":" + id + ", \"realNum\": " + stok + "}]}";
+                string sParamJson = "{\"jsonStr\":[{\"skuId\":" + brgMp + ", \"realNum\": " + stok + "}]}";
 
                 var response = Call(data.appKey, data.accessToken, data.appSecret, sMethod, sParamJson);
                 var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
@@ -4129,23 +4192,24 @@ namespace MasterOnline.Controllers
                 //ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == nobukSI && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = bruto });
                 if (nobukSI != null)
                 {
-                    var cekSI = ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == nobukSI && p.JENIS_FORM == "2").FirstOrDefault();
-                    if (cekSI != null)
-                    {
+                    //var cekSI = ErasoftDbContext.SIT01A.AsNoTracking().Where(p => p.NO_BUKTI == nobukSI && p.JENIS_FORM == "2").FirstOrDefault();
+                    //if (cekSI != null)
+                    //{
                         //cekSI.BRUTO = bruto;
-                        string sSQL = "update sit01a set BRUTO = '" + bruto + "' where NO_BUKTI = '" + nobukSI + "' and JENIS_FORM ='2'";
+                        //string sSQL = "update sit01a set BRUTO = '" + bruto + "' where NO_BUKTI = '" + nobukSI + "' and JENIS_FORM ='2'";
+                        string sSQL = "update sit01a set BRUTO = BRUTO where NO_BUKTI = '" + nobukSI + "' and JENIS_FORM ='2'";
                         ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
                         ErasoftDbContext.SaveChanges();
-                    }
-                    else
-                    {
-                        throw new Exception("Faktur Tidak Ditemukan.");
-                    }
+                    //}
+                    //else
+                    //{
+                    //    throw new Exception("Faktur Tidak Ditemukan.");
+                    //}
                 }
-                else
-                {
-                    throw new Exception("Faktur Tidak Ditemukan.");
-                }
+                //else
+                //{
+                //    throw new Exception("Faktur Tidak Ditemukan.");
+                //}
             }
             catch (WebException e)
             {
@@ -4625,15 +4689,29 @@ namespace MasterOnline.Controllers
 
         }
 
+        //public class ShopifyAPIData
+        //{
+        //    public string no_cust { get; set; }
+        //    public string account_store { get; set; }
+        //    public string API_key { get; set; }
+        //    public string API_password { get; set; }
+        //    public string DatabasePathErasoft { get; set; }
+        //    public string email { get; set; }
+        //    public int rec_num { get; set; }
+        //}
+
         public class ShopifyAPIData
         {
             public string no_cust { get; set; }
+            public string username { get; set; }
             public string account_store { get; set; }
             public string API_key { get; set; }
             public string API_password { get; set; }
             public string DatabasePathErasoft { get; set; }
             public string email { get; set; }
             public int rec_num { get; set; }
+            public string ID_MARKET { get; set; }
+
         }
 
         public class ShopifyUpdateData

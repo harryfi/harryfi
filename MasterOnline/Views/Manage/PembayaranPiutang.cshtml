@@ -20,6 +20,12 @@
             height: 380px;
         }
 
+        #div-scroll-list-konf {
+            overflow-x: hidden;
+            overflow-y: scroll;
+            height: 300px;
+        }
+
         .input-group {
             margin-bottom: 0;
         }
@@ -618,19 +624,19 @@
                     </div>
                 </div>
                 @*<div>
-            <input type="button" class="btn btn-primary pull-right" id="log_btn" value="Lihat Log" onclick="ViewLog()" />
-        </div>*@
+                        <input type="button" class="btn btn-primary pull-right" id="log_btn" value="Lihat Log" onclick="ViewLog()" />
+                    </div>*@
                 @*<div id="uploadbrgviewdiv" class="row">
-        </div>*@
+                    </div>*@
 
                 @*//add by nurul 2/4/2020*@
                 @*<div class="col-md-12">
-            <div id="loading_upload" class="text-center" hidden="hidden">
-                <div id="loading_upload_image">
-                    <img src="~/Content/Images/spinner.gif" />
-                </div>
-            </div>
-        </div>*@
+                        <div id="loading_upload" class="text-center" hidden="hidden">
+                            <div id="loading_upload_image">
+                                <img src="~/Content/Images/spinner.gif" />
+                            </div>
+                        </div>
+                    </div>*@
                 <br />
                 <div class="col-md-12">
                     <div id="progressBarTemp" class="text-center" style="display:none;">
@@ -788,6 +794,72 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
             </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalKonfDeleteDetailMassal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalKonfDeleteDetailMassalLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                @*<div id="loading_delete_detail_massal" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>*@
+                <div class="row" id="delete_massal_div">
+                    <h5 style="padding-left:10px">Apakah Anda yakin ingin menghapus detail pembayaran dengan faktur-faktur berikut?</h5>
+                </div>
+                <div id="modal-delete-massal-body" style="margin:auto;height:300px;overflow-x:auto">
+                    @*@Html.Partial("KonfirmasiDeleteDetailBayarPiutang")*@
+                </div>
+            </div>
+            <br />
+            <div class="modal-footer right">
+                <button type="button" class="btn btn-danger" onclick="$('#modalKonfDeleteDetailMassal').modal('hide');" id="konfDeleteDetail_btn_tidak">Tidak</button>
+                <button type="button" id="process-delete" class="btn btn-primary pull-right" onclick="beforeDeleteDetailMassal();">Proses</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ProgressBarDeleteMassal" tabindex="-1" role="dialog" aria-labelledby="UbahStatusMulti">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content addpixelmodaltpiutang">
+            <div class="modal-header">
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Processing Delete Detail</h4>
+            </div>
+            <div class="modal-body" id="modalProgressBarDeleteMassal_body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
+                @*<div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus piutang ini?</h4>
+                </div>*@
+                <br />
+                <div class="col-md-12">
+                    <div id="progressBarDeleteDetail" class="text-center" style="display:none;">
+                        <table class="col-md-12" id="tbl_progbar2">
+                            <tr>
+                                @*<td class="col-md-2">
+                                    <label id="lblPBDelete"></label>
+                                </td>*@
+                                <td class="col-md-11">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_Delete_Detail"
+                                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                            0% Complete (success)
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            @*<div class="modal-footer">
+                <div class="right">
+                    @*<button type="button" class="btn btn-danger " onclick="$('#ProgressBarDeleteMassal').modal('hide');" id="konfHapusPiutang_btn_tidak">Tidak</button>
+                    @*<button type="button" class="btn btn-success" id="modalUbahStatusMultiPacking_btn_ya" onclick="UbahStatusPesananPacking(0);">Ya</button>
+                    @*<button type="button" class="btn btn-success" onclick="beforeDeleteDetail();" id="konfHapusPiutang_btn_ya">Ya</button>
+                </div>
+            </div>*@
         </div>
     </div>
 </div>
@@ -1030,6 +1102,53 @@
                     "width=850, height=400, scrollbars=yes, resizable=no");
             });
 
+            $("#all_checkbox_detail_bayar").click(function () {
+                $(".checkbox_detail_bayar").prop('checked',
+                    $(this).prop('checked'));
+                var countCheck = $(".checkbox_detail_bayar").length;
+                if ($("#all_checkbox_detail_bayar").prop('checked') == true) {
+                    $(".hapus-detail").attr('disabled', 'disabled');
+                    $('#text-check-faktur').text(countCheck + ' Faktur Terpilih');
+                } else {
+                    $(".hapus-detail").removeAttr('disabled');
+                    $('#text-check-faktur').text('');
+                }
+            });
+            $(".checkbox_detail_bayar").each(function (i, item) {
+                $(item).off('click').on('click', function () {
+                    var countCheckDetail = 0;
+                    if ($(item).prop('checked') == true) {
+                        $(".hapus-detail").attr('disabled', 'disabled');
+
+                        var cekTrue = [];
+                        $(".checkbox_detail_bayar").each(function (z, chk) {
+                            if ($(chk).prop('checked') == true) {
+                                cekTrue.push($(chk).attr("data-recnum"));
+                            }
+                        });
+                        if (cekTrue.length == 0) {
+                            $('#text-check-faktur').text('');
+                        } else {
+                            countCheckDetail = cekTrue.length;
+                            $('#text-check-faktur').text(countCheckDetail + ' Faktur Terpilih');
+                        }
+                    } else {
+                        var cekTrue = [];
+                        $(".checkbox_detail_bayar").each(function (z, chk) {
+                            if ($(chk).prop('checked') == true) {
+                                cekTrue.push($(chk).attr("data-recnum"));
+                            }
+                        });
+                        if (cekTrue.length == 0) {
+                            $(".hapus-detail").removeAttr('disabled');
+                            $('#text-check-faktur').text('');
+                        } else {
+                            countCheckDetail = cekTrue.length;
+                            $('#text-check-faktur').text(countCheckDetail + ' Faktur Terpilih');
+                        }
+                    }
+                });
+            });
         }
 
         function getTanggal() {
@@ -1870,6 +1989,7 @@
                     $('input, select, .btn-danger').each(function () {
                         $(this).attr('disabled', 'disabled');
                     });
+
                     $('tr[data-piutang-id="0"]').remove();
                 },
                 error: function (xhr, status, error) {
@@ -2288,7 +2408,7 @@
                 $('#progressBarUpload').hide();
                 $('#progressBarDownload').hide();
                 $('#progressBarTemp').hide();
-                
+
             } else if (sizeFile > 4000) {
                 //$('#progressBarUpload').modal('hide');
                 $('#progressBarUpload').hide();
@@ -2301,7 +2421,7 @@
                     $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
                     $('#pBar_uploadFile').html('0% Complete');
                     //$('#progressBarUpload').modal('show');
-                    
+
                     if ($tempMP1.toUpperCase() == "SHOPEE") {
                         $('#pBar_DownloadFile').css('width', '0%').attr('aria-valuenow', 0);
                         $('#pBar_DownloadFile').html('0% Complete');
@@ -2316,7 +2436,7 @@
                     $('#progressBarTemp').show();
                     //uploadFileExcelPiutang(null, 0, "0;0", "false;false", null, false);
                     uploadFileExcelPiutang(null, 0, "0;0", "false;false", null, false, "0;0", "false;false", "0;0", "false;false", null);
-                } 
+                }
                 //else if ($tempMP1.toUpperCase() == "BLIBLI") {
                 //    $('#progressBarDownload').hide();
                 //    $('#progressBarUpload').hide();
@@ -2551,7 +2671,7 @@
                     };
                 }*@
 
-                
+
                 //$postdata = {
                 //    nobuk: vnobuk,
                 //    countAll: vcountAll,
@@ -3035,6 +3155,7 @@
                         $('input').each(function () {
                             $(this).attr('disabled', 'disabled');
                         });
+                        $('.detail_bayar_class').removeAttr('disabled');
                         //$('#CUSTOMER')[0].selectize.disable();
                     }
                 },
@@ -3402,6 +3523,7 @@
                 url: $link,
                 beforeSend: function () {
                     $('#loading_detail_piutang_tab').show();
+                    $('#all_checkbox_detail_bayar').attr('checked', false);
                 },
                 success: function (response) {
                     $('#table_detail').html(response);
@@ -3555,6 +3677,191 @@
                 }
             });
         }
+
+        //add by nurul 14/12/2020
+        function passRecDetailBayar() {
+            var rows_selected_recnum = [];
+            $('.checkbox_detail_bayar').each(function (i, item) {
+                if ($(item).is(":checked")) {
+                    rows_selected_recnum.push($(item).attr("data-recnum"));
+                }
+            });
+            if (rows_selected_recnum.length < 1) {
+                alert('Mohon pilih faktur yg mau dihapus.');
+                return false;
+            }
+            var link = '@Url.Action("RefreshKonfirmasiDeleteDetailBayarPiutang", "Manage")';
+            $.ajax({
+                type: "POST",
+                url: link,
+                // The key needs to match your method's input parameter (case-sensitive).
+                
+                data: JSON.stringify(rows_selected_recnum),
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_delete_detail_massal').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#modalKonfDeleteDetailMassal').modal('show');
+                        $('#modal-delete-massal-body').html(response);
+                        $('#loading_delete_detail_massal').hide();
+                    } else {
+                        $('#modalKonfDeleteDetailMassal').modal('hide');
+                        alert(response.Errors[0]);
+                    }
+                },
+                error: function (errMsg) {
+                    $('#loading_delete_detail_massal').hide();
+                    $('#modalKonfDeleteDetailMassal').modal('hide');
+                    alert(errMsg);
+
+                },
+            });
+        }
+        function beforeDeleteDetailMassal() {
+            $('#ProgressBarDeleteMassal').modal('show');
+            $('#pBar_Delete_Detail').css('width', '0%').attr('aria-valuenow', 0);
+            $('#pBar_Delete_Detail').html('0% Complete');
+            $('#progressBarDeleteDetail').show();
+            var  get_selected = [];
+            $('.get_recnum').each(function (i, item) {
+                get_selected.push($(item).attr("data-recnum"));
+            });
+            deleteDetailPiutangMassal(get_selected,$idPiutangTemp, 0, "0;0", "false;false", false);
+        }
+
+        function deleteDetailPiutangMassal(listRecnum, vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
+
+            var splitpro = vpercentvprogress.split(';');
+            var vpercent = splitpro[0];
+            var vprogress = splitpro[1];
+
+            var splitStatus = vstatusLoopvSuccess.split(';');
+            var vstatusLoop = splitStatus[0];
+            var vstatusSuccess = splitStatus[1];
+
+            $('#process-delete').attr('disabled', 'disabled');
+            
+
+            var $urlProgress = "";
+            $urlProgress = '@Html.Raw(Url.Action("deleteDetailBayarPiutangMassal", "Manage"))';
+
+            if (vnobuk == null || vnobuk == "") {
+                vnobuk = $('#NOBUK_bayar_piutang').val();
+            }
+
+            $postdata = {
+                rows_selected: listRecnum,
+                nobuk: vnobuk,
+                countAll: vcountAll,
+                percentDanprogress: String(vpercent) + ";" + String(vprogress),
+                statusLoopSuccess: String(vstatusLoop) + ";" + String(vstatusSuccess)
+            };
+
+            $.ajax({
+                type: "POST",
+                url: $urlProgress,
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                data: JSON.stringify($postdata),
+                beforeSend: function () {
+                    $('#konfDeleteDetail_btn_tidak').hide();
+                },
+                success: function (response) {
+                    if (response.countAll == undefined) {
+                        $modeEdit = 1; // 0 new, 1 edit
+                        $('.piutang_table_section').hide();
+                        $('.piutang_editor_section').show();
+                        $('#form-partial').html(response);
+                        if (ret.countAll != null && ret.statusLoop == true && ret.statusSuccess == false && ret.TidakLanjutProses == false) {
+                            $('#pBar_Delete_Detail').css('width', ret.percent + '%').attr('aria-valuenow', ret.percent);
+                            $('#pBar_Delete_Detail').html(ret.percent + '% Complete');
+
+                            if (ret.progress <= ret.countAll) {
+                                deleteDetailPiutangMassal(listRecnum, ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess));
+                            }
+
+                        } else if (ret.statusSuccess == true) {
+                            $('#pBar_Delete_Detail').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_Delete_Detail').html('100% Complete');
+                            $('#ProgressBarDeleteMassal').modal('hide');
+                            $('#konfDeleteDetail_btn_tidak').show();
+                            $('#process-delete').removeAttr('disabled');
+                            $("#modalKonfDeleteDetailMassal").modal('hide');
+                            refreshInputan();
+                            getTanggal();
+                            getMarketplace();
+                            alert('Proses delete detail sudah selesai.');
+                            $('#btn-autoload').click(function () {
+                                $('#file_upload_excel').removeAttr('disabled');
+                            });
+                        } else {
+                            $('#pBar_Delete_Detail').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_Delete_Detail').html('0% Complete');
+                            $('#ProgressBarDeleteMassal').modal('hide');
+                            $('#konfDeleteDetail_btn_tidak').show();
+                            $('#process-delete').removeAttr('disabled');
+                            alert('Proses delete detail gagal.');
+                            if (ret.Errors.length > 0) {
+                                alert(ret.Errors);
+                            }
+                        }
+                    }
+                    else {
+                        if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false && response.TidakLanjutProses == false) {
+                            $('#pBar_Delete_Detail').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
+                            $('#pBar_Delete_Detail').html(response.percent + '% Complete');
+
+                            if (response.progress <= response.countAll) {
+                                deleteDetailPiutangMassal(listRecnum, response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
+                            }
+
+                        } else if (response.statusSuccess == true) {
+                            $('#pBar_Delete_Detail').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_Delete_Detail').html('100% Complete');
+                            $('#ProgressBarDeleteMassal').modal('hide');
+                            $('#konfDeleteDetail_btn_tidak').show();
+                            $('#process-delete').removeAttr('disabled');
+                            $("#modalKonfDeleteDetailMassal").modal('hide');
+                            refreshInputan();
+                            getTanggal();
+                            getMarketplace();
+                            alert('Proses delete detail sudah selesai.');
+                            if (response.Errors != null && response.Errors.length > 0) {
+                                alert(response.Errors);
+                            }
+                            $('#btn-autoload').click(function () {
+                                $('#file_upload_excel').removeAttr('disabled');
+                            });
+                        } else {
+                            $('#pBar_Delete_Detail').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_Delete_Detail').html('0% Complete');
+                            $('#ProgressBarDeleteMassal').modal('hide');
+                            $('#konfDeleteDetail_btn_tidak').show();
+                            $('#process-delete').removeAttr('disabled');
+                            alert('Proses delete detail gagal.');
+                            if (response.Errors != null && response.Errors.length > 0) {
+                                alert(response.Errors);
+                            }
+                            if (response.Errors.length > 0) {
+                                alert(response.Errors);
+                            }
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert(error);
+                    $('#progressBarDeleteDetail').hide();
+                    $('#konfDeleteDetail_btn_tidak').show();
+                    $('#process-delete').removeAttr('disabled');
+                    $("#modalKonfDeleteDetailMassal").modal('hide');
+                    console.log(error);
+                }
+            });
+        }  
+        //end add by nurul 14/12/2020
 
     </script>
 

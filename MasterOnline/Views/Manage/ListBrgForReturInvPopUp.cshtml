@@ -8,7 +8,7 @@
     if (dataSession?.User != null)
     {
         var context = new MoDbContext("");
-        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        var accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
         username = context.Account.Single(a => a.AccountId == accId).Username;
         context.Dispose();
     }
@@ -273,7 +273,7 @@
                         var tempRec = $(chk).attr("data-recnum");
                         cekTrue.push($(chk).attr("data-recnum"));
                         cekQty.push($('#table-barang-popup #Qty-' + tempRec).val())
-                        if ($('#table-barang-popup #Qty-' + tempRec).val() > $('#table-barang-popup #QtyRetur-' + tempRec).text()) {
+                        if (parseInt($('#table-barang-popup #Qty-' + tempRec).val()) > parseInt($('#table-barang-popup #QtyRetur-' + tempRec).text())) {
                             //alert('Kuantitas retur brg (' + $(chk).attr("data-brg") + ') tidak boleh melebihi kuantitas awal invoice (' + $('#table-barang-popup #QtyRetur-' + tempRec).text() + ')!');
                             listError += "Kuantitas retur brg (" + $(chk).attr("data-brg") + ") tidak boleh melebihi kuantitas awal invoice (" + $("#table-barang-popup #QtyRetur-" + tempRec).text() + ")! \n";
                             lanjut = false;

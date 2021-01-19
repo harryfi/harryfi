@@ -66,6 +66,11 @@
     <Reference Include="BarcodeLib">
       <HintPath>bin\BarcodeLib.dll</HintPath>
     </Reference>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.7.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\BouncyCastle.Crypto.dll</HintPath>
+      <Aliases>BCC</Aliases>
+    </Reference>
     <Reference Include="CsvHelper, Version=12.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
       <HintPath>..\packages\CsvHelper.12.1.2\lib\net45\CsvHelper.dll</HintPath>
     </Reference>
@@ -206,6 +211,9 @@
       <HintPath>..\packages\PDFsharp.1.32.3057.0\lib\net20\PdfSharp.Charting.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
+    <Reference Include="Select.HtmlToPdf, Version=20.2.0.0, Culture=neutral, PublicKeyToken=e0ae9f6e27a97018, processorArchitecture=MSIL">
+      <HintPath>..\packages\Select.HtmlToPdf.20.2.0\lib\net40\Select.HtmlToPdf.dll</HintPath>
+    </Reference>
     <Reference Include="Spire.License, Version=1.3.7.46, Culture=neutral, PublicKeyToken=b1144360237c8b3f, processorArchitecture=MSIL">
       <HintPath>..\packages\FreeSpire.XLS.9.10.11\lib\net46\Spire.License.dll</HintPath>
     </Reference>
@@ -704,6 +712,8 @@
     <Compile Include="Migrations\201812110628511_AddCategoryShopeeAndAttributeAndAttributeOpt.Designer.cs">
       <DependentUpon>201812110628511_AddCategoryShopeeAndAttributeAndAttributeOpt.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\Addons.cs" />
+    <Compile Include="Models\Addons_Customer.cs" />
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\Api\ResultDataFaktur.cs" />
@@ -726,6 +736,7 @@
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
     <Compile Include="Models\LINKFTP.cs" />
     <Compile Include="Models\LOG_HARGAJUAL.cs" />
+    <Compile Include="Models\SupportMenu.cs" />
     <Compile Include="Models\SOT01G.cs" />
     <Compile Include="Models\SIT01H.cs" />
     <Compile Include="Models\STF03C.cs" />
@@ -1067,6 +1078,8 @@
     <Compile Include="Models\Subscription.cs" />
     <Compile Include="Models\TEMP_BRG_MP.cs" />
     <Compile Include="Models\TransaksiMidtrans.cs" />
+    <Compile Include="Models\Tutorial_Detail.cs" />
+    <Compile Include="Models\Tutorial_Header.cs" />
     <Compile Include="Models\UpdateDataBayarPiutang.cs" />
     <Compile Include="Models\UploadFakturShopeeData.cs" />
     <Compile Include="Models\UploadFakturTokpedData.cs" />
@@ -1081,12 +1094,16 @@
     <Compile Include="Services\UploadImageService.cs" />
     <Compile Include="Utils\ApplicationPreload.cs" />
     <Compile Include="Utils\AwsConfig.cs" />
+    <Compile Include="Utils\EncryptTokped.cs" />
     <Compile Include="Utils\Functions.cs" />
     <Compile Include="Utils\HangfireBootstrapper.cs" />
     <Compile Include="Utils\Helper.cs" />
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
     <Compile Include="Utils\XcelUtils.cs" />
+    <Compile Include="ViewModels\AddonsCustomerViewModel.cs" />
+    <Compile Include="ViewModels\AddonsViewModel.cs" />
+    <Compile Include="ViewModels\BarcodeViewModels.cs" />
     <Compile Include="ViewModels\HargaJualMassalViewModel.cs" />
     <Compile Include="ViewModels\mdlTempBayarBlibli.cs" />
     <Compile Include="ViewModels\mdlTempBayarTokped.cs" />
@@ -1104,6 +1121,8 @@
     <Compile Include="ViewModels\GudangViewModel.cs" />
     <Compile Include="ViewModels\HargaJualViewModel.cs" />
     <Compile Include="ViewModels\JurnalViewModel.cs" />
+    <Compile Include="ViewModels\SupportMenuViewModel.cs" />
+    <Compile Include="ViewModels\TransferToFTPParameterLinkFtpViewModel.cs" />
     <Compile Include="Models\KabupatenKota.cs" />
     <Compile Include="Models\Marketplace.cs" />
     <Compile Include="Models\MetodaHpp.cs" />
@@ -1402,6 +1421,8 @@
     <Compile Include="ViewModels\TransferExcelViewModel.cs" />
     <Compile Include="ViewModels\SettingKodeVariasiPartialViewModel.cs" />
     <Compile Include="ViewModels\TransferMarketplace.cs" />
+    <Compile Include="ViewModels\TutorialDetailViewModel.cs" />
+    <Compile Include="ViewModels\TutorialHeaderViewModel.cs" />
     <Compile Include="ViewModels\UploadBarangViewModel.cs" />
     <Compile Include="ViewModels\DashboardAdminViewModel.cs" />
     <Compile Include="ViewModels\UserViewModel.cs" />
@@ -6015,6 +6036,21 @@
     <Content Include="Scripts\ckeditor\skins\kama\icons_hidpi.png" />
     <Content Include="Scripts\ckeditor\styles.js" />
     <Content Include="Scripts\ckeditor\vendor\promise.js" />
+    <Content Include="Scripts\clockpicker\dist\bootstrap-clockpicker.css" />
+    <Content Include="Scripts\clockpicker\dist\bootstrap-clockpicker.js" />
+    <Content Include="Scripts\clockpicker\dist\bootstrap-clockpicker.min.css" />
+    <Content Include="Scripts\clockpicker\dist\bootstrap-clockpicker.min.js" />
+    <Content Include="Scripts\clockpicker\dist\jquery-clockpicker.css" />
+    <Content Include="Scripts\clockpicker\dist\jquery-clockpicker.js" />
+    <Content Include="Scripts\clockpicker\dist\jquery-clockpicker.min.css" />
+    <Content Include="Scripts\clockpicker\dist\jquery-clockpicker.min.js" />
+    <Content Include="Scripts\clockpicker\src\clockpicker.css" />
+    <Content Include="Scripts\clockpicker\src\clockpicker.js" />
+    <Content Include="Scripts\clockpicker\src\standalone.css" />
+    <Content Include="Scripts\datetimepicker\bootstrap-datetimepicker-standalone.css" />
+    <Content Include="Scripts\datetimepicker\bootstrap-datetimepicker.css" />
+    <Content Include="Scripts\datetimepicker\bootstrap-datetimepicker.min.css" />
+    <Content Include="Scripts\datetimepicker\bootstrap-datetimepicker.min.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
@@ -6526,6 +6562,11 @@
     <Content Include="Views\Manage\TransferToFTPParameterLinkFtp.cshtml" />
     <Content Include="Views\Manage\TransferBarangToFTP.cshtml" />
     <Content Include="Views\Manage\TableTransferBarangToFTP.cshtml" />
+    <Content Include="Views\Manage\Tutorial_List.cshtml" />
+    <Content Include="Views\Manage\Tutorial.cshtml" />
+    <Content Include="Views\Manage\Tutorial_Detail.cshtml" />
+    <Content Include="Views\Admin\AddonsMenu.cshtml" />
+    <Content Include="Views\Admin\AddonsCustMenu.cshtml" />
     <Content Include="Views\Manage\MultiSKUMenu.cshtml" />
     <Content Include="Views\Manage\TableMultiSKUPartial.cshtml" />
     <Content Include="Views\Manage\FormMultiSKUPartial.cshtml" />
@@ -6536,6 +6577,21 @@
     <Content Include="Views\Manage\PromptBarangMultiSKUInvoice.cshtml" />
     <Content Include="Views\Manage\TablePromptBarangMultiSKUInvoicePartial.cshtml" />
     <Content Include="Views\Manage\TableMultiSKUDetailPartial.cshtml" />
+    <Content Include="Views\Manage\ScanBarcodePickingBarang.cshtml" />
+    <Content Include="Views\Manage\ScanBarcodePacking.cshtml" />
+    <Content Include="Views\Manage\PromptPesananPL.cshtml" />
+    <Content Include="Views\Admin\AddonsMenu.cshtml" />
+    <Content Include="Views\Admin\AddonsCustMenu.cshtml" />
+    <Content Include="Views\Admin\FormAddonsCustPartial.cshtml" />
+    <Content Include="Views\Admin\SupportMenu.cshtml" />
+    <Content Include="Views\Admin\ListMarketplacesCustomer.cshtml" />
+    <Content Include="Views\Admin\AddonsCustMenuCS.cshtml" />
+    <Content Include="Views\Manage\TableDashboardPesanan.cshtml" />
+    <Content Include="Views\Manage\TableDashboardPesananPerMarketplace.cshtml" />
+    <Content Include="Views\Manage\TableDashboardPesanan2.cshtml" />
+    <Content Include="Views\Manage\TableDashboardPesananPerMarketplace2.cshtml" />
+    <Content Include="Views\Manage\KonfirmasiDeleteDetailBayarPiutang.cshtml" />
+    <Content Include="Views\Admin\TablePromptAkunProsesAkhirTahun.cshtml" />
     <Content Include="Views\Manage\BundlingMenu.cshtml" />
     <Content Include="Views\Manage\FormBundlingPartial.cshtml" />
     <Content Include="Views\Manage\TableBundlingPartial.cshtml" />

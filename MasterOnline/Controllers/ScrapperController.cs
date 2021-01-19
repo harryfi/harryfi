@@ -16,6 +16,7 @@ namespace MasterOnline.Controllers
         public MoDbContext MoDbContext { get; set; }
         public ErasoftContext ErasoftDbContext { get; set; }
         private AccountUserViewModel _viewModel;
+        string dbSourceEra = "";
 
         public ScrapperController()
         {
@@ -26,17 +27,31 @@ namespace MasterOnline.Controllers
             if (sessionData?.Account != null)
             {
                 if (sessionData.Account.UserId == "admin_manage")
+                {
                     ErasoftDbContext = new ErasoftContext();
+                }
                 else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DataSourcePath, sessionData.Account.DatabasePathErasoft);
-
+                {
+#if (Debug_AWS)
+                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+#else
+                    dbSourceEra = sessionData.Account.DataSourcePath;
+#endif
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
+                }
             }
             else
             {
                 if (sessionData?.User != null)
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+#if (Debug_AWS)
+                    dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
+                    dbSourceEra = accFromUser.DataSourcePath;
+#endif
+                    //ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
                 }
             }
         }
@@ -113,12 +128,22 @@ namespace MasterOnline.Controllers
 
             if (_viewModel?.Account != null)
             {
-                ErasoftDbContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(_viewModel.Account.DataSourcePath,  _viewModel.Account.DatabasePathErasoft);
+#if (Debug_AWS)
+                    dbSourceEra = _viewModel.Account.DataSourcePathDebug;
+#else
+                    dbSourceEra = _viewModel.Account.DataSourcePath;
+#endif
+                ErasoftDbContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dbSourceEra,  _viewModel.Account.DatabasePathErasoft);
             }
             else
             {
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
-                ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+#if (Debug_AWS)
+                    dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
+                    dbSourceEra = accFromUser.DataSourcePath;
+#endif
+                ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
             }
 
             return RedirectToAction("DataBarang");

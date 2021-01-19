@@ -904,7 +904,7 @@
             getKategoriPertamaShopee(-1);
             getKategoriPertamaTokped(-1);
             getKategoriPertamaBukalapak(-1);
-            getKategoriPertamaJD(-1);
+            getKategoriPertamaJD(-1, false);
             //add by fauzi 27 Mei 2020 for 82Cart
             getKategoriPertama82Cart(-1);
             getAttributeGroupPertama82Cart(-1);
@@ -1594,7 +1594,7 @@
                                         //$('#attribute_blibli_' + listMarketRecNum).append('<div class="col-md-2" style="margin-top:10px;">' + label + fieldACODE + fieldANAME + '</div>');
 
                                         var fieldAVALUE_ID = 'ListHargaJualPermarket_' + listmarket_i + '__AVALUE_' + (i + 1);
-
+                                      
                                         var adaValue = "";
                                         if (ListHargaJualPermarketView != null) {
                                             if (ListHargaJualPermarketView.length > 0) {
@@ -1609,7 +1609,12 @@
                                                 //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
                                         }
-
+                                        if (adaValue == null) {
+                                            adaValue = "";
+                                        }
+                                        else if (adaValue.includes( "<p>null</p>")) {
+                                            adaValue = "";
+                                        }
                                         if (AINPUT_TYPE.toUpperCase().includes("MULTI") || AINPUT_TYPE.toUpperCase().includes("SELECT") || AINPUT_TYPE.toUpperCase().includes("ENUMINPUT")) {
                                             //hidden
                                             fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
@@ -1812,11 +1817,11 @@
                 else {
                     $(fieldCategoryCode).val('undo');
                 }
-                getKategoriPertamaJD(i);
+                getKategoriPertamaJD(i, true);
             }
         }
 
-        function getKategoriPertamaJD(spec) {
+        function getKategoriPertamaJD(spec, clear) {
             @*@{
                 var context_ = new MoDbContext();
             }*@
@@ -1827,8 +1832,31 @@
                     if (listMarket[i].TOKEN != null) {
 
                         var selectCategoryJDID = 'Category_JD_' + listMarket[i].RecNum;
+
+                        //attribute required JD.ID
+                        var selectTipeBarangJDID = 'TipeBarang_JD_' + listMarket[i].RecNum;
+                        var fieldTipeBarangCode = '#ListHargaJualPermarket_' + i + '__ACODE_39';
+                        var fieldTipeBarangName = '#ListHargaJualPermarket_' + i + '__AVALUE_39';
+
+                        var selectAfterSaleJDID = 'AfterSale_JD_' + listMarket[i].RecNum;
+                        var fieldAfterSaleCode = '#ListHargaJualPermarket_' + i + '__ACODE_40';
+                        var fieldAfterSaleName = '#ListHargaJualPermarket_' + i + '__AVALUE_40';
+
+                        var selectWarrantyJDID = 'Warranty_JD_' + listMarket[i].RecNum;
+                        var fieldWarrantyCode = '#ListHargaJualPermarket_' + i + '__ACODE_41';
+                        var fieldWarrantyName = '#ListHargaJualPermarket_' + i + '__AVALUE_41';
+
+                        var fieldCODName = '#ListHargaJualPermarket_' + i + '__AVALUE_45';
+                        $(fieldCODName).val("0"); //default COD
+
+                        var fieldQualityName = '#ListHargaJualPermarket_' + i + '__AVALUE_47';
+                        $(fieldQualityName).val("0"); //default QUALITY
+                        //END ATTRIBUTE REQUIRED JD.ID
+
                         var fieldCategoryCode = '#ListHargaJualPermarket_'+ i +'__CATEGORY_CODE';
-                        var fieldCategoryName = '#ListHargaJualPermarket_'+ i +'__CATEGORY_NAME';
+                        var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
+                        var fieldCatCode = '#ListHargaJualPermarket_' + i + '__ACODE_';
+                        var fieldCatName = '#ListHargaJualPermarket_' + i + '__ANAME_';
                         var nextselectID = "Category_JD_2_" + listMarket[i].RecNum;
                         var categoryJDSelanjutnya =  '#category_JD_selanjutnya_' + listMarket[i].RecNum;
                         var listMarketRecNum = listMarket[i].RecNum;
@@ -1846,16 +1874,497 @@
 
                                 var fieldCategoryCodeValue = $(fieldCategoryCode).val();
                                 FuncGetKategoriJDByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
+                                
+                                var fielTipeBarangCodeValue = $(fieldTipeBarangCode).val();
+                                FuncGetTipeBarangJD(fielTipeBarangCodeValue, selectTipeBarangJDID, listMarket[i].RecNum, fieldTipeBarangCode, fieldTipeBarangName, listMarketRecNum, clear);
+
+                                var fielAfterSaleCodeValue = $(fieldAfterSaleCode).val();
+                                FuncGetAfterSaleJD(fielAfterSaleCodeValue, selectAfterSaleJDID, listMarket[i].RecNum, fieldAfterSaleCode, fieldAfterSaleName, listMarketRecNum, clear);
+
+                                var fielWarrantyCodeValue = $(fieldWarrantyCode).val();
+                                FuncGetWarrantyJD(fielWarrantyCodeValue, selectWarrantyJDID, listMarket[i].RecNum, fieldWarrantyCode, fieldWarrantyName, listMarketRecNum, clear);
                             }
                         }
                         else {
                             //new
-                            FuncGetKategoriJDByCode(selectCategoryJDID, listMarket[i].RecNum, nextselectID,categoryJDSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum);
+                            FuncGetKategoriJDByCode(selectCategoryJDID, listMarket[i].RecNum, nextselectID, categoryJDSelanjutnya, fieldCategoryCode, fieldCategoryName, fieldCatCode, fieldCatName, listMarketRecNum);
+
+                            FuncGetTipeBarangJD(null, selectTipeBarangJDID, listMarket[i].RecNum, fieldTipeBarangCode, fieldTipeBarangName, listMarketRecNum, clear);
+                            FuncGetAfterSaleJD(null, selectAfterSaleJDID, listMarket[i].RecNum, fieldAfterSaleCode, fieldAfterSaleName, listMarketRecNum, clear);
+                            FuncGetWarrantyJD(null, selectWarrantyJDID, listMarket[i].RecNum, fieldWarrantyCode, fieldWarrantyName, listMarketRecNum, clear);
                         }
                     }
                 }
             }
+
+            //getTipeBarangJDID();
+            //getAfterSaleJDID();
+            //getWarrantyJDID();
         }
+
+        function FuncGetTipeBarangJD(valueTipeBarang, selectTipeBarangJDID, listMarket_i_RecNum, fieldTipeBarangCode, fieldTipeBarangName, listMarketRecNum, clear){
+            
+            //buat select pertama
+            var nextselect = '<select id="' + selectTipeBarangJDID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
+            if (clear == false) {
+                $('#tipebarang_JD_' + listMarket_i_RecNum).append(nextselect);
+            }
+            //end buat select pertama
+
+            var listReason = [];
+
+            listReason[0] = {
+                id: "0",
+                text: "Small item <= 20KG"
+            };
+            listReason[1] = {
+                id: "1",
+                text: "Big item > 20KG"
+            };
+            
+            var comboSelect = $('#' + selectTipeBarangJDID).selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: listReason,
+                onChange: function (value) {
+                    TipeBarangJDOnChange(value, selectTipeBarangJDID, fieldTipeBarangCode, fieldTipeBarangName, listMarketRecNum, this);
+                }
+            });
+
+            if (valueTipeBarang != null) {
+                comboSelect[0].selectize.setValue(valueTipeBarang, true);
+            }
+            
+        }
+
+        function TipeBarangJDOnChange(value, selectTipeBarangJDID, fieldTipeBarangCode, fieldTipeBarangName, listMarketRecNum, s) {
+            $(fieldTipeBarangCode).val(value);
+            $(fieldTipeBarangName).val($('#' + selectTipeBarangJDID + " option:selected").text());
+        }
+
+        function FuncGetAfterSaleJD(valueAfterSale, selectAfterSaleJDID, listMarket_i_RecNum, fieldAfterSaleCode, fieldAfterSaleName, listMarketRecNum, clear) {
+
+            //buat select pertama
+            var nextselect = '<select id="' + selectAfterSaleJDID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
+            if (clear == false) {
+                $('#aftersale_JD_' + listMarket_i_RecNum).append(nextselect);
+            }
+            //end buat select pertama
+
+            var listReason = [];
+
+            listReason[0] = {
+                id: "1",
+                text: "Only Support 7 Days Refund and Not Support 15 Days Exchange"
+            };
+            listReason[1] = {
+                id: "2",
+                text: "Not Support 7 Days Refund And 15 Days Exchange"
+            };
+            listReason[2] = {
+                id: "3",
+                text: "Support 7 Days Refund And 15 Days Exchange"
+            };
+            listReason[3] = {
+                id: "4",
+                text: "Only Support 15 Days Exchange and Not Support 7 Days Refund"
+            };
+
+            var comboSelect = $('#' + selectAfterSaleJDID).selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: listReason,
+                onChange: function (value) {
+                    AfterSaleJDOnChange(value, selectAfterSaleJDID, fieldAfterSaleCode, fieldAfterSaleName, listMarketRecNum, this);
+                }
+            });
+
+            if (valueAfterSale != null) {
+                comboSelect[0].selectize.setValue(valueAfterSale, true);
+            }
+
+        }
+
+        function AfterSaleJDOnChange(value, selectAfterSaleJDID, fieldAfterSaleCode, fieldAfterSaleName, listMarketRecNum, s) {
+            $(fieldAfterSaleCode).val(value);
+            $(fieldAfterSaleName).val($('#' + selectAfterSaleJDID + " option:selected").text());
+        }
+
+        function FuncGetWarrantyJD(valueWarranty, selectWarrantyJDID, listMarket_i_RecNum, fieldWarrantyCode, fieldWarrantyName, listMarketRecNum, clear) {
+
+            //buat select pertama
+            var nextselect = '<select id="' + selectWarrantyJDID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
+            if (clear == false) {
+                $('#warranty_JD_' + listMarket_i_RecNum).append(nextselect);
+            }            
+            //end buat select pertama
+
+            var listReason = [];
+
+            listReason[0] = {
+                id: "1",
+                text: "No warranty"
+            };
+            listReason[1] = {
+                id: "50",
+                text: "6 months official warranty"
+            };
+            listReason[2] = {
+                id: "51",
+                text: "8 months official warranty"
+            };
+            listReason[3] = {
+                id: "52",
+                text: "18 months official warranty"
+            };
+            listReason[4] = {
+                id: "2",
+                text: "1 year official warranty"
+            };
+            listReason[5] = {
+                id: "3",
+                text: "2 year official warranty"
+            };
+            listReason[6] = {
+                id: "4",
+                text: "3 year official warranty"
+            };
+            listReason[7] = {
+                id: "11",
+                text: "4 year official warranty"
+            };
+            listReason[8] = {
+                id: "12",
+                text: "5 year official warranty"
+            };
+            listReason[9] = {
+                id: "5",
+                text: "1 year shop warranty"
+            };
+            listReason[10] = {
+                id: "6",
+                text: "2 year shop warranty"
+            };
+            listReason[11] = {
+                id: "7",
+                text: "3 year shop warranty"
+            };
+            listReason[12] = {
+                id: "21",
+                text: "4 year shop warranty"
+            };
+            listReason[13] = {
+                id: "22",
+                text: "5 year shop warranty"
+            };
+            listReason[14] = {
+                id: "31",
+                text: "1 year compressor warranty"
+            };
+            listReason[15] = {
+                id: "32",
+                text: "2 year compressor warranty"
+            };
+            listReason[16] = {
+                id: "33",
+                text: "3 year compressor warranty"
+            };
+            listReason[17] = {
+                id: "35",
+                text: "5 year compressor warranty"
+            };
+            listReason[18] = {
+                id: "30",
+                text: "10 year compressor warranty"
+            };
+            listReason[19] = {
+                id: "41",
+                text: "1 year motor warranty"
+            };
+            listReason[20] = {
+                id: "42",
+                text: "2 year motor warranty"
+            };
+            listReason[21] = {
+                id: "43",
+                text: "3 year motor warranty"
+            };
+            listReason[22] = {
+                id: "45",
+                text: "5 year motor warranty"
+            };
+            listReason[23] = {
+                id: "40",
+                text: "10 year motor warranty"
+            };
+            listReason[24] = {
+                id: "8",
+                text: "Lifetime warranty"
+            };
+
+            var comboSelect = $('#' + selectWarrantyJDID).selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: listReason,
+                onChange: function (value) {
+                    WarrantyJDOnChange(value, selectWarrantyJDID, fieldWarrantyCode, fieldWarrantyName, listMarketRecNum, this);
+                }
+            });
+
+            if (valueWarranty != null) {
+                comboSelect[0].selectize.setValue(valueWarranty, true);
+            }
+
+        }
+
+        function WarrantyJDOnChange(value, selectWarrantyJDID, fieldWarrantyCode, fieldWarrantyName, listMarketRecNum, s) {
+            $(fieldWarrantyCode).val(value);
+            $(fieldWarrantyName).val($('#' + selectWarrantyJDID + " option:selected").text());
+        }
+        
+        //add by fauzi for Tipe Barang JDID
+        function getTipeBarangJDID() {
+            var listReason = [];
+
+            listReason[0] = {
+                id: "0",
+                text: "Small item <= 20KG"
+            };
+            listReason[1] = {
+                id: "1",
+                text: "Big item > 20KG"
+            };
+
+            var idMarketJD = "19";
+            var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+            for (var i = 0; i < listMarket.length; i++) {
+                if (listMarket[i].NAMA == idMarketJD.toString() && listMarket[i].TOKEN != null){
+                    var selectedValue = "";
+                    var comboSelect = $('#JDID_tipe_barang_' + listMarket[i].RecNum).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listReason,
+                        onChange: function (value) {
+                            for (var x = 0; x < listMarket.length; x++) {
+                                if (listMarket[x].NAMA == idMarketJD.toString() && listMarket[x].TOKEN != null) {
+                                    for (var z = 0; z < listReason.length; z++) {
+                                        if (listReason[z].id == value) {
+                                            selectedValue = listReason[z].id.toString();
+                                            $('#ListHargaJualPermarket_' + x + '__ACODE_39').val(listReason[z].id.toString());
+                                            $('#ListHargaJualPermarket_' + x + '__AVALUE_39').val(listReason[z].text.toString());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    if (comboSelect[0] != undefined) {
+                        comboSelect[0].selectize.setValue(selectedValue, true);
+                    }
+                }
+            }
+
+            
+        }
+    // end add
+
+        //add by fauzi for Tipe Barang JDID
+        function getAfterSaleJDID() {
+            var listReason = [];
+
+            listReason[0] = {
+                id: "1",
+                text: "Only Support 7 Days Refund"
+            };
+            listReason[1] = {
+                id: "2",
+                text: "Not Support 7 Days Refund And 15 Days Exchange"
+            }; 
+            listReason[2] = {
+                id: "3",
+                text: "Support 7 Days Refund And 15 Days Exchange"
+            };
+            listReason[3] = {
+                id: "4",
+                text: "Only Support 15 Days Exchange"
+            };
+
+            var idMarketJD = "19";
+            var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+            for (var i = 0; i < listMarket.length; i++) {
+                if (listMarket[i].NAMA == idMarketJD.toString() && listMarket[i].TOKEN != null) {
+                    var selectedValue = "";
+                    var comboSelect = $('#JDID_after_sale_' + listMarket[i].RecNum).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listReason,
+                        onChange: function (value) {
+                            for (var x = 0; x < listMarket.length; x++) {
+                                if (listMarket[x].NAMA == idMarketJD.toString() && listMarket[x].TOKEN != null) {
+                                    for (var z = 0; z < listReason.length; z++) {
+                                        if (listReason[z].id == value) {
+                                            selectedValue = listReason[z].id.toString();
+                                            $('#ListHargaJualPermarket_' + x + '__ACODE_40').val(listReason[z].id.toString());
+                                            $('#ListHargaJualPermarket_' + x + '__AVALUE_40').val(listReason[z].text.toString());
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    });
+
+                    if (comboSelect[0] != undefined) {
+                        comboSelect[0].selectize.setValue(selectedValue, true);
+                    }
+                }
+            }
+        }
+    // end add
+
+        //add by fauzi for Tipe Barang JDID
+        function getWarrantyJDID() {
+            var listReason = [];
+
+            listReason[0] = {
+                id: "1",
+                text: "No warranty"
+            };
+            listReason[1] = {
+                id: "50",
+                text: "6 months official warranty"
+            };
+            listReason[2] = {
+                id: "51",
+                text: "8 months official warranty"
+            };
+            listReason[3] = {
+                id: "52",
+                text: "18 months official warranty"
+            };
+            listReason[4] = {
+                id: "2",
+                text: "1 year official warranty"
+            };
+            listReason[5] = {
+                id: "3",
+                text: "2 year official warranty"
+            };
+            listReason[6] = {
+                id: "4",
+                text: "3 year official warranty"
+            };
+            listReason[7] = {
+                id: "11",
+                text: "4 year official warranty"
+            };
+            listReason[8] = {
+                id: "12",
+                text: "5 year official warranty"
+            };
+            listReason[9] = {
+                id: "5",
+                text: "1 year shop warranty"
+            };
+            listReason[10] = {
+                id: "6",
+                text: "2 year shop warranty"
+            };
+            listReason[11] = {
+                id: "7",
+                text: "3 year shop warranty"
+            };
+            listReason[12] = {
+                id: "21",
+                text: "4 year shop warranty"
+            };
+            listReason[13] = {
+                id: "22",
+                text: "5 year shop warranty"
+            };
+            listReason[14] = {
+                id: "31",
+                text: "1 year compressor warranty"
+            };
+            listReason[15] = {
+                id: "32",
+                text: "2 year compressor warranty"
+            };
+            listReason[16] = {
+                id: "33",
+                text: "3 year compressor warranty"
+            };
+            listReason[17] = {
+                id: "35",
+                text: "5 year compressor warranty"
+            };
+            listReason[18] = {
+                id: "30",
+                text: "10 year compressor warranty"
+            };
+            listReason[19] = {
+                id: "41",
+                text: "1 year motor warranty"
+            };
+            listReason[20] = {
+                id: "42",
+                text: "2 year motor warranty"
+            };
+            listReason[21] = {
+                id: "43",
+                text: "3 year motor warranty"
+            };
+            listReason[22] = {
+                id: "45",
+                text: "5 year motor warranty"
+            };
+            listReason[23] = {
+                id: "40",
+                text: "10 year motor warranty"
+            };
+            listReason[24] = {
+                id: "8",
+                text: "Lifetime warranty"
+            };
+
+            var idMarketJD = "19";
+            var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+            for (var i = 0; i < listMarket.length; i++) {
+                if (listMarket[i].NAMA == idMarketJD.toString() && listMarket[i].TOKEN != null) {
+                    var selectionWarranty = "#JDID_warranty_" + listMarket[i].RecNum;
+                    var selectedValue = "";
+                    var comboSelect = $(selectionWarranty).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listReason,
+                        onChange: function (value) {
+                            for (var x = 0; x < listMarket.length; x++) {
+                                if (listMarket[x].NAMA == idMarketJD.toString() && listMarket[x].TOKEN != null) {
+                                    for (var z = 0; z < listReason.length; z++) {
+                                        if (listReason[z].id == value) {
+                                            selectedValue = listReason[z].id.toString();
+                                            $('#ListHargaJualPermarket_' + x + '__ACODE_41').val(listReason[z].id.toString());
+                                            $('#ListHargaJualPermarket_' + x + '__AVALUE_41').val(listReason[z].text.toString());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    if (comboSelect[0] != undefined) {
+                        comboSelect[0].selectize.setValue(selectedValue, true);
+                    }
+                }
+            }            
+
+            $('#ListHargaJualPermarket_4__ACODE_41').val("ACODE 41");
+            $('#ListHargaJualPermarket_4__ACODE_40').val("ACODE 40");
+        }
+        
+    // end add
+
         function FuncGetKategoriJDByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
             var link = '@Url.Action("GetKategoriJDByChildCode", "Manage", new { code = "replaceCode" })';
             link = link.replace("replaceCode", encodeURIComponent(fieldCategoryCodeValue));
@@ -1872,11 +2381,11 @@
                     $.each(data,
                         function (i, item) {
                             if (i == 0) {
-                                var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.NAME +'">';
+                                var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'">';
                                 $('#category_JD_pertama_' + listMarketRecNum).append(textbox);
                             }
                             else {
-                                var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.NAME +'"></div>';
+                                var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'"></div>';
                                 $('#category_JD_selanjutnya_' + listMarketRecNum).append(textbox);
                             }
                         });
@@ -1890,7 +2399,7 @@
                 }
             });
         }
-        function FuncGetKategoriJDByCode(selectCategoryJDID, listMarket_i_RecNum, nextselectID,categoryJDSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum){
+        function FuncGetKategoriJDByCode(selectCategoryJDID, listMarket_i_RecNum, nextselectID, categoryJDSelanjutnya, fieldCategoryCode, fieldCategoryName, fieldCatCode, fieldCatName, listMarketRecNum){
             var link = '@Url.Action("GetKategoriJDByCode", "Manage")';
             //link = link.replace("replaceCode", listMarket[i].Kode);
 
@@ -1921,7 +2430,7 @@
                         dataAttr: 'data-extra',
                         options: listKategori,
                         onChange: function (value) {
-                            KategoriJDOnChange(value, nextselectID, selectCategoryJDID, categoryJDSelanjutnya,2,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
+                            KategoriJDOnChange(value, nextselectID, selectCategoryJDID, categoryJDSelanjutnya, 2, fieldCategoryCode, fieldCategoryName, fieldCatCode, fieldCatName, listMarketRecNum,this);
                         }
                     });
                 },
@@ -1930,22 +2439,30 @@
                 }
             });
         }
-        function KategoriJDOnChange(value, nextselectID, selectCategoryJDID, categoryJDSelanjutnya, next, fieldCategoryCode, fieldCategoryName, listMarketRecNum, s) {
+        function KategoriJDOnChange(value, nextselectID, selectCategoryJDID, categoryJDSelanjutnya, next, fieldCategoryCode, fieldCategoryName, fieldCatCode, fieldCatName, listMarketRecNum, s) {
             s.disable();
             var values = value.split('|;|');
             $('#' + nextselectID).remove();
             if (values[1] == "0") {
                 var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="' + nextselectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                 $(categoryJDSelanjutnya).append(nextselect);
-                getKategoriSelanjutnyaJD(values[0], listMarketRecNum, nextselectID, next + 1, fieldCategoryCode, fieldCategoryName);
+
+                //$(fieldCatCode + (next - 1)).val(values[0]).trigger("change");
+                //$(fieldCatName + (next - 1)).val($('#' + selectCategoryJDID + " option:selected").text()).trigger("change");
+
+                getKategoriSelanjutnyaJD(values[0], listMarketRecNum, nextselectID, next + 1, fieldCategoryCode, fieldCategoryName, fieldCatCode, fieldCatName);
             }
             else if (values[1] == "1") {
                 $(fieldCategoryCode).val(values[0]);
                 $(fieldCategoryName).val($('#' + selectCategoryJDID + " option:selected").text());
+
+                //$(fieldCatCode + (next - 1)).val(values[0]).trigger("change");
+                //$(fieldCatName + (next - 1)).val($('#' + selectCategoryJDID + " option:selected").text()).trigger("change");
+
                 getAttributeJD(values[0], listMarketRecNum, fieldCategoryCode, null);
             }
         }
-        function getKategoriSelanjutnyaJD(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName){
+        function getKategoriSelanjutnyaJD(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName, fieldCatCode, fieldCatName){
             var link = '@Url.Action("GetKategoriJDByParentCode", "Manage", new { code = "replaceCode" })';
             link = link.replace("replaceCode", encodeURIComponent(categoryCode));
 
@@ -1974,7 +2491,7 @@
                         searchField: 'text',
                         options: listKategori,
                         onChange: function (value) {
-                            KategoriJDOnChange(value, nextselectID, selectCategoryJDID,categoryJDSelanjutnya,next,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
+                            KategoriJDOnChange(value, nextselectID, selectCategoryJDID,categoryJDSelanjutnya,next,fieldCategoryCode,fieldCategoryName, fieldCatCode, fieldCatName, listMarketRecNum,this);
                         }
                     });
                 },
@@ -2013,7 +2530,7 @@
                                 var ATYPE = item["ATYPE_" + (i + 1)];
                                 var ACODE = item["ACODE_" + (i + 1)];
                                 if (ANAME != null) {
-                                    if (ANAME != "") {
+                                    if (ANAME != "" && ANAME != "Warna" && ANAME != "Ukuran") {
                                         //if (ANAME != "__images__" && ANAME != "color_thumbnail" && ANAME != "special_price" && ANAME != "special_from_date" && ANAME != "special_to_date" && ANAME != "seller_promotion" && ANAME != "tax_class") {
                                         //if (ANAME != "quantity") {
 
@@ -2055,7 +2572,7 @@
                                         //change by calvin 1 maret 2019
                                         //fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                                         //if (AMANDATORY == "1") {
-                                        fieldAVALUE += '<div id="parent_' + selectID + '"><div id="div_' + selectID + '" class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div></div>';
+                                        fieldAVALUE += '<div id="parent_' + selectID + '"><div id="div_' + selectID + '" class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" ></select></div></div>';
                                         //fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                                         //}
                                         //else {
@@ -2106,6 +2623,7 @@
                         });
                 },
                 error: function (xhr) {
+                    $('#loading_attribute_' + listMarketRecNum).hide();
                     console.log(xhr);
                 }
             });
@@ -3665,6 +4183,8 @@
                     var fieldCategoryName = '#ListHargaJualPermarket_' + i + '__CATEGORY_NAME';
                     var fieldCatCode = '#ListHargaJualPermarket_' + i + '__ACODE_';
                     var fieldCatName = '#ListHargaJualPermarket_' + i + '__ANAME_';
+                    //var fieldCatCode = '';
+                    //var fieldCatName = '';
                     var nextselectID = "Category_82Cart_2_" + listMarket[i].RecNum;
                     var category82CartSelanjutnya =  '#category_82Cart_selanjutnya_' + listMarket[i].RecNum;
                     var listMarketRecNum = listMarket[i].RecNum;
@@ -5049,6 +5569,7 @@
                     $('#form-partial').html(response);
 
                     $('#Stf02_BRG').attr('disabled', 'disabled');
+                    hideAttrParent();
 
                     //remark by calvin 23 april 2019
                     //Initialize();
@@ -5460,7 +5981,7 @@
                 url: link,
                 success: function (response) {
                     if (response.Errors == null) {
-
+                        //hideAttrParent();
                     } else {
                         $('#cbxStf02Type').prop('checked', false);
                         //checkbox on click event
@@ -5499,6 +6020,14 @@
         }
         //end add by Tri, validasi ubah brg non varian menjadi varian
 
+        function hideAttrParent() {
+            if ($('#cbxStf02Type').is(':checked')) {
+                $('.not_parent_attr').hide();
+            }
+            else {
+                $('.not_parent_attr').show();
+            }
+        }
         //ADD BY NURUL 19/8/2020
         function validateCkMultiSKU() {
             if ($("#cbxStf02MultiSKU").is(":checked") == true) {

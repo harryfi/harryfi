@@ -1,4 +1,6 @@
 ﻿using Erasoft.Function;
+using Hangfire;
+using Hangfire.SqlServer;
 using Lazop.Api;
 using Lazop.Api.Util;
 using MasterOnline.Models;
@@ -43,6 +45,7 @@ namespace MasterOnline.Controllers
         MoDbContext MoDbContext;
         ErasoftContext ErasoftDbContext;
         string DatabasePathErasoft;
+        string dbSourceEra = ""; 
 
         public LazadaController()
         {
@@ -50,9 +53,19 @@ namespace MasterOnline.Controllers
             if (sessionData?.Account != null)
             {
                 if (sessionData.Account.UserId == "admin_manage")
+                {
                     ErasoftDbContext = new ErasoftContext();
+                }
                 else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DataSourcePath, sessionData.Account.DatabasePathErasoft);
+                {
+#if (Debug_AWS)
+                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+#else
+                    dbSourceEra = sessionData.Account.DataSourcePath;
+#endif
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
+                }
+                    
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 DatabasePathErasoft = sessionData.Account.DatabasePathErasoft;
 
@@ -63,7 +76,13 @@ namespace MasterOnline.Controllers
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+#if (Debug_AWS)
+                    dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
+                    dbSourceEra = accFromUser.DataSourcePath;
+#endif
+                    //ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
                     DatabasePathErasoft = accFromUser.DatabasePathErasoft;
                 }
             }
@@ -652,7 +671,7 @@ namespace MasterOnline.Controllers
             return node.InnerText;
         }
 
-        public BindingBase UpdateProduct(BrgViewModel data)
+        public BindingBase UpdateProduct(BrgViewModel data, string username)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -710,7 +729,36 @@ namespace MasterOnline.Controllers
             xmlString = "<Request><Product><PrimaryCategory>" + primCategory + "</PrimaryCategory>";
             xmlString += "<Attributes><name>" + XmlEscape(data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2)) + "</name>";
             //xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
-            xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+            //change 16 okt 2020
+            var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
+            var cekBrg = GetItemDetail(stf02h.BRG_MP, data.token, stf02.TYPE);
+            if (cekBrg != null)
+            {
+                if (!string.IsNullOrEmpty(cekBrg.code))
+                {
+                    if (cekBrg.code.Equals("0"))
+                    {
+                        if (!cekBrg.data.attributes.description.Contains("img src="))
+                        {
+                            xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+                        }
+                    }
+                    else
+                    {
+                        xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+
+                    }
+                }
+                else
+                {
+                    xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+                }
+            }
+            else
+            {
+                xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+            }
+            //xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
             //xmlString += "<brand>No Brand</brand>";
             xmlString += "<brand><![CDATA[" + stf02h.ANAME_38 + "]]></brand>";
 
@@ -771,7 +819,7 @@ namespace MasterOnline.Controllers
 
             xmlString += "</Attributes>";
 
-            var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
+            //var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
             //change by nurul 14/9/2020, handle barang multi sku juga 
             //if (Convert.ToString(stf02.TYPE) == "3")
             if (Convert.ToString(stf02.TYPE) == "3" || Convert.ToString(stf02.TYPE) == "6")
@@ -1020,6 +1068,29 @@ namespace MasterOnline.Controllers
                     //}
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.key, currentLog);
                     //end change by calvin 10 juni 2019
+                    var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.TOKEN == data.token && m.NAMA == "7").FirstOrDefault();
+                    foreach (var item in res.data.sku_list)
+                    {
+                        if (tblCustomer.TIDAK_HIT_UANG_R)
+                        {
+                            var brgInDB = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == tblCustomer.RecNum && m.BRG_MP == item.seller_sku).FirstOrDefault();
+                            if(brgInDB != null)
+                            {
+
+#if (DEBUG || Debug_AWS)
+                            StokControllerJob stokAPI = new StokControllerJob(dbSourceEra, username);
+                            Task.Run(() => stokAPI.Lazada_updateStock(dbSourceEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null)).Wait();
+#else
+                                                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbSourceEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null));
+#endif
+
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -1072,7 +1143,42 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        public LazadaItemDetailResponse GetItemDetail(string sellerSku, string token, string type)
+        {
+            var ret = new LazadaItemDetailResponse();
+            //ret.status = 0;
 
+
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/product/item/get");
+            request.SetHttpMethod("GET");
+            if(type != "4")
+            {
+                request.AddApiParameter("seller_sku", sellerSku);
+            }
+            else
+            {
+                request.AddApiParameter("item_id", sellerSku);
+            }
+
+            //LazopResponse response = client.Execute(request, data.token);
+            try
+            {
+                LazopResponse response = client.Execute(request, token);
+                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaItemDetailResponse)) as LazadaItemDetailResponse;
+                if (res.code.Equals("0"))
+                {
+                    ret = res;
+                }
+                
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return ret;
+        }
         public BindingBase setDisplay(string kdBrg, bool display, string token)
         {
             var ret = new BindingBase();
@@ -1191,6 +1297,7 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 currentLog.REQUEST_EXCEPTION = ex.Message;
+                ret.message = currentLog.REQUEST_EXCEPTION;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.token, currentLog);
             }
 
@@ -2954,7 +3061,7 @@ namespace MasterOnline.Controllers
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
                                             //create brg induk
-                                            BindingBase retSQLInduk = insertTempBrgQry(brg, i, IdMarket, cust, 1, "");
+                                            BindingBase retSQLInduk = insertTempBrgQry(brg, i, IdMarket, cust, 1, "", accessToken);
                                             if (retSQLInduk.status == 1)
                                                 sSQL_Value += retSQLInduk.message;
                                         }
@@ -3839,7 +3946,7 @@ namespace MasterOnline.Controllers
                                         #endregion
                                         if (!varian)
                                         {
-                                            BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 0, "");
+                                            BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 0, "", accessToken);
                                             if (retSQL.exception == 1)
                                                 ret.exception = 1;
                                             if (retSQL.status == 1)
@@ -3847,7 +3954,7 @@ namespace MasterOnline.Controllers
                                         }
                                         else
                                         {
-                                            BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 2, kdBrgInduk);
+                                            BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 2, kdBrgInduk, accessToken);
                                             if (retSQL.exception == 1)
                                                 ret.exception = 1;
                                             if (retSQL.status == 1)
@@ -3895,7 +4002,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase insertTempBrgQry(dynamic brg, int i, int IdMarket, string cust, int typeBrg, string kodeBrgInduk)
+        public BindingBase insertTempBrgQry(dynamic brg, int i, int IdMarket, string cust, int typeBrg, string kodeBrgInduk, string token)
         {
             // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
             var ret = new BindingBase();
@@ -3926,6 +4033,37 @@ namespace MasterOnline.Controllers
                 }
                 namaBrg = namaBrg.Replace('\'', '`');//add by Tri 8 Juli 2019, replace petik pada nama barang
 
+                #region get item detail
+                ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+                LazopRequest request = new LazopRequest();
+                request.SetApiName("/product/item/get");
+                request.SetHttpMethod("GET");
+                if (typeBrg != 1)
+                {
+                    request.AddApiParameter("seller_sku", sellerSku);
+                }
+                else
+                {
+                    request.AddApiParameter("item_id", sellerSku);
+                }
+
+                //LazopResponse response = client.Execute(request, data.token);
+                try
+                {
+                    LazopResponse response = client.Execute(request, token);
+                    //var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaItemDetailResponse)) as LazadaItemDetailResponse;
+                    dynamic resultItemDetail = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body); 
+                    if (response.Code.Equals("0"))
+                    {
+                        brg = resultItemDetail.data;
+                        i = 0;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                }
+                #endregion
                 string nama, nama2, nama3, urlImage, urlImage2, urlImage3, urlImage4, urlImage5;
                 urlImage = "";
                 urlImage2 = "";
@@ -3981,7 +4119,7 @@ namespace MasterOnline.Controllers
 
                 if (brg.skus[i].Images != null)
                 {
-                    if (brg.skus[i].Images[0] != null)
+                    if (brg.skus[i].Images.Count > 0)
                         urlImage = brg.skus[i].Images[0];
                     //add 19/9/19, varian ambil 2 barang
                     //if(typeBrg == 2)
@@ -3994,13 +4132,17 @@ namespace MasterOnline.Controllers
                     //if (typeBrg != 2)
                     if (typeBrg == 0)// ubah jd gambar non varian yg ambil gambar > 1
                     {
-                        if (brg.skus[i].Images[1] != null)
+                        //if (brg.skus[i].Images[1] != null)
+                        if (brg.skus[i].Images.Count >= 2)
                             urlImage2 = brg.skus[i].Images[1];
-                        if (brg.skus[i].Images[2] != null)
+                        //if (brg.skus[i].Images[2] != null)
+                        if (brg.skus[i].Images.Count >= 3)
                             urlImage3 = brg.skus[i].Images[2];
-                        if (brg.skus[i].Images[3] != null)
+                        //if (brg.skus[i].Images[3] != null)
+                        if (brg.skus[i].Images.Count >= 4)
                             urlImage4 = brg.skus[i].Images[3];
-                        if (brg.skus[i].Images[4] != null)
+                        //if (brg.skus[i].Images[4] != null)
+                        if (brg.skus[i].Images.Count >= 5)
                             urlImage5 = brg.skus[i].Images[4];
                     }
                     //end change 21/8/2019, barang varian ambil 1 gambar saja
@@ -4057,7 +4199,7 @@ namespace MasterOnline.Controllers
                 //sSQL_Value += display + " , '" + categoryCode + "' , '" + MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID.Equals(categoryCode)).FirstOrDefault().NAME + "' , '";
                 sSQL_Value += display + " , '" + categoryCode + "' , '" + categoryName + "' , '";
                 //end change by Tri 4 Nov 2019, handle category not in db
-                sSQL_Value += brg.attributes.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kodeBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
+                sSQL_Value += brg.attributes.brand.ToString().Replace('\'', '`') + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kodeBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
                 sSQL_Value += ",'" + brg.skus[i].SkuId + "','" + brg.item_id + "'";
                 //change 8 Nov 2019, kalau kategory code sudah tidak bisa ditemukan di lazada tidak perlu disimpan
                 //var attributeLzd = MoDbContext.ATTRIBUTE_LAZADA.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
@@ -5001,7 +5143,8 @@ namespace MasterOnline.Controllers
                             int i = 1;
                             foreach (var attr in bindAttr.data)
                             {
-                                if (attr.name != "name" && attr.name != "description" && attr.name != "brand" && attr.name != "SellerSku" && attr.name != "price"
+                                if (i <= 33)
+                                    if (attr.name != "name" && attr.name != "description" && attr.name != "brand" && attr.name != "SellerSku" && attr.name != "price"
                                     && attr.name != "package_weight" && attr.name != "package_length" && attr.name != "package_width" && attr.name != "package_height"
                                     && attr.name != "__images__" && attr.name != "color_thumbnail" && attr.name != "special_price" && attr.name != "special_from_date"
                                     && attr.name != "special_to_date" && attr.name != "seller_promotion" && attr.name != "tax_class" && attr.name.ToLower() != "quantity")
@@ -5017,6 +5160,7 @@ namespace MasterOnline.Controllers
 
                             }
                             for (int j = i; j <= 50; j++)
+                                //for (int j = i; j <= 33; j++)
                             {
                                 retAttr["ALABEL" + j] = "";
                                 retAttr["ANAME" + j] = "";

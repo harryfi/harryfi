@@ -50,6 +50,8 @@ namespace MasterOnline
         public string CUST { get; set; }
         public string NAMA_CUST { get; set; }
         public string CONN_ID { get; set; }
+
+        public DateTime? ship_by_date { get; set; }
     }
 
 }

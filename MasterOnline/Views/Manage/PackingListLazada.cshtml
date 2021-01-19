@@ -390,6 +390,14 @@
             if (label == "1") {
                 var $link = '@Url.Action("LazadaLabelPerPacking", "Manage")';
 
+                $('#modalPrintLazada__label__' + cust).html('Print Pesanan Lazada');
+                $('#modalPrintLazada__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+                $('#modalPrintLazada__' + cust).modal({
+                    show: true,
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
                 $.ajax({
                     type: "POST",
                     url: $link,
@@ -402,12 +410,22 @@
                                 //$('#labelContainer').html(response);
 
                                 //window.open(response, "_self");
-                                var w = window.open('about:blank');
-                                w.document.open();
-                                w.document.write(response);
-                                w.document.close();
+                                //var w = window.open('about:blank');  // Remark by fauzi for print label LAZADA to pdf all merge.
+                                //w.document.open();
+                                //w.document.write(response);
+                                //w.document.close();
+
+                                if (response.mo_label != null) {
+                                    //response.mo_label.forEach(function (item) {
+                                    $('#modalPrintLazada__' + cust).modal('hide');
+
+                                    window.open('/Manage/Download_PrintLabel?path=' + response.mo_label, '_blank');
+                                    textareaValue += response.mo_label + "</br>";
+                                    //});
+                                }
                             } else {
-                                alert(response.mo_error);
+                                $('#modalPrintLazada__textarea__' + cust).html(response.mo_error);
+                                //alert(response.mo_error);
                             }
                         }
                         //window.open(response, "_self");
@@ -733,7 +751,7 @@
                         return false;
                     }
                 });
-                $('#search_table_packing_pesanan_lazada__' + cust).click(function () {
+                $('#search_table_packing_pesanan_lazada_button__' + cust).click(function () {
                     SearchTablePackingListPerAkunLazada(cust);
                 });
         //end add by nurul 23/7/2020

@@ -1102,7 +1102,17 @@
                         .css('cursor', 'not-allowed');
                     $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
                         .css('cursor', 'not-allowed');
-
+                    //$('#txtDrJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                    //    .css('cursor', 'not-allowed');
+                    //$('#txtSdJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                    //    .css('cursor', 'not-allowed');
+                    $('#datetimepicker3').data("DateTimePicker").disable();
+                    $('#datetimepicker4').data("DateTimePicker").disable();
+                    //clock.find('input').off('focus.clockpicker click.clockpicker');
+                    $('.header-promo').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
+                    $('.header-promo').unbind('click');
                     //END ADD
                     //$('#tambah_promosi').click();
                     $('.promosi_table_section').hide();
@@ -1132,8 +1142,11 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    $('#table-promosi-partial').html(response);
+                    //$('#table-promosi-partial').html(response);
                     //Initialize();
+                    if (response.errorAPI != "") {
+                        alert(response.errorAPI);
+                    }
                     refreshTablePromosi1($savePage);
                     $('#loading_spinner').hide();
                     $('#konfHapusPromosi').modal('hide');
@@ -1176,10 +1189,24 @@
                         .css('cursor', 'not-allowed');
                     $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
                         .css('cursor', 'not-allowed');
-
+                    //$('#txtDrJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                    //    .css('cursor', 'not-allowed');
+                    //$('#txtSdJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                    //    .css('cursor', 'not-allowed');
+                    $('#datetimepicker3').data("DateTimePicker").disable();
+                    $('#datetimepicker4').data("DateTimePicker").disable();
+                    $('.header-promo').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
+                    $('.header-promo').unbind('click');
                                 //END ADD
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
+
+                    if ($('#errorAPI').val() != "") {
+                        alert($('#errorAPI').val());
+                        $('#errorAPI').val('');
+                    }
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -1254,7 +1281,7 @@
                 }
             });
         }
-        
+
         function refreshTablePromosi2($savePage) {
             var $tpPage = "";
             if ($savePage == undefined) {
@@ -1313,7 +1340,7 @@
                 }
             });
         }
-        
+
         function searchTablePromosi2(){
             var $link = '@Html.Raw(Url.Action("RefreshTableBarangPromosi", "Manage", new { search = "replaceSearch" }))';
             $link = $link.replace("replaceSearch", $('#search_barang_promosi').val());
@@ -1372,6 +1399,12 @@
                     alert('Tanggal Akhir harus lebih besar dari Tanggal Mulai');
                     return false;
                 }
+                else if ($('#Promosi_TGL_AKHIR').val() == $('#Promosi_TGL_MULAI').val()) {
+                    if ($('#txtSdJam').val() <= $('#txtDrJam').val()) {
+                        alert('Tanggal Akhir harus lebih besar dari Tanggal Mulai');
+                        return false;
+                    }
+                }
                 if ($('#CUSTOMER').text().toUpperCase().includes('LAZADA (')) {
                     var dtMonth = new Date().getMonth() + 1;
                     var bln = getTwoDigitDateFormat(dtMonth);
@@ -1417,10 +1450,13 @@
                     alert('Harga promosi harus lebih kecil dari harga normal');
                     return false;
                 }
+                $('#jamMulaiPromosi').val($('#txtDrJam').val());
+                $('#jamAkhirPromosi').val($('#txtSdJam').val());
+                var $postData = $('#form-promosi').serialize();
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("SavePromosi", "Manage")',
-                        data: $('#form-promosi').serialize(),
+                        data: $postData,
                         beforeSend: function() {
                             $('#loading_spinner').show();
                         },
@@ -1443,7 +1479,22 @@
                                     .css('cursor', 'not-allowed');
                                 $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
                                     .css('cursor', 'not-allowed');
+                                //$('#txtDrJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                                //    .css('cursor', 'not-allowed');
+                                //$('#txtSdJam').attr('readonly', 'readonly').css('background-color', '#eee')
+                                //    .css('cursor', 'not-allowed');
+                                $('#datetimepicker3').data("DateTimePicker").disable();
+                                $('#datetimepicker4').data("DateTimePicker").disable();
+                                $('.header-promo').each(function () {
+                                    $(this).attr('disabled', 'disabled');
+                                });
+                                $('.header-promo').unbind('click');
                                 //END ADD
+
+                                if ($('#errorAPI').val() != "") {
+                                    alert($('#errorAPI').val());
+                                    $('#errorAPI').val('');
+                                }
                             } else {
                                 console.log(response.Errors);
                                 alert(response.Errors[0]);

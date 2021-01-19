@@ -29,6 +29,11 @@ namespace MasterOnline.Controllers
     {
         private readonly MoDbContext MoDbContext;
 
+        //add for support MO by fauzi 24 November 2020
+        public ErasoftContext ErasoftDbContext { get; set; }
+        DatabaseSQL EDB;
+        //end for support MO by fauzi 24 November 2020
+
         public AdminController()
         {
             MoDbContext = new MoDbContext("");
@@ -186,8 +191,17 @@ namespace MasterOnline.Controllers
                 string sql = "";
                 var userId = Convert.ToString(accInDb.AccountId);
                 //var tujuan = "54.179.169.195\\SQLEXPRESS";
-                var tujuan = "13.250.232.74\\SQLEXPRESS, 1433";
+#if AWS
+                //var tujuan = "13.250.232.74\\SQLEXPRESS, 1433";
                 //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
+                var tujuan = "172.31.1.127\\SQLEXPRESS, 1433"; // T3.LARGE DB FOR REGISTER NEW ACCOUNT  // IP PRIVATE STATIC AWS
+
+#else
+                //var tujuan = "54.179.169.195\\SQLEXPRESS, 1444";
+                //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
+                //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
+                var tujuan = "172.31.29.78\\SQLEXPRESS, 1433";
+#endif
 
                 accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
                 accInDb.DataSourcePath = tujuan;
@@ -211,7 +225,13 @@ namespace MasterOnline.Controllers
                 //add by Tri 20-09-2018, save nama toko ke SIFSYS
                 //change by calvin 3 oktober 2018
                 //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
-                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DataSourcePath, accInDb.DatabasePathErasoft);
+                string dbSourceEra = "";
+#if (Debug_AWS)
+                dbSourceEra = accInDb.DataSourcePathDebug;
+#else
+                dbSourceEra = accInDb.DataSourcePath;
+#endif
+                ErasoftContext ErasoftDbContext = new ErasoftContext(dbSourceEra, accInDb.DatabasePathErasoft);
                 //end change by calvin 3 oktober 2018
                 var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
                 if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
@@ -358,13 +378,24 @@ namespace MasterOnline.Controllers
                         try
                         {
 #if AWS
-                    System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                    //System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                    //                                   "user id=masteronline;password=M@ster123;");
+                            // IP PRIVATE T3 REGISTER
+                            System.Data.Entity.Database.Delete($"Server=172.31.1.127\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
 #elif Debug_AWS
-                    System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
-                                                       "user id=masteronline;password=M@ster123;");
+                            System.Data.Entity.Database.Delete($"Server=172.31.1.127\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                                               "user id=masteronline;password=M@ster123;");
+
+                            //System.Data.Entity.Database.Delete($"Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                            //                           "user id=masteronline;password=M@ster123;");
 #else
-                            System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                            //System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                            //                                   "user id=masteronline;password=M@ster123;");
+
+                            // ADD BY FAUZI 04/12/2020
+                            // IP PRIVATE DEV
+                            System.Data.Entity.Database.Delete($"Server=172.31.29.78\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                "user id=masteronline;password=M@ster123;");
 #endif
 
@@ -408,15 +439,30 @@ namespace MasterOnline.Controllers
                         {
 
 #if AWS
-                                        System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                        //System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                        //                                   "user id=masteronline;password=M@ster123;");
+                            //System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                            //                                               "user id=masteronline;password=M@ster123;");
+
+                            // ADD BY FAUZI 04/12/2020
+                            // IP PRIVATE LIVE T3 REGIS
+                            System.Data.Entity.Database.Delete($"Server=172.31.1.127\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                            "user id=masteronline;password=M@ster123;");
 #elif Debug_AWS
-                                        System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
-                                                                           "user id=masteronline;password=M@ster123;");
+                            System.Data.Entity.Database.Delete($"Server=172.31.29.78\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                                               "user id=masteronline;password=M@ster123;");
+
+                            //System.Data.Entity.Database.Delete($"Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                            //                                               "user id=masteronline;password=M@ster123;");
 #else
 
-                            System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
-                                                               "user id=masteronline;password=M@ster123;");
+                            //System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                            //                                   "user id=masteronline;password=M@ster123;");
+
+                            // ADD BY FAUZI 04/12/2020
+                            // IP PRIVATE DEV
+                            System.Data.Entity.Database.Delete($"Server=172.31.29.78\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                                              "user id=masteronline;password=M@ster123;");
 #endif
                         }
                     }
@@ -634,6 +680,15 @@ namespace MasterOnline.Controllers
             akun.jumlahUser = vm.Payment.jumlahUser;
             akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
             MoDbContext.SaveChanges();
+            //add by nurul 7/1/2021
+            var addOnCust = MoDbContext.Addons_Customer.Where(a => a.Account == vm.Payment.Email).ToList();
+            if (addOnCust.Count() > 0)
+            {
+                var sSQLUpdateAddOn = "update a set TglSubscription=b.Tgl_Subscription from Addons_Customer a inner join Account b on a.account=b.email where a.account='" + vm.Payment.Email + "'";
+                MoDbContext.Database.ExecuteSqlCommand(sSQLUpdateAddOn);
+                MoDbContext.SaveChanges();
+            }
+            //end add by nurul 7/1/2021
             ModelState.Clear();
             if (newPayment == true)
             {
@@ -869,6 +924,310 @@ namespace MasterOnline.Controllers
 
         // =============================================== Bagian Marketplace (END)
 
+        // =============================================== Bagian Addons (START)
+#region Bagian Addons (START)
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveAddons(AddonsViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("AddonsMenu", vm);
+            }
+
+            if (vm.Addons.RecNum == null)
+            {
+                var eksInDb = MoDbContext.Addons.SingleOrDefault(e => e.Fitur == vm.Addons.Fitur);
+
+                if (eksInDb != null)
+                {
+                    ModelState.AddModelError("", @"Ekspedisi sudah terdaftar!");
+                    return View("AddonsMenu", vm);
+                }
+
+                MoDbContext.Addons.Add(vm.Addons);
+            }
+            else
+            {
+                var eksInDb = MoDbContext.Addons.Single(e => e.RecNum == vm.Addons.RecNum);
+                eksInDb.Fitur = vm.Addons.Fitur;
+                eksInDb.Harga = vm.Addons.Harga;
+            }
+
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
+
+            return RedirectToAction("AddonsMenu");
+        }
+
+        public ActionResult EditAddons(int? eksId)
+        {
+            var vm = new AddonsViewModel()
+            {
+                Addons = MoDbContext.Addons.Single(e => e.RecNum == eksId)
+            };
+
+            ViewData["Editing"] = 1;
+
+            return View("AddonsMenu", vm);
+        }
+
+        public ActionResult DeleteAddons(int? eksId)
+        {
+            var vm = new AddonsViewModel()
+            {
+                Addons = MoDbContext.Addons.Single(e => e.RecNum == eksId),
+                ListAddons = MoDbContext.Addons.ToList()
+            };
+
+            MoDbContext.Addons.Remove(vm.Addons);
+            MoDbContext.SaveChanges();
+
+            return RedirectToAction("AddonsMenu");
+        }
+
+#endregion
+        // =============================================== Bagian Addons (END)
+
+        // =============================================== Bagian CustomerAddons (START)
+#region Bagian CustomerAddons (START)
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveCustAddons(AddonsCustomerViewModel vm)
+        {
+            //if (!ModelState.IsValid)
+            //{
+            //    return View("AddonsCustMenu", vm);
+            //}
+            DateTime tglDaftar = DateTime.Now;
+            if (vm.Addons_Customer.Account == null)
+            {
+                var eksInDb = MoDbContext.Addons_Customer.SingleOrDefault(e => e.Account == vm.Accounts.Email);
+
+                if (eksInDb != null)
+                {
+                    ModelState.AddModelError("", @"Email masih kosong!");
+                    return View("AddonsCustMenu", vm);
+                }
+            }
+            else
+            {
+                var idAddon = Convert.ToInt32(vm.Addons_Customer.ID_ADDON);
+                var MasterAddon = MoDbContext.Addons.SingleOrDefault(a => a.RecNum == idAddon);
+                var eksInDb = MoDbContext.Addons_Customer.SingleOrDefault(e => e.RecNum == vm.Addons_Customer.RecNum);
+                if (eksInDb == null)
+                {
+                    eksInDb = new Addons_Customer
+                    {
+                        //change by nurul 21/10/2020
+                        //TglSubscription = vm.Accounts.TGL_SUBSCRIPTION,
+                        //Account = vm.Accounts.Email,
+                        //NamaTokoOnline = vm.Accounts.NamaTokoOnline,
+                        //Harga = vm.Addons.Harga,
+                        Harga = vm.Addons_Customer.Harga,
+                        TglSubscription = vm.Addons_Customer.TglSubscription,
+                        Account = vm.Addons_Customer.Account,
+                        NamaTokoOnline = vm.Addons_Customer.NamaTokoOnline,
+                        //end change by nurul 21/10/2020
+                        NamaAddons = vm.Addons_Customer.NamaAddons,
+                        //add by nurul 21/10/2020                   
+                        TGL_DAFTAR = DateTime.Now,
+                        ID_ADDON = vm.Addons_Customer.ID_ADDON
+                        //end add by nurul 21/10/2020
+                    };
+                    //add by nurul 21/10/2020
+                    tglDaftar = Convert.ToDateTime(eksInDb.TGL_DAFTAR);
+                    if (vm.Addons_Customer.ID_ADDON == "2") //82cart FREE
+                    {
+                        eksInDb.STATUS = "1";
+                    }
+                    else
+                    {
+                        eksInDb.STATUS = "0";
+                    }
+                    if(eksInDb.Harga <= 0)
+                    {
+                        if(MasterAddon != null)
+                        {
+                            eksInDb.Harga = MasterAddon.Harga;
+                            if (eksInDb.NamaAddons == "" || eksInDb.NamaAddons == null)
+                            {
+                                eksInDb.NamaAddons = MasterAddon.Fitur;
+                            }
+                        }
+                    }
+                    //end add by nurul 21/10/2020
+                    MoDbContext.Addons_Customer.Add(eksInDb);
+                }
+                else
+                {
+                    eksInDb.TglSubscription = vm.Addons_Customer.TglSubscription;
+                    eksInDb.Account = vm.Addons_Customer.Account;
+                    eksInDb.NamaTokoOnline = vm.Addons_Customer.NamaTokoOnline;
+                    eksInDb.Harga = vm.Addons_Customer.Harga;
+                    eksInDb.NamaAddons = vm.Addons_Customer.NamaAddons;
+                }
+            }
+
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
+
+            return new EmptyResult(); 
+            //var vmNew = new AddonsCustomerViewModel()
+            //{
+            //    Addons_Customer = MoDbContext.Addons_Customer.SingleOrDefault(e => e.TGL_DAFTAR == tglDaftar)
+            //};
+
+            ////return Json(vmNew, JsonRequestBehavior.AllowGet);
+            //return PartialView("FormAddonsCustPartial", vmNew);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveCustAddonsCS(AddonsCustomerViewModel vm)
+        {
+            //if (!ModelState.IsValid)
+            //{
+            //    return View("AddonsCustMenu", vm);
+            //}
+            DateTime tglDaftar = DateTime.Now;
+            if (vm.Addons_Customer.Account == null)
+            {
+                var eksInDb = MoDbContext.Addons_Customer.SingleOrDefault(e => e.Account == vm.Accounts.Email);
+
+                if (eksInDb != null)
+                {
+                    ModelState.AddModelError("", @"Email masih kosong!");
+                    return View("AddonsCustMenuCS", vm);
+                }
+            }
+            else
+            {
+                var idAddon = Convert.ToInt32(vm.Addons_Customer.ID_ADDON);
+                var MasterAddon = MoDbContext.Addons.SingleOrDefault(a => a.RecNum == idAddon);
+                var eksInDb = MoDbContext.Addons_Customer.SingleOrDefault(e => e.RecNum == vm.Addons_Customer.RecNum);
+                if (eksInDb == null)
+                {
+                    eksInDb = new Addons_Customer
+                    {
+                        //change by nurul 21/10/2020
+                        //TglSubscription = vm.Accounts.TGL_SUBSCRIPTION,
+                        //Account = vm.Accounts.Email,
+                        //NamaTokoOnline = vm.Accounts.NamaTokoOnline,
+                        //Harga = vm.Addons.Harga,
+                        Harga = vm.Addons_Customer.Harga,
+                        TglSubscription = vm.Addons_Customer.TglSubscription,
+                        Account = vm.Addons_Customer.Account,
+                        NamaTokoOnline = vm.Addons_Customer.NamaTokoOnline,
+                        //end change by nurul 21/10/2020
+                        NamaAddons = vm.Addons_Customer.NamaAddons,
+                        //add by nurul 21/10/2020                   
+                        TGL_DAFTAR = DateTime.Now,
+                        ID_ADDON = vm.Addons_Customer.ID_ADDON
+                        //end add by nurul 21/10/2020
+                    };
+                    //add by nurul 21/10/2020
+                    tglDaftar = Convert.ToDateTime(eksInDb.TGL_DAFTAR);
+                    if (vm.Addons_Customer.ID_ADDON == "2") //82cart FREE
+                    {
+                        eksInDb.STATUS = "1";
+                    }
+                    else
+                    {
+                        eksInDb.STATUS = "0";
+                    }
+                    if (eksInDb.Harga <= 0)
+                    {
+                        if (MasterAddon != null)
+                        {
+                            eksInDb.Harga = MasterAddon.Harga;
+                            if (eksInDb.NamaAddons == "" || eksInDb.NamaAddons == null)
+                            {
+                                eksInDb.NamaAddons = MasterAddon.Fitur;
+                            }
+                        }
+                    }
+                    //end add by nurul 21/10/2020
+                    MoDbContext.Addons_Customer.Add(eksInDb);
+                }
+                else
+                {
+                    eksInDb.TglSubscription = vm.Addons_Customer.TglSubscription;
+                    eksInDb.Account = vm.Addons_Customer.Account;
+                    eksInDb.NamaTokoOnline = vm.Addons_Customer.NamaTokoOnline;
+                    eksInDb.Harga = vm.Addons_Customer.Harga;
+                    eksInDb.NamaAddons = vm.Addons_Customer.NamaAddons;
+                }
+            }
+
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
+
+            return new EmptyResult();
+            //var vmNew = new AddonsCustomerViewModel()
+            //{
+            //    Addons_Customer = MoDbContext.Addons_Customer.SingleOrDefault(e => e.TGL_DAFTAR == tglDaftar)
+            //};
+
+            ////return Json(vmNew, JsonRequestBehavior.AllowGet);
+            //return PartialView("FormAddonsCustPartial", vmNew);
+        }
+
+        [HttpGet]
+        public ActionResult GetAddons()
+        {
+            var addons = MoDbContext.Addons.ToList();
+
+            return Json(addons, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult EditCustAddons(int? eksId)
+        {
+            var vm = new AddonsCustomerViewModel()
+            {
+                Addons_Customer = MoDbContext.Addons_Customer.SingleOrDefault(e => e.RecNum == eksId)
+            };
+
+            //ViewData["Editing"] = 1;
+
+            //return Json(vm, JsonRequestBehavior.AllowGet);
+            return PartialView("FormAddonsCustPartial", vm);
+        }
+
+        public ActionResult DeleteCustAddons(int? eksId)
+        {
+            var vm = new AddonsCustomerViewModel()
+            {
+                Addons_Customer = MoDbContext.Addons_Customer.Single(e => e.RecNum == eksId),
+                ListCustAddons = MoDbContext.Addons_Customer.ToList()
+            };
+
+            MoDbContext.Addons_Customer.Remove(vm.Addons_Customer);
+            MoDbContext.SaveChanges();
+
+            return RedirectToAction("AddonsCustMenu");
+        }
+
+        public ActionResult DeleteCustAddonsCS(int? eksId)
+        {
+            var vm = new AddonsCustomerViewModel()
+            {
+                Addons_Customer = MoDbContext.Addons_Customer.Single(e => e.RecNum == eksId),
+                ListCustAddons = MoDbContext.Addons_Customer.ToList()
+            };
+
+            MoDbContext.Addons_Customer.Remove(vm.Addons_Customer);
+            MoDbContext.SaveChanges();
+
+            return RedirectToAction("AddonsCustMenuCS");
+        }
+
+        #endregion
+        // =============================================== Bagian CustomerAddons (END)
+
         // =============================================== Bagian Ekpedisi (START)
 
         [HttpPost]
@@ -1055,6 +1414,15 @@ namespace MasterOnline.Controllers
             }
 
             MoDbContext.SaveChanges();
+            //add by nurul 7/1/2021
+            var addOnCust = MoDbContext.Addons_Customer.Where(a => a.Account == data.Account.Email).ToList();
+            if (addOnCust.Count() > 0)
+            {
+                var sSQLUpdateAddOn = "update a set TglSubscription=b.Tgl_Subscription from Addons_Customer a inner join Account b on a.account=b.email where a.account='" + data.Account.Email + "'";
+                MoDbContext.Database.ExecuteSqlCommand(sSQLUpdateAddOn);
+                MoDbContext.SaveChanges();
+            }
+            //end add by nurul 7/1/2021
             ModelState.Clear();
 
             var vm = new MenuAccount()
@@ -1377,6 +1745,46 @@ namespace MasterOnline.Controllers
             var vm = new CourierViewModel()
             {
                 ListEkspedisi = MoDbContext.Ekspedisi.ToList()
+            };
+
+            return View(vm);
+        }
+
+        [Route("admin/manage/addons")]
+        [SessionAdminCheck]
+        public ActionResult AddonsMenu()
+        {
+            var vm = new AddonsViewModel()
+            {
+                ListAddons = MoDbContext.Addons.ToList()
+            };
+
+            return View(vm);
+        }
+
+        [Route("admin/manage/custaddons")]
+        [SessionAdminCheck]
+        public ActionResult AddonsCustMenu()
+        {
+            var vm = new AddonsCustomerViewModel()
+            {
+                ListCustAddons = MoDbContext.Addons_Customer.ToList()
+                //,
+                //ListAddons = MoDbContext.Addons.ToList()
+            };
+
+            return View(vm);
+        }
+
+        [Route("admin/manage/custaddonscs")]
+        [SessionAdminCheck]
+        public ActionResult AddonsCustMenuCS()
+        {
+            var vm = new AddonsCustomerViewModel()
+            {
+                ListCustAddons = MoDbContext.Addons_Customer.ToList()
+                //,
+                //ListAddons = MoDbContext.Addons.ToList()
             };
 
             return View(vm);
@@ -1971,6 +2379,934 @@ namespace MasterOnline.Controllers
             return PartialView("AccDetail", vm);
         }
 
+        // =============================================== Bagian SUPPORT (START)
+        [Route("adminCS/manage/support")]
+        [SessionAdminCheck]
+        public ActionResult SupportMenu()
+        {
+            var vm = new SupportMenu()
+            {
+                AccountList = MoDbContext.Account.Where(p => p.Status).Select(p => p.Email).ToList(),
+            };
+
+            return View(vm);
+        }
+
+        public async Task<ActionResult> GetMarketplaceAccount(string emailAccount)
+        {
+            var vm = new SupportMenu()
+            {
+                ListTokoMPCustomers = new List<ListMarketplaces>()
+            };
+
+            if (!string.IsNullOrEmpty(emailAccount))
+            {
+                var accountlist = MoDbContext.Account.Where(p => p.Email == emailAccount).SingleOrDefault();
+                string dbSourceEra = "";
+#if (Debug_AWS)
+                dbSourceEra = accountlist.DataSourcePathDebug;
+#else
+                dbSourceEra = accountlist.DataSourcePath;
+#endif
+                ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
+                
+                var customer = ErasoftDbContext.ARF01.Where(m => m.NAMA != "18").OrderBy(m => m.NAMA).ToList();
+                var mp = MoDbContext.Marketplaces.ToList();
+                if (customer.Count > 0)
+                {
+                    foreach (var tbl in customer)
+                    {
+                        var data = new ListMarketplaces
+                        {
+                            cust = Convert.ToInt32(tbl.RecNum),
+                            namaCust = tbl.PERSO,
+                        };
+                        data.namaMarket = mp.Where(m => m.IdMarket.ToString() == tbl.NAMA).FirstOrDefault().NamaMarket;
+
+                        vm.ListTokoMPCustomers.Add(data);
+                    }
+                }
+
+                //return View(vm);
+                return new JsonResult { Data = new { success = true , result = vm }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            else
+            {
+                //return View("Error");
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+
+        public async Task<ActionResult> ProsesUnlinkMP(string listTokoMP)
+        {
+            bool resultUnlink = false;
+            
+            if (!string.IsNullOrEmpty(listTokoMP))
+            {
+                string[] dataSplitToko = listTokoMP.Split('|');
+                string accountEmail = dataSplitToko[0];
+                string listToko = dataSplitToko[1];
+                string listkodeBRG = dataSplitToko[2];
+                string[] splitlistToko = listToko.Split(',');
+                string[] splitlistkodeBRG = listkodeBRG.Split('^');
+                
+                var sqlListKode = "";
+                var sqlListKodeNotFound = "";
+
+                if (!string.IsNullOrEmpty(listToko) && !string.IsNullOrEmpty(listkodeBRG))
+                {
+                    try
+                    {
+                        var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
+                        DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+                        string dbSourceEra = "";
+#if (Debug_AWS)
+                        dbSourceEra = accountlist.DataSourcePathDebug;
+#else
+                        dbSourceEra = accountlist.DataSourcePath;
+#endif
+                        ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
+
+                        var listdataKodeBRG = ErasoftDbContext.STF02H.Select(p => p.BRG).ToList();
+
+                        foreach (var listKode in splitlistkodeBRG)
+                        {
+                            var kodeUpper = listKode.ToUpper();
+                            listdataKodeBRG = listdataKodeBRG.ConvertAll(d => d.ToUpper());
+                            var kodeBRGCheck = listdataKodeBRG.Contains(kodeUpper);
+                            if (kodeBRGCheck)
+                            {
+                                sqlListKode += "'" + listKode + "',";
+                                resultUnlink = true;
+                            }
+                            else
+                            {
+                                sqlListKodeNotFound += listKode + ",";
+                                resultUnlink = false;
+                            }
+                            
+                        }
+
+                        sqlListKode = sqlListKode.Substring(0, sqlListKode.Length - 1).Replace(" ", "").ToUpper();
+
+                        foreach (var dataToko in splitlistToko)
+                        {
+                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET DISPLAY = 0, BRG_MP = '', LINK_STATUS = '', LINK_ERROR = '' WHERE UPPER(BRG) IN (" + sqlListKode + ") AND IDMARKET = '" + dataToko + "' ");
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        resultUnlink = false;
+                    }
+                    
+                }
+
+                if (!string.IsNullOrEmpty(sqlListKodeNotFound))
+                {
+                    return new JsonResult { Data = new { success = resultUnlink, kodenotfound = sqlListKodeNotFound }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    return new JsonResult { Data = new { success = resultUnlink, kodenotfound = "" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                
+            }
+            else
+            {
+                //return View("Error");
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+
+        public async Task<ActionResult> ProsesEditKode(string listData)
+        {
+            bool resultEdit = false;
+            var vkodebarangsudahada = "";
+
+            if (!string.IsNullOrEmpty(listData))
+            {
+                string[] dataSplitToko = listData.Split('|');
+                string accountEmail = dataSplitToko[0];
+                string listkodeBRGBaru = dataSplitToko[1];
+                string listkodeBRGLama = dataSplitToko[2];
+                string[] splitlistBRGBaru = listkodeBRGBaru.Split('^');
+                string[] splitlistBRGLama = listkodeBRGLama.Split('^');
+
+                var sqlListKodeLama = "";
+                var sqlListKodeBaru = "";
+                int iurutan = 0;
+                var vlistKodeSudahPosting = "";
+
+                if (!string.IsNullOrEmpty(listkodeBRGBaru) && !string.IsNullOrEmpty(listkodeBRGLama))
+                {
+                    if (splitlistBRGBaru.Length == splitlistBRGLama.Length)
+                    {
+                        try
+                        {
+                            var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
+                            DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+                            string dbSourceEra = "";
+#if (Debug_AWS)
+                            dbSourceEra = accountlist.DataSourcePathDebug;
+#else
+                            dbSourceEra = accountlist.DataSourcePath;
+#endif
+                            ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
+
+
+
+                            foreach (var listKodeBaru in splitlistBRGBaru)
+                            {
+                                var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).ToList();
+                                var kodeBrgLamaCheck = splitlistBRGLama[iurutan].ToString();
+                                var checkBarangLama = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == kodeBrgLamaCheck.ToUpper()).ToList();
+                                var checkBarangVariant = ErasoftDbContext.STF02.Where(p => p.PART.ToUpper() == kodeBrgLamaCheck.ToUpper()).ToList();
+
+                                if (checkBarangBaru.Count() == 0 && checkBarangLama.Count() > 0)
+                                {
+                                    //var checkSI = ErasoftDbContext.SIT01B.Where(p => p.BRG == kodeBrgLamaCheck).SingleOrDefault();
+
+                                    var resultCekSI = (from a in ErasoftDbContext.SIT01B
+                                                       join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
+                                                       where a.BRG.ToUpper() == kodeBrgLamaCheck.ToUpper()
+                                                       select new
+                                                       {
+                                                           a.NO_BUKTI,
+                                                           a.BRG,
+                                                           b.ST_POSTING
+                                                       }
+                                        ).ToList();
+
+                                    var resultCekST = (from a in ErasoftDbContext.STT01B
+                                                       join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
+                                                       where a.Kobar.ToUpper() == kodeBrgLamaCheck.ToUpper()
+                                                       select new
+                                                       {
+                                                           a.Nobuk,
+                                                           a.Kobar,
+                                                           b.ST_Posting
+                                                       }
+                                        ).ToList();
+
+                                    //var checkPostingSI = ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == checkSI.NO_BUKTI).SingleOrDefault();
+                                    //var checkST = ErasoftDbContext.STT01B.Where(p => p.Kobar == kodeBrgLamaCheck).Select(p => p.Nobuk).SingleOrDefault();
+                                    //var checkPostingST = ErasoftDbContext.STT01A.Where(p => p.Nobuk == checkST).SingleOrDefault();
+                                    var checkResultSI = resultCekSI.Where(p => p.ST_POSTING.Contains("Y")).ToList();
+                                    var checkResultST = resultCekST.Where(p => p.ST_Posting.Contains("Y")).ToList();
+
+                                    if (checkResultSI.Count() == 0 && checkResultST.Count() == 0)
+                                    {
+                                        // kondisi kalau belum posting
+                                        sqlListKodeLama += "'" + listKodeBaru + "',";
+
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
+                                            "update stf02 set brg='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update stf02h set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update sot01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update sit01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update stt01b set kobar ='" + listKodeBaru + "' where kobar ='" + kodeBrgLamaCheck + "'; " +
+                                            "update stt04b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update pbt01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "'; " +
+                                            "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+
+                                        resultEdit = true;
+                                    }
+                                    else
+                                    {
+                                        // kondisi kalau sudah posting
+                                        vlistKodeSudahPosting += "" + kodeBrgLamaCheck + ",";
+                                    }
+                                }
+                                else
+                                {
+                                    // alert jika kode barang sudah ada lakukan Merge bukan Edit Kode Barang!.
+                                    vkodebarangsudahada += kodeBrgLamaCheck + " *** " + listKodeBaru + "  | ";
+                                    //return new JsonResult { Data = new { success = resultEdit, dataposting = "kode barang sudah ada lakukan Merge bukan Edit Kode Barang!." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                                }
+
+                                if (checkBarangVariant.Count() > 0)
+                                {
+                                    foreach (var barangvariant in checkBarangVariant)
+                                    {
+                                        var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
+                                                                 join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
+                                                                 where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
+                                                                 select new
+                                                                 {
+                                                                     a.NO_BUKTI,
+                                                                     a.BRG,
+                                                                     b.ST_POSTING
+                                                                 }
+                                                                                ).ToList();
+
+                                        var resultCekSTVarian = (from a in ErasoftDbContext.STT01B
+                                                                 join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
+                                                                 where a.Kobar.ToUpper() == barangvariant.BRG.ToString().ToUpper()
+                                                                 select new
+                                                                 {
+                                                                     a.Nobuk,
+                                                                     a.Kobar,
+                                                                     b.ST_Posting
+                                                                 }
+                                            ).ToList();
+
+                                        var checkResultSIVarian = resultCekSIVarian.Where(p => p.ST_POSTING.Contains("Y")).ToList();
+                                        var checkResultSTVarian = resultCekSTVarian.Where(p => p.ST_Posting.Contains("Y")).ToList();
+
+                                        if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
+                                        {
+                                            // kondisi kalau belum posting
+                                            sqlListKodeLama += "'" + listKodeBaru + "',";
+
+                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
+                                                "update stf02 set part='" + listKodeBaru + "' where brg ='" + barangvariant.BRG.ToString() + "'; "
+                                                );
+
+                                            resultEdit = true;
+                                        }
+                                        else
+                                        {
+                                            // kondisi kalau sudah posting
+                                            vlistKodeSudahPosting += "" + barangvariant.BRG.ToString() + ",";
+                                        }
+                                    }
+                                }
+
+
+
+                                iurutan += 1;
+                            }
+
+                        }
+                        catch (Exception ex)
+                        {
+                            resultEdit = false;
+                        }
+                    }
+                    else
+                    {
+                        // alert bahwa jumlah list kode tidak sama.
+                        return new JsonResult { Data = new { success = resultEdit, dataposting = "Jumlah list kode barang tidak sama." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+
+                }
+
+                //return View(vm);
+                if (!string.IsNullOrEmpty(vlistKodeSudahPosting))
+                {
+                    return new JsonResult { Data = new { success = resultEdit, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else if (!string.IsNullOrEmpty(vkodebarangsudahada))
+                {
+                    return new JsonResult { Data = new { success = resultEdit, dataposting = "Terdapat kode barang sudah ada." + vkodebarangsudahada }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    return new JsonResult { Data = new { success = resultEdit, dataposting = "" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+            }
+            else
+            {
+                //return View("Error");
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+
+        public async Task<ActionResult> ProsesMergeKode(string listData)
+        {
+            bool resultMerge = false;
+            var vkodebarangtidakada = "";
+
+            if (!string.IsNullOrEmpty(listData))
+            {
+                string[] dataSplitToko = listData.Split('|');
+                string accountEmail = dataSplitToko[0];
+                string listkodeBRGBaru = dataSplitToko[1];
+                string listkodeBRGLama = dataSplitToko[2];
+                string[] splitlistBRGBaru = listkodeBRGBaru.Split('^');
+                string[] splitlistBRGLama = listkodeBRGLama.Split('^');
+
+                var sqlListKodeLama = "";
+                var sqlListKodeBaru = "";
+                int iurutan = 0;
+                var vlistKodeSudahPosting = "";
+
+                if (!string.IsNullOrEmpty(listkodeBRGBaru) && !string.IsNullOrEmpty(listkodeBRGLama))
+                {
+                    if (splitlistBRGBaru.Length == splitlistBRGLama.Length)
+                    {
+                        try
+                        {
+                            var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
+                            DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+                            string dbSourceEra = "";
+#if (Debug_AWS)
+                            dbSourceEra = accountlist.DataSourcePathDebug;
+#else
+                            dbSourceEra = accountlist.DataSourcePath;
+#endif
+                            ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
+
+
+                            foreach (var listKodeBaru in splitlistBRGBaru)
+                            {
+                                var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).ToList();
+                                var kodeBrgLamaCheck = splitlistBRGLama[iurutan].ToString();
+                                var checkBarangLama = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == kodeBrgLamaCheck.ToUpper()).ToList();
+
+                                var checkBarangMPBaru = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).ToList();
+                                var checkBarangMPLama = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == kodeBrgLamaCheck.ToUpper()).ToList();
+
+                                var checkBarangVariantLama = ErasoftDbContext.STF02.Where(p => p.PART.ToUpper() == kodeBrgLamaCheck.ToUpper()).ToList();
+                                var checkBarangVariantBaru = ErasoftDbContext.STF02.Where(p => p.PART.ToUpper() == listKodeBaru.ToUpper()).ToList();
+
+                                if (checkBarangBaru.Count() > 0 && checkBarangLama.Count() > 0)
+                                {
+                                    //var checkSI = ErasoftDbContext.SIT01B.Where(p => p.BRG == kodeBrgLamaCheck).SingleOrDefault();
+
+                                    var resultCekSI = (from a in ErasoftDbContext.SIT01B
+                                                       join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
+                                                       where a.BRG.ToUpper() == kodeBrgLamaCheck.ToUpper()
+                                                       select new
+                                                       {
+                                                           a.NO_BUKTI,
+                                                           a.BRG,
+                                                           b.ST_POSTING
+                                                       }
+                                        ).ToList();
+
+                                    var resultCekST = (from a in ErasoftDbContext.STT01B
+                                                       join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
+                                                       where a.Kobar.ToUpper() == kodeBrgLamaCheck.ToUpper()
+                                                       select new
+                                                       {
+                                                           a.Nobuk,
+                                                           a.Kobar,
+                                                           b.ST_Posting
+                                                       }
+                                        ).ToList();
+
+                                    var resultCekPB = (from a in ErasoftDbContext.PBT01B
+                                                       join b in ErasoftDbContext.PBT01A on a.INV equals b.INV
+                                                       where a.BRG.ToUpper() == listKodeBaru.ToUpper()
+                                                       select new
+                                                       {
+                                                           a.INV,
+                                                           a.BRG,
+                                                           b.POSTING
+                                                       }
+                                        ).ToList();
+
+                                    //var checkPostingSI = ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == checkSI.NO_BUKTI).SingleOrDefault();
+                                    //var checkST = ErasoftDbContext.STT01B.Where(p => p.Kobar == kodeBrgLamaCheck).Select(p => p.Nobuk).SingleOrDefault();
+                                    //var checkPostingST = ErasoftDbContext.STT01A.Where(p => p.Nobuk == checkST).SingleOrDefault();
+                                    var checkResultSI = resultCekSI.Where(p => p.ST_POSTING.Contains("Y")).ToList();
+                                    var checkResultST = resultCekST.Where(p => p.ST_Posting.Contains("Y")).ToList();
+                                    var checkResultPB = resultCekPB.Where(p => p.POSTING.Contains("Y")).ToList();
+
+                                    if (checkResultSI.Count() == 0 && checkResultST.Count() == 0 && checkResultPB.Count() == 0 && resultCekPB.Count() == 0)
+                                    {
+                                        // kondisi kalau belum posting
+                                        sqlListKodeLama += "'" + listKodeBaru + "',";
+                                        //var checkBarangLamaLagi = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
+                                        //if (checkBarangLamaLagi.Count() > 0)
+                                        //{
+                                        if (checkBarangMPBaru.Count() >= checkBarangMPLama.Count())
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + kodeBrgLamaCheck + "'");
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + listKodeBaru + "'");
+                                        }
+
+                                        //}
+
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
+                                            "update stf02 set brg='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update stf02h set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update sot01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update sit01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update stt01b set kobar ='" + listKodeBaru + "' where kobar ='" + kodeBrgLamaCheck + "'; " +
+                                            "update stt04b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update pbt01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                            "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "'; " +
+                                            "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+
+                                        if (checkBarangMPBaru.Count() >= checkBarangMPLama.Count())
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + kodeBrgLamaCheck + "';");
+                                        }
+                                        else
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + listKodeBaru + "';");
+                                        }
+
+                                        resultMerge = true;
+                                    }
+                                    else
+                                    {
+                                        // kondisi kalau sudah posting
+                                        vlistKodeSudahPosting += kodeBrgLamaCheck + " ,";
+                                    }
+                                }
+                                else
+                                {
+                                    // alert jika kode barang sudah ada lakukan Merge bukan Edit Kode Barang!.
+                                    vkodebarangtidakada += kodeBrgLamaCheck + " *** " + listKodeBaru + "  | ";
+                                    //return new JsonResult { Data = new { success = resultMerge, dataposting = "kode barang tidak ada, lakukan Edit Kode Barang bukan Merge Kode Barang!." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                                }
+
+
+                                if (checkBarangVariantLama.Count() > 0)
+                                {
+                                    int iurutanVariant = 0;
+                                    foreach (var barangvariant in checkBarangVariantLama)
+                                    {
+                                        //var checkBarangMPLamaVariant = ErasoftDbContext.STF02H.Where(p => p.BRG == barangvariant.BRG).ToList();
+                                        //var kodeBrgBaruVariantCheck = checkBarangVariantBaru[iurutanVariant].BRG.ToString();
+                                        //var checkBarangMPBaruVariant = ErasoftDbContext.STF02H.Where(p => p.BRG == kodeBrgBaruVariantCheck).ToList();
+
+                                        var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
+                                                                 join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
+                                                                 where a.BRG.ToUpper() == barangvariant.BRG.ToString().ToUpper()
+                                                                 select new
+                                                                 {
+                                                                     a.NO_BUKTI,
+                                                                     a.BRG,
+                                                                     b.ST_POSTING
+                                                                 }
+                                                                                ).ToList();
+
+                                        var resultCekSTVarian = (from a in ErasoftDbContext.STT01B
+                                                                 join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
+                                                                 where a.Kobar.ToUpper() == barangvariant.BRG.ToString().ToUpper()
+                                                                 select new
+                                                                 {
+                                                                     a.Nobuk,
+                                                                     a.Kobar,
+                                                                     b.ST_Posting
+                                                                 }
+                                            ).ToList();
+
+                                        var checkResultSIVarian = resultCekSIVarian.Where(p => p.ST_POSTING.Contains("Y")).ToList();
+                                        var checkResultSTVarian = resultCekSTVarian.Where(p => p.ST_Posting.Contains("Y")).ToList();
+
+                                        if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
+                                        {
+                                            // kondisi kalau belum posting
+                                            sqlListKodeLama += "'" + barangvariant.BRG.ToString() + "',";
+
+                                            //if (checkBarangMPBaruVariant.Count() >= checkBarangMPLamaVariant.Count()) {
+                                            //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + barangvariant.BRG + "'; DELETE FROM STF02H WHERE BRG ='" + barangvariant.BRG + "'");
+                                            //}
+                                            //else
+                                            //{
+                                            //    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + kodeBrgBaruVariantCheck + "'; DELETE FROM STF02H WHERE BRG ='" + kodeBrgBaruVariantCheck + "'");
+                                            //}
+
+                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
+                                                "update stf02 set part='" + listKodeBaru + "' where brg ='" + barangvariant.BRG.ToString() + "'; "
+                                                );
+
+                                            resultMerge = true;
+                                        }
+                                        else
+                                        {
+                                            // kondisi kalau sudah posting
+                                            vlistKodeSudahPosting += "" + barangvariant.BRG.ToString() + ",";
+                                        }
+
+                                        iurutanVariant += 1;
+                                    }
+                                }
+
+
+                                iurutan += 1;
+                            }
+
+                        }
+                        catch (Exception ex)
+                        {
+                            resultMerge = false;
+                        }
+                    }
+                    else
+                    {
+                        // alert bahwa jumlah list kode tidak sama.
+                        return new JsonResult { Data = new { success = resultMerge, dataposting = "Jumlah list kode barang tidak sama." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+
+                }
+
+                //return View(vm);
+                if (!string.IsNullOrEmpty(vlistKodeSudahPosting))
+                {
+                    return new JsonResult { Data = new { success = resultMerge, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else if (!string.IsNullOrEmpty(vkodebarangtidakada))
+                {
+                    return new JsonResult { Data = new { success = resultMerge, dataposting = " Terdapat kode barang yang tidak ada : " + vkodebarangtidakada }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    return new JsonResult { Data = new { success = resultMerge, dataposting = "" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+
+                }
+
+            }
+            else
+            {
+                //return View("Error");
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+
+        public async Task<ActionResult> ProsesDeleteKode(string listData)
+        {
+            bool resultDelete = false;
+            var vkodebarangtidakada = "";
+
+            if (!string.IsNullOrEmpty(listData))
+            {
+                string[] dataSplitToko = listData.Split('|');
+                string accountEmail = dataSplitToko[0];
+                string listkodeBRGBaru = dataSplitToko[1];
+                //string listkodeBRGLama = dataSplitToko[2];
+                string[] splitlistBRGBaru = listkodeBRGBaru.Split('^');
+                //string[] splitlistBRGLama = listkodeBRGLama.Split('^');
+
+                //var sqlListKodeLama = "";
+                var sqlListKodeBaru = "";
+                int iurutan = 0;
+                var vlistKodeSudahPosting = "";
+
+                if (!string.IsNullOrEmpty(listkodeBRGBaru))
+                {
+                    if (splitlistBRGBaru.Length > 0 )
+                    {
+                        try
+                        {
+                            var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
+                            DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+                            string dbSourceEra = "";
+#if (Debug_AWS)
+                            dbSourceEra = accountlist.DataSourcePathDebug;
+#else
+                            dbSourceEra = accountlist.DataSourcePath;
+#endif
+                            ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
+
+
+                            foreach (var listKodeBaru in splitlistBRGBaru)
+                            {
+                                var checkBarangBaru = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).ToList();
+                                //var kodeBrgLamaCheck = splitlistBRGLama[iurutan].ToString();
+                                //var checkBarangLama = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
+
+                                //var checkBarangMPBaru = ErasoftDbContext.STF02H.Where(p => p.BRG == listKodeBaru).ToList();
+                                //var checkBarangMPLama = ErasoftDbContext.STF02H.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
+
+                                //var checkBarangVariantLama = ErasoftDbContext.STF02.Where(p => p.PART == kodeBrgLamaCheck).ToList();
+                                //var checkBarangVariantBaru = ErasoftDbContext.STF02.Where(p => p.PART == listKodeBaru).ToList();
+
+                                if (checkBarangBaru.Count() > 0)
+                                {
+                                    //var checkSI = ErasoftDbContext.SIT01B.Where(p => p.BRG == kodeBrgLamaCheck).SingleOrDefault();
+
+                                    var resultCekSI = (from a in ErasoftDbContext.SIT01B
+                                                       join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
+                                                       where a.BRG.ToUpper() == listKodeBaru.ToUpper()
+                                                       select new
+                                                       {
+                                                           a.NO_BUKTI,
+                                                           a.BRG,
+                                                           b.ST_POSTING
+                                                       }
+                                        ).ToList();
+
+                                    var resultCekST = (from a in ErasoftDbContext.STT01B
+                                                       join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
+                                                       where a.Kobar.ToUpper() == listKodeBaru.ToUpper()
+                                                       select new
+                                                       {
+                                                           a.Nobuk,
+                                                           a.Kobar,
+                                                           b.ST_Posting
+                                                       }
+                                        ).ToList();
+
+                                    var resultCekPB = (from a in ErasoftDbContext.PBT01B
+                                                       join b in ErasoftDbContext.PBT01A on a.INV equals b.INV
+                                                       where a.BRG.ToUpper() == listKodeBaru.ToUpper()
+                                                       select new
+                                                       {
+                                                           a.INV,
+                                                           a.BRG,
+                                                           b.POSTING
+                                                       }
+                                        ).ToList();
+
+                                    var checkResultSI = resultCekSI.Where(p => p.ST_POSTING.Contains("Y")).ToList();
+                                    var checkResultST = resultCekST.Where(p => p.ST_Posting.Contains("Y")).ToList();
+                                    var checkResultPB = resultCekPB.Where(p => p.POSTING.Contains("Y")).ToList();
+
+                                    if (checkResultSI.Count() == 0 && checkResultST.Count() == 0 && checkResultPB.Count() == 0 &&
+                                        resultCekSI.Count() == 0 && resultCekST.Count() == 0 && resultCekPB.Count() == 0)
+                                    {
+                                        // kondisi kalau belum posting
+                                        sqlListKodeBaru += "'" + listKodeBaru + "',";
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
+                                            "delete from stf02h where brg ='" + listKodeBaru + "'; " +
+                                            "delete from stf02 where brg ='" + listKodeBaru + "'; " +
+                                            "delete from stt01b where kobar ='" + listKodeBaru + "'; " +
+                                            "delete from stt04b where brg ='" + listKodeBaru + "'; " +
+                                            "delete from pbt01b where brg ='" + listKodeBaru + "'; " +
+                                            "delete from detailpromosis where KODE_BRG ='" + listKodeBaru + "'; " +
+                                            "delete from sot03c where brg ='" + listKodeBaru + "';");
+
+
+                                        resultDelete = true;
+                                    }
+                                    else
+                                    {
+                                        // kondisi kalau sudah posting
+                                        vlistKodeSudahPosting += listKodeBaru + " ,";
+                                    }
+                                }
+                                else
+                                {
+                                    // alert jika kode barang sudah ada lakukan Merge bukan Edit Kode Barang!.
+                                    vkodebarangtidakada += listKodeBaru + "| ";
+                                    //return new JsonResult { Data = new { success = resultMerge, dataposting = "kode barang tidak ada, lakukan Edit Kode Barang bukan Merge Kode Barang!." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                                }
+
+
+                                //if (checkBarangVariantLama.Count() > 0)
+                                //{
+                                //    int iurutanVariant = 0;
+                                //    foreach (var barangvariant in checkBarangVariantLama)
+                                //    {
+                                //        //var checkBarangMPLamaVariant = ErasoftDbContext.STF02H.Where(p => p.BRG == barangvariant.BRG).ToList();
+                                //        //var kodeBrgBaruVariantCheck = checkBarangVariantBaru[iurutanVariant].BRG.ToString();
+                                //        //var checkBarangMPBaruVariant = ErasoftDbContext.STF02H.Where(p => p.BRG == kodeBrgBaruVariantCheck).ToList();
+
+                                //        var resultCekSIVarian = (from a in ErasoftDbContext.SIT01B
+                                //                                 join b in ErasoftDbContext.SIT01A on a.NO_BUKTI equals b.NO_BUKTI
+                                //                                 where a.BRG == barangvariant.BRG.ToString()
+                                //                                 select new
+                                //                                 {
+                                //                                     a.NO_BUKTI,
+                                //                                     a.BRG,
+                                //                                     b.ST_POSTING
+                                //                                 }
+                                //                                                ).ToList();
+
+                                //        var resultCekSTVarian = (from a in ErasoftDbContext.STT01B
+                                //                                 join b in ErasoftDbContext.STT01A on a.Nobuk equals b.Nobuk
+                                //                                 where a.Kobar == barangvariant.BRG.ToString()
+                                //                                 select new
+                                //                                 {
+                                //                                     a.Nobuk,
+                                //                                     a.Kobar,
+                                //                                     b.ST_Posting
+                                //                                 }
+                                //            ).ToList();
+
+                                //        var checkResultSIVarian = resultCekSIVarian.Where(p => p.ST_POSTING.Contains("Y")).ToList();
+                                //        var checkResultSTVarian = resultCekSTVarian.Where(p => p.ST_Posting.Contains("Y")).ToList();
+
+                                //        if (checkResultSIVarian.Count() == 0 && checkResultSTVarian.Count() == 0)
+                                //        {
+                                //            // kondisi kalau belum posting
+                                //            sqlListKodeBaru += "'" + barangvariant.BRG.ToString() + "',";
+
+                                //            //if (checkBarangMPBaruVariant.Count() >= checkBarangMPLamaVariant.Count()) {
+                                //            //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + barangvariant.BRG + "'; DELETE FROM STF02H WHERE BRG ='" + barangvariant.BRG + "'");
+                                //            //}
+                                //            //else
+                                //            //{
+                                //            //    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + kodeBrgBaruVariantCheck + "'; DELETE FROM STF02H WHERE BRG ='" + kodeBrgBaruVariantCheck + "'");
+                                //            //}
+
+                                //            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
+                                //                "update stf02 set part='" + listKodeBaru + "' where brg ='" + barangvariant.BRG.ToString() + "'; "
+                                //                );
+
+                                //            resultDelete = true;
+                                //        }
+                                //        else
+                                //        {
+                                //            // kondisi kalau sudah posting
+                                //            vlistKodeSudahPosting += "" + barangvariant.BRG.ToString() + ",";
+                                //        }
+
+                                //        iurutanVariant += 1;
+                                //    }
+                                //}
+
+
+                                iurutan += 1;
+                            }
+
+                        }
+                        catch (Exception ex)
+                        {
+                            resultDelete = false;
+                        }
+                    }
+                    else
+                    {
+                        // alert bahwa jumlah list kode tidak sama.
+                        return new JsonResult { Data = new { success = resultDelete, dataposting = "Jumlah list kode barang tidak ada." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+
+                }
+
+                //return View(vm);
+                if (!string.IsNullOrEmpty(vlistKodeSudahPosting))
+                {
+                    return new JsonResult { Data = new { success = resultDelete, dataposting = "Terdapat kode barang yang sudah posting / ada transaksi. mohon konfirmasi ulang dengan customer. : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else if (!string.IsNullOrEmpty(vkodebarangtidakada))
+                {
+                    return new JsonResult { Data = new { success = resultDelete, dataposting = " Terdapat kode barang yang tidak ada : " + vkodebarangtidakada }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    return new JsonResult { Data = new { success = resultDelete, dataposting = "" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+
+                }
+
+            }
+            else
+            {
+                //return View("Error");
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+        public async Task<ActionResult> ProsesCekVariantKode(string listData)
+        {
+            bool resultCekVariant = false;
+            var vmessage = "";
+
+            if (!string.IsNullOrEmpty(listData))
+            {
+                string[] dataSplitToko = listData.Split('|');
+                string accountEmail = dataSplitToko[0];
+                string listkodeBRGBaru = dataSplitToko[1].ToUpper();
+
+                var dataInduk = "";
+                var dataVar = "";
+
+                if (!string.IsNullOrEmpty(listkodeBRGBaru))
+                {
+                    try
+                    {
+                        var accountlist = MoDbContext.Account.Where(p => p.Email == accountEmail).SingleOrDefault();
+                        DatabaseSQL EDB = new DatabaseSQL(accountlist.DatabasePathErasoft);
+                        string dbSourceEra = "";
+#if (Debug_AWS)
+                            dbSourceEra = accountlist.DataSourcePathDebug;
+#else
+                        dbSourceEra = accountlist.DataSourcePath;
+#endif
+                        ErasoftDbContext = new ErasoftContext(dbSourceEra, accountlist.DatabasePathErasoft);
+
+                        //listdataKodeBRG = listdataKodeBRG.ConvertAll(d => d.ToUpper());
+                        //var kodeBRGCheck = listdataKodeBRG.Contains(kodeUpper);
+
+                        var checkBrgStrukturInduk = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listkodeBRGBaru).ToList();
+
+                        if(checkBrgStrukturInduk.Count() > 0)
+                        {
+                            resultCekVariant = true;
+
+                            if (checkBrgStrukturInduk[0].TYPE == "4")
+                            {
+                                dataInduk = checkBrgStrukturInduk[0].BRG.ToString();
+                                var checkBrgVariant = ErasoftDbContext.STF02.Where(p => p.PART.ToUpper() == listkodeBRGBaru).ToList();
+                                if (checkBrgVariant.Count() > 0)
+                                {
+                                    foreach (var datavariant in checkBrgVariant)
+                                    {
+                                        dataVar = dataVar + datavariant.BRG.ToString() + "\n";
+                                    }
+                                }
+                                else
+                                {
+                                    dataVar = "";
+                                }
+                            }
+                            else if(checkBrgStrukturInduk[0].TYPE == "3")
+                            {
+                                var checkBrgInduk = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == listkodeBRGBaru).SingleOrDefault();
+                                if (!string.IsNullOrEmpty(checkBrgInduk.PART))
+                                {
+                                    dataInduk = checkBrgInduk.PART.ToString();
+                                }
+                                else
+                                {
+                                    dataInduk = checkBrgInduk.BRG.ToString();
+                                }
+
+                                var checkBrgVariant = ErasoftDbContext.STF02.Where(p => p.PART.ToUpper() == dataInduk.ToUpper()).ToList();
+                                if (checkBrgVariant.Count() > 0)
+                                {
+                                    foreach (var datavariant in checkBrgVariant)
+                                    {
+                                        dataVar = dataVar + datavariant.BRG.ToString() + "\n";
+                                    }
+                                }
+                                else
+                                {
+                                    vmessage = "Kode barang variant tidak ada.";
+                                    dataVar = "";
+                                }
+                            }
+                            else
+                            {
+                                dataInduk = checkBrgStrukturInduk[0].BRG;
+                                vmessage = "Kode barang tidak diatur sebagai induk ataupun variant. Harap hubungi IT Support.";
+                            }
+                        }
+                        else
+                        {
+                            vmessage = "Kode barang tidak ada.";
+                        }                
+
+                    }
+                    catch (Exception ex)
+                    {
+                        resultCekVariant = false;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(vmessage))
+                {
+                    return new JsonResult { Data = new { success = resultCekVariant, message = vmessage, datainduk = dataInduk, datavar = dataVar }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    return new JsonResult { Data = new { success = resultCekVariant, message = "", datainduk = dataInduk , datavar = dataVar }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+            }
+            else
+            {
+                return new JsonResult { Data = new { success = false }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+        // =============================================== Bagian SUPPORT (END)
+
         // Mengubah status akun utama
         //public async Task<ActionResult> ChangeStatusAccount(int? accId, string stat)
         public async Task<ActionResult> ChangeStatusAccount(MenuAccount dataVm)
@@ -2006,19 +3342,38 @@ namespace MasterOnline.Controllers
                       $" MOVE 'erasoft_log' TO '{pathRestore}\\{accInDb.DatabasePathErasoft}.ldf';";
 #if AWS
                 //add by fauzi 29 Januari 2020
-                accInDb.DataSourcePath = "13.250.232.74\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
-                                "user id=masteronline;password=M@ster123;");
+                //accInDb.DataSourcePath = "13.250.232.74\\SQLEXPRESS, 1433";
+                //SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
+                //                "user id=masteronline;password=M@ster123;");
+
+                //add by fauzi 04/12/2020
+                // IP PRIVATE STATIC SERVER T3 REGISTER
+                accInDb.DataSourcePath = "172.31.1.127\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=172.31.1.127\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                      "user id=masteronline;password=M@ster123;");
 #elif Debug_AWS
                 //add by fauzi 29 Januari 2020
-                accInDb.DataSourcePath = "13.250.232.74\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //accInDb.DataSourcePath = "13.250.232.74\\SQLEXPRESS, 1433";
+                //SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //                                      "user id=masteronline;password=M@ster123;");
+
+                //add by fauzi 29 Januari 2020
+                // IP PRIVATE STATIC DEV
+                accInDb.DataSourcePath = "172.31.29.78\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=172.31.29.78\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
 #else
                 //add by fauzi 29 Januari 2020
-                accInDb.DataSourcePath = "13.251.222.53\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //accInDb.DataSourcePath = "13.251.222.53\\SQLEXPRESS, 1433";
+                //SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                //                                      "user id=masteronline;password=M@ster123;");
+
+                //add by fauzi 04/12/2020
+                //IP PRIVATE DEV 
+                accInDb.DataSourcePath = "172.31.29.78\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=172.31.29.78\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
+
 #endif
                 SqlCommand command = new SqlCommand(sql, con);
 
@@ -2026,8 +3381,13 @@ namespace MasterOnline.Controllers
                 command.ExecuteNonQuery();
                 con.Close();
                 con.Dispose();
-
-                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DataSourcePath, accInDb.DatabasePathErasoft);
+                string dbSourceEra = "";
+#if (Debug_AWS)
+                dbSourceEra = accInDb.DataSourcePathDebug;
+#else
+                dbSourceEra = accInDb.DataSourcePath;
+#endif
+                ErasoftContext ErasoftDbContext = new ErasoftContext(dbSourceEra, accInDb.DatabasePathErasoft);
                 var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
                 if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
                 {
@@ -2626,6 +3986,17 @@ namespace MasterOnline.Controllers
             akun.jumlahUser = vm.Payment.jumlahUser;
             akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
             MoDbContext.SaveChanges();
+
+            //add by nurul 7/1/2021
+            var addOnCust = MoDbContext.Addons_Customer.Where(a => a.Account == vm.Payment.Email).ToList();
+            if(addOnCust.Count() > 0)
+            {
+                var sSQLUpdateAddOn = "update a set TglSubscription=b.Tgl_Subscription from Addons_Customer a inner join Account b on a.account=b.email where a.account='" + vm.Payment.Email +"'";
+                MoDbContext.Database.ExecuteSqlCommand(sSQLUpdateAddOn);
+                MoDbContext.SaveChanges();
+            }
+            //end add by nurul 7/1/2021
+            
             ModelState.Clear();
             if (newPayment == true)
             {
@@ -2826,11 +4197,13 @@ namespace MasterOnline.Controllers
                             LAST_HEARTBEAT = lastHeartbeat
                         };
 
-                        string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' " + System.Environment.NewLine;
+                        //string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' " + System.Environment.NewLine;
+                        string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' and InvocationData not like '%updateBruto%'" + System.Environment.NewLine;
                         sSQL += "union all" + System.Environment.NewLine;
                         sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%'" + System.Environment.NewLine;
                         sSQL += "union all" + System.Environment.NewLine;
-                        sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%'" + System.Environment.NewLine;
+                        //sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%'" + System.Environment.NewLine;
+                        sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%' and InvocationData not like '%stok%'" + System.Environment.NewLine;
                         var dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
                         if (dsCekQueue.Tables[0].Rows.Count > 0)
                         {
@@ -3099,11 +4472,15 @@ namespace MasterOnline.Controllers
 
                 var MoDbContext = new MoDbContext("");
 
+                //var akun = MoDbContext.Account.Count();
+                //var user = MoDbContext.User.Count();
+
                 var accountInDb = (from a in MoDbContext.Account
                                    where
-                                   (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
-                                   &&
+                                   //(a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                                   //&&
                                    (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                                   && !string.IsNullOrEmpty(a.DatabasePathErasoft)
                                    orderby a.LAST_LOGIN_DATE descending
                                    select new { db_name = a.DatabasePathErasoft, db_source = a.DataSourcePath, onlineshopname = a.NamaTokoOnline }).ToList();
 
@@ -3122,17 +4499,538 @@ namespace MasterOnline.Controllers
             {
                 //change by fauzi 24 Januari 2020
                 //var RemoteMODbContext = new MoDbContext(db_source);
-                var RemoteMODbContext = new MoDbContext("");
-                //end
-                RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @tahun", new SqlParameter("@db_name", db_name), new SqlParameter("@tahun", tahun));
+                //change by nurul 21/12/2020
+                //var RemoteMODbContext = new MoDbContext("");
+                var getIP = "";
+                var getPort = "1433";
+                if (db_source != "" && db_source != null)
+                {
+                    if (db_source.Contains("172.31.20.197") || db_source.Contains("13.250.232.74"))
+                    {
+                        getIP = "13.250.232.74";
+                    }
+                    else if ((db_source.Contains("172.31.20.200") || db_source.Contains("54.179.169.195")) && db_source.Contains("1433"))
+                    {
+                        getIP = "54.179.169.195";
+                    }
+                    else if (db_source.Contains("172.31.17.194") || db_source.Contains("52.76.44.100"))
+                    {
+                        getIP = "52.76.44.100";
+                    }
+                    else if (db_source.Contains("172.31.26.111") || db_source.Contains("54.254.98.21"))
+                    {
+                        getIP = "54.254.98.21";
+                    }
+                    else if (db_source.Contains("172.31.14.140") || db_source.Contains("18.141.161.81"))
+                    {
+                        getIP = "18.141.161.81";
+                    }
+                    else if (db_source.Contains("172.31.1.127") || db_source.Contains("13.251.64.77"))
+                    {
+                        getIP = "13.251.64.77";
+                    }
+                    else if (db_source.Contains("172.31.40.234") || db_source.Contains("54.179.0.52"))
+                    {
+                        getIP = "54.179.0.52";
+                    }
+                    else if (db_source.Contains("13.251.222.53") || db_source.Contains("13.251.222.53"))
+                    {
+                        getIP = "13.251.222.53";
+                    }
+                    else if ((db_source.Contains("54.179.169.195") || db_source.Contains("54.179.169.195")) && db_source.Contains("1444"))
+                    {
+                        getIP = "54.179.169.195";
+                        getPort = "1444";
+                    }
+                }
+                //var getIP = db_source.Split(new string[] { "\"" }, StringSplitOptions.None).First();
+                //var getPort = db_source.Split(new string[] { ", " }, StringSplitOptions.None).Last();
+                if (db_source != "" && db_source != null)
+                {
+                    var RemoteMODbContext = new MoDbContext(getPort, getIP);
 
-                return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    //var akun = MoDbContext.Account.Count();
+                    //var user = MoDbContext.User.Count();
+                    //end change by nurul 21/12/2020
+                    //end
+                    //remark dulu biar ga keproses 
+                    //RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @tahun", new SqlParameter("@db_name", db_name), new SqlParameter("@tahun", tahun));
+                    try
+                    {
+                        var cekExist = RemoteMODbContext.Database.ExecuteSqlCommand("use " + db_name);
+
+                        var tahunProses = Convert.ToInt16(tahun);
+
+                        object[] spParams = {
+                        new SqlParameter("@db_name", db_name),
+                        new SqlParameter("@THN", tahunProses)
+                        };
+                        RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @THN", spParams);
+                    }
+                    catch
+                    {
+                        return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Database " + db_name + " tidak ditemukan." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+
+                    return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
             {
                 return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
+
+        //add by nurul 21/12/2020
+        public ActionResult ProsesAkhirTahunPreparePerServer(string tahun, string server, string[] db_name)
+        {
+            try
+            {
+                var lastYear = DateTime.UtcNow.AddYears(-1);
+                var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
+                var datenow = DateTime.UtcNow.AddHours(7);
+
+                //var MoDbContext = new MoDbContext("");
+                var getIP = "";
+                var getPort = "1433";
+                if (server != "" && server != null)
+                {
+                    if (server.Contains("172.31.20.197") || server.Contains("13.250.232.74"))
+                    {
+                        getIP = "13.250.232.74";
+                    }
+                    else if ((server.Contains("172.31.20.200") || server.Contains("54.179.169.195")) && server.Contains("1433"))
+                    {
+                        getIP = "54.179.169.195";
+                    }
+                    else if (server.Contains("172.31.17.194") || server.Contains("52.76.44.100"))
+                    {
+                        getIP = "52.76.44.100";
+                    }
+                    else if (server.Contains("172.31.26.111") || server.Contains("54.254.98.21"))
+                    {
+                        getIP = "54.254.98.21";
+                    }
+                    else if (server.Contains("172.31.14.140") || server.Contains("18.141.161.81"))
+                    {
+                        getIP = "18.141.161.81";
+                    }
+                    else if (server.Contains("172.31.1.127") || server.Contains("13.251.64.77"))
+                    {
+                        getIP = "13.251.64.77";
+                    }
+                    else if (server.Contains("172.31.40.234") || server.Contains("54.179.0.52"))
+                    {
+                        getIP = "54.179.0.52";
+                    }
+                    else if (server.Contains("13.251.222.53") || server.Contains("13.251.222.53"))
+                    {
+                        getIP = "13.251.222.53";
+                    }
+                    else if ((server.Contains("54.179.169.195") || server.Contains("54.179.169.195")) && server.Contains("1444"))
+                    {
+                        getIP = "54.179.169.195";
+                        getPort = "1444";
+                    }
+                }
+                //var getIP = server.Split(new string[] { "\"" }, StringSplitOptions.None).First();
+                //var getPort = server.Split(new string[] { ", " }, StringSplitOptions.None).Last();
+                var listDB = new List<string>();
+                if(db_name != null  && db_name.Count() > 0)
+                {
+                    listDB = db_name.ToList();
+                }
+                if (getIP != "")
+                {
+                    //var MoDbContext = new MoDbContext(getPort, getIP);
+                    var MoDbContext = new MoDbContext("");
+                    //var akun = MoDbContext.Account.Count();
+                    //var user = MoDbContext.User.Count();
+
+                    var accountInDb = (from a in MoDbContext.Account
+                                       where
+                                       //(a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                                       //&&
+                                       (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                                       && !string.IsNullOrEmpty(a.DatabasePathErasoft)
+                                       &&
+                                       listDB.Contains(a.DatabasePathErasoft)
+                                       orderby a.LAST_LOGIN_DATE descending
+                                       select new { db_name = a.DatabasePathErasoft, db_source = a.DataSourcePath, onlineshopname = a.NamaTokoOnline }).ToList();
+
+                    return new JsonResult { Data = new { arraydbname = accountInDb }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "Server tidak ditemukan." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+        public class listServer
+        {
+            public string IP { get; set; }
+        }
+        public ActionResult GetServer()
+        {
+            var MoDbContext = new MoDbContext("");
+            //listServer = MoDbContext.Account.Where(a => !string.IsNullOrEmpty(a.DataSourcePath)).Select(a => a.DataSourcePath).Distinct().ToList();
+            var listServer = (from a in MoDbContext.Account
+                         where !string.IsNullOrEmpty(a.DataSourcePath)
+                         select new listServer { IP = a.DataSourcePath }).Distinct().ToList();
+            return Json(listServer, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult PromptAccountUserPerServer(string server)
+        {
+            var vm = new PromptAccountServerAkhirTahunViewModel()
+            {
+                
+            };
+            if(server != "" && server != null)
+            {
+                var lastYear = DateTime.UtcNow.AddYears(-1);
+                var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
+                var datenow = DateTime.UtcNow.AddHours(7);
+                //var MoDbContext = new MoDbContext("");
+
+                var getIP = "";
+                var getPort = "1433";
+                var getIPPrivate = "";
+                if (server.Contains("172.31.20.197") || server.Contains("13.250.232.74"))
+                {
+                    getIP = "13.250.232.74";
+                    getIPPrivate = "172.31.20.197";
+                }else if ((server.Contains("172.31.20.200") || server.Contains("54.179.169.195")) && server.Contains("1433"))
+                {
+                    getIP = "54.179.169.195";
+                    getIPPrivate = "172.31.20.200";
+                }
+                else if (server.Contains("172.31.17.194") || server.Contains("52.76.44.100"))
+                {
+                    getIP = "52.76.44.100";
+                    getIPPrivate = "172.31.17.194";
+                }
+                else if (server.Contains("172.31.26.111") || server.Contains("54.254.98.21"))
+                {
+                    getIP = "54.254.98.21";
+                    getIPPrivate = "172.31.26.111";
+                }
+                else if (server.Contains("172.31.14.140") || server.Contains("18.141.161.81"))
+                {
+                    getIP = "18.141.161.81";
+                    getIPPrivate = "172.31.14.140";
+                }
+                else if (server.Contains("172.31.1.127") || server.Contains("13.251.64.77"))
+                {
+                    getIP = "13.251.64.77";
+                    getIPPrivate = "172.31.1.127";
+                }
+                else if (server.Contains("172.31.40.234") || server.Contains("54.179.0.52"))
+                {
+                    getIP = "54.179.0.52";
+                    getIPPrivate = "172.31.40.234";
+                }
+                else if (server.Contains("13.251.222.53") || server.Contains("13.251.222.53"))
+                {
+                    getIP = "13.251.222.53";
+                    getIPPrivate = "13.251.222.53";
+                }
+                else if ((server.Contains("54.179.169.195") || server.Contains("54.179.169.195")) && server.Contains("1444"))
+                {
+                    getIP = "54.179.169.195";
+                    getIPPrivate = "54.179.169.195";
+                    getPort = "1444";
+                }
+                if (getIP != "")
+                {
+                    //var MoDbContext = new MoDbContext(getPort, getIP);
+                    var MoDbContext = new MoDbContext("");
+                    //var akun = MoDbContext.Account.Count();
+                    //var user = MoDbContext.User.Count();
+
+                    var listAkun = (from a in MoDbContext.Account
+                                    where
+                                    //(a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                                    //&&
+                                    (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                                    && !string.IsNullOrEmpty(a.DatabasePathErasoft)
+                                    &&
+                                    a.DataSourcePath.Contains(getIPPrivate)
+                                    orderby a.LAST_LOGIN_DATE descending
+                                    select new listAkunPerServer { db_name = a.DatabasePathErasoft, db_source = a.DataSourcePath, onlineshopname = a.NamaTokoOnline, email = a.Email, accountid = a.AccountId }).ToList();
+                    vm.listAkun = listAkun;
+                }
+            }
+            return PartialView("TablePromptAkunProsesAkhirTahun", vm);
+        }
+        //[Queue("3_general")]
+        //public ActionResult ProsesAkhirTahunPerServer(string db_source, string db_name, string tahun)
+        //{
+        //    try
+        //    {
+        //        //change by fauzi 24 Januari 2020
+        //        //var RemoteMODbContext = new MoDbContext(db_source);
+        //        //change by nurul 21/12/2020
+        //        //var RemoteMODbContext = new MoDbContext("");
+        //        var getIP = "";
+        //        var getPort = "1433";
+        //        if (db_source != "" && db_source != null)
+        //        {
+        //            if (db_source.Contains("172.31.20.197") || db_source.Contains("13.250.232.74"))
+        //            {
+        //                getIP = "13.250.232.74";
+        //            }
+        //            else if ((db_source.Contains("172.31.20.200") || db_source.Contains("54.179.169.195")) && db_source.Contains("1433"))
+        //            {
+        //                getIP = "54.179.169.195";
+        //            }
+        //            else if (db_source.Contains("172.31.17.194") || db_source.Contains("52.76.44.100"))
+        //            {
+        //                getIP = "52.76.44.100";
+        //            }
+        //            else if (db_source.Contains("172.31.26.111") || db_source.Contains("54.254.98.21"))
+        //            {
+        //                getIP = "54.254.98.21";
+        //            }
+        //            else if (db_source.Contains("172.31.14.140") || db_source.Contains("18.141.161.81"))
+        //            {
+        //                getIP = "18.141.161.81";
+        //            }
+        //            else if (db_source.Contains("172.31.1.127") || db_source.Contains("13.251.64.77"))
+        //            {
+        //                getIP = "13.251.64.77";
+        //            }
+        //            else if (db_source.Contains("172.31.40.234") || db_source.Contains("54.179.0.52"))
+        //            {
+        //                getIP = "54.179.0.52";
+        //            }
+        //            else if (db_source.Contains("13.251.222.53") || db_source.Contains("13.251.222.53"))
+        //            {
+        //                getIP = "13.251.222.53";
+        //            }
+        //            else if ((db_source.Contains("54.179.169.195") || db_source.Contains("54.179.169.195")) && db_source.Contains("1444"))
+        //            {
+        //                getIP = "54.179.169.195";
+        //                getPort = "1444";
+        //            }
+        //        }
+        //        //var getIP = db_source.Split(new string[] { "\"" }, StringSplitOptions.None).First();
+        //        //var getPort = db_source.Split(new string[] { ", " }, StringSplitOptions.None).Last();
+        //        if (getIP != "")
+        //        {
+        //            var RemoteMODbContext = new MoDbContext(getPort, getIP);
+        //            //var akun = RemoteMODbContext.Account.Count();
+        //            //var user = RemoteMODbContext.User.Count();
+        //            //end change by nurul 21/12/2020
+        //            //end
+        //            //remark dulu biar ga keproses 
+        //            var tahunProses = Convert.ToInt16(tahun);
+
+        //            object[] spParams = {
+        //            new SqlParameter("@db_name", db_name),
+        //            new SqlParameter("@THN", tahunProses)
+        //            };
+        //            RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @THN", spParams);
+        //            //RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @THN", new SqlParameter("@db_name", db_name), new SqlParameter("@THN", tahunProses));
+        //        }
+        //        return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        //    }
+        //}
+        //end add by nurul 21/12/2020
+
+        //add by nurul 5/1/2021
+        [Queue("3_general")]
+        public ActionResult ProsesAkhirTahunGL(string db_source, string db_name, string tahun)
+        {
+            try
+            {
+                var getIP = "";
+                var getPort = "1433";
+                if (db_source != "" && db_source != null)
+                {
+                    if (db_source.Contains("172.31.20.197") || db_source.Contains("13.250.232.74"))
+                    {
+                        getIP = "13.250.232.74";
+                    }
+                    else if ((db_source.Contains("172.31.20.200") || db_source.Contains("54.179.169.195")) && db_source.Contains("1433"))
+                    {
+                        getIP = "54.179.169.195";
+                    }
+                    else if (db_source.Contains("172.31.17.194") || db_source.Contains("52.76.44.100"))
+                    {
+                        getIP = "52.76.44.100";
+                    }
+                    else if (db_source.Contains("172.31.26.111") || db_source.Contains("54.254.98.21"))
+                    {
+                        getIP = "54.254.98.21";
+                    }
+                    else if (db_source.Contains("172.31.14.140") || db_source.Contains("18.141.161.81"))
+                    {
+                        getIP = "18.141.161.81";
+                    }
+                    else if (db_source.Contains("172.31.1.127") || db_source.Contains("13.251.64.77"))
+                    {
+                        getIP = "13.251.64.77";
+                    }
+                    else if (db_source.Contains("172.31.40.234") || db_source.Contains("54.179.0.52"))
+                    {
+                        getIP = "54.179.0.52";
+                    }
+                    else if (db_source.Contains("13.251.222.53") || db_source.Contains("13.251.222.53"))
+                    {
+                        getIP = "13.251.222.53";
+                    }
+                    else if ((db_source.Contains("54.179.169.195") || db_source.Contains("54.179.169.195")) && db_source.Contains("1444"))
+                    {
+                        getIP = "54.179.169.195";
+                        getPort = "1444";
+                    }
+                }
+                if (db_source != "" && db_source != null)
+                {
+                    var RemoteMODbContext = new MoDbContext(getPort, getIP);
+                    
+                    try
+                    {
+                        var cekExist = RemoteMODbContext.Database.ExecuteSqlCommand("use " + db_name);
+
+                        var tahunProses = Convert.ToInt16(tahun);
+
+                        object[] spParams = {
+                        new SqlParameter("@db_name", db_name),
+                        new SqlParameter("@THN", tahunProses)
+                        };
+                        RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN_GL] @db_name, @THN", spParams);
+
+                        #region REMARK
+                        //short tahunProses1 = Convert.ToInt16(tahunProses + 1);
+
+                        //ErasoftContext ErasoftDbContext = new ErasoftContext(getIP, db_name);
+                        //var test = ErasoftDbContext.SOT01A.OrderByDescending(A => A.TGL).FirstOrDefault();
+
+                        //#region GLFMUT
+                        //string sSQL = "";
+                        //sSQL += "DECLARE @THN_PROSES AS INT; " + Environment.NewLine + Environment.NewLine +
+                        //"SET @THN_PROSES = " + tahunProses + "; " + Environment.NewLine + Environment.NewLine +
+                        //"SELECT LKS, KODE, @THN_PROSES +1 THN, " +
+                        //"JUMLAH = ISNULL(SUM(SA + (DEBET1 + DEBET2 + DEBET3 + DEBET4 + DEBET5 + DEBET6 + DEBET7 + DEBET8 + DEBET9 + DEBET10 + DEBET11 + DEBET12) - (KREDIT1 + KREDIT2 + KREDIT3 + KREDIT4 + KREDIT5 + KREDIT6 + KREDIT7 + KREDIT8 + KREDIT9 + KREDIT10 + KREDIT11 + KREDIT12)), 0) " +
+                        //"INTO #TEMP_GL " +
+                        //"FROM GLFMUT(NOLOCK) " +
+                        //"WHERE THN = @THN_PROSES " +
+                        //"GROUP BY LKS,KODE; " + Environment.NewLine + Environment.NewLine +
+
+                        //"UPDATE A SET SA = TEMP.JUMLAH " +
+                        //"FROM GLFMUT A " +
+                        //"INNER JOIN #TEMP_GL TEMP ON A.LKS = TEMP.LKS AND A.KODE = TEMP.KODE AND A.THN = TEMP.THN; " + Environment.NewLine + Environment.NewLine +
+
+                        //"INSERT INTO GLFMUT(THN, LKS, KODE, SA, " +
+                        //"DEBET1, DEBET2, DEBET3, DEBET4, DEBET5, DEBET6, DEBET7, DEBET8, DEBET9, DEBET10, DEBET11, DEBET12, " +
+                        //"KREDIT1, KREDIT2, KREDIT3, KREDIT4, KREDIT5, KREDIT6, KREDIT7, KREDIT8, KREDIT9, KREDIT10, KREDIT11, KREDIT12) " +
+                        //"SELECT TEMP.THN,TEMP.LKS,TEMP.KODE,TEMP.JUMLAH, " +
+                        //"0,0,0,0,0,0,0,0,0,0,0,0, " +
+                        //"0,0,0,0,0,0,0,0,0,0,0,0 " +
+                        //"FROM #TEMP_GL TEMP  " +
+                        //"LEFT JOIN GLFMUT GL ON GL.KODE = TEMP.KODE AND GL.LKS = TEMP.LKS AND GL.THN = @THN_PROSES + 1 " +
+                        //"WHERE ISNULL(GL.KODE,'') = ''; " + Environment.NewLine + Environment.NewLine +
+
+                        //"DROP TABLE #TEMP_GL; " + Environment.NewLine;
+                        ////var resultProsesAkhirTahunGLFMUT = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        //var resultProsesAkhirTahunGLFMUT = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                        //ErasoftDbContext.SaveChanges();
+                        //#endregion GLFMUT
+
+                        //#region STF08
+                        //string sSQL2 = "";
+                        //sSQL2 += "DECLARE @THN_PROSES_ST AS INT; " + Environment.NewLine + Environment.NewLine +
+                        //"SET @THN_PROSES_ST = " + tahunProses + "; " + Environment.NewLine + Environment.NewLine +
+                        //"SELECT GD,BRG,@THN_PROSES_ST + 1 TAHUN, " +
+                        //"JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) " +
+                        //"INTO #TEMP_ST " +
+                        //"FROM STF08(NOLOCK) " +
+                        //"INNER JOIN STF18(NOLOCK) ON STF08.GD = STF18.KODE_GUDANG " +
+                        //"WHERE STF08.TAHUN = @THN_PROSES_ST " +
+                        //"GROUP BY GD,BRG; " + Environment.NewLine + Environment.NewLine +
+
+                        //"UPDATE A SET QAWAL = TEMP.JUMLAH " +
+                        //"FROM STF08 A " +
+                        //"INNER JOIN #TEMP_ST TEMP ON A.GD = TEMP.GD AND A.BRG = TEMP.BRG AND A.TAHUN = TEMP.TAHUN; " + Environment.NewLine + Environment.NewLine +
+
+                        //"INSERT INTO STF08(GD, BRG, TAHUN, QAWAL, NAWAL, " +
+                        //"QM1, QM2, QM3, QM4, QM5, QM6, QM7, QM8, QM9, QM10, QM11, QM12, " +
+                        //"QK1, QK2, QK3, QK4, QK5, QK6, QK7, QK8, QK9, QK10, QK11, QK12, " +
+                        //"NM1, NM2, NM3, NM4, NM5, NM6, NM7, NM8, NM9, NM10, NM11, NM12, " +
+                        //"NK1, NK2, NK3, NK4, NK5, NK6, NK7, NK8, NK9, NK10, NK11, NK12) " +
+                        //"SELECT TEMP.GD,TEMP.BRG,TEMP.TAHUN,TEMP.JUMLAH,0, " +
+                        //"0,0,0,0,0,0,0,0,0,0,0,0, " +
+                        //"0,0,0,0,0,0,0,0,0,0,0,0, " +
+                        //"0,0,0,0,0,0,0,0,0,0,0,0, " +
+                        //"0,0,0,0,0,0,0,0,0,0,0,0 " +
+                        //"FROM #TEMP_ST TEMP  " +
+                        //"LEFT JOIN STF08 ST ON ST.BRG = TEMP.BRG AND ST.GD = TEMP.GD AND ST.TAHUN = @THN_PROSES_ST + 1 " +
+                        //"WHERE ISNULL(ST.BRG,'') = ''; " + Environment.NewLine + Environment.NewLine +
+
+                        //"DROP TABLE #TEMP_ST; " + Environment.NewLine;
+
+                        ////var resultProsesAkhirTahunSTF08 = EDB.ExecuteSQL("CString", CommandType.Text, sSQL2);
+                        //var resultProsesAkhirTahunSTF08 = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL2);
+                        //ErasoftDbContext.SaveChanges();
+                        //#endregion STF08
+
+                        //#region GLFMTL
+                        //string sSQL3 = "";
+                        //sSQL2 += "DECLARE @THN_PROSES_GLFMTL AS INT; " + Environment.NewLine + Environment.NewLine +
+                        //"SET @THN_PROSES_GLFMTL = " + tahunProses + "; " + Environment.NewLine + Environment.NewLine +
+
+                        //"SELECT @THN_PROSES_GLFMTL +1 TAHUN,LKS,KODE, " +
+                        //"THI1 AS THL1, THI2 AS THL2, THI3 AS THL3, THI4 AS THL4, THI5 AS THL5, THI6 AS THL6, THI7 AS THL7, THI8 AS THL8, THI9 AS THL9, THI10 AS THL10, THI11 AS THL11, THI12 AS THL12 " +
+                        //"INTO #TEMP_GLFMTL " +
+                        //"FROM GLFMTL " +
+                        //"WHERE Thn = @THN_PROSES_GLFMTL; " + Environment.NewLine + Environment.NewLine +
+
+
+                        //"UPDATE A SET THL1 = TEMP.THL1, THL2 = TEMP.THL2, THL3 = TEMP.THL3, THL4 = TEMP.THL4, THL5 = TEMP.THL5, THL6 = TEMP.THL6, THL7 = TEMP.THL7, THL8 = TEMP.THL8, THL9 = TEMP.THL9, THL10 = TEMP.THL10, THL11 = TEMP.THL11, THL12 = TEMP.THL12 " +
+                        //"FROM GLFMTL A " +
+                        //"INNER JOIN #TEMP_GLFMTL TEMP ON A.KODE = TEMP.KODE AND A.LKS = TEMP.LKS AND A.THN = TEMP.TAHUN; " + Environment.NewLine + Environment.NewLine +
+
+                        //"INSERT INTO GLFMTL(THN, LKS, KODE, " +
+                        //"THI1, THI2, THI3, THI4, THI5, THI6, THI7, THI8, THI9, THI10, THI11, THI12, " +
+                        //"THL1, THL2, THL3, THL4, THL5, THL6, THL7, THL8, THL9, THL10, THL11, THL12) " +
+                        //"SELECT TEMP.TAHUN,TEMP.LKS,TEMP.KODE, " +
+                        //"0,0,0,0,0,0,0,0,0,0,0,0, " +
+                        //"TEMP.THL1,TEMP.THL2,TEMP.THL3,TEMP.THL4,TEMP.THL5,TEMP.THL6,TEMP.THL7,TEMP.THL8,TEMP.THL9,TEMP.THL10,TEMP.THL11,TEMP.THL12 " +
+                        //"FROM #TEMP_GLFMTL TEMP  " +
+                        //"LEFT JOIN GLFMTL MTL ON MTL.KODE = TEMP.KODE AND MTL.LKS = TEMP.LKS AND MTL.THN = @THN_PROSES_GLFMTL + 1 " +
+                        //"WHERE ISNULL(MTL.KODE,'') = ''; " + Environment.NewLine + Environment.NewLine +
+
+                        //"DROP TABLE #TEMP_GLFMTL; " + Environment.NewLine;
+
+                        ////var resultProsesAkhirTahunGLFMTL = EDB.ExecuteSQL("CString", CommandType.Text, sSQL3);
+                        //var resultProsesAkhirTahunGLFMTL = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
+                        //ErasoftDbContext.SaveChanges();
+                        //#endregion GLFMTL
+                        #endregion REMARK
+                    }
+                    catch (Exception ex)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Database " + db_name + " tidak ditemukan." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+
+                    return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+        //end add by nurul 5/1/2021
 
         //add by fauzi 21 Februari 2020
         [Queue("3_general")]

@@ -1775,6 +1775,45 @@ namespace MasterOnline.Controllers
         [Queue("3_general")]
         public async Task<string> GetOrderByStatus(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar)
         {
+            SetupContext(iden);
+
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
+
+            var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+
+            //int dayFrom = -1;
+
+            //add 16 des 2020, fixed date
+            //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).AddHours(-7).ToUnixTimeSeconds();
+            //var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
+            var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
+            var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            //end add 16 des 2020, fixed date
+
+            await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, 0, 0, 0, fromDt, toDt);
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "";
+            if (stat == StatusOrder.UNPAID)
+            {
+                //queryStatus = "\"}\"" + "," + "\"6\"" + "," + "\"";
+                queryStatus = "\\\"}\"" + "," + "\"6\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","6","\"000003\""
+            }
+            else if (stat == StatusOrder.READY_TO_SHIP)
+            {
+                //queryStatus = "\"}\"" + "," + "\"3\"" + "," + "\"";
+                queryStatus = "\\\"}\"" + "," + "\"3\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","3","\"000003\""
+            }
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrderByStatusCompleted%' and invocationdata not like '%GetOrderByStatusCancelled%' and invocationdata not like '%GetOrderByStatusWithDay%'");
+            // end tunning untuk tidak duplicate
+            return "";
+        }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> GetOrderByStatusWithDay(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
+        {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
@@ -1784,7 +1823,10 @@ namespace MasterOnline.Controllers
             long seconds = CurrentTimeSecond();
             //change by nurul 10/12/2019, change create_time_from
             //long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
-            long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-3).ToUnixTimeSeconds();
+            //long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-3).ToUnixTimeSeconds();
+            //long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(day).AddHours(-7).ToUnixTimeSeconds();
+            long timestamp7Days = daysFrom;
+
             //change add by nurul 10/12/2019, change create_time_from
 
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -1799,7 +1841,8 @@ namespace MasterOnline.Controllers
                 pagination_offset = page,
                 pagination_entries_per_page = 50,
                 create_time_from = timestamp7Days,
-                create_time_to = seconds,
+                //create_time_to = seconds,
+                create_time_to = daysTo,
                 order_status = stat.ToString()
             };
 
@@ -1846,7 +1889,10 @@ namespace MasterOnline.Controllers
                         {
                             string[] ordersn_list = listOrder.orders.Select(p => p.ordersn).ToArray();
                             //add by calvin 4 maret 2019, filter
-                            var dariTgl = DateTimeOffset.UtcNow.AddDays(-30).DateTime;
+                            //var dariTgl = DateTimeOffset.UtcNow.AddDays(-4).DateTime;
+                            //var dariTgl = DateTimeOffset.UtcNow.AddDays(day - 1).DateTime;
+                            var dariTgl = DateTimeOffset.FromUnixTimeSeconds(daysFrom).UtcDateTime.AddHours(7).AddDays(-1);
+
                             var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto Shopee" && p.CUST == CUST && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
                             //end add by calvin
                             var filtered = ordersn_list.Where(p => !SudahAdaDiMO.Contains(p));
@@ -1868,7 +1914,11 @@ namespace MasterOnline.Controllers
                                 if (!string.IsNullOrEmpty(ordersn))
                                 {
                                     ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
+                                    //add 28 okt 2020 update tgl expired
+                                    //await GetOrderDetailsUpdateExpiredDate(iden, ordersn, connID, CUST, NAMA_CUST, stat);//remark 13 nov 2020 tutup sementara
+                                    //end add 28 okt 2020 update tgl expired 
+                                    //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0' AND CUST = '" + CUST + "'");
                                     if (rowAffected > 0)
                                     {
                                         jmlhPesananDibayar += rowAffected;
@@ -1883,7 +1933,7 @@ namespace MasterOnline.Controllers
                                 new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                                 //end add by Tri 4 Mei 2020, update stok di jalankan per batch karena batch berikutnya akan memiliki connID yg berbeda
 
-                                await GetOrderByStatus(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar);
+                                await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar, daysFrom, daysTo);
                             }
                             else
                             {
@@ -1914,20 +1964,20 @@ namespace MasterOnline.Controllers
             }
 
 
-            // tunning untuk tidak duplicate
-            var queryStatus = "";
-            if (stat == StatusOrder.UNPAID)
-            {
-                //queryStatus = "\"}\"" + "," + "\"6\"" + "," + "\"";
-                queryStatus = "\\\"}\"" + "," + "\"6\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","6","\"000003\""
-            }
-            else if (stat == StatusOrder.READY_TO_SHIP)
-            {
-                //queryStatus = "\"}\"" + "," + "\"3\"" + "," + "\"";
-                queryStatus = "\\\"}\"" + "," + "\"3\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","3","\"000003\""
-            }
-            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrderByStatusCompleted%' and invocationdata not like '%GetOrderByStatusCancelled%' ");
-            // end tunning untuk tidak duplicate
+            //// tunning untuk tidak duplicate
+            //var queryStatus = "";
+            //if (stat == StatusOrder.UNPAID)
+            //{
+            //    //queryStatus = "\"}\"" + "," + "\"6\"" + "," + "\"";
+            //    queryStatus = "\\\"}\"" + "," + "\"6\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","6","\"000003\""
+            //}
+            //else if (stat == StatusOrder.READY_TO_SHIP)
+            //{
+            //    //queryStatus = "\"}\"" + "," + "\"3\"" + "," + "\"";
+            //    queryStatus = "\\\"}\"" + "," + "\"3\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","3","\"000003\""
+            //}
+            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrderByStatusCompleted%' and invocationdata not like '%GetOrderByStatusCancelled%' ");
+            //// end tunning untuk tidak duplicate
 
             return ret;
         }
@@ -1936,6 +1986,32 @@ namespace MasterOnline.Controllers
         [Queue("3_general")]
         public async Task<string> GetOrderByStatusCancelled(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
+            SetupContext(iden);
+
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
+
+            var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+
+            //int dayFrom = -1;
+
+            //add 16 des 2020, fixed date
+            //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            //var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
+            var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            //end add 16 des 2020, fixed date
+
+            await GetOrderByStatusCancelledAPI(iden, stat, CUST, NAMA_CUST, 0, 0, fromDt, toDt);
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+            return "";
+        }
+        public async Task<string> GetOrderByStatusCancelledAPI(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, long fromDt, long toDt)
+        {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
@@ -1943,8 +2019,13 @@ namespace MasterOnline.Controllers
             SetupContext(iden);
 
             long seconds = CurrentTimeSecond();
-            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-10).ToUnixTimeSeconds();
-            long timeStampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            //change 23 nov 2020
+            //long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-10).ToUnixTimeSeconds();
+            //long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            long timeStampFrom = fromDt;
+            //end change 23 nov 2020
+            //long timeStampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            long timeStampTo = toDt;
 
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
@@ -2090,7 +2171,7 @@ namespace MasterOnline.Controllers
                             jmlhNewOrder = jmlhNewOrder + rowAffected;
                             if (listOrder.more)
                             {
-                                await GetOrderByStatusCancelled(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
+                                await GetOrderByStatusCancelledAPI(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, fromDt, toDt);
                             }
                             else
                             {
@@ -2113,10 +2194,10 @@ namespace MasterOnline.Controllers
                 //}
             }
 
-            // tunning untuk tidak duplicate
-            var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
-            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
-            // end tunning untuk tidak duplicate
+            //// tunning untuk tidak duplicate
+            //var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
+            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            //// end tunning untuk tidak duplicate
 
             return ret;
         }
@@ -2139,6 +2220,138 @@ namespace MasterOnline.Controllers
         [Queue("3_general")]
         public async Task<string> GetOrderByStatusCompleted(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
+            SetupContext(iden);
+
+            string sSQL = "SELECT DISTINCT NO_REFERENSI FROM SOT01A (NOLOCK) A INNER JOIN SIT01A (NOLOCK) B ON  A.NO_BUKTI = B.NO_SO ";
+            sSQL += "WHERE STATUS_TRANSAKSI = '03' AND A.TGL >= '"+DateTime.UtcNow.AddHours(7).AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss")+"' AND A.CUST = '"+CUST+"'";
+
+            var dsPesanan = EDB.GetDataSet("CString", "SOT01", sSQL);
+
+            if(dsPesanan.Tables[0].Rows.Count > 0)
+            {
+                var listNoRef = new List<string>();
+                for(int i =0; i < dsPesanan.Tables[0].Rows.Count; i++)
+                {
+                    listNoRef.Add(dsPesanan.Tables[0].Rows[i]["NO_REFERENSI"].ToString());
+                    if(listNoRef.Count == 50 || i == dsPesanan.Tables[0].Rows.Count - 1)
+                    {
+                        await GetOrderByStatusCompletedAPI(iden, listNoRef.ToArray(), CUST);
+                        listNoRef = new List<string>();
+                    }
+                }
+            }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\\\"}\"" + "," + "\"4\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","4","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+
+            return "";
+        }
+        public async Task<string> GetOrderByStatusCompletedAPI(ShopeeAPIData iden, string[] ordersn_list, string cust)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            //Dictionary<string, string> ret = new Dictionary<string, string>();
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
+
+            GetOrderDetailsData HttpBody = new GetOrderDetailsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn_list = ordersn_list
+                //ordersn_list = ordersn_list_test.ToArray()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+                var connIdARF01C = Guid.NewGuid().ToString();
+
+                string ordList = "";
+                foreach (var order in result.orders)
+                {
+                    if(order.order_status == "COMPLETED")
+                    {
+                        ordList += "'" + order.ordersn + "',";
+                    }
+                }
+                if (!string.IsNullOrEmpty(ordList))
+                {
+                    ordList = ordList.Substring(0, ordList.Length - 1);
+                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordList + ") AND CUST = '"+cust+"' AND STATUS_TRANSAKSI = '03'");
+                    
+                    if (rowAffected > 0)
+                    {
+                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(rowAffected) + " Pesanan dari Shopee sudah selesai.");
+
+                        //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                        if (!string.IsNullOrEmpty(ordList))
+                        {
+                            var dateTimeNow = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                            string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + ordList + ") AND CUST = '" + cust + "'";
+                            var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                        }
+                        //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                    }
+                    
+                }
+               
+            }
+            return "";
+        }
+        public async Task<string> GetOrderByStatusCompletedOld(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        {
+            int fromdt = -2;
+            int todt = 0;
+            SetupContext(iden);
+
+            while(fromdt >= -14)
+            {
+                await GetOrderByStatusCompletedPer3Day(iden, stat, CUST, NAMA_CUST, page, jmlhNewOrder, fromdt, todt);
+                fromdt = fromdt - 2;
+                todt = todt - 2;
+            }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\\\"}\"" + "," + "\"4\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","4","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+            return "";
+        }
+        public async Task<string> GetOrderByStatusCompletedPer3Day(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int fromdt, int todt)
+        {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
@@ -2147,8 +2360,13 @@ namespace MasterOnline.Controllers
 
             long seconds = CurrentTimeSecond();
             //long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-10).ToUnixTimeSeconds();
-            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-14).ToUnixTimeSeconds();//change by Tri 25 aug 2020, pesanan bisa selesai lebih dari 10hari
-            long timeStampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            //long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-14).ToUnixTimeSeconds();//change by Tri 25 aug 2020, pesanan bisa selesai lebih dari 10hari
+            //change 20 okt 2020, ambil per 3 hari
+            //long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-5).ToUnixTimeSeconds();//change by Fauzi 17 Oktober 2020, pesanan bisa selesai lebih dari -5hari
+            //long timeStampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(fromdt).ToUnixTimeSeconds();
+            long timeStampTo = (long)DateTimeOffset.UtcNow.AddDays(todt).ToUnixTimeSeconds();
+            //end change 20 okt 2020, ambil per 3 hari
 
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
@@ -2218,7 +2436,7 @@ namespace MasterOnline.Controllers
                             jmlhNewOrder = jmlhNewOrder + rowAffected;
                             if (listOrder.more)
                             {
-                                await GetOrderByStatusCompleted(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
+                                await GetOrderByStatusCompletedPer3Day(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, fromdt, todt);
                             }
                             else
                             {
@@ -2226,9 +2444,20 @@ namespace MasterOnline.Controllers
                                 {
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhNewOrder) + " Pesanan dari Shopee sudah selesai.");
+
+                                    //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                                    if (!string.IsNullOrEmpty(ordersn))
+                                    {
+                                        var dateTimeNow = Convert.ToDateTime(DateTime.Now.AddHours(7).ToString("yyyy-MM-dd"));
+                                        string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_REF IN (" + ordersn + ")";
+                                        var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                                    }
+                                    //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
                                 }
                             }
                         }
+
+                        
                     }
                 }
                 
@@ -2240,10 +2469,10 @@ namespace MasterOnline.Controllers
             }
 
 
-            // tunning untuk tidak duplicate
-            var queryStatus = "\\\"}\"" + "," + "\"4\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","4","\"000003\""
-            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
-            // end tunning untuk tidak duplicate
+            //// tunning untuk tidak duplicate
+            //var queryStatus = "\\\"}\"" + "," + "\"4\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","4","\"000003\""
+            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            //// end tunning untuk tidak duplicate
 
             return ret;
         }
@@ -2871,6 +3100,7 @@ namespace MasterOnline.Controllers
                 {
                     try
                     {
+                        //connID = Guid.NewGuid().ToString();//remark 4 jan 2020, connid sama per batch untuk update stok
                         ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS");
                         ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS_ITEM");
                         batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
@@ -3011,12 +3241,24 @@ namespace MasterOnline.Controllers
                             CUST = CUST,
                             NAMA_CUST = NAMA_CUST
                         };
+                        //add 27 okt 2020, expired shipping date
+                        newOrder.ship_by_date = null ;
+                        if(order.ship_by_date > 0)
+                        {
+                            newOrder.ship_by_date = DateTimeOffset.FromUnixTimeSeconds(order.ship_by_date).UtcDateTime.AddHours(7);
+                        }
+                        //end add 27 okt 2020, expired shipping date
                         var ShippingFeeData = await GetShippingFee(iden, order.ordersn);
                         if (ShippingFeeData != null)
                         {
                             newOrder.estimated_shipping_fee = (ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee).ToString();
+                            if(ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee < 0)
+                            {
+                                newOrder.estimated_shipping_fee = "0";
+                            }
                         }
-                        var listPromo = new Dictionary<long, double>();//add 6 juli 2020
+                        //var listPromo = new Dictionary<long, double>();//add 6 juli 2020
+                        var listPromo = new Dictionary<long, Activity>();//add 6 juli 2020
                         foreach (var item in order.items)
                         {
                             string item_name = !string.IsNullOrEmpty(item.item_name) ? item.item_name.Replace('\'', '`') : "";
@@ -3066,14 +3308,26 @@ namespace MasterOnline.Controllers
                                     var discount = 0d;
                                     if (!listPromo.ContainsKey(item.promotion_id))
                                     {
-                                        discount = await GetEscrowDetail(iden, order.ordersn, item.item_id, item.variation_id, item.promotion_id);
-                                        listPromo.Add(item.promotion_id, discount);
+                                        var dataDisc = await GetEscrowDetail(iden, order.ordersn, item.item_id, item.variation_id, item.promotion_id);
+                                        if (dataDisc.activity_id > 0)
+                                        {
+                                            listPromo.Add(item.promotion_id, dataDisc);
+                                        }
                                     }
-                                    else
-                                    {
-                                        discount = listPromo[item.promotion_id];
-                                    }
+                                    //else
+                                    //{
+                                    //    discount = listPromo[item.promotion_id];
+                                    //}
                                     newOrderItem.variation_discounted_price = item.variation_original_price;
+                                    var dDisc = listPromo[item.promotion_id];
+                                    discount = (Convert.ToInt64(dDisc.original_price) - Convert.ToInt64(dDisc.discounted_price)) * 100 / Convert.ToInt64(dDisc.original_price);
+                                    foreach(var disc in dDisc.items)
+                                    {
+                                        if(item.item_id == disc.item_id && item.variation_id == item.variation_id)
+                                        {
+                                            newOrderItem.variation_discounted_price = disc.original_price;
+                                        }
+                                    }
                                     newOrderItem.DISC = discount;
                                     newOrderItem.N_DISC = Convert.ToInt64(newOrderItem.variation_discounted_price) * newOrderItem.variation_quantity_purchased * discount / 100;
                                 }
@@ -3085,6 +3339,7 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.TEMP_SHOPEE_ORDERS.Add(batchinsert);
                         ErasoftDbContext.TEMP_SHOPEE_ORDERS_ITEM.AddRange(batchinsertItem);
                         ErasoftDbContext.SaveChanges();
+
                         using (SqlCommand CommandSQL = new SqlCommand())
                         {
                             //call sp to insert buyer data
@@ -3093,6 +3348,9 @@ namespace MasterOnline.Controllers
 
                             EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
                         };
+                        //add 3 Des 2020
+                        EDB.ExecuteSQL("Con", CommandType.Text, "DELETE FROM TEMP_SHOPEE_ORDERS_ITEM WHERE ordersn <> '" + ordersn + "'");
+                        //end add 3 Des 2020
                         using (SqlCommand CommandSQL = new SqlCommand())
                         {
                             CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
@@ -3124,6 +3382,100 @@ namespace MasterOnline.Controllers
                 //    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
                 //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 //}
+            }
+            return ret;
+        }
+
+        public async Task<string> GetOrderDetailsUpdateExpiredDate(ShopeeAPIData iden, string list_noref, string connID, string CUST, string NAMA_CUST, StatusOrder stat)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "";
+            var ordersn_list = new string[0];
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = seconds.ToString(),
+            //    REQUEST_ACTION = "Get Order List", //ganti
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            var dsOrder = EDB.GetDataSet("CString", "SOT01A", "SELECT NO_REFERENSI FROM SOT01A (NOLOCK) WHERE NO_REFERENSI IN ("+list_noref+") AND STATUS_TRANSAKSI = '0' AND CUST = '"+CUST+"'");
+            if(dsOrder.Tables[0].Rows.Count > 0)
+            {
+                ordersn_list = new string[dsOrder.Tables[0].Rows.Count];
+                for(int i=0; i< dsOrder.Tables[0].Rows.Count; i++)
+                {
+                    ordersn_list[i] = dsOrder.Tables[0].Rows[i]["NO_REFERENSI"].ToString();
+                }
+            }
+            else
+            {
+                return "";
+            }
+            string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
+
+            GetOrderDetailsData HttpBody = new GetOrderDetailsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn_list = ordersn_list
+                //ordersn_list = ordersn_list_test.ToArray()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+                //    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            }
+            catch (Exception ex)
+            {
+                //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+            if (responseFromServer != null)
+            {
+                //try
+                //{
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+
+
+                foreach (var order in result.orders)
+                {
+                    if (order.ship_by_date > 0)
+                    {
+                        var exp_date = DateTimeOffset.FromUnixTimeSeconds(order.ship_by_date).UtcDateTime.AddHours(7);
+                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET ORDER_EXPIRED_DATE = '"+exp_date.ToString("yyyy-MM-dd HH:mm:ss")+"' WHERE NO_REFERENSI = '" + order.ordersn + "' AND CUST = '" + CUST + "'");
+
+                    }
+                }
             }
             return ret;
         }
@@ -3199,11 +3551,11 @@ namespace MasterOnline.Controllers
             return null;
         }
         //end add by Tri 14 Apr 2020, api untuk ambil shipping fee 
-        public async Task<double> GetEscrowDetail(ShopeeAPIData iden, string ordersn, long itemId, long variationId, long activityId)
+        public async Task<Activity> GetEscrowDetail(ShopeeAPIData iden, string ordersn, long itemId, long variationId, long activityId)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            var ret = 0d;
+            var ret = new Activity();
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -3266,8 +3618,9 @@ namespace MasterOnline.Controllers
                                 //}
                                 if (act.activity_id == activityId)
                                 {
-                                    double discount = (Convert.ToInt64(act.original_price) - Convert.ToInt64(act.discounted_price)) * 100 / Convert.ToInt64(act.original_price);
-                                    return discount;
+                                    //double discount = (Convert.ToInt64(act.original_price) - Convert.ToInt64(act.discounted_price)) * 100 / Convert.ToInt64(act.original_price);
+                                    //return discount;
+                                    return act;
                                 }
 
                             }
@@ -5150,13 +5503,24 @@ namespace MasterOnline.Controllers
                 {
                     if (string.IsNullOrEmpty(resServer.error))
                     {
-                        var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+                        if (!string.IsNullOrEmpty(resServer.err_msg))
+                        {
+                            if (resServer.err_msg == "err_gateway")
+                            {
+                                currentLog.REQUEST_EXCEPTION = "item data have special character.";
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                throw new Exception(currentLog.REQUEST_EXCEPTION);
+                            }
+                        }
+                            var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
                         if (item != null)
                         {
                             item.BRG_MP = Convert.ToString(resServer.item_id) + ";0";
                             item.LINK_STATUS = "Buat Produk Berhasil";
                             item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                             item.LINK_ERROR = "0;Buat Produk;;";
+                            string urlBrg = "https://shopee.co.id/product/"+iden.merchant_code+"/" + resServer.item_id;
+                            item.AVALUE_34 = urlBrg;
                             ErasoftDbContext.SaveChanges();
 
                             if (brgInDb.TYPE == "4")
@@ -5173,6 +5537,27 @@ namespace MasterOnline.Controllers
 #else
                                 client.Schedule<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog), TimeSpan.FromSeconds(30));
 #endif
+                            }
+                            else
+                            {
+                                var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                                if (tblCustomer.TIDAK_HIT_UANG_R)
+                                {
+                                    StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
+                                    {
+                                        merchant_code = iden.merchant_code,
+                                    };
+#if (DEBUG || Debug_AWS)
+                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                    Task.Run(() => stokAPI.Shopee_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null)).Wait();
+#else
+                                                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.BRG_MP, 0, username, null));
+#endif
+                                }
                             }
 
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
@@ -5290,9 +5675,10 @@ namespace MasterOnline.Controllers
                     //ErasoftDbContext.SaveChanges();
                     //change by Tri 16 Des 2019, isi link status
                     //var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "' AND ISNULL(BRG_MP,'') = '' ");
+                    string urlBrg = "https://shopee.co.id/product/" + iden.merchant_code + "/" + resServer.item_id;
                     string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception                     
                     var sSQL = "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
-                    sSQL += "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error;
+                    sSQL += "',AVALUE_34 = '" + urlBrg + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error;
                     sSQL += "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "' AND ISNULL(BRG_MP,'') = '' ";
                     var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQL);
                     //end change by Tri 16 Des 2019, isi link status
@@ -5381,13 +5767,21 @@ namespace MasterOnline.Controllers
                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                             var client = new BackgroundJobClient(sqlStorage);
-
+                            StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
+                            {
+                                merchant_code = iden.merchant_code,
+                            };
+                            StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
                             for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
                             {
 #if (Debug_AWS || DEBUG)
                                 await UpdateVariationPrice(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName, iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
+                                if (customer.TIDAK_HIT_UANG_R)
+                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", data, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null)).Wait();
 #else
                                 client.Enqueue<ShopeeControllerJob>(x => x.UpdateVariationPrice(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName, iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString())));
+                                if (customer.TIDAK_HIT_UANG_R)
+                                client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, "Stock", "Update Stok", data, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), 0, username, null));
 #endif
                             }
                         }
@@ -6143,6 +6537,7 @@ namespace MasterOnline.Controllers
                     {
                         if (resServer.variation_id_list.Count() > 0)
                         {
+                                var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                             foreach (var variasi in resServer.variation_id_list)
                             {
                                 string key_map_tier_index_recnum = "";
@@ -6154,11 +6549,31 @@ namespace MasterOnline.Controllers
                                 //var var_item = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h_var).SingleOrDefault();
                                 //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
                                 //ErasoftDbContext.SaveChanges();
+                                string urlBrg = "https://shopee.co.id/product/" + iden.merchant_code + "/" + resServer.item_id;
                                 string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
-                                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
+                                //var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
+                                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "',AVALUE_34 = '" + urlBrg + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
 
                                 //var barang = ErasoftDbContext.STF02H.Where(m => m.RecNum == recnum_stf02h_var).FirstOrDefault();
                                 //await UpdateImage(iden, barang.BRG, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id));
+                                if (tblCustomer.TIDAK_HIT_UANG_R)
+                                {
+                                    StokControllerJob.ShopeeAPIData data = new StokControllerJob.ShopeeAPIData()
+                                    {
+                                        merchant_code = iden.merchant_code,
+                                    };
+
+#if (DEBUG || Debug_AWS)
+                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                    Task.Run(() => stokAPI.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id), 0, username, null)).Wait();
+#else
+                                                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id), 0, username, null));
+#endif
+                                }
                             }
 
                             if (currentLog != null)
@@ -6243,12 +6658,59 @@ namespace MasterOnline.Controllers
 
             foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE" && p.fee_type.ToUpper() != "SIZE_SELECTION"))
             {
-                logistics.Add(new ShopeeLogisticsClass()
+                //logistics.Add(new ShopeeLogisticsClass()
+                //{
+                //    enabled = log.enabled,
+                //    is_free = false,
+                //    logistic_id = log.logistic_id,
+                //});
+                bool lolosValidLogistic = true;
+                if (log.weight_limits != null)
                 {
-                    enabled = log.enabled,
-                    is_free = false,
-                    logistic_id = log.logistic_id,
-                });
+                    if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                    {
+                        lolosValidLogistic = false;
+                    }
+                    if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
+                    {
+                        lolosValidLogistic = false;
+                    }
+                }
+
+                if (log.item_max_dimension != null)
+                {
+                    if (log.item_max_dimension.length > 0)
+                    {
+                        if (log.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+                        {
+                            lolosValidLogistic = false;
+                        }
+                    }
+                    if (log.item_max_dimension.height > 0)
+                    {
+                        if (log.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+                        {
+                            lolosValidLogistic = false;
+                        }
+                    }
+                    if (log.item_max_dimension.width > 0)
+                    {
+                        if (log.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
+                        {
+                            lolosValidLogistic = false;
+                        }
+                    }
+                }
+
+                if (lolosValidLogistic)
+                {
+                    logistics.Add(new ShopeeLogisticsClass()
+                    {
+                        enabled = log.enabled,
+                        is_free = false,
+                        logistic_id = log.logistic_id,
+                    });
+                }
             }
             //end add by calvin 21 desember 2018, default nya semua logistic enabled
 
@@ -8383,6 +8845,7 @@ namespace MasterOnline.Controllers
             public string dropshipper { get; set; }
             public string buyer_username { get; set; }
             public string cancel_reason { get; set; }//add by Tri 9 Des 2019
+            public long ship_by_date { get; set; }//add by Tri 27 okt 2020
         }
 
         public class ShopeeGetOrderDetailsResultRecipient_Address
@@ -8493,6 +8956,7 @@ namespace MasterOnline.Controllers
             public string msg { get; set; }
             public string request_id { get; set; }
             public string error { get; set; }
+            public string err_msg { get; set; }
         }
         public class ShopeeGetLogisticsData
         {

@@ -1,0 +1,172 @@
+﻿@using System.Globalization
+@model MasterOnline.ViewModels.ScanBarcodePackingPesananViewModel
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-3">
+            <div class="col-md-3">
+                <label>No Packing List </label>
+            </div>
+            <div class="col-md-3">
+                <label>:</label>
+                <label id="txtNoPL">@Model.NO_PL</label>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-3">
+            <div class="col-md-3">
+                <label>Jumlah Pesanan </label>
+            </div>
+            <div class="col-md-3">
+                <label>:</label>
+                <label id="txtJmlOrder">@Model.jmlOrder</label>
+                <label>/</label>
+                <label id="txtMaxOrder">@Model.maxOrder</label>
+            </div>
+        </div>
+        <input id="maxDataPacking" style="display:none;" value="@Model.dataScan.Count" />
+    </div>
+    <div class="row">
+        <div class="col-3">
+            <div class="col-md-3">
+                <label>No Pesanan</label>
+            </div>
+            <div class="col-md-3">
+                @*<input value="@Model.nobuk" data-val="true" id="promptHiddenField" name="promptHiddenField" type="hidden">*@
+                <div class="input-group text">
+                    <table>
+                        <tr>
+                            <td>
+                                <input value="@Model.nobuk" class="form-control" disabled="disabled" id="txtNoPesanan" name="txtNoPesanan" type="text">
+                            </td>
+                            <td>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" id="btnPromptPesanan" type="button" style="height: 34px;" onclick="PromptPesanan();">
+                                        <span class="glyphicon glyphicon-option-horizontal"></span>
+                                    </button>
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-3">
+            <div class="col-md-3">
+                <label>Scan Barcode</label>
+            </div>
+            <div class="col-md-3">
+                <input class="form-control" data-val="true" id="txtScanBarcodePacking" name="txtScanBarcodePacking" />
+            </div>
+        </div>
+    </div>
+</div>
+<div style="margin-top:10px;">
+    <table class="table table-striped table-bordered" id="tblScan">
+        <thead>
+            <tr role="row">
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">Kode Barang</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 250px;">Nama Barang</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 50px;">Qty</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 120px;">Kode Barcode</th>
+                @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 70px;">Lokasi Rak</th>*@
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 50px;">Valid</th>
+            </tr>
+        </thead>
+        <tbody>
+            @*@foreach(var barang in Model.dataScan)*@
+            @for (int i = 0; i < Model.dataScan.Count; i++)
+            {
+                @Html.HiddenFor(m => m.dataScan[i].code)
+                @*@Html.HiddenFor(m => m.dataScan[i].isValid)*@
+                <tr>
+                    <td>@Model.dataScan[i].brg</td>
+                    <td>@Model.dataScan[i].nama</td>
+                    <td>@Model.dataScan[i].qty</td>
+                    @*<td>@barang.code</td>*@
+                    <td>
+                        <input class="form-control" data-val="true" onkeyup="ScanPerBarang(@Model.dataScan[i].code, @i)" id="txtScanBarcode_@i" name="txtScanBarcode_@i" />
+                    </td>
+                    @*<td>@Model.dataScan[i].rak</td>*@
+                    <td>
+                        <label id="txtIsValid_@i"></label>
+                    </td>
+                    @*@if (barang.isValid)
+                {
+                    <td>VALID</td>
+                }
+                else
+                {
+                    <td>TIDAK VALID</td>
+                }*@
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script>
+    $("#txtScanBarcodePacking").keyup(function (event) {
+        event.preventDefault();
+        if (event.keyCode === 13 || event.keyCode === 9) {
+            if ($('#txtNoPesanan').val() == "") {
+                alert('Silahkan pilih pesanan terlebih dahulu.');
+                return false;
+            }
+            if ($("#txtScanBarcodePacking").val() == '') {
+                alert('Silahkan scan barcode barang.');
+            }
+            else {
+                //ScanBarcodeBarangPacking();
+                for (i = 0; i < $('#maxDataPacking').val(); i++) {
+                    if ($('#dataScan_' + i + '__code').val() == $("#txtScanBarcodePacking").val()) {
+                        document.getElementById('txtIsValid_' + i).innerText = "VALID";
+                        $("#txtScanBarcode_" + i).val($("#txtScanBarcodePacking").val());
+                        $("#txtScanBarcodePacking").val('');
+                        $("#txtScanBarcodePacking").focus();
+                        return false;
+                    }
+                }
+                alert('Barang yang anda scan : ' + $("#txtScanBarcodePacking").val() + ' tidak ada dipesanan ini.');
+                $("#txtScanBarcodePacking").val('');
+                $("#txtScanBarcodePacking").focus();
+            }
+        }
+        return false;
+    });
+
+    function PromptPesanan() {
+            showPromptPesananTextBoxWindow();
+        }
+
+    function showPromptPesananTextBoxWindow() {
+        var $link = '@Url.Action("PromptPesananPL", "Manage")';
+        $link += "?nobuk=" + document.getElementById('txtNoPL').innerText;
+            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+        }
+        function afterPromptSetPesananPL(val) {
+            //$('#promptHiddenField').val(val);
+            $('#txtNoPesanan').val(val);
+
+            openModalPacking();
+    }
+
+    function ScanPerBarang(barcode, index) {
+        if (barcode == "") {
+            document.getElementById('txtIsValid_' + index).innerText = "";
+            return false;
+        }
+        if ($("#txtScanBarcode_" + index).val() == barcode) {
+            document.getElementById('txtIsValid_' + index).innerText = "VALID";
+        }
+        else {
+            document.getElementById('txtIsValid_' + index).innerText = "TIDAK VALID";
+
+        }
+        return false;
+    }
+
+</script>

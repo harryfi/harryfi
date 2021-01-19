@@ -19,7 +19,7 @@ namespace MasterOnline.Controllers
         public MoDbContext MoDbContext { get; set; }
         // GET: Midtrans
         [System.Web.Mvc.HttpGet]
-        public async System.Threading.Tasks.Task<ActionResult> PaymentMidtrans(string code, string bulan, int accId, int? accCount)
+        public async System.Threading.Tasks.Task<ActionResult> PaymentMidtrans(string code, string bulan, string addon, int accId, int? accCount)
         {
             MoDbContext = new MoDbContext("");
             var accInDB = new Account();
@@ -38,15 +38,32 @@ namespace MasterOnline.Controllers
                     //dataClass.urlView = "http://localhost:50108/midtrans/PaymentMidtrans";
                     string currentYear = DateTime.Today.ToString("yy");
 
+                    #region FITUR ADDON by fauzi
+                    var priceAddon = 0;
+                    var emailAddon = "";
+                    var idAccount = "";
+                    if (!string.IsNullOrEmpty(addon))
+                    {
+                        string[] splitAddon = addon.Split(',');                        
+                        foreach(var dataAddon in splitAddon)
+                        {
+                            int idAddon = Convert.ToInt32(dataAddon);
+                            var hargaAddon = MoDbContext.Addons.Where(p => p.RecNum == idAddon).Select(p => p.Harga).SingleOrDefault();
+                            priceAddon += hargaAddon;
+                        }
+                    }
+                    #endregion
+
                     #region auto number no_transaksi
-                    var listTrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI.Substring(0, 2).Equals(currentYear)).OrderBy(t => t.RECNUM).ToList();
+                    var listTrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI.Substring(2, 2).Equals(currentYear)).OrderBy(t => t.RECNUM).ToList();
                     int lastNum = 0;
                     if (listTrans.Count > 0)
                     {
                         lastNum = listTrans.Last().RECNUM.Value;
                     }
                     lastNum = lastNum + 1;
-                    string noTrans = currentYear + lastNum.ToString().PadLeft(10, '0');
+                    //string noTrans = currentYear + lastNum.ToString().PadLeft(10, '0'); // remark add prefix MT for ID auto number Midtrans by fauzi 07-10-2020
+                    string noTrans = "MD" + currentYear + lastNum.ToString().PadLeft(8, '0');
                     #endregion
 
                     int bln = string.IsNullOrEmpty(bulan) ? 3 : Convert.ToInt32(bulan);
@@ -76,11 +93,11 @@ namespace MasterOnline.Controllers
                         //user_id = sessionData.User.NoHp,
                     };
                     data.transaction_details = new TransactionDetail();
-                    data.transaction_details.gross_amount = Convert.ToInt64(price) * bln;
+                    data.transaction_details.gross_amount = (Convert.ToInt64(price) + Convert.ToInt64(priceAddon)) * bln;
                     //add 3 Maret 2019, handle jumlah user
                     if(code == "03" && accCount > 5)
                     {
-                        data.transaction_details.gross_amount = ((Convert.ToInt64(price) + 100000 * (accCount - 5)) * bln) ?? 0;
+                        data.transaction_details.gross_amount = ((Convert.ToInt64(price) + Convert.ToInt64(priceAddon) + 100000 * (accCount - 5)) * bln) ?? 0;
                     }
                     //add change 3 Maret 2019, handle jumlah user
                     data.transaction_details.order_id = noTrans;
@@ -98,6 +115,8 @@ namespace MasterOnline.Controllers
                             data.customer_details.email = accInDB.Email;
                             data.customer_details.phone = accInDB.NoHp;
                             data.user_id = accId.ToString();
+                            emailAddon = accInDB.Email;
+                            idAccount = accId.ToString();
                         }
                     }
                     else if (sessionData?.Account != null)
@@ -107,6 +126,8 @@ namespace MasterOnline.Controllers
                         data.customer_details.email = sessionData.Account.Email;
                         data.customer_details.phone = sessionData.Account.NoHp;
                         data.user_id = sessionData.Account.AccountId.ToString();
+                        emailAddon = sessionData.Account.Email;
+                        idAccount = sessionData.Account.AccountId.ToString();
                     }
                     else
                     {
@@ -116,6 +137,8 @@ namespace MasterOnline.Controllers
                             data.customer_details.email = sessionData.User.Email;
                             data.customer_details.phone = sessionData.User.NoHp;
                             data.user_id = sessionData.User.UserId.ToString();
+                            emailAddon = sessionData.User.Email;
+                            idAccount = sessionData.User.UserId.ToString();
                         }
                     }
 
@@ -133,7 +156,8 @@ namespace MasterOnline.Controllers
                             dataTrans.NO_TRANSAKSI = noTrans;
                             dataTrans.TGL_INPUT = dtNow;
                             dataTrans.TYPE = code;
-                            dataTrans.VALUE = MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).HARGA;
+                            //dataTrans.VALUE = MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).HARGA; // remark by fauzi for add price addon
+                            dataTrans.VALUE = MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).HARGA + Convert.ToInt64(priceAddon);
                             dataTrans.BULAN = string.IsNullOrEmpty(bulan) ? 0 : Convert.ToInt32(bulan);
                             //add 1 Maret 2019, jumlah user
                             if (code == "03")
@@ -160,6 +184,64 @@ namespace MasterOnline.Controllers
                             }
 
                             MoDbContext.TransaksiMidtrans.Add(dataTrans);
+
+                            #region save to table ADDON_CUSTOMER for fiture ADDON by fauzi 07/10/2020
+                            if (!string.IsNullOrEmpty(addon))
+                            {
+                                long idAc = Convert.ToInt64(idAccount);
+                                var dataAccountInDB = MoDbContext.Account.Where(a => a.AccountId == idAc).FirstOrDefault();
+                                string[] splitAddon = addon.Split(',');
+
+                                    DateTime? drTgl = DateTime.Today.AddHours(7);
+                                    DateTime? sdTgl = DateTime.Today.AddHours(7);
+
+                                    if (dataAccountInDB.TGL_SUBSCRIPTION > DateTime.Today.AddHours(7))
+                                    {
+                                        drTgl = dataAccountInDB?.TGL_SUBSCRIPTION;
+                                    }
+                                    sdTgl = drTgl.Value.AddMonths(bln);
+
+                                foreach (var dataAddon in splitAddon)
+                                {
+                                    int idAddon = Convert.ToInt32(dataAddon);
+                                    var dataDBAddon = MoDbContext.Addons.Where(p => p.RecNum == idAddon).SingleOrDefault();
+
+                                    var dataAddonCheck = MoDbContext.Addons_Customer.Where(p => p.Account == emailAddon && p.ID_ADDON == dataAddon).SingleOrDefault();
+                                    if (dataAddonCheck != null)
+                                    {
+                                        dataAddonCheck.NamaAddons = dataDBAddon.Fitur.ToString();
+                                        dataAddonCheck.TGL_DAFTAR = dtNow.AddHours(7);
+                                        dataAddonCheck.TglSubscription = sdTgl;
+                                        dataAddonCheck.Harga = dataDBAddon.Harga;
+                                        dataAddonCheck.ID_TRANS_MIDTRANS = noTrans;
+                                    }
+                                    else
+                                    {
+                                        var dataAddCust = new Addons_Customer();
+                                        dataAddCust.NamaAddons = dataDBAddon.Fitur.ToString();
+                                        dataAddCust.Account = emailAddon.ToString();
+                                        dataAddCust.NamaTokoOnline = dataAccountInDB.NamaTokoOnline.ToString();
+                                        dataAddCust.TGL_DAFTAR = dtNow.AddHours(7);
+                                        dataAddCust.TglSubscription = sdTgl;
+                                        dataAddCust.Harga = dataDBAddon.Harga;
+                                        dataAddCust.ID_ADDON = dataDBAddon.RecNum.ToString();
+                                        dataAddCust.ID_TRANS_MIDTRANS = noTrans;
+                                        if(dataDBAddon.RecNum == 2) //82cart FREE
+                                        {
+                                            dataAddCust.STATUS = "1";
+                                        }
+                                        else
+                                        {
+                                            dataAddCust.STATUS = "0";
+                                        }
+                                        MoDbContext.Addons_Customer.Add(dataAddCust);
+                                    }
+
+                                    
+                                }
+                            }
+
+                            #endregion
 
                             //var dataSub = new AktivitasSubscription();
                             //dataSub.Account = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
@@ -336,6 +418,24 @@ namespace MasterOnline.Controllers
                                     userData.jumlahUser = insertTrans.jumlahUser;
                                     //end add 1 Maret 2019, jumlah user
                                     MoDbContext.AktivitasSubscription.Add(insertTrans);
+
+                                    #region Save Active for Addon Fiture
+                                    var dataAddonCheck = MoDbContext.Addons_Customer.Where(p => p.Account == userData.Email && p.ID_TRANS_MIDTRANS == tranMidtrans.NO_TRANSAKSI).ToList();
+                                    if(dataAddonCheck != null)
+                                    {
+                                        dataAddonCheck.ForEach(p => p.STATUS = "1");
+                                    }
+                                    #endregion
+
+                                    //add by nurul 7/1/2021, update tgl subs di addon cust
+                                    var cekAddOn = MoDbContext.Addons_Customer.Where(a => a.Account == userData.Email).ToList();
+                                    if (cekAddOn.Count() > 0)
+                                    {
+                                        var tglSubs = sdTgl?.ToString("yyyy-MM-dd");
+                                        var sSQLUpdateAddon = "update Addons_Customer set TglSubscription='" + tglSubs + "' where account='" + userData.Email +"'";
+                                        MoDbContext.Database.ExecuteSqlCommand(sSQLUpdateAddon);
+                                    }
+                                    //end add by nurul 7/1/2021
                                 }
 
                             }
@@ -408,7 +508,13 @@ namespace MasterOnline.Controllers
                 //add by Tri 20-09-2018, save nama toko ke SIFSYS
                 //change by calvin 3 oktober 2018
                 //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
-                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DataSourcePath, accInDb.DatabasePathErasoft);
+                string dbSourceEra = "";
+#if (Debug_AWS)
+                    dbSourceEra = accInDb.DataSourcePathDebug;
+#else
+                    dbSourceEra = accInDb.DataSourcePath;
+#endif
+                ErasoftContext ErasoftDbContext = new ErasoftContext(dbSourceEra, accInDb.DatabasePathErasoft);
                 //end change by calvin 3 oktober 2018
                 var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
                 if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))

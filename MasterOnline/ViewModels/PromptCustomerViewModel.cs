@@ -56,4 +56,24 @@ namespace MasterOnline.ViewModels
         //public string ulang { get; set; }
     }
     //END ADD BY NURUL 19/6/2019
+
+    public class PromptPesananPLViewModel
+    {
+        public string NO_BUKTI { get; set; }
+        public string NO_REF { get; set; }
+    }
+
+    public class PromptAccountServerAkhirTahunViewModel
+    {
+        public List<listAkunPerServer> listAkun { get; set; } = new List<listAkunPerServer>();
+    }
+
+    public class listAkunPerServer
+    {
+        public string db_name { get; set; }
+        public string db_source { get; set; }
+        public string onlineshopname { get; set; }
+        public string email { get; set; }
+        public long accountid { get; set; }
+    }
 }
