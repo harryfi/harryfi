@@ -379,7 +379,7 @@
     <div class="modal-dialog" role="document" style="margin:auto;width:700px;margin-top:20px;">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="modalDetailHargaBeliTerakhirLabel">Detail Harga Beli (3 Bulan Terakhir)</h4>
+                <h4 class="modal-title" id="modalDetailHargaBeliTerakhirLabel">Detail Harga Beli</h4>
 
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
@@ -399,20 +399,28 @@
                 </div>
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
-                        <label class="control-label col-md-3 col-sm-3">Average Harga Beli</label>
+                        <label class="control-label col-md-3 col-sm-3">Qty Stok</label>
+                        <div class="col-md-3 col-sm-3">
+                            <label id="ttl-qty-stok" class="control-label" disabled="disabled"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-3 col-sm-3">Average Harga Pokok</label>
                         <div class="col-md-3 col-sm-3">
                             <label id="ttl-average" class="control-label" disabled="disabled"></label>
                         </div>
                     </div>
                 </div>
                 @*<div class="row">
-                        <div class="form-group" style="margin-top: 5px;">
-                            <label class="control-label col-md-3 col-sm-3">Periode 3 bulan terakhir</label>
-                            <div class="col-md-3 col-sm-3">
-                                    <label id="ttl-periode" class="control-label" disabled="disabled"></label>
-                                </div>
-                        </div>
-                    </div>*@
+            <div class="form-group" style="margin-top: 5px;">
+                <label class="control-label col-md-3 col-sm-3">Periode 3 bulan terakhir</label>
+                <div class="col-md-3 col-sm-3">
+                        <label id="ttl-periode" class="control-label" disabled="disabled"></label>
+                    </div>
+            </div>
+        </div>*@
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -424,6 +432,11 @@
                                     <i class="fa fa-search"></i>
                                 </button>
                             </span>
+                        </div>
+                    </div>
+                    <div class="col-lg-8 col-sm-6" style="margin-bottom:7px;">
+                        <div class="nav navbar-right panel_toolbox">
+                            <h5><span class="label label-success" style="color:white">3 Bulan Terakhir</span></h5>
                         </div>
                     </div>
                 </div>
@@ -622,6 +635,7 @@
                 var tempReqId = $req_id.split('|');
                 tempBrg = tempReqId[0];
                 tempNama = tempReqId[1];
+                var tempStokQty = tempReqId[2];
                 $('#search_detail_hargabeliterakhir').val('');
                 $('#txt_last_page_detail_hargabeliterakhir').val('');
 
@@ -638,6 +652,7 @@
                 $('#loading_hargaJual_tab').show();
                 $('#kd-brg-hargabeliterakhir').val(tempBrg);
                 $('#nm-brg-hargabeliterakhir').text(tempNama);
+                $('#ttl-qty-stok').val(": " + tempStokQty);
             },
             success: function (value) {
                 $('#list-detail-hargabeliterakhir').html(value);
