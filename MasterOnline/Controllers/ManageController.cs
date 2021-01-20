@@ -58424,14 +58424,14 @@ namespace MasterOnline.Controllers
             }
 
             string sSQLSelect2 = "";
-            sSQLSelect2 += "ORDER BY B.TGLINPUT DESC  ";
+            sSQLSelect2 += "ORDER BY B.TGLINPUT, B.INV DESC  ";
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             //var listAverage = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2).ToList();
             string sSQLAverageHPP = "";
-            sSQLAverageHPP += " ORDER BY B.TGLINPUT DESC ";
+            sSQLAverageHPP += " ORDER BY B.TGLINPUT, B.INV DESC ";
             var listAverage = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL3 + sSQLAverageHPP).ToList();
 
             string sSQLCheckQty = "";
@@ -58444,6 +58444,8 @@ namespace MasterOnline.Controllers
             double HargaTotal = 0;
             double HPP = 0;
             double qtySebelum = checkQtyStok.QOH;
+            double qtySesudah = 0;
+            double hargaTerakhir = 0;
 
             bool statusTerpenuhi = true;
 
@@ -58458,20 +58460,29 @@ namespace MasterOnline.Controllers
                         {
                             HargaTotal = HargaTotal + (data.Qty * data.Harga);
                         }
-                        else if (qtySebelum <= 0)
+                        else
                         {
-                            HargaTotal = HargaTotal + (qtySebelum * data.Harga);
-                            HPP = HargaTotal / checkQtyStok.QOH;
+                            HargaTotal = HargaTotal + (data.Qty * data.Harga);
                         }
+                        //else if (qtySebelum <= 0)
+                        //{
+                        //    HargaTotal = HargaTotal + (qtySebelum * data.Harga);
+                        //    HPP = HargaTotal / checkQtyStok.QOH;
+                        //}
+                        if(hargaTerakhir == 0)
+                        {
+                            hargaTerakhir = data.Harga;
+                        }
+                        qtySesudah = qtySebelum;
                     }
                     else if(qtySebelum <= data.Qty)
                     {
-                        qtySebelum = data.Qty - qtySebelum;
-                        if (qtySebelum > 0)
+                        qtySebelum = qtySebelum - data.Qty;
+                        if (qtySebelum <= 0)
                         {
                             if (statusTerpenuhi)
                             {
-                                HargaTotal = HargaTotal + (data.Qty * data.Harga);
+                                HargaTotal = HargaTotal + (Math.Abs(qtySesudah) * data.Harga);
                                 HPP = HargaTotal / checkQtyStok.QOH;
                                 qtySebelum = 0;
                                 statusTerpenuhi = false;
@@ -58490,6 +58501,11 @@ namespace MasterOnline.Controllers
                                 statusTerpenuhi = false;
                             }
                         }
+                        if (hargaTerakhir == 0)
+                        {
+                            hargaTerakhir = data.Harga;
+                        }
+                        qtySesudah = qtySebelum;
                     }
                     else
                     {
@@ -58505,7 +58521,15 @@ namespace MasterOnline.Controllers
 
             if(HPP == 0 && HargaTotal > 0)
             {
-                HPP = HargaTotal / checkQtyStok.QOH;
+                if(qtySebelum >= 0)
+                {
+                    HargaTotal = HargaTotal + (qtySebelum * hargaTerakhir);
+                    HPP = HargaTotal / checkQtyStok.QOH;
+                }
+                else
+                {
+                    HPP = HargaTotal / checkQtyStok.QOH;
+                }
             }
 
             jumlahAll = HPP;
