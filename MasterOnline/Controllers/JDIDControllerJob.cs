@@ -2589,6 +2589,10 @@ namespace MasterOnline.Controllers
             var daysFrom = -1;
             var daysTo = 1;
             var daysNow = DateTime.UtcNow;
+            //add by nurul 20/1/2021, bundling 
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
 
             while (daysFrom > -13)
             {
@@ -2596,12 +2600,36 @@ namespace MasterOnline.Controllers
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
                 var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                
+                //change by nurul 20/1/2021, bundling 
+                //await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                //change by nurul 20/1/2021, bundling 
+
                 //daysFrom -= 3;
                 //daysTo -= 3;
                 daysFrom -= 2;
                 daysTo -= 2;
+
+                //add by nurul 20/1/2021, bundling 
+                if (returnGetOrder != "")
+                {
+                    tempConnId.Add(returnGetOrder);
+                    connIdProses += "'" + returnGetOrder + "' , ";
+                }
+                //end add by nurul 20/1/2021, bundling 
             }
+            //add by nurul 20/1/2021, bundling 
+            List<string> listBrgKomponen = new List<string>();
+            if (tempConnId.Count() > 0)
+            {
+                listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            }
+            if (listBrgKomponen.Count() > 0)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //end add by nurul 20/1/2021, bundling 
 
             // tunning untuk tidak duplicate
             var queryStatus = "";
@@ -2611,10 +2639,6 @@ namespace MasterOnline.Controllers
             }
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusPaid%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusComplete%' and invocationdata not like '%JD_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
-
-            //add by nurul 28/10/2020, bundling
-            new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
-            //add by nurul 28/10/2020, bundling
 
             return ret;
         }
@@ -2626,12 +2650,16 @@ namespace MasterOnline.Controllers
             string ret = "";
             string connID = Guid.NewGuid().ToString();
             SetupContext(iden.DatabasePathErasoft, iden.username);
-
+            
             var listOrderId = new List<long>();
             listOrderId.AddRange(GetOrderList(iden, "1", 0, daysFrom, daysTo));
 
             string connectionID = Guid.NewGuid().ToString();
             var connIdARF01C = Guid.NewGuid().ToString();
+            
+            //add by nurul 19/1/2021, bundling 
+            ret = connectionID;
+            //end add by nurul 19/1/2021, bundling
 
             if (listOrderId.Count > 0)
             {
@@ -2722,6 +2750,11 @@ namespace MasterOnline.Controllers
             var daysFrom = -1;
             var daysTo = 1;
             var daysNow = DateTime.UtcNow;
+            //add by nurul 20/1/2021, bundling 
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
 
             while (daysFrom > -13)
             {
@@ -2729,12 +2762,35 @@ namespace MasterOnline.Controllers
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
                 var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+
+                //change by nurul 20/1/2021, bundling 
+                //await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                //change by nurul 20/1/2021, bundling
                 //daysFrom -= 3;
                 //daysTo -= 3;
                 daysFrom -= 2;
                 daysTo -= 2;
+
+                //add by nurul 20/1/2021, bundling 
+                if (returnGetOrder != "")
+                {
+                    tempConnId.Add(returnGetOrder);
+                    connIdProses += "'" + returnGetOrder + "' , ";
+                }
+                //end add by nurul 20/1/2021, bundling 
             }
+            //add by nurul 20/1/2021, bundling 
+            List<string> listBrgKomponen = new List<string>();
+            if (tempConnId.Count() > 0)
+            {
+                listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            }
+            if (listBrgKomponen.Count() > 0)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //end add by nurul 20/1/2021, bundling 
 
             // tunning untuk tidak duplicate
             var queryStatus = "";
@@ -2744,10 +2800,6 @@ namespace MasterOnline.Controllers
             }
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusRTS%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusComplete%' and invocationdata not like '%JD_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
-
-            //add by nurul 28/10/2020, bundling
-            new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
-            //add by nurul 28/10/2020, bundling
 
             return ret;
         }
@@ -2765,6 +2817,9 @@ namespace MasterOnline.Controllers
 
             string connectionID = Guid.NewGuid().ToString();
             var connIdARF01C = Guid.NewGuid().ToString();
+            //add by nurul 19/1/2021, bundling 
+            ret = connectionID;
+            //end add by nurul 19/1/2021, bundling
 
             if (listOrderId.Count > 0)
             {
@@ -2855,18 +2910,47 @@ namespace MasterOnline.Controllers
             var daysFrom = -1;
             var daysTo = 1;
             var daysNow = DateTime.UtcNow;
+            //add by nurul 20/1/2021, bundling 
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
             while (daysFrom > -13)
             {
                 //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
                 var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                
+                //change by nurul 20/1/2021, bundling 
+                //await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                //change by nurul 20/1/2021, bundling 
+
                 //daysFrom -= 3;
                 //daysTo -= 3;
                 daysFrom -= 2;
                 daysTo -= 2;
+
+                //add by nurul 20/1/2021, bundling 
+                if (returnGetOrder != "")
+                {
+                    tempConnId.Add(returnGetOrder);
+                    connIdProses += "'" + returnGetOrder + "' , ";
+                }
+                //end add by nurul 20/1/2021, bundling 
             }
+            //add by nurul 20/1/2021, bundling 
+            List<string> listBrgKomponen = new List<string>();
+            if (tempConnId.Count() > 0)
+            {
+                listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            }
+            if (listBrgKomponen.Count() > 0)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //end add by nurul 20/1/2021, bundling 
 
             // tunning untuk tidak duplicate
             var queryStatus = "";
@@ -2876,10 +2960,6 @@ namespace MasterOnline.Controllers
             }
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%JD_GetOrderByStatusCancel%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%JD_GetOrderByStatusComplete%' ");
             // end tunning untuk tidak duplicate
-
-            //add by nurul 28/10/2020, bundling
-            new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
-            //add by nurul 28/10/2020, bundling
 
             return ret;
         }
@@ -2897,6 +2977,9 @@ namespace MasterOnline.Controllers
 
             string connectionID = Guid.NewGuid().ToString();
             var connIdARF01C = Guid.NewGuid().ToString();
+            //add by nurul 19/1/2021, bundling 
+            ret = connectionID;
+            //end add by nurul 19/1/2021, bundling
 
             if (listOrderId.Count > 0)
             {

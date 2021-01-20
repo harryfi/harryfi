@@ -2851,6 +2851,10 @@ namespace MasterOnline.Controllers
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             string status = "";
 
+            //add by nurul 20/1/2021, bundling
+            ret = connId;
+            //end add by nurul 20/1/2021, bundling
+
             //complete list of order status at https://fs.tokopedia.net/docs#order-status-codes
             //400 seller accepted the order
             //401 seller accepted the order, partially
@@ -3630,6 +3634,12 @@ namespace MasterOnline.Controllers
             var daysFrom = -1;
             var daysTo = 1;
             var daysNow = DateTime.UtcNow.AddHours(7);
+
+            //add by nurul 20/1/2021, bundling 
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
             //while (daysFrom > -13)
             while (daysFrom >= -3)//pesanan sudah dibayar ambil -3 hari saja
             {
@@ -3641,21 +3651,40 @@ namespace MasterOnline.Controllers
 
                 //end add 16 des 2020, fixed date
 
-                await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
+                //change by nurul 20/1/2021, bundling 
+                //await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
+                var returnGetOrder = await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
+                //change by nurul 20/1/2021, bundling 
                 //daysFrom -= 3;
                 //daysTo -= 3;
                 daysFrom -= 2;
                 daysTo -= 2;
+
+                //add by nurul 20/1/2021, bundling 
+                if (returnGetOrder != "")
+                {
+                    tempConnId.Add(returnGetOrder);
+                    connIdProses += "'" + returnGetOrder + "' , ";
+                }
+                //end add by nurul 20/1/2021, bundling 
             }
+            //add by nurul 20/1/2021, bundling 
+            List<string> listBrgKomponen = new List<string>();
+            if (tempConnId.Count() > 0)
+            {
+                listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            }
+            if (listBrgKomponen.Count() > 0)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //end add by nurul 20/1/2021, bundling 
 
             // tunning untuk tidak duplicate
             var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrderListCompleted%' and invocationdata not like '%GetOrderListCancel%' and invocationdata not like '%GetSingleOrder%' and invocationdata not like '%CheckPendings%'");
             // end tunning untuk tidak duplicate
-
-            //add by nurul 28/10/2020, bundling
-            new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
-            //add by nurul 28/10/2020, bundling
+            
 
             return ret;
         }
@@ -3853,6 +3882,10 @@ namespace MasterOnline.Controllers
             //    return "";
             ////end request by Pak Richard, cek pesanan cancel tokped mulai dari tgl publish agar tidak menumpuk antrian hangfire
             string connId = Guid.NewGuid().ToString();
+            //add by nurul 20/1/2021, bundling 
+            var ret = connId;
+            //end add by nurul 20/1/2021, bundling 
+            
             var token = SetupContext(iden);
             iden.token = token;
             long milis = CurrentTimeMillis();
@@ -3862,6 +3895,8 @@ namespace MasterOnline.Controllers
             long unixTimestampFrom = daysFrom;
             long unixTimestampTo = daysTo;
             //end change 16 des 2020, fixed date
+
+            
 
             string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
 
@@ -3984,7 +4019,8 @@ namespace MasterOnline.Controllers
                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrder) + " Pesanan dari Tokopedia dibatalkan.");
                 }
             }
-            return "";
+            //return "";
+            return ret; 
         }
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
@@ -3996,6 +4032,11 @@ namespace MasterOnline.Controllers
             var daysFrom = -1;
             var daysTo = 1;
             var daysNow = DateTime.UtcNow.AddHours(7);
+            //add by nurul 20/1/2021, bundling 
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
             //while (daysFrom > -13)
             while (daysFrom >= -7)
             {
@@ -4006,23 +4047,40 @@ namespace MasterOnline.Controllers
                 var toDt = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
                 //end add 16 des 2020, fixed date
 
-                await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
-
+                //change by nurul 20/1/2021, bundling 
+                //await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
+                var returnGetOrder = await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, fromDt, toDt);
+                //end change by nurul 20/1/2021, bundling
                 //daysFrom -= 3;
                 //daysTo -= 3;
                 daysFrom -= 2;
                 daysTo -= 2;
+
+                //add by nurul 20/1/2021, bundling 
+                if (returnGetOrder != "")
+                {
+                    tempConnId.Add(returnGetOrder);
+                    connIdProses += "'" + returnGetOrder + "' , ";
+                }
+                //end add by nurul 20/1/2021, bundling 
             }
+            //add by nurul 20/1/2021, bundling 
+            List<string> listBrgKomponen = new List<string>();
+            if (tempConnId.Count() > 0)
+            {
+                listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            }
+            if (listBrgKomponen.Count() > 0)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //end add by nurul 20/1/2021, bundling 
 
             // add tuning no duplicate hangfire job get order
             var queryStatus = "\\\"}\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","\"000003\""
             var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCancel%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end add tuning no duplicate hangfire job get order
-
-            //add by nurul 28/10/2020, bundling
-            new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
-            //add by nurul 28/10/2020, bundling
-
+            
             return ret;
         }
 

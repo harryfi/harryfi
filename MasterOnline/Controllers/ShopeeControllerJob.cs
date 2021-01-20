@@ -1790,8 +1790,40 @@ namespace MasterOnline.Controllers
             var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
             var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             //end add 16 des 2020, fixed date
-
-            await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, 0, 0, 0, fromDt, toDt);
+            
+            //change by nurul 19/1/2021, bundling 
+            //await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, 0, 0, 0, fromDt, toDt);
+            var returnGetOrder = await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, 0, 0, 0, fromDt, toDt);
+            var lanjut = returnGetOrder.more;
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            if (returnGetOrder.ConnId != "")
+            {
+                tempConnId.Add(returnGetOrder.ConnId);
+                connIdProses += "'" + returnGetOrder.ConnId + "' , ";
+            }
+            while (lanjut)
+            {
+                //var nextReturnGetOrder = await GetOrderByStatusCancelledAPI(iden, stat, CUST, NAMA_CUST, returnGetOrder.page, returnGetOrder.jmlhNewOrder, fromDt, toDt);
+                var nextReturnGetOrder = await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, returnGetOrder.page, returnGetOrder.jmlhNewOrder, returnGetOrder.jmlhPesananDibayar, fromDt, toDt);
+                if (nextReturnGetOrder.ConnId != "")
+                {
+                    tempConnId.Add(nextReturnGetOrder.ConnId);
+                    connIdProses += "'" + returnGetOrder.ConnId + "' , ";
+                }
+                returnGetOrder = nextReturnGetOrder;
+                if (!nextReturnGetOrder.more) { lanjut = false; break; }
+            }
+            List<string> listBrgKomponen = new List<string>();
+            if (tempConnId.Count() > 0)
+            {
+                listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            }
+            if (listBrgKomponen.Count() > 0)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //change by nurul 19/1/2021, bundling 
 
             // tunning untuk tidak duplicate
             var queryStatus = "";
@@ -1812,13 +1844,18 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderByStatusWithDay(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
+        //public async Task<string> GetOrderByStatusWithDay(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
+        public async Task<returnsGetOrder> GetOrderByStatusWithDay(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
             string connID = Guid.NewGuid().ToString();
             SetupContext(iden);
+            //add by nurul 19/1/2021, bundling 
+            var ret1 = new returnsGetOrder();
+            ret1.ConnId = connID;
+            //end add by nurul 19/1/2021, bundling 
 
             long seconds = CurrentTimeSecond();
             //change by nurul 10/12/2019, change create_time_from
@@ -1932,8 +1969,15 @@ namespace MasterOnline.Controllers
                                 //add by Tri 4 Mei 2020, update stok di jalankan per batch karena batch berikutnya akan memiliki connID yg berbeda
                                 new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                                 //end add by Tri 4 Mei 2020, update stok di jalankan per batch karena batch berikutnya akan memiliki connID yg berbeda
-
-                                await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar, daysFrom, daysTo);
+                                
+                                //end change by nurul 20/1/2021, bundling
+                                //await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar, daysFrom, daysTo);
+                                
+                                ret1.page = page + 50;
+                                ret1.jmlhNewOrder = jmlhNewOrder;
+                                ret1.jmlhPesananDibayar = jmlhPesananDibayar;
+                                ret1.more = listOrder.more;
+                                //end change by nurul 20/1/2021, bundling 
                             }
                             else
                             {
@@ -1948,11 +1992,14 @@ namespace MasterOnline.Controllers
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari Shopee.");
                                 }
+                                
+                                //add by nurul 20/1/2021, bundling 
+                                ret1.page = page;
+                                ret1.jmlhNewOrder = jmlhNewOrder;
+                                ret1.jmlhPesananDibayar = jmlhPesananDibayar;
+                                ret1.more = listOrder.more;
+                                //end add by nurul 20/1/2021, bundling 
                             }
-
-                            //add by nurul 28/10/2020, bundling
-                            new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
-                            //add by nurul 28/10/2020, bundling
                         }
                     }
                 }
@@ -1979,7 +2026,8 @@ namespace MasterOnline.Controllers
             //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrderByStatusCompleted%' and invocationdata not like '%GetOrderByStatusCancelled%' ");
             //// end tunning untuk tidak duplicate
 
-            return ret;
+            //return ret;
+            return ret1;
         }
 
         [AutomaticRetry(Attempts = 2)]
@@ -2002,7 +2050,39 @@ namespace MasterOnline.Controllers
             var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             //end add 16 des 2020, fixed date
 
-            await GetOrderByStatusCancelledAPI(iden, stat, CUST, NAMA_CUST, 0, 0, fromDt, toDt);
+            //change by nurul 19/1/2021, bundling 
+            //await GetOrderByStatusCancelledAPI(iden, stat, CUST, NAMA_CUST, 0, 0, fromDt, toDt);
+            var returnGetOrder = await GetOrderByStatusCancelledAPI(iden, stat, CUST, NAMA_CUST, 0, 0, fromDt, toDt);
+            var lanjut = returnGetOrder.more;
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            if (returnGetOrder.ConnId != "")
+            {
+                tempConnId.Add(returnGetOrder.ConnId);
+                connIdProses += "'" + returnGetOrder.ConnId + "' , ";
+            }
+            while (lanjut)
+            {
+                var nextReturnGetOrder = await GetOrderByStatusCancelledAPI(iden, stat, CUST, NAMA_CUST, returnGetOrder.page, returnGetOrder.jmlhNewOrder, fromDt, toDt);
+                if(nextReturnGetOrder.ConnId != "")
+                {
+                    tempConnId.Add(nextReturnGetOrder.ConnId);
+                    connIdProses += "'" + returnGetOrder.ConnId + "' , ";
+                }
+                returnGetOrder = nextReturnGetOrder;
+                if (!nextReturnGetOrder.more) { lanjut = false; break; }
+            }
+            List<string> listBrgKomponen = new List<string>();
+            if (tempConnId.Count() > 0)
+            {
+                listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            }
+            if(listBrgKomponen.Count() > 0)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //change by nurul 19/1/2021, bundling 
+
 
             // tunning untuk tidak duplicate
             var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
@@ -2010,13 +2090,18 @@ namespace MasterOnline.Controllers
             // end tunning untuk tidak duplicate
             return "";
         }
-        public async Task<string> GetOrderByStatusCancelledAPI(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, long fromDt, long toDt)
+        //public async Task<string> GetOrderByStatusCancelledAPI(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, long fromDt, long toDt)
+        public async Task<returnsGetOrder> GetOrderByStatusCancelledAPI(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, long fromDt, long toDt)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            string ret = "";
+            //string ret = "";
             string connID = Guid.NewGuid().ToString();
             SetupContext(iden);
+            //add by nurul 19/1/2021, bundling 
+            var ret1  = new returnsGetOrder();
+            ret1.ConnId = connID;
+            //end add by nurul 19/1/2021, bundling 
 
             long seconds = CurrentTimeSecond();
             //change 23 nov 2020
@@ -2171,7 +2256,12 @@ namespace MasterOnline.Controllers
                             jmlhNewOrder = jmlhNewOrder + rowAffected;
                             if (listOrder.more)
                             {
-                                await GetOrderByStatusCancelledAPI(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, fromDt, toDt);
+                                //change by nurul 20/1/2021, bundling 
+                                //await GetOrderByStatusCancelledAPI(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, fromDt, toDt);
+                                ret1.page = page + 50;
+                                ret1.jmlhNewOrder = jmlhNewOrder;
+                                ret1.more = listOrder.more;
+                                //end change by nurul 20/1/2021, bundling 
                             }
                             else
                             {
@@ -2179,12 +2269,14 @@ namespace MasterOnline.Controllers
                                 {
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhNewOrder) + " Pesanan dari Shopee dibatalkan.");
+                                    
                                 }
+                                //add by nurul 20/1/2021, bundling 
+                                ret1.page = page;
+                                ret1.jmlhNewOrder = jmlhNewOrder;
+                                ret1.more = listOrder.more;
+                                //end add by nurul 20/1/2021, bundling 
                             }
-
-                            //add by nurul 28/10/2020, bundling
-                            new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
-                            //add by nurul 28/10/2020, bundling
                         }
                     }
                 }
@@ -2199,7 +2291,8 @@ namespace MasterOnline.Controllers
             //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             //// end tunning untuk tidak duplicate
 
-            return ret;
+            //return ret;
+            return ret1;
         }
 
         //public Dictionary<TKey, TValue> AddDictionary<TKey, TValue>(this Dictionary<TKey, TValue> target, Dictionary<TKey, TValue> source)
@@ -9565,5 +9658,15 @@ namespace MasterOnline.Controllers
             //public object seller_rebate { get; set; }
         }
 
+        //add by nurul 19/1/2021, bundling
+        public class returnsGetOrder
+        {
+            public string ConnId { get; set; }
+            public int page { get; set; }
+            public int jmlhNewOrder { get; set; }
+            public int jmlhPesananDibayar { get; set; }
+            public bool more { get; set; }
+        }
+        //end add by nurul 19/1/2021, bundling
     }
 }

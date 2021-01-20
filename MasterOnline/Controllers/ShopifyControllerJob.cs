@@ -105,7 +105,24 @@ namespace MasterOnline.Controllers
             var dateTo = DateTimeOffset.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
             //while (daysFrom > -13)
             //{
-            await Shopify_GetOrderByStatusUnpaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+            //change by nurul 20/1/2021, bundling 
+            //await Shopify_GetOrderByStatusUnpaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+            var returnGetOrder = await Shopify_GetOrderByStatusUnpaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+            var connIdProses = "";
+            if (returnGetOrder != "")
+            {
+                connIdProses += "'" + returnGetOrder + "' , ";
+            }
+            List<string> listBrgKomponen = new List<string>();
+            if (connIdProses != "")
+            {
+                listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            }
+            if (listBrgKomponen.Count() > 0)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //end change by nurul 20/1/2021, bundling
             //    daysFrom -= 3;
             //    daysTo -= 3;
             //}
@@ -126,10 +143,6 @@ namespace MasterOnline.Controllers
             //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%Shopify_GetOrderByStatusUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%Shopify_GetOrderByStatusPaid%' and invocationdata not like '%Shopify_GetOrderByStatusCompleted%' and invocationdata not like '%Shopify_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
 
-            //add by nurul 28/10/2020, bundling
-            new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
-            //add by nurul 28/10/2020, bundling
-
             return ret;
         }
 
@@ -138,6 +151,9 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
+            //add by nurul 20/1/2021, bundling 
+            ret = connID;
+            //add by nurul 20/1/2021, bundling 
             SetupContext(iden);
 
             //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
@@ -431,7 +447,26 @@ namespace MasterOnline.Controllers
             var dateTo = DateTimeOffset.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
             //while (daysFrom > -13)
             //{
-            await Shopify_GetOrderByStatusPaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+            
+            //change by nurul 20/1/2021, bundling 
+            //await Shopify_GetOrderByStatusPaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+            var returnGetOrder = await Shopify_GetOrderByStatusPaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+            var connIdProses = "";
+            if (returnGetOrder != "")
+            {
+                connIdProses += "'" + returnGetOrder + "' , ";
+            }
+            List<string> listBrgKomponen = new List<string>();
+            if (connIdProses != "")
+            {
+                listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            }
+            if (listBrgKomponen.Count() > 0)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //end change by nurul 20/1/2021, bundling
+
             //    daysFrom -= 3;
             //    daysTo -= 3;
             //}
@@ -451,11 +486,7 @@ namespace MasterOnline.Controllers
             //}
             //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%Shopify_GetOrderByStatusUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%Shopify_GetOrderByStatusPaid%' and invocationdata not like '%Shopify_GetOrderByStatusCompleted%' and invocationdata not like '%Shopify_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
-
-            //add by nurul 28/10/2020, bundling
-            new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
-            //add by nurul 28/10/2020, bundling
-
+            
             return ret;
         }
 
@@ -463,6 +494,9 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
+            //add by nurul 20/1/2021, bundling 
+            ret = connID;
+            //add by nurul 20/1/2021, bundling 
 
             SetupContext(iden);
 
@@ -855,7 +889,26 @@ namespace MasterOnline.Controllers
             var dateTo = DateTimeOffset.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
             //while (daysFrom > -13)
             //{
-            await Shopify_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+
+            //change by nurul 20/1/2021, bundling 
+            //await Shopify_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+            var returnGetOrder = await Shopify_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+            var connIdProses = "";
+            if (returnGetOrder != "")
+            {
+                connIdProses += "'" + returnGetOrder + "' , ";
+            }
+            List<string> listBrgKomponen = new List<string>();
+            if (connIdProses != "")
+            {
+                listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            }
+            if (listBrgKomponen.Count() > 0)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //end change by nurul 20/1/2021, bundling
+
             //    daysFrom -= 3;
             //    daysTo -= 3;
             //}
@@ -865,10 +918,6 @@ namespace MasterOnline.Controllers
             //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%E2Cart_GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             //// end tunning untuk tidak duplicate
 
-            //add by nurul 28/10/2020, bundling
-            new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
-            //add by nurul 28/10/2020, bundling
-
             return ret;
         }
 
@@ -877,6 +926,10 @@ namespace MasterOnline.Controllers
             string ret = "";
 
             string connID = Guid.NewGuid().ToString();
+            //add by nurul 20/1/2021, bundling 
+            ret = connID;
+            //add by nurul 20/1/2021, bundling 
+
             SetupContext(iden);
 
             //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";

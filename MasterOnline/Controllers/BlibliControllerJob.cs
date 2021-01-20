@@ -708,26 +708,44 @@ namespace MasterOnline.Controllers
                 //var toDt = DateTime.UtcNow.AddHours(14);
                 var toDt = DateTime.UtcNow.AddHours(7);
                 //end add 16 des 2020, fixed date
+
+                //add by nurul 20/1/2021, bundling 
+                var connIdProses = "";
+                List<string> tempConnId = new List<string>() { };
+                //end add by nurul 20/1/2021, bundling 
+                
                 while (more)
                 {
                     int count = await GetOrderListWithPage(iden, stat, connId, CUST, NAMA_CUST, page, fromDt, toDt);
                     page++;
+                    //add by nurul 20/1/2021, bundling
+                    if (connId != "")
+                    {
+                        tempConnId.Add(connId);
+                        connIdProses += "'" + connId + "' , ";
+                    }
+                    //end add by nurul 20/1/2021, bundling
                     if (count < 10)
                     {
                         more = false;
                     }
                 }
+                //add by nurul 20/1/2021, bundling 
+                List<string> listBrgKomponen = new List<string>();
+                if (tempConnId.Count() > 0)
+                {
+                    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+                }
+                if (listBrgKomponen.Count() > 0)
+                {
+                    new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+                }
+                //end add by nurul 20/1/2021, bundling 
+
 
                 // tunning untuk tidak duplicate
                 var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + connId + "%' and invocationdata like '%blibli%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%'");
                 // end tunning untuk tidak duplicate
-
-                //add by nurul 28/10/2020, bundling
-                if (stat == StatusOrder.Paid || stat == StatusOrder.Cancel)
-                {
-                    new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
-                }
-                //add by nurul 28/10/2020, bundling
             }
 
 
