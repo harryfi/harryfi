@@ -14,7 +14,7 @@ namespace MasterOnline.Models
 
         [Key]
         [Column(Order = 0)]
-        public long ACCOUNT_ID { get; set; }
+        public string ACCOUNT { get; set; }
 
         [Key]
         [Column(Order = 1)]
@@ -26,6 +26,7 @@ namespace MasterOnline.Models
         //public string TOKEN_TYPE { get; set; }
         //public DateTime REQUEST_DATE { get; set; }
         public string CODE { get; set; }
+        public string EMAIL { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RECNUM { get; set; }
