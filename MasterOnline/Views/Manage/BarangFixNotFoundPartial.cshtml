@@ -27,18 +27,18 @@
             tableFixNotFound.search($('#not_found_nama_barang').val()).draw();
         });
     </script>
-    <div class="row">
+    @*<div class="row">
         <div class="form-group" style="margin-top: 5px;">
             <label class="control-label col-md-3 col-sm-3">No. Pesanan</label>
             <div class="col-md-9 col-sm-9">
                 @Html.TextBox("not_found_no_bukti", PesananDetail?.NO_BUKTI, new { @class = "form-control", disabled = "disabled" })
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="form-group" style="margin-top: 5px;">
+    </div>*@
+    <div class="row" style="margin-top:-8px">
+        <div class="form-group" >
             <label class="control-label col-md-3 col-sm-3">Nama Barang</label>
-            <div class="col-md-9 col-sm-9">
+            <div class="col-md-9 col-sm-9" style = "padding-left:13px">
                 @{
                     var catatan_split = PesananDetail.CATATAN.Split(new string[] { "_;_" }, StringSplitOptions.None);
                     var namaDiCatatan = "";

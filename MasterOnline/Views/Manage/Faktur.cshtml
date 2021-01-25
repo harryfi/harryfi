@@ -1915,7 +1915,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="fixNotFoundLabel">Perbaikan data barang</h4>
             </div>
-            <div class="form-group" style="padding-left:15px">
+            <div class="row form-group" style="padding-left:15px">
                 @Html.Hidden("textRec", "", new { Value = "" })
                 @Html.Label("", "Bundling", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                 @Html.Hidden("cbx_NotFound_bundling", new { data_cbx = $"cbx-NotFound-Bundling", @class = "cls-cbxNotFoundBundling" })
@@ -1924,6 +1924,14 @@
                         <input type="checkbox" id="cbxNotFoundBundling" class="cls-cbxNotFoundBundling" name="@($"cbx-NotFound-Faktur-Bundling")" onclick="NotFoundBundling($('#cbxNotFoundBundling').is(':checked'));" />
                         <span class="checkmark"></span>
                     </label>
+                </div>
+            </div>
+            <div class="row" style="margin-top:-8px">
+                <div class="form-group" style="margin-top: 8px;">
+                    <label class="control-label col-md-3 col-sm-3" style="padding-left:25px; margin-top: 5px;">No. Faktur</label>
+                    <div class="col-md-9 col-sm-9" style="padding-left:17px">
+                        @Html.TextBox("not_found_no_bukti", "", new { @class = "form-control", disabled = "disabled", Value = "" })
+                    </div>
                 </div>
             </div>
             <div class="modal-body" id="modal-fix-not-found-body">
@@ -5601,10 +5609,11 @@
         //end add
 
         //ADD BY CALVIN 21 Maret 2019
-        function fixDataBarangNotFound(rec) {
+        function fixDataBarangNotFound(rec, nobuk) {
             this.$recDataBarangNotFound = rec;
             fillModalFixNotFound(rec);
             $('#textRec').val(rec);
+            $('#not_found_no_bukti').val(nobuk);
             $('#cbxNotFoundBundling').attr('checked', false);
             $('#cbxNotFoundBundling').removeAttr('disabled');
             $('#cbx_NotFound_bundling').removeAttr('disabled');

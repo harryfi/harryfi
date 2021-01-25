@@ -3282,7 +3282,7 @@
                         </div>
                     </div>*@
             </div>
-            <div class="form-group" style="padding-left:15px">
+            <div class="row form-group" style="padding-left:15px">
                 @Html.Hidden("textRec", "", new { Value="" })
                 @Html.Label("", "Bundling", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                 @Html.Hidden("cbx_NotFound_bundling", new { data_cbx = $"cbx-NotFound-Bundling", @class = "cls-cbxNotFoundBundling" })
@@ -3291,6 +3291,14 @@
                         <input type="checkbox" id="cbxNotFoundBundling" class="cls-cbxNotFoundBundling" name="@($"cbx-NotFound-Pesanan-Bundling")" onclick="NotFoundBundling($('#cbxNotFoundBundling').is(':checked'));" />
                         <span class="checkmark"></span>
                     </label>
+                </div>
+            </div>
+            <div class="row" style="padding-left:15px; margin-top:-8px">
+                <div class="form-group" style="margin-top: 8px;">
+                    <label class="control-label col-md-3 col-sm-3" style="margin-top: 6px;">No. Pesanan</label>
+                    <div class="col-md-9 col-sm-9">
+                        @Html.TextBox("not_found_no_bukti", "", new { @class = "form-control", disabled = "disabled", Value = "" })
+                    </div>
                 </div>
             </div>
             <div class="modal-body" id="modal-fix-not-found-body">
@@ -9278,10 +9286,11 @@
         }
 
         //ADD BY CALVIN 17 DESEMBER 2018
-        function fixDataBarangNotFound(rec) {
+        function fixDataBarangNotFound(rec, nobuk) {
             this.$recDataBarangNotFound = rec;
             fillModalFixNotFound(rec);
             $('#textRec').val(rec);
+            $('#not_found_no_bukti').val(nobuk);
             $('#cbxNotFoundBundling').attr('checked', false);
             $('#cbxNotFoundBundling').removeAttr('disabled');
             $('#cbx_NotFound_bundling').removeAttr('disabled');
