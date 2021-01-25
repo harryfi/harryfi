@@ -173,6 +173,8 @@ namespace MasterOnline.Models
     {
         public string brand { get; set; }
         public string tipe { get; set; }
+        public string merek { get; set; }
+        
     }
 
     public class BindingBukaLapakProduct
@@ -686,7 +688,375 @@ namespace MasterOnline.Models
         public string tipe { get; set; }
     }
     #endregion
+    #region get item list v2
 
+    public class GetItemListResponse
+    {
+        public GetItemListDatum[] data { get; set; }
+        public GetItemListMeta meta { get; set; }
+    }
+
+    public class GetItemListMeta
+    {
+        public int http_status { get; set; }
+        public int offset { get; set; }
+        public int total { get; set; }
+        public int limit { get; set; }
+    }
+
+    public class GetItemListDatum
+    {
+        public bool active { get; set; }
+        public bool assurance { get; set; }
+        //public object[] available_countries { get; set; }
+        public GetItemListCategory category { get; set; }
+        public string condition { get; set; }
+        public string[] couriers { get; set; }
+        public DateTime created_at { get; set; }
+        //public Deal deal { get; set; }
+        //public object default_catalog { get; set; }
+        public long default_sku_id { get; set; }
+        public string description { get; set; }
+        public string description_bb { get; set; }
+        public bool digital_product { get; set; }
+        public DimensionProduct dimensions { get; set; }
+        //public int discount_percentage { get; set; }
+        //public object discount_subsidy { get; set; }
+        public bool for_sale { get; set; }
+        //public object[] free_shipping_coverage { get; set; }
+        public string id { get; set; }
+        public GetItemListImages images { get; set; }
+        public bool imported { get; set; }
+        //public Installment[] installments { get; set; }
+        //public object[] international_couriers { get; set; }
+        //public string international_shipping_status { get; set; }
+        //public Label[] labels { get; set; }
+        public int max_quantity { get; set; }
+        public bool merchant_return_insurance { get; set; }
+        public int min_quantity { get; set; }
+        public string name { get; set; }
+        public long original_price { get; set; }
+        public long price { get; set; }
+        //public object[] product_sin { get; set; }
+        //public Promoted_Detail promoted_detail { get; set; }
+        //public Rating rating { get; set; }
+        public DateTime relisted_at { get; set; }
+        //public bool rush_delivery { get; set; }
+        //public Shipping shipping { get; set; }
+        public long sku_id { get; set; }
+        public string sku_name { get; set; }
+        //public Sla sla { get; set; }
+        //public int special_campaign_id { get; set; }
+        public dynamic specs { get; set; }
+        public string state { get; set; }
+        //public object[] state_description { get; set; }
+        public GetItemListStats stats { get; set; }
+        public int stock { get; set; }
+        //public Store store { get; set; }
+        //public Tag_Pages[] tag_pages { get; set; }
+        public DateTime updated_at { get; set; }
+        public string url { get; set; }
+        public GetItemListVariant[] variants { get; set; }
+        //public object video_url { get; set; }
+        //public Warranty warranty { get; set; }
+        public int weight { get; set; }
+        //public object[] wholesales { get; set; }
+        //public bool without_shipping { get; set; }
+    }
+    public class DimensionProduct
+    {
+        public int width { get; set; }
+        public int height { get; set; }
+        public int length { get; set; }
+
+    }
+    public class GetItemListCategory
+    {
+        public long id { get; set; }
+        public string name { get; set; }
+        public string[] structure { get; set; }
+        public string url { get; set; }
+    }
+
+    //public class Deal
+    //{
+    //}
+
+    public class GetItemListImages
+    {
+        public long[] ids { get; set; }
+        public string[] large_urls { get; set; }
+        public string[] original_urls { get; set; }
+        public string[] small_urls { get; set; }
+    }
+
+    //public class Promoted_Detail
+    //{
+    //    public bool active { get; set; }
+    //    public int bid_value { get; set; }
+    //    public string end_date { get; set; }
+    //    public string start_date { get; set; }
+    //}
+
+    //public class Rating
+    //{
+    //}
+
+    //public class Shipping
+    //{
+    //    public bool force_insurance { get; set; }
+    //    public object[] free_shipping_coverage { get; set; }
+    //}
+
+    //public class Sla
+    //{
+    //    public string type { get; set; }
+    //    public int? value { get; set; }
+    //}
+
+    public class GetItemListSpecs
+    {
+        public string brand { get; set; }
+        public string kapasitas_hardisk { get; set; }
+        public string kapasitas_memory { get; set; }
+        public string screen_size { get; set; }
+    }
+
+    public class GetItemListStats
+    {
+        public int interest_count { get; set; }
+        public int sold_count { get; set; }
+        public int view_count { get; set; }
+        public int waiting_payment_count { get; set; }
+    }
+
+    //public class Store
+    //{
+    //    public Acceptance acceptance { get; set; }
+    //    public Address address { get; set; }
+    //    public string alert { get; set; }
+    //    public string avatar_url { get; set; }
+    //    public bool brand_seller { get; set; }
+    //    public string[] carriers { get; set; }
+    //    public Closing closing { get; set; }
+    //    public bool connected_facebook { get; set; }
+    //    public bool connected_twitter { get; set; }
+    //    public string delivery_time { get; set; }
+    //    public string description { get; set; }
+    //    public DateTime first_upload_product_at { get; set; }
+    //    public bool flagship { get; set; }
+    //    public object[] groups { get; set; }
+    //    public Header_Image header_image { get; set; }
+    //    public int id { get; set; }
+    //    public Inactivity inactivity { get; set; }
+    //    public International_Shipping international_shipping { get; set; }
+    //    public string lapak_phone { get; set; }
+    //    public Last_Order_Schedule last_order_schedule { get; set; }
+    //    public Level level { get; set; }
+    //    public int max_deal_duration { get; set; }
+    //    public string name { get; set; }
+    //    public string premium_level { get; set; }
+    //    public bool premium_top_seller { get; set; }
+    //    public Product_Upload_Remaining product_upload_remaining { get; set; }
+    //    public Rejection rejection { get; set; }
+    //    public Reputation reputation { get; set; }
+    //    public Reviews reviews { get; set; }
+    //    public Sla1 sla { get; set; }
+    //    public int subscriber_amount { get; set; }
+    //    public string term_and_condition { get; set; }
+    //    public string url { get; set; }
+    //    public User_Term_And_Condition user_term_and_condition { get; set; }
+    //}
+
+    //public class Acceptance
+    //{
+    //    public int acceptance_rate { get; set; }
+    //    public int accepted_transaction { get; set; }
+    //}
+
+    //public class Address
+    //{
+    //    public string city { get; set; }
+    //    public string province { get; set; }
+    //}
+
+    //public class Closing
+    //{
+    //    public bool closed { get; set; }
+    //    public string closed_reason { get; set; }
+    //    public DateTime reopen_date { get; set; }
+    //    public DateTime start_date { get; set; }
+    //}
+
+    //public class Header_Image
+    //{
+    //    public int id { get; set; }
+    //    public string url { get; set; }
+    //}
+
+    //public class Inactivity
+    //{
+    //    public bool inactive { get; set; }
+    //    public DateTime last_appear_at { get; set; }
+    //}
+
+    //public class International_Shipping
+    //{
+    //    public string status { get; set; }
+    //    public string tnc_status { get; set; }
+    //}
+
+    //public class Last_Order_Schedule
+    //{
+    //    public string friday { get; set; }
+    //    public string monday { get; set; }
+    //    public string saturday { get; set; }
+    //    public string sunday { get; set; }
+    //    public string thursday { get; set; }
+    //    public string tuesday { get; set; }
+    //    public string wednesday { get; set; }
+    //}
+
+    public class Level
+    {
+        public string image_url { get; set; }
+        public string name { get; set; }
+    }
+
+    //public class Product_Upload_Remaining
+    //{
+    //    public int daily { get; set; }
+    //    public int monthly { get; set; }
+    //    public int weekly { get; set; }
+    //}
+
+    //public class Rejection
+    //{
+    //    public int recent_transactions { get; set; }
+    //    public int rejected { get; set; }
+    //}
+
+    //public class Reputation
+    //{
+    //    public float level_progress { get; set; }
+    //    public string next_level { get; set; }
+    //    public int point_needed_next_level { get; set; }
+    //}
+
+    //public class Reviews
+    //{
+    //    public int negative { get; set; }
+    //    public int positive { get; set; }
+    //}
+
+    //public class Sla1
+    //{
+    //    public string type { get; set; }
+    //    public int value { get; set; }
+    //}
+
+    //public class User_Term_And_Condition
+    //{
+    //    public string description { get; set; }
+    //    public DateTime updated_at { get; set; }
+    //}
+
+    //public class Warranty
+    //{
+    //    public bool cheapest { get; set; }
+    //}
+
+    //public class Installment
+    //{
+    //    public string bank_issuer { get; set; }
+    //    public string bank_issuer_name { get; set; }
+    //    public string logo_url { get; set; }
+    //    public int[] terms { get; set; }
+    //}
+
+    public class GetItemListLabel
+    {
+        public string description { get; set; }
+        public int id { get; set; }
+        public string name { get; set; }
+        public string slug { get; set; }
+    }
+
+    public class Tag_Pages
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+        public string url { get; set; }
+    }
+
+    public class GetItemListVariant
+    {
+        //public Address1 address { get; set; }
+        //public Deal1 deal { get; set; }
+        public bool default_sku { get; set; }
+        public VariantDetail[] details { get; set; }
+        //public int discount { get; set; }
+        //public int discount_percentage { get; set; }
+        //public object discount_subsidy { get; set; }
+        public long id { get; set; }
+        public Images1 images { get; set; }
+        public int price { get; set; }
+        public string product_id { get; set; }
+        public string sku_name { get; set; }
+        public string state { get; set; }
+        public int stock { get; set; }
+        public string variant_name { get; set; }
+        //public object[] wholesales { get; set; }
+    }
+
+    public class Address1
+    {
+        public int id { get; set; }
+        public string title { get; set; }
+    }
+
+    public class Deal1
+    {
+    }
+
+    public class Images1
+    {
+        public long[] ids { get; set; }
+        public string[] large_urls { get; set; }
+        public string[] small_urls { get; set; }
+    }
+
+    public class VariantDetail
+    {
+        public VariantLabel label { get; set; }
+        public VariantValue value { get; set; }
+        public long variant_id { get; set; }
+    }
+
+    public class VariantLabel
+    {
+        public long id { get; set; }
+        public string name { get; set; }
+        public string state { get; set; }
+    }
+
+    public class VariantValue
+    {
+        public long id { get; set; }
+        public string name { get; set; }
+        public string state { get; set; }
+    }
+
+    #endregion
+    public class BukaLapakKey
+    {
+        public string token { get; set; }
+        public string refresh_token { get; set; }
+        public DateTime tgl_expired { get; set; }
+        public string dbPathEra { get; set; }
+        public string cust { get; set; }
+
+    }
 
     public class CategoryBL
     {
