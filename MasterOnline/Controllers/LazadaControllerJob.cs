@@ -1973,6 +1973,7 @@ namespace MasterOnline.Controllers
             //add by nurul 20/1/2021, bundling 
             var AdaPesanan = false;
             var connIdProses = "";
+            var AdaKomponen = false;
             List<string> tempConnId = new List<string>() { };
             //end add by nurul 20/1/2021, bundling 
 
@@ -1990,6 +1991,10 @@ namespace MasterOnline.Controllers
                     tempConnId.Add(count.ConnId);
                     connIdProses += "'" + count.ConnId + "' , ";
                 }
+                if (count.AdaKomponen)
+                {
+                    AdaKomponen = count.AdaKomponen;
+                }
                 //end add by nurul 20/1/2021, bundling 
                 if (count.recordCount < 100)
                 {
@@ -1997,12 +2002,13 @@ namespace MasterOnline.Controllers
                 }
             }
             //add by nurul 20/1/2021, bundling 
-            List<string> listBrgKomponen = new List<string>();
-            if (tempConnId.Count() > 0)
-            {
-                listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
-            }
-            if (listBrgKomponen.Count() > 0 && AdaPesanan)
+            //List<string> listBrgKomponen = new List<string>();
+            //if (tempConnId.Count() > 0)
+            //{
+            //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            //}
+            //if (listBrgKomponen.Count() > 0 && AdaPesanan)
+            if(AdaKomponen)
             {
                 new StokControllerJob().getQtyBundling(dbPathEra, uname);
             }
@@ -2747,6 +2753,14 @@ namespace MasterOnline.Controllers
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                 contextNotif.Clients.Group(dbPathEra).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Lazada.");
 
+                                //add by nurul 25/1/2021, bundling
+                                var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connectionID + ")").ToList();
+                                if (listBrgKomponen.Count() > 0)
+                                {
+                                    ret.AdaKomponen = true;
+                                }
+                                //end add by nurul 25/1/2021, bundling
+
                                 new StokControllerJob().updateStockMarketPlace(connectionID, dbPathEra, uname);
 
                                 //add by nurul 19/1/2021, bundling 
@@ -2843,6 +2857,7 @@ namespace MasterOnline.Controllers
             
             //add by nurul 20/1/2021, bundling 
             var AdaPesanan = false;
+            var AdaKomponen = false;
             var connIdProses = "";
             List<string> tempConnId = new List<string>() { };
             //end add by nurul 20/1/2021, bundling 
@@ -2861,6 +2876,10 @@ namespace MasterOnline.Controllers
                     tempConnId.Add(count.ConnId);
                     connIdProses += "'" + count.ConnId + "' , ";
                 }
+                if (count.AdaKomponen)
+                {
+                    AdaKomponen = count.AdaKomponen;
+                }
                 //end add by nurul 20/1/2021, bundling 
                 if (count.recordCount < 100)
                 {
@@ -2868,12 +2887,13 @@ namespace MasterOnline.Controllers
                 }
             }
             //add by nurul 20/1/2021, bundling 
-            List<string> listBrgKomponen = new List<string>();
-            if (tempConnId.Count() > 0)
-            {
-                listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
-            }
-            if (listBrgKomponen.Count() > 0 && AdaPesanan)
+            //List<string> listBrgKomponen = new List<string>();
+            //if (tempConnId.Count() > 0)
+            //{
+            //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            //}
+            //if (listBrgKomponen.Count() > 0 && AdaPesanan)
+            if(AdaKomponen)
             {
                 new StokControllerJob().getQtyBundling(dbPathEra, uname);
             }
@@ -3325,6 +3345,14 @@ namespace MasterOnline.Controllers
                             {
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                 contextNotif.Clients.Group(dbPathEra).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Lazada.");
+
+                                //add by nurul 25/1/2021, bundling
+                                var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connectionID + ")").ToList();
+                                if (listBrgKomponen.Count() > 0)
+                                {
+                                    ret.AdaKomponen = true;
+                                }
+                                //end add by nurul 25/1/2021, bundling
 
                                 new StokControllerJob().updateStockMarketPlace(connectionID, dbPathEra, uname);
 
