@@ -138,7 +138,6 @@
             <img height="1" width="1" src="https://www.facebook.com/tr?id=2320855488162974&ev=PageView&noscript=1" />
         </noscript>*@
     <!-- End Facebook Pixel Code -->
-
     <!-- Facebook Pixel Code NEW UPDATE ON 23 JUNI 2020 -->
     <script>
         !function (f, b, e, v, n, t, s) {
@@ -381,6 +380,7 @@
                                                         {
                                                             <img id="new_log_error_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
                                                         }
+
                                                     }
                                                 </a>
                                                 <ul class="nav child_menu">
@@ -413,7 +413,7 @@
                                                                             @child.NamaForm
                                                                             @if (parent.ScrId == 38 && child.ParentId == 38) //Expired Akun Marketplace
                                                                             {
-                                                                            <img id="new_expired_mp_sub_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                                                <img id="new_expired_mp_sub_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
                                                                             }
                                                                             @if (child.HaveChild)
                                                                             {
@@ -457,10 +457,21 @@
                                                                                     {
                                                                                         if (childFromChild.Show)
                                                                                         {
-                                                                                            <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                            <li>
+                                                                                                <a href="@childFromChild.Url">
+                                                                                                    @childFromChild.NamaForm
+                                                                                                    @*//add by nurul 22/1/2021*@
+                                                                                                    @*@if (childFromChild.ScrId == 51) //Barang Bundling
+                                                                                                    {
+                                                                                                    <img id="new_order_icon_bundling" alt="logo" style="width: 25px; height: 25px;" src="~/Content/Images/icon_new_bulat_mo.jpg">
+                                                                                                    }*@
+                                                                                                    @*//end add by nurul 22/1/2021*@
+                                                                                                </a>
+                                                                                            </li>
                                                                                         }
                                                                                     }
                                                                                 }
+
                                                                             }
                                                                         </ul>
                                                                     </li>
@@ -477,19 +488,19 @@
                                             if (secMenu != null)
                                             {
                                                 var listChildOfSecMenu = listSec.Where(c => c.ParentId == secMenu.FormId);
-                                                
+
                                                 <li id="@parent.ScrId">
                                                     @if (secMenu.FormId != 2065) //untuk tidak menampilkan dashboard double 2065 adalah kode SCRID dashboard
                                                     {
                                                         <a id="a_@parent.ScrId" @(!parent.HaveChild ? "href=" + parent.Url : "")>
-                                                        @if (!string.IsNullOrEmpty(parent.Icon))
-                                                        {
-                                                            <i class="fa @parent.Icon"></i>
-                                                        }@parent.NamaForm
-                                                        @if (parent.HaveChild)
-                                                        {
-                                                            <span class="fa fa-chevron-down"></span>
-                                                        }
+                                                            @if (!string.IsNullOrEmpty(parent.Icon))
+                                                            {
+                                                                <i class="fa @parent.Icon"></i>
+                                                            }@parent.NamaForm
+                                                            @if (parent.HaveChild)
+                                                            {
+                                                                <span class="fa fa-chevron-down"></span>
+                                                            }
                                                         </a>
                                                     }
                                                     <ul class="nav child_menu">
@@ -578,8 +589,8 @@
                                                 <a href="@Url.Action("Bantuan", "Manage")"><i class="fa fa-map"></i> Cara Memulai</a>
                                             </li>
                                             @*<li>
-                                                <a href="@Url.Action("Tutorial_List", "Manage")"><i class="fa fa-headphones"></i> Panduan Pemakaian</a>
-                                            </li>*@
+                                                    <a href="@Url.Action("Tutorial_List", "Manage")"><i class="fa fa-headphones"></i> Panduan Pemakaian</a>
+                                                </li>*@
                                             @*//add by nurul 22/2/2019*@
                                             <li>
                                                 <a href="@Url.Content("~/MO_Panduan.pdf")" target="_blank"><i class="fa fa-file-text-o"></i>Panduan Pemakaian</a>
@@ -620,24 +631,24 @@
                                     @if (drTgl != null)
                                     {
                                         @*if (member == "01")
-                                        {
-                                            <label>@nmMember </label>
-                                            <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
-                                        }
-                                        else if (member == "02")
-                                        {
-                                            <label class="member-label-silver">@nmMember </label>
-                                            <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
-                                        }
-                                        else if (member == "03")
-                                        {
-                                            <label class="member-label-gold">@nmMember </label>*@
-                                            <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
+                                            {
+                                                <label>@nmMember </label>
+                                                <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
+                                            }
+                                            else if (member == "02")
+                                            {
+                                                <label class="member-label-silver">@nmMember </label>
+                                                <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
+                                            }
+                                            else if (member == "03")
+                                            {
+                                                <label class="member-label-gold">@nmMember </label>*@
+                                        <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
                                         //}
                                     }
                                     else
                                     {
-                                        
+
                                         <label> @(sdTgl?.ToString("dd/MM/yyyy"))</label>
                                     }
                                 </a>
@@ -751,9 +762,9 @@
 
     inactivityTime();*@
                         //end remark by calvin 18 februari 2019
-                        </script>
-                        @* ReSharper disable once Mvc.ActionNotResolved *@
-                                <script type="text/javascript">
+    </script>
+    @* ReSharper disable once Mvc.ActionNotResolved *@
+    <script type="text/javascript">
         $(".alert").fadeTo(4000, 500).slideUp(500, function () {
             $(".alert").slideUp(500);
         });

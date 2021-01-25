@@ -3282,6 +3282,17 @@
                         </div>
                     </div>*@
             </div>
+            <div class="form-group" style="padding-left:15px">
+                @Html.Hidden("textRec", "", new { Value="" })
+                @Html.Label("", "Bundling", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                @Html.Hidden("cbx_NotFound_bundling", new { data_cbx = $"cbx-NotFound-Bundling", @class = "cls-cbxNotFoundBundling" })
+                <div class="col-md-9 col-sm-9 col-xs-12">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="cbxNotFoundBundling" class="cls-cbxNotFoundBundling" name="@($"cbx-NotFound-Pesanan-Bundling")" onclick="NotFoundBundling($('#cbxNotFoundBundling').is(':checked'));" />
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+            </div>
             <div class="modal-body" id="modal-fix-not-found-body">
                 @*@Html.Partial("BarangFixNotFoundPartial")*@
             </div>
@@ -9270,7 +9281,40 @@
         function fixDataBarangNotFound(rec) {
             this.$recDataBarangNotFound = rec;
             fillModalFixNotFound(rec);
+            $('#textRec').val(rec);
+            $('#cbxNotFoundBundling').attr('checked', false);
+            $('#cbxNotFoundBundling').removeAttr('disabled');
+            $('#cbx_NotFound_bundling').removeAttr('disabled');
         }
+
+        //add by nurul 24/1/2021, bundling
+        function NotFoundBundling(bundling) {
+            if (bundling == true && $('#textRec').val() != "") {
+                var link = '@Url.Action("FillModalFixNotFoundBundling", "Manage", new {recNum = "replaceRecNum"})';
+                link = link.replace("replaceRecNum", encodeURIComponent($('#textRec').val()));
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#modal-fix-not-found-body').html("");
+                    },
+                    success: function (response) {
+                        $('#modal-fix-not-found-body').html(response);
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            } else {
+                if ($('#textRec').val() != "") {
+                    fillModalFixNotFound($('#textRec').val());
+                }
+            }
+        }
+        //end add by nurul 24/1/2021, bundling 
 
         function fillModalFixNotFound(rec) {
             var link = '@Url.Action("FillModalFixNotFound", "Manage", new {recNum = "replaceRecNum"})';

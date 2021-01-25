@@ -1562,6 +1562,32 @@ namespace MasterOnline.Controllers
                                 #endregion
                                 // end add by fauzi 23/09/2020
 
+                                //add by nurul 20/1/2021, bundling 
+                                var default_gudang = "";
+                                var gudang_parsys = eraDB.SIFSYS.FirstOrDefault().GUDANG;
+                                var cekgudang = eraDB.STF18.ToList();
+                                if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
+                                {
+                                    default_gudang = gudang_parsys;
+                                }
+                                else
+                                {
+                                    default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                                }
+
+                                var gd_Bundling = "";
+                                var gudang_parsys_Bundling = eraDB.SIFSYS.FirstOrDefault().GUDANG;
+                                var cekgudang_Bundling = eraDB.STF18.Where(a => a.KD_HARGA_JUAL != "1" && a.Kode_Gudang != "GB" && a.Nama_Gudang != "Gudang Bundling").ToList();
+                                if (cekgudang_Bundling.Where(p => p.Kode_Gudang == gudang_parsys_Bundling && p.KD_HARGA_JUAL != "1").Count() > 0)
+                                {
+                                    gd_Bundling = gudang_parsys_Bundling;
+                                }
+                                else
+                                {
+                                    gd_Bundling = cekgudang_Bundling.FirstOrDefault().Kode_Gudang;
+                                }
+                                //add by nurul 20/1/2021, bundling
+
                                 // start looping
                                 for (int i = Convert.ToInt32(prog[0]); i <= worksheet.Dimension.End.Row; i++)
                                 {
@@ -1865,6 +1891,8 @@ namespace MasterOnline.Controllers
                                                                                                     //total = "0";
                                                                                                 }
 
+
+                                                                                                var listBrgToUpdateStock = new List<string>();
                                                                                                 var sot01b = new SOT01B
                                                                                                 {
                                                                                                     NO_BUKTI = noBuktiSO,
@@ -1882,7 +1910,8 @@ namespace MasterOnline.Controllers
                                                                                                     USER_NAME = "Upload Excel",
                                                                                                     TGL_INPUT = DateTime.Now.AddHours(7),
                                                                                                     TGL_KIRIM = null,
-                                                                                                    LOKASI = "001",
+                                                                                                    //LOKASI = "001",
+                                                                                                    LOKASI= default_gudang,
                                                                                                     DISCOUNT_2 = 0,
                                                                                                     DISCOUNT_3 = 0,
                                                                                                     DISCOUNT_4 = 0,
@@ -1914,16 +1943,81 @@ namespace MasterOnline.Controllers
                                                                                                 }
                                                                                                 //end add by nurul 17/9/2020
 
+                                                                                                //add by nurul 22/1/2021, bundling 
+                                                                                                List<SOT01B> listPesananDetailBundling = new List<SOT01B>();
+                                                                                                List<SOT01G> newPesananBundling = new List<SOT01G>();
+                                                                                                var cekAdaBrgBundling = eraDB.STF03.Where(a => a.Unit == sot01b.BRG).ToList();
+                                                                                                if (cekAdaBrgBundling.Count() > 0)
+                                                                                                {
+                                                                                                    foreach (var detailPesananKomponen in cekAdaBrgBundling)
+                                                                                                    {
+                                                                                                        SOT01B newPesanandetailKomponen = new SOT01B() { };
+                                                                                                        newPesanandetailKomponen = sot01b;
+                                                                                                        newPesanandetailKomponen.BRG = detailPesananKomponen.Brg;
+                                                                                                        newPesanandetailKomponen.QTY = Convert.ToDouble(detailPesananKomponen.Qty * sot01b.QTY);
+                                                                                                        newPesanandetailKomponen.H_SATUAN = Convert.ToDouble(detailPesananKomponen.HARGA);
+                                                                                                        newPesanandetailKomponen.HARGA = Convert.ToDouble(detailPesananKomponen.HARGA * detailPesananKomponen.Qty * sot01b.QTY);
+                                                                                                        newPesanandetailKomponen.LOKASI = gd_Bundling;
+                                                                                                        newPesanandetailKomponen.BRG_BUNDLING = sot01b.BRG;
+                                                                                                        listPesananDetailBundling.Add(newPesanandetailKomponen);
+                                                                                                    }
+                                                                                                    var totalHargaBundling = cekAdaBrgBundling.Sum(p => (double?)(p.TOTALHARGA)) ?? 0;
+                                                                                                    SOT01G newPesanandetailBundling = new SOT01G()
+                                                                                                    {
+                                                                                                        NO_BUKTI = noBuktiSO,
+                                                                                                        BRG = sot01b.BRG,
+                                                                                                        QTY = sot01b.QTY,
+                                                                                                        HARGA = totalHargaBundling,
+                                                                                                        TGL_EDIT = DateTime.UtcNow.AddHours(7),
+                                                                                                        USERNAME = "Upload Excel",
+                                                                                                    };
+                                                                                                    newPesananBundling.Add(newPesanandetailBundling);
+                                                                                                }
+                                                                                                //end add by nurul 22/1/2021, bundling 
+
                                                                                                 try
                                                                                                 {
-
-                                                                                                    eraDB.SOT01B.Add(sot01b);
+                                                                                                    //change by nurul 22/1/2021, bundling
+                                                                                                    //eraDB.SOT01B.Add(sot01b);
+                                                                                                    if(listPesananDetailBundling.Count() > 0)
+                                                                                                    {
+                                                                                                        listBrgToUpdateStock.AddRange(listPesananDetailBundling.Select(a => a.BRG).ToList());
+                                                                                                        eraDB.SOT01B.AddRange(listPesananDetailBundling);
+                                                                                                        eraDB.SOT01G.AddRange(newPesananBundling);
+                                                                                                        //eraDB.SOT01A.Where(a => a.NO_BUKTI == noBuktiSO).FirstOrDefault().Status_Approve = "1";
+                                                                                                        var sSQLUpdateHeader = "UPDATE A SET Status_Approve ='1', BRUTO = B.BRUTO, NILAI_PPN = (((B.BRUTO - A.NILAI_DISC) * A.PPN) / 100), NETTO = (B.BRUTO + A.ONGKOS_KIRIM + (((B.BRUTO - A.NILAI_DISC) * A.PPN) / 100) - A.NILAI_DISC) " +
+                                                                                                                               "FROM SOT01A A(NOLOCK) INNER JOIN " +
+                                                                                                                               "(SELECT NO_BUKTI, ISNULL(SUM(ISNULL(ISNULL(QTY,0) *ISNULL(H_SATUAN, 0),0) -ISNULL(ISNULL(NILAI_DISC_1, 0) + ISNULL(NILAI_DISC_2, 0), 0)),0) AS BRUTO FROM SOT01B(NOLOCK) WHERE NO_BUKTI = '" + noBuktiSO + "' GROUP BY NO_BUKTI)B " +
+                                                                                                                               "ON A.NO_BUKTI = B.NO_BUKTI WHERE A.NO_BUKTI = '" + noBuktiSO + "'";
+                                                                                                        EDB.ExecuteSQL("Constring", System.Data.CommandType.Text, sSQLUpdateHeader);
+                                                                                                    }
+                                                                                                    else
+                                                                                                    {
+                                                                                                        listBrgToUpdateStock.Add(sot01b.BRG);
+                                                                                                        eraDB.SOT01B.Add(sot01b);
+                                                                                                    }
+                                                                                                    //end change by nurul 22/1/2021, bundling
                                                                                                     eraDB.SaveChanges();
                                                                                                     //transaction.Commit();
 
-                                                                                                    string listAddBrg = "('" + kode_brg + "', '" + connID + "')";
-                                                                                                    EDB.ExecuteSQL("Constring", CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + listAddBrg);
-                                                                                                    new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                                    //string listAddBrg = "('" + kode_brg + "', '" + connID + "')";
+                                                                                                    //EDB.ExecuteSQL("Constring", CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + listAddBrg);
+                                                                                                    //new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+
+                                                                                                    string sSQLValues = "";
+                                                                                                    var listBarangUpdateStock = listBrgToUpdateStock.Where(p => p != "NOT_FOUND").Distinct().ToList();
+                                                                                                    foreach (var item in listBarangUpdateStock)
+                                                                                                    //foreach (var item in ListBrgProcess)
+                                                                                                    {
+                                                                                                        sSQLValues = sSQLValues + "('" + item + "', '" + connID + "'),";
+                                                                                                    }
+
+                                                                                                    if (sSQLValues != "")
+                                                                                                    {
+                                                                                                        sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
+                                                                                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
+                                                                                                        new StokControllerJob().updateStockMarketPlace(connID, dbPathEra, username);
+                                                                                                    }
                                                                                                 }
                                                                                                 catch (Exception ex)
                                                                                                 {

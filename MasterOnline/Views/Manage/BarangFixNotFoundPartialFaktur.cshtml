@@ -1,8 +1,13 @@
 ﻿@model MasterOnline.ViewModels.FakturViewModel
 @{
-    var listBarang = Model.ListBarang.ToList();
-    var listBarangMarket = Model.ListBarangMarket.ToList();
-    var FakturDetail = Model.FakturDetail;
+    //change by nurul 24/3/2020
+    //var listBarang = Model.ListBarang.ToList();
+    //var listBarangMarket = Model.ListBarangMarket.ToList();
+    //var FakturDetail = Model.FakturDetail;
+    var listBarang = Model.ListBarang_NotFound.ToList();
+    var listBarangMarket = Model.ListBarangMarket_NotFound.ToList();
+    var FakturDetail = Model.FakturDetail_NotFound;
+    //end change by nurul 24/3/2020
 }
 @if (FakturDetail != null)
 {
@@ -24,7 +29,7 @@
     </script>
     <div class="row">
         <div class="form-group" style="margin-top: 5px;">
-            <label class="control-label col-md-3 col-sm-3">No. Pesanan</label>
+            <label class="control-label col-md-3 col-sm-3">No. Faktur</label>
             <div class="col-md-9 col-sm-9">
                 @Html.TextBox("not_found_no_bukti", FakturDetail?.NO_BUKTI, new { @class = "form-control", disabled = "disabled" })
             </div>
@@ -68,7 +73,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var barang in Model.ListBarangMarket)
+            @foreach (var barang in Model.ListBarangMarket_NotFound)
             {
             <tr>
                 @{

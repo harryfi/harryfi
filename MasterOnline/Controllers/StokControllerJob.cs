@@ -872,10 +872,10 @@ namespace MasterOnline.Controllers
                     }
                 }
                 var Tahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy"));
-                //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) and gd<>'" + default_gudang + "' and tahun='" + DateTime.Now.ToString("yyyy") + "'";
-                var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03)";
+                //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) and gd<>'" + default_gudang + "' and tahun='" + Tahun + "'";
+                var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
                 var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
-
+                ErasoftDbContext.SaveChanges();
                 //var sSQL1 = "select a.brg, qoh - qoo as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
                 //            "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
                 //            "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty " +
@@ -892,7 +892,7 @@ namespace MasterOnline.Controllers
                             "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty from stf03 a " +
                             ")a )b on a.brg=b.brg and a.qty=b.qty ";
                 ErasoftDbContext.Database.ExecuteSqlCommand(sSQL2);
-
+                ErasoftDbContext.SaveChanges();
 
                 var cekListBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03").ToList();
                 var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) inner join stf08a b (nolock) on a.unit=b.brg where b.tahun='" + Tahun + "' and b.gd ='" + default_gudang + "'").ToList();
@@ -1467,10 +1467,10 @@ namespace MasterOnline.Controllers
 
             if (connId == "MANUAL")
             {
-                //listBrg.Add("03.MIC00.00");
+                listBrg_Lama.Add("21012021");
                 //listBrg.Add("17.TTOT00.00.6m");
-                listBrg_Lama.Add("03.MIC00.00");
-                listBrg_Lama.Add("17.TTOT00.00.6m");
+                //listBrg_Lama.Add("03.MIC00.00");
+                //listBrg_Lama.Add("17.TTOT00.00.6m");
                 //listBrg.Add("1578");
                 //listBrg.Add("2004");
                 //listBrg.Add("2495");

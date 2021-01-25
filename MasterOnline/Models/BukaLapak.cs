@@ -50,6 +50,11 @@ namespace MasterOnline.Models
         public int exception { get; set; }
         public int totalData { get; set; }
         public int nextPage { get; set; }
+
+        //add by nurul 20/1/2021, bundling 
+        public bool AdaPesanan { get; set; }
+        public string ConnId { get; set; }
+        //end add by nurul 20/1/2021, bundling
     }
 
     public class BindingBase82Cart

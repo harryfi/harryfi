@@ -69,6 +69,12 @@ namespace MasterOnline.ViewModels
         public List<SIT01H> ListFakturBundling { get; set; } = new List<SIT01H>();
         public List<listKomponenBundling> listKomponen { get; set; } = new List<listKomponenBundling>();
         //end add by nurul 20/10/2020
+
+        //add by nurul 24/3/2020
+        public FakturDetail_NotFound FakturDetail_NotFound { get; set; }
+        public List<listBarang_NotFound> ListBarang_NotFound { get; set; } = new List<listBarang_NotFound>();
+        public List<listBarangMarket_NotFound> ListBarangMarket_NotFound { get; set; } = new List<listBarangMarket_NotFound>();
+        //end add by nurul 24/3/2020
     }
 
     public class CetakLabelViewModel
@@ -152,4 +158,13 @@ namespace MasterOnline.ViewModels
         public string BRG_MULTISKU { get; set; }
     }
     //end add by nurul 13/1/2021, barang bundling
+
+    //add by nurul 24/3/2020
+    public class FakturDetail_NotFound
+    {
+        public string NO_BUKTI { get; set; }
+        public string CATATAN { get; set; }
+        public int? NO_URUT { get; set; }
+    }
+    //end add by nurul 24/3/2020
 }
