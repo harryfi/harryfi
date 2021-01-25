@@ -40678,7 +40678,16 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
-                                        var result = await blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, page + 1, (statBL == 1 ? true : false), recordCount, totalData, "storeid");
+                                        var idenBL = new BukaLapakKey
+                                        {
+                                            code = arf01.API_KEY,
+                                            cust = cust,
+                                            token = arf01.TOKEN,
+                                            refresh_token = arf01.REFRESH_TOKEN,
+                                            tgl_expired = arf01.TGL_EXPIRED.Value
+                                        };
+                                        //var result = await blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, page + 1, (statBL == 1 ? true : false), recordCount, totalData, "storeid");
+                                        var result = await blApi.getListProductV2(idenBL, page, (statBL == 1 ? true : false), recordCount, totalData);
                                         retBarang.exception = result.exception;
                                         retBarang.totalData = result.totalData;
                                         //change 18 juli 2019, error tetap lanjut next page
@@ -40687,12 +40696,12 @@ namespace MasterOnline.Controllers
                                         //if (!string.IsNullOrEmpty(result.message))
                                         if (result.nextPage == 1)
                                         {
-                                            if (result.message == "MOVE_TO_INACTIVE_PRODUCTS")//finish getting active product, move to inactive
-                                            {
-                                                retBarang.BLProductActive = 0;
-                                                if (statBL == 1)
-                                                    retBarang.Page = 0;
-                                            }
+                                            //if (result.message == "MOVE_TO_INACTIVE_PRODUCTS")//finish getting active product, move to inactive
+                                            //{
+                                            //    retBarang.BLProductActive = 0;
+                                            //    if (statBL == 1)
+                                            //        retBarang.Page = 0;
+                                            //}
                                             //else
                                             //{
                                             retBarang.RecordCount = result.recordCount;

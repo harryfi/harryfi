@@ -1051,24 +1051,34 @@ namespace MasterOnline.Models
     public class BukaLapakKey
     {
         public string token { get; set; }
+        public string code { get; set; }
         public string refresh_token { get; set; }
         public DateTime tgl_expired { get; set; }
         public string dbPathEra { get; set; }
         public string cust { get; set; }
 
     }
+    public class BLErrorResponse
+    {
+        public ErrorDetail[] errors { get; set; }
+    }
+    public class ErrorDetail
+    {
+        public string message { get; set; }
+        public long code { get; set; }
 
+    }
     public class CategoryBL
     {
         public string status { get; set; }
-        public List<Category> categories { get; set; }
+        public List<CategoryBukaLapakV2> data { get; set; }
     }
 
-    public class Category
+    public class CategoryBukaLapakV2
     {
         public long id { get; set; }
         public string name { get; set; }
-        public List<Category> children { get; set; }
+        public List<CategoryBukaLapakV2> children { get; set; }
     }
 
 
