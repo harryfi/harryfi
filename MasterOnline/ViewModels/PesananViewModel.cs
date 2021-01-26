@@ -68,6 +68,7 @@ namespace MasterOnline.ViewModels
         public SOT01G PesananBundling { get; set; }
         public List<SOT01G> ListPesananBundling { get; set; } = new List<SOT01G>();
         public List<listKomponenBundling> listKomponen { get; set; } = new List<listKomponenBundling>();
+        public bool notfoundBundling { get; set; }
         //end add by nurul 20/10/2020
     }
 

@@ -3604,7 +3604,7 @@ namespace MasterOnline.Controllers
             if (rowCount > 99)
             {
                 //add by nurul 25/1/2021, bundling
-                var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connId + ")").ToList();
+                var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connId + "')").ToList();
                 if (listBrgKomponen.Count() > 0)
                 {
                     ret = "1";
@@ -3634,7 +3634,7 @@ namespace MasterOnline.Controllers
                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Tokopedia.");
 
                     //add by nurul 25/1/2021, bundling
-                    var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connId + ")").ToList();
+                    var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connId + "')").ToList();
                     if (listBrgKomponen.Count() > 0)
                     {
                         ret = "1";
@@ -4033,7 +4033,7 @@ namespace MasterOnline.Controllers
                         }
 
                         //add by nurul 25/1/2021, bundling
-                        var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connId + ")").ToList();
+                        var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connId + "')").ToList();
                         if (listBrgKomponen.Count() > 0)
                         {
                             ret = "1";

@@ -74,6 +74,7 @@ namespace MasterOnline.ViewModels
         public FakturDetail_NotFound FakturDetail_NotFound { get; set; }
         public List<listBarang_NotFound> ListBarang_NotFound { get; set; } = new List<listBarang_NotFound>();
         public List<listBarangMarket_NotFound> ListBarangMarket_NotFound { get; set; } = new List<listBarangMarket_NotFound>();
+        public bool notfoundBundling { get; set; }
         //end add by nurul 24/3/2020
     }
 

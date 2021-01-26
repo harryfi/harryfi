@@ -23529,7 +23529,8 @@ namespace MasterOnline.Controllers
             {
                 PesananDetail_NotFound = PesananDetail,
                 ListBarangMarket_NotFound = ListBarangMarket,
-                ListBarang_NotFound = ListBarang
+                ListBarang_NotFound = ListBarang,
+                notfoundBundling = true
             };
             return PartialView("BarangFixNotFoundPartial", vm);
         }
@@ -23573,7 +23574,8 @@ namespace MasterOnline.Controllers
                 //ListBarang = ListBarang
                 PesananDetail_NotFound = PesananDetail,
                 ListBarangMarket_NotFound = ListBarangMarket,
-                ListBarang_NotFound = ListBarang
+                ListBarang_NotFound = ListBarang,
+                notfoundBundling = false
                 //end change by nurul 24/3/2020
             };
             return PartialView("BarangFixNotFoundPartial", vm);
@@ -23820,7 +23822,8 @@ namespace MasterOnline.Controllers
             {
                 FakturDetail_NotFound = FakturDetail,
                 ListBarangMarket_NotFound = ListBarangMarket,
-                ListBarang_NotFound = ListBarang
+                ListBarang_NotFound = ListBarang,
+                notfoundBundling = true
             };
             return PartialView("BarangFixNotFoundPartialFaktur", vm);
         }
@@ -23866,7 +23869,8 @@ namespace MasterOnline.Controllers
             {
                 FakturDetail_NotFound = FakturDetail,
                 ListBarangMarket_NotFound = ListBarangMarket,
-                ListBarang_NotFound = ListBarang
+                ListBarang_NotFound = ListBarang,
+                notfoundBundling = false
             };
             //end change by nurul 24/1/2021
             return PartialView("BarangFixNotFoundPartialFaktur", vm);

@@ -184,7 +184,8 @@
             left: 0;
             height: 25px;
             width: 25px;
-            background-color: #eee;
+            /*background-color: #eee;*/
+            background-color: #fff;
         }
 
         /* On mouse-over, add a grey background color */
@@ -971,7 +972,8 @@
         /*end remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
         height: 25px;
         width: 25px;
-        background-color: #eee;
+        /*background-color: #eee;*/
+        background-color: #fff;
         border: solid 1px #ccc;
     }
 
@@ -3277,28 +3279,28 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="fixNotFoundLabel">Perbaikan data barang</h4>
                 @*<div id="loading_pesanan_NotFound">
-                        <div id="loading_pesanan_NotFound_image">
-                            <img src="~/Content/Images/spinner.gif" />
-                        </div>
-                    </div>*@
+                <div id="loading_pesanan_NotFound_image">
+                    <img src="~/Content/Images/spinner.gif" />
+                </div>
+            </div>*@
+            </div>
+            <div class="row" style="padding-left:15px; margin-top:-8px">
+                <div class="form-group" style="margin-top: 8px;">
+                    <label class="control-label col-md-3 col-sm-3" style="margin-top: 6px;">No. Pesanan</label>
+                    <div class="col-md-9 col-sm-9">
+                        @Html.TextBox("not_found_no_bukti", "", new { @class = "form-control control-label", disabled = "disabled", Value = "", @style = "width:180px" })
+                    </div>
+                </div>
             </div>
             <div class="row form-group" style="padding-left:15px">
-                @Html.Hidden("textRec", "", new { Value="" })
-                @Html.Label("", "Bundling", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                @Html.Hidden("textRec", "", new { Value = "" })
+                @Html.Label("", "Barang Bundling", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                 @Html.Hidden("cbx_NotFound_bundling", new { data_cbx = $"cbx-NotFound-Bundling", @class = "cls-cbxNotFoundBundling" })
                 <div class="col-md-9 col-sm-9 col-xs-12">
                     <label class="checkbox-container">
                         <input type="checkbox" id="cbxNotFoundBundling" class="cls-cbxNotFoundBundling" name="@($"cbx-NotFound-Pesanan-Bundling")" onclick="NotFoundBundling($('#cbxNotFoundBundling').is(':checked'));" />
                         <span class="checkmark"></span>
                     </label>
-                </div>
-            </div>
-            <div class="row" style="padding-left:15px; margin-top:-8px">
-                <div class="form-group" style="margin-top: 8px;">
-                    <label class="control-label col-md-3 col-sm-3" style="margin-top: 6px;">No. Pesanan</label>
-                    <div class="col-md-9 col-sm-9">
-                        @Html.TextBox("not_found_no_bukti", "", new { @class = "form-control", disabled = "disabled", Value = "" })
-                    </div>
                 </div>
             </div>
             <div class="modal-body" id="modal-fix-not-found-body">
