@@ -61414,7 +61414,7 @@ namespace MasterOnline.Controllers
 
             if (checkSubAddonMultiSKU != null)
             {
-                if (checkSubAddonMultiSKU.TglSubscription > DateTime.Today.AddHours(7))
+                if (checkSubAddonMultiSKU.TglSubscription > DateTime.UtcNow.AddHours(7))
                 {
                     statusAktifSubAddonMultiSKU = 1; // registered Addon FTP
                 }
@@ -63598,9 +63598,40 @@ namespace MasterOnline.Controllers
         [Route("manage/Bundling")]
         public ActionResult BundlingMenu()
         {
+            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            var emailAccount = "";
+            if (sessionData?.Account != null)
+            {
+                emailAccount = sessionData.Account.Email.ToString();
+            }
+            else
+            {
+                if (sessionData?.User != null)
+                {
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    emailAccount = accFromUser.Email.ToString();
+                }
+            }
+
+            var checkSubAddonBundling = MoDbContext.Addons_Customer.Where(p => p.Account == emailAccount && p.ID_ADDON == "6").OrderByDescending(a => a.RecNum).FirstOrDefault(); // ID 6 = BUNDLING
+            var statusAktifSubAddonBundling = 2; // status expired Addon BUNDLING DEFAULT
+
+            if (checkSubAddonBundling != null)
+            {
+                if (checkSubAddonBundling.TglSubscription > DateTime.UtcNow.AddHours(7))
+                {
+                    statusAktifSubAddonBundling = 1; // registered BUNDLING
+                }
+            }
+            else
+            {
+                statusAktifSubAddonBundling = 0; // not registered BUNDLING
+            }
+
             var vm = new BundlingViewModel()
             {
                 //ListPiutang = ErasoftDbContext.STF03C.Where(b => b.RANGKA == "1").ToList()
+                statusAddonBundling = statusAktifSubAddonBundling.ToString()
             };
 
             return View(vm);

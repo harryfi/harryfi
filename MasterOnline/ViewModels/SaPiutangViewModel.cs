@@ -34,6 +34,7 @@ namespace MasterOnline.ViewModels
         public List<STF02> listDetailBundling { get; set; } = new List<STF02>();
         public string Brg_Bundling { get; set; }
         public double Qty_Bundling { get; set; }
+        public string statusAddonBundling { get; set; }
     }
     //end add by nurul 5/10/2020
 }
