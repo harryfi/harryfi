@@ -43645,7 +43645,8 @@ namespace MasterOnline.Controllers
                 //listParent = ErasoftDbContext.SOT03A.ToList(),
             };
 
-            return View("Pickinglist", vm);
+            //return View("Pickinglist", vm);
+            return View("TablePackinglistPartialView", vm);
         }
 
         public ActionResult Packinglist(string nobuk)
@@ -43696,7 +43697,8 @@ namespace MasterOnline.Controllers
             //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
             IPagedList<mdlPackinglist> pagePackinglist = new StaticPagedList<mdlPackinglist>(listPackinglist, pagenumber + 1, 10, totalCount.JUMLAH);
-            return PartialView("TablePackinglistPartialView", pagePackinglist);
+            //return PartialView("TablePackinglistPartialView", pagePackinglist);
+            return PartialView("PackingListPartial", pagePackinglist);
         }
 
         public ActionResult RefreshPackinglistForm()

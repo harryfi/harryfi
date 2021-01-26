@@ -1,25 +1,998 @@
 ﻿@using PagedList.Mvc
 @using MasterOnline.Models
-@model PagedList.IPagedList<mdlPackinglist>
+@using PagedList
+@using System.Globalization
+@using MasterOnline.ViewModels
+@*@model PackingListViewModel
 @{
     string currentFilter = ViewBag.CurrentFilter;
     string currentSort = ViewBag.CurrentSort;
+}*@
+@section styles
+{
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css" rel="stylesheet" />
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link type="text/css" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.11/css/dataTables.checkboxes.css" rel="stylesheet" />
+    @*<link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />*@
+    <link href="https://cdn.datatables.net/select/1.3.0/css/select.dataTables.min.css" rel="stylesheet" />
+    @*<link href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.dataTables.min.css" rel="stylesheet" />*@
+    <style>
+        .user-link {
+            text-decoration: underline;
+        }
+
+        [data-tip] {
+            position: relative;
+            white-space: pre-line;
+        }
+
+            [data-tip]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                left: 35px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                width: 0;
+                height: 0;
+            }
+
+            [data-tip]:after {
+                display: none;
+                content: attr(data-tip);
+                position: absolute;
+                top: 35px;
+                left: 0px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 300px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                /*white-space: normal;*/
+                word-wrap: normal;
+                width: 250%;
+                white-space: pre-line;
+            }
+
+            [data-tip]:hover:before,
+            [data-tip]:hover:after {
+                display: block;
+                white-space: pre-line;
+            }
+
+
+
+        #loading_pesanan_NotFound {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,0);
+        }
+
+        #loading_pesanan_NotFound_image {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+    </style>
+    @*//end add by nurul 24/3/2020*@
+    @*//add by indra 1/4/2020*@
+    <style>
+
+        /* The container CK */
+        .container-ck {
+            display: block;
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            /*font-size: 22px;*/
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+            /* Hide the browser's default checkbox */
+            .container-ck input {
+                position: absolute;
+                opacity: 0;
+                cursor: pointer;
+                height: 0;
+                width: 0;
+            }
+
+        /* Create a custom checkbox */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 25px;
+            width: 25px;
+            background-color: #eee;
+        }
+
+        /* On mouse-over, add a grey background color */
+        .container-ck:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        /* When the checkbox is checked, add a blue background */
+        .container-ck input:checked ~ .checkmark {
+            background-color: #2196F3;
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .container-ck input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* Style the checkmark/indicator */
+        .container-ck .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+    </style>
+    @*//end by indra 1/4/2020*@
+    <style>
+        .loading_spinner_modal {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,.5);
+        }
+
+        .loading_spinner_image_modal {
+            /*width: 20px;
+            height: 20px;*/
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+
+        [data-tip] {
+            position: relative;
+        }
+
+            [data-tip]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                left: 35px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                width: 0;
+                height: 0;
+            }
+
+            [data-tip]:after {
+                display: none;
+                content: attr(data-tip);
+                position: absolute;
+                top: 35px;
+                left: 0px;
+                /*padding: 2px 5px;*/
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 200px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+            }
+
+            [data-tip]:hover:before,
+            [data-tip]:hover:after {
+                display: block;
+            }
+
+        .input-group {
+            margin-bottom: 0;
+        }
+
+        .btn-success[disabled]:hover {
+            background: #6ad6bf;
+            border-color: #6ad6bf;
+        }
+
+        table#table_tambah_pesanan thead tr {
+            background-color: #c7f1f5;
+        }
+
+        .qty-input {
+            width: 50px;
+        }
+
+        .disc-input {
+            width: 50px;
+        }
+
+        .ndisc-input {
+            width: 100px;
+            text-align: right;
+        }
+
+        /*#BRG {
+            width: 150px !important;
+        }*/
+
+        #scrollable_div {
+            overflow-x: hidden;
+            overflow-y: scroll;
+            height: 400px;
+        }
+
+        #konfHapusPesanan .modal-body,
+        #konfBatalPesanan .modal-body,
+        #konfUbahStatus .modal-body {
+            padding: 0 50px 20px 50px;
+        }
+
+        /*add by nurul 8/10/2018*/
+        #konfUbahStatusDibayar .modal-body {
+            padding: 0 50px 20px 50px;
+        }
+
+        #konfUbahStatusSiapkirim .modal-body {
+            padding: 0 50px 20px 50px;
+        }
+
+        #konfUbahStatusSudahkirim .modal-body {
+            padding: 0 50px 20px 50px;
+        }
+
+        #konfUndoStatusSiapkirim .modal-body {
+            padding: 0 50px 20px 50px;
+        }
+
+        #konfUndoStatusSudahkirim .modal-body {
+            padding: 0 50px 20px 50px;
+        }
+
+        #konfUndoStatusSelesai .modal-body {
+            padding: 0 50px 20px 50px;
+        }
+
+        #konfUndoStatusBatal .modal-body {
+            padding: 0 50px 20px 50px;
+        }
+        /*end add*/
+
+        .info_pesanan {
+            padding: 20px;
+            border: solid 2px #ddd;
+        }
+
+            .info_pesanan p {
+                font-size: 16px;
+            }
+
+            .info_pesanan .block_subtitle {
+                display: inline-block;
+                width: 120px;
+                font-weight: bold;
+            }
+
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
+
+        /*add by nurul 29/11/2018*/
+        #cetakfaktur_label {
+            color: orange;
+            font-weight: bold;
+        }
+
+        #cetak_label {
+            color: orange;
+            font-weight: bold;
+        }
+
+        #noFaktur_label {
+            color: orange;
+            font-weight: bold;
+        }
+
+        #tglFaktur_label {
+            color: orange;
+            font-weight: bold;
+        }
+        /*end add by nurul 29/11/2018*/
+
+        .selectivity-single-select-input {
+            display: none;
+        }
+    </style>
+    <style>
+        #modal-print-option {
+            margin: auto;
+        }
+
+            #modal-print-option .modal-content .modal-header {
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                border: none;
+                background-color: white;
+            }
+
+            #modal-print-option .modal-content .modal-body {
+                height: 125px;
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                background-color: white;
+            }
+
+        /*#gudang-qty {
+            width: 80em;
+        }*/
+
+        #modal-gudang-qty-body #scrollable_div {
+            overflow-x: hidden;
+            overflow-y: scroll;
+            height: 200px;
+        }
+
+
+        #modal-pricing {
+            margin: auto;
+            width: 60em;
+        }
+
+            #modal-pricing .modal-content {
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                border: none;
+                background-color: transparent;
+            }
+
+        #modal-pricing-expired {
+            margin: auto;
+            width: 60em;
+        }
+
+            #modal-pricing-expired .modal-content {
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                border: none;
+                background-color: transparent;
+            }
+        /*.snip1404 {
+            font-family: 'Source Sans Pro', Arial, sans-serif;
+            color: #ffffff;
+            text-align: left;
+            font-size: 16px;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            margin-top: 13%;
+            display: table;
+        }
+
+            .snip1404 img {
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                z-index: -1;
+            }
+
+            .snip1404 .plan {
+                margin: 0;
+                width: 33.333333%;
+                position: relative;
+                float: left;
+                overflow: hidden;
+                border: 3px solid #442232;
+                box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+                background-color: #c13232;
+            }
+
+                .snip1404 .plan:hover i,
+                .snip1404 .plan.hover i {
+                    -webkit-transform: scale(1.2);
+                    transform: scale(1.2);
+                }
+
+                .snip1404 .plan:first-of-type {
+                    border-radius: 8px 0 0 8px;
+                }
+
+                .snip1404 .plan:last-of-type {
+                    border-radius: 0 8px 8px 0;
+                }
+
+            .snip1404 * {
+                -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+                -webkit-transition: all 0.25s ease-out;
+                transition: all 0.25s ease-out;
+            }
+
+            .snip1404 header {
+                background-color: #c13232;
+                color: #ffffff;
+            }
+
+            .snip1404 .plan-title {
+                background-color: rgba(0, 0, 0, 0.5);
+                position: relative;
+                margin: 0;
+                padding: 20px 20px 0;
+                text-transform: uppercase;
+                letter-spacing: 4px;
+            }
+
+                .snip1404 .plan-title:after {
+                    position: absolute;
+                    content: '';
+                    top: 100%;
+                    left: 0;
+                    width: 0;
+                    height: 0;
+                    border-style: solid;
+                    border-width: 40px 300px 0 0;
+                    border-color: rgba(0, 0, 0, 0.5) transparent transparent;
+                }
+
+            .snip1404 .plan-cost {
+                padding: 40px 20px 10px;
+                text-align: right;
+            }
+
+            .snip1404 .plan-price {
+                font-weight: 600;
+                font-size: 1.5em;
+            }
+
+            .snip1404 .plan-type {
+                opacity: 0.8;
+                font-size: 0.7em;
+                text-transform: uppercase;
+            }
+
+            .snip1404 .plan-features {
+                padding: 0 0 20px;
+                margin: 0;
+                list-style: outside none none;
+            }
+
+                .snip1404 .plan-features li {
+                    padding: 8px 5%;
+                }
+
+                .snip1404 .plan-features i {
+                    margin-right: 8px;
+                    color: rgba(0, 0, 0, 0.5);
+                }
+
+            .snip1404 .plan-select {
+                border-top: 1px solid rgba(0, 0, 0, 0.2);
+                padding: 20px;
+                text-align: center;
+            }
+
+                .snip1404 .plan-select a {
+                    background-color: #442232;
+                    color: #ffffff;
+                    text-decoration: none;
+                    padding: 12px 20px;
+                    font-size: 0.75em;
+                    font-weight: 600;
+                    border-radius: 20px;
+                    text-transform: uppercase;
+                    letter-spacing: 4px;
+                    display: inline-block;
+                }
+
+                    .snip1404 .plan-select a:hover {
+                        background-color: #552a3f;
+                    }
+
+            .snip1404 .featured {
+                margin-top: -10px;
+                border-color: #331926;
+                box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+                z-index: 1;
+                border-radius: 8px;
+            }
+
+                .snip1404 .featured .plan-select {
+                    padding: 30px 20px;
+                }
+
+        @@media only screen and (max-width: 767px) {
+            .snip1404 .plan {
+                width: 50%;
+            }
+
+            .snip1404 .plan-title,
+            .snip1404 .plan-select a {
+                -webkit-transform: translateY(0);
+                transform: translateY(0);
+            }
+
+            .snip1404 .plan-select,
+            .snip1404 .featured .plan-select {
+                padding: 20px;
+            }
+
+            .snip1404 .featured {
+                margin-top: 0;
+            }
+        }
+
+        @@media only screen and (max-width: 440px) {
+            .snip1404 .plan {
+                width: 100%;
+            }
+        }
+
+        body {
+            background-color: #212121;
+        }*/
+        .snip1404 {
+            font-family: 'Source Sans Pro', Arial, sans-serif;
+            text-align: left;
+            font-size: 16px;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            display: table;
+        }
+
+            .snip1404 img {
+                /*position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                z-index: -1;*/
+                width: 60%;
+                margin-bottom: 20px;
+                margin-top: 15px;
+                z-index: 0;
+            }
+
+            .snip1404 .plan {
+                margin: 0;
+                width: 33.333333%;
+                position: relative;
+                float: left;
+                overflow: hidden;
+                border: 3px solid #442232;
+                box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+                background-color: #c13232;
+            }
+
+                .snip1404 .plan:hover i,
+                .snip1404 .plan.hover i {
+                    -webkit-transform: scale(1.2);
+                    transform: scale(1.2);
+                }
+
+                .snip1404 .plan:first-of-type {
+                    border-radius: 8px 0 0 8px;
+                }
+
+                .snip1404 .plan:last-of-type {
+                    border-radius: 0 8px 8px 0;
+                }
+
+            .snip1404 * {
+                -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+                -webkit-transition: all 0.25s ease-out;
+                transition: all 0.25s ease-out;
+            }
+
+            .snip1404 header {
+                background-color: #c13232;
+                color: #ffffff;
+            }
+
+            .snip1404 .plan-title {
+                background-color: rgba(0, 0, 0, 0.5);
+                position: relative;
+                margin: 0;
+                padding: 20px 20px 0;
+                text-transform: uppercase;
+                letter-spacing: 4px;
+            }
+
+                .snip1404 .plan-title:after {
+                    position: absolute;
+                    content: '';
+                    top: 100%;
+                    left: 0;
+                    width: 0;
+                    height: 0;
+                    border-style: solid;
+                    border-width: 30px 250px 0 0;
+                    border-color: rgba(0, 0, 0, 0.5) transparent transparent;
+                }
+
+            .snip1404 .plan-cost {
+                padding: 20px 20px 10px;
+                text-align: right;
+            }
+
+            .snip1404 .plan-price {
+                font-weight: 600;
+                font-size: 1.5em;
+            }
+
+            .snip1404 .plan-type {
+                opacity: 0.8;
+                font-size: 0.7em;
+                text-transform: uppercase;
+            }
+
+            .snip1404 .plan-price-total {
+                font-weight: 600;
+                font-size: 1.1em;
+                color: #fff;
+            }
+
+            .snip1404 .plan-month-total {
+                font-weight: 600;
+                font-size: 0.9em;
+                color: #fff;
+            }
+
+            .snip1404 .plan-features {
+                color: #fff;
+                padding: 0 0 10px;
+                margin: 0;
+                list-style: outside none none;
+            }
+
+                .snip1404 .plan-features li {
+                    padding: 0;
+                }
+
+                .snip1404 .plan-features i {
+                    margin-right: 8px;
+                    color: rgba(0, 0, 0, 0.5);
+                }
+
+            .snip1404 .plan-select {
+                border-top: 1px solid rgba(0, 0, 0, 0.2);
+                padding: 5px;
+                text-align: center;
+            }
+
+                .snip1404 .plan-select a {
+                    background-color: #442232;
+                    color: #ffffff;
+                    text-decoration: none;
+                    padding: 12px 20px;
+                    font-size: 0.75em;
+                    font-weight: 600;
+                    border-radius: 20px;
+                    text-transform: uppercase;
+                    letter-spacing: 4px;
+                    display: inline-block;
+                }
+
+                    .snip1404 .plan-select a:hover {
+                        background-color: #552a3f;
+                    }
+
+            .snip1404 .featured {
+                margin-top: -10px;
+                border-color: #331926;
+                box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+                z-index: 1;
+                border-radius: 8px;
+            }
+
+                .snip1404 .featured .plan-select {
+                    padding: 15px 10px;
+                }
+
+        @@media only screen and (max-width: 767px) {
+
+            .mrgbttmpesanan {
+                margin-bottom: 10px;
+            }
+
+            .snip1404 .plan {
+                width: 50%;
+            }
+
+            .snip1404 .plan-title,
+            .snip1404 .plan-select a {
+                -webkit-transform: translateY(0);
+                transform: translateY(0);
+            }
+
+            .snip1404 .plan-select,
+            .snip1404 .featured .plan-select {
+                padding: 20px;
+            }
+
+            .snip1404 .featured {
+                margin-top: 0;
+            }
+            /*add by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+            .modalresponsive {
+                width: 309px;
+            }
+
+            .modal-dialog {
+                width: 52%;
+                margin: 0;
+            }
+
+            .modal-content {
+                width: 75%;
+            }
+
+            #modal-print-option {
+                margin-top: 21px;
+                /* margin: auto; */
+                margin-left: -49px;
+                width: 40%;
+            }
+
+            .dataTables_paginate {
+                text-align: right;
+                float: none !important;
+            }
+
+            .checkmark {
+                left: -9px;
+            }
+
+            .addpixeltpesanan {
+                width: 710px;
+            }
+            /*end add by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        }
+
+        @@media only screen and (max-width: 440px) {
+            .snip1404 .plan {
+                width: 100%;
+            }
+            /*add by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+            .modal-dialog {
+                width: 52%;
+                margin: 0;
+            }
+
+            .pesananisiresi {
+                width: 57%;
+            }
+
+            .pesanankonfirmasifr {
+                width: 57%;
+            }
+            /*end add by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        }
+
+        @@media screen and (max-width: 425px) {
+            .pesanankonfirmasifr {
+                width: 57%;
+            }
+        }
+
+        /*add by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        .dataTables_paginate {
+            text-align: right;
+            float: none !important;
+        }
+        /*end add by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+
+        body {
+            background-color: #212121;
+        }
+
+        .btn-section > .row > button {
+            padding: 5px;
+            margin-bottom: 5px;
+            background: #fb9595;
+            border: 1px solid #9a2828;
+            color: #000;
+            width: 65%;
+        }
+
+            .btn-section > .row > button[disabled] {
+                padding: 10px;
+                margin-bottom: 15px;
+                background: #9c9c9c;
+                border: 1px solid #9a2828;
+                color: #000;
+            }
+
+            .btn-section > .row > button:hover {
+                padding: 5px;
+                margin-bottom: 5px;
+                background: #fd4646;
+                border: 1px solid #9a2828;
+                color: #000;
+            }
+
+        .subs_active {
+            background: #fd4646 !important;
+        }
+
+        .btn-pindah-paket:hover {
+            cursor: pointer;
+        }
+    </style>
 }
 <style>
-    #loading_promosi_tab {
+    .checkbox-container {
+        display: block;
+        position: relative;
+        /*padding-left: 35px;*/
+        margin-top: 4px;
+        cursor: pointer;
+        font-size: 11px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+        /* Hide the browser's default checkbox */
+        .checkbox-container input {
+            position: relative;
+            opacity: 100;
+            cursor: pointer;
+            display: none;
+        }
+
+    /* Create a custom checkbox */
+    .checkmark {
+        position: absolute;
+        top: 0;
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*left: 18px;*/
+        /*end remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        height: 25px;
+        width: 25px;
+        background-color: #eee;
+        border: solid 1px #ccc;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .checkbox-container:hover input ~ .checkmark {
+        background-color: #ccc;
+    }
+
+    /* When the checkbox is checked, add a blue background */
+    .checkbox-container input:checked ~ .checkmark {
+        background-color: #2196F3;
+    }
+
+    /* Create the checkmark/indicator (hidden when not checked) */
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    /* Show the checkmark when checked */
+    .checkbox-container input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    /* Style the checkmark/indicator */
+    .checkbox-container .checkmark:after {
+        left: 9px;
+        top: 5px;
+        width: 6px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 3px 3px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }
+</style>
+<style type="text/css">
+    .bar {
+        font-size: 30px;
+        color: #ed1338;
+    }
+
+    .nav-row {
+        padding: 30px;
+    }
+
+        .nav-row > div > a {
+            padding: 7px;
+        }
+
+    #loading_spinner {
         display: none;
         width: 100%;
         height: 100%;
         position: fixed;
-        z-index: 100;
+        z-index: 9999;
         top: 0;
         right: 0;
         bottom: 0;
         left: 0;
-        background-color: rgba(0,0,0,0);
+        background-color: rgba(0,0,0,.5);
     }
 
-    #loading_promosi_tab_image {
+    #loading_spinner_image {
         width: 20px;
         height: 20px;
         margin-top: -90px;
@@ -31,122 +1004,704 @@
         border-radius: 50%;
     }
 
-    @@media screen and (max-width: 445px) {
-        .brgtblpromo {
-            width: 66%;
-        }
+    #loading_spinner_btn {
+        display: none;
+        width: 100%;
+        height: 100%;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
     }
 
-    @@media screen and (max-width: 375px) {
-        .brgtblpromo {
-            width: 55%;
-        }
+    #loading_spinner_image_btn {
+        width: 20px;
+        height: 40px;
+        border-width: 30px;
+        border-radius: 50%;
     }
 
-    @@media screen and (max-width: 325px) {
-        .brgtblpromo {
-            width: 47%;
+    #soc-med-btn-nav {
+        float: right;
+        margin-right: 80px;
+        margin-bottom: 15px;
+    }
+
+
+    .subs_body {
+        background: white;
+        letter-spacing: 0.4px;
+        font-family: 'RoundedElegance';
+        color: black;
+    }
+
+    @@font-face {
+        font-family: 'RoundedElegance'; /*src: url("~/fonts/rounded_elegance.svg");
+                src: url("~/fonts/rounded_elegance.ttf") format('truetype');*/
+        src: url("../../fonts/rounded_elegance.svg");
+        src: url("../../fonts/rounded_elegance.ttf") format('truetype');
+        font-weight: bold;
+    }
+
+    /*.modal-content {
+            margin-top: 225px !important;
+        }*/
+
+    .modal-dialog {
+        height: auto !important;
+    }
+
+    .title-features-mobile {
+        font-size: 10px !important;
+    }
+
+    .sub-title-features-mobile {
+        font-size: 9px !important;
+    }
+
+    .feature-mobile-row {
+        margin-bottom: 25px !important;
+    }
+
+
+    h2.mobile-title {
+        font-size: 16px !important;
+    }
+
+    #cover p {
+        font-size: 14px !important;
+    }
+
+    #mobile-app-section {
+        margin-top: 25px !important;
+    }
+
+
+    body {
+        overflow-x: hidden;
+    }
+
+    .row {
+        margin-right: 0;
+        margin-left: 0;
+    }
+
+    html {
+        /*-webkit-text-stroke-width: 0.5pt;*/
+        text-rendering: optimizeLegibility !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+    }
+
+    #cover {
+        margin-top: 175px;
+        margin-bottom: 18px;
+        background-size: cover;
+        min-height: 350px;
+    }
+
+    h2.pc-title {
+        color: #891539;
+        font-size: 45px;
+        line-height: 60px;
+        letter-spacing: 3px;
+        font-weight: 700;
+    }
+
+    h2.mobile-title {
+        color: #891539;
+        font-size: 30px;
+        line-height: 58px;
+        letter-spacing: 3px;
+        font-weight: 700;
+    }
+
+    #cover h3 {
+        font-size: 58px;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-family: 'RoundedElegance';
+    }
+
+        #cover h3 span {
+            color: #ed5565;
         }
+
+    #cover span {
+        font-size: 53px;
+    }
+
+    #cover p {
+        font-size: 18px;
+        letter-spacing: .5px;
+    }
+
+    #cover .btn {
+        background-color: #891539;
+        color: #fff;
+    }
+
+        #cover .btn:hover {
+            background-color: #f37100 !important;
+        }
+
+    .focus-text {
+        text-transform: uppercase;
+        color: #f37100;
+    }
+
+    #btn-daftar-pc {
+        width: 50%;
+        float: right;
+        margin: 0 auto;
+        border-radius: 10px !important;
+        margin-top: 40px;
+        box-shadow: 0px 7px 5px rgb(136, 136, 136);
+    }
+
+    #mobile-app-section {
+        margin-top: 60px;
+    }
+
+    #btn-daftar-mobile {
+        border-radius: 10px !important;
+        width: 100%;
+        margin-top: 25px;
+        box-shadow: 0px 7px 5px rgb(136, 136, 136);
+    }
+
+    #btn-video-pc {
+        width: 50%;
+        float: left;
+        background-color: #5db836 !important;
+        margin: 0 auto;
+        border-radius: 10px !important;
+        margin-top: 40px;
+        box-shadow: 0px 7px 5px rgb(136, 136, 136);
+    }
+
+    #btn-video-mobile {
+        background-color: #5db836 !important;
+        border-radius: 10px !important;
+        width: 100%;
+        margin-top: 25px;
+        box-shadow: 0px 7px 5px rgb(136, 136, 136);
+    }
+
+    #gradient-mo {
+        background: rgba(255,23,23,1);
+        background: -moz-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+        background: -webkit-gradient(left top, right top, color-stop(0%, rgba(255,23,23,1)), color-stop(50%, rgba(137,21,57,1)), color-stop(100%, rgba(137,21,57,1)));
+        background: -webkit-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+        background: -o-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+        background: -ms-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+        background: linear-gradient(to right, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff1717', endColorstr='#891539', GradientType=1 );
+        color: transparent;
+        -webkit-background-clip: text;
+        background-clip: text;
+    }
+
+    .videoWrapper {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 */
+        padding-top: 25px;
+        height: 0;
+    }
+
+        .videoWrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+    .modal-dialog {
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*width: 75%;*/
+        height: 75%;
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*margin: 0 auto;*/
+        padding: 0;
+    }
+
+    .modal-content {
+        margin-top: 35px;
+        height: auto;
+        min-height: 100%;
+        border-radius: 0;
+    }
+
+    .videoBox {
+        position: relative;
+        padding-bottom: 30.25%; /* 16:9 */
+        height: 0;
+    }
+
+        .videoBox iframe {
+            position: absolute;
+            top: 0;
+            left: 25%;
+            width: 50%;
+            height: 100%;
+        }
+
+    #marketplace .logo-container {
+        padding: 40px 0;
+    }
+
+    .grayish-white {
+        background-color: #F5F5F5;
+    }
+
+    .grayish-white-f6 {
+        background-color: #f6f6f6;
+    }
+
+    #marketplace .title-box-red,
+    .carakerja .title-box-red {
+        padding: 10px 7px;
+    }
+
+        #marketplace .title-box-red h3,
+        .carakerja .title-box-red h3 {
+            font-size: 20px;
+            color: #fff;
+            font-weight: 400;
+            margin: 0px;
+            text-align: left !important;
+        }
+
+    #marketplace .mp-logo:first-child {
+        margin-left: 60px;
+    }
+
+    #marketplace .mp-logo {
+        margin-right: 15px;
+    }
+
+    .titleSection {
+        color: #ed5565;
+        font-size: 35px;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .carakerja {
+        padding: 0 0 40px 0;
+        background-color: #fff;
+    }
+
+        .carakerja h3, .carakerja p {
+            font-weight: 300;
+            text-align: center;
+        }
+
+        .carakerja h3 {
+            font-size: 22px;
+        }
+
+        .carakerja p {
+            font-size: 17px;
+            line-height: 24px;
+            color: #777;
+        }
+
+        .carakerja strong {
+            font-size: 20px;
+            font-weight: 500;
+            text-align: center;
+            display: block;
+        }
+
+        .carakerja img {
+            margin-top: 25px;
+        }
+
+    #banner {
+        background: url(../../Content/Images/shattered.png) 0 50%;
+        min-height: 200px;
+        padding: 20px 0;
+        text-align: center;
+    }
+
+        #banner h2 {
+            color: #999;
+            font-size: 25px;
+            font-weight: 400;
+            margin: 30px 0 28px 0;
+        }
+
+    /*footer {
+            background: #891539;
+            padding: 30px 0;
+        }
+
+        .footerMenuCol {
+            margin-bottom: 20px;
+        }
+
+        footer h3 {
+            color: #fff;
+            font-size: 15px;
+            font-weight: 400;
+            text-transform: uppercase;
+            margin-top: 0;
+        }
+
+        footer ul, footer ul li {
+            list-style: none;
+        }
+
+            footer ul li {
+                margin-left: -40px !important;
+                padding: 7px 0 7px 10px;
+                border-bottom: 1px solid #f9f9f9;
+            }
+
+                footer ul li a {
+                    color: #f7f7f7;
+                    font-size: 12px;
+                    font-weight: 300;
+                    text-decoration: none;
+                }*/
+
+    .title-box-red {
+        background: rgba(137,21,57,1);
+        background: -moz-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+        background: -webkit-gradient(left top, right top, color-stop(0%, rgba(137,21,57,1)), color-stop(70%, rgba(137,21,57,1)), color-stop(100%, rgba(255,23,23,1)));
+        background: -webkit-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+        background: -o-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+        background: -ms-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+        background: linear-gradient(to right, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#891539', endColorstr='#ff1717', GradientType=1 );
+    }
+
+    .carakerja .content-feature {
+        background-color: #f6f6f6;
+        padding-bottom: 10px;
+    }
+
+    #promo_pulsa {
+        display: none; /* Sementara */
+        position: absolute;
+        width: 20%;
+        right: 15px;
+        top: 175px;
+        z-index: 100;
+    }
+
+    .no-padding {
+        padding: 0 !important;
+    }
+
+    .title-features {
+        font-size: 15px;
+        font-weight: bold;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .sub-title-features {
+        font-size: 14px;
+        position: absolute;
+        top: 30px;
+        left: 0;
+    }
+
+    .title-features-mobile {
+        font-size: 12px;
+        font-weight: bold;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .sub-title-features-mobile {
+        font-size: 11px;
+        position: absolute;
+        top: 25px;
+        left: 0;
+    }
+
+    .feature-mobile-row {
+        margin-bottom: 30px;
+    }
+
+    .btn-basicfree:hover {
+        color: #F5F5F5;
+        background-color: #891539;
+    }
+
+    .btn-basicfree {
+        color: #891539;
+        background-color: white;
+        text-align: center;
+        border-radius: 10 1 1 1;
+        border: 1px solid #891539;
+    }
+
+    .btn-silver:hover {
+        color: #F5F5F5;
+        background-color: #891539;
+    }
+
+    .btn-silver {
+        color: #891539;
+        background-color: white;
+        text-align: center;
+        border-radius: 10 1 1 1;
+        border: 1px solid #891539;
+    }
+
+
+    .panel-default-noborder {
+        border: 1px;
+    }
+
+    hr {
+        border: 1px solid #891539;
+    }
+
+    .table thead > tr > th,
+    .table tbody > tr > th,
+    .table tfoot > tr > th,
+    .table thead > tr > td,
+    .table tbody > tr > td,
+    .table tfoot > tr > td {
+        padding: 8px;
+        line-height: 1.428571429;
+        vertical-align: top;
+        border-top: 0px;
+    }
+
+    .table_subs thead > tr > th {
+        padding: 8px;
+        line-height: 1.428571429;
+        vertical-align: top;
+        border-top: 0px solid #dddddd;
+        border-bottom: 2px solid #891539;
+    }
+
+
+
+    .glyphicon-ok {
+        color: #21b716;
+    }
+
+    /*.glyphicon-remove {
+        color: #891539;
+    }*/
+
+
+    .enterpriseColumn {
+        padding: 8px;
+        line-height: 1.428571429;
+        vertical-align: middle;
+        border: 2px solid #891539 !important;
+        color: #891539;
     }
 </style>
-<div id="loading_promosi_tab">
-    <div id="loading_packinglist_tab_image">
-        <img src="~/Content/Images/spinner.gif" />
+@*//add by fauzi 21/01/2021*@
+<div class="row">
+    <div class="col-lg-4 col-md-4 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Packing List</h2>
+                <div class="nav navbar-right panel_toolbox" style="width:90px !important; ">
+                    <h5><span class="label label-success" style="color:white">Hari ini</span></h5>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div>
+                    <h3 class="no-margins">
+                        @*@(Model?.JumlahPackingList ?? 0) / @(Model?.JumlahPesanan ?? 0)*@
+                    </h3>
+                    <small>Jumlah Packing List / Pesanan</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Rekap Barang </h2>
+                <div class="nav navbar-right panel_toolbox" style="width:90px !important; ">
+                    <h5><span class="label label-success" style="color:white">Hari ini</span></h5>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div>
+                    <h3 class="no-margins">
+                        @*@(Model?.JumlahRekapBarang ?? 0)*@
+                    </h3>
+                    <small>Barang</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Rekap Qty Barang </h2>
+                <div class="nav navbar-right panel_toolbox" style="width:90px !important; ">
+                    <h5><span class="label label-success" style="color:white">Hari ini</span></h5>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div>
+                    <h3 class="no-margins">
+                        @*@(Model?.JumlahRekapQtyBarang ?? 0)*@
+                    </h3>
+                    <small>Qty Barang</small>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-<input id="txt_last_page" type="hidden" class="form-control" value="@ViewData["LastPage"]">
-<div class="hscroll table-responsive brgtblpromo">
-    <table class="table table-striped table-bordered table-hover">
-        @*<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">*@
-        <thead>
-            <tr role="row">
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Nomor Bukti</th>
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 90px;">Tanggal</th>
-                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 60px;">Edit</th>
-                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>
-            </tr>
-        </thead>
-        <tbody>
-            @*@foreach (var promosi in Model.ListPromosi)*@
-            @foreach (var packingList in Model)
-            {
-                <tr>
-                    <td>@packingList.NO_BUKTI</td>
-                    <td>
-                        @if(@packingList.TGL.HasValue){
-                        @packingList.TGL.Value.ToString("dd/MM/yyyy")
-                        }
-                    </td>
-                    <td class="edit-hapus-col">
-                        <button class="btn btn-primary" onclick="editPackinglist1('@packingList.NO_BUKTI')">
-                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                        </button>
-                    </td>
-                    <td class="edit-hapus-col">
-                        <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusPackinglist" onclick="pass('@packingList.NO_BUKTI')">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                        </button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    @* add by nurul 13/6/2019, paging *@
-    @if (Model.PageCount > 1)
-    {
-        <div id="tabelpackinglistpartialpager" class="pager">
-            @Html.PagedListPager(Model, page => Url.Action("RefreshTablePackinglist", new
-            {
-                page,
-                search = ViewData["searchParam"]
-            }),
-                      new PagedListRenderOptions
-                      {
-                          LinkToFirstPageFormat = "<<",
-                          LinkToPreviousPageFormat = "prev",
-                          LinkToNextPageFormat = "next",
-                          LinkToLastPageFormat = ">>",
-                          DisplayEllipsesWhenNotShowingAllPageNumbers = false
-                      })
-            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
-
+@*//end add by fauzi 21/01/2021*@
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tab_content1" id="packinglist-tab" role="tab" data-toggle="tab" aria-expanded="true">Packing List</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content2" role="tab" id="rekapbarang-tab" data-toggle="tab" aria-expanded="false">Rekap Barang</a>
+                </li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="packinglist-tab">
+                    <div class="row packinglist_table_section" style="margin-top:13px;">
+                        <div class="col-lg-4 col-sm-6 mrgbttmpesanan">
+                            <div class="input-group">
+                                <input id="search_packing2list" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_packing2list_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row packinglist_table_section" style="margin-top: 5px;">
+                        <div class="col-sm-12" id="table-packinglist-partial">
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="rekapbarang-tab">
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                            <div class="input-group">
+                                <input id="search_rekapbarang" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_rekapbarang_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-sm-12" style="text-align:left">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Dari Tanggal</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="input-group date">
+                                <input readonly class="form-control" id="DrTanggal" name="DrTanggal" type="text" value="">
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Sampai</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="input-group date">
+                                <input readonly class="form-control" id="SdTanggal" name="SdTanggal" type="text" value="">
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label id="text-check-packing" style="margin-left:10px;"></label>
+                    </div>
+                    <div class="row" style="margin-top: 5px;">
+                        <div class="col-sm-12" id="table-rekapbarang-partial">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    }
+    </div>
 </div>
-<script type="text/javascript">
+@section scripts
+{
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
 
-    $(document).ready(function () {
-        
-        var nameEQ = "viewpackinglist" + "=";
-        var ca = document.cookie.split(';');
-        for(var i=0;i < ca.length;i++) {
-            var c = ca[i];
-            while (c.charAt(0)==' ') c = c.substring(1,c.length);
-            if (c.indexOf(nameEQ) == 0) {
-                document.cookie = nameEQ +'; Max-Age=-99999999;path=/;';  
-                editPackinglist1(c.substring(nameEQ.length,c.length));
-            }
-        }
-    });
-    $(function () {
-        $('#tabelpackinglistpartialpager').on('click', 'a', function () {
-            if (this.href != "") {
-                $.ajax({
-                    url: this.href,
-                    type: 'GET',
-                    cache: false,
-                    beforeSend: function () {
-                        $('#loading_packinglist_tab_image').show();
-                    },
-                    success: function (response) {
-                        $('#table-packinglist-partial').html(response);
-                        $('#loading_packinglist_tab_image').hide();
-                    }
-                });
-            }
-            return false;
+        $(document).ready(function () {
+
+            var d = new Date();
+            $('#DrTanggal').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+            $('#SdTanggal').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+
+
+            //refreshTablePackingList();
+
+            $('#pesanan-tab').click(function () {
+                refreshTablePackingList();
+            });
 
         });
-    });
-</script>
+
+
+            //add by fauzi 23/01/2021
+        function refreshTablePackingList() {
+            //var link = '@Url.Action("refreshTablePackinglist", "Manage")';
+            var $link = '@Html.Raw(Url.Action("refreshTablePackinglist", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_packinglist').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+
+            //var filterby = get_pesanan_filterby();
+            //var filtervalue = get_pesanan_filtervalue(filterby);
+            //$link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            //$link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-packinglist-partial').hide();
+                    $('#loading_packinglist_tab_image').show();
+                },
+                success: function (response) {
+                    $('#table-packinglist-partial').html(response);
+                    $('#table-packinglist-partial').show();
+                    $('#loading_packinglist_tab_image').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+            
+    </script>
+
+}

@@ -16,6 +16,13 @@ namespace MasterOnline.ViewModels
         public List<RekapBarang> listRekapBarang { get; set; }
         public List<string> Errors { get; set; }
         public string printMode { get; set; }
+
+        //add by fauzi 22/01/2021, tambah dashboard packing list
+        public int? JumlahPackingList { get; set; }
+        public int? JumlahPesanan { get; set; }
+        public int? JumlahRekapBarang { get; set; }
+        public int? JumlahRekapQtyBarang { get; set; }
+        //end add by fauzi 22/01/2021, tambah dashboard packing list
     }
 
     public class SOT03BDetailPacking
