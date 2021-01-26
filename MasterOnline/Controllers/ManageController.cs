@@ -40696,12 +40696,12 @@ namespace MasterOnline.Controllers
                                         //if (!string.IsNullOrEmpty(result.message))
                                         if (result.nextPage == 1)
                                         {
-                                            //if (result.message == "MOVE_TO_INACTIVE_PRODUCTS")//finish getting active product, move to inactive
-                                            //{
-                                            //    retBarang.BLProductActive = 0;
-                                            //    if (statBL == 1)
-                                            //        retBarang.Page = 0;
-                                            //}
+                                            if (result.message == "MOVE_TO_INACTIVE_PRODUCTS")//finish getting active product, move to inactive
+                                            {
+                                                retBarang.BLProductActive = 0;
+                                                if (statBL == 1)
+                                                    retBarang.Page = 0;
+                                            }
                                             //else
                                             //{
                                             retBarang.RecordCount = result.recordCount;
