@@ -1,17 +1,19 @@
 ﻿@using System.Globalization
 @*@model MasterOnline.ViewModels.HargaJualViewModel*@
-
 @*@{
         var context = new MoDbContext();
     }*@
 @using PagedList.Mvc
 @model PagedList.IPagedList<mdlHargaJual>
 @{
+    /**/
+
     string currentFilter = ViewBag.CurrentFilter;
     string currentSort = ViewBag.CurrentSort;
     var context = new MoDbContext("");
 }
 <style>
+
     #loading_hargaJual_tab {
         display: none;
         width: 100%;
@@ -58,7 +60,6 @@
     .user-link {
         text-decoration: underline;
     }
-
 </style>
 <div id="loading_hargaJual_tab">
     <div id="loading_hargaJual_tab_image">
@@ -116,79 +117,85 @@
                         }
                     </td>
                     <td class="edit-hapus-col">
-                        @if (barangDijualPerMarket.NAMAMARKET.ToUpper() == "BLIBLI")
+                        @if (barangDijualPerMarket.BUNDLING != "")
                         {
-                            <button class="btn btn-primary" data-toggle="modal" data-target="#modalEditHargaJualBlibli"
-                                    onclick="passBlibli('@barangDijualPerMarket.RECNUM', '@barangDijualPerMarket.BRG', '@barangDijualPerMarket.NAMA @barangDijualPerMarket.NAMA2', '@barangDijualPerMarket.AKUNMARKET', '@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}" , barangDijualPerMarket.STF02_HJUAL)', '@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barangDijualPerMarket.HJUAL)' )">
-                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                            </button>
-                        }
-                        else if (barangDijualPerMarket.NAMAMARKET.ToUpper() == "82CART")
-                        {
-                            <button class="btn btn-primary" data-toggle="modal" data-target="#modalEditHargaJual82Cart"
-                                    onclick="pass82Cart('@barangDijualPerMarket.RECNUM', '@barangDijualPerMarket.BRG', '@barangDijualPerMarket.NAMA @barangDijualPerMarket.NAMA2', '@barangDijualPerMarket.AKUNMARKET', '@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}" , barangDijualPerMarket.STF02_HJUAL)', '@barangDijualPerMarket.HJUAL' )">
+                            <button class="btn btn-primary" onclick="bundlingKlik('@barangDijualPerMarket.BRG')">
                                 <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                             </button>
                         }
                         else
                         {
-                            <button class="btn btn-primary" data-toggle="modal" data-target="#modalEditHargaJual"
-                    @*onclick="pass('@barangDijualPerMarket.RecNum', '@barangDijualPerMarket.BRG', '@namaDepanBarang @namaBelakangBarang', '@barangDijualPerMarket.AKUNMARKET', '@String.Format(CultureInfo.CreateSpecificCulture(" id-id"), "{0:N}" , barangDijualPerMarket.HJUAL)')">
+                            if (barangDijualPerMarket.NAMAMARKET.ToUpper() == "BLIBLI")
+                            {
+                                <button class="btn btn-primary" data-toggle="modal" data-target="#modalEditHargaJualBlibli"
+                                        onclick="passBlibli('@barangDijualPerMarket.RECNUM', '@barangDijualPerMarket.BRG', '@barangDijualPerMarket.NAMA @barangDijualPerMarket.NAMA2', '@barangDijualPerMarket.AKUNMARKET', '@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barangDijualPerMarket.STF02_HJUAL)', '@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barangDijualPerMarket.HJUAL)' )">
+                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                </button>
+                            }
+                            else if (barangDijualPerMarket.NAMAMARKET.ToUpper() == "82CART")
+                            {
+                                <button class="btn btn-primary" data-toggle="modal" data-target="#modalEditHargaJual82Cart"
+                                        onclick="pass82Cart('@barangDijualPerMarket.RECNUM', '@barangDijualPerMarket.BRG', '@barangDijualPerMarket.NAMA @barangDijualPerMarket.NAMA2', '@barangDijualPerMarket.AKUNMARKET', '@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barangDijualPerMarket.STF02_HJUAL)', '@barangDijualPerMarket.HJUAL' )">
+                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-primary" data-toggle="modal" data-target="#modalEditHargaJual"
+                                        @*onclick="pass('@barangDijualPerMarket.RecNum', '@barangDijualPerMarket.BRG', '@namaDepanBarang @namaBelakangBarang', '@barangDijualPerMarket.AKUNMARKET', '@String.Format(CultureInfo.CreateSpecificCulture(" id-id"), "{0:N}" , barangDijualPerMarket.HJUAL)')">
                     *@
-                                                        onclick="pass('@barangDijualPerMarket.RECNUM', '@barangDijualPerMarket.BRG', '@barangDijualPerMarket.NAMA @barangDijualPerMarket.NAMA2', '@barangDijualPerMarket.AKUNMARKET', '@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barangDijualPerMarket.HJUAL)')">
-                                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                                                </button>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-
-                    @* add by nurul 13/6/2019, paging *@
-                        @if(Model.PageCount > 1)
-{
-                            <div id = "tabelhargaJualpartialpager" class="pager">
-                                @Html.PagedListPager(Model, page => Url.Action("RefreshTableHargaJual", new
-                           {
-                               page,
-                               search = ViewData["searchParam"],
-                               filter = ViewData["filterParam"]
-                           }),
-                                new PagedListRenderOptions
-                                {
-                                    LinkToFirstPageFormat = "<<",
-                                    LinkToPreviousPageFormat = "prev",
-                                    LinkToNextPageFormat = "next",
-                                    LinkToLastPageFormat = ">>",
-                                    DisplayEllipsesWhenNotShowingAllPageNumbers = false
-                                })
-                                Page @(Model.PageCount<Model.PageNumber? 0 : Model.PageNumber) of @Model.PageCount
-
-                            </div>
+                                        onclick="pass('@barangDijualPerMarket.RECNUM', '@barangDijualPerMarket.BRG', '@barangDijualPerMarket.NAMA @barangDijualPerMarket.NAMA2', '@barangDijualPerMarket.AKUNMARKET', '@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barangDijualPerMarket.HJUAL)')">
+                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                </button>
+                            }
                         }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @* add by nurul 13/6/2019, paging *@
+    @if (Model.PageCount > 1)
+    {
+        <div id="tabelhargaJualpartialpager" class="pager">
+            @Html.PagedListPager(Model, page => Url.Action("RefreshTableHargaJual", new
+       {
+           page,
+           search = ViewData["searchParam"],
+           filter = ViewData["filterParam"]
+       }),
+            new PagedListRenderOptions
+            {
+                LinkToFirstPageFormat = "<<",
+                LinkToPreviousPageFormat = "prev",
+                LinkToNextPageFormat = "next",
+                LinkToLastPageFormat = ">>",
+                DisplayEllipsesWhenNotShowingAllPageNumbers = false
+            })
+            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        </div>
+    }
 </div>
-                        <script type = "text/javascript" >
-                            $(function () {
-                                $('#tabelhargaJualpartialpager').on('click', 'a', function () {
-                        if (this.href != "")
-                        {
-                                        $.ajax({
-                                url: this.href,
-                                            type: 'GET',
-                                            cache: false,
-                                            beforeSend: function() {
-                                                $('#loading_hargaJual_tab').show();
-                                },
-                                            success: function(response) {
-                                                $('#table-hargaJual-partial').html(response);
-                                                $('#loading_hargaJual_tab').hide();
-                                }
-                            });
-                        }
-                        return false;
+<script type="text/javascript">
+    $(function () {
+        $('#tabelhargaJualpartialpager').on('click', 'a', function () {
+            if (this.href != "") {
+                $.ajax({
+                    url: this.href,
+                    type: 'GET',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#loading_hargaJual_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-hargaJual-partial').html(response);
+                        $('#loading_hargaJual_tab').hide();
+                    }
+                });
+            }
+            return false;
 
-});
-                            });
-                        </script>
-                    @* end add by nurul 13/6/2019, paging *@
+        });
+    });
+</script>
+@* end add by nurul 13/6/2019, paging *@

@@ -708,15 +708,47 @@ namespace MasterOnline.Controllers
                 //var toDt = DateTime.UtcNow.AddHours(14);
                 var toDt = DateTime.UtcNow.AddHours(7);
                 //end add 16 des 2020, fixed date
+
+                //add by nurul 20/1/2021, bundling 
+                var AdaKomponen = false;
+                var connIdProses = "";
+                List<string> tempConnId = new List<string>() { };
+                //end add by nurul 20/1/2021, bundling 
+                
                 while (more)
                 {
-                    int count = await GetOrderListWithPage(iden, stat, connId, CUST, NAMA_CUST, page, fromDt, toDt);
+                    //int count = await GetOrderListWithPage(iden, stat, connId, CUST, NAMA_CUST, page, fromDt, toDt);
+                    var count = await GetOrderListWithPage(iden, stat, connId, CUST, NAMA_CUST, page, fromDt, toDt);
                     page++;
-                    if (count < 10)
+                    //add by nurul 20/1/2021, bundling
+                    if (connId != "")
+                    {
+                        tempConnId.Add(connId);
+                        connIdProses += "'" + connId + "' , ";
+                    }
+                    if (count.AdaKomponen)
+                    {
+                        AdaKomponen = count.AdaKomponen;
+                    }
+                    //end add by nurul 20/1/2021, bundling
+                    if (count.Count < 10)
                     {
                         more = false;
                     }
                 }
+                //add by nurul 20/1/2021, bundling 
+                //List<string> listBrgKomponen = new List<string>();
+                //if (tempConnId.Count() > 0)
+                //{
+                //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+                //}
+                //if (listBrgKomponen.Count() > 0)
+                if(AdaKomponen)
+                {
+                    new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+                }
+                //end add by nurul 20/1/2021, bundling 
+
 
                 // tunning untuk tidak duplicate
                 var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + connId + "%' and invocationdata like '%blibli%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%'");
@@ -727,8 +759,10 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<int> GetOrderListWithPage(BlibliAPIData iden, StatusOrder stat, string connId, string CUST, string NAMA_CUST, int page, DateTime fromDt, DateTime toDt)
+        //public async Task<int> GetOrderListWithPage(BlibliAPIData iden, StatusOrder stat, string connId, string CUST, string NAMA_CUST, int page, DateTime fromDt, DateTime toDt)
+        public async Task<tempOrderCount> GetOrderListWithPage(BlibliAPIData iden, StatusOrder stat, string connId, string CUST, string NAMA_CUST, int page, DateTime fromDt, DateTime toDt)
         {
+            var ret = new tempOrderCount();
             int count = 0;
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -888,6 +922,14 @@ namespace MasterOnline.Controllers
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                 contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Blibli.");
 
+                                //add by nurul 25/1/2021, bundling
+                                var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connId + "')").ToList();
+                                if (listBrgKomponen.Count() > 0)
+                                {
+                                    ret.AdaKomponen = true;
+                                }
+                                //end add by nurul 25/1/2021, bundling
+
                                 new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);
                             }
                             //end add by calvin 1 april 2019
@@ -949,7 +991,9 @@ namespace MasterOnline.Controllers
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                 }
             }
-            return count;
+            //return count;
+            ret.Count = count;
+            return ret;
         }
 
         public async Task<string> GetOrderDetail(BlibliAPIData iden, string orderNo, string orderItemNo, string connId, string CUST, string NAMA_CUST)
@@ -11504,5 +11548,12 @@ namespace MasterOnline.Controllers
             public string locationPath { get; set; }
         }
 
+        //add by nurul 25/1/2021, bundling
+        public class tempOrderCount
+        {
+            public int Count { get; set; }
+            public bool AdaKomponen { get; set; }
+        }
+        //end add by nurul 25/1/2021, bundling 
     }
 }

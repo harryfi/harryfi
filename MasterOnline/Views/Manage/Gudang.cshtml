@@ -323,6 +323,13 @@
         function simpanGudang(btnClicked) {
             if (!validateForm()) return false;
 
+            //add by nurul 19/1/2020, bundling 
+            if ($('#Gudang_Kode_Gudang').val() == "GB" && $('#Gudang_Nama_Gudang').val() == "Gudang Bundling") {
+                alert("Gudang Bundling tidak bisa diedit");
+                return false;
+            }
+            //add by nurul 19/1/2020, bundling
+
             var $form = $(btnClicked).parents('form');
             //add by nurul 26/4/2019
             if ($("#linkMP").is(":checked") == true) {
@@ -390,6 +397,12 @@
                         $('#linkMP').attr('checked', true);
                     } else {
                         $('#linkMP').attr('checked', false);
+                    }
+
+                    if (response.gd_default) {
+                        $("#linkMP").attr('disabled', 'disabled');
+                    } else {
+                        $("#linkMP").removeAttr('disabled');
                     }
                     //end add by nurul 26/4/2019
                     $('#tambah_gudang').click();

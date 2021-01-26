@@ -986,7 +986,8 @@
         function getDataBarang() {
             $.ajax({
                 type: "GET",
-                url: '@Url.Action("GetDataBarang", "Manage")',
+                @*url: '@Url.Action("GetDataBarang", "Manage")',*@
+                url: '@Url.Action("GetDataBarangStok", "Manage")',
                 contentType: 'application/json',
                 cache: false,
                 success: function (data) {

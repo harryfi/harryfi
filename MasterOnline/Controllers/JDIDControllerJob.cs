@@ -2665,6 +2665,11 @@ namespace MasterOnline.Controllers
             var daysFrom = -1;
             var daysTo = 1;
             var daysNow = DateTime.UtcNow;
+            //add by nurul 20/1/2021, bundling 
+            var AdaKomponen = false;
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
 
             while (daysFrom > -13)
             {
@@ -2672,12 +2677,41 @@ namespace MasterOnline.Controllers
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
                 var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                
+                //change by nurul 20/1/2021, bundling 
+                //await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = await JD_GetOrderByStatusPaidList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                //change by nurul 20/1/2021, bundling 
+
                 //daysFrom -= 3;
                 //daysTo -= 3;
                 daysFrom -= 2;
                 daysTo -= 2;
+
+                //add by nurul 20/1/2021, bundling 
+                //if (returnGetOrder != "")
+                //{
+                //    tempConnId.Add(returnGetOrder);
+                //    connIdProses += "'" + returnGetOrder + "' , ";
+                //}
+                if(returnGetOrder == "1")
+                {
+                    AdaKomponen = Convert.ToBoolean(returnGetOrder);
+                }
+                //end add by nurul 20/1/2021, bundling 
             }
+            //add by nurul 20/1/2021, bundling 
+            //List<string> listBrgKomponen = new List<string>();
+            //if (tempConnId.Count() > 0)
+            //{
+            //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            //}
+            //if (listBrgKomponen.Count() > 0)
+            if(AdaKomponen)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //end add by nurul 20/1/2021, bundling 
 
             // tunning untuk tidak duplicate
             var queryStatus = "";
@@ -2698,12 +2732,16 @@ namespace MasterOnline.Controllers
             string ret = "";
             string connID = Guid.NewGuid().ToString();
             SetupContext(iden.DatabasePathErasoft, iden.username);
-
+            
             var listOrderId = new List<long>();
             listOrderId.AddRange(GetOrderList(iden, "1", 0, daysFrom, daysTo));
 
             string connectionID = Guid.NewGuid().ToString();
             var connIdARF01C = Guid.NewGuid().ToString();
+            
+            //add by nurul 19/1/2021, bundling 
+            //ret = connectionID;
+            //end add by nurul 19/1/2021, bundling
 
             if (listOrderId.Count > 0)
             {
@@ -2739,6 +2777,12 @@ namespace MasterOnline.Controllers
                         if (insertTemp.recordCount > 0)
                             newRecord += insertTemp.recordCount;
                     }
+                    //add by nurul 25/1/2021, bundling
+                    if (insertTemp.AdaKomponen)
+                    {
+                        ret = "1";
+                    }
+                    //end add by nurul 25/1/2021, bundling
                 }
 
                 //if (callSP)
@@ -2794,6 +2838,12 @@ namespace MasterOnline.Controllers
             var daysFrom = -1;
             var daysTo = 1;
             var daysNow = DateTime.UtcNow;
+            //add by nurul 20/1/2021, bundling 
+            var AdaKomponen = false;
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
 
             while (daysFrom > -13)
             {
@@ -2801,12 +2851,40 @@ namespace MasterOnline.Controllers
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
                 var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+
+                //change by nurul 20/1/2021, bundling 
+                //await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = await JD_GetOrderByStatusRTSList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                //change by nurul 20/1/2021, bundling
                 //daysFrom -= 3;
                 //daysTo -= 3;
                 daysFrom -= 2;
                 daysTo -= 2;
+
+                //add by nurul 20/1/2021, bundling 
+                //if (returnGetOrder != "")
+                //{
+                //    tempConnId.Add(returnGetOrder);
+                //    connIdProses += "'" + returnGetOrder + "' , ";
+                //}
+                if (returnGetOrder == "1")
+                {
+                    AdaKomponen = Convert.ToBoolean(returnGetOrder);
+                }
+                //end add by nurul 20/1/2021, bundling 
             }
+            //add by nurul 20/1/2021, bundling 
+            //List<string> listBrgKomponen = new List<string>();
+            //if (tempConnId.Count() > 0)
+            //{
+            //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            //}
+            //if (listBrgKomponen.Count() > 0)
+            if (AdaKomponen)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //end add by nurul 20/1/2021, bundling 
 
             // tunning untuk tidak duplicate
             var queryStatus = "";
@@ -2833,6 +2911,9 @@ namespace MasterOnline.Controllers
 
             string connectionID = Guid.NewGuid().ToString();
             var connIdARF01C = Guid.NewGuid().ToString();
+            //add by nurul 19/1/2021, bundling 
+            //ret = connectionID;
+            //end add by nurul 19/1/2021, bundling
 
             if (listOrderId.Count > 0)
             {
@@ -2868,6 +2949,12 @@ namespace MasterOnline.Controllers
                         if (insertTemp.recordCount > 0)
                             newRecord += insertTemp.recordCount;
                     }
+                    //add by nurul 25/1/2021, bundling
+                    if (insertTemp.AdaKomponen)
+                    {
+                        ret = "1";
+                    }
+                    //end add by nurul 25/1/2021, bundling
                 }
 
                 //if (callSP)
@@ -2923,18 +3010,53 @@ namespace MasterOnline.Controllers
             var daysFrom = -1;
             var daysTo = 1;
             var daysNow = DateTime.UtcNow;
+            //add by nurul 20/1/2021, bundling 
+            var AdaKomponen = false;
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
             while (daysFrom > -13)
             {
                 //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds() * 1000;
                 //var dateTo = DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds() * 1000;
                 var dateFrom = (long)daysNow.AddDays(daysFrom).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
                 var dateTo = (long)daysNow.AddDays(daysTo > 0 ? 0 : daysTo).ToUniversalTime().Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-                await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                
+                //change by nurul 20/1/2021, bundling 
+                //await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                var returnGetOrder = await JD_GetOrderByStatusCancelList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+                //change by nurul 20/1/2021, bundling 
+
                 //daysFrom -= 3;
                 //daysTo -= 3;
                 daysFrom -= 2;
                 daysTo -= 2;
+
+                //add by nurul 20/1/2021, bundling 
+                //if (returnGetOrder != "")
+                //{
+                //    tempConnId.Add(returnGetOrder);
+                //    connIdProses += "'" + returnGetOrder + "' , ";
+                //}
+                if (returnGetOrder == "1")
+                {
+                    AdaKomponen = Convert.ToBoolean(returnGetOrder);
+                }
+                //end add by nurul 20/1/2021, bundling 
             }
+            //add by nurul 20/1/2021, bundling 
+            //List<string> listBrgKomponen = new List<string>();
+            //if (tempConnId.Count() > 0)
+            //{
+            //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            //}
+            //if (listBrgKomponen.Count() > 0)
+            if (AdaKomponen)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //end add by nurul 20/1/2021, bundling 
 
             // tunning untuk tidak duplicate
             var queryStatus = "";
@@ -2961,6 +3083,9 @@ namespace MasterOnline.Controllers
 
             string connectionID = Guid.NewGuid().ToString();
             var connIdARF01C = Guid.NewGuid().ToString();
+            //add by nurul 19/1/2021, bundling 
+            //ret = connectionID;
+            //end add by nurul 19/1/2021, bundling
 
             if (listOrderId.Count > 0)
             {
@@ -2996,6 +3121,12 @@ namespace MasterOnline.Controllers
                         if (insertTemp.recordCount > 0)
                             cancelRecord += insertTemp.recordCount;
                     }
+                    //add by nurul 25/1/2021, bundling
+                    if (insertTemp.AdaKomponen)
+                    {
+                        ret = "1";
+                    }
+                    //end add by nurul 25/1/2021, bundling
                 }
 
                 //if (cancelRecord > 0)
@@ -3545,6 +3676,13 @@ namespace MasterOnline.Controllers
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                     contextNotif.Clients.Group(data.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari JD.ID.");
 
+                                    //add by nurul 25/1/2021, bundling
+                                    var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + conn_id_order + "')").ToList();
+                                    if (listBrgKomponen.Count() > 0)
+                                    {
+                                        ret.AdaKomponen = true;
+                                    }
+                                    //end add by nurul 25/1/2021, bundling
                                     new StokControllerJob().updateStockMarketPlace(conn_id_order, data.DatabasePathErasoft, data.username);
                                 }
 
@@ -3564,6 +3702,14 @@ namespace MasterOnline.Controllers
                                     var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + idOrderCancel + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + cust + "'");
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                     contextNotif.Clients.Group(data.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderCancel) + " Pesanan dari JD.ID dibatalkan.");
+
+                                    //add by nurul 25/1/2021, bundling
+                                    var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + conn_id_order + "')").ToList();
+                                    if (listBrgKomponen.Count() > 0)
+                                    {
+                                        ret.AdaKomponen = true;
+                                    }
+                                    //end add by nurul 25/1/2021, bundling
                                     new StokControllerJob().updateStockMarketPlace(conn_id_order, data.DatabasePathErasoft, data.username);
                                 }
                             }
@@ -3599,6 +3745,14 @@ namespace MasterOnline.Controllers
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                     contextNotif.Clients.Group(data.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderReadytoShip) + " Pesanan dari JD.ID Ready To Ship.");
                                 }
+
+                                //add by nurul 25/1/2021, bundling
+                                var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + conn_id_order + "')").ToList();
+                                if (listBrgKomponen.Count() > 0)
+                                {
+                                    ret.AdaKomponen = true;
+                                }
+                                //end add by nurul 25/1/2021, bundling
                                 new StokControllerJob().updateStockMarketPlace(conn_id_order, data.DatabasePathErasoft, data.username);
                             }
                         }
