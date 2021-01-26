@@ -1827,7 +1827,7 @@ namespace MasterOnline.Controllers
                     namaBrg = itemFromList.spuName;
                     //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                     //sSQL_Value += " ( '" + kdBrgInduk + "' , '" + kdBrgInduk + "' , '";
-                    sSQL_Value += " ( '" + kdBrgInduk + "' , '' , '";
+                    sSQL_Value += " ( '" + kdBrgInduk + ";0" + "' , '' , '";
                     //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
 
