@@ -4248,7 +4248,10 @@ namespace MasterOnline.Controllers
             if (id.Contains(";"))
             {
                 string[] brgSplit = id.Split(';');
-                brgMp = brgSplit[1].ToString();
+                if (brgSplit[1] != "0")
+                {
+                    brgMp = brgSplit[1].ToString();
+                }
             }
             else
             {

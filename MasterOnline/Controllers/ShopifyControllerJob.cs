@@ -1817,11 +1817,22 @@ namespace MasterOnline.Controllers
                     body.variants.Add(variants);
                 }
 
-                optionvarlv1.values = varlv1;
-                optionvarlv2.values = varlv2;
+                //optionvarlv1.values = varlv1;
+                //optionvarlv2.values = varlv2;
 
-                body.options.Add(optionvarlv1);
-                body.options.Add(optionvarlv2);
+                //body.options.Add(optionvarlv1);
+                //body.options.Add(optionvarlv2);
+
+                if (varlv1.Count() > 0)
+                {
+                    optionvarlv1.values = varlv1;
+                    body.options.Add(optionvarlv1);
+                }
+                if (varlv2.Count() > 0)
+                {
+                    optionvarlv2.values = varlv2;
+                    body.options.Add(optionvarlv2);
+                }
 
             }
             else
@@ -1910,23 +1921,38 @@ namespace MasterOnline.Controllers
 
             string responseFromServer = "";
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
-            myReq.Method = "POST";
-            myReq.Headers.Add("X-Shopify-Access-Token", (iden.API_password));
-            myReq.Accept = "application/json";
-            myReq.ContentType = "application/json";
-            myReq.ContentLength = myData.Length;
-            using (var dataStream = myReq.GetRequestStream())
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            //myReq.Method = "POST";
+            //myReq.Headers.Add("X-Shopify-Access-Token", (iden.API_password));
+            //myReq.Accept = "application/json";
+            //myReq.ContentType = "application/json";
+            //myReq.ContentLength = myData.Length;
+            //using (var dataStream = myReq.GetRequestStream())
+            //{
+            //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            //}
+            //using (WebResponse response = myReq.GetResponse())
+            //{
+            //    using (Stream stream = response.GetResponseStream())
+            //    {
+            //        StreamReader reader = new StreamReader(stream);
+            //        responseFromServer = reader.ReadToEnd();
+            //    }
+            //}
+
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", (iden.API_password));
+            var content = new StringContent(myData, Encoding.UTF8, "application/json");
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+            using (HttpResponseMessage clientResponse = await client.PostAsync(vformatUrl, content))
             {
-                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-            }
-            using (WebResponse response = myReq.GetResponse())
-            {
-                using (Stream stream = response.GetResponseStream())
+                using (HttpContent responseContent = clientResponse.Content)
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
-                }
+                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                    {
+                        responseFromServer = await reader.ReadToEndAsync();
+                    }
+                };
             }
 
             if (responseFromServer != null)
