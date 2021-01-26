@@ -297,6 +297,9 @@ namespace MasterOnline
         public double Qty { get; set; }
         public double Harga { get; set; }
         public double JumlahGabung { get; set; }
+
+        public string BRG { get; set; }
+        public double QOH { get; set; }
     }
     //end add by fauzi 14/07/2020
 

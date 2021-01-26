@@ -36228,7 +36228,6 @@ namespace MasterOnline.Controllers
             //}
             ////end add by nurul 10/2/2020, ambil harga beli terakhir dr pbt01b 
             ///end remark by fauzi for tuning search barang
-
             IPagedList<mdlHargaJual> pageOrders = new StaticPagedList<mdlHargaJual>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TableHargaJualPartial", pageOrders);
         }
@@ -58401,11 +58400,22 @@ namespace MasterOnline.Controllers
             string sSQL2 = "";
             sSQL2 += "FROM PBT01B B ";
             sSQL2 += "LEFT JOIN PBT01A A ON B.INV = A.INV ";
-            sSQL2 += "WHERE B.BRG = '" + kodebarang + "' AND B.INV LIKE 'PB%' AND B.JENISFORM = '1' AND B.TGLINPUT >= DATEADD(MONTH, -3, GETDATE()) ";
+            sSQL2 += "WHERE B.BRG = '" + kodebarang + "' AND B.INV LIKE 'PB%' AND B.JENISFORM = '1' ";
+            sSQL2 += " AND B.TGLINPUT >= DATEADD(MONTH, -3, GETDATE()) ";
             if (search != "")
             {
                 sSQL2 += " AND ( (" + sSQLkodeINV + ") or (" + sSQLNama + ") ) ";
             }
+
+            string sSQL3 = "";
+            sSQL3 += "FROM PBT01B B ";
+            sSQL3 += "LEFT JOIN PBT01A A ON B.INV = A.INV ";
+            sSQL3 += "WHERE B.BRG = '" + kodebarang + "' AND B.INV LIKE 'PB%' AND B.JENISFORM = '1' ";
+            if (search != "")
+            {
+                sSQL3 += " AND ( (" + sSQLkodeINV + ") or (" + sSQLNama + ") ) ";
+            }
+
             var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
             if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
@@ -58414,22 +58424,115 @@ namespace MasterOnline.Controllers
             }
 
             string sSQLSelect2 = "";
-            sSQLSelect2 += "ORDER BY B.TGLINPUT DESC  ";
+            sSQLSelect2 += "ORDER BY B.TGLINPUT, B.INV DESC  ";
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
-            var listAverage = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2).ToList();
+            //var listAverage = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2).ToList();
+            string sSQLAverageHPP = "";
+            sSQLAverageHPP += " ORDER BY B.TGLINPUT, B.INV DESC ";
+            var listAverage = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL3 + sSQLAverageHPP).ToList();
+
+            string sSQLCheckQty = "";
+            sSQLCheckQty += "SELECT BRG, JUMLAH AS QOH ";
+            sSQLCheckQty += "FROM [QOH_QOO_ALL_ITEM] WHERE JENIS = 'QOH' AND BRG = '" + kodebarang + "'";
+            var checkQtyStok = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLCheckQty).SingleOrDefault();
+            ViewData["QTYSTOK"] = checkQtyStok.QOH;
 
             double jumlahAll = 0;
-            double jumlahQTY = 0;
+            double HargaTotal = 0;
+            double HPP = 0;
+            double qtySebelum = checkQtyStok.QOH;
+            double qtySesudah = 0;
+            double hargaTerakhir = 0;
+
+            bool statusTerpenuhi = true;
+
             foreach (var data in listAverage)
             {
-                jumlahAll += data.JumlahGabung;
-                jumlahQTY += data.Qty;
+                if(qtySebelum != 0)
+                {
+                    if(qtySebelum >= data.Qty)
+                    {
+                        qtySebelum = qtySebelum - data.Qty;
+                        if (qtySebelum > 0)
+                        {
+                            HargaTotal = HargaTotal + (data.Qty * data.Harga);
+                        }
+                        else
+                        {
+                            HargaTotal = HargaTotal + (data.Qty * data.Harga);
+                        }
+                        //else if (qtySebelum <= 0)
+                        //{
+                        //    HargaTotal = HargaTotal + (qtySebelum * data.Harga);
+                        //    HPP = HargaTotal / checkQtyStok.QOH;
+                        //}
+                        if(hargaTerakhir == 0)
+                        {
+                            hargaTerakhir = data.Harga;
+                        }
+                        qtySesudah = qtySebelum;
+                    }
+                    else if(qtySebelum <= data.Qty)
+                    {
+                        qtySebelum = qtySebelum - data.Qty;
+                        if (qtySebelum <= 0)
+                        {
+                            if (statusTerpenuhi)
+                            {
+                                HargaTotal = HargaTotal + (Math.Abs(qtySesudah) * data.Harga);
+                                HPP = HargaTotal / checkQtyStok.QOH;
+                                qtySebelum = 0;
+                                statusTerpenuhi = false;
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                        else
+                        {
+                            if (statusTerpenuhi)
+                            {
+                                HargaTotal = HargaTotal + (data.Qty * data.Harga);
+                                HPP = HargaTotal / checkQtyStok.QOH;
+                                statusTerpenuhi = false;
+                            }
+                        }
+                        if (hargaTerakhir == 0)
+                        {
+                            hargaTerakhir = data.Harga;
+                        }
+                        qtySesudah = qtySebelum;
+                    }
+                    else
+                    {
+
+                    }
+                }
+
+               
+
+                //jumlahAll += data.JumlahGabung;
+                //jumlahQTY += data.Qty;
             }
 
-            jumlahAll = jumlahAll / jumlahQTY;
+            if(HPP == 0 && HargaTotal > 0)
+            {
+                if(qtySebelum >= 0)
+                {
+                    HargaTotal = HargaTotal + (qtySebelum * hargaTerakhir);
+                    HPP = HargaTotal / checkQtyStok.QOH;
+                }
+                else
+                {
+                    HPP = HargaTotal / checkQtyStok.QOH;
+                }
+            }
+
+            jumlahAll = HPP;
 
             ViewData["jumlahAverage"] = string.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", jumlahAll);
 

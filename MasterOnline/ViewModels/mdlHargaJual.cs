@@ -23,6 +23,7 @@ namespace MasterOnline
         public double HJUAL { get; set; }
         public double HPOKOK { get; set; }
         public double STF02_HJUAL { get; set; }
+        public int QOH { get; set; }
     }
     public class mdlHargaJualMassal
     {
