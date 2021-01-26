@@ -93,10 +93,62 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public async Task<ActionResult> BukalapakCode(string code)
         {
-            string urll = "https://api.bukalapak.com/me";
+            AccessKeyBL retGetToken = new AccessKeyBL();
+            #region get token
+            var urll = ("https://accounts.bukalapak.com/oauth/token");
+
+            var client = new RestClient(urll);
+            client.Timeout = -1;
+            var request = new RestRequest(Method.POST);
+            request.AlwaysMultipartFormData = true;
+            request.AddParameter("grant_type", "authorization_code");
+            request.AddParameter("client_id", client_id);
+            request.AddParameter("client_secret", client_secret);
+            request.AddParameter("code", code);
+            request.AddParameter("redirect_uri", callBackUrl);
+            string stringRet = "";
+            try
+            {
+                IRestResponse response = client.Execute(request);
+                stringRet = response.Content;
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(stringRet))
+            {
+                AccessKeyBL retObj = JsonConvert.DeserializeObject(stringRet, typeof(AccessKeyBL)) as AccessKeyBL;
+                if (retObj != null)
+                {
+                    //DateTime tglExpired = DateTimeOffset.FromUnixTimeSeconds(retObj.created_at).UtcDateTime.AddHours(7).AddSeconds(retObj.expires_in);
+                    //var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET REFRESH_TOKEN='" + retObj.refresh_token + "', TGL_EXPIRED='" + tglExpired.ToString("yyyy-MM-dd HH:mm:ss") + "', TOKEN='" + retObj.access_token + "', STATUS_API = '1' WHERE CUST ='" + cust + "'");
+                    retGetToken = retObj;
+                    //if (a == 1)
+                    //{
+                    //}
+                    //else
+                    //{
+                    //}
+                }
+                else
+                {
+                }
+            }
+            #endregion
+            urll = "https://api.bukalapak.com/me";
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
-            myReq.Headers.Add("Authorization", ("Bearer " + code));
+            myReq.Headers.Add("Authorization", ("Bearer " + retGetToken.access_token));
             //myReq.Accept = "application/x-www-form-urlencoded";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
@@ -129,10 +181,13 @@ namespace MasterOnline.Controllers
                             {
                                 datacc.CODE = code;
                                 ErasoftDbContext.SaveChanges();
+                                DateTime tglExpired = DateTimeOffset.FromUnixTimeSeconds(retGetToken.created_at).UtcDateTime.AddHours(7).AddSeconds(retGetToken.expires_in);
 
                                 DatabaseSQL EDB = new DatabaseSQL(datacc.ACCOUNT);
-                                var res = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET API_KEY = '" + code + "' WHERE CUST = '" + datacc.CUST + "'");
-                                GetAccessKey(datacc.ACCOUNT, datacc.CUST, code);
+                                var res = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET API_KEY = '" + code 
+                                    + "', REFRESH_TOKEN='" + retGetToken.refresh_token + "', TGL_EXPIRED='" + tglExpired.ToString("yyyy-MM-dd HH:mm:ss") + "', TOKEN='" 
+                                    + retGetToken.access_token + "', STATUS_API = '1' WHERE CUST = '" + datacc.CUST + "'");
+                                //GetAccessKey(datacc.ACCOUNT, datacc.CUST, code);
                             }
                         }
                     }
@@ -142,29 +197,6 @@ namespace MasterOnline.Controllers
 
                 }
             }
-            //var param = userid.Split(new string[] { "_param_" }, StringSplitOptions.None);
-            //if (param.Count() == 2)
-            //{
-            //    DatabaseSQL EDB = new DatabaseSQL(param[0]);
-            //    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET API_KEY = '" + code + "' WHERE CUST = '" + param[1] + "'");
-            //    GetAccessKey(param[0], param[1], code);
-            //}
-            //var currentUser = MoDbContext.BUKALAPAK_TOKEN.Where(m => m.ACCOUNT_ID == accid && m.CUST == cust).OrderBy(m => m.CREATED_AT).FirstOrDefault();
-            //if(currentUser != null)
-            //{
-            //    currentUser.CODE = code;
-            //    currentUser.CREATED_AT = DateTime.UtcNow.AddHours(7);
-            //    MoDbContext.SaveChanges();
-
-            //    var accID = currentUser.ACCOUNT_ID;
-            //    var acc = MoDbContext.Account.Where(m => m.AccountId == accID).FirstOrDefault();
-            //        DatabaseSQL EDB = new DatabaseSQL(acc.DatabasePathErasoft);
-            //        var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET API_KEY = '" + code + "' WHERE CUST = '" + currentUser.CUST + "'");
-
-            //        GetAccessKey(acc.DatabasePathErasoft, currentUser.CUST, code);
-
-            //}
-
             return View("BukalapakAuth");
         }
         public string RefreshToken(BukaLapakKey data)
