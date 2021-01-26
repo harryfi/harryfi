@@ -152,7 +152,7 @@
     </style>
     @*//end add by nurul 24/3/2020*@
     @*//add by indra 1/4/2020*@
-    <style>
+    @*<style>
 
         /* The container CK */
         .container-ck {
@@ -222,7 +222,7 @@
             -ms-transform: rotate(45deg);
             transform: rotate(45deg);
         }
-    </style>
+    </style>*@
     @*//end by indra 1/4/2020*@
     <style>
         .loading_spinner_modal {
@@ -7668,6 +7668,10 @@
                     $('#tambah-pembeli').hide();
                     $('#Pesanan_KET').attr('readonly', 'readonly').css('background-color', '#eee')
                         .css('cursor', 'not-allowed');
+                    $('.cm-bundling').attr('readonly', 'readonly').css('cursor', 'not-allowed');
+                    if (flagBundling != "1") {
+                        $('.cm-bundling').attr('readonly', 'readonly').css('background-color', '#eee').css('cursor', 'not-allowed');
+                    }
                     //if ($jumlahPesanan == true) {
                     //    $('input, select, .btn-danger').each(function () {
                     //        $(this).attr('disabled', 'disabled');
@@ -11465,6 +11469,9 @@
                     $('#loading_spinner').hide();
                     $('#text-check-dibayar').text('');
                     $('#text-check-packing').text('');
+                    if (flagBundling != "1") {
+                        $('.cm-bundling').attr('readonly', 'readonly').css('background-color', '#eee').css('cursor', 'not-allowed');
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.log(error);

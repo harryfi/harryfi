@@ -247,15 +247,15 @@
                     {
                         //memiliki bundling
                         <label class="checkbox-container">
-                            <input type="checkbox" id="cbxPesananBundling" class="cbxBundling" name="@($"cbx-Pesanan-Bundling")" checked disabled = "disabled" />
-                            <span class="checkmark"></span>
+                            <input type="checkbox" id="cbxPesananBundling" class="cbxBundling" name="@($"cbx-Pesanan-Bundling")" checked disabled="disabled" />
+                            <span class="checkmark cm-bundling" style="cursor:not-allowed;"></span>
                         </label>
                     }
                     else
                     {
                         <label class="checkbox-container">
-                            <input type="checkbox" id="cbxPesananBundling" class="cbxBundling" name="@($"cbx-Pesanan-Bundling")" disabled = "disabled" @*onclick="validateBundling($('#cbxPesananBundling').is(':checked'));"*@ />
-                            <span class="checkmark"></span>
+                            <input type="checkbox" id="cbxPesananBundling" class="cbxBundling" name="@($"cbx-Pesanan-Bundling")" disabled="disabled" />
+                            <span class="checkmark cm-bundling" style="cursor:not-allowed;"></span>
                         </label>
                     }
                 </div>

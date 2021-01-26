@@ -23663,7 +23663,7 @@ namespace MasterOnline.Controllers
                     SOT01G sot01g = new SOT01G()
                     {
                         NO_BUKTI = pesananInDb.NO_BUKTI,
-                        BRG = PesananDetail.BRG,
+                        BRG = dataStf02h.BRG,
                         QTY = PesananDetail.QTY,
                         HARGA = cekBarangBundling.Sum(p => (double?)(p.TOTALHARGA)) ?? 0,
                         TGL_EDIT = DateTime.UtcNow.AddHours(7),
@@ -23760,6 +23760,8 @@ namespace MasterOnline.Controllers
                 //add by nurul 24/1/2021, bundling 
                 if(listDetailPesananBundling.Count() > 0 && newPesananBundling.Count() > 0)
                 {
+                    ErasoftDbContext.SOT01B.AddRange(listDetailPesananBundling);
+                    ErasoftDbContext.SOT01G.AddRange(newPesananBundling);
                     ErasoftDbContext.SOT01B.Remove(PesananDetail);
                     ErasoftDbContext.SaveChanges();
                 }
@@ -23937,7 +23939,7 @@ namespace MasterOnline.Controllers
                             QTY = Convert.ToDouble(item.Qty * FakturDetail.QTY),
                             H_SATUAN = Convert.ToDouble(item.HARGA),
                             HARGA = Convert.ToDouble(item.HARGA * item.Qty * FakturDetail.QTY),
-                            BRG_BUNDLING = FakturDetail.BRG,
+                            BRG_BUNDLING = dataStf02h.BRG,
                             USERNAME = FakturDetail.USERNAME,
                             TGLINPUT = DateTime.UtcNow.AddHours(7),
                             SATUAN = FakturDetail.SATUAN,
@@ -23972,7 +23974,7 @@ namespace MasterOnline.Controllers
                     SIT01H sit01h = new SIT01H()
                     {
                         NO_BUKTI = fakturInDb.NO_BUKTI,
-                        BRG = FakturDetail.BRG,
+                        BRG = dataStf02h.BRG,
                         QTY = FakturDetail.QTY,
                         HARGA = cekBarangBundling.Sum(p => (double?)(p.TOTALHARGA)) ?? 0,
                         TGL_EDIT = DateTime.UtcNow.AddHours(7),
@@ -24068,6 +24070,8 @@ namespace MasterOnline.Controllers
                 //add by nurul 24/1/2021, bundling
                 if (listDetailFakturBundling.Count() > 0 && newFakturBundling.Count() > 0)
                 {
+                    ErasoftDbContext.SIT01B.AddRange(listDetailFakturBundling);
+                    ErasoftDbContext.SIT01H.AddRange(newFakturBundling);
                     ErasoftDbContext.SIT01B.Remove(FakturDetail);
                     ErasoftDbContext.SaveChanges();
                 }
