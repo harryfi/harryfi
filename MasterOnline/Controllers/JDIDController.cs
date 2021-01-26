@@ -507,107 +507,107 @@ namespace MasterOnline.Controllers
                             {
                                 contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Akun marketplace " + data.email.ToString() + " (JD.ID) berhasil aktif", true);
                                 EDB.ExecuteSQL("CString", CommandType.Text, "Update ARF01 SET STATUS_API = '1' WHERE TOKEN = '" + data.accessToken + "' AND API_KEY = '" + data.appKey + "'");
-                                string dbPath = "";
-                                var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                                if (sessionData?.Account != null)
-                                {
-                                    dbPath = sessionData.Account.DatabasePathErasoft;
-                                }
-                                else
-                                {
-                                    if (sessionData?.User != null)
-                                    {
-                                        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                                        dbPath = accFromUser.DatabasePathErasoft;
-                                    }
-                                }
-                                var listKtg = ErasoftDbContext.CATEGORY_JDID.ToList();
-                                if (listKtg.Count > 0)
-                                {
-                                    EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM CATEGORY_JDID");
-                                }
+                                //string dbPath = "";
+                                //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                                //if (sessionData?.Account != null)
+                                //{
+                                //    dbPath = sessionData.Account.DatabasePathErasoft;
+                                //}
+                                //else
+                                //{
+                                //    if (sessionData?.User != null)
+                                //    {
+                                //        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                                //        dbPath = accFromUser.DatabasePathErasoft;
+                                //    }
+                                //}
+                                //var listKtg = ErasoftDbContext.CATEGORY_JDID.ToList();
+                                //if (listKtg.Count > 0)
+                                //{
+                                //    EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM CATEGORY_JDID");
+                                //}
 
-                                string con = EDB.ConnectionStrings.FirstOrDefault().Value.ToString();
+                                //string con = EDB.ConnectionStrings.FirstOrDefault().Value.ToString();
 
-                                using (SqlConnection oConnection = new SqlConnection(con))
-                                {
-                                    oConnection.Open();
-                                    //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-                                    //{
-                                    using (SqlCommand oCommand = oConnection.CreateCommand())
-                                    {
-                                        //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
-                                        //oCommand.ExecuteNonQuery();
-                                        //oCommand.Transaction = oTransaction;
-                                        oCommand.CommandType = CommandType.Text;
-                                        oCommand.CommandText = "INSERT INTO [CATEGORY_JDID] ([CATEGORY_CODE], [CATEGORY_NAME], [CATE_STATE], [TYPE], [LEAF], [PARENT_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @CATE_STATE, @TYPE, @LEAF, @PARENT_CODE)";
-                                        //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
-                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
-                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
-                                        oCommand.Parameters.Add(new SqlParameter("@CATE_STATE", SqlDbType.NVarChar, 3));
-                                        oCommand.Parameters.Add(new SqlParameter("@TYPE", SqlDbType.NVarChar, 3));
-                                        oCommand.Parameters.Add(new SqlParameter("@LEAF", SqlDbType.NVarChar, 1));
-                                        oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
+                                //using (SqlConnection oConnection = new SqlConnection(con))
+                                //{
+                                //    oConnection.Open();
+                                //    //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                                //    //{
+                                //    using (SqlCommand oCommand = oConnection.CreateCommand())
+                                //    {
+                                //        //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
+                                //        //oCommand.ExecuteNonQuery();
+                                //        //oCommand.Transaction = oTransaction;
+                                //        oCommand.CommandType = CommandType.Text;
+                                //        oCommand.CommandText = "INSERT INTO [CATEGORY_JDID] ([CATEGORY_CODE], [CATEGORY_NAME], [CATE_STATE], [TYPE], [LEAF], [PARENT_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @CATE_STATE, @TYPE, @LEAF, @PARENT_CODE)";
+                                //        //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+                                //        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                //        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                //        oCommand.Parameters.Add(new SqlParameter("@CATE_STATE", SqlDbType.NVarChar, 3));
+                                //        oCommand.Parameters.Add(new SqlParameter("@TYPE", SqlDbType.NVarChar, 3));
+                                //        oCommand.Parameters.Add(new SqlParameter("@LEAF", SqlDbType.NVarChar, 1));
+                                //        oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
 
-                                        //try
-                                        //{
-                                        foreach (var item in listKategori.model) //foreach parent level 3
-                                        {
-                                            oCommand.Parameters[0].Value = item.id;
-                                            oCommand.Parameters[1].Value = item.name;
-                                            oCommand.Parameters[2].Value = 1;
-                                            oCommand.Parameters[3].Value = item.level;
-                                            if (Convert.ToString(item.parentId) != null)
-                                            {
-                                                oCommand.Parameters[4].Value = "1";
-                                                oCommand.Parameters[5].Value = item.parentId;
-                                            }
-                                            else
-                                            {
-                                                oCommand.Parameters[4].Value = "1";
-                                                oCommand.Parameters[5].Value = "";
-                                            }
-                                            if (oCommand.ExecuteNonQuery() > 0)
-                                            {
-                                                if (Convert.ToString(item.parentId) != null)
-                                                {
-                                                    sArrayListLevel = sArrayListLevel + item.parentId + ",";
-                                                    if (!sArrayListLevelTempNoDuplicate.Contains(Convert.ToString(item.parentId)))
-                                                    {
-                                                        iLimitCategory += 1;
-                                                        sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate + item.parentId + ",";
-                                                        if (iLimitCategory == 50)
-                                                        {
-                                                            sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
-                                                            RecursiveInsertCategoryNewLevel2(oCommand, sArrayListLevelTempNoDuplicate, data);
-                                                            iLimitCategory = 0;
-                                                            sArrayListLevelTempNoDuplicate = "";
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
+                                //        //try
+                                //        //{
+                                //        foreach (var item in listKategori.model) //foreach parent level 3
+                                //        {
+                                //            oCommand.Parameters[0].Value = item.id;
+                                //            oCommand.Parameters[1].Value = item.name;
+                                //            oCommand.Parameters[2].Value = 1;
+                                //            oCommand.Parameters[3].Value = item.level;
+                                //            if (Convert.ToString(item.parentId) != null)
+                                //            {
+                                //                oCommand.Parameters[4].Value = "1";
+                                //                oCommand.Parameters[5].Value = item.parentId;
+                                //            }
+                                //            else
+                                //            {
+                                //                oCommand.Parameters[4].Value = "1";
+                                //                oCommand.Parameters[5].Value = "";
+                                //            }
+                                //            if (oCommand.ExecuteNonQuery() > 0)
+                                //            {
+                                //                if (Convert.ToString(item.parentId) != null)
+                                //                {
+                                //                    sArrayListLevel = sArrayListLevel + item.parentId + ",";
+                                //                    if (!sArrayListLevelTempNoDuplicate.Contains(Convert.ToString(item.parentId)))
+                                //                    {
+                                //                        iLimitCategory += 1;
+                                //                        sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate + item.parentId + ",";
+                                //                        if (iLimitCategory == 50)
+                                //                        {
+                                //                            sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                //                            RecursiveInsertCategoryNewLevel2(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                //                            iLimitCategory = 0;
+                                //                            sArrayListLevelTempNoDuplicate = "";
+                                //                        }
+                                //                    }
+                                //                }
+                                //            }
+                                //            else
+                                //            {
 
-                                            }
-                                        }
+                                //            }
+                                //        }
 
-                                        if(!string.IsNullOrEmpty(sArrayListLevelTempNoDuplicate))
-                                        {
-                                            sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
-                                            RecursiveInsertCategoryNewLevel2(oCommand, sArrayListLevelTempNoDuplicate, data);
-                                            iLimitCategory = 0;
-                                            sArrayListLevelTempNoDuplicate = "";
-                                        }
+                                //        if(!string.IsNullOrEmpty(sArrayListLevelTempNoDuplicate))
+                                //        {
+                                //            sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                //            RecursiveInsertCategoryNewLevel2(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                //            iLimitCategory = 0;
+                                //            sArrayListLevelTempNoDuplicate = "";
+                                //        }
 
-                                        //oTransaction.Commit();
-                                        //}
-                                        //catch (Exception ex)
-                                        //{
-                                        //    //oTransaction.Rollback();
-                                        //}
-                                    }
-                                }
+                                //        //oTransaction.Commit();
+                                //        //}
+                                //        //catch (Exception ex)
+                                //        //{
+                                //        //    //oTransaction.Rollback();
+                                //        //}
+                                //    }
+                                //}
                             }
                             else
                             {
