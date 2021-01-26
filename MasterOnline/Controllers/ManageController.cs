@@ -58424,15 +58424,15 @@ namespace MasterOnline.Controllers
             }
 
             string sSQLSelect2 = "";
-            sSQLSelect2 += "ORDER BY B.TGLINPUT, B.INV DESC  ";
+            sSQLSelect2 += "ORDER BY B.TGLINPUT DESC  ";
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             //var listAverage = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2).ToList();
             string sSQLAverageHPP = "";
-            sSQLAverageHPP += " ORDER BY B.TGLINPUT, B.INV DESC ";
-            var listAverage = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL3 + sSQLAverageHPP).ToList();
+            sSQLAverageHPP += " ORDER BY B.TGLINPUT DESC ";
+            var listAverage = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2 + sSQLAverageHPP).ToList();
 
             string sSQLCheckQty = "";
             sSQLCheckQty += "SELECT BRG, JUMLAH AS QOH ";
@@ -58451,9 +58451,9 @@ namespace MasterOnline.Controllers
 
             foreach (var data in listAverage)
             {
-                if(qtySebelum != 0)
+                if (qtySebelum != 0)
                 {
-                    if(qtySebelum >= data.Qty)
+                    if (qtySebelum >= data.Qty)
                     {
                         qtySebelum = qtySebelum - data.Qty;
                         if (qtySebelum > 0)
@@ -58469,14 +58469,15 @@ namespace MasterOnline.Controllers
                         //    HargaTotal = HargaTotal + (qtySebelum * data.Harga);
                         //    HPP = HargaTotal / checkQtyStok.QOH;
                         //}
-                        if(hargaTerakhir == 0)
+                        if (hargaTerakhir == 0)
                         {
                             hargaTerakhir = data.Harga;
                         }
                         qtySesudah = qtySebelum;
                     }
-                    else if(qtySebelum <= data.Qty)
+                    else if (qtySebelum <= data.Qty)
                     {
+                        qtySesudah = qtySebelum;
                         qtySebelum = qtySebelum - data.Qty;
                         if (qtySebelum <= 0)
                         {
@@ -58513,15 +58514,15 @@ namespace MasterOnline.Controllers
                     }
                 }
 
-               
+
 
                 //jumlahAll += data.JumlahGabung;
                 //jumlahQTY += data.Qty;
             }
 
-            if(HPP == 0 && HargaTotal > 0)
+            if (HPP == 0 && HargaTotal > 0)
             {
-                if(qtySebelum >= 0)
+                if (qtySebelum >= 0)
                 {
                     HargaTotal = HargaTotal + (qtySebelum * hargaTerakhir);
                     HPP = HargaTotal / checkQtyStok.QOH;
