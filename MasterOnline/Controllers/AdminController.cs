@@ -2816,35 +2816,91 @@ namespace MasterOnline.Controllers
                                         //var checkBarangLamaLagi = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
                                         //if (checkBarangLamaLagi.Count() > 0)
                                         //{
-                                        if (checkBarangMPBaru.Count() >= checkBarangMPLama.Count())
+                                        if (checkBarangMPBaru.Count() > 0)
                                         {
-                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + kodeBrgLamaCheck + "'");
+                                            //foreach(var brgMpBaru in checkBarangMPBaru)
+                                            //{
+                                            //    if(!brgMpBaru.DISPLAY && string.IsNullOrEmpty(brgMpBaru.BRG_MP))
+                                            //    {
+                                            //        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + brgMpBaru.BRG + "'");
+                                            //    }
+                                            //}                                            
                                         }
-                                        else
+
+                                        if (checkBarangMPLama.Count() > 0)
                                         {
-                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + listKodeBaru + "'");
+                                            foreach (var brgMpLama in checkBarangMPLama)
+                                            {
+                                                if (!brgMpLama.DISPLAY && string.IsNullOrEmpty(brgMpLama.BRG_MP))
+                                                {
+                                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + brgMpLama.BRG + "' AND Recnum = " + brgMpLama.RecNum + "");
+                                                }
+                                            }
+
                                         }
 
                                         //}
 
-                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
-                                            "update stf02 set brg='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
-                                            "update stf02h set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
-                                            "update sot01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
-                                            "update sit01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
-                                            "update stt01b set kobar ='" + listKodeBaru + "' where kobar ='" + kodeBrgLamaCheck + "'; " +
-                                            "update stt04b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
-                                            "update pbt01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
-                                            "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "'; " +
-                                            "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+                                        //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
+                                        //    "update stf02 set brg='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update stf02h set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update sot01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update sit01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update stt01b set kobar ='" + listKodeBaru + "' where kobar ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update stt04b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update pbt01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
 
-                                        if (checkBarangMPBaru.Count() >= checkBarangMPLama.Count())
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update stf02h set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update stf02 set brg='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update sot01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update sit01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update stt01b set kobar ='" + listKodeBaru + "' where kobar ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update stt04b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update pbt01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+
+
+
+                                        //if (checkBarangMPBaru.Count() >= checkBarangMPLama.Count())
+                                        //{
+                                        var checkBarangLama2 = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == kodeBrgLamaCheck.ToUpper()).ToList();
+                                        if (checkBarangLama2.Count() > 0)
                                         {
-                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + kodeBrgLamaCheck + "';");
+                                            if (listKodeBaru != kodeBrgLamaCheck)
+                                            {
+                                                EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + kodeBrgLamaCheck + "';");
+                                            }
                                         }
-                                        else
+                                        //}
+                                        //else
+                                        //{
+                                        //    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + listKodeBaru + "';");
+                                        //}
+
+                                        var checkDuplicateBrgMP = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).GroupBy(x => x.IDMARKET).Where(p => p.Count() > 1).ToList();
+                                        //foreach(var tes in checkDuplicateBrgMP)
+                                        if (checkDuplicateBrgMP.Count() > 0)
                                         {
-                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + listKodeBaru + "';");
+                                            foreach (var checkDup in checkDuplicateBrgMP)
+                                            {
+                                                int idmarket = Convert.ToInt32(checkDup.Key);
+                                                var listDuplicate = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper() && p.IDMARKET == idmarket).OrderByDescending(p => p.LINK_DATETIME).ToList();
+                                                if (listDuplicate.Count() > 0)
+                                                {
+                                                    bool deleted = false;
+                                                    foreach (var itemDup in listDuplicate)
+                                                    {
+                                                        if (deleted)
+                                                        {
+                                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + itemDup.BRG + "' AND Recnum = " + itemDup.RecNum + ";");
+                                                        }
+                                                        deleted = true;
+                                                    }
+                                                }
+                                            }
                                         }
 
                                         resultMerge = true;
