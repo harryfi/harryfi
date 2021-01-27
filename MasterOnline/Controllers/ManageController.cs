@@ -63065,7 +63065,7 @@ namespace MasterOnline.Controllers
                                 //end add by nurul 4/3/2020
 
                                 //add by nurul 26/10/2020
-                                newSIT01A.APPROVAL = Convert.ToBoolean(Convert.ToInt32(pesananInDb.Status_Approve == null || pesananInDb.Status_Approve == "" ? "0" : pesananInDb.Status_Approve));
+                                newSIT01A.APPROVAL = Convert.ToBoolean(Convert.ToInt32(pesananInDb.Status_Approve == null || pesananInDb.Status_Approve == "" || pesananInDb.Status_Approve == " " ? "0" : pesananInDb.Status_Approve));
                                 //end add by nurul 26/10/2020
 
                                 #region add by calvin 6 juni 2018, agar sit01a field yang penting tidak null
