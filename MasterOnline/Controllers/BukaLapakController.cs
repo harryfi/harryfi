@@ -230,6 +230,7 @@ namespace MasterOnline.Controllers
                             err = sr.ReadToEnd();
                         }
                     }
+                    ret = "error : " + err;
                 }
 
                 if (!string.IsNullOrEmpty(stringRet))
@@ -245,6 +246,7 @@ namespace MasterOnline.Controllers
                     {
                     }
                 }
+
             }
             return ret;
         }
@@ -2207,17 +2209,24 @@ namespace MasterOnline.Controllers
 
         public async Task<BindingBase> getListProductV2(BukaLapakKey data, int page, bool display, int recordCount, int totaldata)
         {
+            string test = "";
             var newToken = RefreshToken(data);
-            if (!string.IsNullOrEmpty(newToken))
-            {
-                data.token = newToken;
-            }
+           
             var ret = new BindingBase();
             ret.status = 0;
             ret.recordCount = recordCount;
             ret.totalData = totaldata;//add 18 Juli 2019, show total record
             ret.exception = 0;
-
+            if (!string.IsNullOrEmpty(newToken))
+            {
+                if (newToken.Contains("error"))
+                {
+                    ret.exception = 1;
+                    ret.message = newToken;
+                    return ret;
+                }
+                data.token = newToken;
+            }
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
@@ -2266,6 +2275,7 @@ namespace MasterOnline.Controllers
                 }
                 if (responseFromServer != null)
                 {
+                    test = responseFromServer;
                     var resListProd = JsonConvert.DeserializeObject(responseFromServer, typeof(GetItemListResponse)) as GetItemListResponse;
                     if (resListProd != null)
                     {
@@ -2395,7 +2405,8 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 ret.exception = 1;
-                ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                ret.message = test;
                 currentLog.REQUEST_EXCEPTION = ret.message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.code, currentLog);
             }
