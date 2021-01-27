@@ -127,21 +127,27 @@ namespace MasterOnline.Controllers
 
             if (!string.IsNullOrEmpty(stringRet))
             {
-                AccessKeyBL retObj = JsonConvert.DeserializeObject(stringRet, typeof(AccessKeyBL)) as AccessKeyBL;
-                if (retObj != null)
+                try
                 {
-                    //DateTime tglExpired = DateTimeOffset.FromUnixTimeSeconds(retObj.created_at).UtcDateTime.AddHours(7).AddSeconds(retObj.expires_in);
-                    //var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET REFRESH_TOKEN='" + retObj.refresh_token + "', TGL_EXPIRED='" + tglExpired.ToString("yyyy-MM-dd HH:mm:ss") + "', TOKEN='" + retObj.access_token + "', STATUS_API = '1' WHERE CUST ='" + cust + "'");
-                    retGetToken = retObj;
-                    //if (a == 1)
-                    //{
-                    //}
-                    //else
-                    //{
-                    //}
-                }
-                else
+                    AccessKeyBL retObj = JsonConvert.DeserializeObject(stringRet, typeof(AccessKeyBL)) as AccessKeyBL;
+                    if (retObj != null)
+                    {
+                        //DateTime tglExpired = DateTimeOffset.FromUnixTimeSeconds(retObj.created_at).UtcDateTime.AddHours(7).AddSeconds(retObj.expires_in);
+                        //var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET REFRESH_TOKEN='" + retObj.refresh_token + "', TGL_EXPIRED='" + tglExpired.ToString("yyyy-MM-dd HH:mm:ss") + "', TOKEN='" + retObj.access_token + "', STATUS_API = '1' WHERE CUST ='" + cust + "'");
+                        retGetToken = retObj;
+                        //if (a == 1)
+                        //{
+                        //}
+                        //else
+                        //{
+                        //}
+                    }
+                    else
+                    {
+                    }
+                }catch(Exception ex)
                 {
+                    throw new Exception("data : " + stringRet);
                 }
             }
             #endregion
