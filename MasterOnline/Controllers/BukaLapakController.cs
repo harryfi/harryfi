@@ -236,7 +236,7 @@ namespace MasterOnline.Controllers
                             err = sr.ReadToEnd();
                         }
                     }
-                    ret = "error : " + err;
+                    //ret = "error : " + err;
                 }
 
                 if (!string.IsNullOrEmpty(stringRet))
@@ -2225,12 +2225,12 @@ namespace MasterOnline.Controllers
             ret.exception = 0;
             if (!string.IsNullOrEmpty(newToken))
             {
-                if (newToken.Contains("error"))
-                {
-                    ret.exception = 1;
-                    ret.message = newToken;
-                    return ret;
-                }
+                //if (newToken.Contains("error"))
+                //{
+                //    ret.exception = 1;
+                //    ret.message = newToken;
+                //    return ret;
+                //}
                 data.token = newToken;
             }
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
@@ -2338,7 +2338,7 @@ namespace MasterOnline.Controllers
                                     if (brg.variants.Length > 0)
                                     {
                                         haveVarian = true;
-                                        kdBrgInduk = brg.id;
+                                        kdBrgInduk = brg.sku_id + ";" + brg.id;
                                         var tempbrginDBInduk = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
                                         var brgInDBInduk = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
                                         if (tempbrginDBInduk == null && brgInDBInduk == null)
@@ -2354,10 +2354,11 @@ namespace MasterOnline.Controllers
                                             kdBrgInduk = brgInDBInduk.BRG;
                                         }
                                     }
+                                var brgmp = brg.sku_id + ";" + brg.id;
                                 //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
                                 //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
-                                var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brg.id.ToUpper()).FirstOrDefault();
-                                var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brg.id.ToUpper()).FirstOrDefault();
+                                var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
+                                var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
                                 if (tempbrginDB == null && brgInDB == null)
                                 {
                                     if (haveVarian)
@@ -2411,8 +2412,8 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 ret.exception = 1;
-                //ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                ret.message = test;
+                ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //ret.message = test;
                 currentLog.REQUEST_EXCEPTION = ret.message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.code, currentLog);
             }
@@ -2568,12 +2569,12 @@ namespace MasterOnline.Controllers
                 {
                     //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                     //sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
-                    sSQL_Value += "('" + brg.id + "' , '" + (brg.sku_name ?? "") + "' , '";
+                    sSQL_Value += "('" + brg.sku_id + ";" + brg.id + "' , '" + (brg.sku_name ?? "") + "' , '";
                     //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
                 else
                 {
-                    sSQL_Value += "('" + brg.variants[i].id + "' , '" + (brg.variants[i].sku_name ?? "") + "' , '";
+                    sSQL_Value += "('" + brg.variants[i].id + ";" + brg.variants[i].product_id + "' , '" + (brg.variants[i].sku_name ?? "") + "' , '";
                 }
                 string brand = "";
                 if (brg.specs != null)
