@@ -8768,7 +8768,7 @@ namespace MasterOnline.Controllers
                         List<string> listError = new List<string>();
                         int i = 0;
                         List<int> processedIdMarket = new List<int>();
-                        foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
+                        foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket.OrderBy(m => m.IDMARKET))
                         {
                             if (hargaPerMarket.DISPLAY)
                             {
@@ -10196,7 +10196,7 @@ namespace MasterOnline.Controllers
                         //add by Tri, 24 sept 2020
                         cekStf02hDuplikat(dataBarang.Stf02);
                         //end add by Tri, 24 sept 2020
-                        foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
+                        foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket.OrderBy(m => m.IDMARKET))
                         {
                             if (hargaPerMarket.DISPLAY)
                             {
