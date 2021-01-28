@@ -588,8 +588,8 @@
                                             success: function (response) {
                                                 if (response != null) {
                                                     if (response.mo_error == null) {
-                                                        $('#modalPrintLabelOption__' + cust).modal('hide');
-                                                        $('#modalPrintTokped__' + cust).modal('hide');
+                                                        $('#modalPrintLabelOption__' + cust).modal('show');
+                                                        $('#modalPrintTokped__' + cust).modal('show');
                                                         var w = window.open('about:blank');
                                                         w.document.open();
                                                         w.document.write(response);
