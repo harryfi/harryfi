@@ -13,6 +13,8 @@ using System.IO;
 using Erasoft.Function;
 using System.Data.SqlClient;
 using Hangfire;
+using RestSharp;
+using System.Threading.Tasks;
 
 namespace MasterOnline.Controllers
 {
@@ -24,6 +26,9 @@ namespace MasterOnline.Controllers
         private MoDbContext MoDbContext;
         private ErasoftContext ErasoftDbContext;
         private string username;
+        private static string callBackUrl = "https://dev.masteronline.co.id/bukalapak/auth";
+        private static string client_id = "laJXb5jh91BelPQg2VmE2ooa58UVJmlJkNq98EPJc6s";
+        private static string client_secret = "AXe5u7JcYiSNLvOsGW92Dzc4li6mbrWpN9qjlLD4OxI";
 
         public BukaLapakControllerJob()
         {
@@ -62,7 +67,57 @@ namespace MasterOnline.Controllers
             //}
             //return ret;
         }
+        public string RefreshToken(BukaLapakKey data)
+        {
+            string ret = "";
+            if (data.tgl_expired < DateTime.UtcNow.AddHours(7).AddMinutes(-30))
+            {
+                var urll = ("https://accounts.bukalapak.com/oauth/token");
+                var client = new RestClient(urll);
+                client.Timeout = -1;
+                var request = new RestRequest(Method.POST);
+                request.AlwaysMultipartFormData = true;
+                request.AddParameter("grant_type", "refresh_token");
+                request.AddParameter("client_id", client_id);
+                request.AddParameter("client_secret", client_secret);
+                request.AddParameter("refresh_token", data.refresh_token);
+                string stringRet = "";
+                try
+                {
+                    IRestResponse response = client.Execute(request);
+                    stringRet = response.Content;
+                }
+                catch (WebException e)
+                {
+                    string err = "";
+                    if (e.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        WebResponse resp = e.Response;
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            err = sr.ReadToEnd();
+                        }
+                    }
+                    //ret = "error : " + err;
+                }
 
+                if (!string.IsNullOrEmpty(stringRet))
+                {
+                    AccessKeyBL retObj = JsonConvert.DeserializeObject(stringRet, typeof(AccessKeyBL)) as AccessKeyBL;
+                    if (retObj != null)
+                    {
+                        DateTime tglExpired = DateTimeOffset.FromUnixTimeSeconds(retObj.created_at).UtcDateTime.AddHours(7).AddSeconds(retObj.expires_in);
+                        var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET REFRESH_TOKEN='" + retObj.refresh_token + "', TGL_EXPIRED='" + tglExpired.ToString("yyyy-MM-dd HH:mm:ss") + "', TOKEN='" + retObj.access_token + "', STATUS_API = '1' WHERE CUST ='" + data.cust + "'");
+                        ret = retObj.access_token;
+                    }
+                    else
+                    {
+                    }
+                }
+
+            }
+            return ret;
+        }
         [HttpPost]
         public BindingBase GetAccessKey(string cust, string email, string password)
         {
@@ -623,6 +678,153 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [HttpGet]
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> GetOrders(BukaLapakKey data, string CUST, string NAMA_CUST, string username)
+        {
+            string ret = "";
+            SetupContext(data.dbPathEra, username);
+            //RefreshToken(data);
+            var dtNow = DateTime.UtcNow;
+            var loop = true;
+            var page = 0;
+            while (loop)
+            {
+                var retOrder = await GetOrdersLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(-3).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"));
+                if (retOrder >= 10)
+                {
+                    page = page + 1;
+                }
+                else
+                {
+                    loop = false;
+                }
+            }
+            return ret;
+        }
+
+        public async Task<int> GetOrdersLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt)
+        {
+            var ret = 0;
+            var conn_id = Guid.NewGuid().ToString();
+            int jmlhNewOrder = 0;
+            RefreshToken(data);
+            string urll = "https://api.bukalapak.com/transactions?limit=10&offset=" + (page * 10) + "&context=sale"
+                + "&start_time=" + Uri.EscapeDataString(fromDt) + "&end_time=" + Uri.EscapeDataString(toDt) + "&states=pending,paid,accepted";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", "Bearer " + data.token);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (responseFromServer != null)
+            {
+                GetOrdersResponse retObj = JsonConvert.DeserializeObject(responseFromServer, typeof(GetOrdersResponse)) as GetOrdersResponse;
+                if (retObj != null)
+                {
+                    if(retObj.meta.http_status == 200)
+                    {
+                        if(retObj.data != null)
+                        {
+                            if(retObj.data.Length > 0)
+                            {
+                                var orderInDB = ErasoftDbContext.SOT01A.Where(m => m.CUST == CUST && m.TGL >= DateTime.UtcNow.AddHours(7).AddDays(-4)).Select(m => m.NO_REFERENSI).ToList();
+                                foreach(var order in retObj.data)
+                                {
+                                    if (orderInDB.Contains(order.transaction_id.ToString()))
+                                    {
+                                        if(order.state != "pending")
+                                        {
+                                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI = '" + order.transaction_id + "' AND CUST = '" + CUST+"' AND STATUS_TRANSAKSI = '0'");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        string insertQ = "INSERT INTO TEMP_BL_ORDER ([ID],[INVOICE_ID],[STATE],[TRANSACTION_ID],[AMOUNT],[QUANTITY],[COURIER],[BUYERS_NOTE],[SHIPPING_FEE],";
+                                        insertQ += "[SHIPPING_ID],[SHIPPING_CODE],[SHIPPING_SERVICE],[SUBTOTAL_AMOUNT],[TOTAL_AMOUNT],[PAYMENT_AMOUNT],[CREATED_AT],[UPDATED_AT],";
+                                        insertQ += "[BUYER_EMAIL],[BUYER_ID],[BUYER_NAME],[BUYER_USERNAME],[BUYER_LOGISTIC_CHOICE],[CONSIGNEE_ADDRESS],[CONSIGNEE_AREA],[CONSIGNEE_CITY],";
+                                        insertQ += "[CONSIGNEE_NAME],[CONSIGNEE_PHONE],[CONSIGNEE_POSTCODE],[CONSIGNEE_PROVICE],[CUST],[USERNAME],[CONNECTION_ID]) VALUES ";
+
+                                        string insertOrderItems = "INSERT INTO TEMP_BL_ORDERITEMS ([ID],[TRANSACTION_ID],[PRODUCT_ID],[CATEGORY],[CATEGORY_ID],[NAME]";
+                                        insertOrderItems += ",[PRICE],[WEIGHT],[DESC],[CONDITON],[STOCK],[QTY], [CREATED_AT], [UPDATED_AT], [USERNAME], [CONNECTION_ID]) VALUES ";
+
+                                        string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                                        insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                                        insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
+
+
+                                        var nama = order.buyer.name.Replace('\'', '`');
+                                        if (nama.Length > 30)
+                                            nama = nama.Substring(0, 30);
+                                        var nama2 = order.delivery.consignee.name.Replace('\'', '`');
+                                        if (nama2.Length > 30)
+                                            nama2 = nama2.Substring(0, 30);
+                                        string statusEra = "0";
+                                        if (order.state != "pending")
+                                        {
+                                            statusEra = "01";
+                                        }
+                                        insertQ += "(" + order.id + "," + order.invoice_id + ",'" + statusEra + "','" + order.transaction_id + "'," + order.amount.buyer.total + "," + order.quantity + ",'" 
+                                            + order.courier.Replace('\'', '`') + "','" + order.options.buyer_note.Replace('\'', '`') + "'," + order.amount.seller.details.delivery + ",";
+                                        insertQ += order.delivery.id + ",'" + order.shipping_code + "','" + order.delivery.carrier.Replace('\'', '`') + "'," + order.amount.buyer.coded_amount + "," 
+                                            + order.amount.seller.total + "," + order.amount.buyer.payment_amount + ",'" +  order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','";
+                                        insertQ += "','" + order.buyer.id + "','" + nama + "','" + order.buyer.username.Replace('\'', '`') + "','" 
+                                            + order.delivery.requested_carrier.Replace('\'', '`') + "','" + order.delivery.consignee.address.Replace('\'', '`') + "','" 
+                                            + order.delivery.consignee.district.Replace('\'', '`') + "','" + order.delivery.consignee.city.Replace('\'', '`') + "','";
+                                        insertQ += nama2 + "','" + order.delivery.consignee.phone + "','" + order.delivery.consignee.postal_code.Replace('\'', '`') + "','" 
+                                            + order.delivery.consignee.province.Replace('\'', '`') + "','" + CUST + "','" + username + "','" + conn_id + "')";
+
+                                        if (order.items != null)
+                                        {
+                                            foreach (var items in order.items)
+                                            {
+                                                string namaBrg = "";
+                                                namaBrg = items.name + " " + items.stuff.variant_name;
+                                                insertOrderItems += "(" + order.id + ", '" + order.transaction_id + "','" + (string.IsNullOrEmpty(items.current_product_sku_id.ToString()) ? items.id.ToString() : items.current_product_sku_id.ToString()) + "','" + items.category + "'," + items.category_id + ",'" + namaBrg.Replace('\'', '`') + "',";
+                                                insertOrderItems += items.accepted_price + "," + items.weight + ",'" + items.desc + "','" + items.condition.Replace('\'', '`') + "'," + items.stock + "," + items.order_quantity + ",'" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + username + "','" + connectionID + "')";
+                                                insertOrderItems += " ,";
+                                            }
+                                        }
+
+                                        var tblKabKot = EDB.GetDataSet("MOConnectionString", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.consignee.city + "%'");
+                                        var tblProv = EDB.GetDataSet("MOConnectionString", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.consignee.province + "%'");
+
+                                        var kabKot = "3174";//set default value jika tidak ada di db
+                                        var prov = "31";//set default value jika tidak ada di db
+
+                                        if (tblProv.Tables[0].Rows.Count > 0)
+                                            prov = tblProv.Tables[0].Rows[0]["KodeProv"].ToString();
+                                        if (tblKabKot.Tables[0].Rows.Count > 0)
+                                            kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
+
+                                        //insertPembeli += "('" + order.buyer.name.Replace('\'', '`') + "','" + order.consignee.address.Replace('\'', '`') + "','" + order.consignee.phone + "','" + order.buyer.email.Replace('\'', '`') + "',0,0,'0','01',";
+                                        insertPembeli += "('" + nama + "','" + order.consignee.address.Replace('\'', '`') + "','" + order.consignee.phone + "','" + order.buyer.email.Replace('\'', '`') + "',0,0,'0','01',";
+                                        insertPembeli += "1, 'IDR', '01', '" + order.consignee.address.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                        insertPembeli += "'FP', '" + dtNow + "', '" + username + "', '" + order.consignee.post_code.Replace('\'', '`') + "', '" + order.buyer.email.Replace('\'', '`') + "', '" + kabKot + "', '" + prov + "', '" + order.consignee.city.Replace('\'', '`') + "', '" + order.consignee.province.Replace('\'', '`') + "', '" + connIDARF01C + "')";
+
+                                        //if (i < bindOrder.transactions.Length)
+                                        insertQ += ",";
+                                        insertPembeli += ",";
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+            return ret;
+        }
         [HttpGet]
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
@@ -1472,4 +1674,445 @@ namespace MasterOnline.Controllers
             }
         }
     }
+
+    #region get order response
+    public class GetOrdersResponse : BLErrorResponse
+    {
+        public GetOrdersDatum[] data { get; set; }
+        public GetOrdersMeta meta { get; set; }
+    }
+
+    public class GetOrdersMeta
+    {
+        public int http_status { get; set; }
+    }
+
+    public class GetOrdersDatum
+    {
+        public long id { get; set; }
+        public string type { get; set; }
+        public long invoice_id { get; set; }
+        public string transaction_id { get; set; }
+        public string state { get; set; }
+        public string payment_method { get; set; }
+        public State_Changed_At state_changed_at { get; set; }
+        public State_Changed_By state_changed_by { get; set; }
+        public bool actionable { get; set; }
+        public string created_on { get; set; }
+        public GetOrdersItem[] items { get; set; }
+        public GetOrdersBuyer buyer { get; set; }
+        public GetOrdersStore store { get; set; }
+        public GetOrdersAmount amount { get; set; }
+        public GetOrdersCashback[] cashback { get; set; }
+        public GetOrdersDelivery delivery { get; set; }
+        public GetOrdersDropship dropship { get; set; }
+        public GetOrdersFeedback feedback { get; set; }
+        public GetOrdersOptions options { get; set; }
+        public bool on_hold { get; set; }
+        public bool deal { get; set; }
+        public long claim_id { get; set; }
+        public GetOrdersSla sla { get; set; }
+        public DateTime last_printed_at { get; set; }
+        public DateTime created_at { get; set; }
+        public DateTime updated_at { get; set; }
+        public GetOrdersPromotion promotion { get; set; }
+        public string virtual_transaction_serial_number { get; set; }
+        public bool can_claim_assurance { get; set; }
+        public int merchant_return_insurance_id { get; set; }
+    }
+
+    public class State_Changed_At
+    {
+        public DateTime pending_at { get; set; }
+        public DateTime paid_at { get; set; }
+        public DateTime accepted_at { get; set; }
+        public DateTime rejected_at { get; set; }
+        public DateTime cancelled_at { get; set; }
+        public DateTime delivered_at { get; set; }
+        public DateTime expired_at { get; set; }
+        public DateTime received_at { get; set; }
+        public DateTime remitted_at { get; set; }
+        public DateTime refund_at { get; set; }
+        public DateTime refunded_at { get; set; }
+    }
+
+    public class State_Changed_By
+    {
+        public long cancelled_by { get; set; }
+    }
+
+    public class GetOrdersBuyer
+    {
+        public long id { get; set; }
+        public string name { get; set; }
+        public string phone { get; set; }
+        public string avatar { get; set; }
+    }
+
+    public class GetOrdersStore
+    {
+        public long id { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public string avatar { get; set; }
+        public long address_id { get; set; }
+        public bool brand { get; set; }
+        public bool official { get; set; }
+    }
+
+    public class GetOrdersAmount
+    {
+        public GetOrdersBuyer1 buyer { get; set; }
+        public GetOrdersSeller seller { get; set; }
+    }
+
+    public class GetOrdersBuyer1
+    {
+        public double total { get; set; }
+        public double payment_amount { get; set; }
+        public double refund_amount { get; set; }
+        public double coded_amount { get; set; }
+        public GetOrdersDetails details { get; set; }
+    }
+
+    public class GetOrdersDetails
+    {
+        public double item { get; set; }
+        public double delivery { get; set; }
+        public double insurance { get; set; }
+        public double axinan_insurance_amount { get; set; }
+        public double logistic_insurance_amount { get; set; }
+        public double gadget_insurance_amount { get; set; }
+        public double goods_insurance_amount { get; set; }
+        public double cosmetic_insurance_amount { get; set; }
+        public double fmcg_insurance_amount { get; set; }
+        public double return_insurance_amount { get; set; }
+        public double administration { get; set; }
+        public double tipping_amount { get; set; }
+        public double negotiation { get; set; }
+        public double vat { get; set; }
+        public double flash_deal_discount { get; set; }
+        public double priority_buyer { get; set; }
+        public double voucher_discount { get; set; }
+        public double service_fee_dynamic_charging { get; set; }
+        public double retarget_discount_amount { get; set; }
+    }
+
+    public class GetOrdersSeller
+    {
+        public double total { get; set; }
+        public GetOrdersDetails1 details { get; set; }
+    }
+
+    public class GetOrdersDetails1
+    {
+        public double items { get; set; }
+        public double delivery { get; set; }
+        public double insurance { get; set; }
+        public GetOrdersShipping_Reductions[] shipping_reductions { get; set; }
+        public GetOrdersReduction[] reductions { get; set; }
+        public GetOrdersSuper_Seller[] super_seller { get; set; }
+    }
+
+    public class GetOrdersShipping_Reductions
+    {
+        public string name { get; set; }
+        public double amount { get; set; }
+        public string description { get; set; }
+        public bool remit_excluded { get; set; }
+    }
+
+    public class GetOrdersReduction
+    {
+        public string name { get; set; }
+        public double amount { get; set; }
+        public string description { get; set; }
+    }
+
+    public class GetOrdersSuper_Seller
+    {
+        public string name { get; set; }
+        public double amount { get; set; }
+    }
+
+    public class GetOrdersDelivery
+    {
+        public GetOrdersConsignee consignee { get; set; }
+        public string tracking_number { get; set; }
+        public string requested_carrier { get; set; }
+        public string carrier { get; set; }
+        public bool white_label_courier { get; set; }
+        public GetOrdersHistory[] history { get; set; }
+        public long id { get; set; }
+        public bool force_awb { get; set; }
+        public bool force_find_driver { get; set; }
+        public string shipping_receipt_state { get; set; }
+        public bool allow_different_courier { get; set; }
+        public bool allow_manual_receipt_voucher { get; set; }
+        public double manual_switch_fee { get; set; }
+        public bool allow_redeliver { get; set; }
+        public GetOrdersBooking booking { get; set; }
+        public GetOrdersPickup_Time pickup_time { get; set; }
+        public bool force_awb_voucher { get; set; }
+        public DateTime estimated_received_at { get; set; }
+        public GetOrdersConvenience_Store convenience_store { get; set; }
+        public GetOrdersAvailable_Shipping_Service available_shipping_service { get; set; }
+        public string buyer_logistic_choice { get; set; }
+        public bool receipt_validity { get; set; }
+    }
+
+    public class GetOrdersConsignee
+    {
+        public string name { get; set; }
+        public string phone { get; set; }
+        public string country { get; set; }
+        public string province { get; set; }
+        public string city { get; set; }
+        public string district { get; set; }
+        public string address { get; set; }
+        public string postal_code { get; set; }
+        public float latitude { get; set; }
+        public float longitude { get; set; }
+    }
+
+    public class GetOrdersBooking
+    {
+        public long id { get; set; }
+        public string booking_code { get; set; }
+        public string state { get; set; }
+        public bool invoicing { get; set; }
+        public GetOrdersDriver driver { get; set; }
+        public DateTime created_at { get; set; }
+    }
+
+    public class GetOrdersDriver
+    {
+        public string name { get; set; }
+        public string phone { get; set; }
+        public string pin { get; set; }
+        public string photo { get; set; }
+        public string live_tracking { get; set; }
+    }
+
+    public class GetOrdersPickup_Time
+    {
+        public DateTime from { get; set; }
+        public DateTime to { get; set; }
+    }
+
+    public class GetOrdersConvenience_Store
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public string address { get; set; }
+        public GetOrdersCoordinate coordinate { get; set; }
+        public string unique_code { get; set; }
+    }
+
+    public class GetOrdersCoordinate
+    {
+        public float latitude { get; set; }
+        public float longitude { get; set; }
+    }
+
+    public class GetOrdersAvailable_Shipping_Service
+    {
+        public string type { get; set; }
+        public string name { get; set; }
+    }
+
+    public class GetOrdersHistory
+    {
+        public DateTime date { get; set; }
+        public string status { get; set; }
+    }
+
+    public class GetOrdersDropship
+    {
+        public string name { get; set; }
+        public string note { get; set; }
+    }
+
+    public class GetOrdersFeedback
+    {
+        public GetOrdersStore1 store { get; set; }
+        public GetOrdersBuyer2 buyer { get; set; }
+    }
+
+    public class GetOrdersStore1
+    {
+        public long id { get; set; }
+        public string content { get; set; }
+        public bool positive { get; set; }
+        public bool editable { get; set; }
+        public GetOrdersReply[] replies { get; set; }
+    }
+
+    public class GetOrdersReply
+    {
+        public long sender_id { get; set; }
+        public string content { get; set; }
+        public DateTime created_at { get; set; }
+        public DateTime updated_at { get; set; }
+    }
+
+    public class GetOrdersBuyer2
+    {
+        public long id { get; set; }
+        public string content { get; set; }
+        public bool positive { get; set; }
+        public bool editable { get; set; }
+        public GetOrdersReply1[] replies { get; set; }
+    }
+
+    public class GetOrdersReply1
+    {
+        public long sender_id { get; set; }
+        public string content { get; set; }
+        public DateTime created_at { get; set; }
+        public DateTime updated_at { get; set; }
+    }
+
+    public class GetOrdersOptions
+    {
+        public string buyer_note { get; set; }
+        public string reject_reason { get; set; }
+        public string cancel_reason { get; set; }
+        public string cancel_notes { get; set; }
+        public DateTime cancel_request_at { get; set; }
+        public string reject_cancel_reason { get; set; }
+        public string reject_cancel_notes { get; set; }
+    }
+
+    public class GetOrdersSla
+    {
+        public string type { get; set; }
+        public int value { get; set; }
+    }
+
+    public class GetOrdersPromotion
+    {
+        public bool promoted_push { get; set; }
+        public bool push { get; set; }
+        public bool voucher { get; set; }
+    }
+
+    public class GetOrdersItem
+    {
+        public long id { get; set; }
+        public string name { get; set; }
+        public double price { get; set; }
+        public double total_price { get; set; }
+        public double flash_deal_discount { get; set; }
+        public int quantity { get; set; }
+        public GetOrdersCategory category { get; set; }
+        public double agent_commission { get; set; }
+        public GetOrdersStuff stuff { get; set; }
+    }
+
+    public class GetOrdersCategory
+    {
+        public string name { get; set; }
+    }
+
+    public class GetOrdersStuff
+    {
+        public string reference_type { get; set; }
+        public long id { get; set; }
+        public GetOrdersProduct product { get; set; }
+        public GetOrdersStore2 store { get; set; }
+        public long price { get; set; }
+        public GetOrdersImage image { get; set; }
+        public string variant_name { get; set; }
+        public string sku_name { get; set; }
+        public double discount { get; set; }
+        public GetOrdersUnit[] units { get; set; }
+    }
+
+    public class GetOrdersProduct
+    {
+        public string id { get; set; }
+        public double price { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public string condition { get; set; }
+        public double weight { get; set; }
+        public GetOrdersShipping shipping { get; set; }
+        public bool assurance { get; set; }
+        public string url { get; set; }
+        public string _operator { get; set; }
+        public double nominal { get; set; }
+        public string partner { get; set; }
+    }
+
+    public class GetOrdersShipping
+    {
+        public bool force_insurance { get; set; }
+        //public object[] free_shipping_coverage { get; set; }
+    }
+
+    public class GetOrdersStore2
+    {
+        public long id { get; set; }
+        public string name { get; set; }
+        public string term_and_condition { get; set; }
+        public DateTime term_and_condition_updated_at { get; set; }
+        public GetOrdersAddress address { get; set; }
+    }
+
+    public class GetOrdersAddress
+    {
+        public string city { get; set; }
+    }
+
+    public class GetOrdersImage
+    {
+        public string[] large_urls { get; set; }
+        public string[] small_urls { get; set; }
+        //public object[] large_urlshttpswwwbukalapakcomimagesmobilelogo_xl_squarepng { get; set; }
+        //public object[] small_urlshttpswwwbukalapakcomimagesvirtual_productphonexlpng { get; set; }
+    }
+
+    public class GetOrdersUnit
+    {
+        public long id { get; set; }
+        public GetOrdersProduct1 product { get; set; }
+        public double price { get; set; }
+        public GetOrdersImage1 image { get; set; }
+        public string variant_name { get; set; }
+        public string sku_name { get; set; }
+        public double discount { get; set; }
+    }
+
+    public class GetOrdersProduct1
+    {
+        public string id { get; set; }
+        public int price { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public string condition { get; set; }
+        public double weight { get; set; }
+        public GetOrdersShipping1 shipping { get; set; }
+        public bool assurance { get; set; }
+        public string url { get; set; }
+    }
+
+    public class GetOrdersShipping1
+    {
+        public bool force_insurance { get; set; }
+        //public object[] free_shipping_coverage { get; set; }
+    }
+
+    public class GetOrdersImage1
+    {
+        public string[] large_urls { get; set; }
+        public string[] small_urls { get; set; }
+    }
+
+    public class GetOrdersCashback
+    {
+        public string type { get; set; }
+        public double amount { get; set; }
+    }
+    #endregion
 }
