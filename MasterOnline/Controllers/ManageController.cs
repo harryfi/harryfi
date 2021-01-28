@@ -59512,6 +59512,9 @@ namespace MasterOnline.Controllers
                     DatabasePathErasoft = dbPathEra,
                     username = usernameLogin
                 };
+
+                var tokpedApi = new TokopediaControllerJob();
+
                 foreach (var so in ListStt01a)
                 {
                     if (listNobuk != "")
@@ -59521,7 +59524,7 @@ namespace MasterOnline.Controllers
                     listNobuk += "'" + so.no_bukti + "'";
                     if (Valid)
                     {
-                        var tokpedApi = new TokopediaControllerJob();
+                        System.Threading.Thread.Sleep(100);
                         var retApi = tokpedApi.PrintLabel(data, so.no_bukti, so.no_referensi);
                         if (retApi.Result.ToString().Contains("Error:"))
                         {
@@ -59531,6 +59534,11 @@ namespace MasterOnline.Controllers
                         else if (retApi.Result.ToString().Contains("Halaman Tidak Ditemukan"))
                         {
                             var strmsg = "No Bukti " + so.no_bukti + " tidak ditemukan labelnya.";
+                            temp_strmsg.Add(strmsg);
+                        }
+                        else if (retApi.ToString().Contains("Too Many Requests"))
+                        {
+                            var strmsg = "No Bukti " + so.no_bukti + " " + retApi.ToString();
                             temp_strmsg.Add(strmsg);
                         }
                         else
