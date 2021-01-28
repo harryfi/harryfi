@@ -58424,21 +58424,21 @@ namespace MasterOnline.Controllers
             }
 
             string sSQLSelect2 = "";
-            sSQLSelect2 += "ORDER BY B.TGLINPUT DESC  ";
+            sSQLSelect2 += "ORDER BY B.INV DESC  ";
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             //var listAverage = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2).ToList();
             string sSQLAverageHPP = "";
-            sSQLAverageHPP += " ORDER BY B.TGLINPUT DESC ";
+            sSQLAverageHPP += " ORDER BY B.INV DESC ";
             var listAverage = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2 + sSQLAverageHPP).ToList();
 
             string sSQLCheckQty = "";
             sSQLCheckQty += "SELECT BRG, JUMLAH AS QOH ";
             sSQLCheckQty += "FROM [QOH_QOO_ALL_ITEM] WHERE JENIS = 'QOH' AND BRG = '" + kodebarang + "'";
             var checkQtyStok = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLCheckQty).SingleOrDefault();
-            ViewData["QTYSTOK"] = checkQtyStok.QOH;
+            ViewData["QTYSTOK"] = Convert.ToString(checkQtyStok.QOH);
 
             double jumlahAll = 0;
             double HargaTotal = 0;
