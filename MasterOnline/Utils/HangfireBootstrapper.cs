@@ -33,49 +33,77 @@ namespace MasterOnline.Utils
 
                 HostingEnvironment.RegisterObject(this);
 
-#if (DEBUG || Debug_AWS || DEV)
-                //var lastYear = DateTime.UtcNow.AddYears(-1);
-                //var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
-                //var datenow = DateTime.UtcNow.AddHours(7);
+#if (Debug_AWS || DEBUG)
+                var testing = "";
+#elif (DEV)
+                // START SETTING HANGFIRE PRO REDIS
+                Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("contoso5.redis.cache.windows.net,abortConnect=false,ssl=true,password=...");
 
-                //MoDbContext = new MoDbContext();
+                var optionsPrefix = new Hangfire.Pro.Redis.RedisStorageOptions
+                {
+                    Prefix = "hangfire:app1:"
+                };
 
-                //var accountInDb = (from a in MoDbContext.Account
-                //                   where
-                //                   (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
-                //                   &&
-                //                   (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
-                //                   orderby a.LAST_LOGIN_DATE descending
-                //                   select a).ToList();
-                //foreach (var item in accountInDb)
-                //{
-                //    if (!string.IsNullOrEmpty(item.DataSourcePath) && !string.IsNullOrEmpty(item.DatabasePathErasoft))
-                //    {
-                //        var EDB = new DatabaseSQL(item.DatabasePathErasoft);
+                //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("localhost:6379", optionsPrefix);
+                Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com:6379", optionsPrefix);
 
-                //        string EDBConnID = EDB.GetConnectionString("ConnID");
-                //        var sqlStorage = new SqlServerStorage(EDBConnID);
+                // END SETTING HANGFIRE PRO REDIS
 
-                //        var monitoringApi = sqlStorage.GetMonitoringApi();
-                //        var serverList = monitoringApi.Servers();
+                var lastYear = DateTime.UtcNow.AddYears(-1);
+                var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
+                var datenow = DateTime.UtcNow.AddHours(7);
 
-                //        if (serverList.Count() == 0)
-                //        {
-                //            startHangfireServer(sqlStorage);
-                //        }
-                //        else
-                //        {
-                //            foreach (var server in serverList)
-                //            {
-                //                var serverConnection = sqlStorage.GetConnection();
-                //                serverConnection.RemoveServer(server.Name);
-                //                serverConnection.Dispose();
-                //            }
-                //            startHangfireServer(sqlStorage);
-                //        }
-                //    }
-                //}
+                MoDbContext = new MoDbContext();
+
+                var accountInDb = (from a in MoDbContext.Account
+                                   where
+                                   (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                                   &&
+                                   (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                                   orderby a.LAST_LOGIN_DATE descending
+                                   select a).ToList();
+                foreach (var item in accountInDb)
+                {
+                    if (!string.IsNullOrEmpty(item.DataSourcePath) && !string.IsNullOrEmpty(item.DatabasePathErasoft))
+                    {
+                        var EDB = new DatabaseSQL(item.DatabasePathErasoft);
+
+                        string EDBConnID = EDB.GetConnectionString("ConnID");
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                        var monitoringApi = sqlStorage.GetMonitoringApi();
+                        var serverList = monitoringApi.Servers();
+
+                        if (serverList.Count() == 0)
+                        {
+                            startHangfireServer(sqlStorage);
+                        }
+                        else
+                        {
+                            foreach (var server in serverList)
+                            {
+                                var serverConnection = sqlStorage.GetConnection();
+                                serverConnection.RemoveServer(server.Name);
+                                serverConnection.Dispose();
+                            }
+                            startHangfireServer(sqlStorage);
+                        }
+                    }
+                }
 #else
+                // START SETTING HANGFIRE PRO REDIS
+                Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("contoso5.redis.cache.windows.net,abortConnect=false,ssl=true,password=...");
+
+                var optionsPrefix = new Hangfire.Pro.Redis.RedisStorageOptions
+                {
+                    Prefix = "hangfire:app1:"
+                };
+
+                //Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("localhost:6379", optionsPrefix);
+                Hangfire.GlobalConfiguration.Configuration.UseRedisStorage("mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com:6379", optionsPrefix);
+
+                // END SETTING HANGFIRE PRO REDIS
+
                 var lastYear = DateTime.UtcNow.AddYears(-1);
                 var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
                 var datenow = DateTime.UtcNow.AddHours(7);

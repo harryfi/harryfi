@@ -113,6 +113,12 @@
       <HintPath>..\packages\Hangfire.Dashboard.Authorization.2.1.0\lib\net45\Hangfire.Dashboard.Authorization.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Hangfire.Pro, Version=2.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.Pro.2.2.3\lib\net45\Hangfire.Pro.dll</HintPath>
+    </Reference>
+    <Reference Include="Hangfire.Pro.Redis, Version=2.8.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.Pro.Redis.StrongName.2.8.4\lib\net46\Hangfire.Pro.Redis.dll</HintPath>
+    </Reference>
     <Reference Include="Hangfire.SqlServer, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Hangfire.SqlServer.1.7.0\lib\net45\Hangfire.SqlServer.dll</HintPath>
       <Private>True</Private>
@@ -5746,6 +5752,7 @@
     <Content Include="Content\admin\ERASOFT_backup_for_new_account.bak" />
     <Content Include="MO_Panduan.pdf" />
     <Content Include="Content\vendors\bootstrap\less\timepicker.less" />
+    <Content Include="NuGet.config" />
     <None Include="Properties\PublishProfiles\%28DEV_AWS%29 - Development.pubxml" />
     <None Include="Properties\PublishProfiles\%28DEV_AWS%29 - Production.pubxml" />
     <None Include="Properties\PublishProfiles\Calvin.pubxml" />
