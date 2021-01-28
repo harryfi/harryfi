@@ -59524,7 +59524,7 @@ namespace MasterOnline.Controllers
                     listNobuk += "'" + so.no_bukti + "'";
                     if (Valid)
                     {
-                        System.Threading.Thread.Sleep(200);
+                        System.Threading.Thread.Sleep(50);
                         var retApi = tokpedApi.PrintLabel(data, so.no_bukti, so.no_referensi);
                         if (retApi.Result.ToString().Contains("Error:"))
                         {
