@@ -3503,7 +3503,8 @@
 
                 $this.click(function () {
                     var $cbxTarget = $('.cbxBundling[data-cbx="cbx-Bundling"]');
-                    if ($cbxTarget.val() == "true" || $("#cbxFakturBundling").is(":checked") == true) {
+                    //if ($cbxTarget.val() == "true" || $("#cbxFakturBundling").is(":checked") == true) {
+                    if ($("#cbxFakturBundling").is(":checked") == true) {
                         $('#table_tambah_bundling').show();
                         $('#Faktur_APPROVAL').val(true);
                     } else {
@@ -4996,6 +4997,10 @@
                     getGudangForBarang();
                     getExpedisi();
                     //$('#EXPEDISI').attr('disabled', 'disabled');
+                    //add by nurul 26/10/2020
+                    $('#bundling-select').show();
+                    getBarangBundling();
+                                //end add by nurul 26/10/2020
 
                     //change by nurul 20/02/2019
                     //$('#tambah_faktur').click();
@@ -5113,6 +5118,10 @@
                     getBarangMultiSKUForBarang();
                     getGudangForBarang();
                     saveUlangHeader();
+                    //add by nurul 26/10/2020
+                    $('#bundling-select').show();
+                    getBarangBundling();
+                    //end add by nurul 26/10/2020
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
                 },
@@ -5170,10 +5179,14 @@
                 }
             }
             //end add by nurul 27/6/2019
-            var $link = '@Html.Raw(Url.Action("RefreshTableFaktur1", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTableFaktur1", "Manage", new { page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
             $link = $link.replace("replaceLastPage", encodeURIComponent($tpPage));
+            var filterby = get_faktur_filterby();
+            var filtervalue = get_faktur_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
 
             $.ajax({
                 type: "GET",
@@ -5381,6 +5394,10 @@
                                 getBarangMultiSKUForBarang();
                                 getGudangForBarang();
                                 saveUlangHeader();
+                                //add by nurul 26/10/2020
+                                $('#bundling-select').show();
+                                getBarangBundling();
+                                //end add by nurul 26/10/2020
                                 //$('#EXPEDISI').attr('disabled', 'disabled');
                                 $('#btn-simpan-perubahan-row').show();
                                 
@@ -5729,6 +5746,11 @@
                             });
                             $('#tambah-pembeli').hide();
                             $('tr[data-faktur-id="0"]').remove();
+
+                            $('.cm-bundling').attr('readonly', 'readonly').css('cursor', 'not-allowed');
+                            if (flagBundling != "True") {
+                                $('.cm-bundling').attr('readonly', 'readonly').css('background-color', '#eee').css('cursor', 'not-allowed');
+                            }
                         }
                         $('#loading_spinner').hide();
                         //end samakan dengan function lihatFaktur onSuccess
