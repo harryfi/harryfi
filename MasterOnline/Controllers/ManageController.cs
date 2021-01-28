@@ -58432,7 +58432,7 @@ namespace MasterOnline.Controllers
             //var listAverage = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2).ToList();
             string sSQLAverageHPP = "";
             sSQLAverageHPP += " ORDER BY B.INV DESC ";
-            var listAverage = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL2 + sSQLAverageHPP).ToList();
+            var listAverage = ErasoftDbContext.Database.SqlQuery<mdlDetailHargaBeli>(sSQLSelect + sSQL3 + sSQLAverageHPP).ToList();
 
             string sSQLCheckQty = "";
             sSQLCheckQty += "SELECT BRG, JUMLAH AS QOH ";
