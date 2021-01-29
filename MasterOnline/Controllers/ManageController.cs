@@ -61634,7 +61634,7 @@ namespace MasterOnline.Controllers
             var vm = new multiSKUViewModel()
             {
                 //ListPiutang = ErasoftDbContext.ART01A.Where(b => b.RANGKA == "1").ToList()
-                Errors = null
+                //Errors = null
             };
             if (MultiSKUInDb.Count() > 0)
             {
@@ -61676,7 +61676,7 @@ namespace MasterOnline.Controllers
             var vm = new multiSKUViewModel()
             {
                 //ListPiutang = ErasoftDbContext.ART01A.Where(b => b.RANGKA == "1").ToList()
-                Errors = null
+                //Errors = null
             };
             if (DetailMultiSKUInDb != null)
             {
@@ -64739,9 +64739,9 @@ namespace MasterOnline.Controllers
         {
             var BundlingInDb = ErasoftDbContext.STF03.Where(b => b.Unit == kdBrg).ToList();
 
-            var vm = new multiSKUViewModel()
+            var vm = new BundlingViewModel()
             {
-                Errors = null
+                //Errors = null
             };
             try
             {
@@ -64779,6 +64779,7 @@ namespace MasterOnline.Controllers
                                         catch (Exception e)
                                         {
                                             vm.Errors.Add("Terjadi Kesalahan, mohon hubungi support. \n" + e.Message);
+                                            return Json(vm, JsonRequestBehavior.AllowGet);
                                         }
                                     }
                                 }
@@ -64832,7 +64833,8 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return View("Error");
+                vm.Errors.Add("Terjadi Kesalahan, mohon hubungi support. \n" + ex.Message);
+                return Json(vm, JsonRequestBehavior.AllowGet);
             }
             return Json(vm, JsonRequestBehavior.AllowGet);
         }
@@ -64844,7 +64846,7 @@ namespace MasterOnline.Controllers
             var vm = new BundlingViewModel()
             {
                 //ListPiutang = ErasoftDbContext.ART01A.Where(b => b.RANGKA == "1").ToList()
-                Errors = null
+                //Errors = null
             };
             try
             {
@@ -64871,9 +64873,16 @@ namespace MasterOnline.Controllers
                             }
                             catch (Exception ex)
                             {
-                                vm.Errors.Add("Terjadi Kesalahan, mohon hubungi support. \n" + ex.Message);
-                                var sSQL = "update stf02 set generic = 0 where brg= '" + KomponenInDb.Brg + "' and GENERIC = 'true'";
-                                ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                try
+                                {
+                                    var sSQL = "update stf02 set generic = 0 where brg= '" + KomponenInDb.Brg + "' and GENERIC = 'true'";
+                                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL);
+                                }
+                                catch (Exception e)
+                                {
+                                    vm.Errors.Add("Terjadi Kesalahan, mohon hubungi support. \n" + e.Message);
+                                    return Json(vm, JsonRequestBehavior.AllowGet);
+                                }
                             }
                         }
                     }
@@ -64937,7 +64946,8 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return View("Error");
+                vm.Errors.Add("Terjadi Kesalahan, mohon hubungi support. \n" + ex.Message);
+                return Json(vm, JsonRequestBehavior.AllowGet);
             }
             return PartialView("FormBundlingPartial", vm);
         }
