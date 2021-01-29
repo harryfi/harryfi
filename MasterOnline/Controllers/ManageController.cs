@@ -64684,12 +64684,31 @@ namespace MasterOnline.Controllers
                 //getBrgFromlistMultiSKU.Add(listMultiSKU.FirstOrDefault().BRG_ACUAN);
                 getBrgFromlistBundling.Add(kdBrg);
 
+                //var default_gudang = "";
+                //using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
+                //{
+                //    var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
+                //    var cekgudang = context.STF18.ToList();
+                //    if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
+                //    {
+                //        default_gudang = gudang_parsys;
+                //    }
+                //    else
+                //    {
+                //        default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                //    }
+                //}
                 var default_gudang = "";
-                using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
+                var cekGudangBundling = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == "GB" && a.Nama_Gudang == "Gudang Bundling" && a.KD_HARGA_JUAL != "1").FirstOrDefault();
+                if (cekGudangBundling != null)
                 {
-                    var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
-                    var cekgudang = context.STF18.ToList();
-                    if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
+                    default_gudang = cekGudangBundling.Kode_Gudang;
+                }
+                else
+                {
+                    var gudang_parsys = ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG;
+                    var cekgudang = ErasoftDbContext.STF18.Where(a => a.KD_HARGA_JUAL != "1").ToList();
+                    if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys && p.KD_HARGA_JUAL != "1").Count() > 0)
                     {
                         default_gudang = gudang_parsys;
                     }
@@ -64765,12 +64784,31 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
+                        //var default_gudang = "";
+                        //using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
+                        //{
+                        //    var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
+                        //    var cekgudang = context.STF18.ToList();
+                        //    if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
+                        //    {
+                        //        default_gudang = gudang_parsys;
+                        //    }
+                        //    else
+                        //    {
+                        //        default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                        //    }
+                        //}
                         var default_gudang = "";
-                        using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
+                        var cekGudangBundling = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == "GB" && a.Nama_Gudang == "Gudang Bundling" && a.KD_HARGA_JUAL != "1").FirstOrDefault();
+                        if (cekGudangBundling != null)
                         {
-                            var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
-                            var cekgudang = context.STF18.ToList();
-                            if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
+                            default_gudang = cekGudangBundling.Kode_Gudang;
+                        }
+                        else
+                        {
+                            var gudang_parsys = ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG;
+                            var cekgudang = ErasoftDbContext.STF18.Where(a => a.KD_HARGA_JUAL != "1").ToList();
+                            if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys && p.KD_HARGA_JUAL != "1").Count() > 0)
                             {
                                 default_gudang = gudang_parsys;
                             }
@@ -64840,12 +64878,31 @@ namespace MasterOnline.Controllers
                         }
                     }
 
+                    //var default_gudang = "";
+                    //using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
+                    //{
+                    //    var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
+                    //    var cekgudang = context.STF18.ToList();
+                    //    if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
+                    //    {
+                    //        default_gudang = gudang_parsys;
+                    //    }
+                    //    else
+                    //    {
+                    //        default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                    //    }
+                    //}
                     var default_gudang = "";
-                    using (var context = new ErasoftContext(dbSourceEra, dbPathEra))
+                    var cekGudangBundling = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == "GB" && a.Nama_Gudang == "Gudang Bundling" && a.KD_HARGA_JUAL != "1").FirstOrDefault();
+                    if (cekGudangBundling != null)
                     {
-                        var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
-                        var cekgudang = context.STF18.ToList();
-                        if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
+                        default_gudang = cekGudangBundling.Kode_Gudang;
+                    }
+                    else
+                    {
+                        var gudang_parsys = ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG;
+                        var cekgudang = ErasoftDbContext.STF18.Where(a => a.KD_HARGA_JUAL != "1").ToList();
+                        if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys && p.KD_HARGA_JUAL != "1").Count() > 0)
                         {
                             default_gudang = gudang_parsys;
                         }

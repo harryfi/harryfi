@@ -1126,8 +1126,10 @@ namespace MasterOnline.Controllers
             var cekAdaBundling = ErasoftDbContext.STF03.Where(a => listBrg.Contains(a.Unit)).Select(a => a.Unit).ToList();
             if (cekAdaBundling.Count() > 0)
             {
-                var cekLinkMpBrgBundling = ErasoftDbContext.STF02H.Where(a => cekAdaBundling.Contains(a.BRG) && !string.IsNullOrEmpty(a.BRG_MP)).Count();
-                if (cekLinkMpBrgBundling == 0)
+                //var cekLinkMpBrgBundling = ErasoftDbContext.STF02H.Where(a => cekAdaBundling.Contains(a.BRG) && !string.IsNullOrEmpty(a.BRG_MP)).Count();
+                //if (cekLinkMpBrgBundling == 0)
+                var cekLinkMpBrgBundling = ErasoftDbContext.STF02H.Where(a => cekAdaBundling.Contains(a.BRG) && string.IsNullOrEmpty(a.BRG_MP)).Count();
+                if (cekLinkMpBrgBundling > 0)
                 {
                     getQtyBundlingOffline(DatabasePathErasoft, uname);
                 }
@@ -1537,8 +1539,10 @@ namespace MasterOnline.Controllers
             var cekAdaBundling = ErasoftDbContext.STF03.Where(a => listBrg.Contains(a.Unit)).Select(a => a.Unit).ToList();
             if (cekAdaBundling.Count() > 0)
             {
-                var cekLinkMpBrgBundling = ErasoftDbContext.STF02H.Where(a => cekAdaBundling.Contains(a.BRG) && !string.IsNullOrEmpty(a.BRG_MP)).Count();
-                if (cekLinkMpBrgBundling == 0)
+                //var cekLinkMpBrgBundling = ErasoftDbContext.STF02H.Where(a => cekAdaBundling.Contains(a.BRG) && !string.IsNullOrEmpty(a.BRG_MP)).Count();
+                //if (cekLinkMpBrgBundling == 0)
+                var cekLinkMpBrgBundling = ErasoftDbContext.STF02H.Where(a => cekAdaBundling.Contains(a.BRG) && string.IsNullOrEmpty(a.BRG_MP)).Count();
+                if (cekLinkMpBrgBundling > 0)
                 {
                     getQtyBundlingOffline(DatabasePathErasoft, uname);
                 }

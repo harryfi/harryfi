@@ -122,7 +122,7 @@ namespace MasterOnline.Controllers
             //if (listBrgKomponen.Count() > 0)
             if (returnGetOrder == "1")
             {
-                AdaKomponen = Convert.ToBoolean(returnGetOrder);
+                AdaKomponen = true;
             }
             if(AdaKomponen)
             {
@@ -479,7 +479,7 @@ namespace MasterOnline.Controllers
             //if (listBrgKomponen.Count() > 0)
             if (returnGetOrder == "1")
             {
-                AdaKomponen = Convert.ToBoolean(returnGetOrder);
+                AdaKomponen = true;
             }
             if (AdaKomponen)
             {
@@ -935,7 +935,7 @@ namespace MasterOnline.Controllers
             //if (listBrgKomponen.Count() > 0)
             if (returnGetOrder == "1")
             {
-                AdaKomponen = Convert.ToBoolean(returnGetOrder);
+                AdaKomponen = true;
             }
             if (AdaKomponen)
             {
