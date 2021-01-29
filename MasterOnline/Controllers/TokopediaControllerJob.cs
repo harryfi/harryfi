@@ -3688,7 +3688,7 @@ namespace MasterOnline.Controllers
                 //add by nurul 20/1/2021, bundling 
                 if (returnGetOrder == "1")
                 {
-                    AdaKomponen = Convert.ToBoolean(returnGetOrder);
+                    AdaKomponen = true;
                     //tempConnId.Add(returnGetOrder);
                     //connIdProses += "'" + returnGetOrder + "' , ";
                 }
@@ -4103,7 +4103,7 @@ namespace MasterOnline.Controllers
                 //add by nurul 20/1/2021, bundling 
                 if (returnGetOrder == "1")
                 {
-                    AdaKomponen = Convert.ToBoolean(returnGetOrder);
+                    AdaKomponen = true;
                     //tempConnId.Add(returnGetOrder);
                     //connIdProses += "'" + returnGetOrder + "' , ";
                 }

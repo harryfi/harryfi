@@ -876,7 +876,7 @@ namespace MasterOnline.Controllers
                 var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
                 var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
                 ErasoftDbContext.SaveChanges();
-                //var sSQL1 = "select a.brg, qoh - qoo as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
+                //var sSQL1 = "select a.brg, isnull(qoh - qoo, 0) as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
                 //            "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
                 //            "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty " +
                 //            "from stf03 a " +
@@ -884,7 +884,7 @@ namespace MasterOnline.Controllers
                 //var getListBrgKomponen = ErasoftDbContext.Database.SqlQuery<mdlQtyBrgBundling>(sSQL1).ToList();
 
                 var sSQL2 = "update a set a.QTY_SIAPJUAL = b.qty_sales, a.QTY_KOMPONEN=b.qty_komp from stf03 a inner join ( " +
-                            "select a.brg,a.qty, qoh - qoo as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
+                            "select a.brg,a.qty, isnull(qoh - qoo, 0) as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
                             //"select SUM(CASE WHEN b.JENIS = 'QOH' THEN b.JUMLAH ELSE 0 END) qoh, SUM(CASE WHEN b.JENIS = 'QOO' THEN b.JUMLAH ELSE 0 END) qoo, a.brg,a.qty " +
                             //"from stf03 a left join [QOH_QOO_ALL_ITEM] b on a.brg=b.brg " +
                             //"group by a.brg,a.qty )a )b on a.brg=b.brg and a.qty=b.qty ";
@@ -1122,6 +1122,20 @@ namespace MasterOnline.Controllers
             //end change by nurul 14/9/2020, handle barang multi sku
 
             var ListARF01 = ErasoftDbContext.ARF01.ToList();
+            //add by nurul 29/1/2021, bundling
+            var cekAdaBundling = ErasoftDbContext.STF03.Where(a => listBrg.Contains(a.Unit)).Select(a => a.Unit).ToList();
+            if (cekAdaBundling.Count() > 0)
+            {
+                //var cekLinkMpBrgBundling = ErasoftDbContext.STF02H.Where(a => cekAdaBundling.Contains(a.BRG) && !string.IsNullOrEmpty(a.BRG_MP)).Count();
+                //if (cekLinkMpBrgBundling == 0)
+                var cekLinkMpBrgBundling = ErasoftDbContext.STF02H.Where(a => cekAdaBundling.Contains(a.BRG) && string.IsNullOrEmpty(a.BRG_MP)).Count();
+                if (cekLinkMpBrgBundling > 0)
+                {
+                    getQtyBundlingOffline(DatabasePathErasoft, uname);
+                }
+            }
+            //end add by nurul 29/1/2021, bundling
+
             foreach (string kdBrg in listBrg)
             {
                 //var qtyOnHand = GetQOHSTF08A(kdBrg, "ALL");
@@ -1520,6 +1534,20 @@ namespace MasterOnline.Controllers
             var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";
             var listBrg = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
             //end change by nurul 14/9/2020, handle barang multi sku
+
+            //add by nurul 29/1/2021, bundling
+            var cekAdaBundling = ErasoftDbContext.STF03.Where(a => listBrg.Contains(a.Unit)).Select(a => a.Unit).ToList();
+            if (cekAdaBundling.Count() > 0)
+            {
+                //var cekLinkMpBrgBundling = ErasoftDbContext.STF02H.Where(a => cekAdaBundling.Contains(a.BRG) && !string.IsNullOrEmpty(a.BRG_MP)).Count();
+                //if (cekLinkMpBrgBundling == 0)
+                var cekLinkMpBrgBundling = ErasoftDbContext.STF02H.Where(a => cekAdaBundling.Contains(a.BRG) && string.IsNullOrEmpty(a.BRG_MP)).Count();
+                if (cekLinkMpBrgBundling > 0)
+                {
+                    getQtyBundlingOffline(DatabasePathErasoft, uname);
+                }
+            }
+            //end add by nurul 29/1/2021, bundling
 
             foreach (string kdBrg in listBrg)
             {
@@ -4538,6 +4566,146 @@ namespace MasterOnline.Controllers
             //return View("Error");
             //}
             //return Json(ret, JsonRequestBehavior.AllowGet);
+        }
+        public void getQtyBundlingOffline(string DatabasePathErasoft, string uname)
+        {
+            SetupContext(DatabasePathErasoft, uname);
+            var MoDbContext = new MoDbContext("");
+            var EDB = new DatabaseSQL(DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
+            List<string> ret = new List<string>();
+            try
+            {
+                var cekBundling = ErasoftDbContext.STF03.Count();
+                if (cekBundling > 0)
+                {
+                    var default_gudang = "";
+                    var cekGudangBundling = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == "GB" && a.Nama_Gudang == "Gudang Bundling" && a.KD_HARGA_JUAL != "1").FirstOrDefault();
+                    if (cekGudangBundling != null)
+                    {
+                        default_gudang = cekGudangBundling.Kode_Gudang;
+                    }
+                    else
+                    {
+                        var gudang_parsys = ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG;
+                        var cekgudang = ErasoftDbContext.STF18.Where(a => a.KD_HARGA_JUAL != "1").ToList();
+                        if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys && p.KD_HARGA_JUAL != "1").Count() > 0)
+                        {
+                            default_gudang = gudang_parsys;
+                        }
+                        else
+                        {
+                            default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                        }
+                    }
+                    var Tahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy"));
+                    //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) and gd<>'" + default_gudang + "' and tahun='" + Tahun + "'";
+                    var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
+                    var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
+                    ErasoftDbContext.SaveChanges();
+                    //var sSQL1 = "select a.brg, isnull(qoh - qoo, 0) as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
+                    //            "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
+                    //            "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty " +
+                    //            "from stf03 a " +
+                    //            ")a";
+                    //var getListBrgKomponen = ErasoftDbContext.Database.SqlQuery<mdlQtyBrgBundling>(sSQL1).ToList();
+
+                    var sSQL2 = "update a set a.QTY_SIAPJUAL = b.qty_sales, a.QTY_KOMPONEN=b.qty_komp from stf03 a inner join ( " +
+                                "select a.brg,a.qty, isnull(qoh - qoo, 0) as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
+                                "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
+                                "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty from stf03 a " +
+                                ")a )b on a.brg=b.brg and a.qty=b.qty ";
+                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL2);
+                    ErasoftDbContext.SaveChanges();
+
+                    var cekListBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03").ToList();
+                    var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) inner join stf08a b (nolock) on a.unit=b.brg where b.tahun='" + Tahun + "' and b.gd ='" + default_gudang + "'").ToList();
+                    var cekListBrgBundlingBelumAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) left join stf08a b (nolock) on a.unit=b.brg where isnull(b.brg,'')=''").ToList();
+
+                    if (cekListBrgBundlingBelumAdaStok.Count() > 0)
+                    {
+                        foreach (var brg in cekListBrgBundlingBelumAdaStok)
+                        {
+                            var stf08a = new STF08A()
+                            {
+                                GD = default_gudang,
+                                BRG = brg.Unit,
+                                Tahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy")),
+                                QAwal = brg.qty_bundling,
+                                NAwal = 0,
+                                QM1 = 0,
+                                QM2 = 0,
+                                QM3 = 0,
+                                QM4 = 0,
+                                QM5 = 0,
+                                QM6 = 0,
+                                QM7 = 0,
+                                QM8 = 0,
+                                QM9 = 0,
+                                QM10 = 0,
+                                QM11 = 0,
+                                QM12 = 0,
+                                NM1 = 0,
+                                NM2 = 0,
+                                NM3 = 0,
+                                NM4 = 0,
+                                NM5 = 0,
+                                NM6 = 0,
+                                NM7 = 0,
+                                NM8 = 0,
+                                NM9 = 0,
+                                NM10 = 0,
+                                NM11 = 0,
+                                NM12 = 0,
+                                QK1 = 0,
+                                QK2 = 0,
+                                QK3 = 0,
+                                QK4 = 0,
+                                QK5 = 0,
+                                QK6 = 0,
+                                QK7 = 0,
+                                QK8 = 0,
+                                QK9 = 0,
+                                QK10 = 0,
+                                QK11 = 0,
+                                QK12 = 0,
+                                NK1 = 0,
+                                NK2 = 0,
+                                NK3 = 0,
+                                NK4 = 0,
+                                NK5 = 0,
+                                NK6 = 0,
+                                NK7 = 0,
+                                NK8 = 0,
+                                NK9 = 0,
+                                NK10 = 0,
+                                NK11 = 0,
+                                NK12 = 0,
+                            };
+                            ErasoftDbContext.STF08A.Add(stf08a);
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+
+                    if (cekListBrgBundlingSudahAdaStok.Count() > 0)
+                    {
+                        foreach (var brg in cekListBrgBundlingSudahAdaStok)
+                        {
+                            var getStf08a = ErasoftDbContext.STF08A.Where(a => a.BRG == brg.Unit && a.GD == default_gudang && a.Tahun == Tahun).FirstOrDefault();
+                            if (getStf08a != null)
+                            {
+                                getStf08a.QAwal = brg.qty_bundling;
+                                ErasoftDbContext.SaveChanges();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
         //end add by nurul 6/11/2020
 
