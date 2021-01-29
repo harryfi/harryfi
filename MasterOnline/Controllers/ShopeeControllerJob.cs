@@ -31,7 +31,8 @@ namespace MasterOnline.Controllers
 #if AWS
         string shpCallbackUrl = "https://masteronline.co.id/shp/code?user=";
 #else
-        string shpCallbackUrl = "https://dev.masteronline.co.id/shp/code?user=";
+        //string shpCallbackUrl = "https://dev.masteronline.co.id/shp/code?user=";
+        string shpCallbackUrl = "https://masteronline.my.id/shp/code?user=";
 #endif
 
         protected int MOPartnerID = 841371;

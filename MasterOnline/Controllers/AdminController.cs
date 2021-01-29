@@ -194,13 +194,16 @@ namespace MasterOnline.Controllers
 #if AWS
                 //var tujuan = "13.250.232.74\\SQLEXPRESS, 1433";
                 //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
-                var tujuan = "172.31.1.127\\SQLEXPRESS, 1433"; // T3.LARGE DB FOR REGISTER NEW ACCOUNT  // IP PRIVATE STATIC AWS
+                //var tujuan = "172.31.1.127\\SQLEXPRESS, 1433"; // T3.LARGE DB FOR REGISTER NEW ACCOUNT  // IP PRIVATE STATIC AWS
+                
+                var tujuan = "172.31.20.73\\SQLEXPRESS, 1433"; // TUJUAN PINDAH KE SERVER REGISTER STAGING by Fauzi 28/01/2021
 
 #else
                 //var tujuan = "54.179.169.195\\SQLEXPRESS, 1444";
                 //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
                 //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
-                var tujuan = "172.31.29.78\\SQLEXPRESS, 1433";
+                //var tujuan = "172.31.29.78\\SQLEXPRESS, 1433";
+                var tujuan = "172.31.20.73\\SQLEXPRESS, 1433"; // TUJUAN PINDAH KE SERVER REGISTER STAGING by Fauzi 28/01/2021
 #endif
 
                 accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
@@ -381,10 +384,10 @@ namespace MasterOnline.Controllers
                     //System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                     //                                   "user id=masteronline;password=M@ster123;");
                             // IP PRIVATE T3 REGISTER
-                            System.Data.Entity.Database.Delete($"Server=172.31.1.127\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                            System.Data.Entity.Database.Delete($"Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
 #elif Debug_AWS
-                            System.Data.Entity.Database.Delete($"Server=172.31.1.127\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                            System.Data.Entity.Database.Delete($"Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                "user id=masteronline;password=M@ster123;");
 
                             //System.Data.Entity.Database.Delete($"Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
@@ -395,7 +398,7 @@ namespace MasterOnline.Controllers
 
                             // ADD BY FAUZI 04/12/2020
                             // IP PRIVATE DEV
-                            System.Data.Entity.Database.Delete($"Server=172.31.29.78\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                            System.Data.Entity.Database.Delete($"Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                "user id=masteronline;password=M@ster123;");
 #endif
 
@@ -446,10 +449,10 @@ namespace MasterOnline.Controllers
 
                             // ADD BY FAUZI 04/12/2020
                             // IP PRIVATE LIVE T3 REGIS
-                            System.Data.Entity.Database.Delete($"Server=172.31.1.127\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                            System.Data.Entity.Database.Delete($"Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                            "user id=masteronline;password=M@ster123;");
 #elif Debug_AWS
-                            System.Data.Entity.Database.Delete($"Server=172.31.29.78\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                            System.Data.Entity.Database.Delete($"Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                "user id=masteronline;password=M@ster123;");
 
                             //System.Data.Entity.Database.Delete($"Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
@@ -461,7 +464,7 @@ namespace MasterOnline.Controllers
 
                             // ADD BY FAUZI 04/12/2020
                             // IP PRIVATE DEV
-                            System.Data.Entity.Database.Delete($"Server=172.31.29.78\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                            System.Data.Entity.Database.Delete($"Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                               "user id=masteronline;password=M@ster123;");
 #endif
                         }
@@ -3480,8 +3483,8 @@ namespace MasterOnline.Controllers
 
                 //add by fauzi 04/12/2020
                 // IP PRIVATE STATIC SERVER T3 REGISTER
-                accInDb.DataSourcePath = "172.31.1.127\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=172.31.1.127\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                accInDb.DataSourcePath = "172.31.20.73\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
 #elif Debug_AWS
                 //add by fauzi 29 Januari 2020
@@ -3491,8 +3494,8 @@ namespace MasterOnline.Controllers
 
                 //add by fauzi 29 Januari 2020
                 // IP PRIVATE STATIC DEV
-                accInDb.DataSourcePath = "172.31.29.78\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=172.31.29.78\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                accInDb.DataSourcePath = "172.31.20.73\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
 #else
                 //add by fauzi 29 Januari 2020
@@ -3502,8 +3505,8 @@ namespace MasterOnline.Controllers
 
                 //add by fauzi 04/12/2020
                 //IP PRIVATE DEV 
-                accInDb.DataSourcePath = "172.31.29.78\\SQLEXPRESS, 1433";
-                SqlConnection con = new SqlConnection("Server=172.31.29.78\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                accInDb.DataSourcePath = "172.31.20.73\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=172.31.20.73\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
 
 #endif
@@ -4697,6 +4700,10 @@ namespace MasterOnline.Controllers
                     {
                         getIP = "13.251.222.53";
                     }
+                    else if (db_source.Contains("172.31.20.73"))  /// ADD for IP PRIVATE DB UTAMA REGISTER MO.
+                    {
+                        getIP = "172.31.20.73";
+                    }
                     else if ((db_source.Contains("54.179.169.195") || db_source.Contains("54.179.169.195")) && db_source.Contains("1444"))
                     {
                         getIP = "54.179.169.195";
@@ -4787,6 +4794,10 @@ namespace MasterOnline.Controllers
                     else if (server.Contains("13.251.222.53") || server.Contains("13.251.222.53"))
                     {
                         getIP = "13.251.222.53";
+                    }
+                    else if (server.Contains("172.31.20.73"))  /// ADD for IP PRIVATE DB UTAMA REGISTER MO.
+                    {
+                        getIP = "172.31.20.73";
                     }
                     else if ((server.Contains("54.179.169.195") || server.Contains("54.179.169.195")) && server.Contains("1444"))
                     {
@@ -4896,6 +4907,11 @@ namespace MasterOnline.Controllers
                 {
                     getIP = "13.251.222.53";
                     getIPPrivate = "13.251.222.53";
+                }
+                else if (server.Contains("172.31.20.73") || server.Contains("172.31.20.73"))
+                {
+                    getIP = "172.31.20.73";
+                    getIPPrivate = "172.31.20.73";
                 }
                 else if ((server.Contains("54.179.169.195") || server.Contains("54.179.169.195")) && server.Contains("1444"))
                 {
@@ -5046,6 +5062,10 @@ namespace MasterOnline.Controllers
                     {
                         getIP = "13.251.222.53";
                     }
+                    else if (db_source.Contains("172.31.20.73") || db_source.Contains("172.31.20.73"))
+                    {
+                        getIP = "172.31.20.73";
+                    }                    
                     else if ((db_source.Contains("54.179.169.195") || db_source.Contains("54.179.169.195")) && db_source.Contains("1444"))
                     {
                         getIP = "54.179.169.195";
