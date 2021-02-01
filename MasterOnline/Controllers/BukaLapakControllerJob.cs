@@ -72,6 +72,22 @@ namespace MasterOnline.Controllers
             var ret = data;
             if (data.tgl_expired < DateTime.UtcNow.AddHours(7).AddMinutes(-30))
             {
+                var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == data.cust).FirstOrDefault();
+                if(cekInDB != null)
+                {
+                    if(data.token != cekInDB.TOKEN)
+                    {
+                        data.code = cekInDB.API_KEY;
+                        data.refresh_token = cekInDB.REFRESH_TOKEN;
+                        data.tgl_expired = cekInDB.TGL_EXPIRED.Value;
+                        data.token = cekInDB.TOKEN;
+
+                        if (cekInDB.TGL_EXPIRED.Value.AddMinutes(-30) > DateTime.UtcNow.AddHours(7))
+                        {
+                            return data;
+                        }
+                    }
+                }
                 var urll = ("https://accounts.bukalapak.com/oauth/token");
                 var client = new RestClient(urll);
                 client.Timeout = -1;
@@ -687,13 +703,13 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             SetupContext(data.dbPathEra, username);
-            data = RefreshToken(data);
             
             var dtNow = DateTime.UtcNow;
             var loop = true;
             var page = 0;
             while (loop)
             {
+                data = RefreshToken(data);
                 var retOrder = await GetOrdersLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(-3).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"));
                 if (retOrder >= 10)
                 {
@@ -712,7 +728,7 @@ namespace MasterOnline.Controllers
             var ret = 0;
             var conn_id = Guid.NewGuid().ToString();
             int jmlhNewOrder = 0;
-            data = RefreshToken(data);
+            //data = RefreshToken(data);
 
             string urll = "https://api.bukalapak.com/transactions?limit=10&offset=" + (page * 10) + "&context=sale"
                 + "&start_time=" + Uri.EscapeDataString(fromDt) + "&end_time=" + Uri.EscapeDataString(toDt) 
@@ -1025,12 +1041,12 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             SetupContext(data.dbPathEra, username);
-            data = RefreshToken(data);
             var dtNow = DateTime.UtcNow;
             var loop = true;
             var page = 0;
             while (loop)
             {
+                data = RefreshToken(data);
                 var retOrder = await GetOrdersCompletedLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(-7).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"));
                 if (retOrder >= 50)
                 {
@@ -1049,7 +1065,7 @@ namespace MasterOnline.Controllers
             var ret = 0;
             var conn_id = Guid.NewGuid().ToString();
             //int jmlhNewOrder = 0;
-            data = RefreshToken(data);
+            //data = RefreshToken(data);
             var list_04 = new List<string>();
 
             string urll = "https://api.bukalapak.com/transactions?limit=10&offset=" + (page * 50) + "&context=sale"
@@ -1163,7 +1179,6 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             SetupContext(data.dbPathEra, username);
-            data = RefreshToken(data);
             var dtNow = DateTime.UtcNow.AddDays(-7);
             var loop = true;
             var page = 0;
@@ -1174,6 +1189,7 @@ namespace MasterOnline.Controllers
 
             while (loop)
             {
+                data = RefreshToken(data);
                 var retOrder = await GetOrdersCanceledLoop(data, CUST, NAMA_CUST, username, page, dtNow.ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.AddDays(7).ToString("yyyy-MM-ddTHH:mm:ss"), orderList);
                 if (retOrder >= 50)
                 {
@@ -1191,7 +1207,7 @@ namespace MasterOnline.Controllers
             var ret = 0;
             var conn_id = Guid.NewGuid().ToString();
             int jmlhOrder = 0;
-            data = RefreshToken(data);
+            //data = RefreshToken(data);
             var brgCancelled = new List<TEMP_ALL_MP_ORDER_ITEM>();
 
             string urll = "https://api.bukalapak.com/transactions?limit=10&offset=" + (page * 50) + "&context=sale"
