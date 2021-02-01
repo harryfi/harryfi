@@ -924,7 +924,8 @@ namespace MasterOnline.Controllers
                                                     condition = condition.Substring(0, 50);
 
                                                 #endregion
-                                                insertOrderItems += "(" + order.id + ", '" + transId + "','" +  items.id.ToString()  + "','" + katName + "',0,'" + items_name + "',";
+                                                var brgmp = items.stuff.product.id + ";" + items.stuff.id;
+                                                insertOrderItems += "(" + order.id + ", '" + transId + "','" +  brgmp  + "','" + katName + "',0,'" + items_name + "',";
                                                 insertOrderItems += (items.total_price - items.stuff.discount) + "," + items.stuff.product.weight + ",'','" + condition + "',0," 
                                                     + items.quantity + ",'" + order.created_at.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','" 
                                                     + username + "','" + conn_id + "')";

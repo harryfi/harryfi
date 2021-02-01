@@ -2562,19 +2562,19 @@ namespace MasterOnline.Controllers
                 {
                     //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                     //sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
-                    if(type == 1)
-                    {
-                        sSQL_Value += "('" + brg.id + "' , '" + (brg.sku_name ?? "") + "' , '";
-                    }
-                    else
-                    {
-                        sSQL_Value += "('" + brg.sku_id.ToString() + "' , '" + (brg.sku_name ?? "") + "' , '";
-                    }
+                    //if(type == 1)
+                    //{
+                    sSQL_Value += "('" + brg.id + ";" + brg.sku_id + "' , '" + (brg.sku_name ?? "") + "' , '";
+                    //}
+                    //else
+                    //{
+                    //    sSQL_Value += "('" + brg.sku_id.ToString() + "' , '" + (brg.sku_name ?? "") + "' , '";
+                    //}
                     //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
                 else
                 {
-                    sSQL_Value += "('" + brg.variants[i].id.ToString() + "' , '" + (brg.variants[i].sku_name ?? "") + "' , '";
+                    sSQL_Value += "('" + brg.variants[i].product_id + ";" + brg.variants[i].id + "' , '" + (brg.variants[i].sku_name ?? "") + "' , '";
                 }
                 string brand = "";
                 if (brg.specs != null)
