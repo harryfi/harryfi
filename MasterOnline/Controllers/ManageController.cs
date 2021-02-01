@@ -28331,6 +28331,17 @@ namespace MasterOnline.Controllers
         {
 
 #if (DEBUG || Debug_AWS)
+            //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == "002052").FirstOrDefault();
+            //BukaLapakKey iden = new BukaLapakKey
+            //{
+            //    code = customer.API_KEY,
+            //    cust = customer.CUST,
+            //    dbPathEra = dbPathEra,
+            //    refresh_token = customer.REFRESH_TOKEN,
+            //    tgl_expired = customer.TGL_EXPIRED.Value,
+            //    token = customer.TOKEN
+            //};
+            //await new BukaLapakControllerJob().GetOrdersNew(iden, iden.cust, "", usernameLogin);
             //BlibliController bliAPI = new BlibliController();
             //BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
             //{

@@ -205,9 +205,9 @@ namespace MasterOnline.Controllers
             }
             return View("BukalapakAuth");
         }
-        public string RefreshToken(BukaLapakKey data)
+        public BukaLapakKey RefreshToken(BukaLapakKey data)
         {
-            string ret = "";
+            var ret = data;
             if (data.tgl_expired < DateTime.UtcNow.AddHours(7).AddMinutes(-30))
             {
                 var urll = ("https://accounts.bukalapak.com/oauth/token");
@@ -246,7 +246,9 @@ namespace MasterOnline.Controllers
                     {
                         DateTime tglExpired = DateTimeOffset.FromUnixTimeSeconds(retObj.created_at).UtcDateTime.AddHours(7).AddSeconds(retObj.expires_in);
                         var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET REFRESH_TOKEN='" + retObj.refresh_token + "', TGL_EXPIRED='" + tglExpired.ToString("yyyy-MM-dd HH:mm:ss") + "', TOKEN='" + retObj.access_token + "', STATUS_API = '1' WHERE CUST ='" + data.cust + "'");
-                        ret = retObj.access_token;
+                        ret.token = retObj.access_token;
+                        ret.tgl_expired = tglExpired;
+                        ret.refresh_token = retObj.refresh_token;
                     }
                     else
                     {
@@ -2216,23 +2218,14 @@ namespace MasterOnline.Controllers
         public async Task<BindingBase> getListProductV2(BukaLapakKey data, int page, bool display, int recordCount, int totaldata)
         {
             string test = "";
-            var newToken = RefreshToken(data);
+            data = RefreshToken(data);
            
             var ret = new BindingBase();
             ret.status = 0;
             ret.recordCount = recordCount;
             ret.totalData = totaldata;//add 18 Juli 2019, show total record
             ret.exception = 0;
-            if (!string.IsNullOrEmpty(newToken))
-            {
-                //if (newToken.Contains("error"))
-                //{
-                //    ret.exception = 1;
-                //    ret.message = newToken;
-                //    return ret;
-                //}
-                data.token = newToken;
-            }
+           
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
@@ -2331,14 +2324,14 @@ namespace MasterOnline.Controllers
                             string sSQL_Value = "";
                             foreach (var brg in resListProd.data)
                             {
-                                ret.recordCount += 1;//add 18 Juli 2019, show total record
+                                ret.totalData += 1;//add 18 Juli 2019, show total record
                                 bool haveVarian = false;
                                 string kdBrgInduk = "";
                                 if (brg.variants != null)
                                     if (brg.variants.Length > 0)
                                     {
                                         haveVarian = true;
-                                        kdBrgInduk = brg.sku_id + ";" + brg.id;
+                                        kdBrgInduk = brg.id;
                                         var tempbrginDBInduk = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
                                         var brgInDBInduk = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
                                         if (tempbrginDBInduk == null && brgInDBInduk == null)
@@ -2354,7 +2347,7 @@ namespace MasterOnline.Controllers
                                             kdBrgInduk = brgInDBInduk.BRG;
                                         }
                                     }
-                                var brgmp = brg.sku_id + ";" + brg.id;
+                                var brgmp = brg.sku_id.ToString();
                                 //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
                                 //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
                                 var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
@@ -2569,12 +2562,19 @@ namespace MasterOnline.Controllers
                 {
                     //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                     //sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
-                    sSQL_Value += "('" + brg.sku_id + ";" + brg.id + "' , '" + (brg.sku_name ?? "") + "' , '";
+                    if(type == 1)
+                    {
+                        sSQL_Value += "('" + brg.id + "' , '" + (brg.sku_name ?? "") + "' , '";
+                    }
+                    else
+                    {
+                        sSQL_Value += "('" + brg.sku_id.ToString() + "' , '" + (brg.sku_name ?? "") + "' , '";
+                    }
                     //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
                 else
                 {
-                    sSQL_Value += "('" + brg.variants[i].id + ";" + brg.variants[i].product_id + "' , '" + (brg.variants[i].sku_name ?? "") + "' , '";
+                    sSQL_Value += "('" + brg.variants[i].id.ToString() + "' , '" + (brg.variants[i].sku_name ?? "") + "' , '";
                 }
                 string brand = "";
                 if (brg.specs != null)
@@ -2598,7 +2598,7 @@ namespace MasterOnline.Controllers
                 sSQL_Value += brg.weight + " , " + p + ", " + l + ", " + t + ", '" + cust + "' , '" + brg.url + "' , '" + (namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg) + "' , '";
                 sSQL_Value += brg.description.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`') + "' , " + idMarket;
                 sSQL_Value += " , " + itemPrice + " , " + itemPrice + " , " + (display ? "1" : "0") + ", '";
-                sSQL_Value += brg.category.id + "' , '" + brg.category + "' , '" + brand;
+                sSQL_Value += brg.category.id + "' , '" + brg.category.name + "' , '" + brand;
                 sSQL_Value += "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "','" + urlImage4 + "' , '" + urlImage5 + "','";
                 sSQL_Value += (type == 2 ? kdBrgInduk : "") + "','" + (type == 1 ? "4" : "3") + /*"') ,"*/ "'";
                 #region attribute
