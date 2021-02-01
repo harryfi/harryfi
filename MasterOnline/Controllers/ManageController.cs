@@ -13657,6 +13657,24 @@ namespace MasterOnline.Controllers
             }
             //end add
 
+            //add by nurul 1/2/2021, cek transaksi barang varian 
+            var cekVarian = ErasoftDbContext.STF02.Where(a => a.PART == barangId).Select(a => a.BRG).ToList();
+            if (cekVarian.Count() > 0)
+            {
+                var cekFakturVarian = ErasoftDbContext.SIT01B.Count(k => cekVarian.Contains(k.BRG));
+                var cekPembelianVarian = ErasoftDbContext.PBT01B.Count(k => cekVarian.Contains(k.BRG));
+                var cekTransaksiVarian = ErasoftDbContext.STT01B.Count(k => cekVarian.Contains(k.Kobar));
+                var cekPesananVarian = ErasoftDbContext.SOT01B.Count(k => cekVarian.Contains(k.BRG));
+                var cekPromosiVarian = ErasoftDbContext.DETAILPROMOSI.Count(k => cekVarian.Contains(k.KODE_BRG));
+
+                if (cekFakturVarian > 0 || cekPembelianVarian > 0 || cekTransaksiVarian > 0 || cekPesananVarian > 0 || cekPromosiVarian > 0)
+                {
+                    vmError.Errors.Add("Barang varian dari barang " + barangId + " sudah dipakai di transaksi !");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+            }
+            //end add by nurul 1/2/2021, cek transaksi barang varian 
+
             var stf02hh = ErasoftDbContext.STF02H.Where(h => h.BRG == barangId).ToList();
             if (stf02hh.Count > 0)
             {
