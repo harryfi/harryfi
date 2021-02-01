@@ -567,6 +567,21 @@ namespace MasterOnline.ViewModels
 
             public string DrTanggal { get; set; }
             public string SdTanggal { get; set; }
+
+            //add by nurul 10/12/2020
+            string _Status = "";
+            public string Status
+            {
+                get
+                {
+                    return _Status;
+                }
+                set
+                {
+                    _Status = string.IsNullOrEmpty(value) ? "" : value;
+                }
+            }
+            //end add by nurul 10/12/2020
         }
 
         public class Report14

@@ -462,6 +462,7 @@
                 alert("Silahkan pilih email terlebih dahulu.");
                 return false;
             }
+            $("#Addons_Customer_Harga").val(convertToAngka($("#Addons_Customer_Harga").val()));
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("SaveCustAddons", "Admin")',

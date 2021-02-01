@@ -47,6 +47,7 @@ namespace MasterOnline
         //end by fauzi
 
 
+        public DbSet<CATEGORY_JDID> CATEGORY_JDID { get; set; }
         public DbSet<CATEGORY_SHOPIFY> CategoryShopify { get; set; }
 
         //add by fauzi for 82cart
@@ -75,6 +76,15 @@ namespace MasterOnline
         {
         }
 
+        //add by nurul 21/12/2020, khusus proses akhir tahun
+        public MoDbContext(string dbSourceEra, string dbSourceEra2)
+            : base($"Server=" + dbSourceEra2 + ", 1433;initial catalog=MO;" +
+                   $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                   $"application name=EntityFramework")
+        {
+        }
+        //end add by nurul 21/12/2020, khusus proses akhir tahun
+
         //public MoDbContext(string dbSourceEra)
         //   : base($"Server=172.31.20.73, 1433;initial catalog=MO;" +
         //          $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
@@ -90,6 +100,15 @@ namespace MasterOnline
                     $"application name=EntityFramework")
         {
         }
+
+        //add by nurul 21/12/2020, khusus proses akhir tahun
+        public MoDbContext(string dbSourceEra, string dbSourceEra2)
+             : base($"Server=" + dbSourceEra2 + ", " + dbSourceEra + ";initial catalog=MO;" +
+                    $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                    $"application name=EntityFramework")
+        {
+        }
+        //end add by nurul 21/12/2020, khusus proses akhir tahun
 
 #endif
 

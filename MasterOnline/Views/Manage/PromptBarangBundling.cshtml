@@ -1,0 +1,134 @@
+﻿@using PagedList
+@using System.Globalization
+@using MasterOnline.ViewModels
+@model PromptBrg
+
+@{
+
+    ViewBag.Title = "Prompt Barang";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    
+}
+
+@section styles
+{
+    <style>
+        .top_nav {
+            display: none !important;
+        }
+
+        .close-btn {
+            display: none;
+        }
+    </style>
+}
+<div>
+    <div class="col-lg-4 col-sm-6" id="div_search">
+        <div class="input-group">
+            <input id="search_promptbarangBundling" type="text" value="@(Model.NAMA_BRG)" class="form-control" placeholder="Pencarian">
+            <span class="input-group-btn">
+                <button type="button" id="search_promptbarangBundling_click" class="btn btn-primary">
+                    <i class="fa fa-search"></i>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="row" style="padding-left:10px; padding-right:10px;">
+        <div id="table-prompt-barang-Bundling-partial">
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    <script type="text/javascript">
+        @{ 
+            var _id = Model.id;
+        }
+        var _id = @Html.Raw(Json.Encode(_id));
+
+        $(document).ready(function () {
+            refreshTablePromptBarangBundling();
+
+            $('#search_promptbarangBundling').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTablePromptBarangBundling();
+                    return false;
+                }
+            });
+            $('#search_promptbarangBundling_click').click(function () {
+                searchTablePromptBarangBundling();
+            });
+        });
+
+        function pilihPromptBrgBundling($value, $nama, $harga) {
+            self.window.close();
+            window.onunload = refreshTextBox;
+            function refreshTextBox() {
+                if (_id == "1") {
+                    window.opener.afterPromptBundling($value, $nama);
+                } else if(_id == "2") {
+                    window.opener.afterPromptKomponen($value, $nama, $harga);
+                }
+            }
+        }
+
+        function refreshTablePromptBarangBundling() {
+                var $link = '@Html.Raw(Url.Action("TablePromptBarangBundlingPartial", "Manage", new { page = "replaceLastPage", search = "replaceSearch", id= "replaceId" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_promptbarangBundling').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+            $link = $link.replace("replaceId", encodeURIComponent(_id));
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-prompt-barang-Bundling-partial').hide();
+                    $('#loading_promptbarang_tab').show();
+                },
+                success: function (response) {
+                    $('#table-prompt-barang-Bundling-partial').html(response);
+
+                    $('#table-prompt-barang-Bundling-partial').show();
+
+                    $('#loading_promptbarang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function searchTablePromptBarangBundling() {
+
+            var $link = '@Html.Raw(Url.Action("TablePromptBarangBundlingPartial", "Manage", new { search = "replaceNama", id = "replaceId" }))';
+            $link = $link.replace("replaceNama", encodeURIComponent($('#search_promptbarangBundling').val()));
+            $link = $link.replace("replaceId", encodeURIComponent(_id));
+
+            $.ajax({
+                url: $link,
+                type: "GET",
+                cache: false,
+                beforeSend: function () {
+                    //$('#search_promptbarang_click')[0].disabled = true;
+                    $('#loading_promptbarang_tab').show();
+                    $('#table-prompt-barang-Bundling-partial').hide();
+                },
+                success: function (response) {
+
+                    //$('#search_promptbarang_click')[0].disabled = false;
+                    $('#table-prompt-barang-Bundling-partial').html(response);
+                    $('#table-prompt-barang-Bundling-partial').show();
+                    $('#loading_promptbarang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    //$('#search_promptbarang_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
+    </script>
+}

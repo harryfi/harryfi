@@ -59,6 +59,7 @@ namespace MasterOnline.ViewModels
         public string MULAI { get; set; }
         public string AKHIR { get; set; }
         public int MARKET { get; set; }
+        public string Bundling { get; set; }
     }
     
 }

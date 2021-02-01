@@ -1,4 +1,6 @@
 ﻿using Erasoft.Function;
+using Hangfire;
+using Hangfire.SqlServer;
 using Lazop.Api;
 using Lazop.Api.Util;
 using MasterOnline.Models;
@@ -43,6 +45,7 @@ namespace MasterOnline.Controllers
         MoDbContext MoDbContext;
         ErasoftContext ErasoftDbContext;
         string DatabasePathErasoft;
+        string dbSourceEra = ""; 
 
         public LazadaController()
         {
@@ -50,9 +53,19 @@ namespace MasterOnline.Controllers
             if (sessionData?.Account != null)
             {
                 if (sessionData.Account.UserId == "admin_manage")
+                {
                     ErasoftDbContext = new ErasoftContext();
+                }
                 else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DataSourcePath, sessionData.Account.DatabasePathErasoft);
+                {
+#if (Debug_AWS)
+                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+#else
+                    dbSourceEra = sessionData.Account.DataSourcePath;
+#endif
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
+                }
+                    
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 DatabasePathErasoft = sessionData.Account.DatabasePathErasoft;
 
@@ -63,7 +76,13 @@ namespace MasterOnline.Controllers
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+#if (Debug_AWS)
+                    dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
+                    dbSourceEra = accFromUser.DataSourcePath;
+#endif
+                    //ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
                     DatabasePathErasoft = accFromUser.DatabasePathErasoft;
                 }
             }
@@ -652,7 +671,7 @@ namespace MasterOnline.Controllers
             return node.InnerText;
         }
 
-        public BindingBase UpdateProduct(BrgViewModel data)
+        public BindingBase UpdateProduct(BrgViewModel data, string username)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -1049,6 +1068,29 @@ namespace MasterOnline.Controllers
                     //}
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.key, currentLog);
                     //end change by calvin 10 juni 2019
+                    var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.TOKEN == data.token && m.NAMA == "7").FirstOrDefault();
+                    foreach (var item in res.data.sku_list)
+                    {
+                        if (tblCustomer.TIDAK_HIT_UANG_R)
+                        {
+                            var brgInDB = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == tblCustomer.RecNum && m.BRG_MP == item.seller_sku).FirstOrDefault();
+                            if(brgInDB != null)
+                            {
+
+#if (DEBUG || Debug_AWS)
+                            StokControllerJob stokAPI = new StokControllerJob(dbSourceEra, username);
+                            Task.Run(() => stokAPI.Lazada_updateStock(dbSourceEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null)).Wait();
+#else
+                                                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                                                        Jobclient.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(dbSourceEra, brgInDB.BRG, tblCustomer.CUST, "Stock", "Update Stok", item.seller_sku, "", "", data.token, username, null));
+#endif
+
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -5101,7 +5143,8 @@ namespace MasterOnline.Controllers
                             int i = 1;
                             foreach (var attr in bindAttr.data)
                             {
-                                if (attr.name != "name" && attr.name != "description" && attr.name != "brand" && attr.name != "SellerSku" && attr.name != "price"
+                                if (i <= 33)
+                                    if (attr.name != "name" && attr.name != "description" && attr.name != "brand" && attr.name != "SellerSku" && attr.name != "price"
                                     && attr.name != "package_weight" && attr.name != "package_length" && attr.name != "package_width" && attr.name != "package_height"
                                     && attr.name != "__images__" && attr.name != "color_thumbnail" && attr.name != "special_price" && attr.name != "special_from_date"
                                     && attr.name != "special_to_date" && attr.name != "seller_promotion" && attr.name != "tax_class" && attr.name.ToLower() != "quantity")
@@ -5117,6 +5160,7 @@ namespace MasterOnline.Controllers
 
                             }
                             for (int j = i; j <= 50; j++)
+                                //for (int j = i; j <= 33; j++)
                             {
                                 retAttr["ALABEL" + j] = "";
                                 retAttr["ANAME" + j] = "";

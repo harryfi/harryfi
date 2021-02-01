@@ -23,6 +23,11 @@ namespace MasterOnline
         public double HJUAL { get; set; }
         public double HPOKOK { get; set; }
         public double STF02_HJUAL { get; set; }
+        public int QOH { get; set; }
+
+        //ADD BY NURUL 16/10/2020, BRG BUNDLING TIDAK BISA UBAH HARGA DARI SINI 
+        public string BUNDLING { get; set; }
+        //END ADD BY NURUL 16/10/2020, BRG BUNDLING TIDAK BISA UBAH HARGA DARI SINI 
     }
     public class mdlHargaJualMassal
     {

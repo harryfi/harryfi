@@ -426,6 +426,16 @@ namespace MasterOnline.Controllers
                                         dataAddonCheck.ForEach(p => p.STATUS = "1");
                                     }
                                     #endregion
+
+                                    //add by nurul 7/1/2021, update tgl subs di addon cust
+                                    var cekAddOn = MoDbContext.Addons_Customer.Where(a => a.Account == userData.Email).ToList();
+                                    if (cekAddOn.Count() > 0)
+                                    {
+                                        var tglSubs = sdTgl?.ToString("yyyy-MM-dd");
+                                        var sSQLUpdateAddon = "update Addons_Customer set TglSubscription='" + tglSubs + "' where account='" + userData.Email +"'";
+                                        MoDbContext.Database.ExecuteSqlCommand(sSQLUpdateAddon);
+                                    }
+                                    //end add by nurul 7/1/2021
                                 }
 
                             }
@@ -498,7 +508,13 @@ namespace MasterOnline.Controllers
                 //add by Tri 20-09-2018, save nama toko ke SIFSYS
                 //change by calvin 3 oktober 2018
                 //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
-                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DataSourcePath, accInDb.DatabasePathErasoft);
+                string dbSourceEra = "";
+#if (Debug_AWS)
+                    dbSourceEra = accInDb.DataSourcePathDebug;
+#else
+                    dbSourceEra = accInDb.DataSourcePath;
+#endif
+                ErasoftContext ErasoftDbContext = new ErasoftContext(dbSourceEra, accInDb.DatabasePathErasoft);
                 //end change by calvin 3 oktober 2018
                 var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
                 if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))

@@ -107,7 +107,8 @@
 @Html.HiddenFor(m => m.Pesanan.AL_CUST, new { Value = " " })
 @Html.HiddenFor(m => m.Pesanan.U_MUKA, new { Value = 0 })
 @Html.HiddenFor(m => m.Pesanan.CUST_QQ, new { Value = " " })
-@Html.HiddenFor(m => m.Pesanan.Status_Approve, new { Value = " " })
+@*@Html.HiddenFor(m => m.Pesanan.Status_Approve, new { Value = " " })*@
+@Html.HiddenFor(m => m.Pesanan.Status_Approve, new { Value = "" })
 @Html.HiddenFor(m => m.Pesanan.User_Approve, new { Value = " " })
 @Html.HiddenFor(m => m.Pesanan.NO_PENAWARAN, new { Value = " " })
 @Html.HiddenFor(m => m.Pesanan.INDENT, new { Value = false })
@@ -128,6 +129,10 @@
 
 @*//add by nurul 14/5/2019*@
 <script type="text/javascript">
+    @{
+        var flagBundling = Model?.Pesanan?.Status_Approve;
+    }
+    var flagBundling = @Html.Raw(Json.Encode(flagBundling));
 
     $(document).ready(function () {
         Initialize();
@@ -294,6 +299,34 @@
             </div>
         </div>
     </div>
+    @*//add by nurul 20/10/2020*@
+    <div class="row">
+        <div class="col-md-6"></div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.Status_Approve, "Bundling", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+                @Html.HiddenFor(m => m.Pesanan.Status_Approve, new { data_cbx = $"cbx-Bundling", @class = "cbxBundling" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @if ((Model.Pesanan == null ? "" : Model.Pesanan.Status_Approve) == "1")
+                    {
+                        //memiliki bundling
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="cbxPesananBundling" class="cbxBundling" name="@($"cbx-Pesanan-Bundling")" checked />
+                            <span class="checkmark cm-bundling"></span>
+                        </label>
+                    }
+                    else
+                    {
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="cbxPesananBundling" class="cbxBundling" name="@($"cbx-Pesanan-Bundling")" @*onclick="validateBundling($('#cbxPesananBundling').is(':checked'));"*@ />
+                            <span class="checkmark cm-bundling"></span>
+                        </label>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    @*//add by nurul 20/10/2020*@
     <hr />
     <div class="row">
         <div class="col-lg-4"></div>
@@ -403,6 +436,93 @@
     <div class="col-lg-12">
         @*<div class="hscroll table-responsive patdualimatpesanan">*@
         <div class="patdualimatpesanan">
+            @*//add by nurul 20/10/2020*@
+            <table id="table_tambah_bundling" class="table table-bordered" role="grid">
+                <thead>
+                    <tr style="background-color:#c7f1f5;">
+                        <th width="200px">Kode Brg Bundling</th>
+                        <th width="200px">Nama Brg Bundling</th>
+                        <th width="30px">Qty Bundling</th>
+                        <th width="60px">Harga Bundling</th>
+                        <th width="35px">Simpan</th>
+                        <th width="35px">Hapus</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var listBarangBundling = Model.ListBarang.ToList();
+                    }
+                    @foreach (var bundling in Model.ListPesananBundling.Where(pb => pb.NO_BUKTI == Model?.Pesanan?.NO_BUKTI).ToList())
+                    {
+                        string detail_komp = "";
+                        var cekListKomp = Model.listKomponen.Where(a => a.bundling == bundling.BRG).SingleOrDefault();
+                        if (cekListKomp != null)
+                        {
+                            detail_komp = cekListKomp.komponen.ToString();
+                        }
+                        <tr data-bundling-id="bundling-@bundling.RECNUM">
+                            @{
+                                var barang = listBarangBundling.SingleOrDefault(b => b.BRG.ToUpper() == bundling.BRG.ToUpper());
+                                var namaBarang = barang == null ? "" : (barang.NAMA + " " + barang.NAMA2);
+                            }
+                            <td class="brg-bundling">
+                                @*@bundling.BRG*@
+                                <div data-tip="@detail_komp">
+                                    @bundling.BRG
+                                </div>
+                            </td>
+                            <td class="nama-bundling">@namaBarang</td>
+                            <td class="qty-bundling">@bundling.QTY</td>
+                            <td class="harga-bundling" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", bundling.HARGA)
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button type="button" class="btn btn-primary btn-save-bundling" disabled="disabled">
+                                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button class="btn btn-danger btn-delete-bundling" type="button" data-toggle="modal" data-target="#konfHapusBundling" onclick="passBundling('@bundling.RECNUM')">
+                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    <tr data-bundling-id="0">
+                        @Html.HiddenFor(m => m.PesananBundling.RECNUM)
+                        @Html.HiddenFor(m => m.PesananBundling.TGL_EDIT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                        @Html.HiddenFor(m => m.PesananBundling.USERNAME, new { Value = username })
+                        <td class="brg-bundling" style="width: 120px; max-width: 120px;">
+                            @*<div id="BRG_BUNDLING" class="selectivity-input" tabindex="0"></div>*@
+                            <span id="harga-satuan-bundling" style="display: none;"></span>
+                            <div id="bundling-select" style="display: none;">
+                                <select id="BRG_BUNDLING" placeholder="Pilih Barang" class="barang_bundling"></select>
+                            </div>
+                            @Html.HiddenFor(m => m.PesananBundling.BRG)
+                        </td>
+                        <td class="nama-bundling" style="width: 200px; max-width: 200px;">-</td>
+                        <td class="qty-bundling">
+                            0
+                            @Html.HiddenFor(m => m.PesananBundling.QTY)
+                        </td>
+                        <td class="harga-bundling" style="text-align:right">
+                            0,00
+                            @Html.HiddenFor(m => m.PesananBundling.HARGA)
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button type="button" class="btn btn-primary btn-save-bundling" disabled="disabled" onclick="simpanBundling('bundling-0')">
+                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button class="btn btn-danger btn-delete-bundling" disabled="disabled">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            @*//end add by nurul 20/10/2020*@
             <table id="table_tambah_pesanan" class="table table-bordered" role="grid">
                 <thead>
                     <tr>
@@ -488,9 +608,18 @@
                                 </button>
                             </td>
                             <td class="edit-hapus-col">
-                                <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@pesanan.NO_URUT')">
-                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                </button>
+                                @if (pesanan.BRG_BUNDLING != "" && pesanan.BRG_BUNDLING != null)
+                                {
+                                    <button class="btn btn-danger" type="button" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@pesanan.NO_URUT')">
+                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@pesanan.NO_URUT')">
+                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                    </button>
+                                }
                             </td>
                         </tr>
                         iPd = iPd + 1;

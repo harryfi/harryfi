@@ -29,6 +29,7 @@ namespace MasterOnline.Controllers
         DatabaseSQL EDB;
         string username;
         string DatabasePathErasoft;
+        string dbSourceEra = "";
         public TokopediaController()
         {
             MoDbContext = new MoDbContext("");
@@ -37,9 +38,19 @@ namespace MasterOnline.Controllers
             if (sessionData?.Account != null)
             {
                 if (sessionData.Account.UserId == "admin_manage")
+                {
                     ErasoftDbContext = new ErasoftContext();
+                }
                 else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DataSourcePath, sessionData.Account.DatabasePathErasoft);
+                {
+#if (Debug_AWS)
+                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+#else
+                    dbSourceEra = sessionData.Account.DataSourcePath;
+#endif
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
+                }
+                   
 
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 DatabasePathErasoft = sessionData.Account.DatabasePathErasoft;
@@ -50,7 +61,12 @@ namespace MasterOnline.Controllers
                 if (sessionData?.User != null)
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+#if (Debug_AWS)
+                    dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
+                    dbSourceEra = accFromUser.DataSourcePath;
+#endif
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     DatabasePathErasoft = accFromUser.DatabasePathErasoft;
                     username = accFromUser.Username;
@@ -1782,17 +1798,20 @@ namespace MasterOnline.Controllers
                                             {
                                                 typeBrg = 1;
                                                 newrecord.TYPE = "4";
-                                                foreach (var varID in item.variant.childrenID)
+                                                if (item.variant.childrenID != null)
                                                 {
-                                                    var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP ?? "").Equals(varID.ToString())).FirstOrDefault();
-                                                    var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(varID.ToString())).FirstOrDefault();
-                                                    if (CektempbrginDB2 == null && CekbrgInDB2 == null)
+                                                    foreach (var varID in item.variant.childrenID)
                                                     {
-                                                        var retVar = await getItemDetailVarian(iden, varID, CUST, recnumArf01);
-                                                        ret.recordCount += retVar.recordCount;
+                                                        var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP ?? "").Equals(varID.ToString())).FirstOrDefault();
+                                                        var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(varID.ToString())).FirstOrDefault();
+                                                        if (CektempbrginDB2 == null && CekbrgInDB2 == null)
+                                                        {
+                                                            var retVar = await getItemDetailVarian(iden, varID, CUST, recnumArf01, 1);
+                                                            ret.recordCount += retVar.recordCount;
+                                                        }
                                                     }
+                                                    ret.totalData += item.variant.childrenID.Count();
                                                 }
-                                                ret.totalData += item.variant.childrenID.Count();
                                             }
                                             else
                                             {
@@ -1938,7 +1957,7 @@ namespace MasterOnline.Controllers
                                             var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(varID.ToString())).FirstOrDefault();
                                             if (CektempbrginDB2 == null && CekbrgInDB2 == null)
                                             {
-                                                var retVar = await getItemDetailVarian(iden, varID, CUST, recnumArf01);
+                                                var retVar = await getItemDetailVarian(iden, varID, CUST, recnumArf01, 1);
                                                 ret.recordCount += retVar.recordCount;
                                             }
                                         }
@@ -2031,7 +2050,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<BindingBase> getItemDetailVarian(TokopediaAPIData iden, long product_id, string CUST, int recnumArf01)
+        public async Task<BindingBase> getItemDetailVarian(TokopediaAPIData iden, long product_id, string CUST, int recnumArf01, int retry)
         {
             var ret = new BindingBase();
             long milis = CurrentTimeMillis();
@@ -2059,8 +2078,13 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            catch (Exception ex)
+            catch (WebException e)
             {
+                if (e.Message.Contains("429") && retry < 4)
+                {
+                    await Task.Delay(retry * 1000);
+                    await getItemDetailVarian(iden, product_id, CUST, recnumArf01, retry + 1);
+                }
             }
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {

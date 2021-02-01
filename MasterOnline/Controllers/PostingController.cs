@@ -15,6 +15,7 @@ namespace MasterOnline.Controllers
     {
         public MoDbContext MoDbContext { get; set; }
         public ErasoftContext ErasoftDbContext { get; set; }
+        string dbSourceEra = "";
 
         public PostingController()
         {
@@ -23,16 +24,32 @@ namespace MasterOnline.Controllers
             if (sessionData?.Account != null)
 			{
 				if (sessionData.Account.UserId == "admin_manage")
-					ErasoftDbContext = new ErasoftContext();
-				else
-					ErasoftDbContext = new ErasoftContext(sessionData.Account.DataSourcePath, sessionData.Account.DatabasePathErasoft);
+                {
+                    ErasoftDbContext = new ErasoftContext();
+                }
+                else
+                {
+#if (Debug_AWS)
+                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+#else
+                    dbSourceEra = sessionData.Account.DataSourcePath;
+#endif
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
+                }
+                
 			}
             else
             {
                 if (sessionData?.User != null)
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+#if (Debug_AWS)
+                    dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
+                    dbSourceEra = accFromUser.DataSourcePath;
+#endif
+                    //ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
                 }
             }
         }
@@ -54,7 +71,7 @@ namespace MasterOnline.Controllers
         public string doPosting(PostingViewModel.DataPosting data)
         {
 
-
+            updateHarsat0();
 
 #if AWS
             //return string.Format("http://localhost/masteronline/Proses/FormProsesPembelian.aspx?UserID={0}&Month={1}&Year={2}&From={3}&To={4}",
@@ -125,5 +142,33 @@ namespace MasterOnline.Controllers
             return Json(Vm, JsonRequestBehavior.AllowGet);
         }
         //end add by nurul 4/8/2020
+
+        //add by nurul 29/1/2021
+        public string updateHarsat0()
+        {
+            var ret = "";
+            try
+            {
+                var sSQL = "select b.no from stt01a a (nolock) inner join stt01b b (nolock) on a.nobuk=b.nobuk where harsat =0 and harga > 0 and qty > 0 and isnull(st_POSTING,'') <> 'Y' and year(a.tgl) > 2019 order by a.tgl";
+                var cekHarsatST0 = ErasoftDbContext.Database.SqlQuery<int>(sSQL).ToList();
+                if (cekHarsatST0.Count() > 0)
+                {
+                    string listRec = "";
+                    foreach (var rec in cekHarsatST0)
+                    {
+                        listRec += "'" + rec + "',";
+                    }
+                    listRec = listRec.Substring(0, listRec.Length - 1);
+                    var sSQLUpdate = "update b set harsat=harga/qty from stt01a a (nolock) inner join stt01b b (nolock) on a.nobuk=b.nobuk where isnull(a.st_posting,'') <>'Y' and year(a.tgl) > 2019 and harsat =0 and harga > 0 and qty > 0 and b.no in (" + listRec + ") ";
+                    var updateHarsat = ErasoftDbContext.Database.ExecuteSqlCommand(sSQLUpdate);
+                    ErasoftDbContext.SaveChanges();
+                }
+            }catch(Exception ex)
+            {
+
+            }
+            return ret;
+        }
+        //end add by nurul 29/1/2021
     }
 }

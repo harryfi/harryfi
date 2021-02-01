@@ -63,6 +63,13 @@ namespace MasterOnline.ViewModels
         public int? JumlahPesananFaktur { get; set; }
         public double? NilaiPesananFaktur { get; set; }
         //end add by nurul 1/12/2020
+
+        //add by nurul 20/10/2020
+        public SOT01G PesananBundling { get; set; }
+        public List<SOT01G> ListPesananBundling { get; set; } = new List<SOT01G>();
+        public List<listKomponenBundling> listKomponen { get; set; } = new List<listKomponenBundling>();
+        public bool notfoundBundling { get; set; }
+        //end add by nurul 20/10/2020
     }
 
     //add by nurul 24/3/2020
@@ -85,4 +92,10 @@ namespace MasterOnline.ViewModels
         public string NAMA2 { get; set; }
     }
     //end add by nurul 24/3/2020
+
+    public class listKomponenBundling
+    {
+        public string bundling { get; set; }
+        public string komponen { get; set; }
+    }
 }

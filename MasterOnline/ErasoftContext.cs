@@ -469,6 +469,11 @@ namespace MasterOnline
         public virtual DbSet<STF03C> STF03C { get; set; }
         //end add by nurul 19/8/2020
 
+        //add by nurul 22/10/2020
+        public virtual DbSet<SOT01G> SOT01G { get; set; }
+        public virtual DbSet<SIT01H> SIT01H { get; set; }
+        //end add by nurul 22/10/2020
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
 

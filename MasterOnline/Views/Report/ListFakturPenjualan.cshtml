@@ -101,6 +101,19 @@
 
     </div>
 </div>
+<div class="row">
+    <div class="col-md-3">
+        @Html.Label("", "Status Faktur")
+        <div class="input-group text">
+            <select class="form-control" id="Status" name="Status" required="required">
+                <option value="5">Selesai</option>
+                <option value="4">Semua</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-9">
+    </div>
+</div>
 
 <br />
 <div class="row">
@@ -195,7 +208,10 @@
                         FromCust: $('#FromCust').val(),
                         ToCust: $('#ToCust').val(),
                         DrTanggal: formatDateToYYYYmmDD(1),
-                        SdTanggal: formatDateToYYYYmmDD(2)
+                        SdTanggal: formatDateToYYYYmmDD(2),
+                        //add by nurul 10/12/2020, add status faktur
+                        Status: $('#Status').val()
+                        //end add by nurul 10/12/2020, add status faktur
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,

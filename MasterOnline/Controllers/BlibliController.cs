@@ -32,6 +32,8 @@ namespace MasterOnline.Controllers
         public ErasoftContext ErasoftDbContext { get; set; }
         DatabaseSQL EDB;
         string username;
+        string dbSourceEra = "";
+        private string dbPathEra = "";
         public BlibliController()
         {
             MoDbContext = new MoDbContext("");
@@ -40,10 +42,19 @@ namespace MasterOnline.Controllers
             if (sessionData?.Account != null)
             {
                 if (sessionData.Account.UserId == "admin_manage")
+                {
                     ErasoftDbContext = new ErasoftContext();
+                }
                 else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DataSourcePath, sessionData.Account.DatabasePathErasoft);
-
+                {
+#if (Debug_AWS)
+                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+#else
+                    dbSourceEra = sessionData.Account.DataSourcePath;
+#endif
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
+                }
+                dbPathEra = sessionData.Account.DatabasePathErasoft;
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 username = sessionData.Account.Username;
             }
@@ -52,7 +63,13 @@ namespace MasterOnline.Controllers
                 if (sessionData?.User != null)
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+#if (Debug_AWS)
+                    dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
+                    dbSourceEra = accFromUser.DataSourcePath;
+#endif
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
+                    dbPathEra = accFromUser.DatabasePathErasoft;
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     username = accFromUser.Username;
                 }
@@ -1775,6 +1792,10 @@ namespace MasterOnline.Controllers
         {
             //if merchant code diisi. barulah upload produk
             string ret = "";
+            //var qtyOnHand = new ManageController().GetQOHSTF08A(data.kode, "ALL");
+            StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+
+            var qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
 
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -1808,7 +1829,9 @@ namespace MasterOnline.Controllers
                         myData += "\"price\": " + data.Price + ", ";
                         myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
                                                                               //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
-                        myData += "\"buyable\": " + data.display + ", ";
+                                                                              //myData += "\"buyable\": " + data.display + ", ";
+                        myData += "\"buyable\": " + (qtyOnHand > 0 ? data.display : "false") + ", ";
+
                         myData += "\"displayable\": " + data.display + " "; // true=tampil    
                         myData += "},";
                     }
@@ -1890,10 +1913,58 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                catch (Exception ex)
+                //catch (Exception ex)
+                //{
+                //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //}
+                catch (WebException e)
                 {
-                    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    string err = "";
+                    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    if (e.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        WebResponse resp = e.Response;
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            err = sr.ReadToEnd();
+                        }
+                        var response = e.Response as HttpWebResponse;
+                        var status = (int)response.StatusCode;
+                        if (status == 429)
+                        {
+                            if (string.IsNullOrEmpty(data.berat))
+                            {
+                                data.berat = "0";
+                            }
+                            var loop = Convert.ToInt32(data.berat);
+                            if (loop < 2)
+                            {
+                                await Task.Delay(60000);
+                                data.berat = (loop + 1).ToString();
+                                await UpdateProdukQOH_Display(iden, data);
+                            }
+                            else
+                            {
+                                currentLog.REQUEST_EXCEPTION = err;
+                                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                                throw new Exception(err);
+                            }
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_EXCEPTION = err;
+                            manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                            throw new Exception(err);
+                        }
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_EXCEPTION = e.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                        throw new Exception(e.Message);
+                    }
                 }
                 if (responseFromServer != "")
                 {

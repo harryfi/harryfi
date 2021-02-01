@@ -2993,6 +2993,7 @@
                                         {
                                             e2cartCategoryCodeFound = i;
                                             @Html.TextBox("txt82CartCategoryCodeFound", @e2cartCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                            @Html.TextBox("txt82CartMarketRecnumFound", @recnumArf01, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
                                         }
                                     }
                                 }
@@ -3008,6 +3009,7 @@
                                         {
                                             shopifyCategoryCodeFound = i;
                                             @Html.TextBox("txtshopifyCategoryCodeFound", @shopifyCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                            @Html.TextBox("txtshopifyMarketRecnumFound", @recnumArf01, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
                                         }
                                     }
                                 }
@@ -3079,8 +3081,8 @@
                                         if (cekDisplay ?? false)
                                         {
                                             //end add by calvin 24 april 2019
-                                            blibliCategoryCodeFound = i;
-                                            @Html.TextBox("txtJdidCategoryCodeFound", @blibliCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                            jdidCategoryCodeFound = i;
+                                            @Html.TextBox("txtJdidCategoryCodeFound", jdidCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
                                             @Html.TextBox("txtJdidMarketRecnumFound", @recnumArf01, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
                                         }
                                     }

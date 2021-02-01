@@ -699,15 +699,56 @@ namespace MasterOnline.Controllers
                 int page = 0;
                 var more = true;
 
+                //add 16 des 2020, fixed date
+                var fromDt = DateTime.UtcNow.AddHours(7).AddDays(-5);
+                if (stat == StatusOrder.Completed)
+                {
+                    fromDt = DateTime.UtcNow.AddHours(7).AddDays(-7);
+                }
+                //var toDt = DateTime.UtcNow.AddHours(14);
+                var toDt = DateTime.UtcNow.AddHours(7);
+                //end add 16 des 2020, fixed date
+
+                //add by nurul 20/1/2021, bundling 
+                var AdaKomponen = false;
+                var connIdProses = "";
+                List<string> tempConnId = new List<string>() { };
+                //end add by nurul 20/1/2021, bundling 
+                
                 while (more)
                 {
-                    int count = await GetOrderListWithPage(iden, stat, connId, CUST, NAMA_CUST, page);
+                    //int count = await GetOrderListWithPage(iden, stat, connId, CUST, NAMA_CUST, page, fromDt, toDt);
+                    var count = await GetOrderListWithPage(iden, stat, connId, CUST, NAMA_CUST, page, fromDt, toDt);
                     page++;
-                    if (count < 10)
+                    //add by nurul 20/1/2021, bundling
+                    if (connId != "")
+                    {
+                        tempConnId.Add(connId);
+                        connIdProses += "'" + connId + "' , ";
+                    }
+                    if (count.AdaKomponen)
+                    {
+                        AdaKomponen = count.AdaKomponen;
+                    }
+                    //end add by nurul 20/1/2021, bundling
+                    if (count.Count < 10)
                     {
                         more = false;
                     }
                 }
+                //add by nurul 20/1/2021, bundling 
+                //List<string> listBrgKomponen = new List<string>();
+                //if (tempConnId.Count() > 0)
+                //{
+                //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+                //}
+                //if (listBrgKomponen.Count() > 0)
+                if(AdaKomponen)
+                {
+                    new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+                }
+                //end add by nurul 20/1/2021, bundling 
+
 
                 // tunning untuk tidak duplicate
                 var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + connId + "%' and invocationdata like '%blibli%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%'");
@@ -718,8 +759,10 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<int> GetOrderListWithPage(BlibliAPIData iden, StatusOrder stat, string connId, string CUST, string NAMA_CUST, int page)
+        //public async Task<int> GetOrderListWithPage(BlibliAPIData iden, StatusOrder stat, string connId, string CUST, string NAMA_CUST, int page, DateTime fromDt, DateTime toDt)
+        public async Task<tempOrderCount> GetOrderListWithPage(BlibliAPIData iden, StatusOrder stat, string connId, string CUST, string NAMA_CUST, int page, DateTime fromDt, DateTime toDt)
         {
+            var ret = new tempOrderCount();
             int count = 0;
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -737,7 +780,8 @@ namespace MasterOnline.Controllers
                     //paid
                     status = "FP";
                     //add by nurul 10/12/2019, ubah startdate
-                    startDate = Uri.EscapeDataString(DateTime.UtcNow.AddDays(-5).ToString("yyyy-MM-dd HH:mm:ss"));
+                    //startDate = Uri.EscapeDataString(DateTime.UtcNow.AddDays(-5).ToString("yyyy-MM-dd HH:mm:ss"));
+                    startDate = Uri.EscapeDataString(fromDt.ToString("yyyy-MM-dd HH:mm:ss"));
                     //end add by nurul 10/12/2019, ubah startdate
                     //add by Tri 17 mar 2020, insert pesanan dengan status PF dan PU
                     status = "FP,PF,PU";
@@ -755,7 +799,8 @@ namespace MasterOnline.Controllers
                     //Completed (Shipping)
                     status = "D";
                     //add by nurul 10/12/2019, ubah startdate
-                    startDate = Uri.EscapeDataString(DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss"));
+                    //startDate = Uri.EscapeDataString(DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss"));
+                    startDate = Uri.EscapeDataString(fromDt.ToString("yyyy-MM-dd HH:mm:ss"));
                     //end add by nurul 10/12/2019, ubah startdate
                     break;
                 default:
@@ -779,7 +824,8 @@ namespace MasterOnline.Controllers
                 //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
                 //change by nurul 10/12/2019, ubah startdate & enddate
                 //string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&page=" + page.ToString() + "&size=10&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline&filterStartDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss")) + "&filterEndDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddHours(14).ToString("yyyy-MM-dd HH:mm:ss"));
-                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&page=" + page.ToString() + "&size=10&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline&filterStartDate=" + startDate + "&filterEndDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddHours(14).ToString("yyyy-MM-dd HH:mm:ss"));
+                //urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&page=" + page.ToString() + "&size=10&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline&filterStartDate=" + startDate + "&filterEndDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddHours(14).ToString("yyyy-MM-dd HH:mm:ss"));
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&page=" + page.ToString() + "&size=10&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline&filterStartDate=" + startDate + "&filterEndDate=" + Uri.EscapeDataString(toDt.ToString("yyyy-MM-dd HH:mm:ss"));
                 //end change by nurul 10/12/2019, ubah startdate & enddate
 
                 //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
@@ -808,7 +854,8 @@ namespace MasterOnline.Controllers
                 string usernameMO = iden.API_client_username;
                 //string passMO = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
                 string passMO = iden.API_client_password;
-                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&page=" + page.ToString() + "&size=10&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline&filterStartDate=" + startDate + "&filterEndDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddHours(14).ToString("yyyy-MM-dd HH:mm:ss"));
+                //urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&page=" + page.ToString() + "&size=10&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline&filterStartDate=" + startDate + "&filterEndDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddHours(14).ToString("yyyy-MM-dd HH:mm:ss"));
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&page=" + page.ToString() + "&size=10&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline&filterStartDate=" + startDate + "&filterEndDate=" + Uri.EscapeDataString(toDt.ToString("yyyy-MM-dd HH:mm:ss"));
 
                 myReq = (HttpWebRequest)WebRequest.Create(urll);
                 myReq.Method = "GET";
@@ -875,6 +922,14 @@ namespace MasterOnline.Controllers
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                 contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Blibli.");
 
+                                //add by nurul 25/1/2021, bundling
+                                var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connId + "')").ToList();
+                                if (listBrgKomponen.Count() > 0)
+                                {
+                                    ret.AdaKomponen = true;
+                                }
+                                //end add by nurul 25/1/2021, bundling
+
                                 new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);
                             }
                             //end add by calvin 1 april 2019
@@ -936,7 +991,9 @@ namespace MasterOnline.Controllers
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                 }
             }
-            return count;
+            //return count;
+            ret.Count = count;
+            return ret;
         }
 
         public async Task<string> GetOrderDetail(BlibliAPIData iden, string orderNo, string orderItemNo, string connId, string CUST, string NAMA_CUST)
@@ -2112,6 +2169,10 @@ namespace MasterOnline.Controllers
             public string orderItemNo { get; set; }
             public List<fillOrderAWBCombineShipping> combineShipping { get; set; }
         }
+        public class fillOrderAWBDataV2
+        {
+            public string awbNo { get; set; }
+        }
         public class fillOrderAWBCombineShipping
         {
             public string orderNo { get; set; }
@@ -2318,6 +2379,122 @@ namespace MasterOnline.Controllers
                 }
             }
         }
+
+        //add by nurul 18/12/2020
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Konfirmasi Pengiriman Pesanan {obj} ke Blibli Gagal.")]
+        public void fillOrderAWBV2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, string awbNo, string orderNo, string orderItemNo)
+        {
+            long milis = CurrentTimeMillis();
+            var token = SetupContext(iden);
+            iden.token = token;
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+            List<fillOrderAWBCombineShipping> combineShipping = new List<fillOrderAWBCombineShipping>();
+            combineShipping.Add(new fillOrderAWBCombineShipping
+            {
+                orderNo = orderNo,
+                orderItemNo = orderItemNo
+            });
+            
+            fillOrderAWBDataV2 thisData = new fillOrderAWBDataV2();
+            thisData.awbNo = awbNo;
+
+            string myData = JsonConvert.SerializeObject(thisData);
+
+            string urll = "https://api.blibli.com/v2/proxy/seller/v1/orders/regular/" + awbNo + "/fulfill?";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            
+            if (iden.versiToken != "2")
+            {
+                string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/fulfillRegular", iden.API_secret_key);
+                urll = "https://api.blibli.com/v2/proxy/seller/v1/orders/regular/" + awbNo + "/fulfill?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&storeId=10001" + "&channelId=MasterOnline&username=" + Uri.EscapeDataString(iden.mta_username_email_merchant) + "&storeCode=" + Uri.EscapeDataString(iden.merchant_code);
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "POST";
+                myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("requestId", milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
+                myReq.Headers.Add("username", userMTA);
+            }
+            else
+            {
+                string usernameMO = iden.API_client_username;
+                //string passMO = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
+                string passMO = iden.API_client_password;
+                urll = "https://api.blibli.com/v2/proxy/seller/v1/orders/regular/" + awbNo + "/fulfill?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&storeId=10001" + "&channelId=MasterOnline&username=" + Uri.EscapeDataString(iden.mta_username_email_merchant) + "&storeCode=" + Uri.EscapeDataString(iden.merchant_code);
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "POST";
+                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+                myReq.Headers.Add("Signature-Time", milis.ToString());
+            }
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                string err1 = "";
+                if (ex.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp1 = ex.Response;
+                    using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                    {
+                        err1 = sr1.ReadToEnd();
+                        responseFromServer = err1;
+                    }
+                }
+                //throw new Exception(err1);
+            }
+            if (responseFromServer != "")
+            {
+                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                if (responseFromServer == "{}")
+                {
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM = '2' WHERE CUST = '" + log_CUST + "' AND NO_REFERENSI = '" + orderNo + "'");
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(result.errorCode.Value))
+                    {
+                        EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM = '2' WHERE CUST = '" + log_CUST + "' AND NO_REFERENSI = '" + orderNo + "'");
+                    }
+                    else
+                    {
+                        EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM = '1' WHERE CUST = '" + log_CUST + "' AND NO_REFERENSI = '" + orderNo + "'");
+                        throw new Exception(result.errorMessage.Value);
+                    }
+                }
+            }
+        }
+        //end add by nurul 18/12/2020
 
         public async Task<string> UpdateProdukQOH_Display(BlibliAPIData iden, BlibliProductData data)
         {
@@ -2553,6 +2730,9 @@ namespace MasterOnline.Controllers
             SetupContext(iden);
             //if merchant code diisi. barulah upload produk
             string ret = "";
+            StokControllerJob stokAPI = new StokControllerJob(dbPathEra, iden.username);
+
+            var qtyOnHand = stokAPI.GetQOHSTF08A(data.kode, "ALL");
 
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -2586,7 +2766,8 @@ namespace MasterOnline.Controllers
                         myData += "\"price\": " + data.Price + ", ";
                         myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
                                                                               //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
-                        myData += "\"buyable\": " + data.display + ", ";
+                        //myData += "\"buyable\": " + data.display + ", ";
+                        myData += "\"buyable\": " + (qtyOnHand > 0 ? data.display : "false") + ", ";
                         myData += "\"displayable\": " + data.display + " "; // true=tampil    
                         myData += "},";
                     }
@@ -2669,12 +2850,60 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (WebException e)
                 {
-                    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                    throw new Exception(currentLog.REQUEST_EXCEPTION);
+                    string err = "";
+                    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    if (e.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        WebResponse resp = e.Response;
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            err = sr.ReadToEnd();
+                        }
+                        var response = e.Response as HttpWebResponse;
+                        var status = (int)response.StatusCode;
+                        if (status == 429)
+                        {
+                            if (string.IsNullOrEmpty(data.berat))
+                            {
+                                data.berat = "0";
+                            }
+                            var loop = Convert.ToInt32(data.berat);
+                            if (loop < 2)
+                            {
+                                await Task.Delay(60000);
+                                data.berat = (loop + 1).ToString();
+                                await UpdateProdukQOH_Display_Job(dbPathEra, kdbrgMO, log_CUST, log_ActionCategory, log_ActionName, product_id, iden, data);
+                            }
+                            else
+                            {
+                                currentLog.REQUEST_EXCEPTION = err;
+                                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                                throw new Exception(err);
+                            }
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_EXCEPTION = err;
+                            manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                            throw new Exception(err);
+                        }
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_EXCEPTION = e.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                        throw new Exception(e.Message);
+                    }
                 }
+                //catch (Exception ex)
+                //{
+                //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //    throw new Exception(currentLog.REQUEST_EXCEPTION);
+                //}
                 if (responseFromServer != "")
                 {
                     dynamic result2 = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
@@ -7731,7 +7960,8 @@ namespace MasterOnline.Controllers
                     price = Convert.ToInt32(Convert.ToDouble(data.Price)),
                     salePrice = Convert.ToInt32(stf02h.HJUAL),
                     minimumStock = Convert.ToInt32(data.dataBarangInDb.MINI),
-                    stock = Convert.ToInt32(data.dataBarangInDb.MINI),
+                    //stock = Convert.ToInt32(data.dataBarangInDb.MINI),
+                    stock = 0,
                     buyable = true,
                     displayable = true,
                     dangerousGoodsLevel = 0,
@@ -8071,7 +8301,8 @@ namespace MasterOnline.Controllers
                         price = Convert.ToInt32(var_item.HJUAL),
                         salePrice = Convert.ToInt32(var_stf02h_item.HJUAL),
                         minimumStock = Convert.ToInt32(var_item.MINI),
-                        stock = Convert.ToInt32(var_item.MINI),
+                        //stock = Convert.ToInt32(var_item.MINI),
+                        stock = 0,
                         buyable = true,
                         displayable = true,
                         dangerousGoodsLevel = 0,
@@ -8368,7 +8599,7 @@ namespace MasterOnline.Controllers
             if (iden.versiToken == "2")
             {
                 var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
-                var resCek = cekProductQC(productCodeBlibli, iden, customer.RecNum ?? 0, kodeProduk);
+                var resCek = cekProductQC(productCodeBlibli, iden, customer.RecNum ?? 0, kodeProduk, 0);
                 if (resCek.status == 1)//need correction
                 {
                     using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
@@ -8499,9 +8730,10 @@ namespace MasterOnline.Controllers
                         {
                             string BRG = Convert.ToString(dsStf02Variant.Tables[0].Rows[i]["BRG"]);
                             merchantskus.Add(BRG);
-                        }
+                            if(merchantskus.Count == 50 || i == dsStf02Variant.Tables[0].Rows.Count - 1)
+                            {
 #if (DEBUG || Debug_AWS)
-                        await CekProductActive(DatabasePathErasoft, kodeProduk, log_CUST, "Barang", "Cek Active/Reject", iden, kodeProduk, merchantskus, log_CUST, requestID, api_log_requestId);
+                                await CekProductActive(DatabasePathErasoft, kodeProduk, log_CUST, "Barang", "Cek Active/Reject", iden, kodeProduk, merchantskus, log_CUST, requestID, api_log_requestId);
 
 #else
                                         string EDBConnID = EDB.GetConnectionString("ConnId");
@@ -8509,6 +8741,18 @@ namespace MasterOnline.Controllers
                                         var client = new BackgroundJobClient(sqlStorage);
                                         client.Enqueue<BlibliControllerJob>(x => x.CekProductActive(DatabasePathErasoft, kodeProduk, log_CUST, "Barang", "Cek Active/Reject", iden, kodeProduk, merchantskus, log_CUST, requestID, api_log_requestId));
 #endif
+                                merchantskus = new List<string>();
+                            }
+                        }
+//#if (DEBUG || Debug_AWS)
+//                        await CekProductActive(DatabasePathErasoft, kodeProduk, log_CUST, "Barang", "Cek Active/Reject", iden, kodeProduk, merchantskus, log_CUST, requestID, api_log_requestId);
+
+//#else
+//                                        string EDBConnID = EDB.GetConnectionString("ConnId");
+//                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+//                                        var client = new BackgroundJobClient(sqlStorage);
+//                                        client.Enqueue<BlibliControllerJob>(x => x.CekProductActive(DatabasePathErasoft, kodeProduk, log_CUST, "Barang", "Cek Active/Reject", iden, kodeProduk, merchantskus, log_CUST, requestID, api_log_requestId));
+//#endif
                     }
                 }
                 //change by nurul 14/9/2020, handle barang multi sku juga 
@@ -8553,7 +8797,9 @@ namespace MasterOnline.Controllers
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
 
             string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/inProcessProduct", iden.API_secret_key);
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/inProcessProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&size=50&channelId=MasterOnline";
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/inProcessProduct?requestId=" 
+                + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) 
+                + "&size=50&channelId=MasterOnline&page=" + page;
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -8613,7 +8859,7 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public BindingBase cekProductQC(string kodeProduk, BlibliAPIData iden, int idMarket, string brg)
+        public BindingBase cekProductQC(string kodeProduk, BlibliAPIData iden, int idMarket, string brg, int page)
         {
 
             long milis = CurrentTimeMillis();
@@ -8640,7 +8886,7 @@ namespace MasterOnline.Controllers
             string myData = "{ \"filter\" : { ";
             myData += "\"state\": \"NEED_CORRECTION\"},";
             myData += "\"paging\": {";
-            myData += "\"page\": 0, ";
+            myData += "\"page\": "+page+", ";
             myData += "\"size\": 100 } ";
             myData += "}";
             string responseFromServer = "";
@@ -8688,6 +8934,11 @@ namespace MasterOnline.Controllers
                                     ret.message = data.product.revisionNotes;
                                     return ret;
                                 }
+                            }
+
+                            if(listBrg.content.Length == 100)
+                            {
+                                cekProductQC( kodeProduk,  iden,  idMarket,  brg,  page + 1);
                             }
                         }
                     }
@@ -9369,7 +9620,8 @@ namespace MasterOnline.Controllers
                     //price = Convert.ToInt32(Convert.ToDouble(data.Price)),
                     //salePrice = Convert.ToInt32(stf02h.HJUAL),
                     minimumStock = Convert.ToInt32(data.dataBarangInDb.MINI),
-                    stock = Convert.ToInt32(data.dataBarangInDb.MINI),
+                    //stock = Convert.ToInt32(data.dataBarangInDb.MINI),
+                    stock = 0,
                     buyable = true,
                     displayable = true,
                     //dangerousGoodsLevel = 0,
@@ -9717,7 +9969,8 @@ namespace MasterOnline.Controllers
                         //price = Convert.ToInt32(var_item.HJUAL),
                         //salePrice = Convert.ToInt32(var_stf02h_item.HJUAL),
                         minimumStock = Convert.ToInt32(var_item.MINI),
-                        stock = Convert.ToInt32(var_item.MINI),
+                        //stock = Convert.ToInt32(var_item.MINI),
+                        stock = 0,
                         buyable = true,
                         displayable = true,
                         //dangerousGoodsLevel = 0,
@@ -9850,6 +10103,9 @@ namespace MasterOnline.Controllers
         public class BlibliCekProductActive
         {
             public string[] merchantSkus { get; set; }
+            public bool isArchive { get; set; }
+            public int size { get; set; }
+            public int page { get; set; }
         }
 
         public class BlibliGetQueueProductCode
@@ -9987,6 +10243,11 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Create Product {obj} ke Blibli Berhasil. Cek Active Gagal.")]
         public async Task<string> CekProductActive(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, string kodeInduk, List<string> merchantskus, string cust, string queue_feed_requestid, string api_log_requestId)
         {
+            await CekProductActiveWithPage(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, kodeInduk, merchantskus, cust, queue_feed_requestid, api_log_requestId, 0);
+            return "";
+        }
+        public async Task<string> CekProductActiveWithPage(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, string kodeInduk, List<string> merchantskus, string cust, string queue_feed_requestid, string api_log_requestId, int page)
+        {
 
             var token = SetupContext(iden);
             iden.token = token;
@@ -9994,7 +10255,7 @@ namespace MasterOnline.Controllers
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
-            string myData = JsonConvert.SerializeObject(new BlibliCekProductActive() { merchantSkus = merchantskus.ToArray() });
+            string myData = JsonConvert.SerializeObject(new BlibliCekProductActive() { merchantSkus = merchantskus.ToArray(), isArchive = false, size = 100, page = page });
 
             //change by nurul 13/7/2020
             //    string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
@@ -10139,31 +10400,6 @@ namespace MasterOnline.Controllers
                                 itemUpdateStok.Add(item.merchantSku);
                             }
 
-                            #region update stok
-                            string ConnId = "[BLI_QC][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]";
-                            string sSQLValues = "";
-
-                            foreach (var item in itemUpdateStok)
-                            {
-                                sSQLValues = sSQLValues + "('" + item + "', '" + ConnId + "'),";
-                            }
-                            if (sSQLValues != "")
-                            {
-                                sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
-                                using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
-                                {
-                                    oConnection.Open();
-                                    using (SqlCommand oCommand = oConnection.CreateCommand())
-                                    {
-                                        oCommand.CommandType = CommandType.Text;
-                                        oCommand.CommandText = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues;
-                                        oCommand.ExecuteNonQuery();
-                                    }
-                                }
-
-                                new StokControllerJob().updateStockMarketPlace(ConnId, dbPathEra, "BlibliActive");
-                            }
-                            #endregion
                             string STF02_BRG = kodeInduk;
 
                             var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == api_log_requestId).SingleOrDefault();
@@ -10204,6 +10440,36 @@ namespace MasterOnline.Controllers
                                     oCommand.Parameters[2].Value = kodeInduk;
                                     oCommand.ExecuteNonQuery();
                                 }
+                            }
+
+                            #region update stok
+                            string ConnId = "[BLI_QC][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]";
+                            string sSQLValues = "";
+
+                            foreach (var item in itemUpdateStok)
+                            {
+                                sSQLValues = sSQLValues + "('" + item + "', '" + ConnId + "'),";
+                            }
+                            if (sSQLValues != "")
+                            {
+                                sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
+                                using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                {
+                                    oConnection.Open();
+                                    using (SqlCommand oCommand = oConnection.CreateCommand())
+                                    {
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.CommandText = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues;
+                                        oCommand.ExecuteNonQuery();
+                                    }
+                                }
+
+                                new StokControllerJob().updateStockMarketPlace(ConnId, dbPathEra, "BlibliActive");
+                            }
+                            #endregion
+                            if (listBrg.content.Count() == 100)
+                            {
+                                await CekProductActiveWithPage(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, kodeInduk, merchantskus, cust, queue_feed_requestid, api_log_requestId, page + 1);
                             }
                         }
                         else
@@ -11282,5 +11548,12 @@ namespace MasterOnline.Controllers
             public string locationPath { get; set; }
         }
 
+        //add by nurul 25/1/2021, bundling
+        public class tempOrderCount
+        {
+            public int Count { get; set; }
+            public bool AdaKomponen { get; set; }
+        }
+        //end add by nurul 25/1/2021, bundling 
     }
 }

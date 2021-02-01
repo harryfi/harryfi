@@ -1,0 +1,24 @@
+﻿@using System.Globalization
+@model MasterOnline.ViewModels.BayarPiutangViewModel
+
+
+<table class="table table-striped table-bordered" id="datatable_delete_detail_massal">
+    <thead>
+        <tr role="row">
+            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Faktur</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">No. Ref</th>
+            @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Nilai Bayar</th>*@
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var faktur in Model.ListPiutangDetail)
+        {
+            <tr>
+                <td class="get_recnum" data-recnum="@faktur.NO" style="width:100px">@faktur.NFAKTUR</td>
+                <td style="width:300px">@faktur.NOREF</td>
+                @*<td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.BAYAR)</td>*@
+            </tr>
+        }
+    </tbody>
+</table>
+

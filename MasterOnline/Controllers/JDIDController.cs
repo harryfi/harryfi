@@ -37,10 +37,17 @@ namespace MasterOnline.Controllers
         public string ParamFile;
         protected List<long> listCategory = new List<long>();
         public List<Model_Brand> listBrand = new List<Model_Brand>();
+        // add by fauzi 8 Desember 2020
+        public string shopID_JDID;
+        protected List<long> listCategory_lv1 = new List<long>();
+        protected List<long> listCategory_lv2 = new List<long>();
+        protected List<long> listCategory_lv3 = new List<long>();
+        // end by fauzi 8 Desember 2020
 
         public ErasoftContext ErasoftDbContext { get; set; }
         DatabaseSQL EDB;
         string username;
+        string dbSourceEra = "";
 
         public JDIDController()
         {
@@ -50,9 +57,18 @@ namespace MasterOnline.Controllers
             if (sessionData?.Account != null)
             {
                 if (sessionData.Account.UserId == "admin_manage")
+                {
                     ErasoftDbContext = new ErasoftContext();
+                }
                 else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DataSourcePath, sessionData.Account.DatabasePathErasoft);
+                {
+#if (Debug_AWS)
+                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+#else
+                    dbSourceEra = sessionData.Account.DataSourcePath;
+#endif
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
+                }
 
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 username = sessionData.Account.Username;
@@ -62,7 +78,12 @@ namespace MasterOnline.Controllers
                 if (sessionData?.User != null)
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+#if (Debug_AWS)
+                    dbSourceEra = accFromUser.DataSourcePathDebug;
+#else
+                    dbSourceEra = accFromUser.DataSourcePath;
+#endif
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     username = accFromUser.Username;
                 }
@@ -320,6 +341,7 @@ namespace MasterOnline.Controllers
                 {
                     if (ret.openapi_code == 0)
                     {
+                        //var listKategori = JsonConvert.DeserializeObject(ret.openapi_data, typeof(DATA_CAT)) as DATA_CAT;
                         var listKategori = JsonConvert.DeserializeObject(ret.openapi_data, typeof(DATA_CAT)) as DATA_CAT;
                         if (listKategori != null)
                         {
@@ -419,6 +441,173 @@ namespace MasterOnline.Controllers
                                         //}
                                     }
                                 }
+                            }
+                            else
+                            {
+                                contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                            }
+                        }
+                        else
+                        {
+                            contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                        }
+                    }
+                    else
+                    {
+                        contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                    }
+                }
+                else
+                {
+                    contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+            }
+
+            return retr;
+        }
+
+        //Get Category New
+        public async Task<string> JDID_checkAPICustomerShopNew(JDIDAPIData data)
+        {
+            getShopID(data);
+            string retr = "";
+            string sArrayListLevel = "";
+            string sArrayListLevelTempNoDuplicate = "";
+            int iLimitCategory = 0;
+
+            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+
+            DatabaseSQL EDB = new DatabaseSQL(data.DatabasePathErasoft);
+            var resultExecDefault = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + data.no_cust + "'");
+
+            var mgrApiManager = new JDIDController();
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
+            mgrApiManager.Method = "epi.ware.openapi.CategoryApi.getAuthenCategory";
+            mgrApiManager.ParamJson = "{\"shopId\":" + shopID_JDID + "}";
+
+            try
+            {
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
+                var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (ret != null)
+                {
+                    if (ret.openapi_code == 0)
+                    {
+                        var listKategori = JsonConvert.DeserializeObject(ret.openapi_data, typeof(DATA_CAT_NEW)) as DATA_CAT_NEW;
+                        if (listKategori != null)
+                        {
+                            if (listKategori.success)
+                            {
+                                contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Akun marketplace " + data.email.ToString() + " (JD.ID) berhasil aktif", true);
+                                EDB.ExecuteSQL("CString", CommandType.Text, "Update ARF01 SET STATUS_API = '1' WHERE TOKEN = '" + data.accessToken + "' AND API_KEY = '" + data.appKey + "'");
+                                //string dbPath = "";
+                                //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                                //if (sessionData?.Account != null)
+                                //{
+                                //    dbPath = sessionData.Account.DatabasePathErasoft;
+                                //}
+                                //else
+                                //{
+                                //    if (sessionData?.User != null)
+                                //    {
+                                //        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                                //        dbPath = accFromUser.DatabasePathErasoft;
+                                //    }
+                                //}
+                                //var listKtg = ErasoftDbContext.CATEGORY_JDID.ToList();
+                                //if (listKtg.Count > 0)
+                                //{
+                                //    EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM CATEGORY_JDID");
+                                //}
+
+                                //string con = EDB.ConnectionStrings.FirstOrDefault().Value.ToString();
+
+                                //using (SqlConnection oConnection = new SqlConnection(con))
+                                //{
+                                //    oConnection.Open();
+                                //    //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                                //    //{
+                                //    using (SqlCommand oCommand = oConnection.CreateCommand())
+                                //    {
+                                //        //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
+                                //        //oCommand.ExecuteNonQuery();
+                                //        //oCommand.Transaction = oTransaction;
+                                //        oCommand.CommandType = CommandType.Text;
+                                //        oCommand.CommandText = "INSERT INTO [CATEGORY_JDID] ([CATEGORY_CODE], [CATEGORY_NAME], [CATE_STATE], [TYPE], [LEAF], [PARENT_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @CATE_STATE, @TYPE, @LEAF, @PARENT_CODE)";
+                                //        //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+                                //        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                //        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                //        oCommand.Parameters.Add(new SqlParameter("@CATE_STATE", SqlDbType.NVarChar, 3));
+                                //        oCommand.Parameters.Add(new SqlParameter("@TYPE", SqlDbType.NVarChar, 3));
+                                //        oCommand.Parameters.Add(new SqlParameter("@LEAF", SqlDbType.NVarChar, 1));
+                                //        oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
+
+                                //        //try
+                                //        //{
+                                //        foreach (var item in listKategori.model) //foreach parent level 3
+                                //        {
+                                //            oCommand.Parameters[0].Value = item.id;
+                                //            oCommand.Parameters[1].Value = item.name;
+                                //            oCommand.Parameters[2].Value = 1;
+                                //            oCommand.Parameters[3].Value = item.level;
+                                //            if (Convert.ToString(item.parentId) != null)
+                                //            {
+                                //                oCommand.Parameters[4].Value = "1";
+                                //                oCommand.Parameters[5].Value = item.parentId;
+                                //            }
+                                //            else
+                                //            {
+                                //                oCommand.Parameters[4].Value = "1";
+                                //                oCommand.Parameters[5].Value = "";
+                                //            }
+                                //            if (oCommand.ExecuteNonQuery() > 0)
+                                //            {
+                                //                if (Convert.ToString(item.parentId) != null)
+                                //                {
+                                //                    sArrayListLevel = sArrayListLevel + item.parentId + ",";
+                                //                    if (!sArrayListLevelTempNoDuplicate.Contains(Convert.ToString(item.parentId)))
+                                //                    {
+                                //                        iLimitCategory += 1;
+                                //                        sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate + item.parentId + ",";
+                                //                        if (iLimitCategory == 50)
+                                //                        {
+                                //                            sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                //                            RecursiveInsertCategoryNewLevel2(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                //                            iLimitCategory = 0;
+                                //                            sArrayListLevelTempNoDuplicate = "";
+                                //                        }
+                                //                    }
+                                //                }
+                                //            }
+                                //            else
+                                //            {
+
+                                //            }
+                                //        }
+
+                                //        if(!string.IsNullOrEmpty(sArrayListLevelTempNoDuplicate))
+                                //        {
+                                //            sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                //            RecursiveInsertCategoryNewLevel2(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                //            iLimitCategory = 0;
+                                //            sArrayListLevelTempNoDuplicate = "";
+                                //        }
+
+                                //        //oTransaction.Commit();
+                                //        //}
+                                //        //catch (Exception ex)
+                                //        //{
+                                //        //    //oTransaction.Rollback();
+                                //        //}
+                                //    }
+                                //}
                             }
                             else
                             {
@@ -639,6 +828,219 @@ namespace MasterOnline.Controllers
             //}
         }
 
+        protected void RecursiveInsertCategoryNewLevel2(SqlCommand oCommand, string listCategoryID, JDIDAPIData data)
+        {
+            string retr = "";
+            string sArrayListLevel = "";
+            string sArrayListLevelTempNoDuplicate = "";
+            int iLimitCategory = 0;
+
+            var mgrApiManager = new JDIDController();
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
+            mgrApiManager.Method = "epi.ware.openapi.CategoryApi.getCategoryByCatIds";
+            mgrApiManager.ParamJson = "{\"catIds\":\"" + listCategoryID + "\"}";
+
+
+            try
+            {
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
+                var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (ret != null)
+                {
+                    if (ret.openapi_code == 0)
+                    {
+                        var listKategori = JsonConvert.DeserializeObject(ret.openapi_data, typeof(DATA_CAT_NEW)) as DATA_CAT_NEW;
+                        if (listKategori != null)
+                        {
+                            if (listKategori.success)
+                            {
+                                foreach (var item in listKategori.model) //foreach parent level next
+                                {
+                                    if(item.level == 2)
+                                    {
+                                        oCommand.Parameters[0].Value = item.id;
+                                        oCommand.Parameters[1].Value = item.name;
+                                        oCommand.Parameters[2].Value = 1;
+                                        oCommand.Parameters[3].Value = item.level;
+                                        if (Convert.ToString(item.parentId) != null)
+                                        {
+                                            oCommand.Parameters[4].Value = "0";
+                                            oCommand.Parameters[5].Value = item.parentId;
+                                        }
+                                        else
+                                        {
+                                            oCommand.Parameters[4].Value = "1";
+                                            oCommand.Parameters[5].Value = "";
+                                        }
+
+                                        if (oCommand.ExecuteNonQuery() > 0)
+                                        {
+                                            if (Convert.ToString(item.parentId) != null)
+                                            {
+                                                sArrayListLevel = sArrayListLevel + item.parentId + ",";
+                                                if (!sArrayListLevelTempNoDuplicate.Contains(Convert.ToString(item.parentId)))
+                                                {
+                                                    iLimitCategory += 1;
+                                                    sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate + item.parentId + ",";
+                                                    if (iLimitCategory == 10)
+                                                    {
+                                                        sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                                        RecursiveInsertCategoryNewLevel1(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                                        iLimitCategory = 0;
+                                                        sArrayListLevelTempNoDuplicate = "";
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+
+                                        }
+
+                                    }
+                                }
+
+                                if (!string.IsNullOrEmpty(sArrayListLevelTempNoDuplicate))
+                                {
+                                    sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                    RecursiveInsertCategoryNewLevel1(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                    iLimitCategory = 0;
+                                    sArrayListLevelTempNoDuplicate = "";
+                                }
+                            }
+                            else
+                            {
+                                //contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                            }
+                        }
+                        else
+                        {
+                            //contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                        }
+                    }
+                    else
+                    {
+                        //contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                    }
+                }
+                else
+                {
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+            }
+        }
+
+        protected void RecursiveInsertCategoryNewLevel1(SqlCommand oCommand, string listCategoryID, JDIDAPIData data)
+        {
+            var mgrApiManager = new JDIDController();
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
+            mgrApiManager.Method = "epi.ware.openapi.CategoryApi.getCategoryByCatIds";
+            mgrApiManager.ParamJson = "{\"catIds\":\"" + listCategoryID + "\"}";
+
+
+            try
+            {
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
+                var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (ret != null)
+                {
+                    if (ret.openapi_code == 0)
+                    {
+                        var listKategori = JsonConvert.DeserializeObject(ret.openapi_data, typeof(DATA_CAT_NEW)) as DATA_CAT_NEW;
+                        if (listKategori != null)
+                        {
+                            if (listKategori.success)
+                            {
+                                foreach (var item in listKategori.model) //foreach parent level next
+                                {
+                                    if(item.level == 1)
+                                    {
+                                        oCommand.Parameters[0].Value = item.id;
+                                        oCommand.Parameters[1].Value = item.name;
+                                        oCommand.Parameters[2].Value = 1;
+                                        oCommand.Parameters[3].Value = item.level;
+                                        oCommand.Parameters[4].Value = "0";
+                                        oCommand.Parameters[5].Value = "";
+                                        //if (Convert.ToString(item.parentId) != null)
+                                        //{
+                                        //    //oCommand.Parameters[5].Value = item.parentId;
+                                        //}
+                                        //else
+                                        //{
+                                        //    oCommand.Parameters[5].Value = "";
+                                        //}
+
+                                        if (oCommand.ExecuteNonQuery() > 0)
+                                        {
+                                            //if (Convert.ToString(item.parentId) != null)
+                                            //{
+                                            //    sArrayListLevel = sArrayListLevel + item.parentId + ",";
+                                            //    if (!sArrayListLevelTempNoDuplicate.Contains(Convert.ToString(item.parentId)))
+                                            //    {
+                                            //        iLimitCategory += 1;
+                                            //        sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate + item.parentId + ",";
+                                            //        sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                            //        RecursiveInsertCategoryNewLevel1(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                            //        iLimitCategory = 0;
+                                            //        sArrayListLevelTempNoDuplicate = "";
+                                            //    }
+                                            //    else
+                                            //    {
+                                            //        statusLoop = false;
+                                            //    }
+                                            //}
+                                        }
+                                        else
+                                        {
+
+                                        }
+                                    }
+                                }
+
+                                //if (statusLoop == false && !string.IsNullOrEmpty(sArrayListLevelTempNoDuplicate))
+                                //{
+                                //    sArrayListLevelTempNoDuplicate = sArrayListLevelTempNoDuplicate.Substring(0, sArrayListLevelTempNoDuplicate.Length - 1);
+                                //    RecursiveInsertCategoryNewLevel1(oCommand, sArrayListLevelTempNoDuplicate, data);
+                                //    iLimitCategory = 0;
+                                //    sArrayListLevelTempNoDuplicate = "";
+                                //}
+                            }
+                            else
+                            {
+                                //contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                            }
+                        }
+                        else
+                        {
+                            //contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                        }
+                    }
+                    else
+                    {
+                        //contextNotif.Clients.Group(data.DatabasePathErasoft).notifTransaction("Data akun marketplace (JD.ID) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                    }
+                }
+                else
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+            }
+        }
+
         public ATTRIBUTE_JDID getAttribute(JDIDAPIData data, string catId)
         {
             var retAttr = new ATTRIBUTE_JDID();
@@ -663,23 +1065,83 @@ namespace MasterOnline.Controllers
                         if (listAttr.model.Count > 0)
                         {
                             string a = "";
-                            int i = 0;
+                            int i = 2;
                             retAttr.CATEGORY_CODE = catId;
+
+                            retAttr["ACODE_1"] = "9170";
+                            retAttr["AVALUE_1"] = "";
+                            retAttr["ANAME_1"] = "Warna";
+
+                            retAttr["ACODE_2"] = "9248";
+                            retAttr["AVALUE_2"] = "";
+                            retAttr["ANAME_2"] = "Ukuran";
+
                             foreach (var attr in listAttr.model)
                             {
-                                
+
                                 //a = Convert.ToString(i + 1);
                                 //retAttr["ACODE_" + a] = Convert.ToString(attr.propertyId);
                                 //retAttr["AVALUE_" + a] = attr.type.ToString();
                                 //retAttr["ANAME_" + a] = attr.nameEn;
                                 //i = i + 1;
-                                if (!attr.name.Contains("Coming Soon") && !attr.name.Contains("Warna") && !attr.name.Contains("Ukuran"))
+                                if (!string.IsNullOrEmpty(attr.name) && !string.IsNullOrEmpty(Convert.ToString(attr.propertyId)))
                                 {
-                                    a = Convert.ToString(i + 1);
-                                    retAttr["ACODE_" + a] = Convert.ToString(attr.propertyId);
-                                    retAttr["AVALUE_" + a] = attr.type.ToString();
-                                    retAttr["ANAME_" + a] = attr.nameEn;
-                                    i = i + 1;
+
+                                    if (!attr.name.Contains("Coming Soon") 
+                                        //&& !attr.name.Contains("Warna") 
+                                        //&& !attr.name.Contains("Ukuran") 
+                                        && !attr.name.Contains("Test11")
+                                        //&& !attr.name.Contains("Network") 
+                                        && !attr.name.Contains("Operating system")
+                                        && !attr.name.Contains("Upgradable")
+                                        //&& !attr.name.Contains("OS Upgrade to") 
+                                        //&& !attr.name.Contains("Chipset") 
+                                        //&& !attr.name.Contains("CPU")
+                                        && !attr.name.Contains("GPU")
+                                        //&& !attr.name.Contains("RAM") 
+                                        //&& !attr.name.Contains("Memory Internal")
+                                        //&& !attr.name.Contains("Memory External") 
+                                        //&& !attr.name.Contains("Rear Camera 1") 
+                                        //&& !attr.name.Contains("Rear Camera 2")
+                                        //&& !attr.name.Contains("Rear Camera 3") 
+                                        //&& !attr.name.Contains("Rear Camera 4") 
+                                        //&& !attr.name.Contains("Front Camera 1")
+                                        && !attr.name.Contains("Front Camera 2")
+                                        && !attr.name.Contains("Video")
+                                        //&& !attr.name.Contains("Battery Type")
+                                        //&& !attr.name.Contains("Removable Battery") 
+                                        //&& !attr.name.Contains("Battery Capacity") 
+                                        && !attr.name.Contains("LCD Size")
+                                        //&& !attr.name.Contains("LCD Type") 
+                                        //&& !attr.name.Contains("Screen Resolution") && !attr.name.Contains("Dimensions")
+                                        //&& !attr.name.Contains("Sensor") 
+                                        //&& !attr.name.Contains("SIM Card") 
+                                        //&& !attr.name.Contains("WLAN")
+                                        //&& !attr.name.Contains("NFC") 
+                                        && !attr.name.Contains("ROM")
+                                        && !attr.name.Contains("Megapixel(MP)")
+                                        && !attr.name.Contains("MicroSD")
+                                        //&& !attr.name.Contains("OS") 
+                                        && !attr.name.Contains("Secondary")
+                                        && !attr.name.Contains("Primary")
+                                        && !attr.name.Contains("GPRS")
+                                        && !attr.name.Contains("Multitouch")
+                                        && !attr.name.Contains("EDGE")
+                                        //&& !attr.name.Contains("Dual SIM") 
+                                        && !attr.name.Contains("Screen size (inch)")
+                                        //&& !attr.name.Contains("Price") 
+                                        //&& !attr.name.Contains("Kapasitas")
+                                        )
+                                    {
+                                        if(i < 20)
+                                        {
+                                            a = Convert.ToString(i + 1);
+                                            retAttr["ACODE_" + a] = Convert.ToString(attr.propertyId) ?? "";
+                                            retAttr["AVALUE_" + a] = attr.type.ToString() ?? "";
+                                            retAttr["ANAME_" + a] = attr.nameEn ?? "";
+                                            i = i + 1;
+                                        }
+                                    }
                                 }
                             }
                             for (int j = i; j < 20; j++)
@@ -1365,7 +1827,7 @@ namespace MasterOnline.Controllers
                     namaBrg = itemFromList.spuName;
                     //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                     //sSQL_Value += " ( '" + kdBrgInduk + "' , '" + kdBrgInduk + "' , '";
-                    sSQL_Value += " ( '" + kdBrgInduk + "' , '' , '";
+                    sSQL_Value += " ( '" + kdBrgInduk + ";0" + "' , '' , '";
                     //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
 
@@ -1616,6 +2078,39 @@ namespace MasterOnline.Controllers
                         if (dataBrand.success)
                         {
                             listBrand = dataBrand.model;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        protected void getShopID(JDIDAPIData data)
+        {
+            try
+            {
+
+                var mgrApiManager = new JDIDController();
+                mgrApiManager.AppKey = data.appKey;
+                mgrApiManager.AppSecret = data.appSecret;
+                mgrApiManager.AccessToken = data.accessToken;
+                mgrApiManager.Method = "epi.ware.openapi.CategoryApi.getAllCategoryTree";
+                mgrApiManager.ParamJson = "";
+
+                var response = mgrApiManager.Call(data.appKey, data.accessToken, data.appSecret);
+                var retBrand = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (retBrand != null)
+                {
+                    if (retBrand.openapi_msg.ToLower() == "success")
+                    {
+                        var dataCAT = JsonConvert.DeserializeObject(retBrand.openapi_data, typeof(DATA_CAT)) as DATA_CAT;
+                        if (dataCAT.success)
+                        {
+                            if(dataCAT.model.Count() > 0)
+                            shopID_JDID = Convert.ToString(dataCAT.model[0].shopId);
                         }
                     }
                 }
@@ -2350,6 +2845,21 @@ namespace MasterOnline.Controllers
         public long cate2Id { get; set; }
         public long cateId { get; set; }
         public string cateName { get; set; }
+    }
+
+    public class DATA_CAT_NEW
+    {
+        public List<Model_Cat_new> model { get; set; }
+        public int code { get; set; }
+        public bool success { get; set; }
+    }
+    public class Model_Cat_new
+    {
+        public long id { get; set; }
+        public int level { get; set; }
+        public string name { get; set; }
+        public string nameEn { get; set; }
+        public long parentId { get; set; }
     }
 
 

@@ -1,0 +1,1125 @@
+﻿@using MasterOnline.ViewModels
+@model BundlingViewModel
+@{
+    ViewBag.Title = "Bundling";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var context = new MoDbContext("");
+
+    //add by nurul 26/1/2021
+    long accId;
+    var username = "";
+    var statusAddOns = Model.statusAddonBundling;
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    if (dataSession?.User != null)
+    {
+        accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+        accId = (dataSession?.Account?.AccountId ?? 0);
+    }
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
+    //end add by nurul 26/1/2021
+}
+
+@section styles
+{
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+
+    <style>
+        .input-group {
+            margin-bottom: 0;
+        }
+
+        #piutang-section > div {
+            background-color: #fff;
+            padding: 20px;
+        }
+
+        #Piutang_AL {
+            resize: vertical;
+            height: 100px;
+            max-height: 100px;
+        }
+
+        #nm-brg-bundling {
+            color: orange;
+            font-weight: bold;
+        }
+
+        #nm-brg-komponen {
+            color: orange;
+            font-weight: bold;
+        }
+    </style>
+}
+
+<div class="row" id="Bundling-section">
+    @*<div class="col-lg-12 col-md-12">*@
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tab_content1" id="Bundling-tab" role="tab" data-toggle="tab" aria-expanded="true">Bundling</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content2" id="Bundling-detail-tab" role="tab" data-toggle="tab" aria-expanded="false">Detail Komponen</a>
+                </li>
+            </ul>
+            <div id="myTabContent" class="tab-content" style="padding-top:10px;">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="Bundling-tab">
+                    <div class="row Bundling_table_section">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_Bundling" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_Bundling_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6">
+                            <div class="pull-right">
+                                <button class="btn btn-primary btn_tambah_data" id="tambah_Bundling">Tambah Baru</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row Bundling_table_section" style="margin-top: 5px;">
+                        <div class="col-sm-12">
+                            <div id="table-Bundling-partial">
+                                @*@Html.Partial("TableBundlingPartial")*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row Bundling_editor_section" style="display: none;">
+                        <div class="col-lg-12">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Bundling</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-editor" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                <div class="form-horizontal">
+                                    <div class="row">
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="x_panel">
+                                                <div class="x_title">
+                                                    <h2 style="font-size: 16px">Detail Bundling</h2>
+                                                    <ul class="nav navbar-right panel_toolbox">
+                                                        <li>
+                                                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                        </li>
+                                                    </ul>
+                                                    <div class="clearfix"></div>
+                                                </div>
+                                                <div class="x_content">
+                                                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                                    {
+                                                        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                                        {
+                                                            <div class="alert alert-danger">
+                                                                <span class="message-error">@modelError.ErrorMessage</span>
+                                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    <br>
+                                                    @using (Html.BeginForm("SaveBundling", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-komponen" }))
+                                                    {
+                                                        <div id="form-partial">
+                                                            @*@Html.Partial("FormBundlingPartial")*@
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="Bundling-detail-tab">
+                    <div class="row Bundling_table_section">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_Bundling_detail" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_Bundling_detail_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row Bundling_table_section" style="margin-top: 5px;">
+                        <div class="col-sm-12" id="table-Bundling-detail-partial">
+                            @*@Html.Partial("TableBundlingDetailPartial")*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Hapus Bundling -->
+    <div class="modal fade" id="konfHapusBundling" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-center">
+                        <h4>Apakah Anda yakin ingin menghapus semua barang bundling <span id="nm-brg-bundling"></span> ini?</h4>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                    <button type="button" id="btn-delete-Bundling" class="btn btn-success">Ya</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content modalresponsivetrmsk2">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-center">
+                        <h4>Apakah Anda yakin ingin menghapus barang <span id="nm-brg-komponen"></span> ?</h4>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                    <button type="button" id="btn-delete-sku" class="btn btn-success">Ya</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section scripts
+{
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        var statusAddOns = @Html.Raw(Json.Encode(statusAddOns));
+        $BundlingId = "";
+        var $page = window.text;
+
+        $(document).on('ready',
+            function () {
+                $page = 0;
+
+                //Initialize();
+                refreshTableBundling();
+                $('#tambah_Bundling').off('click').on('click', function () {
+                    //refreshForm();
+                    if (statusAddOns == "1") {
+                        refreshForm();
+                    } else if (statusAddOns == "2") {
+                        alert("Masa subscription anda sudah berakhir, untuk ketentuan lebih lanjut silahkan hubungi tim support.");
+                    }
+                    else {
+                        alert("Fitur ini termasuk fitur ADD ON, untuk ketentuan lebih lanjut silahkan hubungi tim support.");
+                    }
+                });
+
+                $('#search_Bundling').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTableBundling();
+                        return false;
+                    }
+                });
+                $('#search_Bundling_click').click(function () {
+                    searchTableBundling();
+                });
+
+                $('#close-editor').on('click', function () {
+                $('input, select, .btn-danger').each(function() {
+                    $(this).removeAttr('disabled');
+                });
+                $('.Bundling_table_section').show();
+                $('.Bundling_editor_section').hide();
+                $('input').each(function () {
+                    $(this).removeAttr('disabled');
+                });
+                refreshTableBundling();
+                });
+
+                $('#search_Bundling_detail').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTableBundlingDetail();
+                        return false;
+                    }
+                });
+                $('#search_Bundling_detail_click').click(function () {
+                    searchTableBundlingDetail();
+                });
+
+                $('#Bundling-tab').click(function () {
+                    //$TabAktif = 0;
+                    refreshTableBundling();
+
+                    $('#tambah_Bundling').show();
+                    $page = 0;
+                });
+
+                $('#Bundling-detail-tab').click(function () {
+                    //$TabAktif = 1;
+                    refreshTableBundlingDetail();
+
+                    $('#tambah_Bundling').hide();
+                });
+            });
+
+
+
+        function Initialize() {
+            $('#search_Bundling').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableBundling();
+                    return false;
+                }
+            });
+            $('#search_Bundling_click').click(function () {
+                searchTableBundling();
+            });
+
+            if ($('.message-error').text() !== '') {
+                $('#tambah_Bundling').click();
+            }
+
+            //$("#Bundling_TERM").keydown(
+            //    function () {
+            //        validateInput($(this), 'TOP');
+            //    });
+            //$("#Bundling_TOTAL").keydown(
+            //    function () {
+            //        validateInput($(this), 'ANGKA');
+            //    });
+        }
+
+        function refreshInputan() {
+            //$('#CUSTNAME').hide();
+
+            //$('#Piutang_TGL').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).datepicker('setDate', '0').change(function () {
+            //    if ($(this).val() == '') {
+            //        $('#Piutang_JTGL').val('Pilih tanggal dahulu');
+            //        return;
+            //    }
+
+            //    var $tgl = moment($(this).val(), "DD/MM/YYYY");
+            //    $(this).datepicker('hide');
+
+            //    if ($('#Piutang_TERM').val() === '') {
+            //        $('#Piutang_JTGL').val('Masukkan TOP dahulu');
+            //    } else {
+            //        var $tglTop = $tgl.add($('#Piutang_TERM').val(), 'days');
+            //        $('#Piutang_JTGL').val($tglTop.format('DD/MM/YYYY'));
+            //    }
+            //});
+
+            //$('#Piutang_TERM').change(function () {
+            //    if ($(this).val() == '') {
+            //        $('#Piutang_JTGL').val('Masukkan TOP dahulu');
+            //        return;
+            //    }
+
+            //    var $tgl = moment($('#Piutang_TGL').val(), "DD/MM/YYYY");
+
+            //    if ($('#Piutang_TGL').val() === '') {
+            //        $('#Piutang_JTGL').val('Pilih tanggal dahulu');
+            //    } else {
+            //        var $tglTop = $tgl.add($(this).val(), 'days');
+            //        $('#Piutang_JTGL').val($tglTop.format('DD/MM/YYYY'));
+            //    }
+            //});
+
+            //if (value != '')
+            //    $('#Piutang_TGL').val(value);
+
+            //$('#Piutang_JTGL').attr('readonly', 'readonly').css('background-color', '#eee')
+            //    .css('cursor', 'not-allowed');
+        }
+
+            @{
+            var markets = new Dictionary<string, string>();
+
+            foreach (var marketplace in context.Marketplaces.ToList())
+            {
+                markets.Add(marketplace.IdMarket.ToString(), marketplace.NamaMarket);
+            }
+        }
+
+            var $marketCollection = @Html.Raw(Json.Encode(markets));
+
+            @*function getCustomer(value='') {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetCustomer", "Manage")',
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var customerList = [];
+
+                        $.each(data,
+                            function (i, item) {
+                                var $namaMarket = $marketCollection[item.NAMA];
+
+                                customerList[i] = {
+                                    id: item.CUST,
+                                    text: $namaMarket + " (" + item.PERSO + ")",
+                                    term: item.TOP
+                                };
+                            });
+                        $('#CUSTOMER').selectivity({
+                            allowClear: true,
+                            items: customerList,
+                            placeholder: 'Harap pilih'
+                        });
+
+                        var $cust = $('#Piutang_CUST').val();
+
+                        $('#CUSTOMER').change(function () {
+                            var $val = $(this).selectivity('value');
+                            var $objSup = $.grep(customerList, function (data) { return data.id == $val });
+
+                            if ($val === null) {
+                                $("#Piutang_CUST").val(null);
+                                $("#Piutang_NSUPP").val(null);
+                                $("#Piutang_TERM").val(null).change();
+                            } else {
+                                $("#Piutang_CUST").val($val);
+                                var cust30 = $objSup[0].text.substring(0, 30);
+                                if ($objSup[0] != null) {
+                                    $("#Piutang_NCUST, #CUSTNAME").val(cust30);
+                                    $("#Piutang_TERM").val($objSup[0].term).change();
+                                }
+                            }
+                        });
+                        if ($cust !== null) {
+                            $('#CUSTOMER').selectivity('value', $cust);
+                        }
+
+                        if (value != '')
+                            $('#Piutang_TERM').val(value).change();
+
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }*@
+
+        function convertToAngka(rupiah) {
+
+            if (rupiah == '') {
+                rupiah = '0';
+            }
+            if (rupiah.includes(",")) {
+                return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            }
+            else {
+                //jika bisa desimal
+                return parseFloat(rupiah.replaceAll(',', '.'));
+            }
+        }
+        function addError(obj, msg) {
+            $this = obj;
+            $this.closest('.form-group').addClass('has-error');
+            if (!$this.closest('div').find('.text-danger').length) {
+                $this.closest('div').append('<span class="text-danger">' + msg + '</span>');
+            }
+        }
+
+
+        function validasi() {
+            var ret = true;
+
+            if ($("#Bundling_Unit").val() == "" || $("#Bundling_Unit").val() == null) {
+                addError($("#Bundling_Unit").parent().parent().parent(), "Kode barang Bundling tidak boleh kosong.");
+                document.getElementById("Bundling_Unit").focus();
+                ret = false;
+            }
+            if ($("#nama-Bundling").val() == "" || $("#nama-Bundling").val() == null) {
+                addError($("#nama-Bundling").parent().parent(), "Nama barang Bundling tidak boleh kosong.");
+                document.getElementById("nama-Bundling").focus();
+                ret = false;
+            }
+
+            var $this = $('tr[data-barang-id="0"] .qty-barang');
+            var $total = $('tr[data-barang-id="0"] .netto-barang');
+            if ($this.text().trim() == "0" || $this.text().trim() == "" || $this.text().trim() == null) {
+                if (!$this.closest('div').find('.text-danger').length) {
+                    if ($this.closest('div').hasClass('input-group')) {
+                        $this.parent().parent().append('<span class="text-danger">Quantity tidak boleh 0!</span>');
+                    } else {
+                        $this.closest('div').append('<span class="text-danger">Quantity tidak boleh 0!</span>');
+                    }
+                    ret = false;
+                }
+            }
+            //else if (convertToAngka($total.text()) == 0 || convertToAngka($total.text()) == "") {
+            //    if (!$total.closest('div').find('.text-danger').length) {
+            //        if ($total.closest('div').hasClass('input-group')) {
+            //            $total.parent().parent().append('<span class="text-danger">Total Harga tidak boleh 0!</span>');
+            //        } else {
+            //            $total.closest('div').append('<span class="text-danger">Total Harga tidak boleh 0!</span>');
+            //        }
+            //        ret = false;
+            //    }
+            //}
+            return ret;
+        }
+
+        function hitungTotalHeader() {
+            var jumlahNettoDetail = 0;
+            var countDetail = document.getElementById("table_tambah_komponen").rows.length;
+            for (var i = 1; i < countDetail; i++) {
+                var nettoDetail = convertToAngka(document.getElementById("table_tambah_komponen").rows[i].cells[4].innerHTML);
+                jumlahNettoDetail = jumlahNettoDetail + nettoDetail;
+            }
+            $('#harga-Bundling').val(convertToRupiah(jumlahNettoDetail));
+        }
+
+        function simpanKomponen(btnClicked) {
+                hitungTotalHeader()
+                if (!validateForm()) return false;
+
+                //if (convertToAngka($("#Piutang_TERM").val()) > 999) {
+                //    addError($("#Piutang_TERM").parent(), "Maximum Term is 999 !");
+                //    return false;
+                //}
+
+                if (!validasi()) return false;
+
+                //var $form = $(btnClicked).parents('form');
+
+                //$('#Piutang_NETTO').val($('#Piutang_TOTAL').val());
+                var link = '@Url.Action("SaveBundling", "Manage")';
+                $.ajax({
+                    type: "POST",
+                    //url: $form.attr('action'),
+                    url: link,
+                    //data: $form.serialize(),
+                    data: $('#form-komponen').serialize(),
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        if (response.Errors == null) {
+                            $('#form-partial').html(response);
+                            $('#Bundling_Brg').val(null);
+                            $('.Bundling_table_section').hide();
+                            $('.Bundling_editor_section').show();
+
+                            //$('#close-editor').click();
+                            //$("html, body").animate({ scrollTop: 0 }, "slow");
+                            //    refreshTableBundling();
+                            //$('#loading_spinner').hide();
+                        } else {
+                            if (response.Errors[0] != null) {
+                                alert(response.Errors[0]);
+                                $('#loading_spinner').hide();
+                            } else {
+                                console.log(response.Errors);
+                                alert('Ada data yang tidak valid!');
+                                $('#loading_spinner').hide();
+                            }
+                        }
+                        $('#loading_spinner').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        $('#loading_spinner').hide();
+                    }
+                });
+
+                return false;
+            }
+
+            @*function getCustomerART01A(value='') {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetCustomer", "Manage")',
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var customerList = [];
+
+                        $.each(data,
+                            function (i, item) {
+                                var $namaMarket = $marketCollection[item.NAMA];
+
+                                customerList[i] = {
+                                    id: item.CUST,
+                                    text: $namaMarket + " (" + item.PERSO + ")",
+                                    term: item.TOP
+                                };
+                            });
+                        $('#CUSTOMER').selectivity({
+                            allowClear: true,
+                            items: customerList,
+                            placeholder: 'Harap pilih'
+                        });
+
+                        var $cust = $('#Piutang_CUST').val();
+
+                        $('#CUSTOMER').change(function () {
+                            var $val = $(this).selectivity('value');
+                            var $objSup = $.grep(customerList, function (data) { return data.id == $val });
+
+                            if ($val === null) {
+                                $("#Piutang_CUST").val(null);
+                                $("#Piutang_NSUPP").val(null);
+                                $("#Piutang_TERM").val(null).change();
+                            } else {
+                                $("#Piutang_CUST").val($val);
+                                var cust30 = $objSup[0].text.substring(0, 30);
+                                if ($objSup[0] != null) {
+                                    $("#Piutang_NCUST, #CUSTNAME").val(cust30);
+                                    $("#Piutang_TERM").val($objSup[0].term).change();
+                                }
+                            }
+                        });
+                        if ($cust !== null) {
+                            $('#CUSTOMER').selectivity('value', $cust);
+                        }
+
+                        if (value != '')
+                            $('#Piutang_TERM').val(value).change();
+
+
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }*@
+
+            function refreshTableBundling() {
+                var $link = '@Html.Raw(Url.Action("RefreshTableBundling", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+                $link = $link.replace("replaceSearch", encodeURIComponent($('#search_Bundling').val()));
+                $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+
+                $.ajax({
+                    type: "GET",
+                    url: $link,
+                    beforeSend: function () {
+                        $('#table-Bundling-partial').hide();
+                        $('#loading_Bundling_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-Bundling-partial').html(response);
+                        $('#loading_Bundling_tab').hide();
+                        $('#table-Bundling-partial').show();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+        }
+        function searchTableBundling(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableBundling", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_Bundling').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_Bundling_click')[0].disabled = true;
+                    $('#loading_Bundling_tab').show();
+                },
+                success: function (response) {
+                    $('#search_Bundling_click')[0].disabled = false;
+                    $('#table-Bundling-partial').html(response);
+                    $('#loading_Bundling_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_Bundling_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
+            function refreshForm() {
+                var link = '@Url.Action("RefreshBundlingForm", "Manage")';
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    success: function (response) {
+                        $('.Bundling_table_section').hide();
+                        $('.Bundling_editor_section').show();
+                        $('#form-partial').html(response);
+                        refreshInputan();
+                        //getCustomer();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            }
+
+            function undeleteableBundling() {
+                alert('Transaksi Sudah Posting! \nTidak dapat dihapus!');
+            }
+
+            @*function lihatBundling(BundlingId) {
+                var link = '@Url.Action("EditBundling", "Manage", new { recNum = "replaceId" })';
+                link = link.replace("replaceId", encodeURIComponent(BundlingId));
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        $('#form-partial').html(response);
+                        $('#simpan_btn').hide();
+
+                        var tgl = $("#Piutang_TGL").val();
+                        var term = $("#Piutang_TERM").val();
+
+                        //refreshInputan(tgl.substring(0, 10));
+
+                        $('#CUSTNAME').show();
+                        $('#CUSTOMER').hide();
+
+                        getCustomerART01A(term);
+
+                        $('.Bundling_table_section').hide();
+                        $('.Bundling_editor_section').show();
+                        $("#Piutang_TERM").keydown(
+                            function () {
+                                validateInput($(this), 'TOP');
+                            });
+                        $("#Piutang_TOTAL").keydown(
+                            function () {
+                                validateInput($(this), 'ANGKA');
+                            });
+
+                        $('input, .btn-danger').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+
+                        $('#loading_spinner').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        $('#loading_spinner').hide();
+                    }
+                });
+            }*@
+
+            function editBundling(BundlingId) {
+                var link = '@Url.Action("EditBundling", "Manage", new { kdBrg = "replaceId" })';
+                link = link.replace("replaceId", encodeURIComponent(BundlingId));
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        $('#form-partial').html(response);
+                        $('#Bundling_Brg').val(null);
+                        //var tgl = $("#Bundling_TGL").val();
+                        //var term = $("#Bundling_TERM").val();
+
+                        //refreshInputan(tgl.substring(0, 10));
+
+                        //getCustomerART01A(term);
+
+                        $('.Bundling_table_section').hide();
+                        $('.Bundling_editor_section').show();
+
+                        //$("#Piutang_TERM").keydown(
+                        //    function () {
+                        //        validateInput($(this), 'TOP');
+                        //    });
+                        //$("#Piutang_TOTAL").keydown(
+                        //    function () {
+                        //        validateInput($(this), 'ANGKA');
+                        //    });
+
+                        $('#loading_spinner').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        $('#loading_spinner').hide();
+                    }
+                });
+            }
+
+        //function pass(BundlingId) {
+        //        this.$BundlingId = BundlingId;
+        //        $('#nm-brg-bundling').val(BundlingId);
+        //}
+
+
+        function deleteBundlingKlik($id) {
+            if ($id != null && $id != "" && $id != undefined) {
+                $('#nm-brg-bundling').text($id);
+                $('#konfHapusBundling').modal('show');
+                $('#btn-delete-Bundling').off('click').on('click', function () {
+                    deleteBundling($id)
+                });
+            }
+        }
+
+        function deleteBundling($idBrg) {
+            if ($idBrg != null && $idBrg != "" && $idBrg != undefined) {
+                var link = '@Url.Action("DeleteBundling", "Manage", new { kdBrg = "replaceId" })';
+                //link = link.replace("replaceId", encodeURIComponent(this.$BundlingId));
+                link = link.replace("replaceId", encodeURIComponent($idBrg));
+
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    contentType: 'application/json',
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        if (response.Errors == null) {
+                            refreshTableBundling();
+                        } else {
+                            alert(response.Errors[0]);
+                        }
+                        $('#konfHapusBundling').modal('hide');
+                        $('#loading_spinner').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+        function validateInput(obj, option) {
+            var x = obj;
+            setTimeout(function () {
+                ValidateFullNamePaste2(x, option);
+            }, 2);
+        }
+
+        function ValidateFullNamePaste2(obj, option) {
+            var x = obj;
+            var strValidChars = "";
+            var totalCharacterCount = x.val();  //window.clipboardData.getData('Text');
+
+            if (option == 'HURUF')
+                strValidChars = "1234567890~!#$%^&*()_+|}{':;?/>.<,\"[]\\=";
+            if (option == 'HURUFANGKA')
+                strValidChars = "~!#$%^&*()_+|}{':;?/>.<,\"[]\\=";
+            if (option == 'ANGKA')
+                strValidChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!#$%^&*()_+|}{':;?/><,\"[]\\=";
+            if (option == 'TOP')
+                strValidChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!#$%^&*()_+|}{':;?/>.<,-\"[]\\=";
+
+            var strChar;
+            var FilteredChars = "";
+            for (i = 0; i < totalCharacterCount.length; i++) {
+                strChar = totalCharacterCount.charAt(i);
+                if (strValidChars.indexOf(strChar) == -1) {
+                    FilteredChars = FilteredChars + strChar;
+                }
+            }
+            obj.val(FilteredChars);
+            return false;
+        }
+
+        function promptBarangBundling(){
+            promptSKU = "1";
+            var link = '@Url.Action("PromptBarangBundling", "Manage", new { id = "replaceId" })';
+                link = link.replace("replaceId", "1");
+                window.open(link,
+                    "popupWindow",
+                    "width=850, height=400, scrollbars=yes, resizable=no");
+        }
+
+        function promptBarangKomponen() {
+                var link = '@Url.Action("PromptBarangBundling", "Manage", new { id = "replaceId" })';
+                link = link.replace("replaceId", "2");
+                @*window.open('@Url.Action("PromptBarangAcuan", "Manage")',*@
+                window.open(link,
+                    "popupWindow",
+                    "width=850, height=400, scrollbars=yes, resizable=no");
+        }
+
+        function afterPromptBundling(kd, nama) {
+                $('#Bundling_Unit').val(kd);
+                $('#nama-Bundling').val(nama);
+        }
+        function afterPromptKomponen(kd, nama, harga) {
+            var $trId = $('#Bundling_Brg').closest('tr').attr('data-barang-id');
+            var $trElement = 'tr[data-barang-id="' + $trId + '"]';
+            $('#Bundling_Brg').val(kd);
+            $($trElement + ' .nama-barang').text(nama);
+            $($trElement + ' .qty-barang').html('0' + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="Bundling_Qty" name="Bundling.Qty" type="hidden" value="">');
+            $($trElement + ' .total-barang').html('0,00' + '<input data-val="true" data-val-number="The field TOTALHARGA must be a number." data-val-required="The TOTALHARGA field is required." id="Bundling_TOTALHARGA" name="Bundling.TOTALHARGA" type="hidden" value="">');
+            $($trElement + ' .harga-barang').html(convertToRupiah(harga) + '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="Bundling_HARGA" name="Bundling.HARGA" type="hidden" value="">');
+            $($trElement + ' .btn-primary').removeAttr('disabled');
+            if ($('#Bundling_Brg').val() != null && $('#Bundling_Brg').val() != "" && $('#Bundling_Brg').val() != undefined) {
+                $('#Bundling_HARGA').val(convertToAngka($($trElement + ' .harga-barang').text()));
+                modeEditTd();
+            } else {
+                refreshNettoBarang(0);
+                onTab();
+                modeEditOff();
+            }
+        }
+
+        var $brg = '';
+
+        //function passBarangInDb($brg) {
+        //    this.$brg = $brg;
+
+        //}
+        function deleteDetailKomponenKlik($komponen,$unit) {
+            if ($unit != null && $unit != "" && $unit != undefined && $komponen != null && $komponen != "" && $komponen != undefined) {
+                $('#nm-brg-komponen').text($komponen);
+                $('#konfHapusBarang').modal('show');
+                $('#btn-delete-sku').off('click').on('click', function () {
+                    deleteBarang($komponen, $unit)
+                });
+            }
+        }
+
+        function deleteBarang($idBrg, $idBundling) {
+            if ($idBrg != null && $idBrg != "" && $idBrg != undefined && $idBundling != null && $idBundling != "" && $idBundling != undefined) {
+
+                $postdata = {
+                    kdBrg: $idBrg,
+                    Unit: $idBundling
+                };
+
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeleteKomponen", "Manage")',
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    data: JSON.stringify($postdata),
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    cache: false,
+                    success: function (response) {
+                        if (response.Errors == null) {
+                            $('#form-partial').html(response);
+                            $('.Bundling_table_section').hide();
+                            $('.Bundling_editor_section').show();
+                        } else {
+                            if (response.Errors[0] != null) {
+                                alert(response.Errors[0]);
+                            } else {
+                                console.log(response.Errors);
+                                alert('Ada data yang tidak valid!');
+                            }
+                        }
+                        $('#konfHapusBarang').modal('hide');
+                        $('#loading_spinner').hide();
+                    },
+                    error: function (xhr) {
+                        $('#loading_spinner').hide();
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+
+        function refreshTableBundlingDetail() {
+                var $link = '@Html.Raw(Url.Action("RefreshTableKomponen", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+                $link = $link.replace("replaceSearch", encodeURIComponent($('#search_Bundling_detail').val()));
+                $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page2').val()));
+
+                $.ajax({
+                    type: "GET",
+                    url: $link,
+                    beforeSend: function () {
+                        $('#table-Bundling-detail-partial').hide();
+                        $('#loading_Bundling_detail_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-Bundling-detail-partial').html(response);
+                        $('#loading_Bundling_detail_tab').hide();
+                        $('#table-Bundling-detail-partial').show();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+        }
+        function searchTableBundlingDetail(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableKomponen", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_Bundling_detail').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_Bundling_detail_click')[0].disabled = true;
+                    $('#loading_Bundling_detail_tab').show();
+                },
+                success: function (response) {
+                    $('#search_Bundling_detail_click')[0].disabled = false;
+                    $('#table-Bundling-detail-partial').html(response);
+                    $('#loading_Bundling_detail_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_Bundling_detail_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
+        function convertToRupiah(angka) {
+            //change by calvin 26 september 2018
+            //var rupiah = '';
+            //var angkarev = angka.toString().split('').reverse().join('');
+            //for (var i = 0; i < angkarev.length; i++) if (i % 3 === 0) rupiah += angkarev.substr(i, 3) + '.';
+            //return rupiah.split('', rupiah.length - 1).reverse().join('') + ',00';
+            return $.number(angka, 2, ',', '.');
+            //end change by calvin 26 september 2018
+        }
+
+        function convertToAngka(rupiah) {
+            if (rupiah == '') {
+                rupiah = '0';
+            }
+            //change by calvin 26 september 2018
+            //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
+            if (rupiah.includes(",")) {
+                return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            }
+            else {
+                //jika bisa desimal
+                return parseFloat(rupiah.replaceAll(',', '.'));
+            }
+            //end change by calvin 26 september 2018
+        }
+
+        function modeEditTd() {
+            $('#table_tambah_komponen > tbody > tr[data-barang-id="0"] > .qty-barang').addClass('editable');
+            $('#table_tambah_komponen > tbody > tr[data-barang-id="0"] > .harga-barang').addClass('editable');
+            $('#table_tambah_komponen > tbody > tr[data-barang-id="0"] > td.editable').off('click').on('click', function () {
+                var $this = $(this);
+                var $class = $this.attr('class');
+                var $inputClass = '';
+                var $trId = $this.parent().attr('data-barang-id');
+                var $angka = convertToAngka($this.text());
+
+                if ($class == 'qty-barang editable') {
+                    $inputClass = 'qty-input';
+                } else if ($class == 'harga-barang editable') {
+                    $inputClass = 'harga-input';
+                }
+
+                var $input = $('<input>', {
+                    'class': $inputClass,
+                    value: convertToAngka($this.text()),
+                    type: 'number',
+                    blur: function () {
+                        if (this.value == '') {
+                            if ($class === 'qty-barang editable') {
+                                $this.html(0 + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="Bundling_Qty" name="Bundling.Qty" type="hidden" value="">');
+                            } else if ($class === 'harga-barang editable') {
+                                $this.html(convertToRupiah(0) + '<input data-val="true" data-val-number="The field Harga must be a number." data-val-required="The Harsat field is required." id="Bundling_HARGA" name="Bundling.HARGA" type="hidden" value="">');
+                            }
+                            refreshNettoBarang($trId);
+                        } else {
+                            if ($class === 'qty-barang editable') {
+                                $this.html(this.value + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="Bundling_Qty" name="Bundling.Qty" type="hidden" value="">');
+                            } else if ($class == 'harga-barang editable') {
+                                $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field Harga must be a number." data-val-required="The Harsat field is required." id="Bundling_HARGA" name="Bundling.HARGA" type="hidden" value="">');
+                                $('#Bundling_HARGA').val(this.value);
+                            }
+                            refreshNettoBarang($trId);
+                        }
+                    },
+                    focus: function () {
+                        if ($angka == 0) {
+                            this.value = '';
+                        } else {
+                            this.value = $angka;
+                        }
+                    },
+                    keyup: function (e) {
+                        if (e.which === 13) $input.blur();
+                    },
+                    keypress: function(e) {
+                        if (e.which != 8 && e.which != 0 && e.which < 48 || e.which > 57) e.preventDefault();
+                        //if ($(this).attr('class') == 'qty-input') {
+                        //    if ($(this).val() > 99) {
+                        //        $(this).val(99);
+                        //    }
+                        //}
+                    }
+                }).appendTo($this.empty()).focus();
+            });
+        }
+
+        function refreshNettoBarang($trId) {
+            var $trElement = 'tr[data-barang-id="' + $trId + '"]';
+            var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
+            var $total = ($($trElement + ' .qty-barang').text() * $hargaBarang);
+
+            $($trElement + ' .total-barang').html(convertToRupiah($total) + '<input data-val="true" data-val-number="The field Harga must be a number." data-val-required="The Harga field is required." id="Bundling_TOTALHARGA" name="Bundling.TOTALHARGA" type="hidden" value="">');
+
+            $('#Bundling_Qty').val($($trElement + ' .qty-barang').text());
+            $('#Bundling_TOTALHARGA').val(convertToAngka($($trElement + ' .total-barang').text()));
+        }
+
+        function modeEditOff() {
+            $('#table_tambah_komponen > tbody > tr > td.editable').prop('contentEditable', false);
+            $('#table_tambah_komponen > tbody > tr > td.editable').prop('onclick', null).off('click');
+            $('.qty-barang').removeClass('editable');
+            $('.harga-barang').removeClass('editable');
+        }
+        function offTab() {
+            $(document).keydown(function (objEvent) {
+                if (objEvent.keyCode == 9) {
+                    objEvent.preventDefault();
+                }
+            });
+        }
+        function onTab() {
+            $(document).keydown(function (objEvent) {
+                if (objEvent.keyCode == 9) { }
+            });
+        }
+    </script>
+}
