@@ -703,7 +703,17 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             SetupContext(data.dbPathEra, username);
-            
+
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
+
+            //var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+
+            //add by nurul 20/1/2021, bundling 
+            var AdaKomponen = false;
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
             var dtNow = DateTime.UtcNow;
             var loop = true;
             var page = 0;
@@ -711,7 +721,13 @@ namespace MasterOnline.Controllers
             {
                 data = RefreshToken(data);
                 var retOrder = await GetOrdersLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(-3).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"));
-                if (retOrder >= 10)
+                
+                if (retOrder.AdaKomponen)
+                {
+                    AdaKomponen = retOrder.AdaKomponen;
+                }
+
+                if (retOrder.status >= 10)
                 {
                     page = page + 1;
                 }
@@ -720,15 +736,28 @@ namespace MasterOnline.Controllers
                     loop = false;
                 }
             }
+            if (AdaKomponen)
+            {
+                new StokControllerJob().getQtyBundling(data.dbPathEra, username);
+            }
+
+            var queryStatus = "\"\\\"" + CUST + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and invocationdata like '%bukalapak%' and invocationdata like '%GetOrdersNew%' and statename like '%Enque%' and invocationdata not like '%resi%' ");
+
             return ret;
         }
 
-        public async Task<int> GetOrdersLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt)
+        public async Task<BindingBase> GetOrdersLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt)
         {
-            var ret = 0;
+            var ret = new BindingBase();
+            ret.status = 0;
             var conn_id = Guid.NewGuid().ToString();
             int jmlhNewOrder = 0;
             //data = RefreshToken(data);
+
+            //add by nurul 19/1/2021, bundling 
+            ret.ConnId = conn_id;
+            //end add by nurul 19/1/2021, bundling
 
             string urll = "https://api.bukalapak.com/transactions?limit=10&offset=" + (page * 10) + "&context=sale"
                 + "&start_time=" + Uri.EscapeDataString(fromDt) + "&end_time=" + Uri.EscapeDataString(toDt) 
@@ -758,7 +787,7 @@ namespace MasterOnline.Controllers
                         {
                             if(retObj.data.Length > 0)
                             {
-                                ret = retObj.data.Length;
+                                ret.status = retObj.data.Length;
                                 var cekDate = DateTime.UtcNow.AddHours(7).AddDays(-4);
                                 var orderInDB = ErasoftDbContext.SOT01A.Where(m => m.CUST == CUST && m.TGL >= cekDate).Select(m => m.NO_REFERENSI).ToList();
                                 foreach(var order in retObj.data)
@@ -913,7 +942,7 @@ namespace MasterOnline.Controllers
                                             statusEra = "01";
                                         }
                                         insertQ += "(" + order.id + "," + order.invoice_id + ",'" + statusEra + "','" + transId + "'," + order.amount.buyer.total + ",0,'" 
-                                            + courier + "','" + ketPembeli + "'," + order.amount.seller.details.delivery + ",";
+                                            + courier + "','" + ketPembeli + "'," + order.amount.buyer.details.delivery + ",";
                                         insertQ +=  "0,'','" + shippingService + "'," + order.amount.buyer.coded_amount + "," + order.amount.seller.total + "," 
                                             + order.amount.buyer.payment_amount + ",'" +  order.created_at.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.state_changed_at.refund_at.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','";
                                         insertQ += "','" + order.buyer.id + "','" + nama + "','','" + buyerLogistic + "','" + order.delivery.consignee.address.Replace('\'', '`') + "','" 
@@ -942,7 +971,7 @@ namespace MasterOnline.Controllers
                                                 #endregion
                                                 var brgmp = items.stuff.product.id + ";" + items.stuff.id;
                                                 insertOrderItems += "(" + order.id + ", '" + transId + "','" +  brgmp  + "','" + katName + "',0,'" + items_name + "',";
-                                                insertOrderItems += (items.total_price - items.stuff.discount) + "," + items.stuff.product.weight + ",'','" + condition + "',0," 
+                                                insertOrderItems += items.price + "," + items.stuff.product.weight + ",'','" + condition + "',0," 
                                                     + items.quantity + ",'" + order.created_at.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','" 
                                                     + username + "','" + conn_id + "')";
                                                 insertOrderItems += ",";
@@ -1022,8 +1051,19 @@ namespace MasterOnline.Controllers
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                     contextNotif.Clients.Group(data.dbPathEra).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Bukalapak.");
 
+                                    //add by nurul 25/1/2021, bundling
+                                    var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + conn_id + "')").ToList();
+                                    if (listBrgKomponen.Count() > 0)
+                                    {
+                                        ret.AdaKomponen = true;
+                                    }
+                                    //end add by nurul 25/1/2021, bundling
+
                                     new StokControllerJob().updateStockMarketPlace(conn_id, data.dbPathEra, username);
 
+                                    //add by nurul 19/1/2021, bundling 
+                                    ret.AdaPesanan = true;
+                                    //end add by nurul 19/1/2021, bundling
                                 }
                             }
                         }
@@ -1057,6 +1097,10 @@ namespace MasterOnline.Controllers
                     loop = false;
                 }
             }
+
+            var queryStatus = "\"\\\"" + CUST + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and invocationdata like '%bukalapak%' and invocationdata like '%GetOrdersCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%' ");
+
             return ret;
         }
 
@@ -1183,6 +1227,11 @@ namespace MasterOnline.Controllers
             var loop = true;
             var page = 0;
 
+            //add by nurul 20/1/2021, bundling 
+            var AdaKomponen = false;
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
             var orderList = (from a in ErasoftDbContext.SOT01A
                                    where a.USER_NAME == "Auto Bukalapak" && a.STATUS_TRANSAKSI != "11" && a.CUST == CUST && a.TGL >= dtNow
                                    select a.NO_REFERENSI).ToList();
@@ -1191,7 +1240,11 @@ namespace MasterOnline.Controllers
             {
                 data = RefreshToken(data);
                 var retOrder = await GetOrdersCanceledLoop(data, CUST, NAMA_CUST, username, page, dtNow.ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.AddDays(7).ToString("yyyy-MM-ddTHH:mm:ss"), orderList);
-                if (retOrder >= 50)
+                if (retOrder.AdaKomponen)
+                {
+                    AdaKomponen = retOrder.AdaKomponen;
+                }
+                if (retOrder.status >= 50)
                 {
                     page = page + 1;
                 }
@@ -1200,11 +1253,19 @@ namespace MasterOnline.Controllers
                     loop = false;
                 }
             }
+            if (AdaKomponen)
+            {
+                new StokControllerJob().getQtyBundling(data.dbPathEra, username);
+            }
+            var queryStatus = "\"\\\"" + CUST + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and invocationdata like '%GetOrdersCanceled%' and invocationdata like '%GetOrdersCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%' ");
+
             return ret;
         }
-        public async Task<int> GetOrdersCanceledLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt, List<string> orderList)
+        public async Task<BindingBase> GetOrdersCanceledLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt, List<string> orderList)
         {
-            var ret = 0;
+            var ret = new BindingBase();
+            ret.status = 0;
             var conn_id = Guid.NewGuid().ToString();
             int jmlhOrder = 0;
             //data = RefreshToken(data);
@@ -1238,6 +1299,7 @@ namespace MasterOnline.Controllers
                         {
                             if (retObj.data.Length > 0)
                             {
+                                ret.status = retObj.data.Length;
                                 string sSQL = "INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) VALUES ";
                                 string sSQL2 = "";
                                 foreach (var order in retObj.data)
@@ -1316,6 +1378,32 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
+            }
+            var itemCount = brgCancelled.Count();
+            if (itemCount > 0)
+            {
+                string sSQL = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID)" + System.Environment.NewLine;
+                int indexCount = 0;
+                foreach (var item in brgCancelled)
+                {
+                    indexCount = indexCount + 1;
+                    //sSQL += "SELECT '' AS BRG, '' AS CONN_ID " + System.Environment.NewLine;
+                    sSQL += "SELECT '" + item.BRG + "' AS BRG, '" + item.CONN_ID + "' AS CONN_ID " + System.Environment.NewLine;
+                    if (indexCount < itemCount)
+                    {
+                        sSQL += "UNION ALL " + System.Environment.NewLine;
+                    }
+                }
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQL);
+
+                //add by nurul 25/1/2021, bundling
+                var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + conn_id + "')").ToList();
+                if (listBrgKomponen.Count() > 0)
+                {
+                    ret.AdaKomponen = true;
+                }
+                //end add by nurul 25/1/2021, bundling
+                new StokControllerJob().updateStockMarketPlace(conn_id, data.dbPathEra, username);
             }
             return ret;
         }
