@@ -2348,7 +2348,7 @@ namespace MasterOnline.Controllers
                                     if (brg.variants.Length > 0)
                                     {
                                         haveVarian = true;
-                                        kdBrgInduk = brg.id;
+                                        kdBrgInduk = brg.id + ";0" ;
                                         var tempbrginDBInduk = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
                                         var brgInDBInduk = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
                                         if (tempbrginDBInduk == null && brgInDBInduk == null)
@@ -2579,14 +2579,14 @@ namespace MasterOnline.Controllers
                 {
                     //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                     //sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
-                    //if(type == 1)
-                    //{
-                    sSQL_Value += "('" + brg.id + ";" + brg.sku_id + "' , '" + (brg.sku_name ?? "") + "' , '";
-                    //}
-                    //else
-                    //{
-                    //    sSQL_Value += "('" + brg.sku_id.ToString() + "' , '" + (brg.sku_name ?? "") + "' , '";
-                    //}
+                    if (type == 1)
+                    {
+                        sSQL_Value += "('" + brg.id + ";0" + "' , '" + (brg.sku_name ?? "") + "' , '";
+                    }
+                    else
+                    {
+                        sSQL_Value += "('" + brg.id + ";" + brg.sku_id + "' , '" + (brg.sku_name ?? "") + "' , '";
+                    }
                     //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
                 else

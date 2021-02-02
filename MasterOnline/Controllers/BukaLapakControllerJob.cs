@@ -1114,7 +1114,7 @@ namespace MasterOnline.Controllers
 
             string urll = "https://api.bukalapak.com/transactions?limit=10&offset=" + (page * 50) + "&context=sale"
                 + "&start_time=" + Uri.EscapeDataString(fromDt) + "&end_time=" + Uri.EscapeDataString(toDt)
-                + "&states[]=delivered&states[]=received&states[]=remitted&states[]=paid";
+                + "&states[]=delivered&states[]=received&states[]=remitted";
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
             myReq.Headers.Add("Authorization", "Bearer " + data.token);
