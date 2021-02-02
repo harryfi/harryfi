@@ -13673,6 +13673,30 @@ namespace MasterOnline.Controllers
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
             }
+            var cekMultiSku = ErasoftDbContext.STF03C.Where(k => cekVarian.Contains(k.BRG) || k.BRG == barangInDb.BRG).Count();
+            var cekBrgAcuan = ErasoftDbContext.STF03C.Where(k => cekVarian.Contains(k.BRG_ACUAN) || k.BRG_ACUAN == barangInDb.BRG).Count();
+            var cekBrgBundling = ErasoftDbContext.STF03.Where(k => cekVarian.Contains(k.Unit) || k.Unit == barangInDb.BRG).Count();
+            var cekBrgKomponen = ErasoftDbContext.STF03.Where(k => cekVarian.Contains(k.Brg) || k.Brg == barangInDb.BRG).Count();
+            if (cekMultiSku > 0)
+            {
+                vmError.Errors.Add("Barang sudah dipakai menjadi multi sku !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            if (cekBrgAcuan > 0)
+            {
+                vmError.Errors.Add("Barang sudah dipakai menjadi barang acuan !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            if (cekBrgBundling > 0)
+            {
+                vmError.Errors.Add("Barang sudah dipakai menjadi barang bundling !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            if (cekBrgKomponen > 0)
+            {
+                vmError.Errors.Add("Barang sudah dipakai menjadi barang komponen !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
             //end add by nurul 1/2/2021, cek transaksi barang varian 
 
             var stf02hh = ErasoftDbContext.STF02H.Where(h => h.BRG == barangId).ToList();
