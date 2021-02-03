@@ -922,8 +922,8 @@ namespace MasterOnline.Controllers
                                         if (shippingService.Length > 50)
                                             shippingService = shippingService.Substring(0, 50);
                                         string buyerLogistic = (string.IsNullOrEmpty(order.delivery.buyer_logistic_choice) ? "" : order.delivery.buyer_logistic_choice.Replace("'", "`"));
-                                        if (shippingService.Length > 100)
-                                            shippingService = shippingService.Substring(0, 100);
+                                        if (buyerLogistic.Length > 100)
+                                            buyerLogistic = buyerLogistic.Substring(0, 100);
                                         string consigneeArea = (string.IsNullOrEmpty(order.delivery.consignee.district) ? "" : order.delivery.consignee.district.Replace("'", "`"));
                                         if (consigneeArea.Length > 100)
                                             consigneeArea = consigneeArea.Substring(0, 100);
@@ -1866,6 +1866,70 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Accept Pesanan {obj} ke BukaLapak Gagal.")]
+        public async Task<BindingBase> Bukalapak_AcceptOrder(string DatabasePathErasoft, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, BukaLapakKey data, string noref, string username)
+        {
+            SetupContext(DatabasePathErasoft, username);
+            data = new BukaLapakControllerJob().RefreshToken(data);
+            var ret = new BindingBase();
+
+            string urll = "https://api.bukalapak.com/transactions/" + noref + "/status";
+
+            string myData = "{\"state\":\"accepted\"}";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "PUT";
+            myReq.Headers.Add("Authorization", "Bearer " + data.token);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (responseFromServer != "")
+            {
+                var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(StokControllerJob.BukalapakResponseAPI)) as StokControllerJob.BukalapakResponseAPI;
+                if (resp != null)
+                {
+                    if (resp.meta != null)
+                    {
+                        if (resp.meta.http_status != 200)
+                        {
+                            if (resp.errors != null)
+                            {
+                                if (resp.errors.Length > 0)
+                                {
+                                    string errMsg = "";
+                                    foreach (var error in resp.errors)
+                                    {
+                                        errMsg += error.code + ":" + error.message + "\n";
+                                    }
+                                    throw new Exception(errMsg);
+                                }
+                            }
+                            throw new Exception(responseFromServer);
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
+
         public BindingBase getListProduct(string cust, string userId, string token, int page, bool display, int recordCount)
         {
             var ret = new BindingBase();
