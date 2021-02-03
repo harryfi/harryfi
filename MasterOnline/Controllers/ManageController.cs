@@ -63439,14 +63439,14 @@ namespace MasterOnline.Controllers
                                 //    var resultUpdateStatusSO = EDB.ExecuteSQL("CString", CommandType.Text, sSQLStatus);
                                 //}
                                 //end update status transaksi pesanan
-                                var listNobukFaktur = "";
-                                foreach (var faktur in newFakturs)
-                                {
-                                    listNobukFaktur += "'" + faktur.NO_BUKTI + "' , ";
-                                }
-                                listNobukFaktur = listNobukFaktur.Substring(0, listNobukFaktur.Length - 2);
-                                var listFakturArray = newFakturs.Select(a => a.NO_BUKTI).ToList();
-                                Task.Run(() => UpdateBrutoPackingTransactionVersi2(listNobukFaktur, listRecnumEnd, listFakturArray).Wait());
+                                //var listNobukFaktur = "";
+                                //foreach (var faktur in newFakturs)
+                                //{
+                                //    listNobukFaktur += "'" + faktur.NO_BUKTI + "' , ";
+                                //}
+                                //listNobukFaktur = listNobukFaktur.Substring(0, listNobukFaktur.Length - 2);
+                                //var listFakturArray = newFakturs.Select(a => a.NO_BUKTI).ToList();
+                                //Task.Run(() => UpdateBrutoPackingTransactionVersi2(listNobukFaktur, listRecnumEnd, listFakturArray).Wait());
                             }
                             catch (Exception ex)
                             {
@@ -63525,6 +63525,14 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
+                        var listNobukFaktur = "";
+                        foreach (var faktur in newFakturs)
+                        {
+                            listNobukFaktur += "'" + faktur.NO_BUKTI + "' , ";
+                        }
+                        listNobukFaktur = listNobukFaktur.Substring(0, listNobukFaktur.Length - 2);
+                        var listFakturArray = newFakturs.Select(a => a.NO_BUKTI).ToList();
+                        Task.Run(() => UpdateBrutoPackingTransactionVersi2(listNobukFaktur, listRecnumEnd, listFakturArray).Wait());
                         #endregion
                     }
                     catch (Exception ex)
