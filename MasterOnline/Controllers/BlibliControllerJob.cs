@@ -2493,6 +2493,10 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            else
+            {
+                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM = '2' WHERE CUST = '" + log_CUST + "' AND NO_REFERENSI = '" + orderNo + "'");
+            }
         }
         //end add by nurul 18/12/2020
 
@@ -11029,7 +11033,7 @@ namespace MasterOnline.Controllers
                     }
                     else 
                     {
-                        var noResi = resultRespons.value.manifestInfo.airwayBillNumber.Value;
+                        var noResi = resultRespons.value.awbNumber.Value;
                         if (!string.IsNullOrEmpty(noResi))
                         {
                             result = noResi;

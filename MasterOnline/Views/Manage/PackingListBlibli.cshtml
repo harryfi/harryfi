@@ -421,7 +421,7 @@
                                         textareaValue += "Error Orders :</br>";
                                         textareaValue += errorValue;
 
-                                        if (response.listSuccess.length > 0 || response.listSuccess.length == response.listErrors.length) {
+                                        if (response.listSuccess.length == 0 || response.listSuccess.length == response.listErrors.length) {
                                             $('#modalPrintLabelOption__' + cust).modal('hide');
                                         } else {
                                             var rows_selected_new = [];
@@ -433,10 +433,11 @@
                                                     }
                                                 });
                                                 if (!adaRec) {
-                                                    rows_selected_new.push($(this).attr("data-recnum"));
+                                                    rows_selected_new.push(rec_select);
                                                 }
                                             });
                                             if (rows_selected_new.length > 0) {
+                                                var temptextareaValue = textareaValue;
                                                 textareaValue += "</br>";
                                                 textareaValue += "</br>";
                                                 textareaValue += "Sedang diproses. Mohon menunggu..";
@@ -465,7 +466,8 @@
                                                         if (response != null) {
                                                             if (response.mo_error == null) {
                                                                 $('#modalPrintLabelOption__' + cust).modal('hide');
-                                                                $('#modalPrintBlibli__' + cust).modal('hide');
+                                                                //$('#modalPrintBlibli__' + cust).modal('hide');
+                                                                $('#modalPrintBlibli__textarea__' + cust).html(temptextareaValue);
                                                                 var w = window.open('about:blank');
                                                                 w.document.open();
                                                                 w.document.write(response);
@@ -899,7 +901,7 @@
                                         <span aria-hidden="true"> Create Package</span>
                                     </button>
                                     <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnProsesDropoffBlibli__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="RequestDropoffPackingBlibli('@(item.CUST)')">
-                                        <span aria-hidden="true"> Proses Kirim</span>
+                                        <span aria-hidden="true"> Ready To Ship</span>
                                     </button>
                                 </div>
                             </div>
