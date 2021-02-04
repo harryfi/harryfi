@@ -6603,6 +6603,7 @@
     <Content Include="Views\Manage\TablePromptBarangBundlingPartial.cshtml" />
     <Content Include="Views\Manage\TableBundlingKomponenPartial.cshtml" />
     <Content Include="Views\Bukalapak\BukalapakAuth.cshtml" />
+    <Content Include="Views\Manage\PackingListBukalapak.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

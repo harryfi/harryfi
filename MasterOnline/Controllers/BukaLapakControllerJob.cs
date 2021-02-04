@@ -847,6 +847,8 @@ namespace MasterOnline.Controllers
                                                         + KODEPOS + "', '', '" + kabKot + "', '" + prov + "', '" + namaKabkot
                                                         + "', '" + namaProv.Replace('\'', '`') + "', '" + conn_id + "')";
 
+                                                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, insertPembeli);
+
                                                     SqlCommand CommandSQL = new SqlCommand();
                                                     CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
                                                     CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = conn_id;
@@ -1027,8 +1029,8 @@ namespace MasterOnline.Controllers
                                         CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
 
                                         CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = conn_id;
-                                        CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
-                                        CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                                         CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
                                         CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 1;
                                         CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
@@ -1935,54 +1937,61 @@ namespace MasterOnline.Controllers
                                 {
                                     if (string.IsNullOrEmpty(currentOrder.PEMESAN))
                                     {
-                                        string conn_id = Guid.NewGuid().ToString();
-                                        string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
-                                        insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
-                                        insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
-
-                                        var kabKot = "3174";//set default value jika tidak ada di db
-                                        var prov = "31";//set default value jika tidak ada di db
-                                        #region cut max length pembeli
-                                        var nama = resp.data.buyer.name.Replace('\'', '`');
-                                        if (nama.Length > 30)
-                                            nama = nama.Substring(0, 30);
-                                        string tlp = !string.IsNullOrEmpty(resp.data.delivery.consignee.phone) ? resp.data.delivery.consignee.phone.Replace('\'', '`') : "";
-                                        if (tlp.Length > 30)
-                                        {
-                                            tlp = tlp.Substring(0, 30);
-                                        }
-                                        string AL_KIRIM1 = !string.IsNullOrEmpty(resp.data.delivery.consignee.address) ? resp.data.delivery.consignee.address.Replace('\'', '`') : "";
-                                        if (AL_KIRIM1.Length > 30)
-                                        {
-                                            AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
-                                        }
-                                        string KODEPOS = !string.IsNullOrEmpty(resp.data.delivery.consignee.postal_code) ? resp.data.delivery.consignee.postal_code.Replace('\'', '`') : "";
-                                        if (KODEPOS.Length > 7)
-                                        {
-                                            KODEPOS = KODEPOS.Substring(0, 7);
-                                        }
-
-                                        string namaKabkot = (string.IsNullOrEmpty(resp.data.delivery.consignee.city) ? "" : resp.data.delivery.consignee.city.Replace("'", "`"));
-                                        if (namaKabkot.Length > 50)
-                                            namaKabkot = namaKabkot.Substring(0, 50);
-
-                                        string namaProv = string.IsNullOrEmpty(resp.data.delivery.consignee.province) ? "" : resp.data.delivery.consignee.province.Replace("'", "`");
-                                        if (namaProv.Length > 50)
-                                            namaProv = namaProv.Substring(0, 50);
-                                        #endregion
-                                        insertPembeli += "('" + nama + "','" + resp.data.delivery.consignee.address.Replace('\'', '`') + "','" + tlp + "','',0,0,'0','01',";
-                                        insertPembeli += "1, 'IDR', '01', '" + AL_KIRIM1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
-                                        insertPembeli += "'FP', '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '"
-                                            + KODEPOS + "', '', '" + kabKot + "', '" + prov + "', '" + namaKabkot
-                                            + "', '" + namaProv.Replace('\'', '`') + "', '" + conn_id + "')";
-
-                                        SqlCommand CommandSQL = new SqlCommand();
-                                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = conn_id;
-
-                                        EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
-
                                         var pembeli = ErasoftDbContext.ARF01C.Where(m => m.TLP == resp.data.delivery.consignee.phone).FirstOrDefault();
+                                        if (pembeli == null)
+                                        {
+                                            string conn_id = Guid.NewGuid().ToString();
+                                            string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                                            insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                                            insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
+
+                                            var kabKot = "3174";//set default value jika tidak ada di db
+                                            var prov = "31";//set default value jika tidak ada di db
+                                            #region cut max length pembeli
+                                            var nama = resp.data.buyer.name.Replace('\'', '`');
+                                            if (nama.Length > 30)
+                                                nama = nama.Substring(0, 30);
+                                            string tlp = !string.IsNullOrEmpty(resp.data.delivery.consignee.phone) ? resp.data.delivery.consignee.phone.Replace('\'', '`') : "";
+                                            if (tlp.Length > 30)
+                                            {
+                                                tlp = tlp.Substring(0, 30);
+                                            }
+                                            string AL_KIRIM1 = !string.IsNullOrEmpty(resp.data.delivery.consignee.address) ? resp.data.delivery.consignee.address.Replace('\'', '`') : "";
+                                            if (AL_KIRIM1.Length > 30)
+                                            {
+                                                AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+                                            }
+                                            string KODEPOS = !string.IsNullOrEmpty(resp.data.delivery.consignee.postal_code) ? resp.data.delivery.consignee.postal_code.Replace('\'', '`') : "";
+                                            if (KODEPOS.Length > 7)
+                                            {
+                                                KODEPOS = KODEPOS.Substring(0, 7);
+                                            }
+
+                                            string namaKabkot = (string.IsNullOrEmpty(resp.data.delivery.consignee.city) ? "" : resp.data.delivery.consignee.city.Replace("'", "`"));
+                                            if (namaKabkot.Length > 50)
+                                                namaKabkot = namaKabkot.Substring(0, 50);
+
+                                            string namaProv = string.IsNullOrEmpty(resp.data.delivery.consignee.province) ? "" : resp.data.delivery.consignee.province.Replace("'", "`");
+                                            if (namaProv.Length > 50)
+                                                namaProv = namaProv.Substring(0, 50);
+                                            #endregion
+                                            insertPembeli += "('" + nama + "','" + resp.data.delivery.consignee.address.Replace('\'', '`') + "','" + tlp + "','',0,0,'0','01',";
+                                            insertPembeli += "1, 'IDR', '01', '" + AL_KIRIM1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                            insertPembeli += "'FP', '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '"
+                                                + KODEPOS + "', '', '" + kabKot + "', '" + prov + "', '" + namaKabkot
+                                                + "', '" + namaProv.Replace('\'', '`') + "', '" + conn_id + "')";
+
+                                            EDB.ExecuteSQL("MOConnectionString", CommandType.Text, insertPembeli);
+
+                                            SqlCommand CommandSQL = new SqlCommand();
+                                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = conn_id;
+
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
+
+                                            pembeli = ErasoftDbContext.ARF01C.Where(m => m.TLP == resp.data.delivery.consignee.phone).FirstOrDefault();
+                                        }
+                                        //var pembeli = ErasoftDbContext.ARF01C.Where(m => m.TLP == resp.data.delivery.consignee.phone).FirstOrDefault();
                                         if (pembeli != null)
                                         {
                                             EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeli.BUYER_CODE + "' WHERE NO_BUKTI = '" + currentOrder.NO_BUKTI + "'");
@@ -1998,6 +2007,69 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke BukaLapak Gagal.")]
+        public async Task<BindingBase> Bukalapak_CancelOrder(string DatabasePathErasoft, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, BukaLapakKey data, string noref, string username)
+        {
+            SetupContext(DatabasePathErasoft, username);
+            data = new BukaLapakControllerJob().RefreshToken(data);
+            var ret = new BindingBase();
+
+            string urll = "https://api.bukalapak.com/transactions/" + noref + "/status";
+
+            string myData = "{\"state\":\"rejected\"}";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "PUT";
+            myReq.Headers.Add("Authorization", "Bearer " + data.token);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (responseFromServer != "")
+            {
+                var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(ChangeOrderStatusResponse)) as ChangeOrderStatusResponse;
+                if (resp != null)
+                {
+                    if (resp.meta != null)
+                    {
+                        if (resp.meta.http_status != 200)
+                        {
+                            if (resp.errors != null)
+                            {
+                                if (resp.errors.Length > 0)
+                                {
+                                    string errMsg = "";
+                                    foreach (var error in resp.errors)
+                                    {
+                                        errMsg += error.code + ":" + error.message + "\n";
+                                    }
+                                    throw new Exception(errMsg);
+                                }
+                            }
+                            throw new Exception(responseFromServer);
+                        }
+                        
+                    }
+                }
+            }
+            return ret;
+        }
         public BindingBase getListProduct(string cust, string userId, string token, int page, bool display, int recordCount)
         {
             var ret = new BindingBase();

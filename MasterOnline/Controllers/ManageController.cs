@@ -25438,13 +25438,37 @@ namespace MasterOnline.Controllers
                                 clientJobServer.Enqueue<ShopifyControllerJob>(x => x.Shopify_SetOrderStatusCancelled(dbPathEra, pesanan.NO_REFERENSI, marketPlace.CUST, "Pesanan", "Cancel Order", idenJob));
 #endif
                             }
+
+                            if (mp.NamaMarket.ToUpper().Contains("BUKALAPAK"))
+                            {
+                                //if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
+                                {
+                                    var idenBL = new BukaLapakKey
+                                    {
+                                        code = marketPlace.API_KEY,
+                                        cust = marketPlace.CUST,
+                                        dbPathEra = dbPathEra,
+                                        refresh_token = marketPlace.REFRESH_TOKEN,
+                                        tgl_expired = marketPlace.TGL_EXPIRED.Value,
+                                        token = marketPlace.TOKEN
+                                    };
+                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+#if (AWS || DEV)
+                                clientJobServer.Enqueue<BukaLapakControllerJob>(x => x.Bukalapak_CancelOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", idenBL, pesanan.NO_REFERENSI, usernameLogin));
+#else
+                                    new BukaLapakControllerJob().Bukalapak_CancelOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", idenBL, pesanan.NO_REFERENSI, usernameLogin);
+#endif
+                                }
+
+                            }
                         }
                         break;
                     case "02":
-                        if (mp.NamaMarket.ToUpper().Contains("BUKALAPAK"))
-                        {
+                        //if (mp.NamaMarket.ToUpper().Contains("BUKALAPAK"))
+                        //{
 
-                        }
+                        //}
                         if (mp.NamaMarket.ToUpper().Contains("ELEVENIA"))
                         {
                             DataSet dsTEMP_ELV_ORDERS = new DataSet();
@@ -25544,7 +25568,7 @@ namespace MasterOnline.Controllers
 
                         if (mp.NamaMarket.ToUpper().Contains("BUKALAPAK"))
                         {
-                            if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
+                            //if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
                             {
                                 var idenBL = new BukaLapakKey
                                 {

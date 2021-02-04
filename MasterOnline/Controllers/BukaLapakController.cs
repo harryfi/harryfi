@@ -423,6 +423,54 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+
+        public async Task<ActionResult> GetKurir( string cust)
+        {
+            var marketPlace = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+            var data = new BukaLapakKey
+            {
+                code = marketPlace.API_KEY,
+                cust = marketPlace.CUST,
+                dbPathEra = "",
+                refresh_token = marketPlace.REFRESH_TOKEN,
+                tgl_expired = marketPlace.TGL_EXPIRED.Value,
+                token = marketPlace.TOKEN
+            };
+            data = RefreshToken(data);
+            var ret = new BindingBase();
+
+            string urll = "https://api.bukalapak.com/info/carriers";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", "Bearer " + data.token);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+           
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (responseFromServer != "")
+            {
+                var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(GetCourierResponse)) as GetCourierResponse;
+                if (resp != null)
+                {
+                    if (resp.meta != null)
+                    {
+                        return Json(resp, JsonRequestBehavior.AllowGet);
+                    }
+                }
+            }
+            return Json(ret, JsonRequestBehavior.AllowGet);
+        }
         [HttpPost]
         public BindingBase CreateProduct(BrgViewModel data)
         {
@@ -3686,5 +3734,15 @@ namespace MasterOnline.Controllers
     {
         public int http_status { get; set; }
     }
-
+    public class GetCourierResponse : BLErrorResponse
+    {
+        public ResponseGetAttrMeta meta { get; set; }
+        public CourierData[] data { get; set; }
+    }
+    public class CourierData
+    {
+        public string carrier { get; set; }
+        public string courier_group { get; set; }
+        public bool express { get; set; }
+    }
 }

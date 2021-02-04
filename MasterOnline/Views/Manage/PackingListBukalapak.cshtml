@@ -1,0 +1,654 @@
+﻿@using System.Globalization
+@*@using MasterOnline.ViewModels*@
+@using PagedList.Mvc
+@model PagedList.IPagedList<PackingPerMP>
+@{
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
+
+}
+<style>
+    .cetak_label {
+        color: orange;
+        font-weight: bold;
+    }
+
+    .dropdown-hover:hover {
+        background-color: gainsboro !important;
+    }
+
+    #modal-print-option {
+        margin: auto;
+    }
+
+        #modal-print-option .modal-content .modal-header {
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            border: none;
+            background-color: white;
+        }
+
+        #modal-print-option .modal-content .modal-body {
+            height: 125px;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            background-color: white;
+        }
+
+    .checkbox-container {
+        display: block;
+        position: relative;
+        /*padding-left: 35px;*/
+        margin-top: 4px;
+        cursor: pointer;
+        font-size: 11px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+        /* Hide the browser's default checkbox */
+        .checkbox-container input {
+            position: relative;
+            opacity: 100;
+            cursor: pointer;
+            display: none;
+        }
+
+    /* Create a custom checkbox */
+    .checkmark {
+        position: absolute;
+        top: 0;
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*left: 18px;*/
+        /*end remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        height: 25px;
+        width: 25px;
+        background-color: #eee;
+        border: solid 1px #ccc;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .checkbox-container:hover input ~ .checkmark {
+        background-color: #ccc;
+    }
+
+    /* When the checkbox is checked, add a blue background */
+    .checkbox-container input:checked ~ .checkmark {
+        background-color: #2196F3;
+    }
+
+    /* Create the checkmark/indicator (hidden when not checked) */
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    /* Show the checkmark when checked */
+    .checkbox-container input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    /* Style the checkmark/indicator */
+    .checkbox-container .checkmark:after {
+        left: 9px;
+        top: 5px;
+        width: 6px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 3px 3px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }
+
+    @@media only screen and (max-width: 767px) {
+        #modal-print-option {
+            margin-top: 21px;
+            /* margin: auto; */
+            margin-left: -49px;
+            width: 40%;
+        }
+
+        .modal-dialog {
+            width: 52%;
+            margin: 0;
+        }
+
+        .modal-content {
+            width: 75%;
+        }
+    }
+
+    @@media only screen and (max-width: 440px) {
+        .snip1404 .plan {
+            width: 100%;
+        }
+
+        .modal-dialog {
+            width: 52%;
+            margin: 0;
+        }
+    }
+</style>
+<style type="text/css">
+    .modal-dialog {
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*width: 75%;*/
+        height: 75%;
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*margin: 0 auto;*/
+        padding: 0;
+    }
+
+    .modal-content {
+        margin-top: 35px;
+        height: auto;
+        min-height: 100%;
+        border-radius: 0;
+    }
+</style>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ($('#PackingListBukalapakFound')) {
+            if (parseInt($('#PackingListBukalapakFound').val()) > 0) {
+                $('#li_pesanan_bukalapak_tab_focus').show().on('click', function () {
+                    $('#bukalapak_packing_cust_tabs li:first').find('a').click();
+                });
+            }
+            else{
+                $('#li_pesanan_bukalapak_tab_focus').hide();
+            }
+        }
+
+
+        $('.selectBukalapakResiCourrier').each(function (i, item) {
+
+            var cust = $(item).attr("data-kodecust");
+
+            var link = '@Html.Raw(Url.Action("GetKurir", "Manage", new { cust = "replaceCode" }))';
+            link = link.replace("replaceCode", encodeURIComponent(cust));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (response) {
+                    var listAddress = [];
+
+                    $.each(response.data,
+                        function (i, item) {
+                            listAddress[i] = {
+                                id: item.carrier,
+                                text: item.carrier
+                            };
+                        });
+
+                    var Select = $('#select-bukalapak-resi-courrier-' + cust).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAddress,
+                        onChange: function (value) {
+
+                        }
+                    });
+
+                    //Select[0].selectize.setValue(valueTRACKING_SHIPMENT[1]);
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        });
+
+    });
+
+    function allcheckboxpackingbukalapakonclick(cust){
+        $('.checkbox_packing_bukalapak').each( function() {
+            if($(this).attr("data-cust") == cust){
+                $(this).prop('checked', $('#all_checkbox_packing_bukalapak__' + cust).prop('checked'));
+            }
+        });
+    }
+
+    //add by nurul 24/7/2020
+    function refreshTablePackingListPerAkunBukalapak(cust) {
+        //$('#search_table_packing_pesanan_shopee__' + cust).val('');
+        //$('#filter_packing_field_shopee__' + cust).val('Harap Pilih').change();
+        var $link = '@Html.Raw(Url.Action("refreshTablePackingListPerAkun", "Manage", new { bukti = "replacebukti", cust = "replacecust", marketplace = "replacemarket", search = "replacesearch", filter = "replacefilter", filtervalue = "replacefiltervalue" }))';
+        $link = $link.replace("replacebukti", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+        $link = $link.replace("replacecust", encodeURIComponent(cust));
+        $link = $link.replace("replacemarket", encodeURIComponent("BUKALAPAK"));
+        $link = $link.replace("replacesearch", encodeURIComponent($('#search_table_packing_pesanan_bukalapak__' + cust).val()));
+        //$link = $link.replace("replacefilter", encodeURIComponent(null));
+        //$link = $link.replace("replacefiltervalue", encodeURIComponent(null));
+        var filterbybukalapak = get_bukalapak_filterby(cust);
+        var filtervaluebukalapak = get_bukalapak_filtervalue(filterbybukalapak, cust);
+        $link = $link.replace("replacefilter", encodeURIComponent(filterbybukalapak));
+        $link = $link.replace("replacefiltervalue", encodeURIComponent(filtervaluebukalapak));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                $('#table_packing_bukalapak__' + cust).hide();
+                //$('#loading_faktur_tab').show();
+            },
+            success: function (response) {
+                $('#table_packing_bukalapak__' + cust).html(response);
+                //$('#loading_faktur_tab').hide();
+                $('#table_packing_bukalapak__' + cust).show();
+
+                //add by nurul 23/7/2020
+                $('#filter_packing_field_bukalapak__' + cust).change(function () {
+                    var filterBy = $(this).val();
+                    switch (filterBy) {
+                        case "kirim":
+                            $('#filter_packing_kirim_field_option_div_bukalapak__' + cust).show();
+                            $('#filter_packing_print_field_option_div_bukalapak__' + cust).hide();
+                            $('#filter_packing_kirim_bukalapak__' + cust).val('Harap Pilih');
+                            break;
+                        case "print":
+                            $('#filter_packing_kirim_field_option_div_bukalapak__' + cust).hide();
+                            $('#filter_packing_print_field_option_div_bukalapak__' + cust).show();
+                            $('#filter_packing_print_bukalapak__' + cust).val('Harap Pilih');
+                            break;
+                        default:
+                            $('#filter_packing_kirim_field_option_div_bukalapak__' + cust).hide();
+                            $('#filter_packing_print_field_option_div_bukalapak__' + cust).hide();
+                            break;
+                    }
+
+                });
+                $('#filter_packing_kirim_bukalapak__' + cust).change(function () {
+                    if ($('#filter_packing_kirim_bukalapak__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_bukalapak__' + cust).val() != "Harap Pilih") {
+                        SearchTablePackingListPerAkunBukalapak(cust);
+                    }
+                });
+                $('#filter_packing_print_bukalapak__' + cust).change(function () {
+                    if ($('#filter_packing_print_bukalapak__' + cust).val() != "Harap Pilih" && $('#filter_packing_field_bukalapak__' + cust).val() != "Harap Pilih") {
+                        SearchTablePackingListPerAkunBukalapak(cust);
+                    }
+                });
+
+                $('#search_table_packing_pesanan_bukalapak__' + cust).keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        SearchTablePackingListPerAkunBukalapak(cust);
+                        return false;
+                    }
+                });
+                $('#search_table_packing_pesanan_bukalapak_button__' + cust).click(function () {
+                    SearchTablePackingListPerAkunBukalapak(cust);
+                });
+                //end add by nurul 23/7/2020
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function get_bukalapak_filterby(cust) {
+        return $('#filter_packing_field_bukalapak__' + cust).val();
+    }
+    function get_bukalapak_filtervalue(filterbybukalapak, cust) {
+        var filtervaluebukalapak = "";
+        switch (filterbybukalapak) {
+            case "kirim":
+                filtervaluebukalapak = $('#filter_packing_kirim_bukalapak__' + cust).val();
+                break;
+            case "print":
+                filtervalue = $('#filter_packing_print_bukalapak__' + cust).val();
+                break;
+            default:
+                break;
+        }
+        return filtervaluebukalapak;
+    }
+    function SearchTablePackingListPerAkunBukalapak(cust) {
+        $custTokped = cust;
+        var $link = '@Html.Raw(Url.Action("refreshTablePackingListPerAkun", "Manage", new { bukti = "replacebukti", cust = "replacecust", marketplace = "replacemarket", search = "replacesearch", filter = "replacefilter", filtervalue = "replacefiltervalue" }))';
+        $link = $link.replace("replacebukti", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+        $link = $link.replace("replacecust", encodeURIComponent(cust));
+        $link = $link.replace("replacemarket", encodeURIComponent("BUKALAPAK"));
+        $link = $link.replace("replacesearch", encodeURIComponent($('#search_table_packing_pesanan_bukalapak__' + cust).val()));
+        var filterbyBukalapak = get_bukalapak_filterby(cust);
+        var filtervalueBukalapak = get_bukalapak_filtervalue(filterbyBukalapak, cust);
+        $link = $link.replace("replacefilter", encodeURIComponent(filterbyBukalapak));
+        $link = $link.replace("replacefiltervalue", encodeURIComponent(filtervalueBukalapak));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                $('#table_packing_bukalapak__' + cust).hide();
+                //$('#loading_faktur_tab').show();
+            },
+            success: function (response) {
+                $('#table_packing_bukalapak__' + cust).html(response);
+                //$('#loading_faktur_tab').hide();
+                $('#table_packing_bukalapak__' + cust).show();
+
+
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function RefreshPackingBukalapak(cust) {
+        $('#search_table_packing_pesanan_bukalapak__' + cust).val('');
+        $('#filter_packing_field_bukalapak__' + cust).val('Harap Pilih').change();
+        var $link = '@Html.Raw(Url.Action("refreshTablePackingListPerAkun", "Manage", new { bukti = "replacebukti", cust = "replacecust", marketplace = "replacemarket", search = "replacesearch", filter = "replacefilter", filtervalue = "replacefiltervalue" }))';
+        $link = $link.replace("replacebukti", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+        $link = $link.replace("replacecust", encodeURIComponent(cust));
+        $link = $link.replace("replacemarket", encodeURIComponent("BUKALAPAK"));
+        $link = $link.replace("replacesearch", encodeURIComponent($('#search_table_packing_pesanan_bukalapak__' + cust).val()));
+        $link = $link.replace("replacefilter", encodeURIComponent(null));
+        $link = $link.replace("replacefiltervalue", encodeURIComponent(null));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                $('#table_packing_bukalapak__' + cust).hide();
+                //$('#loading_faktur_tab').show();
+            },
+            success: function (response) {
+                $('#table_packing_bukalapak__' + cust).html(response);
+                //$('#loading_faktur_tab').hide();
+                $('#table_packing_bukalapak__' + cust).show();
+
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+    //end add by nurul 24/7/2020
+</script>
+@{
+    var distinctCust = Model.Select(p => new { p.CUST, p.NAMA_CUST }).Distinct().ToList();
+}
+
+<div class="row">
+    <div class="col-12">
+        <ul id="bukalapak_packing_cust_tabs" class="nav nav-tabs">
+            @foreach (var item in distinctCust)
+            {
+                var listPackingPerAkun = Model.Where(a => a.CUST == item.CUST).ToList();
+                var countSOPerCust = Model.Where(a => a.CUST == item.CUST).Count();
+                <li><a data-toggle="tab" href="#bukalapak_tab_content__@(item.CUST)" onclick="refreshTablePackingListPerAkunBukalapak('@item.CUST')">@(item.NAMA_CUST)<span>(@countSOPerCust)</span></a></li>
+            }
+        </ul>
+        <div class="tab-content">
+            @{
+                var PackingListShopeeFound = distinctCust.Count();
+            }
+            @Html.TextBox("PackingListBukalapakFound", PackingListShopeeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+            @foreach (var item in distinctCust)
+            {
+                <div id="bukalapak_tab_content__@(item.CUST)" class="tab-pane fade in shopee_packing_tab_content">
+                    <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+                    <div class="modal fade" id="modalPrintLabelOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel__@(item.CUST)">
+                        <div class="modal-dialog" id="modal-print-option" role="document">
+                            <div class="modal-content " style="margin:auto;height:470px;width:650px;overflow-y:auto">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="printOptionLabel__@(item.CUST)">Cetak Label</h4>
+                                    <hr />
+                                    <div>
+                                        <h5>Apakah Anda yakin ingin mencetak label <span class="cetak_label" id="cetak_label__@(item.CUST)"></span>?</h5>
+                                    </div>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-4" style="text-align:left">
+                                            <label>Nama Toko(Dropship) </label>
+                                        </div>
+                                        <div class="col-md-6" style="text-align:left">
+                                            <input id="nama_toko__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                        </div>
+                                        <div class="col-md-2"></div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-4" style="text-align:left">
+                                            <label>No Telepon Toko(Dropship) </label>
+                                        </div>
+                                        <div class="col-md-6" style="text-align:left">
+                                            <input id="tlp_toko__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                        </div>
+                                        <div class="col-md-2"></div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-4" style="text-align:left">
+                                            <label>Pilihan Cetak : </label>
+                                        </div>
+                                        <div class="col-md-8"></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_mp__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                                <span id="ctk_mp__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Nama Marketplace
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_alamat__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                                <span id="ctk_alamat__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Alamat Toko
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top:5px">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_tlp__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_tlp__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Telepon Toko
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_nama__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_nama__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Nama Toko
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top:5px">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_nobuk__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                                <span id="ctk_nobuk__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            No Bukti Pesanan
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_total__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_total__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Total Harga
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top:5px">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_ket__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_ket__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-4" style="padding-top: 7px;">
+                                            Catatan Pembeli
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-10" style="padding-top:10px">
+                                            <button id="btn-print-faktur__@(item.CUST)" type="button" class="btn btn-success btn-block">Cetak</button>
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="modalPrintBukalapak__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintBukalapak__label__@(item.CUST)">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    @* <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> *@
+                                    <h4 class="modal-title" id="modalPrintBukalapak__label__@(item.CUST)">Print Pesanan Shopee</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-12" id="modalPrintBukalapak__textarea__@(item.CUST)">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger" onclick="$('#modalPrintBukalapak__@(item.CUST)').modal('hide');">Tutup</button>
+                                    @*<button type="button" class="btn btn-success" onclick="printRekap();">Print</button>*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input id="search_table_packing_pesanan_bukalapak__@(item.CUST)" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_table_packing_pesanan_bukalapak_button__@(item.CUST)" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <div id="bukalapak-resi-courrier-@(item.CUST)">
+                                    <select id="select-bukalapak-resi-courrier-@(item.CUST)" class="selectBukalapakResiCourrier" data-kodecust="@(item.CUST)" placeholder="Pilih Kurir" required="required"></select>
+                                </div>
+                            </div>
+                            @*<button id="btnPrintShopee__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintShopee">Print</button>*@
+                        </div>
+                        <div class="col-md-1"></div>
+                        <div class="col-md-1 pull-left">
+                            <button id="btnRefreshBukalapak_@(item.CUST)" type="button" class="btn btn-default" onclick="RefreshPackingBukalapak('@(item.CUST)')" style="width:75px">Refresh</button>
+                        </div>
+                        <div class="col-md-2 pull-right" style="text-align:right">
+                            <div class="col-md-6" style="text-align:right">
+                                <div class=" btn-group pull-right" role="group">
+                                    <button id="pl_bukalapak_btnGroup1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:75px">
+                                        Proses <span class="caret"></span>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnProsesPickupShopee__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="RequestPickupPackingBukalapak('@(item.CUST)')">
+                                            <span aria-hidden="true"> Deliver Pesanan</span>
+                                        </button>
+                                        @*<button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnProsesDropoffShopee__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="RequestDropoffPackingShopee('@(item.CUST)')">
+                                            <span aria-hidden="true"> Drop Off</span>
+                                        </button>
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnProsesJOBShopee__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="RequestJOBPackingShopee('@(item.CUST)')">
+                                            <span aria-hidden="true"> JOB</span>
+                                        </button>*@
+                                    </div>
+                                </div>
+                            </div>
+                            <div class=" col-md-6 pull-right" style="text-align:right">
+                                @*<button id="btnProsesJOBShopee__@(item.CUST)" type="button" class="btn btn-primary " onclick="RequestJOBPackingShopee('@(item.CUST)')" @*style="width:50px; text-align:center;">JOB</button>*@
+                                <div class=" btn-group pull-right" role="group" style="vertical-align: top;">
+                                    <button id="pl_bukalapak_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:75px">
+                                        Print <span class="caret"></span>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        @*<button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintShopee__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="ShopeeGetLabelPerPacking('@(item.CUST)','1')">
+                                            <span aria-hidden="true"> Label Marketplace</span>
+                                        </button>*@
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOShopee__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="BukalapakGetLabelPerPacking('@(item.CUST)','2')">
+                                            <span aria-hidden="true"> Label MasterOnline</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-lg-1 col-sm-6 col-md-1" style="margin-top:10px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6 col-md-2">
+                            <select class="form-control" id="filter_packing_field_bukalapak__@(item.CUST)" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="kirim">Status Kirim</option>
+                                <option value="print">Status Print</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6 col-md-2">
+                            <div class="col-12" id="filter_packing_kirim_field_option_div_bukalapak__@(item.CUST)" style="display:none">
+                                <select class="form-control" id="filter_packing_kirim_bukalapak__@(item.CUST)" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="0">Dalam Proses</option>
+                                    <option value="1">Gagal Proses</option>
+                                    <option value="2">Siap Kirim</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_packing_print_field_option_div_bukalapak__@(item.CUST)" style="display:none">
+                                <select class="form-control" id="filter_packing_print_bukalapak__@(item.CUST)" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="1">Sudah</option>
+                                    <option value="0">Belum</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div @*class="hscroll table-responsive"*@ id="table_packing_bukalapak__@(item.CUST)">
+                      
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
