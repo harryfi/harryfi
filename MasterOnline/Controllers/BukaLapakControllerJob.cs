@@ -1903,7 +1903,7 @@ namespace MasterOnline.Controllers
             }
             if (responseFromServer != "")
             {
-                var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(StokControllerJob.BukalapakResponseAPI)) as StokControllerJob.BukalapakResponseAPI;
+                var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(ChangeOrderStatusResponse)) as ChangeOrderStatusResponse;
                 if (resp != null)
                 {
                     if (resp.meta != null)
@@ -1923,6 +1923,74 @@ namespace MasterOnline.Controllers
                                 }
                             }
                             throw new Exception(responseFromServer);
+                        }
+                        else
+                        {
+                            #region set pembeli
+                            if (!resp.data.delivery.consignee.phone.Contains("Terkunci"))
+                            {
+                                var ordID = resp.data.id.ToString();
+                                var currentOrder = ErasoftDbContext.SOT01A.Where(m => m.CUST == log_CUST && m.NO_REFERENSI == ordID).FirstOrDefault();
+                                if (currentOrder != null)
+                                {
+                                    if (string.IsNullOrEmpty(currentOrder.PEMESAN))
+                                    {
+                                        string conn_id = Guid.NewGuid().ToString();
+                                        string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                                        insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                                        insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
+
+                                        var kabKot = "3174";//set default value jika tidak ada di db
+                                        var prov = "31";//set default value jika tidak ada di db
+                                        #region cut max length pembeli
+                                        var nama = resp.data.buyer.name.Replace('\'', '`');
+                                        if (nama.Length > 30)
+                                            nama = nama.Substring(0, 30);
+                                        string tlp = !string.IsNullOrEmpty(resp.data.delivery.consignee.phone) ? resp.data.delivery.consignee.phone.Replace('\'', '`') : "";
+                                        if (tlp.Length > 30)
+                                        {
+                                            tlp = tlp.Substring(0, 30);
+                                        }
+                                        string AL_KIRIM1 = !string.IsNullOrEmpty(resp.data.delivery.consignee.address) ? resp.data.delivery.consignee.address.Replace('\'', '`') : "";
+                                        if (AL_KIRIM1.Length > 30)
+                                        {
+                                            AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+                                        }
+                                        string KODEPOS = !string.IsNullOrEmpty(resp.data.delivery.consignee.postal_code) ? resp.data.delivery.consignee.postal_code.Replace('\'', '`') : "";
+                                        if (KODEPOS.Length > 7)
+                                        {
+                                            KODEPOS = KODEPOS.Substring(0, 7);
+                                        }
+
+                                        string namaKabkot = (string.IsNullOrEmpty(resp.data.delivery.consignee.city) ? "" : resp.data.delivery.consignee.city.Replace("'", "`"));
+                                        if (namaKabkot.Length > 50)
+                                            namaKabkot = namaKabkot.Substring(0, 50);
+
+                                        string namaProv = string.IsNullOrEmpty(resp.data.delivery.consignee.province) ? "" : resp.data.delivery.consignee.province.Replace("'", "`");
+                                        if (namaProv.Length > 50)
+                                            namaProv = namaProv.Substring(0, 50);
+                                        #endregion
+                                        insertPembeli += "('" + nama + "','" + resp.data.delivery.consignee.address.Replace('\'', '`') + "','" + tlp + "','',0,0,'0','01',";
+                                        insertPembeli += "1, 'IDR', '01', '" + AL_KIRIM1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                        insertPembeli += "'FP', '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '"
+                                            + KODEPOS + "', '', '" + kabKot + "', '" + prov + "', '" + namaKabkot
+                                            + "', '" + namaProv.Replace('\'', '`') + "', '" + conn_id + "')";
+
+                                        SqlCommand CommandSQL = new SqlCommand();
+                                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = conn_id;
+
+                                        EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
+
+                                        var pembeli = ErasoftDbContext.ARF01C.Where(m => m.TLP == resp.data.delivery.consignee.phone).FirstOrDefault();
+                                        if (pembeli != null)
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeli.BUYER_CODE + "' WHERE NO_BUKTI = '" + currentOrder.NO_BUKTI + "'");
+                                        }
+                                    }
+                                }
+                            }
+                            #endregion
                         }
                     }
                 }
@@ -2371,6 +2439,11 @@ namespace MasterOnline.Controllers
     }
 
     #region get order response
+    public class ChangeOrderStatusResponse : BLErrorResponse
+    {
+        public GetOrdersDatum data { get; set; }
+        public GetOrdersMeta meta { get; set; }
+    }
     public class GetOrdersResponse : BLErrorResponse
     {
         public GetOrdersDatum[] data { get; set; }
