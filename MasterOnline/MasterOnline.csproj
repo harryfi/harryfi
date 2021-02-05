@@ -6622,6 +6622,7 @@
     <Content Include="Views\Manage\LogErrorUploadInvoicePembelian.cshtml" />
     <Content Include="Views\Manage\TablePesananCancelCODPartial.cshtml" />
     <Content Include="Views\Manage\ListBrgForReturCODPopUp.cshtml" />
+    <Content Include="Views\Home\testing.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

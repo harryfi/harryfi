@@ -75,6 +75,16 @@ namespace MasterOnline.Controllers
             return View();
         }
 
+        [Route("home/testing")]
+        public ActionResult testing()
+        {
+            var vm = new SubsViewModel()
+            {
+                ListSubs = MoDbContext.Subscription.ToList()
+            };
+            return View(vm);
+        }
+
         public ActionResult About(string Ref)
         {
             var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.KodeRefPilihan == Ref);

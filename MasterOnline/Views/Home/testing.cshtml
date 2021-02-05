@@ -1,0 +1,35 @@
+﻿@using System.Globalization;
+@using MasterOnline.Models
+@using MasterOnline.ViewModels
+@{
+    MoDbContext context = new MoDbContext("");
+    Layout = null;
+
+    var listParent = context.FormMoses.Where(m => m.ParentId == 0).OrderBy(m => m.ScrId).ToList();
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
+    <div>
+        @if (listParent.Count > 0)
+        {
+        <ul>
+            @foreach (var parent in listParent)
+            {
+            <li class="parent-li" id="53">
+                <ul>
+                    @parent.NamaForm
+                </ul>
+            </li>
+            }
+        </ul>
+        }
+    </div>
+</body>
+</html>
