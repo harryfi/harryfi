@@ -13657,6 +13657,48 @@ namespace MasterOnline.Controllers
             }
             //end add
 
+            //add by nurul 1/2/2021, cek transaksi barang varian 
+            var cekVarian = ErasoftDbContext.STF02.Where(a => a.PART == barangId).Select(a => a.BRG).ToList();
+            if (cekVarian.Count() > 0)
+            {
+                var cekFakturVarian = ErasoftDbContext.SIT01B.Count(k => cekVarian.Contains(k.BRG));
+                var cekPembelianVarian = ErasoftDbContext.PBT01B.Count(k => cekVarian.Contains(k.BRG));
+                var cekTransaksiVarian = ErasoftDbContext.STT01B.Count(k => cekVarian.Contains(k.Kobar));
+                var cekPesananVarian = ErasoftDbContext.SOT01B.Count(k => cekVarian.Contains(k.BRG));
+                var cekPromosiVarian = ErasoftDbContext.DETAILPROMOSI.Count(k => cekVarian.Contains(k.KODE_BRG));
+
+                if (cekFakturVarian > 0 || cekPembelianVarian > 0 || cekTransaksiVarian > 0 || cekPesananVarian > 0 || cekPromosiVarian > 0)
+                {
+                    vmError.Errors.Add("Barang varian dari barang " + barangId + " sudah dipakai di transaksi !");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+            }
+            var cekMultiSku = ErasoftDbContext.STF03C.Where(k => cekVarian.Contains(k.BRG) || k.BRG == barangInDb.BRG).Count();
+            var cekBrgAcuan = ErasoftDbContext.STF03C.Where(k => cekVarian.Contains(k.BRG_ACUAN) || k.BRG_ACUAN == barangInDb.BRG).Count();
+            var cekBrgBundling = ErasoftDbContext.STF03.Where(k => cekVarian.Contains(k.Unit) || k.Unit == barangInDb.BRG).Count();
+            var cekBrgKomponen = ErasoftDbContext.STF03.Where(k => cekVarian.Contains(k.Brg) || k.Brg == barangInDb.BRG).Count();
+            if (cekMultiSku > 0)
+            {
+                vmError.Errors.Add("Barang sudah dipakai menjadi multi sku !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            if (cekBrgAcuan > 0)
+            {
+                vmError.Errors.Add("Barang sudah dipakai menjadi barang acuan !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            if (cekBrgBundling > 0)
+            {
+                vmError.Errors.Add("Barang sudah dipakai menjadi barang bundling !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            if (cekBrgKomponen > 0)
+            {
+                vmError.Errors.Add("Barang sudah dipakai menjadi barang komponen !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            //end add by nurul 1/2/2021, cek transaksi barang varian 
+
             var stf02hh = ErasoftDbContext.STF02H.Where(h => h.BRG == barangId).ToList();
             if (stf02hh.Count > 0)
             {
