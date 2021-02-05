@@ -275,16 +275,22 @@
                             var adaUrl = false;
                             var urlValue = "";
                             var countUrl = 0;
-                            response.listSuccess.forEach(function (item) {
-                                adaUrl = true;
-                                countUrl++;
-                                var buttonHtml = "<a class='btn btn-success' download='MO_Blibli_Shipping_" + item.no_referensi + '_' + item.orderItemId + ".pdf' target='_blank' href='data:application/octet-stream;base64," + item.pdf64 + "'>Download PDF File</a></br>";
-                                urlValue += buttonHtml;
-                            });
-                            if (adaUrl) {
-                                textareaValue += "Shipping Label PDF :</br>";
-                                textareaValue += urlValue;
+                            //change by nurul 5/2/2021
+                            //response.listSuccess.forEach(function (item) {
+                            //    adaUrl = true;
+                            //    countUrl++;
+                            //    var buttonHtml = "<a class='btn btn-success' download='MO_Blibli_Shipping_" + item.no_referensi + '_' + item.orderItemId + ".pdf' target='_blank' href='data:application/octet-stream;base64," + item.pdf64 + "'>Download PDF File</a></br>";
+                            //    urlValue += buttonHtml;
+                            //});
+                            //if (adaUrl) {
+                            //    textareaValue += "Shipping Label PDF :</br>";
+                            //    textareaValue += urlValue;
+                            //}
+                            if (response.mo_label != null) {
+                                window.open('/Manage/Download_PrintLabel?path=' + response.mo_label, '_blank');
+                                //textareaValue += response.mo_label + "</br>";
                             }
+                            //end change by nurul 5/2/2021
 
                             var adaError = false;
                             var errorValue = "";
@@ -298,6 +304,9 @@
                                 textareaValue += errorValue;
                             }
                             $('#modalPrintBlibli__textarea__' + cust).html(textareaValue);
+                            if (!adaError) {
+                                $('#modalPrintBlibli__' + cust).modal('hide');
+                            }
                         }
                     },
                     error: function (xhr, status, error) {

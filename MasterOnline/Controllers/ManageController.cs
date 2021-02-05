@@ -48275,6 +48275,11 @@ namespace MasterOnline.Controllers
                         var bliJob = new BlibliControllerJob();
                         var listErrors = new List<PackingListErrors>();
                         var listSuccess = new List<listSuccessPrintLabel>();
+
+                        List<string> temp_printLabel = new List<string>();
+                        string temp_printLabel_split = "";
+                        string result_printLabel = "";
+
                         foreach (var so in ListStt01a)
                         {
                             var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT ORDER_ITEM_ID FROM SOT01B (NOLOCK) NOLOCK WHERE NO_BUKTI = '" + so.no_bukti + "'");
@@ -48296,6 +48301,23 @@ namespace MasterOnline.Controllers
                                     var bookingAWB = await bliJob.GetShippingLabel(dbPathEra, iden, orderItemId);
                                     if (bookingAWB.success)
                                     {
+                                        #region initial folder
+                                        string messageErrorLog = "";
+                                        string filename = "BLIBLI_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                                        var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                                        #endregion
+
+                                        if (!System.IO.File.Exists(path))
+                                        {
+                                            System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                                            FileStream stream = System.IO.File.Create(path);
+                                            byte[] byteArray = Convert.FromBase64String(bookingAWB.value.document.ToString());
+                                            stream.Write(byteArray, 0, byteArray.Length);
+                                            stream.Close();
+                                            temp_printLabel.Add(path);
+                                            temp_printLabel_split = temp_printLabel_split + path + ";";
+                                        }
+
                                         listSuccess.Add(new listSuccessPrintLabel
                                         {
                                             no_referensi = so.no_referensi,
@@ -48350,7 +48372,15 @@ namespace MasterOnline.Controllers
                             EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where " + sSQLWhere);
 
                         }
-                        return new JsonResult { Data = new { listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        if (temp_printLabel.Count() > 0)
+                        {
+                            result_printLabel = MergePDFProcess(temp_printLabel_split, bukti, "BLIBLI");
+                            return new JsonResult { Data = new { listErrors, listSuccess, mo_label = result_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        }
+                        else
+                        {
+                            return new JsonResult { Data = new { listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        }
                     }
                     return new JsonResult { Data = new { mo_error = "Status Link ke Marketplace tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
@@ -48425,19 +48455,38 @@ namespace MasterOnline.Controllers
                         var bliJob = new BlibliControllerJob();
                         var listErrors = new List<PackingListErrors>();
                         var listSuccess = new List<listSuccessPrintLabel>();
+
+                        List<string> temp_printLabel = new List<string>();
+                        string temp_printLabel_split = "";
+                        string result_printLabel = "";
+
                         foreach (var so in ListStt01a)
                         {
                             string failedReason = "";
                             var success = false;
                             if (!string.IsNullOrEmpty(so.no_job))
                             {
-                                //var orderItemId = ErasoftDbContext.Database.SqlQuery<string>("SELECT TOP 1 ORDER_ITEM_ID FROM SOT01B (NOLOCK) WHERE NO_BUKTI = '" + so.no_bukti + "'");
-                                
                                 try
                                 {
                                     var bookingAWB = await bliJob.GetShippingLabelV2(dbPathEra, iden, so.no_job, so.no_bukti);
                                     if (bookingAWB.success)
                                     {
+                                        #region initial folder
+                                        string filename = "BLIBLI_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                                        var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                                        #endregion
+
+                                        if (!System.IO.File.Exists(path))
+                                        {
+                                            System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                                            FileStream stream = System.IO.File.Create(path);
+                                            byte[] byteArray = Convert.FromBase64String(bookingAWB.value.document.ToString());
+                                            stream.Write(byteArray, 0, byteArray.Length);
+                                            stream.Close();
+                                            temp_printLabel.Add(path);
+                                            temp_printLabel_split = temp_printLabel_split + path + ";";
+                                        }
+
                                         listSuccess.Add(new listSuccessPrintLabel
                                         {
                                             no_referensi = so.no_referensi,
@@ -48483,6 +48532,22 @@ namespace MasterOnline.Controllers
                                             var bookingAWB = await bliJob.GetShippingLabelV2(dbPathEra, iden, getPackageId, so.no_bukti);
                                             if (bookingAWB.success)
                                             {
+                                                #region initial folder
+                                                string filename = "BLIBLI_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                                                var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                                                #endregion
+
+                                                if (!System.IO.File.Exists(path))
+                                                {
+                                                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                                                    FileStream stream = System.IO.File.Create(path);
+                                                    byte[] byteArray = Convert.FromBase64String(bookingAWB.value.document.ToString());
+                                                    stream.Write(byteArray, 0, byteArray.Length);
+                                                    stream.Close();
+                                                    temp_printLabel.Add(path);
+                                                    temp_printLabel_split = temp_printLabel_split + path + ";";
+                                                }
+
                                                 listSuccess.Add(new listSuccessPrintLabel
                                                 {
                                                     no_referensi = so.no_referensi,
@@ -48495,19 +48560,6 @@ namespace MasterOnline.Controllers
                                             {
                                                 failedReason = bookingAWB.errorMessage;
                                             }
-
-                                            //if (!success)
-                                            //{
-
-                                            //    if (listErrors.Where(p => p.keyname == so.no_referensi).Count() == 0)
-                                            //    {
-                                            //        listErrors.Add(new PackingListErrors
-                                            //        {
-                                            //            keyname = so.no_referensi,
-                                            //            errorMessage = "Order [" + so.no_referensi + "] gagal cetak label, karena : " + failedReason
-                                            //        });
-                                            //    }
-                                            //}
                                         }
                                         catch (Exception ex)
                                         {
@@ -48551,7 +48603,15 @@ namespace MasterOnline.Controllers
                             EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where " + sSQLWhere);
 
                         }
-                        return new JsonResult { Data = new { listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        if (temp_printLabel.Count() > 0)
+                        {
+                            result_printLabel = MergePDFProcess(temp_printLabel_split, bukti, "BLIBLI");
+                            return new JsonResult { Data = new { listErrors, listSuccess, mo_label = result_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        }
+                        else
+                        {
+                            return new JsonResult { Data = new { listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        }
                     }
                     return new JsonResult { Data = new { mo_error = "Status Link ke Marketplace tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
@@ -48559,7 +48619,6 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-
                 return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
