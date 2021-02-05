@@ -2493,6 +2493,10 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            else
+            {
+                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM = '2' WHERE CUST = '" + log_CUST + "' AND NO_REFERENSI = '" + orderNo + "'");
+            }
         }
         //end add by nurul 18/12/2020
 
@@ -10711,6 +10715,346 @@ namespace MasterOnline.Controllers
             }
             return result;
         }
+
+        //add by nurul 3/2/2021, new shipping label blibli
+        public async Task<bool> CombineShippingList(string dbPathEra, BlibliAPIData iden, List<string> orderItemIDs)
+        {
+            //string ret = "";
+            var ret = false;
+            long milis = CurrentTimeMillis();
+            var token = SetupContext(iden);
+            iden.token = token;
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/getCombineShipping?";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            createPackageData thisData = new createPackageData();
+
+            thisData.orderItemIds = orderItemIDs;
+
+            string myData = JsonConvert.SerializeObject(thisData);
+
+            if (iden.versiToken != "2")
+            {
+                string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+                string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+                string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+                string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mta/api/businesspartner/v1/order/getCombineShipping", iden.API_secret_key);
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/getCombineShipping?businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&requestId =" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&storeId=10001" + "&orderItemNo=" + Uri.EscapeDataString(orderItemIDs.FirstOrDefault()) + "&channelId=MasterOnline";
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "POST";
+                myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("requestId", milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
+                myReq.Headers.Add("username", userMTA);
+            }
+            else
+            {
+                string usernameMO = iden.API_client_username;
+                //string passMO = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
+                string passMO = iden.API_client_password;
+                string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+                string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+                string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/getCombineShipping?businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&storeId=10001" + "&orderItemNo=" + Uri.EscapeDataString(orderItemIDs.FirstOrDefault()) + "&channelId=MasterOnline";
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+                myReq.Headers.Add("Signature-Time", milis.ToString());
+            }
+
+            string responseFromServer = "";
+
+            //try
+            //{
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                string err1 = "";
+                if (ex.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp1 = ex.Response;
+                    using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                    {
+                        err1 = sr1.ReadToEnd();
+                        responseFromServer = err1;
+                    }
+                }
+            }
+            if (responseFromServer != null)
+            {
+                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                if (string.IsNullOrEmpty(result.errorCode.Value))
+                {
+                    //ret = result.success;
+                    ret = true;
+                }
+            }
+            return ret;
+        }
+        public async Task<BlibliShippingLabelRet> GetShippingLabelV2(string dbPathEra, BlibliAPIData iden, string packageId, string nobuk)
+        {
+            var result = new BlibliShippingLabelRet();
+            var token = SetupContext(iden);
+            iden.token = token;
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            
+            string urll = "https://api.blibli.com/v2/proxy/seller/v1/orders/{package-id}/shippingLabel?";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            if (iden.versiToken != "2")
+            {
+                string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+                string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+                string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/seller/v1/orders/" + Uri.EscapeDataString(packageId) + "/shippingLabel", iden.API_secret_key);
+
+                urll = "https://api.blibli.com/v2/proxy/seller/v1/orders/" + Uri.EscapeDataString(packageId) + "/shippingLabel?package-id=" + Uri.EscapeDataString(packageId) + "&requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString());
+                urll += "&username=" + Uri.EscapeDataString(iden.mta_username_email_merchant);
+                urll += "&storeId=10001";
+                urll += "&storeCode=" + Uri.EscapeDataString(iden.merchant_code);
+                urll += "&channelId=MasterOnline";
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("requestId", milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
+                myReq.Headers.Add("username", userMTA);
+            }
+            else
+            {
+                string usernameMO = iden.API_client_username;
+                //string passMO = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
+                string passMO = iden.API_client_password;
+                string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+                string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+                string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+                urll = "https://api.blibli.com/v2/proxy/seller/v1/orders/" + Uri.EscapeDataString(packageId) + "/shippingLabel?package-id=" + Uri.EscapeDataString(packageId) + "&requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString());
+                urll += "&username=" + Uri.EscapeDataString(iden.mta_username_email_merchant);
+                urll += "&storeId=10001";
+                urll += "&storeCode=" + Uri.EscapeDataString(iden.merchant_code);
+                urll += "&channelId=MasterOnline";
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+                myReq.Headers.Add("Signature-Time", milis.ToString());
+            }
+
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }catch(WebException ex)
+            {
+                string err1 = "";
+                if (ex.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp1 = ex.Response;
+                    using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                    {
+                        err1 = sr1.ReadToEnd();
+                        responseFromServer = err1;
+                    }
+                }
+            }
+            if (responseFromServer != "")
+            {
+                dynamic resultRespons = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                try
+                {
+                    var cekDoc = resultRespons.content.shippingLabel.Value;
+                    if (!string.IsNullOrEmpty(cekDoc))
+                    {
+                        result.success = true;
+                        var pdf = new BlibliShippingLabelRetValue();
+                        pdf.document = cekDoc;
+                        result.value = pdf;
+                        try
+                        {
+                            var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT TOP 1 ISNULL(TRACKING_SHIPMENT,'') AS TRACKING_SHIPMENT, NO_REFERENSI, ORDER_ITEM_ID FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI=B.NO_BUKTI WHERE NO_PO_CUST = '" + packageId + "' AND A.NO_BUKTI='" + nobuk + "'");
+                            if (dsSOT01B.Tables[0].Rows.Count > 0)
+                            {
+                                if (string.IsNullOrEmpty(Convert.ToString(dsSOT01B.Tables[0].Rows[0]["TRACKING_SHIPMENT"])))
+                                {
+                                    await UpdateNoResi(dbPathEra, iden, Convert.ToString(dsSOT01B.Tables[0].Rows[0]["NO_REFERENSI"]), Convert.ToString(dsSOT01B.Tables[0].Rows[0]["ORDER_ITEM_ID"]), 1);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+                    else
+                    {
+                        result.success = false;
+                        result.errorMessage = resultRespons.errorMessage.Value;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result.success = false;
+                    result.errorMessage = "";
+                    if (!string.IsNullOrEmpty(resultRespons.errorMessage.Value))
+                    {
+                        result.errorMessage = resultRespons.errorMessage.Value;
+                    }
+                }
+            }
+            return result;
+        }
+        public async Task<string> UpdateNoResi(string dbPathEra, BlibliAPIData iden, string orderNo, string orderItemNo, int resi)
+        {
+            var result = "";
+            var token = SetupContext(iden);
+            iden.token = token;
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderDetail?";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            if (iden.versiToken != "2")
+            {
+                string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+                string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+                string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mta/api/businesspartner/v1/order/orderDetail", iden.API_secret_key);
+
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderDetail?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString());
+                urll += "&storeId=10001";
+                urll += "&orderNo=" + Uri.EscapeDataString(orderNo);
+                urll += "&orderItemNo=" + Uri.EscapeDataString(orderItemNo);
+                urll += "&channelId=MasterOnline";
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("requestId", milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
+                myReq.Headers.Add("username", userMTA);
+            }
+            else
+            {
+                string usernameMO = iden.API_client_username;
+                //string passMO = "mta-api-r1O1hntBZOQsQuNpCN5lfTKPIOJbHJk9NWRfvOEEUc3H2yVCKk";
+                string passMO = iden.API_client_password;
+                string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+                string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+                string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+                urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderDetail?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString());
+                urll += "&storeId=10001";
+                urll += "&orderNo=" + Uri.EscapeDataString(orderNo);
+                urll += "&orderItemNo=" + Uri.EscapeDataString(orderItemNo);
+                urll += "&channelId=MasterOnline";
+
+                myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(usernameMO + ":" + passMO))));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("Api-Seller-Key", iden.API_secret_key.ToString());
+                myReq.Headers.Add("Signature-Time", milis.ToString());
+            }
+
+            string responseFromServer = "";
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (responseFromServer != "")
+            {
+                dynamic resultRespons = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                try
+                {
+                    if (resi == 0)
+                    {
+                        var PackageId = resultRespons.value.packageId.Value;
+                        if (!string.IsNullOrEmpty(PackageId))
+                        {
+                            result = PackageId;
+                            try
+                            {
+                                var updated = EDB.ExecuteSQL("SConn", CommandType.Text, "UPDATE SOT01A SET NO_PO_CUST = '" + PackageId + "' WHERE NO_REFERENSI='" + orderNo + "'");
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                    }
+                    else 
+                    {
+                        var noResi = resultRespons.value.awbNumber.Value;
+                        if (!string.IsNullOrEmpty(noResi))
+                        {
+                            result = noResi;
+                            try
+                            {
+                                var updated = EDB.ExecuteSQL("SConn", CommandType.Text, "UPDATE SOT01A SET TRACKING_SHIPMENT = '" + noResi + "' WHERE NO_REFERENSI='" + orderNo + "'");
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                    }
+                }catch(Exception ex)
+                {
+
+                }
+            }
+            return result;
+        }
+        //end add by nurul 3/2/2021, new shipping label blibli
 
         public class CekProductRejectResult
         {
