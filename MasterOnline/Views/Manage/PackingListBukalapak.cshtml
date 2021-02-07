@@ -586,8 +586,8 @@
                                         Proses <span class="caret"></span>
                                     </button>
                                     <div class="dropdown-menu">
-                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnProsesPickupShopee__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="RequestPickupPackingBukalapak('@(item.CUST)')">
-                                            <span aria-hidden="true"> Deliver Pesanan</span>
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnBookingBukalapak__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="RequestPickupPackingBukalapak('@(item.CUST)')">
+                                            <span aria-hidden="true"> Ambil Kode Booking</span>
                                         </button>
                                         @*<button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnProsesDropoffShopee__@(item.CUST)" class="btn btn-primary dropdown-hover" onclick="RequestDropoffPackingShopee('@(item.CUST)')">
                                             <span aria-hidden="true"> Drop Off</span>
@@ -605,10 +605,10 @@
                                         Print <span class="caret"></span>
                                     </button>
                                     <div class="dropdown-menu">
-                                        @*<button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintShopee__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="ShopeeGetLabelPerPacking('@(item.CUST)','1')">
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintBukalapak__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="BukalapakGetLabelPerPacking('@(item.CUST)','1')">
                                             <span aria-hidden="true"> Label Marketplace</span>
-                                        </button>*@
-                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOShopee__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="BukalapakGetLabelPerPacking('@(item.CUST)','2')">
+                                        </button>
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOBukalapak__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="BukalapakGetLabelPerPacking('@(item.CUST)','2')">
                                             <span aria-hidden="true"> Label MasterOnline</span>
                                         </button>
                                     </div>

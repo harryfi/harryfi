@@ -6604,6 +6604,7 @@
     <Content Include="Views\Manage\TableBundlingKomponenPartial.cshtml" />
     <Content Include="Views\Bukalapak\BukalapakAuth.cshtml" />
     <Content Include="Views\Manage\PackingListBukalapak.cshtml" />
+    <Content Include="Views\Manage\ListDetailPackingListBukalapak.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

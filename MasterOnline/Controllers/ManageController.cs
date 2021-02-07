@@ -61261,9 +61261,9 @@ namespace MasterOnline.Controllers
                 case "LAZADA":
                     viewName = "ListDetailPackingListLazada";
                     break;
-                //case "BUKALAPAK":
-                //    viewName = "PackingListBukalapak";
-                //    break;
+                case "BUKALAPAK":
+                    viewName = "ListDetailPackingListBukalapak";
+                    break;
                 //case "ELEVENIA":
                 //    viewName = "PackingListElevenia";
                 //    break;
