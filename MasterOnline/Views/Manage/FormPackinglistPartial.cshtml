@@ -41,6 +41,7 @@
         RefreshPackingPesananJDID1();
         RefreshPackingPesanan82cart1();
         RefreshPackingPesananShopify1();
+        RefreshPackingPesananBukalapak1();
     }
 
     function RefreshPackingPesananTokped1() {
@@ -352,7 +353,7 @@
             }
         });
     }
-    function RefreshPackingPesananBukalapak() {
+    function RefreshPackingPesananBukalapak1() {
         var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "8", bukti = "replaceBuktiPacking" }))';
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
 

@@ -792,16 +792,16 @@ namespace MasterOnline.Controllers
                                 var orderInDB = ErasoftDbContext.SOT01A.Where(m => m.CUST == CUST && m.TGL >= cekDate).Select(m => m.NO_REFERENSI).ToList();
                                 foreach(var order in retObj.data)
                                 {
-                                    if (orderInDB.Contains(order.id.ToString()))
+                                    if (orderInDB.Contains(order.transaction_id))
                                     {
                                         if(order.state != "pending")
                                         {
-                                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI = '" + order.id + "' AND CUST = '" + CUST+"' AND STATUS_TRANSAKSI = '0'");
+                                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI = '" + order.transaction_id + "' AND CUST = '" + CUST+"' AND STATUS_TRANSAKSI = '0'");
                                         }
 
                                         if (!order.delivery.consignee.phone.Contains("Terkunci"))
                                         {
-                                            var ordID = order.id.ToString();
+                                            var ordID = order.transaction_id;
                                             var currentOrder = ErasoftDbContext.SOT01A.Where(m => m.CUST == CUST && m.NO_REFERENSI == ordID).FirstOrDefault();
                                             if(currentOrder != null)
                                             {
@@ -1144,19 +1144,20 @@ namespace MasterOnline.Controllers
                             {
                                 ret = retObj.data.Length;
                                 var cekfromDt = DateTime.UtcNow.AddHours(7).AddDays(-8);
-                                var untukCekdiSO = retObj.data.Select(p => new { id = p.id }).AsEnumerable().Select(t => t.id.ToString()).ToList();
+                                //var untukCekdiSO = retObj.data.Select(p => new { id = p.id }).AsEnumerable().Select(t => t.id.ToString()).ToList();
+                                var untukCekdiSO = retObj.data.Select(p => p.transaction_id).ToList();
                                 var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && p.TGL.Value >= cekfromDt && untukCekdiSO.Contains(p.NO_REFERENSI)).
                                     Select(p => new { NO_REFERENSI = p.NO_REFERENSI, NO_BUKTI = p.NO_BUKTI, PEMESAN = p.PEMESAN, STATUS_TRANSAKSI = p.STATUS_TRANSAKSI }).
                                     ToList();
                                 var listNoRefInSO = OrderNoInDb.Select(p => p.NO_REFERENSI).ToList();
-                                var orderWithOrderIdInSO = retObj.data.Where(p => listNoRefInSO.Contains(p.id.ToString())).ToList();
+                                var orderWithOrderIdInSO = retObj.data.Where(p => listNoRefInSO.Contains(p.transaction_id)).ToList();
                                 if (orderWithOrderIdInSO.Count > 0)
                                 {
-                                    var listNoRefUntukCekSIT01a = orderWithOrderIdInSO.Select(p => p.id.ToString()).ToList();
+                                    var listNoRefUntukCekSIT01a = orderWithOrderIdInSO.Select(p => p.transaction_id).ToList();
                                     var getSIT01A = ErasoftDbContext.SIT01A.Where(p => listNoRefUntukCekSIT01a.Contains(p.NO_REF)).Select(p => p.NO_REF).ToList();
                                     foreach (var order in orderWithOrderIdInSO)
                                     {
-                                        var orderMO = OrderNoInDb.Where(p => p.NO_REFERENSI == order.id.ToString()).FirstOrDefault();
+                                        var orderMO = OrderNoInDb.Where(p => p.NO_REFERENSI == order.transaction_id).FirstOrDefault();
                                         if(orderMO != null)
                                         {
                                             if (string.IsNullOrEmpty(orderMO.PEMESAN) && order.delivery != null)
@@ -1180,7 +1181,7 @@ namespace MasterOnline.Controllers
                                             {
                                                 if (orderMO.STATUS_TRANSAKSI != "04")
                                                 {
-                                                    if (getSIT01A.Contains(order.id.ToString()))
+                                                    if (getSIT01A.Contains(order.transaction_id))
                                                     {
                                                         list_04.Add(orderMO.NO_BUKTI);
                                                     }
@@ -1306,19 +1307,19 @@ namespace MasterOnline.Controllers
                                 string sSQL2 = "";
                                 foreach (var order in retObj.data)
                                 {
-                                    if (orderList.Contains(order.id.ToString()))
+                                    if (orderList.Contains(order.transaction_id))
                                     {
-                                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
+                                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.transaction_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
 
                                         if (rowAffected > 0)
                                         {
                                             //add by Tri 1 sep 2020, hapus packing list
-                                            var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.id + "')  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
-                                            var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.id + "')  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
+                                            var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.transaction_id + "')  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
+                                            var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.transaction_id + "')  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
                                             //end add by Tri 1 sep 2020, hapus packing list
                                             jmlhOrder = jmlhOrder + rowAffected;
                                             //add by Tri 4 Des 2019, isi cancel reason
-                                            var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == order.id.ToString() && m.CUST == CUST).Select(m => m.NO_BUKTI).FirstOrDefault();
+                                            var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == order.transaction_id && m.CUST == CUST).Select(m => m.NO_BUKTI).FirstOrDefault();
                                             if (!string.IsNullOrEmpty(nobuk))
                                             {
                                                 var sot01d = ErasoftDbContext.SOT01D.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
@@ -1339,13 +1340,13 @@ namespace MasterOnline.Controllers
                                                 }
                                             }
                                             //end add by Tri 4 Des 2019, isi cancel reason
-                                            var fakturInDB = ErasoftDbContext.SIT01A.Where(m => m.CUST == CUST && m.NO_REF == order.id.ToString()).FirstOrDefault();
+                                            var fakturInDB = ErasoftDbContext.SIT01A.Where(m => m.CUST == CUST && m.NO_REF == order.transaction_id).FirstOrDefault();
                                             if (fakturInDB != null)
                                             {
                                                 var returFaktur = ErasoftDbContext.SIT01A.Where(m => m.JENIS_FORM == "3" && m.NO_REF == fakturInDB.NO_BUKTI).FirstOrDefault();
                                                 if (returFaktur == null)
                                                 {
-                                                    var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.id + "') AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
+                                                    var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.transaction_id + "') AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
                                                 }
 
                                             }
@@ -1353,7 +1354,7 @@ namespace MasterOnline.Controllers
                                             var orderDetail = (from a in ErasoftDbContext.SOT01A
                                                                join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
                                                                //where a.NO_REFERENSI == order.order_id
-                                                               where a.NO_REFERENSI == order.id.ToString() && b.BRG != "NOT_FOUND" && a.CUST == CUST
+                                                               where a.NO_REFERENSI == order.transaction_id && b.BRG != "NOT_FOUND" && a.CUST == CUST
                                                                select new { b.BRG }).ToList();
                                             foreach (var item in orderDetail)
                                             {
@@ -1877,8 +1878,9 @@ namespace MasterOnline.Controllers
             SetupContext(DatabasePathErasoft, username);
             data = new BukaLapakControllerJob().RefreshToken(data);
             var ret = new BindingBase();
+            string transid = noref.Substring(2, noref.Length - 2);
 
-            string urll = "https://api.bukalapak.com/transactions/" + noref + "/status";
+            string urll = "https://api.bukalapak.com/transactions/" + transid + "/status";
 
             string myData = "{\"state\":\"accepted\"}";
 
@@ -2016,7 +2018,8 @@ namespace MasterOnline.Controllers
             data = new BukaLapakControllerJob().RefreshToken(data);
             var ret = new BindingBase();
 
-            string urll = "https://api.bukalapak.com/transactions/" + noref + "/status";
+            string transid = noref.Substring(2, noref.Length - 2);
+            string urll = "https://api.bukalapak.com/transactions/" + transid + "/status";
 
             string myData = "{\"state\":\"rejected\"}";
 
@@ -2511,6 +2514,22 @@ namespace MasterOnline.Controllers
     }
 
     #region get order response
+    public class SetOrderCourrierResponse : BLErrorResponse
+    {
+        public SetCourrierDatum data { get; set; }
+        public GetOrdersMeta meta { get; set; }
+
+    }
+    public class SetCourrierDatum
+    {
+        public long id { get; set; }
+        public string transaction_id { get; set; }
+        public long shipping_id { get; set; }
+        public string courier { get; set; }
+        public string courier_name { get; set; }
+        public string booking_code { get; set; }
+        public string partner_label_url { get; set; }
+    }
     public class ChangeOrderStatusResponse : BLErrorResponse
     {
         public GetOrdersDatum data { get; set; }
@@ -2955,4 +2974,5 @@ namespace MasterOnline.Controllers
         public double amount { get; set; }
     }
     #endregion
+
 }

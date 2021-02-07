@@ -13765,6 +13765,22 @@ namespace MasterOnline.Controllers
             }
         }
 
+        [Route("manage/PromptDeliveryProviderBukalapak")]
+        public async Task<ActionResult> PromptDeliveryProviderBukalapak(string cust)
+        {
+            try
+            {
+                //var PromptModel = ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.AsNoTracking().Where(a => a.CUST == cust).ToList();
+                var BLApi = new BukaLapakController();
+                var PromptModel = await BLApi.GetKurir(cust);
+                return View("PromptDeliveryProviderBukalapak", PromptModel);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+
         public ActionResult PromptPickupPointBlibli(string merchant_code)
         {
             try
@@ -27713,6 +27729,11 @@ namespace MasterOnline.Controllers
                     var ket = "";
                     var ketTokped = new List<tempKetTokped>();
                     if (so.namamarket.ToUpper() == "SHOPEE" && so.ket != "" && so.ket != "-")
+                    {
+                        //ket = ErasoftDbContext.Database.SqlQuery<string>("Select ket from sot01a where no_bukti='" + so.so_bukti + "'").SingleOrDefault();
+                        ket = so.ket;
+                    }
+                    if (so.namamarket.ToUpper() == "BUKALAPAK" && so.ket != "" && so.ket != "-")
                     {
                         //ket = ErasoftDbContext.Database.SqlQuery<string>("Select ket from sot01a where no_bukti='" + so.so_bukti + "'").SingleOrDefault();
                         ket = so.ket;
@@ -47493,7 +47514,304 @@ namespace MasterOnline.Controllers
             }
             return JsonErrorMessage("This Function is for Lazada only");
         }
+        public async Task<ActionResult> RequestPackedBukalapakPerPacking(string cust, string bukti, string DeliveryProvider, List<string> rows_selected, string serviceType)
+        {
+            try
+            {
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
 
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+
+                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                var data = new BukaLapakKey
+                {
+                    code = marketPlace.API_KEY,
+                    cust = marketPlace.CUST,
+                    dbPathEra = "",
+                    refresh_token = marketPlace.REFRESH_TOKEN,
+                    tgl_expired = marketPlace.TGL_EXPIRED.Value,
+                    token = marketPlace.TOKEN
+                };
+                if (!string.IsNullOrEmpty(marketPlace.TOKEN))
+                {
+                    //if (marketPlace.STATUS_API == "1")
+                    {
+                        string sSQLSelect = "";
+                        sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item,isnull(A.status_kirim,'') AS status_kirim, isnull(A.NO_PO_CUST,'') as tracking_no ";
+                        string sSQL2 = "";
+                        sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+
+                        string sSQLSelect2 = "";
+                        sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+                        var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+                        foreach (var so in ListStt01a)
+                        {
+                            if (!string.IsNullOrWhiteSpace(so.no_referensi))
+                            {
+                                if (string.IsNullOrWhiteSpace(so.tracking_no))
+                                {
+                                    var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
+                                    if (sot01b.Count > 0)
+                                    {
+                                        var BLApijob = new BukaLapakController();
+                                        data = BLApijob.RefreshToken(data);
+                                        var retApi = await BLApijob.ChangeOrderStatus_setCourrier(data, so.no_referensi, DeliveryProvider, serviceType);
+                                        if (retApi.status ==1)
+                                        {
+                                            listSuccess.Add(new listSuccessPrintLabel
+                                            {
+                                                no_referensi = so.no_referensi
+                                            });
+                                        }
+                                        else
+                                        {
+                                            listErrors.Add(new PackingListErrors
+                                            {
+                                                keyname = so.no_referensi,
+                                                errorMessage = retApi.message
+                                            });
+                                        }
+                                    }
+                                    else
+                                    {
+                                        listErrors.Add(new PackingListErrors
+                                        {
+                                            keyname = so.no_referensi,
+                                            errorMessage = "Pesanan tidak memiliki barang."
+                                        });
+                                    }
+                                }
+                                else
+                                {
+                                    listErrors.Add(new PackingListErrors
+                                    {
+                                        keyname = so.no_referensi,
+                                        errorMessage = "Pesanan sudah memiliki resi."
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                listErrors.Add(new PackingListErrors
+                                {
+                                    keyname = so.no_referensi,
+                                    errorMessage = "Pesanan tidak link dengan marketplace."
+                                });
+                            }
+                        }
+
+                        var successCount = listSuccess.Count();
+                        return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                    //return new JsonResult { Data = new { mo_error = "Status link akun lazada tidak aktif / expired." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "Status link akun Bukalapak tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+        public ActionResult BukalapakLabelPerPacking(string cust, string bukti, List<string> rows_selected, string label)
+        {
+            try
+            {
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+                var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
+                if(string.IsNullOrEmpty(marketPlace.TOKEN))
+                {
+                    return new JsonResult { Data = new { mo_error = "Status link akun Bukalapak tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                var BLApi = new BukaLapakController();
+                var data = new BukaLapakKey
+                {
+                    code = marketPlace.API_KEY,
+                    cust = marketPlace.CUST,
+                    dbPathEra = "",
+                    refresh_token = marketPlace.REFRESH_TOKEN,
+                    tgl_expired = marketPlace.TGL_EXPIRED.Value,
+                    token = marketPlace.TOKEN
+                };
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                string sSQL2 = "";
+                sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+                var listNoRef = ListStt01a.Select(m => m.no_referensi).ToList();
+
+                var retApi = BLApi.GetLabel(data, listNoRef);
+                //var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
+                var htmlString = "";
+                return Json(htmlString, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return JsonErrorMessage("This Function is for Bukalapak only");
+        }
+
+        public async Task<ActionResult> RequestRTSBukalapakPerPacking(string cust, string bukti, string DeliveryProvider, List<string> rows_selected)
+        {
+            try
+            {
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+
+                var marketPlace = ErasoftDbContext.ARF01.AsNoTracking().Single(p => p.CUST == cust);
+                var data = new BukaLapakKey
+                {
+                    code = marketPlace.API_KEY,
+                    cust = marketPlace.CUST,
+                    dbPathEra = "",
+                    refresh_token = marketPlace.REFRESH_TOKEN,
+                    tgl_expired = marketPlace.TGL_EXPIRED.Value,
+                    token = marketPlace.TOKEN
+                };
+                if (!string.IsNullOrEmpty(marketPlace.TOKEN))
+                {
+                    //if (marketPlace.STATUS_API == "1")
+                    {
+                        string sSQLSelect = "";
+                        sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item,isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no ";
+                        string sSQL2 = "";
+                        sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+
+                        string sSQLSelect2 = "";
+                        sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+                        var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+                        foreach (var so in ListStt01a)
+                        {
+                            if (!string.IsNullOrWhiteSpace(so.no_referensi))
+                            {
+                                var lzdApi = new LazadaController();
+                                List<string> orderItemIds = new List<string>();
+                                var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
+                                var adaItem = false;
+                                var adaOrderItemIdNull = false;
+                                if (sot01b.Count > 0)
+                                {
+                                    var BLApijob = new BukaLapakController();
+                                    data = BLApijob.RefreshToken(data);
+                                    var retApi = await BLApijob.ChangeOrderStatus_delivered(data, so.no_referensi);
+                                    if (retApi.status == 1)
+                                    {
+                                        listSuccess.Add(new listSuccessPrintLabel
+                                        {
+                                            no_referensi = so.no_referensi
+                                        });
+                                    }
+                                    else
+                                    {
+                                        listErrors.Add(new PackingListErrors
+                                        {
+                                            keyname = so.no_referensi,
+                                            errorMessage = retApi.message
+                                        });
+                                    }
+                                }
+                                else
+                                {
+                                    listErrors.Add(new PackingListErrors
+                                    {
+                                        keyname = so.no_referensi,
+                                        errorMessage = "Pesanan tidak memiliki barang."
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                listErrors.Add(new PackingListErrors
+                                {
+                                    keyname = so.no_referensi,
+                                    errorMessage = "Pesanan tidak link dengan marketplace."
+                                });
+                            }
+                        }
+
+                        var successCount = listSuccess.Count();
+                        return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                    //return new JsonResult { Data = new { mo_error = "Status link akun lazada tidak aktif / expired." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "Status link akun Bukalapak tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
         public async Task<ActionResult> RequestPickupShopeePerPacking(string cust, string bukti, string alamat, List<string> rows_selected)
         {
             try

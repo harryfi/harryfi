@@ -471,6 +471,203 @@ namespace MasterOnline.Controllers
             }
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
+        public async Task<ActionResult> GetLabel(BukaLapakKey data, List<string> orderID)
+        {
+            data = RefreshToken(data);
+            var ret = new BindingBase();
+
+            string urll = "https://api.bukalapak.com/transactions/download?file_type=pdf";
+            foreach(var transID in orderID)
+            {
+                string transid = transID.Substring(2, transID.Length - 2);
+                urll += "&transaction_ids[]=" + transid;
+            }
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            //myReq.Method = "GET";
+            //myReq.Headers.Add("Authorization", "Bearer " + data.token);
+            //myReq.Accept = "application/json";
+            //myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            ////try
+            ////{
+
+            //using (WebResponse response = await myReq.GetResponseAsync())
+            //{
+            //    using (Stream stream = response.GetResponseStream())
+            //    {
+            //        StreamReader reader = new StreamReader(stream);
+            //        responseFromServer = reader.ReadToEnd();
+            //    }
+            //}
+            var client = new RestClient(urll);
+            client.Timeout = -1;
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("Content-Type", "application/json");
+            request.AddHeader("Authorization", "Bearer " + data.token);
+            IRestResponse response = client.Execute(request);
+            if (responseFromServer != "")
+            {
+                //var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(GetCourierResponse)) as GetCourierResponse;
+                //if (resp != null)
+                //{
+                //    if (resp.meta != null)
+                //    {
+                //        return Json(resp, JsonRequestBehavior.AllowGet);
+                //    }
+                //}
+            }
+            return Json(ret, JsonRequestBehavior.AllowGet);
+        }
+        public async Task<BindingBase> ChangeOrderStatus_delivered( BukaLapakKey data, string noref)
+        {
+            //SetupContext(DatabasePathErasoft, username);
+            //data = new BukaLapakControllerJob().RefreshToken(data);
+            var ret = new BindingBase();
+            ret.status = 0;
+            string transid = noref.Substring(2, noref.Length-2);
+            
+            string urll = "https://api.bukalapak.com/transactions/" + transid + "/status";
+
+            string myData = "{\"state\":\"delivered\"}";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "PUT";
+            myReq.Headers.Add("Authorization", "Bearer " + data.token);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (responseFromServer != "")
+            {
+                var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(ChangeOrderStatusResponse)) as ChangeOrderStatusResponse;
+                if (resp != null)
+                {
+                    if (resp.meta != null)
+                    {
+                        if (resp.meta.http_status != 200)
+                        {
+                            var orderDetail = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.CUST == data.cust).FirstOrDefault();
+                            EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
+
+                            if (resp.errors != null)
+                            {
+                                if (resp.errors.Length > 0)
+                                {
+                                    string errMsg = "";
+                                    foreach (var error in resp.errors)
+                                    {
+                                        errMsg += error.code + ":" + error.message + "\n";
+                                    }
+                                    //throw new Exception(errMsg);
+                                    ret.message = errMsg;
+                                }
+                            }
+                            //throw new Exception(responseFromServer);
+                            if(string.IsNullOrEmpty(ret.message))
+                            ret.message = responseFromServer;
+                        }
+                        else
+                        {
+                            ret.status = 1;
+                            var orderDetail = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.CUST == data.cust).FirstOrDefault();
+
+                            EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
+                        }
+
+                    }
+                }
+            }
+            return ret;
+        }
+        public async Task<BindingBase> ChangeOrderStatus_setCourrier(BukaLapakKey data, string noref, string courrier, string serviceType)
+        {
+            //SetupContext(DatabasePathErasoft, username);
+            //data = new BukaLapakControllerJob().RefreshToken(data);
+            var ret = new BindingBase();
+            ret.status = 0;
+            string transid = noref.Substring(2, noref.Length - 2);
+
+            string urll = "https://api.bukalapak.com/_partners/logistic-bookings";
+
+            string myData = "{\"transaction_id\":\""+transid+ "\",\"courier_selection\":\"" + courrier + "\",\"service_type\":\"" + serviceType + "\"}";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", "Bearer " + data.token);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (responseFromServer != "")
+            {
+                var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(SetOrderCourrierResponse)) as SetOrderCourrierResponse;
+                if (resp != null)
+                {
+                    if (resp.meta != null)
+                    {
+                        if (resp.meta.http_status != 200)
+                        {
+                            //var orderDetail = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.CUST == data.cust).FirstOrDefault();
+                            //EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
+
+                            if (resp.errors != null)
+                            {
+                                if (resp.errors.Length > 0)
+                                {
+                                    string errMsg = "";
+                                    foreach (var error in resp.errors)
+                                    {
+                                        errMsg += error.code + ":" + error.message + "\n";
+                                    }
+                                    //throw new Exception(errMsg);
+                                    ret.message = errMsg;
+                                }
+                            }
+                            //throw new Exception(responseFromServer);
+                            if (string.IsNullOrEmpty(ret.message))
+                                ret.message = responseFromServer;
+                        }
+                        else
+                        {
+                            ret.status = 1;
+                            var orderDetail = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.CUST == data.cust).FirstOrDefault();
+
+                            EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET SHIPMENT='"+resp.data.courier_name+ "', NO_PO_CUST = '" + resp.data.booking_code + "' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
+                        }
+
+                    }
+                }
+            }
+            return ret;
+        }
         [HttpPost]
         public BindingBase CreateProduct(BrgViewModel data)
         {
