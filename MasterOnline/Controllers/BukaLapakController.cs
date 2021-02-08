@@ -2551,6 +2551,7 @@ namespace MasterOnline.Controllers
                                 if (display)
                                 {
                                     ret.status = 1;
+                                    ret.nextPage = 1;
                                     ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
                                 }
                                 //else
