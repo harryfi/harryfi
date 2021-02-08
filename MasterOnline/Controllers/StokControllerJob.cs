@@ -1965,6 +1965,7 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Update Stok {obj} ke Bukalapak gagal.")]
         public async Task<BindingBase> Bukalapak_updateStock_v2(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, BukaLapakKey data, string brgmp, string username, PerformContext context)
         {
+            dbPathEra = DatabasePathErasoft;
             data = new BukaLapakControllerJob().RefreshToken(data);
             var ret = new BindingBase();
 
