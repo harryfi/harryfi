@@ -22886,6 +22886,15 @@ namespace MasterOnline.Controllers
                                 return Json(vmError, JsonRequestBehavior.AllowGet);
                             }
                         }
+                        else if(customer.NAMA == "8")// bukalapak
+                        {
+                            if (string.IsNullOrEmpty(cancelReason))
+                            {
+                                var vmError = new StokViewModel();
+                                vmError.Errors.Add("Anda belum mengisi alasan pembatalan.");
+                                return Json(vmError, JsonRequestBehavior.AllowGet);
+                            }
+                        }
                     }
                 }
 
@@ -25471,9 +25480,9 @@ namespace MasterOnline.Controllers
                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
 #if (AWS || DEV)
-                                clientJobServer.Enqueue<BukaLapakControllerJob>(x => x.Bukalapak_CancelOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", idenBL, pesanan.NO_REFERENSI, usernameLogin));
+                                clientJobServer.Enqueue<BukaLapakControllerJob>(x => x.Bukalapak_CancelOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", idenBL, pesanan.NO_REFERENSI, usernameLogin, cancelReason));
 #else
-                                    new BukaLapakControllerJob().Bukalapak_CancelOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", idenBL, pesanan.NO_REFERENSI, usernameLogin);
+                                    new BukaLapakControllerJob().Bukalapak_CancelOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", idenBL, pesanan.NO_REFERENSI, usernameLogin, cancelReason);
 #endif
                                 }
 
@@ -47651,6 +47660,14 @@ namespace MasterOnline.Controllers
                 }
 
                 var string_recnum = "";
+                List<string> temp_htmlString = new List<string>();
+                List<string> temp_base64String = new List<string>();
+                List<string> temp_strmsg = new List<string>();
+                List<string> temp_strmsg_label = new List<string>();
+
+                List<string> temp_printLabel = new List<string>();
+                string temp_printLabel_split = "";
+                string result_printLabel = "";
                 foreach (var so_recnum in rows_selected)
                 {
                     if (string_recnum != "")
@@ -47686,12 +47703,54 @@ namespace MasterOnline.Controllers
 
                 var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
 
-                var listNoRef = ListStt01a.Select(m => m.no_referensi).ToList();
+                //var listNoRef = ListStt01a.Select(m => m.no_referensi).ToList();
 
-                var retApi = BLApi.GetLabel(data, listNoRef);
                 //var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
-                var htmlString = "";
-                return Json(htmlString, JsonRequestBehavior.AllowGet);
+                foreach(var so in ListStt01a)
+                {
+
+                    var retApi = BLApi.GetLabel(data, so.no_referensi);
+                    #region initial folder
+                    string messageErrorLog = "";
+                    string filename = "BUKALAPAK_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                    var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                    #endregion
+
+                    if (!System.IO.File.Exists(path))
+                    {
+                        System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                        FileStream stream = System.IO.File.Create(path);
+                        //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
+                        byte[] byteArray = Convert.FromBase64String(retApi);
+                        stream.Write(byteArray, 0, byteArray.Length);
+                        stream.Close();
+                        temp_printLabel.Add(path);
+                        temp_printLabel_split = temp_printLabel_split + path + ";";
+                    }
+                }
+
+                if (temp_printLabel.Count() > 0)
+                {
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where RECNUM IN (" + string_recnum + ")");
+                    result_printLabel = MergePDFProcess(temp_printLabel_split, bukti, "BUKALAPAK");
+                    //return new JsonResult { Data = new { mo_label = temp_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    return new JsonResult { Data = new { mo_label = result_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else
+                {
+                    if (label == "1")
+                    {
+                        //return new JsonResult { Data = new { mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        //return Json(temp_htmlString, JsonRequestBehavior.AllowGet);
+                        return new JsonResult { Data = new { mo_label = temp_strmsg_label }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                    else if (label == "2")
+                    {
+                        return new JsonResult { Data = new { mo_label = temp_strmsg_label }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        //return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
+                    }
+
+                }
             }
             catch (Exception ex)
             {
@@ -47755,40 +47814,51 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(so.no_referensi))
                             {
-                                var lzdApi = new LazadaController();
-                                List<string> orderItemIds = new List<string>();
-                                var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
-                                var adaItem = false;
-                                var adaOrderItemIdNull = false;
-                                if (sot01b.Count > 0)
+                                if (!string.IsNullOrWhiteSpace(so.tracking_no))
                                 {
-                                    var BLApijob = new BukaLapakController();
-                                    data = BLApijob.RefreshToken(data);
-                                    var retApi = await BLApijob.ChangeOrderStatus_delivered(data, so.no_referensi);
-                                    if (retApi.status == 1)
+                                    List<string> orderItemIds = new List<string>();
+                                    var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
+                                    if (sot01b.Count > 0)
                                     {
-                                        listSuccess.Add(new listSuccessPrintLabel
+                                        var BLApijob = new BukaLapakController();
+                                        data = BLApijob.RefreshToken(data);
+                                        var retApi = await BLApijob.ChangeOrderStatus_delivered(data, so.no_referensi, DeliveryProvider);
+                                        if (retApi.status == 1)
                                         {
-                                            no_referensi = so.no_referensi
-                                        });
+                                            listSuccess.Add(new listSuccessPrintLabel
+                                            {
+                                                no_referensi = so.no_referensi
+                                            });
+                                        }
+                                        else
+                                        {
+                                            listErrors.Add(new PackingListErrors
+                                            {
+                                                keyname = so.no_referensi,
+                                                errorMessage = retApi.message
+                                            });
+                                        }
                                     }
                                     else
                                     {
                                         listErrors.Add(new PackingListErrors
                                         {
                                             keyname = so.no_referensi,
-                                            errorMessage = retApi.message
+                                            errorMessage = "Pesanan tidak memiliki barang."
                                         });
                                     }
+
                                 }
                                 else
                                 {
                                     listErrors.Add(new PackingListErrors
                                     {
                                         keyname = so.no_referensi,
-                                        errorMessage = "Pesanan tidak memiliki barang."
+                                        errorMessage = "Pesanan belum diisi no resi."
                                     });
+
                                 }
+
                             }
                             else
                             {

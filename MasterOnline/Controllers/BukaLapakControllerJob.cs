@@ -2012,7 +2012,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke BukaLapak Gagal.")]
-        public async Task<BindingBase> Bukalapak_CancelOrder(string DatabasePathErasoft, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, BukaLapakKey data, string noref, string username)
+        public async Task<BindingBase> Bukalapak_CancelOrder(string DatabasePathErasoft, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, BukaLapakKey data, string noref, string username, string cancelReason)
         {
             SetupContext(DatabasePathErasoft, username);
             data = new BukaLapakControllerJob().RefreshToken(data);
@@ -2021,7 +2021,7 @@ namespace MasterOnline.Controllers
             string transid = noref.Substring(2, noref.Length - 2);
             string urll = "https://api.bukalapak.com/transactions/" + transid + "/status";
 
-            string myData = "{\"state\":\"rejected\"}";
+            string myData = "{\"state\":\"rejected\", \"state_options\": {\"reject_reason\":  \"" + cancelReason + "\" } }";
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "PUT";
