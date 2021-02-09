@@ -47578,7 +47578,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(so.no_referensi))
                             {
-                                if (string.IsNullOrWhiteSpace(so.tracking_no))
+                                if ((string.IsNullOrWhiteSpace(so.tracking_no) && serviceType == "drop off") || serviceType == "pickup")
                                 {
                                     var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
                                     if (sot01b.Count > 0)
@@ -47616,7 +47616,7 @@ namespace MasterOnline.Controllers
                                     listErrors.Add(new PackingListErrors
                                     {
                                         keyname = so.no_referensi,
-                                        errorMessage = "Pesanan sudah memiliki resi."
+                                        errorMessage = "Pesanan sudah memiliki Kode Booking."
                                     });
                                 }
                             }
@@ -47822,7 +47822,7 @@ namespace MasterOnline.Controllers
                                     {
                                         var BLApijob = new BukaLapakController();
                                         data = BLApijob.RefreshToken(data);
-                                        var retApi = await BLApijob.ChangeOrderStatus_delivered(data, so.no_referensi, DeliveryProvider);
+                                        var retApi = await BLApijob.ChangeOrderStatus_delivered(data, so.no_referensi, DeliveryProvider, so.tracking_no);
                                         if (retApi.status == 1)
                                         {
                                             listSuccess.Add(new listSuccessPrintLabel

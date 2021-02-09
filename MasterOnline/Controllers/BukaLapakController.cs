@@ -522,7 +522,7 @@ namespace MasterOnline.Controllers
             //}
             //return Json(ret, JsonRequestBehavior.AllowGet);
         }
-        public async Task<BindingBase> ChangeOrderStatus_delivered( BukaLapakKey data, string noref, string DeliveryProvider)
+        public async Task<BindingBase> ChangeOrderStatus_delivered( BukaLapakKey data, string noref, string DeliveryProvider, string noResi)
         {
             //SetupContext(DatabasePathErasoft, username);
             //data = new BukaLapakControllerJob().RefreshToken(data);
@@ -532,7 +532,7 @@ namespace MasterOnline.Controllers
             
             string urll = "https://api.bukalapak.com/transactions/" + transid + "/status";
 
-            string myData = "{\"state\":\"delivered\", \"state_options\": {\"carrier\":  \""+ DeliveryProvider + "\" } }";
+            string myData = "{\"state\":\"delivered\", \"state_options\": {\"carrier\":  \""+ DeliveryProvider + "\", \"tracking_number\":  \"" + noResi + "\" } }";
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "PUT";
@@ -604,7 +604,11 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase();
             ret.status = 0;
             string transid = noref.Substring(2, noref.Length - 2);
-
+            //if (string.IsNullOrEmpty(courrier))
+            {
+                var orderinDB = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.CUST == data.cust).FirstOrDefault();
+                courrier = orderinDB.SHIPMENT;
+            }
             string urll = "https://api.bukalapak.com/_partners/logistic-bookings";
 
             string myData = "{\"transaction_id\":\""+transid+ "\",\"courier_selection\":\"" + courrier + "\",\"service_type\":\"" + serviceType + "\"}";
@@ -615,60 +619,78 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            //try
-            //{
-            myReq.ContentLength = myData.Length;
-            using (var dataStream = myReq.GetRequestStream())
+            try
             {
-                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-            }
-            using (WebResponse response = await myReq.GetResponseAsync())
-            {
-                using (Stream stream = response.GetResponseStream())
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 }
-            }
-            if (responseFromServer != "")
-            {
-                var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(SetOrderCourrierResponse)) as SetOrderCourrierResponse;
-                if (resp != null)
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
-                    if (resp.meta != null)
+                    using (Stream stream = response.GetResponseStream())
                     {
-                        if (resp.meta.http_status != 200)
-                        {
-                            //var orderDetail = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.CUST == data.cust).FirstOrDefault();
-                            //EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
-
-                            if (resp.errors != null)
-                            {
-                                if (resp.errors.Length > 0)
-                                {
-                                    string errMsg = "";
-                                    foreach (var error in resp.errors)
-                                    {
-                                        errMsg += error.code + ":" + error.message + "\n";
-                                    }
-                                    //throw new Exception(errMsg);
-                                    ret.message = errMsg;
-                                }
-                            }
-                            //throw new Exception(responseFromServer);
-                            if (string.IsNullOrEmpty(ret.message))
-                                ret.message = responseFromServer;
-                        }
-                        else
-                        {
-                            ret.status = 1;
-                            var orderDetail = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.CUST == data.cust).FirstOrDefault();
-
-                            EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET SHIPMENT='"+resp.data.courier_name+ "', NO_PO_CUST = '" + resp.data.booking_code + "' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
-                        }
-
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
                     }
                 }
+                if (responseFromServer != "")
+                {
+                    var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(SetOrderCourrierResponse)) as SetOrderCourrierResponse;
+                    if (resp != null)
+                    {
+                        if (resp.meta != null)
+                        {
+                            if (resp.meta.http_status != 200)
+                            {
+                                var orderDetail = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.CUST == data.cust).FirstOrDefault();
+                                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
+
+                                if (resp.errors != null)
+                                {
+                                    if (resp.errors.Length > 0)
+                                    {
+                                        string errMsg = "";
+                                        foreach (var error in resp.errors)
+                                        {
+                                            errMsg += error.code + ":" + error.message + "\n";
+                                        }
+                                        //throw new Exception(errMsg);
+                                        ret.message = errMsg;
+                                    }
+                                }
+                                //throw new Exception(responseFromServer);
+                                if (string.IsNullOrEmpty(ret.message))
+                                    ret.message = responseFromServer;
+                            }
+                            else
+                            {
+                                ret.status = 1;
+                                var orderDetail = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.CUST == data.cust).FirstOrDefault();
+
+                                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM = '2', SHIPMENT='" + resp.data.courier_name + "', NO_PO_CUST = '" + resp.data.booking_code + "' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+                ret.message = err;
+                var orderDetail = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == noref && p.CUST == data.cust).FirstOrDefault();
+                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
             }
             return ret;
         }

@@ -82,6 +82,7 @@
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Status Kirim</th>
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Status Print</th>
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Kurir</th>
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Manage</th>
                 @*<th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 10%;">Jumlah</th>*@
             </tr>
         </thead>
@@ -115,7 +116,7 @@
                         st_print = "Belum";
                         break;
                 }
-            <tr>
+            <tr data-barang-id="@order.no_bukti">
                 <td style="text-align:center">
                     <input type="checkbox" class="dt-checkboxes center checkbox_packing_bukalapak" data-cust="@order.CUST" data-recnum="@order.so_recnum" data-bukti="@order.no_bukti" style="align-self:flex-start; width:30px; height:28px;" />
                 </td>
