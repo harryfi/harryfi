@@ -69,6 +69,7 @@ namespace MasterOnline.Controllers
         }
         public BukaLapakKey RefreshToken(BukaLapakKey data)
         {
+            SetupContext(data.dbPathEra, "");
             var ret = data;
             if (data.tgl_expired < DateTime.UtcNow.AddHours(7).AddMinutes(-30))
             {
@@ -1933,7 +1934,7 @@ namespace MasterOnline.Controllers
                             #region set pembeli
                             if (!resp.data.delivery.consignee.phone.Contains("Terkunci"))
                             {
-                                var ordID = resp.data.id.ToString();
+                                var ordID = resp.data.transaction_id;
                                 var currentOrder = ErasoftDbContext.SOT01A.Where(m => m.CUST == log_CUST && m.NO_REFERENSI == ordID).FirstOrDefault();
                                 if (currentOrder != null)
                                 {
