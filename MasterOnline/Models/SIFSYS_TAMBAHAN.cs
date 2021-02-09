@@ -42,5 +42,12 @@ namespace MasterOnline.Models
 
         [StringLength(50)]
         public string NAMA_PROV { get; set; }
+
+        //add by nurul 9/2/2021
+        public string LINK_GAMBAR { get; set; }
+
+        [StringLength(10)]
+        public string SIZE_GAMBAR { get; set; }
+        //end add by nurul 9/2/2021
     }
 }

@@ -456,6 +456,8 @@
                     $('#ctk_ref__' + cust).attr('checked', true);
                     $('#nama_toko__' + cust).val("");
                     $('#tlp_toko__' + cust).val("");
+                    $('#ctk_logo__' + cust).attr('checked', true);
+                    
 
                     $('#btn-print-faktur__' + cust).off('click').on('click', function () {
                         var toko = $('#nama_toko__' + cust).val();
@@ -470,6 +472,7 @@
                         var port = "0";
                         var ref = "0";
                         var nama = "0";
+                        var logo = "0";
 
                         if ($("#ctk_alamat__" + cust).is(":checked") == true) {
                             alamat = "1";
@@ -511,6 +514,11 @@
                             nama = "1";
                         } else if ($('#ctk_nama__' + cust).is(":checked") == false) {
                             nama = "0";
+                        }
+                        if ($('#ctk_logo__' + cust).is(":checked") == true) {
+                            logo = "1";
+                        } else if ($('#ctk_logo__' + cust).is(":checked") == false) {
+                            logo = "0";
                         }
 
                         var $alamat = '&alamat=' + alamat;
@@ -593,7 +601,8 @@
                                             totalLink: total,
                                             portLink: port,
                                             refLink: ref,
-                                            data: response
+                                            data: response,
+                                            logoLink: logo,
                                         };
 
                                         $.ajax({
@@ -997,6 +1006,22 @@
                                     <div class="col-md-3" style="padding-top: 7px;">
                                         Total harga
                                     </div>
+                                    <div class="col-md-1">
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top:5px">
+                                    <div class="col-md-1">
+                                    </div>
+                                    <div class="col-md-2" style="padding-bottom:10px">
+                                        <label class="checkbox-container">
+                                            <input id="ctk_logo__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                            <span id="ctk_logo__@(item.CUST)" class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-3" style="padding-top: 7px;">
+                                        Logo Toko
+                                    </div>
+                                    
                                     <div class="col-md-1">
                                     </div>
                                 </div>

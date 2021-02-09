@@ -27508,7 +27508,7 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 10/1/2020, cetak label di faktur
-        public ActionResult CetakLabelMoFaktur(string[] rows_selected, string toko, string tlpToko, string kertas, string ctkFaktur, string ctkLabel, string alLink, string noLink, string mpLink, string nobukLink, string totalLink, string namaLink, string ketLink)
+        public ActionResult CetakLabelMoFaktur(string[] rows_selected, string toko, string tlpToko, string kertas, string ctkFaktur, string ctkLabel, string alLink, string noLink, string mpLink, string nobukLink, string totalLink, string namaLink, string ketLink, string logoLink, string refLink)
         {
             try
             {
@@ -27563,9 +27563,17 @@ namespace MasterOnline.Controllers
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
 
                 var ListSot01a = ErasoftDbContext.Database.SqlQuery<tempLabel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
-                var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
-                var alamat1 = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
-                var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                var profilToko = ErasoftDbContext.SIFSYS.AsNoTracking().SingleOrDefault(p => p.BLN == 1);
+                var profilTambahan = ErasoftDbContext.SIFSYS_TAMBAHAN.AsNoTracking().SingleOrDefault();
+                //var namaPT = ErasoftDbContext.SIFSYS.AsNoTracking().Single(p => p.BLN == 1).NAMA_PT;
+                //var alamat1 = ErasoftDbContext.SIFSYS.AsNoTracking().Single(a => a.BLN == 1).ALAMAT_PT;
+                var namaPT = profilToko.NAMA_PT;
+                var alamat1 = profilToko.ALAMAT_PT;
+                //var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.AsNoTracking().Single().TELEPON;
+                var tlp = profilTambahan.TELEPON;
+
+                var linkLogo = "~/Content/Logo_Perusahaan/LogoUsaha-" + profilToko.USERNAME + "-" + profilToko.NAMA_PT + ".jpg";
+                linkLogo = profilTambahan.LINK_GAMBAR;
 
                 var ym = new FakturViewModel()
                 {
@@ -27578,6 +27586,7 @@ namespace MasterOnline.Controllers
                     urlFaktur = ctkFaktur,
                     urlLabel = ctkLabel,
                     urlKet = ketLink,
+                    urlLogo = logoLink,
                 };
 
                 var listSi = ListSot01a.Select(p => p.si_bukti).ToList();
@@ -27671,6 +27680,130 @@ namespace MasterOnline.Controllers
                     }
                     //add by nurul 15/5/2020
 
+                    //add by nurul 5/2/2021
+                    //default barcode referensi ditampilkan 
+                    if (so.namamarket.ToUpper() != "LAZADA")
+                    {
+                        refLink = "1";
+                    }
+
+                    //logo marketplace 
+                    var logoMARKET = "";
+                    if (so.namamarket.ToUpper() == "LAZADA")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Lazada.jpg";
+                    }
+                    else if (so.namamarket.ToUpper() == "SHOPEE")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Shopee.png";
+                    }
+                    else if (so.namamarket.ToUpper() == "TOKOPEDIA")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Tokopedia-new.jpg";
+                    }
+                    else if (so.namamarket.ToUpper() == "BLIBLI")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Blibli.jpg";
+                    }
+                    else if (so.namamarket.ToUpper() == "BUKALAPAK")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Bukalapak.png";
+                    }
+                    else if (so.namamarket.ToUpper() == "JD.ID")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/LogoUsaha-JDID.jpg";
+                    }
+                    else if (so.namamarket.ToUpper() == "SHOPIFY")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Sopify.jpg";
+                    }
+                    else if (so.namamarket.ToUpper() == "82CART")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-82Cart.png";
+                    }
+                    else if (so.namamarket.ToUpper() == "ELEVENIA")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Elevenia.png";
+                    }
+
+                    //logo kurir 
+                    if (so.namamarket.ToUpper() != "LAZADA")
+                    {
+                        if (so.kurir.ToUpper().Contains("GO-JEK") || so.kurir.ToUpper().Contains("GO-SEND") || so.kurir.ToUpper().Contains("GOJEK") || so.kurir.ToUpper().Contains("GOSEND"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Gosend-New.jpg";
+                        }
+                        else if (so.kurir.ToUpper().Contains("GRAB"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Grab.jpg";
+                        }
+                        else if (so.kurir.ToUpper().Contains("JNE"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-JNE.jpg";
+                        }
+                        else if (so.kurir.ToUpper().Contains("ANTER"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-AnterAja.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("SICEPAT"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Sicepat.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("J&T"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-JNT.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("TIKI"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Tiki.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("SHOPEE"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Shopee-Xpress.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("ID EXPRESS"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-ID-Express.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("INDAH"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Indah-Logistic.PNG";
+                        }
+                        else if (so.kurir.ToUpper().Contains("NINJA"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Ninja-New.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("POS"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-POS.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("INDO"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Indo-Paket.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("WAHANA"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Wahana-New.jpg";
+                        }
+                        else if (so.kurir.ToUpper().Contains("JX"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-JX.jpg";
+                        }
+                        else if (so.kurir.ToUpper().Contains("FL"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-FL-Regular.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("ALFATREX"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-ALFATREX-LAND.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("SAP"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-SAP-LAND.jpg";
+                        }
+                    }
+                    //end add by nurul 5/2/2021
+
                     var vm = new CetakLabelViewModel()
                     {
                         NamaToko = so.perso,
@@ -27700,8 +27833,12 @@ namespace MasterOnline.Controllers
 
                         //add by nurul 15/5/2020
                         Ket = ket,
-                        listKetTokped = ketTokped
+                        listKetTokped = ketTokped,
                         //end add by nurul 15/5/2020
+
+                        LogoKurir = logoKurir,
+                        logoToko = linkLogo,
+                        linkref = refLink,
                     };
 
                     ym.ListCetakLabel.Add(vm);
@@ -34353,22 +34490,53 @@ namespace MasterOnline.Controllers
                 return Json(dataVm, JsonRequestBehavior.AllowGet);
             }
 
+            var dataPerusahaanInDb = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1);
+            var dataPerusahaanTambahanInDb = ErasoftDbContext.SIFSYS_TAMBAHAN.SingleOrDefault();
+            var accInDb = MoDbContext.Account.SingleOrDefault(ac => ac.Email == dataPerusahaanTambahanInDb.EMAIL);
             if (Request.Files.Count > 0)
             {
-                var file = Request.Files[0];
+                //var file = Request.Files[0];
 
-                if (file != null && file.ContentLength > 0)
+                //if (file != null && file.ContentLength > 0)
+                //{
+                //    var fileExtension = Path.GetExtension(file.FileName);
+                //    string namaPT = dataVm.DataUsaha.USERNAME.Trim();
+                //    string uname = dataVm.DataUsaha.NAMA_PT.Trim();
+                //    var namaFile = $"LogoUsaha-{namaPT}-{uname}{fileExtension}";
+                //    var path = Path.Combine(Server.MapPath("~/Content/Logo_Perusahaan/"), namaFile);
+                //    file.SaveAs(path);
+                //}
+
+                //add by nurul 9/2/2021
+                string[] imgPath = new string[Request.Files.Count];
+                for (int i = 0; i < Request.Files.Count; i++)
                 {
-                    var fileExtension = Path.GetExtension(file.FileName);
-                    string namaPT = dataVm.DataUsaha.USERNAME.Trim();
-                    string uname = dataVm.DataUsaha.NAMA_PT.Trim();
-                    var namaFile = $"LogoUsaha-{namaPT}-{uname}{fileExtension}";
-                    var path = Path.Combine(Server.MapPath("~/Content/Logo_Perusahaan/"), namaFile);
-                    file.SaveAs(path);
+                    var file = Request.Files[i];
+                    if (file != null && file.ContentLength > 0 && Request.Files.GetKey(i).Contains("foto_produk"))
+                    {
+                        long milis = CurrentTimeMillis();
+                        string namaPT = dataVm.DataUsaha.USERNAME.Trim();
+                        string uname = dataVm.DataUsaha.NAMA_PT.Trim();
+                        var namaFile = "LogoUsaha-" + namaPT + "-" + uname + "-" + milis.ToString();
+                        var tempLength = file.ContentLength;
+                        ImgurImageResponse image = UploadImageService.UploadSingleImageToImgurNotResize(file, "uploaded-image", namaFile);
+                        imgPath[i] = image.data.link;
+
+                        switch (i)
+                        {
+                            case 0:
+                                //dataBarang.Stf02.LINK_GAMBAR_1 = image.data.link_l;
+                                //dataBarang.Stf02.Sort5 = Convert.ToString(file.ContentLength);
+                                dataPerusahaanTambahanInDb.LINK_GAMBAR = image.data.link_l;
+                                dataPerusahaanTambahanInDb.SIZE_GAMBAR = Convert.ToString(tempLength);
+                                break;
+                        }
+                    }
                 }
+                //end add by nurul 9/2/2021
             }
 
-            var dataPerusahaanInDb = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1);
+
             dataPerusahaanInDb.NAMA_PT = dataVm.DataUsaha.NAMA_PT;
             dataPerusahaanInDb.ALAMAT_PT = dataVm.DataUsaha.ALAMAT_PT;
             dataPerusahaanInDb.NPWP = dataVm.DataUsaha.NPWP;
@@ -34392,8 +34560,7 @@ namespace MasterOnline.Controllers
             //dataPerusahaanInDb.BCA_CLIENT_ID = dataVm.DataUsaha.BCA_CLIENT_ID;
             //dataPerusahaanInDb.BCA_CLIENT_SECRET = dataVm.DataUsaha.BCA_CLIENT_SECRET;
 
-            var dataPerusahaanTambahanInDb = ErasoftDbContext.SIFSYS_TAMBAHAN.SingleOrDefault();
-            var accInDb = MoDbContext.Account.SingleOrDefault(ac => ac.Email == dataPerusahaanTambahanInDb.EMAIL);
+
 
             //change by nurul 11/4/2019
             //if (accInDb != null) accInDb.Email = dataVm.DataUsahaTambahan.EMAIL;
@@ -45379,6 +45546,25 @@ namespace MasterOnline.Controllers
                     //END ADD BY NURUL 22/7/2020
                     RAK = dsRekap.Tables[0].Rows[i]["RAK"].ToString(),
                 };
+                //add by nurul 5/2/2021
+                var tempRef = "";
+                var getListNoref = EDB.GetDataSet("CString", "SOT01A", "select brg, ISNULL(SUM(qty),0) AS QTY,isnull(no_referensi,'') as no_referensi from sot01a a (nolock) inner join sot01b b (nolock) on a.no_bukti=b.no_bukti where brg='" + newData.BRG + "' and a.no_bukti in (select no_pesanan from sot03b where no_bukti='" + nobuk + "') GROUP BY brg,no_referensi");
+                if(getListNoref.Tables[0].Rows.Count > 0)
+                {
+                    for (int a = 0; a < getListNoref.Tables[0].Rows.Count; a++)
+                    {
+                        if (!string.IsNullOrEmpty(getListNoref.Tables[0].Rows[a]["no_referensi"].ToString()))
+                        {
+                            tempRef = tempRef + getListNoref.Tables[0].Rows[a]["no_referensi"].ToString() + " (" + getListNoref.Tables[0].Rows[a]["qty"].ToString() + ") " + Environment.NewLine + " ";
+                        }
+                    }
+                }
+                if (tempRef != "")
+                {
+                    tempRef = tempRef.Substring(0, tempRef.Length - 4);
+                }
+                newData.NO_REFERENSI = tempRef;
+                //end add by nurul 5/2/2021
                 vm.listRekapBarang.Add(newData);
             }
 
@@ -45917,6 +46103,25 @@ namespace MasterOnline.Controllers
                         BARCODE = dsRekap.Tables[0].Rows[i]["BARCODE"].ToString(),
                         RAK = dsRekap.Tables[0].Rows[i]["RAK"].ToString(),
                     };
+                    //add by nurul 5/2/2021
+                    var tempRef = "";
+                    var getListNoref = EDB.GetDataSet("CString", "SOT01A", "select brg, ISNULL(SUM(qty),0) AS QTY,isnull(no_referensi,'') as no_referensi from sot01a a (nolock) inner join sot01b b (nolock) on a.no_bukti=b.no_bukti where brg='" + newData.BRG + "' and a.no_bukti in (select no_pesanan from sot03b where no_bukti='" + nobuk + "') GROUP BY brg,no_referensi");
+                    if (getListNoref.Tables[0].Rows.Count > 0)
+                    {
+                        for (int a = 0; a < getListNoref.Tables[0].Rows.Count; a++)
+                        {
+                            if (!string.IsNullOrEmpty(getListNoref.Tables[0].Rows[a]["no_referensi"].ToString()))
+                            {
+                                tempRef = tempRef + getListNoref.Tables[0].Rows[a]["no_referensi"].ToString() + " (" + getListNoref.Tables[0].Rows[a]["qty"].ToString() + ") " + Environment.NewLine + " ";
+                            }
+                        }
+                    }
+                    if(tempRef != "")
+                    {
+                        tempRef = tempRef.Substring(0, tempRef.Length - 4);
+                    }
+                    newData.NO_REFERENSI = tempRef;
+                    //end add by nurul 5/2/2021
                     retData.listRekapBarang.Add(newData);
                 }
             }
@@ -59182,7 +59387,7 @@ namespace MasterOnline.Controllers
         //end by fauzi
 
         //add by nurul 11/12/2019, cetak label pesanan
-        public ActionResult CetakLabelMo(string cust, string bukti, string[] rows_selected, string toko, string tlpToko, string ctkLabel, string alLink, string noLink, string namaLink, string mpLink, string nobukLink, string totalLink, string portLink, string refLink, List<tempBarcodeLazada> data, string ketLink)
+        public ActionResult CetakLabelMo(string cust, string bukti, string[] rows_selected, string toko, string tlpToko, string ctkLabel, string alLink, string noLink, string namaLink, string mpLink, string nobukLink, string totalLink, string portLink, string refLink, List<tempBarcodeLazada> data, string ketLink, string logoLink)
         {
             try
             {
@@ -59235,9 +59440,17 @@ namespace MasterOnline.Controllers
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
 
                 var ListSot01a = ErasoftDbContext.Database.SqlQuery<tempLabel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
-                var namaPT = ErasoftDbContext.SIFSYS.AsNoTracking().Single(p => p.BLN == 1).NAMA_PT;
-                var alamat1 = ErasoftDbContext.SIFSYS.AsNoTracking().Single(a => a.BLN == 1).ALAMAT_PT;
-                var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.AsNoTracking().Single().TELEPON;
+                var profilToko = ErasoftDbContext.SIFSYS.AsNoTracking().SingleOrDefault(p => p.BLN == 1);
+                var profilTambahan = ErasoftDbContext.SIFSYS_TAMBAHAN.AsNoTracking().SingleOrDefault();
+                //var namaPT = ErasoftDbContext.SIFSYS.AsNoTracking().Single(p => p.BLN == 1).NAMA_PT;
+                //var alamat1 = ErasoftDbContext.SIFSYS.AsNoTracking().Single(a => a.BLN == 1).ALAMAT_PT;
+                var namaPT = profilToko.NAMA_PT;
+                var alamat1 = profilToko.ALAMAT_PT;
+                //var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.AsNoTracking().Single().TELEPON;
+                var tlp = profilTambahan.TELEPON;
+
+                var linkLogo = "~/Content/Logo_Perusahaan/LogoUsaha-" + profilToko.USERNAME + "-" + profilToko.NAMA_PT + ".jpg";
+                linkLogo = profilTambahan.LINK_GAMBAR;
 
                 var ym = new FakturViewModel()
                 {
@@ -59249,6 +59462,7 @@ namespace MasterOnline.Controllers
                     urlNama = namaLink,
                     urlLabel = ctkLabel,
                     urlKet = ketLink,
+                    urlLogo = logoLink,
                 };
 
                 var listSi = ListSot01a.Select(p => p.si_bukti).ToList();
@@ -59257,7 +59471,7 @@ namespace MasterOnline.Controllers
                 //add by nurul 13/1/2021, barang bundling
                 var detailFakturBundling = ErasoftDbContext.SIT01H.Where(a => listSi.Contains(a.NO_BUKTI)).ToList();
                 //add by nurul 13/1/2021, barang bundling
-
+                
                 foreach (var so in ListSot01a)
                 {
                     var detailFakturIndb = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList();
@@ -59363,12 +59577,139 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
+                    else
+                    {
+                        ref1 = refNew;
+                    }
+                    
+                    //add by nurul 5/2/2021
+                    //default barcode referensi ditampilkan 
+                    if(so.namamarket.ToUpper() != "LAZADA")
+                    {
+                        refLink = "1";
+                    }
+
+                    //logo marketplace 
+                    var logoMARKET = "";
+                    if (so.namamarket.ToUpper() == "LAZADA")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Lazada.jpg";
+                    }
+                    else if (so.namamarket.ToUpper() == "SHOPEE")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Shopee.png";
+                    }
+                    else if (so.namamarket.ToUpper() == "TOKOPEDIA")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Tokopedia-new.jpg";
+                    }
+                    else if (so.namamarket.ToUpper() == "BLIBLI")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Blibli.jpg";
+                    }
+                    else if (so.namamarket.ToUpper() == "BUKALAPAK")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Bukalapak.png";
+                    }
+                    else if (so.namamarket.ToUpper() == "JD.ID")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/LogoUsaha-JDID.jpg";
+                    }
+                    else if (so.namamarket.ToUpper() == "SHOPIFY")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Sopify.jpg";
+                    }
+                    else if (so.namamarket.ToUpper() == "82CART")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-82Cart.png";
+                    }
+                    else if(so.namamarket.ToUpper() == "ELEVENIA")
+                    {
+                        logoMARKET = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Elevenia.png";
+                    }
+
+                    //logo kurir 
+                    if(so.namamarket.ToUpper() != "LAZADA")
+                    {
+                        if (so.kurir.ToUpper().Contains("GO-JEK") || so.kurir.ToUpper().Contains("GO-SEND") || so.kurir.ToUpper().Contains("GOJEK") || so.kurir.ToUpper().Contains("GOSEND"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Gosend-New.jpg";
+                        }else if (so.kurir.ToUpper().Contains("GRAB"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Grab.jpg";
+                        }
+                        else if (so.kurir.ToUpper().Contains("JNE"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-JNE.jpg";
+                        }else if (so.kurir.ToUpper().Contains("ANTER"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-AnterAja.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("SICEPAT"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Sicepat.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("J&T"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-JNT.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("TIKI"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Tiki.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("SHOPEE"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Shopee-Xpress.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("ID EXPRESS"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-ID-Express.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("INDAH"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Indah-Logistic.PNG";
+                        }
+                        else if (so.kurir.ToUpper().Contains("NINJA"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Ninja-New.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("POS"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-POS.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("INDO"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Indo-Paket.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("WAHANA"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-Wahana-New.jpg";
+                        }
+                        else if (so.kurir.ToUpper().Contains("JX"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-JX.jpg";
+                        }
+                        else if (so.kurir.ToUpper().Contains("FL"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-FL-Regular.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("ALFATREX"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-ALFATREX-LAND.png";
+                        }
+                        else if (so.kurir.ToUpper().Contains("SAP"))
+                        {
+                            logoKurir = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/Logo-Kurir-SAP-LAND.jpg";
+                        }
+                    }
+                    //end add by nurul 5/2/2021
 
                     var vm = new CetakLabelViewModel()
                     {
                         NamaToko = so.perso,
                         NamaPerusahaan = namaPT,
-                        LogoMarket = so.logo,
+                        //LogoMarket = so.logo,
+                        LogoMarket = logoMARKET,
                         Faktur = faktur.Where(a => a.NO_BUKTI == so.si_bukti).SingleOrDefault(),
                         namaPembeli = so.namapembeli,
                         tlpPembeli = so.tlppembeli,
@@ -59400,6 +59741,9 @@ namespace MasterOnline.Controllers
                         listKetTokped = ketTokped,
                         Ket = ket,
                         //end add by nurul 15/5/2020
+
+                        LogoKurir = logoKurir,
+                        logoToko = linkLogo
                     };
 
                     ym.ListCetakLabel.Add(vm);

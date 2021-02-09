@@ -132,6 +132,74 @@ namespace MasterOnline.Services
             return imgurImage;
         }
 
+        //add by nurul 9/2/2021, upload image logo perusahaan tanpa resize 
+        public static ImgurImageResponse UploadSingleImageToImgurNotResize(HttpPostedFileBase file, string albumid, string fileNameReq)
+        {
+            var fileName = Guid.NewGuid().ToString();
+            //var path = albumid + "/" + fileName;
+            var path = albumid + "/" + fileNameReq;
+            var imgurImage = new ImgurImageResponse();
+
+            try
+            {
+                path = path + "." + file.FileName.Split('.').Last();
+                IAmazonS3 client;
+                Stream inputSteram = null;
+
+                if (file.FileName.Split('.')[1] == "gif")
+                {
+                    inputSteram = file.InputStream;
+                }
+                else
+                {
+                    //inputSteram = ResizeImageFile(file.InputStream, 1024);
+                    inputSteram = file.InputStream;
+                }
+
+                //add by nurul 13/2/2020, penambahan type file 
+                if (file.FileName.Split('.').Last() != "jpeg" && file.FileName.Split('.').Last() != "png" && file.FileName.Split('.').Last() != "jpg" && file.FileName.Split('.').Last() != "gif")
+                {
+                    path = path + ".jpg";
+                }
+                //end add by nurul 13/2/2020, penambahan type file 
+
+                using (client = new AmazonS3Client(_awsAccessKey, _awsSecretKey, Amazon.RegionEndpoint.APSoutheast1))
+                {
+                    var request = new PutObjectRequest()
+                    {
+                        BucketName = _bucketName,
+                        CannedACL = S3CannedACL.PublicRead,//PERMISSION TO FILE PUBLIC ACCESIBLE
+                        Key = string.Format(path),
+                        InputStream = inputSteram,//SEND THE FILE STREAM,                            
+                    };
+                    
+                    if (file.FileName.Split('.')[1] == "gif")
+                    {
+                        request.ContentType = "image/gif";
+                    }
+
+                    client.PutObject(request);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+            imgurImage.data = new ImgurData();
+
+            imgurImage.data.link = _amazonAwsUrl + "/" + _bucketName + "/" + path;
+            imgurImage.data.link_s = _amazonAwsUrl + "/" + _bucketName + "/" + path;
+            imgurImage.data.link_m = _amazonAwsUrl + "/" + _bucketName + "/" + path;
+            imgurImage.data.link_l = _amazonAwsUrl + "/" + _bucketName + "/" + path;
+            imgurImage.data.copyText = "";
+
+
+            return imgurImage;
+        }
+        //end add by nurul 9/2/2021
+
         public static ImgurImageResponse UploadSingleImageToImgurFromUrl(string url, string albumid)
         {
             var fileName = Guid.NewGuid().ToString();

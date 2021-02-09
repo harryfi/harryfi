@@ -682,17 +682,20 @@
                                         <th width="250">Nama Barang</th>
                                         <th width="70">Lokasi Rak</th>
                                         <th width="50">QTY</th>
+                                        <th width="150">No. Referensi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var rekapPackinglist in Model?.listRekapBarang?.ToList())
                                     {
+                                        string noref = rekapPackinglist.NO_REFERENSI;
                                     <tr>
                                         <td>@rekapPackinglist.BRG</td>
                                         <td>@rekapPackinglist.BARCODE</td>
                                         <td>@rekapPackinglist.NAMA_BARANG</td>
                                         <td>@rekapPackinglist.RAK</td>
                                         <td>@rekapPackinglist.QTY</td>
+                                        <td style="white-space: pre-line;">@noref</td>
                                     </tr>
                                     }
                                 </tbody>

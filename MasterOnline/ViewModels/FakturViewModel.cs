@@ -51,6 +51,7 @@ namespace MasterOnline.ViewModels
         public string urlFaktur { get; set; }
         public string urlLabel { get; set; }
         public string urlKet { get; set; }
+        public string urlLogo { get; set; }
         //end add by nurul 11/12/2019, for cetak label mo
 
         //add by nurul 3/6/2020
@@ -119,6 +120,10 @@ namespace MasterOnline.ViewModels
         public string Ket { get; set; }
         public List<tempKetTokped> listKetTokped = new List<tempKetTokped>();
         //end add by nurul 15/5/2020
+
+        //add by nurul 5/2/2021
+        public string logoToko { get; set; }
+        //end add by nurul 5/2/2021
     }
 
     public class tempKetTokped

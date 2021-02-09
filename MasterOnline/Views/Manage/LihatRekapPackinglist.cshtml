@@ -222,16 +222,19 @@
             <th style="width:200px">Nama Barang</th>
             <th style="width:90px">Lokasi Rak</th>
             <th style="width:75px;text-align:center">QTY</th>
+            <th style="width:150px">No. Referensi</th>
         </tr>
                 <tbody>
                     @foreach (var rekap in Model.listRekapBarang)
                     {
+                        string noref = rekap.NO_REFERENSI;
                     <tr>
                         <td>@rekap.BRG</td>
                         <td>@rekap.BARCODE</td>
                         <td>@rekap.NAMA_BARANG</td>
                         <td>@rekap.RAK</td>
                         <td style="text-align:center">@rekap.QTY</td>
+                        <td style="white-space: pre-line;">@noref</td>
                     </tr>
                     }
                 </tbody>
