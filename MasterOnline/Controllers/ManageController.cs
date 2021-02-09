@@ -47721,7 +47721,8 @@ namespace MasterOnline.Controllers
                         System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
                         FileStream stream = System.IO.File.Create(path);
                         //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
-                        byte[] byteArray = Convert.FromBase64String(retApi);
+                        //byte[] byteArray = Convert.FromBase64String(retApi);
+                        byte[] byteArray = retApi;
                         stream.Write(byteArray, 0, byteArray.Length);
                         stream.Close();
                         temp_printLabel.Add(path);

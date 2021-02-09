@@ -700,7 +700,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrdersNew(BukaLapakKey data, string CUST, string NAMA_CUST, string username)
+        public async Task<string> GetOrdersNew(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int day)
         {
             string ret = "";
             SetupContext(data.dbPathEra, username);
@@ -721,14 +721,14 @@ namespace MasterOnline.Controllers
             while (loop)
             {
                 data = RefreshToken(data);
-                var retOrder = await GetOrdersLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(-3).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"));
+                var retOrder = await GetOrdersLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(day).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"));
                 
                 if (retOrder.AdaKomponen)
                 {
                     AdaKomponen = retOrder.AdaKomponen;
                 }
 
-                if (retOrder.status >= 10)
+                if (retOrder.status >= 50)
                 {
                     page = page + 1;
                 }
@@ -760,7 +760,7 @@ namespace MasterOnline.Controllers
             ret.ConnId = conn_id;
             //end add by nurul 19/1/2021, bundling
 
-            string urll = "https://api.bukalapak.com/transactions?limit=10&offset=" + (page * 10) + "&context=sale"
+            string urll = "https://api.bukalapak.com/transactions?limit=50&offset=" + (page * 50) + "&context=sale"
                 + "&start_time=" + Uri.EscapeDataString(fromDt) + "&end_time=" + Uri.EscapeDataString(toDt) 
                 + "&states[]=pending&states[]=paid&states[]=accepted";
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
@@ -1090,7 +1090,7 @@ namespace MasterOnline.Controllers
             while (loop)
             {
                 data = RefreshToken(data);
-                var retOrder = await GetOrdersCompletedLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(-7).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"));
+                var retOrder = await GetOrdersCompletedLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(-10).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"));
                 if (retOrder >= 50)
                 {
                     page = page + 1;
@@ -1115,9 +1115,9 @@ namespace MasterOnline.Controllers
             //data = RefreshToken(data);
             var list_04 = new List<string>();
 
-            string urll = "https://api.bukalapak.com/transactions?limit=10&offset=" + (page * 50) + "&context=sale"
+            string urll = "https://api.bukalapak.com/transactions?limit=50&offset=" + (page * 50) + "&context=sale"
                 + "&start_time=" + Uri.EscapeDataString(fromDt) + "&end_time=" + Uri.EscapeDataString(toDt)
-                + "&states[]=delivered&states[]=received&states[]=remitted";
+                + "&states[]=received&states[]=remitted";
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
             myReq.Headers.Add("Authorization", "Bearer " + data.token);
@@ -1144,7 +1144,7 @@ namespace MasterOnline.Controllers
                             if (retObj.data.Length > 0)
                             {
                                 ret = retObj.data.Length;
-                                var cekfromDt = DateTime.UtcNow.AddHours(7).AddDays(-8);
+                                var cekfromDt = DateTime.UtcNow.AddHours(-7).AddDays(-10);
                                 //var untukCekdiSO = retObj.data.Select(p => new { id = p.id }).AsEnumerable().Select(t => t.id.ToString()).ToList();
                                 var untukCekdiSO = retObj.data.Select(p => p.transaction_id).ToList();
                                 var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && p.TGL.Value >= cekfromDt && untukCekdiSO.Contains(p.NO_REFERENSI)).
@@ -1275,7 +1275,7 @@ namespace MasterOnline.Controllers
             //data = RefreshToken(data);
             var brgCancelled = new List<TEMP_ALL_MP_ORDER_ITEM>();
 
-            string urll = "https://api.bukalapak.com/transactions?limit=10&offset=" + (page * 50) + "&context=sale"
+            string urll = "https://api.bukalapak.com/transactions?limit=50&offset=" + (page * 50) + "&context=sale"
                 + "&start_time=" + Uri.EscapeDataString(fromDt) + "&end_time=" + Uri.EscapeDataString(toDt)
                 + "&states[]=cancelled&states[]=expired";
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);

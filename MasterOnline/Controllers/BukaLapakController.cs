@@ -471,7 +471,7 @@ namespace MasterOnline.Controllers
             }
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
-        public string GetLabel(BukaLapakKey data, string orderID)
+        public byte[] GetLabel(BukaLapakKey data, string orderID)
         {
             data = RefreshToken(data);
             var ret = new BindingBase();
@@ -508,7 +508,7 @@ namespace MasterOnline.Controllers
             var response = client.DownloadData(request);
 
             var returnPdf = Convert.ToBase64String(response);
-            return returnPdf;
+            return response;
             //if (responseFromServer != "")
             //{
             //var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(GetCourierResponse)) as GetCourierResponse;

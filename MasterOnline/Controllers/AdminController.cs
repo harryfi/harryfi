@@ -5456,7 +5456,27 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
+                                else if (marketplace.ToUpper() == "BUKALAPAK")
+                                {
+                                    string[] splitArguments = resultDataJob.Tables[0].Rows[i]["ARGUMENTS"].ToString().Replace("\"", "").Replace("\\", "").Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "").Split(',');
 
+                                    if (splitArguments.Length > 0)
+                                    {
+                                        var no_custBL = splitArguments[5].ToString();
+                                        var usernameBL = splitArguments[8].ToString();
+                                        string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE CUST = '" + no_custBL + "'; ";
+                                        var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_BL", queryCheckToko);
+                                        if (resultDataToko.Tables[0].Rows.Count > 0)
+                                        {
+                                            //if(resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() == usernameLazada)
+                                            //{
+                                            checkApprove = true;
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameBL;
+                                            //namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                            //}
+                                        }
+                                    }
+                                }
                                 if (checkApprove)
                                 {
                                     listTable.Add(new PesananHangfireJob

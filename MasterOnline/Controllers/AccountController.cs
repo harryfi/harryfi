@@ -855,14 +855,21 @@ namespace MasterOnline.Controllers
                         {
                             //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
                             //new BukaLapakControllerJob().cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.GetOrdersNew(iden ,tblCustomer.CUST, tblCustomer.PERSO, username)), Cron.MinuteInterval(5), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.GetOrdersNew(iden ,tblCustomer.CUST, tblCustomer.PERSO, username, -1)), Cron.MinuteInterval(5), recurJobOpt);
                             
                             connId_JobId = dbPathEra + "_bukalapak_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.GetOrdersCompleted(iden, tblCustomer.CUST, tblCustomer.PERSO, username)), Cron.MinuteInterval(30), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.GetOrdersCompleted(iden, tblCustomer.CUST, tblCustomer.PERSO, username)), Cron.HourInterval(6), recurJobOpt);
 
                             connId_JobId = dbPathEra + "_bukalapak_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.GetOrdersCanceled(iden, tblCustomer.CUST, tblCustomer.PERSO, username)), Cron.MinuteInterval(5), recurJobOpt);
-
+                            
+                            if (!string.IsNullOrEmpty(sync_pesanan_stok))
+                            {
+                                if (sync_pesanan_stok == tblCustomer.CUST)
+                                {
+                                    client.Enqueue<BukaLapakControllerJob>(x => x.GetOrdersNew(iden, tblCustomer.CUST, tblCustomer.PERSO, username, -3));
+                                }
+                            }
                         }
                         else
                         {
