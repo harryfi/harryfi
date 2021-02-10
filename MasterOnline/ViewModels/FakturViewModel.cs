@@ -123,6 +123,7 @@ namespace MasterOnline.ViewModels
 
         //add by nurul 5/2/2021
         public string logoToko { get; set; }
+        public string typeLogo { get; set; }
         //end add by nurul 5/2/2021
     }
 

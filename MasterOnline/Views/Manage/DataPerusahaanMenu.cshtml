@@ -26,6 +26,7 @@
         //username = username.Substring(0, 17) + "...";
         username = username.Substring(0, 20);
     }
+
 }
 
 @section styles
@@ -73,7 +74,6 @@
             bottom: 25px;
             left: 20px;
         }
-
     </style>
     <style>
         .foto_produk_section {
@@ -171,23 +171,23 @@
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @{
                                                     var listMetoda = new List<MetodaHpp>()
-                                                                                                                                                                                                            {
-                                                                                                                                                                                                                new MetodaHpp()
-                                                                                                                                                                                                                {
-                                                                                                                                                                                                                    KODE = "1",
-                                                                                                                                                                                                                    KET = "FIFO"
-                                                                                                                                                                                                                },
-                                                                                                                                                                                                                new MetodaHpp()
-                                                                                                                                                                                                                {
-                                                                                                                                                                                                                    KODE = "2",
-                                                                                                                                                                                                                    KET = "Rata-rata Perusahaan"
-                                                                                                                                                                                                                },
-                                                                                                                                                                                                                new MetodaHpp()
-                                                                                                                                                                                                                {
-                                                                                                                                                                                                                    KODE = "3",
-                                                                                                                                                                                                                    KET = "Rata-rata Gudang"
-                                                                                                                                                                                                                }
-                                                                                                                                                                                                            };
+                                                                                                                                                                                                                                                {
+                                                                                                                                                                                                                                                    new MetodaHpp()
+                                                                                                                                                                                                                                                    {
+                                                                                                                                                                                                                                                        KODE = "1",
+                                                                                                                                                                                                                                                        KET = "FIFO"
+                                                                                                                                                                                                                                                    },
+                                                                                                                                                                                                                                                    new MetodaHpp()
+                                                                                                                                                                                                                                                    {
+                                                                                                                                                                                                                                                        KODE = "2",
+                                                                                                                                                                                                                                                        KET = "Rata-rata Perusahaan"
+                                                                                                                                                                                                                                                    },
+                                                                                                                                                                                                                                                    new MetodaHpp()
+                                                                                                                                                                                                                                                    {
+                                                                                                                                                                                                                                                        KODE = "3",
+                                                                                                                                                                                                                                                        KET = "Rata-rata Gudang"
+                                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                                };
                                                 }
                                                 @Html.HiddenFor(m => m.DataUsaha.METODA_NO)
                                                 <select class="form-control" id="DataUsaha_Metoda" name="DataUsaha.Metoda" required="required">
@@ -237,28 +237,28 @@
                                             @Html.Label("Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 5 })
-                                                                                            : Html.TextBoxFor(m => m.DataUsahaTambahan.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "", maxlength = 5 }))
+                                                                                                    : Html.TextBoxFor(m => m.DataUsahaTambahan.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "", maxlength = 5 }))
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.DataUsahaTambahan.PERSON, "Contact Person *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.PERSON, new { @class = "form-control", required = "required" })
-                                                                                            : Html.TextBoxFor(m => m.DataUsahaTambahan.PERSON, new { @class = "form-control", required = "required", Value = "" }))
+                                                                                                    : Html.TextBoxFor(m => m.DataUsahaTambahan.PERSON, new { @class = "form-control", required = "required", Value = "" }))
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.DataUsahaTambahan.EMAIL, "Email CP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", type = "email" })
-                                                                                            : Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", Value = "", type = "email" }))
+                                                                                                    : Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", Value = "", type = "email" }))
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.DataUsahaTambahan.TELEPON, "Telepon CP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.TELEPON, new { @class = "form-control limited_number_textbox", type = "number", required = "required" })
-                                                                                      : Html.TextBoxFor(m => m.DataUsahaTambahan.TELEPON, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "" }))
+                                                                                              : Html.TextBoxFor(m => m.DataUsahaTambahan.TELEPON, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "" }))
                                             </div>
                                         </div>
                                         //add by nurul 11/3/2019
@@ -269,7 +269,7 @@
                                                 @Html.HiddenFor(m => m.DataUsaha.GUDANG)
                                                 @*<div id="gudang-select" style="display: none;">*@
                                                 <div id="GUDANG" class="selectivity-input" tabindex="0" required="required"></div>
-                                            @*</div>*@
+                                                @*</div>*@
                                             </div>
                                         </div>
                                         //end add by nurul 11/3/2019
@@ -327,23 +327,34 @@
                                                 </div>
                                             </div>*@
                                         <div class="form-group">
+                                            @Html.LabelFor(m => m.DataUsahaTambahan.TYPE_LOGO, "Tampilan Di Label *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @Html.HiddenFor(m => m.DataUsahaTambahan.TYPE_LOGO)
+                                                <select class="form-control" id="Tambahan_TYPE_LOGO" placeholder="Harap Pilih" name="Tambahan_TYPE_LOGO" required="required">
+                                                    <option value="1">Persegi</option>
+                                                    <option value="2">Persegi Panjang</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
                                             @Html.Label("Logo Toko *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             @*<div class="col-md-4 logo_perusahaan_section">
-                                                <button type="button" class="btn btn-danger btn-small btn_hapus_logo" id="btn_hapus_logo">Hapus</button>
-                                                <div class="box_upload" id="box_upload_logo">
-                                                    <span class="box_upload_placeholder">300 x 300 <br /> (.JPG / .JPEG)</span>
-                                                    <input type='file' id='logo_perusahaan' name="logo_perusahaan" accept=".jpg" />
-                                                </div>
-                                            </div>*@
+                                                    <button type="button" class="btn btn-danger btn-small btn_hapus_logo" id="btn_hapus_logo">Hapus</button>
+                                                    <div class="box_upload" id="box_upload_logo">
+                                                        <span class="box_upload_placeholder">300 x 300 <br /> (.JPG / .JPEG)</span>
+                                                        <input type='file' id='logo_perusahaan' name="logo_perusahaan" accept=".jpg" />
+                                                    </div>
+                                                </div>*@
                                             <div class="col-md-4 foto_produk_section">
                                                 <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk" id="btn_hapus_1">Hapus</button>
                                                 <div class="box_upload" id="box_upload_1">
                                                     <span class="box_upload_placeholder">Tambah Gambar</span>
-                                                    <input type='file' id='foto_produk_1' name="foto_produk_1" accept=".jpg" />
+                                                    <input type='file' id='foto_produk_1' name="foto_produk_1" @*accept=".jpg"*@ />
                                                     <input type="hidden" id="hidden_url_gambar_1" value="@(Model.DataUsahaTambahan?.LINK_GAMBAR)" />
                                                 </div>
                                             </div>
                                         </div>
+
                                         <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanDataUsaha(this);" />
                                     }
                                 </div>
@@ -360,7 +371,11 @@
 {
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script src="~/Content/selectize.js" type="text/javascript"></script>
-    <script>
+    <script type="text/javascript">
+        @{
+            var tempType = (Model.DataUsahaTambahan.TYPE_LOGO == null || Model.DataUsahaTambahan.TYPE_LOGO == "" || Model.DataUsahaTambahan.TYPE_LOGO == "0" ? "1" : Model.DataUsahaTambahan.TYPE_LOGO);
+        }
+        var tempType = @Html.Raw(Json.Encode(tempType));
         $(document).on('ready',
             function () {
                 Initialize();
@@ -399,10 +414,10 @@
                 var file = this.files[0];
                 var fileType = file["type"];
                 var validImage = ["image/jpeg"];
-                if ($.inArray(fileType, validImage) < 0) {
-                    alert('Hanya boleh file berformat .jpg!');
-                    return;
-                }
+                //if ($.inArray(fileType, validImage) < 0) {
+                //    alert('Hanya boleh file berformat .jpg!');
+                //    return;
+                //}
                 var reader = new FileReader();
                 reader.onloadend = function () {
                     $('#box_upload_logo').css('background-image', 'url("' + reader.result + '")')
@@ -422,7 +437,7 @@
             $('#foto_produk_1').hide();
             $('#btn_hapus_1').hide();
 
-            $('#btn_hapus_logo').click(function () {
+            @*$('#btn_hapus_logo').click(function () {
                 var $link = '@Html.Raw(Url.Action("DeleteLogoPerusahaan", "Manage", new { namaPT = "replaceNama", uname = "replaceUsername" }))';
                 $link = $link.replace("replaceNama", encodeURIComponent($('#DataUsaha_NAMA_PT').val()));
                 $link = $link.replace("replaceUsername", encodeURIComponent($('#DataUsaha_USERNAME').val()));
@@ -442,29 +457,29 @@
                 });
 
                 return;
-            });
+            });*@
 
-            var $linkLogo = '/Content/Logo_Perusahaan/LogoUsaha-' + encodeURIComponent($('#DataUsaha_USERNAME').val() + '-' + $('#DataUsaha_NAMA_PT').val()) + '.jpg';
+            //var $linkLogo = '/Content/Logo_Perusahaan/LogoUsaha-' + encodeURIComponent($('#DataUsaha_USERNAME').val() + '-' + $('#DataUsaha_NAMA_PT').val()) + '.jpg';
 
-            $.ajax({
-                url: $linkLogo,
-                type: 'GET',
-                success: function () {
-                    $('#box_upload_logo').css({
-                        'background-image': 'url("' + $linkLogo + '")',
-                        'background-size': 'cover'
-                    });
-                    $('#box_upload_logo span').hide();
-                    $('#btn_hapus_logo').show();
-                },
-                error: function () {
-                }
-            });
+            //$.ajax({
+            //    url: $linkLogo,
+            //    type: 'GET',
+            //    success: function () {
+            //        $('#box_upload_logo').css({
+            //            'background-image': 'url("' + $linkLogo + '")',
+            //            'background-size': 'cover'
+            //        });
+            //        $('#box_upload_logo span').hide();
+            //        $('#btn_hapus_logo').show();
+            //    },
+            //    error: function () {
+            //    }
+            //});
 
             $('#btn_hapus_1').off('click').on('click', function () {
-                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan" }))';
-                $link = $link.replace("replaceKode", encodeURIComponent($('#Stf02_BRG').val()));
-                $link = $link.replace("replaceUrutan", 1);
+                var $link = '@Html.Raw(Url.Action("DeleteLogoPerusahaan", "Manage", new { namaPT = "replaceNama", uname = "replaceUsername" }))';
+                $link = $link.replace("replaceNama", encodeURIComponent($('#DataUsaha_NAMA_PT').val()));
+                $link = $link.replace("replaceUsername", encodeURIComponent($('#DataUsaha_USERNAME').val()));
 
                 $.ajax({
                     url: $link,
@@ -493,10 +508,10 @@
             $('#foto_produk_1').off('change').on('change', function () {
                 var file = this.files[0];
                 var fileType = file["type"];
-                if ($.inArray(fileType, validImage) < 0) {
-                    alert('Hanya boleh file berformat .jpg!');
-                    return false;
-                }
+                //if ($.inArray(fileType, validImage) < 0) {
+                //    alert('Hanya boleh file berformat .jpg!');
+                //    return false;
+                //}
                 image_size_1 = file["size"];
                 //var fileSize = file["size"];
                 var fileSize = image_size_1;
@@ -525,6 +540,22 @@
             });
 
             var image_size_1 = 0;
+
+            $('#Tambahan_TYPE_LOGO').change(function () {
+                $("#DataUsahaTambahan_TYPE_LOGO").val($('#Tambahan_TYPE_LOGO').val())
+            });
+            $("#Tambahan_TYPE_LOGO").change(
+                function () {
+                    if ($("#Tambahan_TYPE_LOGO").val() == "1") {
+                        $("#DataUsahaTambahan_TYPE_LOGO").val('1');
+                    } else if ($("#Tambahan_TYPE_LOGO").val() == "2") {
+                        $("#DataUsahaTambahan_TYPE_LOGO").val('2');
+                    } else {
+                        $("#DataUsahaTambahan_TYPE_LOGO").val('0');
+                    }
+                });
+            $("#Tambahan_TYPE_LOGO").change();
+            $('#Tambahan_TYPE_LOGO').val(tempType);
         }
 
         function getFotoProduk() {
@@ -555,9 +586,10 @@
                 },
                 success: function (response) {
                     if (response.Errors == null) {
-                        if (response.Errors == null) {
+                        if (response.Errors == null || response.Errors.length == 0) {
                             alert('Data perusahaan berhasil disimpan!');
                             //window.location = '@Url.Action("Bantuan")';
+                            window.location.reload();
                         } else {
                             console.log(response.Errors);
                             alert('Ada data yang tidak valid!');
@@ -733,6 +765,55 @@
                 }
             });
         }
+
         //END ADD BY NURUL 20/7/2020
+    </script>
+    <script>
+        var mimes = {
+            'jpeg': 'data:image/jpeg;base64,'
+        };
+
+        AWS.config.update({
+            signatureVersion: 'v4',
+            region: 'ap-southeast-1',
+            accessKeyId: 'AKIAIUKY7MJGRJULBXZQ',
+            secretAccessKey: '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'
+        });
+
+        var bucket = new AWS.S3({ params: { Bucket: 'masteronlinebucket/uploaded-image' } });
+
+        function encode(data) {
+            var str = data.reduce(function (a, b) { return a + String.fromCharCode(b) }, '');
+            return btoa(str).replace(/.{76}(?=.)/g, '$&\n');
+        }
+
+        function getUrlByFileName(fileName, mimeType) {
+            return new Promise(
+                function (resolve, reject) {
+                    bucket.getObject({ Key: fileName }, function (err, file) {
+                        if (file == null) {
+                            return;
+                        }
+
+                        var result = mimeType + encode(file.Body);
+                        resolve(result);
+                    });
+                }
+            );
+        }
+
+        function deleteObjectByFileName(fileName) {
+            return new Promise(
+                function (resolve, reject) {
+                    bucket.deleteObject({ Key: fileName }, function (err, data) {
+                        if (err) console.log(err, err.stack); // an error occurred
+                        else console.log(data);// successful response
+                    });
+                }
+            );
+        }
+        function getKeyByValue(object, value) {
+            return Object.keys(object).find(key => object[key] === value);
+        }
     </script>
 }

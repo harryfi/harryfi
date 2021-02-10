@@ -27614,8 +27614,16 @@ namespace MasterOnline.Controllers
                 //var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.AsNoTracking().Single().TELEPON;
                 var tlp = profilTambahan.TELEPON;
 
-                var linkLogo = "~/Content/Logo_Perusahaan/LogoUsaha-" + profilToko.USERNAME + "-" + profilToko.NAMA_PT + ".jpg";
-                linkLogo = profilTambahan.LINK_GAMBAR;
+                var linkLogo = "";
+                if (!string.IsNullOrEmpty(profilTambahan.LINK_GAMBAR))
+                {
+                    linkLogo = profilTambahan.LINK_GAMBAR;
+                }
+                var tipeLogo = "1";
+                if (profilTambahan.TYPE_LOGO == "2")
+                {
+                    tipeLogo = profilTambahan.TYPE_LOGO;
+                }
 
                 var ym = new FakturViewModel()
                 {
@@ -27860,7 +27868,8 @@ namespace MasterOnline.Controllers
                     {
                         NamaToko = so.perso,
                         NamaPerusahaan = namaPT,
-                        LogoMarket = so.logo,
+                        //LogoMarket = so.logo,
+                        LogoMarket = logoMARKET,
                         Faktur = faktur.Where(a => a.NO_BUKTI == so.si_bukti).SingleOrDefault(),
                         namaPembeli = so.namapembeli,
                         tlpPembeli = so.tlppembeli,
@@ -27891,6 +27900,7 @@ namespace MasterOnline.Controllers
                         LogoKurir = logoKurir,
                         logoToko = linkLogo,
                         linkref = refLink,
+                        typeLogo = tipeLogo,
                     };
 
                     ym.ListCetakLabel.Add(vm);
@@ -34512,20 +34522,41 @@ namespace MasterOnline.Controllers
             return Json(res, JsonRequestBehavior.AllowGet);
         }
 
+        //public ActionResult DeleteLogoPerusahaan(string namaPT, string uname)
+        //{
+        //    try
+        //    {
+        //        namaPT = namaPT.Trim();
+        //        uname = uname.Trim();
+        //        var namaFile = $"LogoUsaha-{uname}-{namaPT}.jpg";
+        //        var path = Path.Combine(Server.MapPath("~/Content/Logo_Perusahaan/"), namaFile);
+        //        if (System.IO.File.Exists(path))
+        //        {
+        //            System.IO.File.Delete(path);
+        //        }
+
+        //        return new EmptyResult();
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return View("Error");
+        //    }
+        //}
+
         public ActionResult DeleteLogoPerusahaan(string namaPT, string uname)
         {
             try
             {
-                namaPT = namaPT.Trim();
-                uname = uname.Trim();
-                var namaFile = $"LogoUsaha-{uname}-{namaPT}.jpg";
-                var path = Path.Combine(Server.MapPath("~/Content/Logo_Perusahaan/"), namaFile);
-                if (System.IO.File.Exists(path))
+                var dataPerusahaan = ErasoftDbContext.SIFSYS_TAMBAHAN.FirstOrDefault();
+                if(dataPerusahaan != null)
                 {
-                    System.IO.File.Delete(path);
+                    dataPerusahaan.LINK_GAMBAR = "";
+                    dataPerusahaan.SIZE_GAMBAR = "";
+                    ErasoftDbContext.SaveChanges();
                 }
+                
 
-                return new EmptyResult();
+                return Json("Sukses hapus logo toko.", JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
             {
@@ -34566,22 +34597,31 @@ namespace MasterOnline.Controllers
                     var file = Request.Files[i];
                     if (file != null && file.ContentLength > 0 && Request.Files.GetKey(i).Contains("foto_produk"))
                     {
-                        long milis = CurrentTimeMillis();
-                        string namaPT = dataVm.DataUsaha.USERNAME.Trim();
-                        string uname = dataVm.DataUsaha.NAMA_PT.Trim();
-                        var namaFile = "LogoUsaha-" + namaPT + "-" + uname + "-" + milis.ToString();
-                        var tempLength = file.ContentLength;
-                        ImgurImageResponse image = UploadImageService.UploadSingleImageToImgurNotResize(file, "uploaded-image", namaFile);
-                        imgPath[i] = image.data.link;
-
-                        switch (i)
+                        var fileExtension = Path.GetExtension(file.FileName);
+                        if (fileExtension.ToUpper().Contains("JPG") || fileExtension.ToUpper().Contains("JPEG") || fileExtension.ToUpper().Contains("PNG"))
                         {
-                            case 0:
-                                //dataBarang.Stf02.LINK_GAMBAR_1 = image.data.link_l;
-                                //dataBarang.Stf02.Sort5 = Convert.ToString(file.ContentLength);
-                                dataPerusahaanTambahanInDb.LINK_GAMBAR = image.data.link_l;
-                                dataPerusahaanTambahanInDb.SIZE_GAMBAR = Convert.ToString(tempLength);
-                                break;
+                            long milis = CurrentTimeMillis();
+                            string namaPT = dataVm.DataUsaha.USERNAME.Trim();
+                            string uname = dataVm.DataUsaha.NAMA_PT.Trim();
+                            var namaFile = "LogoUsaha-" + namaPT + "-" + uname + "-" + milis.ToString();
+                            var tempLength = file.ContentLength;
+                            ImgurImageResponse image = UploadImageService.UploadSingleImageToImgurNotResize(file, "uploaded-image", namaFile);
+                            imgPath[i] = image.data.link;
+
+                            switch (i)
+                            {
+                                case 0:
+                                    //dataBarang.Stf02.LINK_GAMBAR_1 = image.data.link_l;
+                                    //dataBarang.Stf02.Sort5 = Convert.ToString(file.ContentLength);
+                                    dataPerusahaanTambahanInDb.LINK_GAMBAR = image.data.link_l;
+                                    dataPerusahaanTambahanInDb.SIZE_GAMBAR = Convert.ToString(tempLength);
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            dataVm.Errors.Add("Logo toko hanya boleh format .jpg, .jpeg dan .png");
+                            return Json(dataVm, JsonRequestBehavior.AllowGet);
                         }
                     }
                 }
@@ -34630,6 +34670,8 @@ namespace MasterOnline.Controllers
             dataPerusahaanTambahanInDb.PERSON = dataVm.DataUsahaTambahan.PERSON;
             dataPerusahaanTambahanInDb.EMAIL = dataVm.DataUsahaTambahan.EMAIL;
             dataPerusahaanTambahanInDb.TELEPON = dataVm.DataUsahaTambahan.TELEPON;
+
+            dataPerusahaanTambahanInDb.TYPE_LOGO = dataVm.DataUsahaTambahan.TYPE_LOGO;
 
             ErasoftDbContext.SaveChanges();
 
@@ -59812,9 +59854,17 @@ namespace MasterOnline.Controllers
                 var alamat1 = profilToko.ALAMAT_PT;
                 //var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.AsNoTracking().Single().TELEPON;
                 var tlp = profilTambahan.TELEPON;
-
-                var linkLogo = "~/Content/Logo_Perusahaan/LogoUsaha-" + profilToko.USERNAME + "-" + profilToko.NAMA_PT + ".jpg";
-                linkLogo = profilTambahan.LINK_GAMBAR;
+                
+                var linkLogo = "";
+                if (!string.IsNullOrEmpty(profilTambahan.LINK_GAMBAR))
+                {
+                    linkLogo = profilTambahan.LINK_GAMBAR;
+                }
+                var tipeLogo = "1";
+                if (profilTambahan.TYPE_LOGO == "2")
+                {
+                    tipeLogo = profilTambahan.TYPE_LOGO;
+                }
 
                 var ym = new FakturViewModel()
                 {
@@ -60117,7 +60167,8 @@ namespace MasterOnline.Controllers
                         //end add by nurul 15/5/2020
 
                         LogoKurir = logoKurir,
-                        logoToko = linkLogo
+                        logoToko = linkLogo,
+                        typeLogo = tipeLogo,
                     };
 
                     ym.ListCetakLabel.Add(vm);

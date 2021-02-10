@@ -212,7 +212,8 @@
                                         </div>
                                         <div hidden="hidden">
                                             @Html.Label(labelList.NamaToko, new { @class = "nm_toko" })
-                                            @Html.Label(labelList.TlpToko, new { @class = "no_toko" })
+                                            @*@Html.Label(labelList.TlpToko, new { @class = "no_toko" })*@
+                                            @Html.Label(labelList.TlpToko == null || labelList.TlpToko == "" ? "-" : labelList.TlpToko, new { @class = "no_toko" })
                                         </div>
                                         @if (CetakFaktur == "1")
                                         {
@@ -499,9 +500,18 @@
                                                             </div>
                                                             @if (Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
                                                             {
-                                                                <div class="col-md-3">
-                                                                    <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
-                                                                </div>
+                                                                if (labelList.typeLogo == "2")
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:130px;height:60px;" />
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
+                                                                    </div>
+                                                                }
                                                             }
                                                         </div>
                                                     }
@@ -560,9 +570,18 @@
                                                             </div>
                                                             @if (Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
                                                             {
-                                                                <div class="col-md-3">
-                                                                    <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
-                                                                </div>
+                                                                if (labelList.typeLogo == "2")
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:130px;height:60px;" />
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
+                                                                    </div>
+                                                                }
                                                             }
                                                         </div>
                                                     }
@@ -609,7 +628,7 @@
                                                                 @*@if (labelList.Marketplace.ToUpper() == "LAZADA" && logoKurir != "-")*@
                                                                 @if (logoKurir != "-" && !string.IsNullOrEmpty(logoKurir))
                                                                 {
-                                                                    <span class="block_subtitle_label">Kurir</span><img src="@logoKurir" alt="" style="width:80px;height:50px;" />
+                                                                    <span class="block_subtitle_label">Kurir</span><img src="@logoKurir" alt="" style="width:80px;height:40px;" />
                                                                 }
                                                                 else
                                                                 {
@@ -921,9 +940,18 @@
                                                             </div>
                                                             @if (Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
                                                             {
-                                                                <div class="col-md-3">
-                                                                    <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
-                                                                </div>
+                                                                if (labelList.typeLogo == "2")
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:130px;height:60px;" />
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
+                                                                    </div>
+                                                                }
                                                             }
                                                         </div>
                                                     }
@@ -982,9 +1010,18 @@
                                                             </div>
                                                             @if (Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
                                                             {
-                                                                <div class="col-md-3">
-                                                                    <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
-                                                                </div>
+                                                                if (labelList.typeLogo == "2")
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:130px;height:60px;" />
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
+                                                                    </div>
+                                                                }
                                                             }
                                                         </div>
                                                     }
@@ -1031,7 +1068,7 @@
                                                                 @*@if (labelList.Marketplace.ToUpper() == "LAZADA" && logoKurir != "-")*@
                                                                 @if (logoKurir != "-" && !string.IsNullOrEmpty(logoKurir))
                                                                 {
-                                                                    <span class="block_subtitle_label">Kurir</span><img src="@logoKurir" alt="" style="width:80px;height:50px;" />
+                                                                    <span class="block_subtitle_label">Kurir</span><img src="@logoKurir" alt="" style="width:80px;height:40px;" />
                                                                 }
                                                                 else
                                                                 {

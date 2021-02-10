@@ -48,6 +48,9 @@ namespace MasterOnline.Models
 
         [StringLength(10)]
         public string SIZE_GAMBAR { get; set; }
+
+        [StringLength(1)]
+        public string TYPE_LOGO { get; set; }
         //end add by nurul 9/2/2021
     }
 }
