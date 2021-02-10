@@ -715,13 +715,13 @@ namespace MasterOnline.Controllers
             List<string> tempConnId = new List<string>() { };
             //end add by nurul 20/1/2021, bundling 
 
-            var dtNow = DateTime.UtcNow;
+            var dtNow = DateTime.UtcNow.AddHours(7);
             var loop = true;
             var page = 0;
             while (loop)
             {
                 data = RefreshToken(data);
-                var retOrder = await GetOrdersLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(day).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"));
+                var retOrder = await GetOrdersLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(day).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"), 0);
                 
                 if (retOrder.AdaKomponen)
                 {
@@ -748,13 +748,13 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<BindingBase> GetOrdersLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt)
+        public async Task<BindingBase> GetOrdersLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt, int retry)
         {
             var ret = new BindingBase();
             ret.status = 0;
             var conn_id = Guid.NewGuid().ToString();
             int jmlhNewOrder = 0;
-            //data = RefreshToken(data);
+            data = RefreshToken(data);
 
             //add by nurul 19/1/2021, bundling 
             ret.ConnId = conn_id;
@@ -769,12 +769,49 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
             {
-                using (Stream stream = response.GetResponseStream())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch(WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                    var response = e.Response as HttpWebResponse;
+                    var status = (int)response.StatusCode;
+                    if (status == 401)
+                    {
+                        if (retry == 0)
+                        {
+                            data = RefreshToken(data);
+                            await GetOrdersLoop(data, CUST, NAMA_CUST, username, page, fromDt, toDt, 1);
+                        }
+                        else
+                        {
+                            throw new Exception(err);
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(err);
+                    }
+                }
+                else
+                {
+                    throw new Exception(e.Message);
                 }
             }
             if (responseFromServer != "")
@@ -1084,13 +1121,13 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             SetupContext(data.dbPathEra, username);
-            var dtNow = DateTime.UtcNow;
+            var dtNow = DateTime.UtcNow.AddHours(7);
             var loop = true;
             var page = 0;
             while (loop)
             {
                 data = RefreshToken(data);
-                var retOrder = await GetOrdersCompletedLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(-10).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"));
+                var retOrder = await GetOrdersCompletedLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(-10).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"), 0);
                 if (retOrder >= 50)
                 {
                     page = page + 1;
@@ -1107,7 +1144,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<int> GetOrdersCompletedLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt)
+        public async Task<int> GetOrdersCompletedLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt, int retry)
         {
             var ret = 0;
             var conn_id = Guid.NewGuid().ToString();
@@ -1124,12 +1161,49 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
             {
-                using (Stream stream = response.GetResponseStream())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                    var response = e.Response as HttpWebResponse;
+                    var status = (int)response.StatusCode;
+                    if (status == 401)
+                    {
+                        if (retry == 0)
+                        {
+                            data = RefreshToken(data);
+                            await GetOrdersCompletedLoop(data, CUST, NAMA_CUST, username, page, fromDt, toDt, 1);
+                        }
+                        else
+                        {
+                            throw new Exception(err);
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(err);
+                    }
+                }
+                else
+                {
+                    throw new Exception(e.Message);
                 }
             }
             if (responseFromServer != "")
@@ -1227,7 +1301,7 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             SetupContext(data.dbPathEra, username);
-            var dtNow = DateTime.UtcNow.AddDays(-7);
+            var dtNow = DateTime.UtcNow.AddHours(7).AddDays(-7);
             var loop = true;
             var page = 0;
 
@@ -1243,7 +1317,7 @@ namespace MasterOnline.Controllers
             while (loop)
             {
                 data = RefreshToken(data);
-                var retOrder = await GetOrdersCanceledLoop(data, CUST, NAMA_CUST, username, page, dtNow.ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.AddDays(7).ToString("yyyy-MM-ddTHH:mm:ss"), orderList);
+                var retOrder = await GetOrdersCanceledLoop(data, CUST, NAMA_CUST, username, page, dtNow.ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.AddDays(7).ToString("yyyy-MM-ddTHH:mm:ss"), orderList, 0);
                 if (retOrder.AdaKomponen)
                 {
                     AdaKomponen = retOrder.AdaKomponen;
@@ -1266,7 +1340,7 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public async Task<BindingBase> GetOrdersCanceledLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt, List<string> orderList)
+        public async Task<BindingBase> GetOrdersCanceledLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt, List<string> orderList, int retry)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -1284,12 +1358,49 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
             {
-                using (Stream stream = response.GetResponseStream())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                    var response = e.Response as HttpWebResponse;
+                    var status = (int)response.StatusCode;
+                    if (status == 401)
+                    {
+                        if (retry == 0)
+                        {
+                            data = RefreshToken(data);
+                            await GetOrdersCanceledLoop(data, CUST, NAMA_CUST, username, page, fromDt, toDt, orderList, 1);
+                        }
+                        else
+                        {
+                            throw new Exception(err);
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(err);
+                    }
+                }
+                else
+                {
+                    throw new Exception(e.Message);
                 }
             }
             if (responseFromServer != "")

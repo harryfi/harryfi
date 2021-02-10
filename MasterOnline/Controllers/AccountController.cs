@@ -853,8 +853,15 @@ namespace MasterOnline.Controllers
                         //add by fauzi 25 November 2019
                         if (tblCustomer.TIDAK_HIT_UANG_R == true)
                         {
+
+#if (DEBUG || Debug_AWS)
+                            await new BukaLapakControllerJob().GetOrdersNew(iden, tblCustomer.CUST, tblCustomer.PERSO, username, -1);
+                            await new BukaLapakControllerJob().GetOrdersCompleted(iden, tblCustomer.CUST, tblCustomer.PERSO, username);
+                            await new BukaLapakControllerJob().GetOrdersCanceled(iden, tblCustomer.CUST, tblCustomer.PERSO, username);
+
                             //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
                             //new BukaLapakControllerJob().cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username);
+#else
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.GetOrdersNew(iden ,tblCustomer.CUST, tblCustomer.PERSO, username, -1)), Cron.MinuteInterval(5), recurJobOpt);
                             
                             connId_JobId = dbPathEra + "_bukalapak_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
@@ -870,6 +877,7 @@ namespace MasterOnline.Controllers
                                     client.Enqueue<BukaLapakControllerJob>(x => x.GetOrdersNew(iden, tblCustomer.CUST, tblCustomer.PERSO, username, -3));
                                 }
                             }
+#endif
                         }
                         else
                         {

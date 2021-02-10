@@ -26,7 +26,12 @@ namespace MasterOnline.Controllers
         DatabaseSQL EDB;
         MoDbContext MoDbContext;
         public ErasoftContext ErasoftDbContext { get; set; }
+
+#if AWS
+        private static string callBackUrl = "https://masteronline.co.id/bukalapak/auth";
+#else
         private static string callBackUrl = "https://dev.masteronline.co.id/bukalapak/auth";
+#endif
         private static string client_id = "laJXb5jh91BelPQg2VmE2ooa58UVJmlJkNq98EPJc6s";
         private static string client_secret = "AXe5u7JcYiSNLvOsGW92Dzc4li6mbrWpN9qjlLD4OxI";
         string dbSourceEra = "";
