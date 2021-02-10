@@ -2721,6 +2721,7 @@ namespace MasterOnline.Controllers
         {
             bool resultMerge = false;
             var vkodebarangtidakada = "";
+            var vkodebarangharussynculang = "";
 
             if (!string.IsNullOrEmpty(listData))
             {
@@ -2884,20 +2885,27 @@ namespace MasterOnline.Controllers
                                         //foreach(var tes in checkDuplicateBrgMP)
                                         if (checkDuplicateBrgMP.Count() > 0)
                                         {
+                                            var checkToko = ErasoftDbContext.ARF01.ToList();
+                                            var checkMP = MoDbContext.Marketplaces.ToList();
                                             foreach (var checkDup in checkDuplicateBrgMP)
                                             {
                                                 int idmarket = Convert.ToInt32(checkDup.Key);
                                                 var listDuplicate = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper() && p.IDMARKET == idmarket).OrderByDescending(p => p.LINK_DATETIME).ToList();
                                                 if (listDuplicate.Count() > 0)
                                                 {
-                                                    bool deleted = false;
+                                                    //bool deleted = false;
                                                     foreach (var itemDup in listDuplicate)
                                                     {
-                                                        if (deleted)
-                                                        {
-                                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + itemDup.BRG + "' AND Recnum = " + itemDup.RecNum + ";");
-                                                        }
-                                                        deleted = true;
+                                                        int recn = itemDup.IDMARKET;
+                                                        var dataToko = checkToko.Where(p => p.RecNum == recn).SingleOrDefault();
+                                                        int recm = Convert.ToInt32(dataToko.NAMA);
+                                                        var dataMp = checkMP.Where(p => p.IdMarket == recm).SingleOrDefault();
+                                                        vkodebarangharussynculang += "kodebrg: " + listKodeBaru + " (toko:" + dataToko.PERSO + " mp:" + dataMp.NamaMarket + ")  |  ";
+                                                        //    if (deleted)
+                                                        //    {
+                                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + itemDup.BRG + "' AND Recnum = " + itemDup.RecNum + ";");
+                                                        //    }
+                                                        //    deleted = true;
                                                     }
                                                 }
                                             }
@@ -3001,11 +3009,19 @@ namespace MasterOnline.Controllers
                 }
 
                 //return View(vm);
-                if (!string.IsNullOrEmpty(vlistKodeSudahPosting))
+                if (!string.IsNullOrEmpty(vlistKodeSudahPosting) && !string.IsNullOrEmpty(vkodebarangharussynculang))
+                {
+                    return new JsonResult { Data = new { success = resultMerge, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting  + " ||| Dan terdapat juga kode barang yang harus di sync ulang yaitu:" + vkodebarangharussynculang }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else if (!string.IsNullOrEmpty(vkodebarangtidakada) && !string.IsNullOrEmpty(vkodebarangharussynculang))
+                {
+                    return new JsonResult { Data = new { success = resultMerge, dataposting = " Terdapat kode barang yang tidak ada : " + vkodebarangtidakada + " |||  Dan terdapat juga kode barang yang harus di sync ulang yaitu:" + vkodebarangharussynculang }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else if (!string.IsNullOrEmpty(vlistKodeSudahPosting) && string.IsNullOrEmpty(vkodebarangharussynculang))
                 {
                     return new JsonResult { Data = new { success = resultMerge, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
-                else if (!string.IsNullOrEmpty(vkodebarangtidakada))
+                else if (!string.IsNullOrEmpty(vkodebarangtidakada) && string.IsNullOrEmpty(vkodebarangharussynculang))
                 {
                     return new JsonResult { Data = new { success = resultMerge, dataposting = " Terdapat kode barang yang tidak ada : " + vkodebarangtidakada }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
