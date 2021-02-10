@@ -58,6 +58,7 @@ namespace MasterOnline
 
         //add by Tri for bukalapak
         public DbSet<BUKALAPAK_TOKEN> BUKALAPAK_TOKEN { get; set; }
+        public DbSet<BUKALAPAK_KURIR_MANUAL> BUKALAPAK_KURIR_MANUAL { get; set; }
 
         public DbSet<Addons> Addons { get; set; }
         public DbSet<Addons_Customer> Addons_Customer { get; set; }

@@ -48287,6 +48287,12 @@ namespace MasterOnline.Controllers
             return Json(result.address_list, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
+        public async Task<ActionResult> GetKurirBukalapak(string cust)
+        {
+            var listKurir = MoDbContext.BUKALAPAK_KURIR_MANUAL.OrderBy(m => m.RECNUM).ToList();
+            return Json(listKurir, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
         public async Task<ShopeeController.ShopeeGetTimeSlotResultPickup_Time> GetShopeeFirstPickupTime(SOT01A pesananInDb, long address_id, string sort1_cust)
         {
             var shoAPI = new ShopeeController();

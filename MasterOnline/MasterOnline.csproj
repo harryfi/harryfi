@@ -735,6 +735,7 @@
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
     <Compile Include="Models\BRAND_JDID.cs" />
+    <Compile Include="Models\BUKALAPAK_KURIR_MANUAL.cs" />
     <Compile Include="Models\BUKALAPAK_TOKEN.cs" />
     <Compile Include="Models\CATEGORY_82CART.cs" />
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />

@@ -231,98 +231,39 @@
         //    });
         //});
         $('.BukalapakShipment').each(function (i, item) {
-
             var cust = $(item).attr("data-kodecust");
-            var listAddress = [];
-            listAddress[0] = {
-                id: "Lion Parcel REGPACK",
-                text: "Lion Parcel REGPACK"
-            };
-            listAddress[1] = {
-                id: "SiCepat HALU",
-                text: "SiCepat HALU"
-            };
-            listAddress[2] = {
-                id: "SiCepat REG",
-                text: "SiCepat REG"
-            };
-            listAddress[3] = {
-                id: "SiCepat BEST",
-                text: "SiCepat BEST"
-            };
-            listAddress[4] = {
-                id: "J&T REG",
-                text: "J&T REG"
-            };
-            //listAddress[0] = {
-            //    id: "GO-SEND Instant",
-            //    text: "GO-SEND Instant"
-            //};
-            //listAddress[1] = {
-            //    id: "GO-SEND Same Day",
-            //    text: "GO-SEND Same Day"
-            //};
-            //listAddress[2] = {
-            //    id: "Grab Same Day",
-            //    text: "Grab Same Day"
-            //};
-            //listAddress[3] = {
-            //    id: "Grab Instant",
-            //    text: "Grab Instant"
-            //};
-            //listAddress[4] = {
-            //    id: "NINJA REG",
-            //    text: "NINJA REG"
-            //};
-            listAddress[5] = {
-                id: "JNE REG",
-                text: "JNE REG"
-            };
-            listAddress[6] = {
-                id: "JNE YES",
-                text: "JNE YES"
-            };
-            listAddress[7] = {
-                id: "JNE Trucking",
-                text: "JNE Trucking"
-            };
-            listAddress[8] = {
-                id: "Pos Kilat Khusus",
-                text: "Pos Kilat Khusus"
-            };
-            listAddress[9] = {
-                id: "Lion Parcel",
-                text: "Lion Parcel"
-            };
-            //listAddress[10] = {
-            //    id: "Lion Parcel REGPACK",
-            //    text: "Lion Parcel REGPACK"
-            //};
-            //listAddress[11] = {
-            //    id: "SiCepat HALU",
-            //    text: "SiCepat HALU"
-            //};
-            //listAddress[12] = {
-            //    id: "SiCepat REG",
-            //    text: "SiCepat REG"
-            //};
-            //listAddress[13] = {
-            //    id: "SiCepat BEST",
-            //    text: "SiCepat BEST"
-            //};
-            //listAddress[14] = {
-            //    id: "J&T REG",
-            //    text: "J&T REG"
-            //};
+            var link = '@Html.Raw(Url.Action("GetKurirBukalapak", "Manage"))';
 
-            var Select = $('#txtShipment__' + cust).selectize({
-                valueField: 'id',
-                searchField: 'text',
-                options: listAddress,
-                onChange: function (value) {
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listAddress = [];
+                    $.each(data,
+                        function (i, item) {
+                            listAddress[i] = {
+                                id: item.KURIR,
+                                text: item.NAMA
+                            };
+                        });
 
+                    var Select = $('#txtShipment__' + cust).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAddress,
+                        onChange: function (value) {
+
+                        }
+                    });
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
                 }
             });
+
         });
     });
     function allcheckboxpackingbukalapakonclick(cust){

@@ -5462,18 +5462,29 @@ namespace MasterOnline.Controllers
 
                                     if (splitArguments.Length > 0)
                                     {
-                                        var no_custBL = splitArguments[5].ToString();
+                                        var no_custBL = splitArguments[6].ToString();
                                         var usernameBL = splitArguments[8].ToString();
                                         string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE CUST = '" + no_custBL + "'; ";
                                         var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_BL", queryCheckToko);
                                         if (resultDataToko.Tables[0].Rows.Count > 0)
                                         {
-                                            //if(resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() == usernameLazada)
-                                            //{
-                                            checkApprove = true;
                                             namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameBL;
-                                            //namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
-                                            //}
+                                            var sMETHOD = resultConvertInvocation.Method + statusOrder;
+                                            var sMARKETPLACE = marketplace + " (" + namaToko + ")";
+                                            if (listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).ToList().Count == 0)
+                                            {
+                                                checkApprove = true;
+                                            }
+                                            else
+                                            {
+                                                var createJobSuccess = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBSUCCESS"]).AddHours(7);
+                                                if(listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBSUCCESS < createJobSuccess)
+                                                {
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBPROCESS = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBPROCESS"]).AddHours(7);
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBSUCCESS = createJobSuccess;
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().SELISIH = resultSelisih;
+                                                }
+                                            }
                                         }
                                     }
                                 }
