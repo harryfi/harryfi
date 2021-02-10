@@ -2613,7 +2613,7 @@
                     <div class="col-md-6 col-sm-6 col-xs-12" id="divCbCancel">
                         @*<select id="cbCancelReason" placeholder="Harap pilih" required="required"></select>*@
                     </div>
-                    <input id="txtCancelReason" type="text" style="display:none" />
+                        <input id="txtCancelReason" maxlength="100" class="form-control" type="text" style="display:none;width:220px;" />
                 </div>
                 <div id="cancel_tokped" class="row">
                     <div id="cancel_tokped_date" class="row" style="display:none">
@@ -3825,7 +3825,7 @@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
-    <script type="text/javascript">
+<script type="text/javascript">
         var selectBrg = $('#BRG').selectivity();
         var $statusAPI = window.text;
         var $modeEditPesanan = 0;
@@ -5079,10 +5079,12 @@
             $('#cancel_reason').hide();
             $('#cancel_tokped').hide();
             $('#divReasons').remove();
+            $('#txtCancelReason').val("");
             cancelIDMarket = idMarketplace;
             var sHTML = '<div id="divReasons"><select id="cbCancelReason" placeholder="Harap pilih" required="required"></select>';
             //$('#cbCancelReason').hide();
             if (idMarketplace == "17") {//shopee
+                $('#txtCancelReason').hide();
                 $('#ckBrg').remove();
                 sHTML += '</div>';
                 sHTML += '<div id="ckBrg" style="display:none">';
@@ -5132,6 +5134,7 @@
 
             }
             else if (idMarketplace == "19") {//JDID
+                $('#txtCancelReason').hide();
                 $('#ckBrg').remove();
                 sHTML += '</div>';
                 sHTML += '<div id="ckBrg" style="display:none">';
@@ -5217,6 +5220,7 @@
 
             }
             else if (idMarketplace == "15") {//tokopedia
+                $('#txtCancelReason').hide();
                 sHTML += '</div>';
                 $('#divCbCancel').append(sHTML);
                 $('#cancel_reason').show();
@@ -5289,6 +5293,7 @@
             }
             else if (idMarketplace == "7")//lazada
             {
+                $('#txtCancelReason').hide();
                 sHTML += '</div>';
                 $('#divCbCancel').append(sHTML);
 
@@ -5331,6 +5336,7 @@
                 });
             }
             else if (idMarketplace == "20") {//82Cart
+                $('#txtCancelReason').hide();
                     $('#cancel_reason').hide();
                     $('#cancel_tokped').hide();
                     $('#divReasons').remove();
@@ -5381,7 +5387,13 @@
                     //    }
                     //});
 
-                }
+            }
+            else if (idMarketplace == "8") {//bukalapak
+                $('#cancel_reason').show();
+                $('#cancel_tokped').hide();
+                $('#divReasons').remove();
+                $('#txtCancelReason').show();
+            }
         }
         //end add by Tri, call midtrans api get token
 
@@ -7577,7 +7589,7 @@
                     //    $('#table_tambah_bundling').hide();
                     //} else if ($("#cbxPesananBundling").is(":checked") == false) {
                     //    $('#table_tambah_bundling').show();
-                    //}    
+                    //}
 
                     //if (flagBundling == "1") {
                     //    $('#cbxPesananBundling').prop('checked', true);
@@ -9329,7 +9341,7 @@
                 }
             }
         }
-        //end add by nurul 24/1/2021, bundling 
+        //end add by nurul 24/1/2021, bundling
 
         function fillModalFixNotFound(rec) {
             var link = '@Url.Action("FillModalFixNotFound", "Manage", new {recNum = "replaceRecNum"})';
@@ -11473,7 +11485,7 @@
                     $('#loading_spinner').hide();
                     $('#text-check-dibayar').text('');
                     $('#text-check-packing').text('');
-                    
+
                     $('.cm-bundling').attr('readonly', 'readonly').css('cursor', 'not-allowed');
                     if (flagBundling != "1") {
                         $('.cm-bundling').attr('readonly', 'readonly').css('background-color', '#eee').css('cursor', 'not-allowed');
@@ -11654,7 +11666,7 @@
                                 $('#multisku-select').show();
                                 $('#multisku-kode').hide();
                                 getBarangMultiSKUForBarang();
-                                
+
                                 $('#bundling-select').show();
                                 getBarangBundling();
                             }
@@ -11707,7 +11719,7 @@
                     $("#Pesanan_NILAI_PPN").val(convertToAngka($("#Pesanan_NILAI_PPN").val()));
                     $("#Pesanan_NETTO").val($bakalNetto);
                     $("#Pesanan_ONGKOS_KIRIM").val(convertToAngka($("#Pesanan_ONGKOS_KIRIM").val()));
-                    
+
                     $totalAwal = 0;
 
                     $.ajax({
@@ -12129,16 +12141,16 @@
                         barangSelect[0].selectize.load(function (callback) {
                             callback(listBarang);
                         });
-                        
+
                             barangSelect[0].selectize.setValue($('#PesananBundling_BRG').val(), true);
-                        
+
 
                         //barangSelect[0].selectize.clearOptions();
                         //barangSelect[0].selectize.renderCache = {};
                         //barangSelect[0].selectize.load(function (callback) {
                         //    callback(listBarang);
                         //});
-                        
+
                         //if ($tempBrg != "" && $tempBrg != null && $tempBrg != undefined) {
                         //    barangSelect[0].selectize.setValue($tempBrg, true);
                         //    $('#PesananBundling_BRG').val($tempBrg);
@@ -12309,7 +12321,7 @@
                     }
                     if ($class == 'qty-bundling editable') {
                         $inputClass = 'qty-input';
-                    } 
+                    }
 
                     var $input = $('<input>', {
                         'class': $inputClass + 'num-only',
@@ -12539,7 +12551,7 @@
             });
         }
         //end add by nurul 22/10/2020
-    </script>
+</script>
     <script>
         //Disable Enter Key Submit Form
         function stopRKey(evt) {

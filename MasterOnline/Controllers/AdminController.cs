@@ -5472,7 +5472,38 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
+                                else if (marketplace.ToUpper() == "BUKALAPAK")
+                                {
+                                    string[] splitArguments = resultDataJob.Tables[0].Rows[i]["ARGUMENTS"].ToString().Replace("\"", "").Replace("\\", "").Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "").Split(',');
 
+                                    if (splitArguments.Length > 0)
+                                    {
+                                        var no_custBL = splitArguments[6].ToString();
+                                        var usernameBL = splitArguments[8].ToString();
+                                        string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE CUST = '" + no_custBL + "'; ";
+                                        var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_BL", queryCheckToko);
+                                        if (resultDataToko.Tables[0].Rows.Count > 0)
+                                        {
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameBL;
+                                            var sMETHOD = resultConvertInvocation.Method + statusOrder;
+                                            var sMARKETPLACE = marketplace + " (" + namaToko + ")";
+                                            if (listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).ToList().Count == 0)
+                                            {
+                                                checkApprove = true;
+                                            }
+                                            else
+                                            {
+                                                var createJobSuccess = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBSUCCESS"]).AddHours(7);
+                                                if(listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBSUCCESS < createJobSuccess)
+                                                {
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBPROCESS = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBPROCESS"]).AddHours(7);
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBSUCCESS = createJobSuccess;
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().SELISIH = resultSelisih;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                                 if (checkApprove)
                                 {
                                     listTable.Add(new PesananHangfireJob
