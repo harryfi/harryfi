@@ -22894,6 +22894,7 @@ namespace MasterOnline.Controllers
                                 vmError.Errors.Add("Anda belum mengisi alasan pembatalan.");
                                 return Json(vmError, JsonRequestBehavior.AllowGet);
                             }
+                            sot01d.CATATAN_1 = cancelReason;
                         }
                     }
                 }

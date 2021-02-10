@@ -2613,7 +2613,7 @@
                     <div class="col-md-6 col-sm-6 col-xs-12" id="divCbCancel">
                         @*<select id="cbCancelReason" placeholder="Harap pilih" required="required"></select>*@
                     </div>
-                        <input id="txtCancelReason" class="form-control" type="text" style="display:none;width:220px;" />
+                        <input id="txtCancelReason" maxlength="100" class="form-control" type="text" style="display:none;width:220px;" />
                 </div>
                 <div id="cancel_tokped" class="row">
                     <div id="cancel_tokped_date" class="row" style="display:none">
@@ -5079,6 +5079,7 @@
             $('#cancel_reason').hide();
             $('#cancel_tokped').hide();
             $('#divReasons').remove();
+            $('#txtCancelReason').val("");
             cancelIDMarket = idMarketplace;
             var sHTML = '<div id="divReasons"><select id="cbCancelReason" placeholder="Harap pilih" required="required"></select>';
             //$('#cbCancelReason').hide();
