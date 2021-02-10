@@ -754,7 +754,7 @@ namespace MasterOnline.Controllers
             ret.status = 0;
             var conn_id = Guid.NewGuid().ToString();
             int jmlhNewOrder = 0;
-            data = RefreshToken(data);
+            //data = RefreshToken(data);
 
             //add by nurul 19/1/2021, bundling 
             ret.ConnId = conn_id;
