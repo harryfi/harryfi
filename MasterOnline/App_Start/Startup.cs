@@ -62,5 +62,30 @@ namespace MasterOnline.App_Start
 
             AntiForgeryConfig.UniqueClaimTypeIdentifier = ClaimTypes.NameIdentifier;
         }
+
+        //public void ConfigureService(IServiceCollection services)
+        //{
+        //    services.AddDistributedRedisCache(options =>
+        //    {
+        //        //options.Configuration = "mo-prod-redis.df2l2v.0001.apse1.cache.amazonaws.com:6379";
+        //        options.Configuration = "127.0.0.1:6379";
+        //        options.InstanceName = "MasterOnline";
+        //    });
+
+        //    services.AddSession(options =>
+        //    {
+        //        options.CookieName = "Session.Testing";
+        //        options.IdleTimeout = TimeSpan.FromMinutes(60);
+        //        options.Cookie.HttpOnly = true;
+        //    });
+
+        //    services.AddMvc();
+        //}
+
+        //public void ConfigureSession()
+        //{
+        //    //apps.UseSession();
+        //    //apps.UseMvc();
+        //}
     }
 }
