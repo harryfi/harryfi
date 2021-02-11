@@ -26,10 +26,16 @@ namespace MasterOnline.Controllers
         private MoDbContext MoDbContext;
         private ErasoftContext ErasoftDbContext;
         private string username;
+
+#if AWS
+        private static string callBackUrl = "https://masteronline.co.id/bukalapak/auth";
+        private static string client_id = "GovVusRdl0QwJCXu1F0th5lezoFYvVIW4XHv4U1M05U";
+        private static string client_secret = "osqzx8n3y3YRJ0vydm_8qOZ9N9f95EvrZSvTFtKQCzM";
+#else
         private static string callBackUrl = "https://dev.masteronline.co.id/bukalapak/auth";
         private static string client_id = "laJXb5jh91BelPQg2VmE2ooa58UVJmlJkNq98EPJc6s";
         private static string client_secret = "AXe5u7JcYiSNLvOsGW92Dzc4li6mbrWpN9qjlLD4OxI";
-
+#endif
         public BukaLapakControllerJob()
         {
             //MoDbContext = new MoDbContext();
@@ -71,7 +77,7 @@ namespace MasterOnline.Controllers
         {
             SetupContext(data.dbPathEra, "");
             var ret = data;
-            if (data.tgl_expired < DateTime.UtcNow.AddHours(7).AddMinutes(-30))
+            if (data.tgl_expired < DateTime.UtcNow.AddHours(7).AddMinutes(30))
             {
                 var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == data.cust).FirstOrDefault();
                 if(cekInDB != null)
@@ -851,7 +857,7 @@ namespace MasterOnline.Controllers
                                                     
                                                     var kabKot = "3174";//set default value jika tidak ada di db
                                                     var prov = "31";//set default value jika tidak ada di db
-                                                    #region cut max length pembeli
+#region cut max length pembeli
                                                     var nama = order.buyer.name.Replace('\'', '`');
                                                     if (nama.Length > 30)
                                                         nama = nama.Substring(0, 30);
@@ -878,7 +884,7 @@ namespace MasterOnline.Controllers
                                                     string namaProv = string.IsNullOrEmpty(order.delivery.consignee.province) ? "" : order.delivery.consignee.province.Replace("'", "`");
                                                     if (namaProv.Length > 50)
                                                         namaProv = namaProv.Substring(0, 50);
-                                                    #endregion
+#endregion
                                                     insertPembeli += "('" + nama + "','" + order.delivery.consignee.address.Replace('\'', '`') + "','" + tlp + "','',0,0,'0','01',";
                                                     insertPembeli += "1, 'IDR', '01', '" + AL_KIRIM1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
                                                     insertPembeli += "'FP', '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '"
@@ -926,7 +932,7 @@ namespace MasterOnline.Controllers
                                         var nama2 = order.delivery.consignee.name.Replace('\'', '`');
                                         if (nama2.Length > 30)
                                             nama2 = nama2.Substring(0, 30);
-                                        #region cut max length pembeli
+#region cut max length pembeli
                                         string tlp = !string.IsNullOrEmpty(order.delivery.consignee.phone) ? order.delivery.consignee.phone.Replace('\'', '`') : "";
                                         if (tlp.Length > 30)
                                         {
@@ -950,8 +956,8 @@ namespace MasterOnline.Controllers
                                         string namaProv = string.IsNullOrEmpty(order.delivery.consignee.province) ? "" : order.delivery.consignee.province.Replace("'", "`");
                                         if (namaProv.Length > 50)
                                             namaProv = namaProv.Substring(0, 50);
-                                        #endregion
-                                        #region cut max length header
+#endregion
+#region cut max length header
                                         string transId = (string.IsNullOrEmpty(order.transaction_id) ? "" : order.transaction_id.Replace("'", "`"));
                                         if (transId.Length > 50)
                                             transId = transId.Substring(0, 50);
@@ -975,7 +981,7 @@ namespace MasterOnline.Controllers
                                                 ketPembeli = order.options.buyer_note.Replace('\'', '`');
                                             }
                                         }
-                                        #endregion
+#endregion
                                         string statusEra = "0";
                                         if (order.state != "pending")
                                         {
@@ -993,7 +999,7 @@ namespace MasterOnline.Controllers
                                         {
                                             foreach (var items in order.items)
                                             {
-                                                #region cut max length details
+#region cut max length details
                                                 string katName = (string.IsNullOrEmpty(items.category.name) ? "" : items.category.name.Replace("'", "`"));
                                                 if (katName.Length > 50)
                                                     katName = katName.Substring(0, 50);
@@ -1008,7 +1014,7 @@ namespace MasterOnline.Controllers
                                                 if (condition.Length > 50)
                                                     condition = condition.Substring(0, 50);
 
-                                                #endregion
+#endregion
                                                 var brgmp = items.stuff.product.id + ";" + items.stuff.id;
                                                 insertOrderItems += "(" + order.id + ", '" + transId + "','" +  brgmp  + "','" + katName + "',0,'" + items_name + "',";
                                                 insertOrderItems += items.price + "," + items.stuff.product.weight + ",'','" + condition + "',0," 
@@ -1051,7 +1057,7 @@ namespace MasterOnline.Controllers
                                             a = EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
                                         }
 
-                                        #region call sp
+#region call sp
                                         SqlCommand CommandSQL = new SqlCommand();
                                         if (!order.delivery.consignee.phone.Contains("Terkunci"))
                                         {
@@ -1081,7 +1087,7 @@ namespace MasterOnline.Controllers
                                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
                                         EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
-                                        #endregion
+#endregion
                                         jmlhNewOrder++;
                                     }
                                 }
@@ -1530,7 +1536,7 @@ namespace MasterOnline.Controllers
 
             var kabKot = "3174";//set default value jika tidak ada di db
             var prov = "31";//set default value jika tidak ada di db
-            #region cut max length pembeli
+#region cut max length pembeli
             var nama = order.buyer.name.Replace('\'', '`');
             if (nama.Length > 30)
                 nama = nama.Substring(0, 30);
@@ -1557,7 +1563,7 @@ namespace MasterOnline.Controllers
             string namaProv = string.IsNullOrEmpty(order.delivery.consignee.province) ? "" : order.delivery.consignee.province.Replace("'", "`");
             if (namaProv.Length > 50)
                 namaProv = namaProv.Substring(0, 50);
-            #endregion
+#endregion
             insertPembeli += "('" + nama + "','" + order.delivery.consignee.address.Replace('\'', '`') + "','" + tlp + "','',0,0,'0','01',";
             insertPembeli += "1, 'IDR', '01', '" + AL_KIRIM1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
             insertPembeli += "'FP', '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '"
@@ -1847,7 +1853,7 @@ namespace MasterOnline.Controllers
                         ret.status = 1;
                         ret.message = a.ToString();
 
-                        #region call sp
+#region call sp
                         SqlCommand CommandSQL = new SqlCommand();
 
                         //add by Tri call sp to insert buyer data
@@ -1875,7 +1881,7 @@ namespace MasterOnline.Controllers
                         CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = Cust;
 
                         EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
-                        #endregion
+#endregion
 
                         if (jmlhNewOrder > 0)
                         {
@@ -2042,7 +2048,7 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            #region set pembeli
+#region set pembeli
                             if (!resp.data.delivery.consignee.phone.Contains("Terkunci"))
                             {
                                 var ordID = resp.data.transaction_id;
@@ -2061,7 +2067,7 @@ namespace MasterOnline.Controllers
 
                                             var kabKot = "3174";//set default value jika tidak ada di db
                                             var prov = "31";//set default value jika tidak ada di db
-                                            #region cut max length pembeli
+#region cut max length pembeli
                                             var nama = resp.data.buyer.name.Replace('\'', '`');
                                             if (nama.Length > 30)
                                                 nama = nama.Substring(0, 30);
@@ -2088,7 +2094,7 @@ namespace MasterOnline.Controllers
                                             string namaProv = string.IsNullOrEmpty(resp.data.delivery.consignee.province) ? "" : resp.data.delivery.consignee.province.Replace("'", "`");
                                             if (namaProv.Length > 50)
                                                 namaProv = namaProv.Substring(0, 50);
-                                            #endregion
+#endregion
                                             insertPembeli += "('" + nama + "','" + resp.data.delivery.consignee.address.Replace('\'', '`') + "','" + tlp + "','',0,0,'0','01',";
                                             insertPembeli += "1, 'IDR', '01', '" + AL_KIRIM1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
                                             insertPembeli += "'FP', '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '"
@@ -2113,7 +2119,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-                            #endregion
+#endregion
                         }
                     }
                 }
@@ -2263,7 +2269,7 @@ namespace MasterOnline.Controllers
                         var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brg.id.ToUpper()).FirstOrDefault();
                         if (tempbrginDB == null && brgInDB == null)
                         {
-                            #region remark
+#region remark
                             //ret.recordCount++;
                             //string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
                             //urlImage = "";
@@ -2324,7 +2330,7 @@ namespace MasterOnline.Controllers
                             //sSQL_Value += " , " + brg.price + " , " + brg.price + " , " + (display ? "1" : "0") + ", '";
                             //sSQL_Value += brg.category_id + "' , '" + brg.category + "' , '" + (string.IsNullOrEmpty(brg.specs.merek) ? brg.specs.brand : brg.specs.merek);
                             //sSQL_Value += "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "') ,";
-                            #endregion
+#endregion
                             if (haveVarian)
                             {
                                 for (int i = 0; i < brg.product_sku.Count; i++)
@@ -2625,7 +2631,7 @@ namespace MasterOnline.Controllers
         }
     }
 
-    #region get order response
+#region get order response
     public class SetOrderCourrierResponse : BLErrorResponse
     {
         public SetCourrierDatum data { get; set; }
@@ -2699,7 +2705,7 @@ namespace MasterOnline.Controllers
         //public DateTime accepted_at { get; set; }
         //public DateTime rejected_at { get; set; }
         //public DateTime cancelled_at { get; set; }
-        //public DateTime delivered_at { get; set; }
+        public DateTime? delivered_at { get; set; }
         //public DateTime expired_at { get; set; }
         //public DateTime received_at { get; set; }
         //public DateTime remitted_at { get; set; }
@@ -3085,6 +3091,6 @@ namespace MasterOnline.Controllers
         public string type { get; set; }
         public double amount { get; set; }
     }
-    #endregion
+#endregion
 
 }
