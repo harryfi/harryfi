@@ -4141,8 +4141,29 @@ namespace MasterOnline.Controllers
                                     worksheet.Cells[6 + i, 3].Value = lsPicking.Tables[0].Rows[i]["NAMA_BARANG"];
                                     worksheet.Cells[6 + i, 4].Value = lsPicking.Tables[0].Rows[i]["RAK"];
                                     worksheet.Cells[6 + i, 5].Value = lsPicking.Tables[0].Rows[i]["QTY"];
+
+                                    //add by nurul 9/2/2021
+                                    var tempRef = "";
+                                    var getListNoref = EDB.GetDataSet("CString", "SOT01A", "select brg, ISNULL(SUM(qty),0) AS QTY,isnull(no_referensi,'') as no_referensi from sot01a a (nolock) inner join sot01b b (nolock) on a.no_bukti=b.no_bukti where brg='" + lsPicking.Tables[0].Rows[i]["BRG"] + "' and a.no_bukti in (select no_pesanan from sot03b where no_bukti='" + noPackingList + "') GROUP BY brg,no_referensi");
+                                    if (getListNoref.Tables[0].Rows.Count > 0)
+                                    {
+                                        for (int a = 0; a < getListNoref.Tables[0].Rows.Count; a++)
+                                        {
+                                            if (!string.IsNullOrEmpty(getListNoref.Tables[0].Rows[a]["no_referensi"].ToString()))
+                                            {
+                                                tempRef = tempRef + getListNoref.Tables[0].Rows[a]["no_referensi"].ToString() + " (" + getListNoref.Tables[0].Rows[a]["qty"].ToString() + ") " + Environment.NewLine + " ";
+                                            }
+                                        }
+                                    }
+                                    if (tempRef != "")
+                                    {
+                                        tempRef = tempRef.Substring(0, tempRef.Length - 4);
+                                    }
+                                    worksheet.Cells[6 + i, 6].Value = tempRef;
+                                    //end add by nurul 9/2/2021
                                 }
-                                ExcelRange rg0 = worksheet.Cells[5, 1, worksheet.Dimension.End.Row, 5];
+                                //ExcelRange rg0 = worksheet.Cells[5, 1, worksheet.Dimension.End.Row, 5];
+                                ExcelRange rg0 = worksheet.Cells[5, 1, worksheet.Dimension.End.Row, 6];
                                 string tableName0 = "TablePackingList";
                                 ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
 
@@ -4151,8 +4172,12 @@ namespace MasterOnline.Controllers
                                 table0.Columns[2].Name = "NAMA BARANG";
                                 table0.Columns[3].Name = "LOKASI RAK";
                                 table0.Columns[4].Name = "QTY";
+                                //add by nurul 9/2/2021
+                                table0.Columns[5].Name = "NO REFERENSI";
+                                //end add by nurul 9/2/2021
 
-                                using (var range = worksheet.Cells[5, 1, 5, 5])
+                                //using (var range = worksheet.Cells[5, 1, 5, 5])
+                                using (var range = worksheet.Cells[5, 1, 5, 6])
                                 {
                                     range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
                                     range.Style.Border.Left.Style = ExcelBorderStyle.Thin;

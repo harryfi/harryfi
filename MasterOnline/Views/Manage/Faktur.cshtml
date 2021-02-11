@@ -2110,6 +2110,15 @@
                         <div class="col-md-3" style="padding-top: 7px;">
                             Catatan Pembeli
                         </div>
+                        <div class="col-md-2" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input id="ctk_logo" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                <span id="ctk_logo" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-3" style="padding-top: 7px;">
+                            Logo Toko
+                        </div>
                         <div class="col-md-1">
                         </div>
                     </div>
@@ -5825,7 +5834,8 @@
             $('#ctk_nobuk').attr('checked', true);
             $('#ctk_total').attr('checked', true);
             $('#ctk_ket').attr('checked', true);
-
+            $('#ctk_logo').attr('checked', true);
+            
             //$('#ctk_nama1').attr('checked', true);
             //$('#ctk_mp1').attr('checked', true);
             //$('#ctk_nobuk1').attr('checked', true);
@@ -5849,6 +5859,7 @@
                 var nama = "0";
                 var jenisKertas = "0";
                 var ket = "0";
+                var logo = "0";
                 //if ($('#LayoutSize').val() == "1") {
                     @*var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
                     link = link.replace('replaceNoBuk', encodeURIComponent(nobuk));*@
@@ -5898,6 +5909,11 @@
                     ket = "1";
                 } else if ($('#ctk_ket').is(":checked") == false) {
                     ket = "0";
+                }
+                if ($('#ctk_logo').is(":checked") == true) {
+                    logo = "1";
+                } else if ($('#ctk_logo').is(":checked") == false) {
+                    logo = "0";
                 }
                 @*} else if ($('#LayoutSize').val() == "2") {
                     var link = '@Url.Action("LihatFakturA5", "Manage", new {noBukPesanan = "replaceNoBuk"})';
@@ -5978,6 +5994,8 @@
                                             totalLink: total,
                                             namaLink: nama,
                                             ketLink: ket,
+                                            logoLink: logo,
+                                            refLink:"1"
                                         };
 
                                         $.ajax({
