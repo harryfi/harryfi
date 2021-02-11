@@ -211,6 +211,9 @@
       <HintPath>..\packages\PDFsharp.1.32.3057.0\lib\net20\PdfSharp.Charting.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
+    <Reference Include="RestSharp, Version=106.11.7.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.106.11.7\lib\net452\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="Select.HtmlToPdf, Version=20.2.0.0, Culture=neutral, PublicKeyToken=e0ae9f6e27a97018, processorArchitecture=MSIL">
       <HintPath>..\packages\Select.HtmlToPdf.20.2.0\lib\net40\Select.HtmlToPdf.dll</HintPath>
     </Reference>
@@ -732,6 +735,8 @@
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
     <Compile Include="Models\BRAND_JDID.cs" />
+    <Compile Include="Models\BUKALAPAK_KURIR_MANUAL.cs" />
+    <Compile Include="Models\BUKALAPAK_TOKEN.cs" />
     <Compile Include="Models\CATEGORY_82CART.cs" />
     <Compile Include="Models\CATEGORY_SHOPIFY.cs" />
     <Compile Include="Models\LINKFTP.cs" />
@@ -6598,6 +6603,10 @@
     <Content Include="Views\Manage\PromptBarangBundling.cshtml" />
     <Content Include="Views\Manage\TablePromptBarangBundlingPartial.cshtml" />
     <Content Include="Views\Manage\TableBundlingKomponenPartial.cshtml" />
+    <Content Include="Views\Bukalapak\BukalapakAuth.cshtml" />
+    <Content Include="Views\Manage\PackingListBukalapak.cshtml" />
+    <Content Include="Views\Manage\ListDetailPackingListBukalapak.cshtml" />
+    <Content Include="Views\Manage\PromptDeliveryProviderBukalapak.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

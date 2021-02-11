@@ -1453,7 +1453,7 @@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
-    <script type="text/javascript">
+<script type="text/javascript">
         var $Sort1_Cust = "";
         var $API_CLIENT_U = "";
         var $API_CLIENT_P = "";
@@ -1767,7 +1767,7 @@
                                     $('#Customers_PASSWORD').attr('required', 'checked');
                                     if (@blibli == value) {
                                         $('#versi-blibli').show();
-                                        getVersiBlibli($('#Customers_KD_ANALISA').val());                                        
+                                        getVersiBlibli($('#Customers_KD_ANALISA').val());
                                     }
                                 } else {
                                     $('#password-akun').hide();
@@ -1852,7 +1852,7 @@
                                 }
 
                                 if (@blibli == value) {
-                                                                       
+
                                     showHideBlibliForm(true);
                                     //add by fauzi 23 Januari 2020
                                     //change by nurul 15/7/2020
@@ -1876,7 +1876,7 @@
                                         $('#blibliAPIKey').hide();
                                         $('#divAPIKey').show();
                                     }
-                                    getVersiBlibli($('#Customers_KD_ANALISA').val()); 
+                                    getVersiBlibli($('#Customers_KD_ANALISA').val());
                                     //end change by nurul 15/7/2020
                                     // end
                                 }
@@ -1961,7 +1961,7 @@
                     });
 
                     namaMarket[0].selectize.setValue($('#Customers_NAMA').val(), true);
-                    
+
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -2062,6 +2062,14 @@
                                             //GetShopeeShopId(custCode);
                                             if (confirm("Authorization Shopee account?")) {
                                                 GetShopeeShopId(custCode);
+                                            }
+                                            //end change
+                                        }
+                                        else if (response.marketplace == "BUKALAPAK") {
+                                            //change by nurul 7/1/2019
+                                            //GetShopeeShopId(custCode);
+                                            if (confirm("Authorization Bukalapak account?")) {
+                                                GenerateBukalapakCode(custCode);
                                             }
                                             //end change
                                         }
@@ -2519,7 +2527,7 @@
                     $('#JDAppSecret').show();
                     $('#JDAccessToken').show();
 
-                    
+
                     //$('#Customers_API_KEY').val(response.Customers.API_KEY);
                     //end add by Tri 11 Maret 2019
                     $('#form_input').show();
@@ -2533,8 +2541,8 @@
                     if (@bklapak == response.Customers.NAMA ||  @blibli == response.Customers.NAMA ) {
                         $('#password-akun').show();
                         $('#Customers_PASSWORD').attr('required', 'checked');
-                        
-                        
+
+
                     } else {
                         $('#password-akun').hide();
                         $('#Customers_PASSWORD').removeAttr('required');
@@ -2733,7 +2741,7 @@
                             ////end add
                             //$('#labelAPI_CLIENT_U').html("API client username *");
                         }
-                        
+
                     }
                     if (@tokped == response.Customers.NAMA) {
                         var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">FSID</label>';
@@ -3187,7 +3195,30 @@
                 }
             });
         }
+        function GenerateBukalapakCode(kdCust) {
+            //alert(kdCust);
+            var link = '@Url.Action("BukalapakAuth", "BukaLapak", new { cust = "replaceCust" })';
+            link = link.replace("replaceCust", encodeURIComponent(kdCust));
 
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+
+                    var blAuthPopUp = window.open(response, "BukaLapak Authentication", "width=1000, height=600, scrollbars=yes");
+                    var timer = setInterval(function () {
+                        if (blAuthPopUp.closed) {
+                            clearInterval(timer);
+                            $('#loading_spinner').hide();
+                            window.location.href = '@Url.Action("Pelanggan", "Manage")';
+                        }
+                    }, 1000);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
         //function opendialog(page) {
         //    var $dialog = $('#somediv')
         //        .html('<iframe style="border: 0px; " src="' + page + '" width="100%" height="100%"></iframe>')
@@ -3449,7 +3480,7 @@
                         $('#BlibliClientPass').hide();
                         $('#password-akun').hide();
 
-                        
+
                     }
                     else  {
                         $('#Customers_KD_ANALISA').val("1");
@@ -3468,5 +3499,5 @@
             versiBlibli[0].selectize.setValue($('#Customers_KD_ANALISA').val(), true);
         }
         //end add by nurul 15/7/2020
-    </script>
+</script>
 }

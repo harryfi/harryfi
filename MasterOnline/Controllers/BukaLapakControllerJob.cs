@@ -13,6 +13,8 @@ using System.IO;
 using Erasoft.Function;
 using System.Data.SqlClient;
 using Hangfire;
+using RestSharp;
+using System.Threading.Tasks;
 
 namespace MasterOnline.Controllers
 {
@@ -24,6 +26,9 @@ namespace MasterOnline.Controllers
         private MoDbContext MoDbContext;
         private ErasoftContext ErasoftDbContext;
         private string username;
+        private static string callBackUrl = "https://dev.masteronline.co.id/bukalapak/auth";
+        private static string client_id = "laJXb5jh91BelPQg2VmE2ooa58UVJmlJkNq98EPJc6s";
+        private static string client_secret = "AXe5u7JcYiSNLvOsGW92Dzc4li6mbrWpN9qjlLD4OxI";
 
         public BukaLapakControllerJob()
         {
@@ -62,7 +67,76 @@ namespace MasterOnline.Controllers
             //}
             //return ret;
         }
+        public BukaLapakKey RefreshToken(BukaLapakKey data)
+        {
+            SetupContext(data.dbPathEra, "");
+            var ret = data;
+            if (data.tgl_expired < DateTime.UtcNow.AddHours(7).AddMinutes(-30))
+            {
+                var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == data.cust).FirstOrDefault();
+                if(cekInDB != null)
+                {
+                    if(data.token != cekInDB.TOKEN)
+                    {
+                        data.code = cekInDB.API_KEY;
+                        data.refresh_token = cekInDB.REFRESH_TOKEN;
+                        data.tgl_expired = cekInDB.TGL_EXPIRED.Value;
+                        data.token = cekInDB.TOKEN;
 
+                        if (cekInDB.TGL_EXPIRED.Value.AddMinutes(-30) > DateTime.UtcNow.AddHours(7))
+                        {
+                            return data;
+                        }
+                    }
+                }
+                var urll = ("https://accounts.bukalapak.com/oauth/token");
+                var client = new RestClient(urll);
+                client.Timeout = -1;
+                var request = new RestRequest(Method.POST);
+                request.AlwaysMultipartFormData = true;
+                request.AddParameter("grant_type", "refresh_token");
+                request.AddParameter("client_id", client_id);
+                request.AddParameter("client_secret", client_secret);
+                request.AddParameter("refresh_token", data.refresh_token);
+                string stringRet = "";
+                try
+                {
+                    IRestResponse response = client.Execute(request);
+                    stringRet = response.Content;
+                }
+                catch (WebException e)
+                {
+                    string err = "";
+                    if (e.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        WebResponse resp = e.Response;
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            err = sr.ReadToEnd();
+                        }
+                    }
+                    //ret = "error : " + err;
+                }
+
+                if (!string.IsNullOrEmpty(stringRet))
+                {
+                    AccessKeyBL retObj = JsonConvert.DeserializeObject(stringRet, typeof(AccessKeyBL)) as AccessKeyBL;
+                    if (retObj != null)
+                    {
+                        DateTime tglExpired = DateTimeOffset.FromUnixTimeSeconds(retObj.created_at).UtcDateTime.AddHours(7).AddSeconds(retObj.expires_in);
+                        var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET REFRESH_TOKEN='" + retObj.refresh_token + "', TGL_EXPIRED='" + tglExpired.ToString("yyyy-MM-dd HH:mm:ss") + "', TOKEN='" + retObj.access_token + "', STATUS_API = '1' WHERE CUST ='" + data.cust + "'");
+                        ret.token = retObj.access_token;
+                        ret.tgl_expired = tglExpired;
+                        ret.refresh_token = retObj.refresh_token;
+                    }
+                    else
+                    {
+                    }
+                }
+
+            }
+            return ret;
+        }
         [HttpPost]
         public BindingBase GetAccessKey(string cust, string email, string password)
         {
@@ -103,18 +177,18 @@ namespace MasterOnline.Controllers
                         //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
                         //string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
-                        var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET API_KEY='" + retObj.user_id + "', TOKEN='" + retObj.token + "', STATUS_API = '1' WHERE CUST ='" + cust + "'");
-                        //var a = EDB.GetDataSet("ARConnectionString", "ARF01", "SELECT * FROM ARF01");
-                        if (a == 1)
-                        {
-                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
-                            ret.status = 1;
-                        }
-                        else
-                        {
-                            currentLog.REQUEST_EXCEPTION = "failed to update api_key;execute result=" + a;
-                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
-                        }
+                        //var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET API_KEY='" + retObj.user_id + "', TOKEN='" + retObj.token + "', STATUS_API = '1' WHERE CUST ='" + cust + "'");
+                        ////var a = EDB.GetDataSet("ARConnectionString", "ARF01", "SELECT * FROM ARF01");
+                        //if (a == 1)
+                        //{
+                        //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
+                        //    ret.status = 1;
+                        //}
+                        //else
+                        //{
+                        //    currentLog.REQUEST_EXCEPTION = "failed to update api_key;execute result=" + a;
+                        //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
+                        //}
                     }
                     else
                     {
@@ -626,6 +700,880 @@ namespace MasterOnline.Controllers
         [HttpGet]
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
+        public async Task<string> GetOrdersNew(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int day)
+        {
+            string ret = "";
+            SetupContext(data.dbPathEra, username);
+
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
+
+            //var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+
+            //add by nurul 20/1/2021, bundling 
+            var AdaKomponen = false;
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
+            var dtNow = DateTime.UtcNow.AddHours(7);
+            var loop = true;
+            var page = 0;
+            while (loop)
+            {
+                data = RefreshToken(data);
+                var retOrder = await GetOrdersLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(day).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"), 0);
+                
+                if (retOrder.AdaKomponen)
+                {
+                    AdaKomponen = retOrder.AdaKomponen;
+                }
+
+                if (retOrder.status >= 50)
+                {
+                    page = page + 1;
+                }
+                else
+                {
+                    loop = false;
+                }
+            }
+            if (AdaKomponen)
+            {
+                new StokControllerJob().getQtyBundling(data.dbPathEra, username);
+            }
+
+            var queryStatus = "\"\\\"" + CUST + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and invocationdata like '%bukalapak%' and invocationdata like '%GetOrdersNew%' and statename like '%Enque%' and invocationdata not like '%resi%' ");
+
+            return ret;
+        }
+
+        public async Task<BindingBase> GetOrdersLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt, int retry)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+            var conn_id = Guid.NewGuid().ToString();
+            int jmlhNewOrder = 0;
+            //data = RefreshToken(data);
+
+            //add by nurul 19/1/2021, bundling 
+            ret.ConnId = conn_id;
+            //end add by nurul 19/1/2021, bundling
+
+            string urll = "https://api.bukalapak.com/transactions?limit=50&offset=" + (page * 50) + "&context=sale"
+                + "&start_time=" + Uri.EscapeDataString(fromDt) + "&end_time=" + Uri.EscapeDataString(toDt) 
+                + "&states[]=pending&states[]=paid&states[]=accepted";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", "Bearer " + data.token);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch(WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                    var response = e.Response as HttpWebResponse;
+                    var status = (int)response.StatusCode;
+                    if (status == 401)
+                    {
+                        if (retry == 0)
+                        {
+                            data = RefreshToken(data);
+                            await GetOrdersLoop(data, CUST, NAMA_CUST, username, page, fromDt, toDt, 1);
+                        }
+                        else
+                        {
+                            throw new Exception(err);
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(err);
+                    }
+                }
+                else
+                {
+                    throw new Exception(e.Message);
+                }
+            }
+            if (responseFromServer != "")
+            {
+                GetOrdersResponse retObj = JsonConvert.DeserializeObject(responseFromServer, typeof(GetOrdersResponse)) as GetOrdersResponse;
+                if (retObj != null)
+                {
+                    if(retObj.meta.http_status == 200)
+                    {
+                        if(retObj.data != null)
+                        {
+                            if(retObj.data.Length > 0)
+                            {
+                                ret.status = retObj.data.Length;
+                                var cekDate = DateTime.UtcNow.AddHours(7).AddDays(-4);
+                                var orderInDB = ErasoftDbContext.SOT01A.Where(m => m.CUST == CUST && m.TGL >= cekDate).Select(m => m.NO_REFERENSI).ToList();
+                                foreach(var order in retObj.data)
+                                {
+                                    if (orderInDB.Contains(order.transaction_id))
+                                    {
+                                        if(order.state != "pending")
+                                        {
+                                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI = '" + order.transaction_id + "' AND CUST = '" + CUST+"' AND STATUS_TRANSAKSI = '0'");
+                                        }
+
+                                        if (!order.delivery.consignee.phone.Contains("Terkunci"))
+                                        {
+                                            var ordID = order.transaction_id;
+                                            var currentOrder = ErasoftDbContext.SOT01A.Where(m => m.CUST == CUST && m.NO_REFERENSI == ordID).FirstOrDefault();
+                                            if(currentOrder != null)
+                                            {
+                                                if (string.IsNullOrEmpty(currentOrder.PEMESAN))
+                                                {
+                                                    string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                                                    insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                                                    insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
+                                                    
+                                                    var kabKot = "3174";//set default value jika tidak ada di db
+                                                    var prov = "31";//set default value jika tidak ada di db
+                                                    #region cut max length pembeli
+                                                    var nama = order.buyer.name.Replace('\'', '`');
+                                                    if (nama.Length > 30)
+                                                        nama = nama.Substring(0, 30);
+                                                    string tlp = !string.IsNullOrEmpty(order.delivery.consignee.phone) ? order.delivery.consignee.phone.Replace('\'', '`') : "";
+                                                    if (tlp.Length > 30)
+                                                    {
+                                                        tlp = tlp.Substring(0, 30);
+                                                    }
+                                                    string AL_KIRIM1 = !string.IsNullOrEmpty(order.delivery.consignee.address) ? order.delivery.consignee.address.Replace('\'', '`') : "";
+                                                    if (AL_KIRIM1.Length > 30)
+                                                    {
+                                                        AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+                                                    }
+                                                    string KODEPOS = !string.IsNullOrEmpty(order.delivery.consignee.postal_code) ? order.delivery.consignee.postal_code.Replace('\'', '`') : "";
+                                                    if (KODEPOS.Length > 7)
+                                                    {
+                                                        KODEPOS = KODEPOS.Substring(0, 7);
+                                                    }
+
+                                                    string namaKabkot = (string.IsNullOrEmpty(order.delivery.consignee.city) ? "" : order.delivery.consignee.city.Replace("'", "`"));
+                                                    if (namaKabkot.Length > 50)
+                                                        namaKabkot = namaKabkot.Substring(0, 50);
+
+                                                    string namaProv = string.IsNullOrEmpty(order.delivery.consignee.province) ? "" : order.delivery.consignee.province.Replace("'", "`");
+                                                    if (namaProv.Length > 50)
+                                                        namaProv = namaProv.Substring(0, 50);
+                                                    #endregion
+                                                    insertPembeli += "('" + nama + "','" + order.delivery.consignee.address.Replace('\'', '`') + "','" + tlp + "','',0,0,'0','01',";
+                                                    insertPembeli += "1, 'IDR', '01', '" + AL_KIRIM1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                                    insertPembeli += "'FP', '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '"
+                                                        + KODEPOS + "', '', '" + kabKot + "', '" + prov + "', '" + namaKabkot
+                                                        + "', '" + namaProv.Replace('\'', '`') + "', '" + conn_id + "')";
+
+                                                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, insertPembeli);
+
+                                                    SqlCommand CommandSQL = new SqlCommand();
+                                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = conn_id;
+
+                                                    EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
+
+                                                    var pembeli = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.delivery.consignee.phone).FirstOrDefault();
+                                                    if(pembeli != null)
+                                                    {
+                                                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE SOT01A SET PEMESAN = '"+pembeli.BUYER_CODE+"' WHERE NO_BUKTI = '"+currentOrder.NO_BUKTI+"'");
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_BL_ORDER");
+                                        ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_BL_ORDERITEMS");
+
+                                        string insertQ = "INSERT INTO TEMP_BL_ORDER ([ID],[INVOICE_ID],[STATE],[TRANSACTION_ID],[AMOUNT],[QUANTITY],[COURIER],[BUYERS_NOTE],[SHIPPING_FEE],";
+                                        insertQ += "[SHIPPING_ID],[SHIPPING_CODE],[SHIPPING_SERVICE],[SUBTOTAL_AMOUNT],[TOTAL_AMOUNT],[PAYMENT_AMOUNT],[CREATED_AT],[UPDATED_AT],";
+                                        insertQ += "[BUYER_EMAIL],[BUYER_ID],[BUYER_NAME],[BUYER_USERNAME],[BUYER_LOGISTIC_CHOICE],[CONSIGNEE_ADDRESS],[CONSIGNEE_AREA],[CONSIGNEE_CITY],";
+                                        insertQ += "[CONSIGNEE_NAME],[CONSIGNEE_PHONE],[CONSIGNEE_POSTCODE],[CONSIGNEE_PROVICE],[CUST],[USERNAME],[CONNECTION_ID]) VALUES ";
+
+                                        string insertOrderItems = "INSERT INTO TEMP_BL_ORDERITEMS ([ID],[TRANSACTION_ID],[PRODUCT_ID],[CATEGORY],[CATEGORY_ID],[NAME]";
+                                        insertOrderItems += ",[PRICE],[WEIGHT],[DESC],[CONDITON],[STOCK],[QTY], [CREATED_AT], [UPDATED_AT], [USERNAME], [CONNECTION_ID]) VALUES ";
+
+                                        string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                                        insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                                        insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
+
+
+                                        var nama = order.buyer.name.Replace('\'', '`');
+                                        if (nama.Length > 30)
+                                            nama = nama.Substring(0, 30);
+                                        var nama2 = order.delivery.consignee.name.Replace('\'', '`');
+                                        if (nama2.Length > 30)
+                                            nama2 = nama2.Substring(0, 30);
+                                        #region cut max length pembeli
+                                        string tlp = !string.IsNullOrEmpty(order.delivery.consignee.phone) ? order.delivery.consignee.phone.Replace('\'', '`') : "";
+                                        if (tlp.Length > 30)
+                                        {
+                                            tlp = tlp.Substring(0, 30);
+                                        }
+                                        string AL_KIRIM1 = !string.IsNullOrEmpty(order.delivery.consignee.address) ? order.delivery.consignee.address.Replace('\'', '`') : "";
+                                        if (AL_KIRIM1.Length > 30)
+                                        {
+                                            AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+                                        }
+                                        string KODEPOS = !string.IsNullOrEmpty(order.delivery.consignee.postal_code) ? order.delivery.consignee.postal_code.Replace('\'', '`') : "";
+                                        if (KODEPOS.Length > 7)
+                                        {
+                                            KODEPOS = KODEPOS.Substring(0, 7);
+                                        }
+
+                                        string namaKabkot = (string.IsNullOrEmpty(order.delivery.consignee.city) ? "" : order.delivery.consignee.city.Replace("'", "`"));
+                                        if (namaKabkot.Length > 50)
+                                            namaKabkot = namaKabkot.Substring(0, 50);
+
+                                        string namaProv = string.IsNullOrEmpty(order.delivery.consignee.province) ? "" : order.delivery.consignee.province.Replace("'", "`");
+                                        if (namaProv.Length > 50)
+                                            namaProv = namaProv.Substring(0, 50);
+                                        #endregion
+                                        #region cut max length header
+                                        string transId = (string.IsNullOrEmpty(order.transaction_id) ? "" : order.transaction_id.Replace("'", "`"));
+                                        if (transId.Length > 50)
+                                            transId = transId.Substring(0, 50);
+                                        string courier = (string.IsNullOrEmpty(order.delivery.carrier) ? "" : order.delivery.carrier.Replace("'", "`"));
+                                        if (courier.Length > 50)
+                                            courier = courier.Substring(0, 50);
+                                        string shippingService = (string.IsNullOrEmpty(order.delivery.requested_carrier) ? "" : order.delivery.requested_carrier.Replace("'", "`"));
+                                        if (shippingService.Length > 50)
+                                            shippingService = shippingService.Substring(0, 50);
+                                        string buyerLogistic = (string.IsNullOrEmpty(order.delivery.buyer_logistic_choice) ? "" : order.delivery.buyer_logistic_choice.Replace("'", "`"));
+                                        if (buyerLogistic.Length > 100)
+                                            buyerLogistic = buyerLogistic.Substring(0, 100);
+                                        string consigneeArea = (string.IsNullOrEmpty(order.delivery.consignee.district) ? "" : order.delivery.consignee.district.Replace("'", "`"));
+                                        if (consigneeArea.Length > 100)
+                                            consigneeArea = consigneeArea.Substring(0, 100);
+                                        var ketPembeli = "";
+                                        if(order.options != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(order.options.buyer_note))
+                                            {
+                                                ketPembeli = order.options.buyer_note.Replace('\'', '`');
+                                            }
+                                        }
+                                        #endregion
+                                        string statusEra = "0";
+                                        if (order.state != "pending")
+                                        {
+                                            statusEra = "01";
+                                        }
+                                        insertQ += "(" + order.id + "," + order.invoice_id + ",'" + statusEra + "','" + transId + "'," + order.amount.buyer.total + ",0,'" 
+                                            + courier + "','" + ketPembeli + "'," + order.amount.buyer.details.delivery + ",";
+                                        insertQ +=  "0,'','" + shippingService + "'," + order.amount.buyer.coded_amount + "," + order.amount.seller.total + "," 
+                                            + order.amount.buyer.payment_amount + ",'" +  order.created_at.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.state_changed_at.refund_at.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','";
+                                        insertQ += "','" + order.buyer.id + "','" + nama + "','','" + buyerLogistic + "','" + order.delivery.consignee.address.Replace('\'', '`') + "','" 
+                                            + consigneeArea.Replace('\'', '`') + "','" + namaKabkot + "','";
+                                        insertQ += nama2 + "','" + tlp + "','" + KODEPOS + "','" + namaProv + "','" + CUST + "','" + username + "','" + conn_id + "')";
+
+                                        if (order.items != null)
+                                        {
+                                            foreach (var items in order.items)
+                                            {
+                                                #region cut max length details
+                                                string katName = (string.IsNullOrEmpty(items.category.name) ? "" : items.category.name.Replace("'", "`"));
+                                                if (katName.Length > 50)
+                                                    katName = katName.Substring(0, 50);
+                                                var items_name = string.IsNullOrEmpty(items.name) ? "" : items.name.Replace('\'', '`');
+                                                if (!string.IsNullOrEmpty(items.stuff.variant_name))
+                                                {
+                                                    items_name += " " + items.stuff.variant_name.Replace('\'', '`');
+                                                }
+                                                if (items_name.Length > 285)
+                                                    items_name = items_name.Substring(0, 285);
+                                                string condition = (string.IsNullOrEmpty(items.stuff.product.condition) ? "" : items.stuff.product.condition.Replace("'", "`"));
+                                                if (condition.Length > 50)
+                                                    condition = condition.Substring(0, 50);
+
+                                                #endregion
+                                                var brgmp = items.stuff.product.id + ";" + items.stuff.id;
+                                                insertOrderItems += "(" + order.id + ", '" + transId + "','" +  brgmp  + "','" + katName + "',0,'" + items_name + "',";
+                                                insertOrderItems += items.price + "," + items.stuff.product.weight + ",'','" + condition + "',0," 
+                                                    + items.quantity + ",'" + order.created_at.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','" 
+                                                    + username + "','" + conn_id + "')";
+                                                insertOrderItems += ",";
+                                            }
+                                        }
+
+                                        //var tblKabKot = EDB.GetDataSet("MOConnectionString", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.consignee.city + "%'");
+                                        //var tblProv = EDB.GetDataSet("MOConnectionString", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.consignee.province + "%'");
+
+                                        var kabKot = "3174";//set default value jika tidak ada di db
+                                        var prov = "31";//set default value jika tidak ada di db
+
+                                        //if (tblProv.Tables[0].Rows.Count > 0)
+                                        //    prov = tblProv.Tables[0].Rows[0]["KodeProv"].ToString();
+                                        //if (tblKabKot.Tables[0].Rows.Count > 0)
+                                        //    kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
+
+                                        //insertPembeli += "('" + order.buyer.name.Replace('\'', '`') + "','" + order.consignee.address.Replace('\'', '`') + "','" + order.consignee.phone + "','" + order.buyer.email.Replace('\'', '`') + "',0,0,'0','01',";
+                                        insertPembeli += "('" + nama + "','" + order.delivery.consignee.address.Replace('\'', '`') + "','" + tlp + "','',0,0,'0','01',";
+                                        insertPembeli += "1, 'IDR', '01', '" + AL_KIRIM1 + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                        insertPembeli += "'FP', '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" 
+                                            + KODEPOS + "', '', '" + kabKot + "', '" + prov + "', '" + namaKabkot + "', '" + namaProv + "', '" + conn_id + "')";
+
+                                        //if (i < bindOrder.transactions.Length)
+                                        insertQ += ",";
+                                        insertPembeli += ",";
+
+                                        insertQ = insertQ.Substring(0, insertQ.Length - 1);
+                                        var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+                                       
+                                        insertOrderItems = insertOrderItems.Substring(0, insertOrderItems.Length - 1);
+                                        a = EDB.ExecuteSQL(username, CommandType.Text, insertOrderItems);
+
+                                        if (!order.delivery.consignee.phone.Contains("Terkunci"))
+                                        {
+                                            insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                                            a = EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
+                                        }
+
+                                        #region call sp
+                                        SqlCommand CommandSQL = new SqlCommand();
+                                        if (!order.delivery.consignee.phone.Contains("Terkunci"))
+                                        {
+                                            //add by Tri call sp to insert buyer data
+                                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = conn_id;
+
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
+                                            //end add by Tri call sp to insert buyer data
+                                        }
+
+                                        CommandSQL = new SqlCommand();
+                                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+
+                                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = conn_id;
+                                        CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.UtcNow.AddHours(7).AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                                        CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 1;
+                                        CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Shopify", SqlDbType.Int).Value = 0;
+                                        CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+
+                                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                        #endregion
+                                        jmlhNewOrder++;
+                                    }
+                                }
+
+                                if(jmlhNewOrder > 0)
+                                {
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(data.dbPathEra).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Bukalapak.");
+
+                                    //add by nurul 25/1/2021, bundling
+                                    var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + conn_id + "')").ToList();
+                                    if (listBrgKomponen.Count() > 0)
+                                    {
+                                        ret.AdaKomponen = true;
+                                    }
+                                    //end add by nurul 25/1/2021, bundling
+
+                                    new StokControllerJob().updateStockMarketPlace(conn_id, data.dbPathEra, username);
+
+                                    //add by nurul 19/1/2021, bundling 
+                                    ret.AdaPesanan = true;
+                                    //end add by nurul 19/1/2021, bundling
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+            return ret;
+        }
+
+        [HttpGet]
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> GetOrdersCompleted(BukaLapakKey data, string CUST, string NAMA_CUST, string username)
+        {
+            string ret = "";
+            SetupContext(data.dbPathEra, username);
+            var dtNow = DateTime.UtcNow.AddHours(7);
+            var loop = true;
+            var page = 0;
+            while (loop)
+            {
+                data = RefreshToken(data);
+                var retOrder = await GetOrdersCompletedLoop(data, CUST, NAMA_CUST, username, page, dtNow.AddDays(-10).ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.ToString("yyyy-MM-ddTHH:mm:ss"), 0);
+                if (retOrder >= 50)
+                {
+                    page = page + 1;
+                }
+                else
+                {
+                    loop = false;
+                }
+            }
+
+            var queryStatus = "\"\\\"" + CUST + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and invocationdata like '%bukalapak%' and invocationdata like '%GetOrdersCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%' ");
+
+            return ret;
+        }
+
+        public async Task<int> GetOrdersCompletedLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt, int retry)
+        {
+            var ret = 0;
+            var conn_id = Guid.NewGuid().ToString();
+            //int jmlhNewOrder = 0;
+            //data = RefreshToken(data);
+            var list_04 = new List<string>();
+
+            string urll = "https://api.bukalapak.com/transactions?limit=50&offset=" + (page * 50) + "&context=sale"
+                + "&start_time=" + Uri.EscapeDataString(fromDt) + "&end_time=" + Uri.EscapeDataString(toDt)
+                + "&states[]=received&states[]=remitted";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", "Bearer " + data.token);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                    var response = e.Response as HttpWebResponse;
+                    var status = (int)response.StatusCode;
+                    if (status == 401)
+                    {
+                        if (retry == 0)
+                        {
+                            data = RefreshToken(data);
+                            await GetOrdersCompletedLoop(data, CUST, NAMA_CUST, username, page, fromDt, toDt, 1);
+                        }
+                        else
+                        {
+                            throw new Exception(err);
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(err);
+                    }
+                }
+                else
+                {
+                    throw new Exception(e.Message);
+                }
+            }
+            if (responseFromServer != "")
+            {
+                GetOrdersResponse retObj = JsonConvert.DeserializeObject(responseFromServer, typeof(GetOrdersResponse)) as GetOrdersResponse;
+                if (retObj != null)
+                {
+                    if (retObj.meta.http_status == 200)
+                    {
+                        if (retObj.data != null)
+                        {
+                            if (retObj.data.Length > 0)
+                            {
+                                ret = retObj.data.Length;
+                                var cekfromDt = DateTime.UtcNow.AddHours(-7).AddDays(-10);
+                                //var untukCekdiSO = retObj.data.Select(p => new { id = p.id }).AsEnumerable().Select(t => t.id.ToString()).ToList();
+                                var untukCekdiSO = retObj.data.Select(p => p.transaction_id).ToList();
+                                var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && p.TGL.Value >= cekfromDt && untukCekdiSO.Contains(p.NO_REFERENSI)).
+                                    Select(p => new { NO_REFERENSI = p.NO_REFERENSI, NO_BUKTI = p.NO_BUKTI, PEMESAN = p.PEMESAN, STATUS_TRANSAKSI = p.STATUS_TRANSAKSI }).
+                                    ToList();
+                                var listNoRefInSO = OrderNoInDb.Select(p => p.NO_REFERENSI).ToList();
+                                var orderWithOrderIdInSO = retObj.data.Where(p => listNoRefInSO.Contains(p.transaction_id)).ToList();
+                                if (orderWithOrderIdInSO.Count > 0)
+                                {
+                                    var listNoRefUntukCekSIT01a = orderWithOrderIdInSO.Select(p => p.transaction_id).ToList();
+                                    var getSIT01A = ErasoftDbContext.SIT01A.Where(p => listNoRefUntukCekSIT01a.Contains(p.NO_REF)).Select(p => p.NO_REF).ToList();
+                                    foreach (var order in orderWithOrderIdInSO)
+                                    {
+                                        var orderMO = OrderNoInDb.Where(p => p.NO_REFERENSI == order.transaction_id).FirstOrDefault();
+                                        if(orderMO != null)
+                                        {
+                                            if (string.IsNullOrEmpty(orderMO.PEMESAN) && order.delivery != null)
+                                            {
+                                                if (!order.delivery.consignee.phone.Contains("Terkunci"))
+                                                {
+                                                    InsertPembeli(order, conn_id, data.dbPathEra, username);
+                                                    var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.delivery.consignee.phone).FirstOrDefault();
+                                                    if (pembeliInDB != null)
+                                                    {
+                                                        var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + orderMO.NO_BUKTI + "'");
+                                                    }
+                                                    else
+                                                    {
+                                                        var adaPembeliGagalInsert = true;
+                                                    }
+                                                }
+                                            }
+
+                                            if(order.state == "remitted" || order.state == "received")
+                                            {
+                                                if (orderMO.STATUS_TRANSAKSI != "04")
+                                                {
+                                                    if (getSIT01A.Contains(order.transaction_id))
+                                                    {
+                                                        list_04.Add(orderMO.NO_BUKTI);
+                                                    }
+                                                }
+
+                                            }
+                                        }
+                                    }
+
+                                    if (list_04.Count > 0)
+                                    {
+                                        string noBuktiSO = "";
+                                        string sSQL = "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_BUKTI IN (";
+                                        foreach (var nobuk in list_04)
+                                        {
+                                            sSQL += "'" + nobuk + "' ,";
+                                            noBuktiSO += "'" + nobuk + "' ,";
+                                        }
+                                        sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
+                                        var result = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+
+                                        //add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                                        var dateTimeNow = Convert.ToDateTime(DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd"));
+                                        noBuktiSO = noBuktiSO.Substring(0, noBuktiSO.Length - 2) + ")";
+                                        string sSQLUpdateDatePesananSelesai = "UPDATE SIT01A SET TGL_KIRIM = '" + dateTimeNow + "' WHERE NO_SO IN (" + noBuktiSO;
+                                        var resultUpdateDatePesanan = EDB.ExecuteSQL("CString", CommandType.Text, sSQLUpdateDatePesananSelesai);
+                                        //end add by fauzi 23/09/2020 update tanggal pesanan untuk fitur upload faktur FTP
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+                return ret;
+        }
+
+        [HttpGet]
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> GetOrdersCanceled(BukaLapakKey data, string CUST, string NAMA_CUST, string username)
+        {
+            string ret = "";
+            SetupContext(data.dbPathEra, username);
+            var dtNow = DateTime.UtcNow.AddHours(7).AddDays(-7);
+            var loop = true;
+            var page = 0;
+
+            //add by nurul 20/1/2021, bundling 
+            var AdaKomponen = false;
+            List<string> tempConnId = new List<string>() { };
+            //end add by nurul 20/1/2021, bundling 
+
+            var orderList = (from a in ErasoftDbContext.SOT01A
+                                   where a.USER_NAME == "Auto Bukalapak" && a.STATUS_TRANSAKSI != "11" && a.CUST == CUST && a.TGL >= dtNow
+                                   select a.NO_REFERENSI).ToList();
+
+            while (loop)
+            {
+                data = RefreshToken(data);
+                var retOrder = await GetOrdersCanceledLoop(data, CUST, NAMA_CUST, username, page, dtNow.ToString("yyyy-MM-ddTHH:mm:ss"), dtNow.AddDays(7).ToString("yyyy-MM-ddTHH:mm:ss"), orderList, 0);
+                if (retOrder.AdaKomponen)
+                {
+                    AdaKomponen = retOrder.AdaKomponen;
+                }
+                if (retOrder.status >= 50)
+                {
+                    page = page + 1;
+                }
+                else
+                {
+                    loop = false;
+                }
+            }
+            if (AdaKomponen)
+            {
+                new StokControllerJob().getQtyBundling(data.dbPathEra, username);
+            }
+            var queryStatus = "\"\\\"" + CUST + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and invocationdata like '%GetOrdersCanceled%' and invocationdata like '%GetOrdersCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%' ");
+
+            return ret;
+        }
+        public async Task<BindingBase> GetOrdersCanceledLoop(BukaLapakKey data, string CUST, string NAMA_CUST, string username, int page, string fromDt, string toDt, List<string> orderList, int retry)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+            var conn_id = Guid.NewGuid().ToString();
+            int jmlhOrder = 0;
+            //data = RefreshToken(data);
+            var brgCancelled = new List<TEMP_ALL_MP_ORDER_ITEM>();
+
+            string urll = "https://api.bukalapak.com/transactions?limit=50&offset=" + (page * 50) + "&context=sale"
+                + "&start_time=" + Uri.EscapeDataString(fromDt) + "&end_time=" + Uri.EscapeDataString(toDt)
+                + "&states[]=cancelled&states[]=expired";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", "Bearer " + data.token);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                    var response = e.Response as HttpWebResponse;
+                    var status = (int)response.StatusCode;
+                    if (status == 401)
+                    {
+                        if (retry == 0)
+                        {
+                            data = RefreshToken(data);
+                            await GetOrdersCanceledLoop(data, CUST, NAMA_CUST, username, page, fromDt, toDt, orderList, 1);
+                        }
+                        else
+                        {
+                            throw new Exception(err);
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(err);
+                    }
+                }
+                else
+                {
+                    throw new Exception(e.Message);
+                }
+            }
+            if (responseFromServer != "")
+            {
+                GetOrdersResponse retObj = JsonConvert.DeserializeObject(responseFromServer, typeof(GetOrdersResponse)) as GetOrdersResponse;
+                if (retObj != null)
+                {
+                    if (retObj.meta.http_status == 200)
+                    {
+                        if (retObj.data != null)
+                        {
+                            if (retObj.data.Length > 0)
+                            {
+                                ret.status = retObj.data.Length;
+                                string sSQL = "INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) VALUES ";
+                                string sSQL2 = "";
+                                foreach (var order in retObj.data)
+                                {
+                                    if (orderList.Contains(order.transaction_id))
+                                    {
+                                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.transaction_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + CUST + "'");
+
+                                        if (rowAffected > 0)
+                                        {
+                                            //add by Tri 1 sep 2020, hapus packing list
+                                            var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.transaction_id + "')  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
+                                            var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.transaction_id + "')  AND STATUS_TRANSAKSI = '11' AND CUST = '" + CUST + "')");
+                                            //end add by Tri 1 sep 2020, hapus packing list
+                                            jmlhOrder = jmlhOrder + rowAffected;
+                                            //add by Tri 4 Des 2019, isi cancel reason
+                                            var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == order.transaction_id && m.CUST == CUST).Select(m => m.NO_BUKTI).FirstOrDefault();
+                                            if (!string.IsNullOrEmpty(nobuk))
+                                            {
+                                                var sot01d = ErasoftDbContext.SOT01D.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
+                                                if (sot01d == null)
+                                                {
+                                                    string cancelReason = "";
+                                                    if (!string.IsNullOrEmpty(order.options.reject_reason))
+                                                    {
+                                                        cancelReason = order.options.reject_reason;
+                                                    }
+                                                    if (!string.IsNullOrEmpty(order.options.cancel_reason))
+                                                    {
+                                                        cancelReason = order.options.cancel_reason;
+                                                        if (!string.IsNullOrEmpty(order.options.cancel_notes))
+                                                            cancelReason += " : " + order.options.cancel_notes;
+                                                    }
+                                                    sSQL2 += "('" + nobuk + "','" + cancelReason + "','AUTO_BukaLapak'),";
+                                                }
+                                            }
+                                            //end add by Tri 4 Des 2019, isi cancel reason
+                                            var fakturInDB = ErasoftDbContext.SIT01A.Where(m => m.CUST == CUST && m.NO_REF == order.transaction_id).FirstOrDefault();
+                                            if (fakturInDB != null)
+                                            {
+                                                var returFaktur = ErasoftDbContext.SIT01A.Where(m => m.JENIS_FORM == "3" && m.NO_REF == fakturInDB.NO_BUKTI).FirstOrDefault();
+                                                if (returFaktur == null)
+                                                {
+                                                    var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.transaction_id + "') AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
+                                                }
+
+                                            }
+
+                                            var orderDetail = (from a in ErasoftDbContext.SOT01A
+                                                               join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
+                                                               //where a.NO_REFERENSI == order.order_id
+                                                               where a.NO_REFERENSI == order.transaction_id && b.BRG != "NOT_FOUND" && a.CUST == CUST
+                                                               select new { b.BRG }).ToList();
+                                            foreach (var item in orderDetail)
+                                            {
+                                                if (brgCancelled.Where(p => p.BRG == item.BRG).Count() <= 0)
+                                                {
+                                                    brgCancelled.Add(new TEMP_ALL_MP_ORDER_ITEM() { BRG = item.BRG, CONN_ID = conn_id });
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (!string.IsNullOrEmpty(sSQL2))
+                                {
+                                    sSQL += sSQL2.Substring(0, sSQL2.Length - 1);
+                                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL);
+                                }
+                                if (jmlhOrder > 0)
+                                {
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(data.dbPathEra).moNewOrder("" + Convert.ToString(jmlhOrder) + " Pesanan dari BukaLapak dibatalkan.");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            var itemCount = brgCancelled.Count();
+            if (itemCount > 0)
+            {
+                string sSQL = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID)" + System.Environment.NewLine;
+                int indexCount = 0;
+                foreach (var item in brgCancelled)
+                {
+                    indexCount = indexCount + 1;
+                    //sSQL += "SELECT '' AS BRG, '' AS CONN_ID " + System.Environment.NewLine;
+                    sSQL += "SELECT '" + item.BRG + "' AS BRG, '" + item.CONN_ID + "' AS CONN_ID " + System.Environment.NewLine;
+                    if (indexCount < itemCount)
+                    {
+                        sSQL += "UNION ALL " + System.Environment.NewLine;
+                    }
+                }
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQL);
+
+                //add by nurul 25/1/2021, bundling
+                var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + conn_id + "')").ToList();
+                if (listBrgKomponen.Count() > 0)
+                {
+                    ret.AdaKomponen = true;
+                }
+                //end add by nurul 25/1/2021, bundling
+                new StokControllerJob().updateStockMarketPlace(conn_id, data.dbPathEra, username);
+            }
+            return ret;
+        }
+        public void InsertPembeli(GetOrdersDatum order, string conn_id, string dbPathEra, string username)
+        {
+            string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+            insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+            insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
+
+            var kabKot = "3174";//set default value jika tidak ada di db
+            var prov = "31";//set default value jika tidak ada di db
+            #region cut max length pembeli
+            var nama = order.buyer.name.Replace('\'', '`');
+            if (nama.Length > 30)
+                nama = nama.Substring(0, 30);
+            string tlp = !string.IsNullOrEmpty(order.delivery.consignee.phone) ? order.delivery.consignee.phone.Replace('\'', '`') : "";
+            if (tlp.Length > 30)
+            {
+                tlp = tlp.Substring(0, 30);
+            }
+            string AL_KIRIM1 = !string.IsNullOrEmpty(order.delivery.consignee.address) ? order.delivery.consignee.address.Replace('\'', '`') : "";
+            if (AL_KIRIM1.Length > 30)
+            {
+                AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+            }
+            string KODEPOS = !string.IsNullOrEmpty(order.delivery.consignee.postal_code) ? order.delivery.consignee.postal_code.Replace('\'', '`') : "";
+            if (KODEPOS.Length > 7)
+            {
+                KODEPOS = KODEPOS.Substring(0, 7);
+            }
+
+            string namaKabkot = (string.IsNullOrEmpty(order.delivery.consignee.city) ? "" : order.delivery.consignee.city.Replace("'", "`"));
+            if (namaKabkot.Length > 50)
+                namaKabkot = namaKabkot.Substring(0, 50);
+
+            string namaProv = string.IsNullOrEmpty(order.delivery.consignee.province) ? "" : order.delivery.consignee.province.Replace("'", "`");
+            if (namaProv.Length > 50)
+                namaProv = namaProv.Substring(0, 50);
+            #endregion
+            insertPembeli += "('" + nama + "','" + order.delivery.consignee.address.Replace('\'', '`') + "','" + tlp + "','',0,0,'0','01',";
+            insertPembeli += "1, 'IDR', '01', '" + AL_KIRIM1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
+            insertPembeli += "'FP', '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '"
+                + KODEPOS + "', '', '" + kabKot + "', '" + prov + "', '" + namaKabkot
+                + "', '" + namaProv.Replace('\'', '`') + "', '" + conn_id + "')";
+
+            SqlCommand CommandSQL = new SqlCommand();
+            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = conn_id;
+
+            EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
+
+        }
+        [HttpGet]
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
         public BindingBase cekTransaksi(/*string transId,*/ string Cust, string email, string userId, string token, string dbPathEra, string uname)
         {
             //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
@@ -1031,6 +1979,210 @@ namespace MasterOnline.Controllers
                 //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
             }
 
+            return ret;
+        }
+
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Accept Pesanan {obj} ke BukaLapak Gagal.")]
+        public async Task<BindingBase> Bukalapak_AcceptOrder(string DatabasePathErasoft, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, BukaLapakKey data, string noref, string username)
+        {
+            SetupContext(DatabasePathErasoft, username);
+            data = new BukaLapakControllerJob().RefreshToken(data);
+            var ret = new BindingBase();
+            string transid = noref.Substring(2, noref.Length - 2);
+
+            string urll = "https://api.bukalapak.com/transactions/" + transid + "/status";
+
+            string myData = "{\"state\":\"accepted\"}";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "PUT";
+            myReq.Headers.Add("Authorization", "Bearer " + data.token);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (responseFromServer != "")
+            {
+                var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(ChangeOrderStatusResponse)) as ChangeOrderStatusResponse;
+                if (resp != null)
+                {
+                    if (resp.meta != null)
+                    {
+                        if (resp.meta.http_status != 200)
+                        {
+                            if (resp.errors != null)
+                            {
+                                if (resp.errors.Length > 0)
+                                {
+                                    string errMsg = "";
+                                    foreach (var error in resp.errors)
+                                    {
+                                        errMsg += error.code + ":" + error.message + "\n";
+                                    }
+                                    throw new Exception(errMsg);
+                                }
+                            }
+                            throw new Exception(responseFromServer);
+                        }
+                        else
+                        {
+                            #region set pembeli
+                            if (!resp.data.delivery.consignee.phone.Contains("Terkunci"))
+                            {
+                                var ordID = resp.data.transaction_id;
+                                var currentOrder = ErasoftDbContext.SOT01A.Where(m => m.CUST == log_CUST && m.NO_REFERENSI == ordID).FirstOrDefault();
+                                if (currentOrder != null)
+                                {
+                                    if (string.IsNullOrEmpty(currentOrder.PEMESAN))
+                                    {
+                                        var pembeli = ErasoftDbContext.ARF01C.Where(m => m.TLP == resp.data.delivery.consignee.phone).FirstOrDefault();
+                                        if (pembeli == null)
+                                        {
+                                            string conn_id = Guid.NewGuid().ToString();
+                                            string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                                            insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                                            insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
+
+                                            var kabKot = "3174";//set default value jika tidak ada di db
+                                            var prov = "31";//set default value jika tidak ada di db
+                                            #region cut max length pembeli
+                                            var nama = resp.data.buyer.name.Replace('\'', '`');
+                                            if (nama.Length > 30)
+                                                nama = nama.Substring(0, 30);
+                                            string tlp = !string.IsNullOrEmpty(resp.data.delivery.consignee.phone) ? resp.data.delivery.consignee.phone.Replace('\'', '`') : "";
+                                            if (tlp.Length > 30)
+                                            {
+                                                tlp = tlp.Substring(0, 30);
+                                            }
+                                            string AL_KIRIM1 = !string.IsNullOrEmpty(resp.data.delivery.consignee.address) ? resp.data.delivery.consignee.address.Replace('\'', '`') : "";
+                                            if (AL_KIRIM1.Length > 30)
+                                            {
+                                                AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
+                                            }
+                                            string KODEPOS = !string.IsNullOrEmpty(resp.data.delivery.consignee.postal_code) ? resp.data.delivery.consignee.postal_code.Replace('\'', '`') : "";
+                                            if (KODEPOS.Length > 7)
+                                            {
+                                                KODEPOS = KODEPOS.Substring(0, 7);
+                                            }
+
+                                            string namaKabkot = (string.IsNullOrEmpty(resp.data.delivery.consignee.city) ? "" : resp.data.delivery.consignee.city.Replace("'", "`"));
+                                            if (namaKabkot.Length > 50)
+                                                namaKabkot = namaKabkot.Substring(0, 50);
+
+                                            string namaProv = string.IsNullOrEmpty(resp.data.delivery.consignee.province) ? "" : resp.data.delivery.consignee.province.Replace("'", "`");
+                                            if (namaProv.Length > 50)
+                                                namaProv = namaProv.Substring(0, 50);
+                                            #endregion
+                                            insertPembeli += "('" + nama + "','" + resp.data.delivery.consignee.address.Replace('\'', '`') + "','" + tlp + "','',0,0,'0','01',";
+                                            insertPembeli += "1, 'IDR', '01', '" + AL_KIRIM1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                            insertPembeli += "'FP', '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '"
+                                                + KODEPOS + "', '', '" + kabKot + "', '" + prov + "', '" + namaKabkot
+                                                + "', '" + namaProv.Replace('\'', '`') + "', '" + conn_id + "')";
+
+                                            EDB.ExecuteSQL("MOConnectionString", CommandType.Text, insertPembeli);
+
+                                            SqlCommand CommandSQL = new SqlCommand();
+                                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = conn_id;
+
+                                            EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
+
+                                            pembeli = ErasoftDbContext.ARF01C.Where(m => m.TLP == resp.data.delivery.consignee.phone).FirstOrDefault();
+                                        }
+                                        //var pembeli = ErasoftDbContext.ARF01C.Where(m => m.TLP == resp.data.delivery.consignee.phone).FirstOrDefault();
+                                        if (pembeli != null)
+                                        {
+                                            EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeli.BUYER_CODE + "' WHERE NO_BUKTI = '" + currentOrder.NO_BUKTI + "'");
+                                        }
+                                    }
+                                }
+                            }
+                            #endregion
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
+
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke BukaLapak Gagal.")]
+        public async Task<BindingBase> Bukalapak_CancelOrder(string DatabasePathErasoft, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, BukaLapakKey data, string noref, string username, string cancelReason)
+        {
+            SetupContext(DatabasePathErasoft, username);
+            data = new BukaLapakControllerJob().RefreshToken(data);
+            var ret = new BindingBase();
+
+            string transid = noref.Substring(2, noref.Length - 2);
+            string urll = "https://api.bukalapak.com/transactions/" + transid + "/status";
+
+            string myData = "{\"state\":\"rejected\", \"state_options\": {\"reject_reason\":  \"" + cancelReason + "\" } }";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "PUT";
+            myReq.Headers.Add("Authorization", "Bearer " + data.token);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (responseFromServer != "")
+            {
+                var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(ChangeOrderStatusResponse)) as ChangeOrderStatusResponse;
+                if (resp != null)
+                {
+                    if (resp.meta != null)
+                    {
+                        if (resp.meta.http_status != 200)
+                        {
+                            if (resp.errors != null)
+                            {
+                                if (resp.errors.Length > 0)
+                                {
+                                    string errMsg = "";
+                                    foreach (var error in resp.errors)
+                                    {
+                                        errMsg += error.code + ":" + error.message + "\n";
+                                    }
+                                    throw new Exception(errMsg);
+                                }
+                            }
+                            throw new Exception(responseFromServer);
+                        }
+                        
+                    }
+                }
+            }
             return ret;
         }
         public BindingBase getListProduct(string cust, string userId, string token, int page, bool display, int recordCount)
@@ -1472,4 +2624,467 @@ namespace MasterOnline.Controllers
             }
         }
     }
+
+    #region get order response
+    public class SetOrderCourrierResponse : BLErrorResponse
+    {
+        public SetCourrierDatum data { get; set; }
+        public GetOrdersMeta meta { get; set; }
+
+    }
+    public class SetCourrierDatum
+    {
+        public long id { get; set; }
+        public string transaction_id { get; set; }
+        public long shipping_id { get; set; }
+        public string courier { get; set; }
+        public string courier_name { get; set; }
+        public string booking_code { get; set; }
+        public string partner_label_url { get; set; }
+    }
+    public class ChangeOrderStatusResponse : BLErrorResponse
+    {
+        public GetOrdersDatum data { get; set; }
+        public GetOrdersMeta meta { get; set; }
+    }
+    public class GetOrdersResponse : BLErrorResponse
+    {
+        public GetOrdersDatum[] data { get; set; }
+        public GetOrdersMeta meta { get; set; }
+    }
+
+    public class GetOrdersMeta
+    {
+        public int http_status { get; set; }
+    }
+
+    public class GetOrdersDatum
+    {
+        public long id { get; set; }
+        public string type { get; set; }
+        public long invoice_id { get; set; }
+        public string transaction_id { get; set; }
+        public string state { get; set; }
+        public string payment_method { get; set; }
+        public State_Changed_At state_changed_at { get; set; }
+        //public State_Changed_By state_changed_by { get; set; }
+        public bool actionable { get; set; }
+        public string created_on { get; set; }
+        public GetOrdersItem[] items { get; set; }
+        public GetOrdersBuyer buyer { get; set; }
+        //public GetOrdersStore store { get; set; }
+        public GetOrdersAmount amount { get; set; }
+        public GetOrdersCashback[] cashback { get; set; }
+        public GetOrdersDelivery delivery { get; set; }
+        public GetOrdersDropship dropship { get; set; }
+        //public GetOrdersFeedback feedback { get; set; }
+        public GetOrdersOptions options { get; set; }
+        public bool on_hold { get; set; }
+        public bool deal { get; set; }
+        //public long claim_id { get; set; }
+        public GetOrdersSla sla { get; set; }
+        //public DateTime last_printed_at { get; set; }
+        public DateTime created_at { get; set; }
+        public DateTime updated_at { get; set; }
+        //public GetOrdersPromotion promotion { get; set; }
+        //public string virtual_transaction_serial_number { get; set; }
+        public bool can_claim_assurance { get; set; }
+        //public int merchant_return_insurance_id { get; set; }
+    }
+
+    public class State_Changed_At
+    {
+        public DateTime pending_at { get; set; }
+        //public DateTime paid_at { get; set; }
+        //public DateTime accepted_at { get; set; }
+        //public DateTime rejected_at { get; set; }
+        //public DateTime cancelled_at { get; set; }
+        //public DateTime delivered_at { get; set; }
+        //public DateTime expired_at { get; set; }
+        //public DateTime received_at { get; set; }
+        //public DateTime remitted_at { get; set; }
+        public DateTime refund_at { get; set; }
+        //public DateTime refunded_at { get; set; }
+    }
+
+    public class State_Changed_By
+    {
+        //public long cancelled_by { get; set; }
+    }
+
+    public class GetOrdersBuyer
+    {
+        public long id { get; set; }
+        public string name { get; set; }
+        public string phone { get; set; }
+        public string avatar { get; set; }
+    }
+
+    public class GetOrdersStore
+    {
+        public long id { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public string avatar { get; set; }
+        public long address_id { get; set; }
+        public bool brand { get; set; }
+        public bool official { get; set; }
+    }
+
+    public class GetOrdersAmount
+    {
+        public GetOrdersBuyer1 buyer { get; set; }
+        public GetOrdersSeller seller { get; set; }
+    }
+
+    public class GetOrdersBuyer1
+    {
+        public double total { get; set; }
+        public double payment_amount { get; set; }
+        public double refund_amount { get; set; }
+        public double coded_amount { get; set; }
+        public GetOrdersDetails details { get; set; }
+    }
+
+    public class GetOrdersDetails
+    {
+        public double item { get; set; }
+        public double delivery { get; set; }
+        public double insurance { get; set; }
+        //public double axinan_insurance_amount { get; set; }
+        //public double logistic_insurance_amount { get; set; }
+        //public double gadget_insurance_amount { get; set; }
+        //public double goods_insurance_amount { get; set; }
+        //public double cosmetic_insurance_amount { get; set; }
+        //public double fmcg_insurance_amount { get; set; }
+        //public double return_insurance_amount { get; set; }
+        public double administration { get; set; }
+        public double tipping_amount { get; set; }
+        public double negotiation { get; set; }
+        public double vat { get; set; }
+        public double flash_deal_discount { get; set; }
+        public double priority_buyer { get; set; }
+        public double voucher_discount { get; set; }
+        public double service_fee_dynamic_charging { get; set; }
+        public double retarget_discount_amount { get; set; }
+    }
+
+    public class GetOrdersSeller
+    {
+        public double total { get; set; }
+        public GetOrdersDetails1 details { get; set; }
+    }
+
+    public class GetOrdersDetails1
+    {
+        public double items { get; set; }
+        public double delivery { get; set; }
+        public double insurance { get; set; }
+        public GetOrdersShipping_Reductions[] shipping_reductions { get; set; }
+        public GetOrdersReduction[] reductions { get; set; }
+        public GetOrdersSuper_Seller[] super_seller { get; set; }
+    }
+
+    public class GetOrdersShipping_Reductions
+    {
+        public string name { get; set; }
+        public double amount { get; set; }
+        public string description { get; set; }
+        public bool remit_excluded { get; set; }
+    }
+
+    public class GetOrdersReduction
+    {
+        public string name { get; set; }
+        public double amount { get; set; }
+        public string description { get; set; }
+    }
+
+    public class GetOrdersSuper_Seller
+    {
+        public string name { get; set; }
+        public double amount { get; set; }
+    }
+
+    public class GetOrdersDelivery
+    {
+        public GetOrdersConsignee consignee { get; set; }
+        public string tracking_number { get; set; }
+        public string requested_carrier { get; set; }
+        public string carrier { get; set; }
+        public bool white_label_courier { get; set; }
+        public GetOrdersHistory[] history { get; set; }
+        public long? id { get; set; }
+        public bool force_awb { get; set; }
+        public bool force_find_driver { get; set; }
+        //public string shipping_receipt_state { get; set; }
+        public bool allow_different_courier { get; set; }
+        public bool allow_manual_receipt_voucher { get; set; }
+        public double manual_switch_fee { get; set; }
+        public bool allow_redeliver { get; set; }
+        //public GetOrdersBooking booking { get; set; }
+        //public GetOrdersPickup_Time pickup_time { get; set; }
+        public bool force_awb_voucher { get; set; }
+        //public DateTime estimated_received_at { get; set; }
+        //public GetOrdersConvenience_Store convenience_store { get; set; }
+        //public GetOrdersAvailable_Shipping_Service available_shipping_service { get; set; }
+        public string buyer_logistic_choice { get; set; }
+        //public bool receipt_validity { get; set; }
+    }
+
+    public class GetOrdersConsignee
+    {
+        public string name { get; set; }
+        public string phone { get; set; }
+        public string country { get; set; }
+        public string province { get; set; }
+        public string city { get; set; }
+        public string district { get; set; }
+        public string address { get; set; }
+        public string postal_code { get; set; }
+        //public float latitude { get; set; }
+        //public float longitude { get; set; }
+    }
+
+    public class GetOrdersBooking
+    {
+        public long id { get; set; }
+        public string booking_code { get; set; }
+        public string state { get; set; }
+        public bool invoicing { get; set; }
+        public GetOrdersDriver driver { get; set; }
+        //public DateTime created_at { get; set; }
+    }
+
+    public class GetOrdersDriver
+    {
+        public string name { get; set; }
+        public string phone { get; set; }
+        public string pin { get; set; }
+        public string photo { get; set; }
+        public string live_tracking { get; set; }
+    }
+
+    //public class GetOrdersPickup_Time
+    //{
+    //    public DateTime from { get; set; }
+    //    public DateTime to { get; set; }
+    //}
+
+    public class GetOrdersConvenience_Store
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public string address { get; set; }
+        //public GetOrdersCoordinate coordinate { get; set; }
+        public string unique_code { get; set; }
+    }
+
+    //public class GetOrdersCoordinate
+    //{
+    //    public float latitude { get; set; }
+    //    public float longitude { get; set; }
+    //}
+
+    public class GetOrdersAvailable_Shipping_Service
+    {
+        public string type { get; set; }
+        public string name { get; set; }
+    }
+
+    public class GetOrdersHistory
+    {
+        public DateTime date { get; set; }
+        public string status { get; set; }
+    }
+
+    public class GetOrdersDropship
+    {
+        public string name { get; set; }
+        public string note { get; set; }
+    }
+
+    public class GetOrdersFeedback
+    {
+        public GetOrdersStore1 store { get; set; }
+        public GetOrdersBuyer2 buyer { get; set; }
+    }
+
+    public class GetOrdersStore1
+    {
+        public long id { get; set; }
+        public string content { get; set; }
+        public bool positive { get; set; }
+        public bool editable { get; set; }
+        public GetOrdersReply[] replies { get; set; }
+    }
+
+    public class GetOrdersReply
+    {
+        public long sender_id { get; set; }
+        public string content { get; set; }
+        public DateTime created_at { get; set; }
+        public DateTime updated_at { get; set; }
+    }
+
+    public class GetOrdersBuyer2
+    {
+        public long id { get; set; }
+        public string content { get; set; }
+        public bool positive { get; set; }
+        public bool editable { get; set; }
+        public GetOrdersReply1[] replies { get; set; }
+    }
+
+    public class GetOrdersReply1
+    {
+        public long sender_id { get; set; }
+        public string content { get; set; }
+        public DateTime created_at { get; set; }
+        public DateTime updated_at { get; set; }
+    }
+
+    public class GetOrdersOptions
+    {
+        public string buyer_note { get; set; }
+        public string reject_reason { get; set; }
+        public string cancel_reason { get; set; }
+        public string cancel_notes { get; set; }
+        //public DateTime cancel_request_at { get; set; }
+        public string reject_cancel_reason { get; set; }
+        public string reject_cancel_notes { get; set; }
+    }
+
+    public class GetOrdersSla
+    {
+        public string type { get; set; }
+        public int value { get; set; }
+    }
+
+    public class GetOrdersPromotion
+    {
+        public bool promoted_push { get; set; }
+        public bool push { get; set; }
+        public bool voucher { get; set; }
+    }
+
+    public class GetOrdersItem
+    {
+        public long id { get; set; }
+        public string name { get; set; }
+        public double price { get; set; }
+        public double total_price { get; set; }
+        public double flash_deal_discount { get; set; }
+        public int quantity { get; set; }
+        public GetOrdersCategory category { get; set; }
+        public double agent_commission { get; set; }
+        public GetOrdersStuff stuff { get; set; }
+    }
+
+    public class GetOrdersCategory
+    {
+        public string name { get; set; }
+    }
+
+    public class GetOrdersStuff
+    {
+        public string reference_type { get; set; }
+        public long id { get; set; }
+        public GetOrdersProduct product { get; set; }
+        //public GetOrdersStore2 store { get; set; }
+        public long price { get; set; }
+        public GetOrdersImage image { get; set; }
+        public string variant_name { get; set; }
+        public string sku_name { get; set; }
+        public double discount { get; set; }
+        public GetOrdersUnit[] units { get; set; }
+    }
+
+    public class GetOrdersProduct
+    {
+        public string id { get; set; }
+        public double price { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public string condition { get; set; }
+        public double weight { get; set; }
+        public GetOrdersShipping shipping { get; set; }
+        public bool assurance { get; set; }
+        public string url { get; set; }
+        public string _operator { get; set; }
+        public double nominal { get; set; }
+        public string partner { get; set; }
+    }
+
+    public class GetOrdersShipping
+    {
+        public bool force_insurance { get; set; }
+        //public object[] free_shipping_coverage { get; set; }
+    }
+
+    public class GetOrdersStore2
+    {
+        public long id { get; set; }
+        public string name { get; set; }
+        public string term_and_condition { get; set; }
+        //public DateTime term_and_condition_updated_at { get; set; }
+        public GetOrdersAddress address { get; set; }
+    }
+
+    public class GetOrdersAddress
+    {
+        public string city { get; set; }
+    }
+
+    public class GetOrdersImage
+    {
+        public string[] large_urls { get; set; }
+        public string[] small_urls { get; set; }
+        //public object[] large_urlshttpswwwbukalapakcomimagesmobilelogo_xl_squarepng { get; set; }
+        //public object[] small_urlshttpswwwbukalapakcomimagesvirtual_productphonexlpng { get; set; }
+    }
+
+    public class GetOrdersUnit
+    {
+        public long id { get; set; }
+        public GetOrdersProduct1 product { get; set; }
+        public double price { get; set; }
+        public GetOrdersImage1 image { get; set; }
+        public string variant_name { get; set; }
+        public string sku_name { get; set; }
+        public double discount { get; set; }
+    }
+
+    public class GetOrdersProduct1
+    {
+        public string id { get; set; }
+        public int price { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public string condition { get; set; }
+        public double weight { get; set; }
+        public GetOrdersShipping1 shipping { get; set; }
+        public bool assurance { get; set; }
+        public string url { get; set; }
+    }
+
+    public class GetOrdersShipping1
+    {
+        public bool force_insurance { get; set; }
+        //public object[] free_shipping_coverage { get; set; }
+    }
+
+    public class GetOrdersImage1
+    {
+        public string[] large_urls { get; set; }
+        public string[] small_urls { get; set; }
+    }
+
+    public class GetOrdersCashback
+    {
+        public string type { get; set; }
+        public double amount { get; set; }
+    }
+    #endregion
+
 }

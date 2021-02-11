@@ -1149,10 +1149,22 @@ namespace MasterOnline.Controllers
                     {
                         if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
+                            var idenBL = new BukaLapakKey
+                            {
+                                code = marketPlace.API_KEY,
+                                cust = marketPlace.CUST,
+                                dbPathEra = DatabasePathErasoft,
+                                refresh_token = marketPlace.REFRESH_TOKEN,
+                                tgl_expired = marketPlace.TGL_EXPIRED.Value,
+                                token = marketPlace.TOKEN
+                            };
 #if (DEBUG || Debug_AWS)
-                            Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null);
+                            //Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null);
+                            Bukalapak_updateStock_v2(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", idenBL, stf02h.BRG_MP, uname, null);
 #else
-                            client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
+                            //client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
+                            client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock_v2(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", idenBL, stf02h.BRG_MP, uname, null));
+
 #endif
                         }
                     }
@@ -1562,10 +1574,21 @@ namespace MasterOnline.Controllers
                     {
                         if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
+                            var idenBL = new BukaLapakKey
+                            {
+                                code = marketPlace.API_KEY,
+                                cust = marketPlace.CUST,
+                                dbPathEra = DatabasePathErasoft,
+                                refresh_token = marketPlace.REFRESH_TOKEN,
+                                tgl_expired = marketPlace.TGL_EXPIRED.Value,
+                                token = marketPlace.TOKEN
+                            };
 #if (DEBUG || Debug_AWS)
-                            Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null);
+                            //Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null);
+                            Bukalapak_updateStock_v2(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", idenBL, stf02h.BRG_MP, uname, null);
 #else
-                            client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
+                            //client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
+                            client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock_v2(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", idenBL, stf02h.BRG_MP, uname, null));
 #endif
                         }
 
@@ -1935,6 +1958,86 @@ namespace MasterOnline.Controllers
                 //currentLog.REQUEST_EXCEPTION = "Failed to call Buka Lapak API";
                 //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
             }
+        }
+
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_update_stok")]
+        [NotifyOnFailed("Update Stok {obj} ke Bukalapak gagal.")]
+        public async Task<BindingBase> Bukalapak_updateStock_v2(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, BukaLapakKey data, string brgmp, string username, PerformContext context)
+        {
+            dbPathEra = DatabasePathErasoft;
+            data = new BukaLapakControllerJob().RefreshToken(data);
+            var ret = new BindingBase();
+
+            var EDB = new DatabaseSQL(DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+
+            var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+
+            //add by calvin 17 juni 2019
+            if (qtyOnHand < 0)
+            {
+                qtyOnHand = 0;
+            }
+            //end add by calvin 17 juni 2019
+
+            var splitKode = brgmp.Split(';');
+            if(splitKode.Length != 2)
+            {
+                throw new Exception("invalid item code");
+            }
+            string urll = "https://api.bukalapak.com/products/"+splitKode[0]+ "/skus/" + splitKode[1];
+
+            string myData = "{\"stock\":"+qtyOnHand+"}";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "PATCH";
+            myReq.Headers.Add("Authorization", "Bearer " + data.token);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if(responseFromServer != "")
+            {
+                var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(BukalapakResponseAPI)) as BukalapakResponseAPI;
+                if(resp != null)
+                {
+                    if(resp.meta != null)
+                    {
+                        if(resp.meta.http_status != 200)
+                        {
+                            if(resp.errors != null)
+                            {
+                                if(resp.errors.Length > 0)
+                                {
+                                    string errMsg = "";
+                                    foreach(var error in resp.errors)
+                                    {
+                                        errMsg += error.code + ":" + error.message + "\n";
+                                    }
+                                    throw new Exception(errMsg);
+                                }
+                            }
+                            throw new Exception(responseFromServer);
+                        }
+                    }
+                }
+            }
+            return ret;
         }
 
         [AutomaticRetry(Attempts = 3)]
@@ -5548,5 +5651,13 @@ namespace MasterOnline.Controllers
             public string out_of_stock { get; set; }
         }
 
+        public class BukalapakResponseAPI : BLErrorResponse
+        {
+            public BukalapakResponseMeta meta { get; set; }
+        }
+        public class BukalapakResponseMeta
+        {
+            public int http_status { get; set; }
+        }
     }
 }
