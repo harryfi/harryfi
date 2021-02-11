@@ -586,7 +586,7 @@
                 },
                 success: function (response) {
                     if (response.Errors == null) {
-                        if (response.Errors == null || response.Errors.length == 0) {
+                        if (response.Errors == null) {
                             alert('Data perusahaan berhasil disimpan!');
                             //window.location = '@Url.Action("Bantuan")';
                             window.location.reload();
@@ -710,7 +710,7 @@
                     }).change(function () {
                         var $val = $(this).selectivity('value');
                         $('#DataUsahaTambahan_KODEKABKOT').val($val);
-                    });;
+                    });
 
                     $('#KODEKABKOT').selectivity('value', $('#DataUsahaTambahan_KODEKABKOT').val());
                 },
@@ -756,7 +756,7 @@
                     }).change(function () {
                         var $val = $(this).selectivity('value');
                         $('#DataUsaha_GUDANG').val($val);
-                    });;
+                    });
 
                     $('#GUDANG').selectivity('value', $('#DataUsaha_GUDANG').val());
                 },
