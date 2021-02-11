@@ -29,11 +29,13 @@ namespace MasterOnline.Controllers
 
 #if AWS
         private static string callBackUrl = "https://masteronline.co.id/bukalapak/auth";
+        private static string client_id = "GovVusRdl0QwJCXu1F0th5lezoFYvVIW4XHv4U1M05U";
+        private static string client_secret = "osqzx8n3y3YRJ0vydm_8qOZ9N9f95EvrZSvTFtKQCzM";
 #else
         private static string callBackUrl = "https://dev.masteronline.co.id/bukalapak/auth";
-#endif
         private static string client_id = "laJXb5jh91BelPQg2VmE2ooa58UVJmlJkNq98EPJc6s";
         private static string client_secret = "AXe5u7JcYiSNLvOsGW92Dzc4li6mbrWpN9qjlLD4OxI";
+#endif
         string dbSourceEra = "";
 
         public BukaLapakController()
