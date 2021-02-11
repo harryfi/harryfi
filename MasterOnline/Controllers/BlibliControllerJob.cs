@@ -10828,6 +10828,8 @@ namespace MasterOnline.Controllers
                 REQUEST_ACTION = "Print Label BLibli",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = nobuk,
+                REQUEST_ATTRIBUTE_3 = packageId,
                 REQUEST_STATUS = "Pending",
             };
 
