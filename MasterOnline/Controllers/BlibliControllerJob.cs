@@ -10821,7 +10821,18 @@ namespace MasterOnline.Controllers
 
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
-            
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = Uri.EscapeDataString("MasterOnline-" + milis.ToString()),
+                REQUEST_ACTION = "Print Label BLibli",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = nobuk,
+                REQUEST_ATTRIBUTE_3 = packageId,
+                REQUEST_STATUS = "Pending",
+            };
+
             string urll = "https://api.blibli.com/v2/proxy/seller/v1/orders/{package-id}/shippingLabel?";
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             if (iden.versiToken != "2")
@@ -10928,6 +10939,12 @@ namespace MasterOnline.Controllers
                     {
                         result.success = false;
                         result.errorMessage = resultRespons.errorMessage.Value;
+
+                        //add by nurul 11/2/2021, save error print label 
+                        manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+                        currentLog.REQUEST_EXCEPTION = resultRespons.errorMessage.Value;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        //end add by nurul 11/2/2021, save error print label 
                     }
                 }
                 catch (Exception ex)
@@ -10937,6 +10954,12 @@ namespace MasterOnline.Controllers
                     if (!string.IsNullOrEmpty(resultRespons.errorMessage.Value))
                     {
                         result.errorMessage = resultRespons.errorMessage.Value;
+
+                        //add by nurul 11/2/2021, save error print label 
+                        manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+                        currentLog.REQUEST_EXCEPTION = resultRespons.errorMessage.Value;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        //end add by nurul 11/2/2021, save error print label 
                     }
                 }
             }
