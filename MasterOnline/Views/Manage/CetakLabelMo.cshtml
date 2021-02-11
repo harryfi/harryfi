@@ -324,6 +324,7 @@
                                                 <tr style="width:619px !important;">
                                                     <th>No</th>
                                                     <th>Nama Barang</th>
+                                                    <th>Lokasi Rak</th>
                                                     <th style="text-align: right;">Jumlah Barang</th>
                                                     <th style="text-align: right;">Harga Barang</th>
                                                     <th style="text-align: right;">Diskon</th>
@@ -349,6 +350,10 @@
                                                         var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
                                                         //end change by nurul 15/9/2020
                                                         fakturNo = fakturNo + 1;
+
+                                                        //add by nurul 5/2/2021
+                                                        var rak = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
+                                                        //end add by nurul 5/2/2021
                                                         <tr>
                                                             <td>@fakturNo</td>
                                                             <td style="width:219px !important;">
@@ -356,6 +361,12 @@
                                                                 @if (!String.IsNullOrWhiteSpace(namaBarang2))
                                                                 {
                                                                     @namaBarang2
+                                                                }
+                                                            </td>
+                                                            <td>
+                                                                @if (!string.IsNullOrEmpty(rak))
+                                                                {
+                                                                    @rak
                                                                 }
                                                             </td>
                                                             <td style="text-align: right;width:100px !important;">

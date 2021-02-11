@@ -27742,10 +27742,7 @@ namespace MasterOnline.Controllers
 
                     //add by nurul 5/2/2021
                     //default barcode referensi ditampilkan 
-                    if (so.namamarket.ToUpper() != "LAZADA")
-                    {
-                        refLink = "1";
-                    }
+                    refLink = "1";
 
                     //logo marketplace 
                     var logoMARKET = "";
@@ -27901,6 +27898,8 @@ namespace MasterOnline.Controllers
                         logoToko = linkLogo,
                         linkref = refLink,
                         typeLogo = tipeLogo,
+                        logoKurirApi = logoKurir,
+                        isiRef = refNew,
                     };
 
                     ym.ListCetakLabel.Add(vm);
