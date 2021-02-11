@@ -232,7 +232,8 @@ namespace MasterOnline.Controllers
         public BukaLapakKey RefreshToken(BukaLapakKey data)
         {
             var ret = data;
-            if (data.tgl_expired < DateTime.UtcNow.AddHours(7).AddMinutes(-30))
+            //if (data.tgl_expired < DateTime.UtcNow.AddHours(7).AddMinutes(-30))
+            if (data.tgl_expired.AddMinutes(30) > DateTime.UtcNow.AddHours(7))
             {
                 var urll = ("https://accounts.bukalapak.com/oauth/token");
                 var client = new RestClient(urll);

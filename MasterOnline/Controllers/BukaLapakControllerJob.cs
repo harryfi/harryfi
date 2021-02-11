@@ -77,7 +77,8 @@ namespace MasterOnline.Controllers
         {
             SetupContext(data.dbPathEra, "");
             var ret = data;
-            if (data.tgl_expired < DateTime.UtcNow.AddHours(7).AddMinutes(-30))
+            //if (data.tgl_expired < DateTime.UtcNow.AddHours(7).AddMinutes(-30))
+            if (data.tgl_expired.AddMinutes(30) > DateTime.UtcNow.AddHours(7))
             {
                 var cekInDB = ErasoftDbContext.ARF01.Where(m => m.CUST == data.cust).FirstOrDefault();
                 if(cekInDB != null)
@@ -89,7 +90,7 @@ namespace MasterOnline.Controllers
                         data.tgl_expired = cekInDB.TGL_EXPIRED.Value;
                         data.token = cekInDB.TOKEN;
 
-                        if (cekInDB.TGL_EXPIRED.Value.AddMinutes(-30) > DateTime.UtcNow.AddHours(7))
+                        if (cekInDB.TGL_EXPIRED.Value.AddMinutes(30) < DateTime.UtcNow.AddHours(7))
                         {
                             return data;
                         }
