@@ -1854,6 +1854,89 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
+        public async Task<string> GetOrderGoLive(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar)
+        {
+            SetupContext(iden);
+
+            var delQry = "delete a from sot01a a left join sot01b b on a.no_bukti = b.no_bukti where isnull(b.no_bukti, '') = '' and tgl >= '";
+            delQry += DateTime.UtcNow.AddHours(7).AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss") + "' and cust = '" + CUST + "'";
+
+            var resultDel = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, delQry);
+
+            //int dayFrom = -1;
+
+            //add 16 des 2020, fixed date
+            //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).AddHours(-7).ToUnixTimeSeconds();
+            //var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
+            //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
+            //var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-3).AddHours(-7).ToUnixTimeSeconds();
+            var toDt = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            //end add 16 des 2020, fixed date
+
+            //change by nurul 19/1/2021, bundling 
+            //await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, 0, 0, 0, fromDt, toDt);
+            var AdaKomponen = false;
+            var returnGetOrder = await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, 0, 0, 0, fromDt, toDt);
+            if (returnGetOrder.AdaKomponen)
+            {
+                AdaKomponen = returnGetOrder.AdaKomponen;
+            }
+            var lanjut = returnGetOrder.more;
+            var connIdProses = "";
+            List<string> tempConnId = new List<string>() { };
+            if (returnGetOrder.ConnId != "")
+            {
+                tempConnId.Add(returnGetOrder.ConnId);
+                connIdProses += "'" + returnGetOrder.ConnId + "' , ";
+            }
+            while (lanjut)
+            {
+                //var nextReturnGetOrder = await GetOrderByStatusCancelledAPI(iden, stat, CUST, NAMA_CUST, returnGetOrder.page, returnGetOrder.jmlhNewOrder, fromDt, toDt);
+                var nextReturnGetOrder = await GetOrderByStatusWithDay(iden, stat, CUST, NAMA_CUST, returnGetOrder.page, returnGetOrder.jmlhNewOrder, returnGetOrder.jmlhPesananDibayar, fromDt, toDt);
+                if (nextReturnGetOrder.ConnId != "")
+                {
+                    tempConnId.Add(nextReturnGetOrder.ConnId);
+                    connIdProses += "'" + returnGetOrder.ConnId + "' , ";
+                }
+                if (nextReturnGetOrder.AdaKomponen)
+                {
+                    AdaKomponen = nextReturnGetOrder.AdaKomponen;
+                }
+                returnGetOrder = nextReturnGetOrder;
+                if (!nextReturnGetOrder.more) { lanjut = false; break; }
+            }
+            //List<string> listBrgKomponen = new List<string>();
+            //if (tempConnId.Count() > 0)
+            //{
+            //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            //}
+            //if (listBrgKomponen.Count() > 0)
+            if (AdaKomponen)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //change by nurul 19/1/2021, bundling 
+
+            // tunning untuk tidak duplicate
+            //var queryStatus = "";
+            //if (stat == StatusOrder.UNPAID)
+            //{
+            //    //queryStatus = "\"}\"" + "," + "\"6\"" + "," + "\"";
+            //    queryStatus = "\\\"}\"" + "," + "\"6\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","6","\"000003\""
+            //}
+            //else if (stat == StatusOrder.READY_TO_SHIP)
+            //{
+            //    //queryStatus = "\"}\"" + "," + "\"3\"" + "," + "\"";
+            //    queryStatus = "\\\"}\"" + "," + "\"3\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","3","\"000003\""
+            //}
+            //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrderByStatusCompleted%' and invocationdata not like '%GetOrderByStatusCancelled%' and invocationdata not like '%GetOrderByStatusWithDay%'");
+            // end tunning untuk tidak duplicate
+            return "";
+        }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
         //public async Task<string> GetOrderByStatusWithDay(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         public async Task<returnsGetOrder> GetOrderByStatusWithDay(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, long daysFrom, long daysTo)
         {
