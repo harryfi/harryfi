@@ -93,9 +93,10 @@ namespace MasterOnline.Controllers
                 }
             }
             var dataToken = MoDbContext.BUKALAPAK_TOKEN.Where(m => m.ACCOUNT == userId && m.CUST == cust).FirstOrDefault();
+            var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
             if (dataToken == null)
             {
-                var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+                //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
                 dataToken = new BUKALAPAK_TOKEN();
                 dataToken.ACCOUNT = userId;
                 dataToken.CUST = cust;
@@ -104,6 +105,13 @@ namespace MasterOnline.Controllers
                 dataToken.CREATED_AT = DateTime.UtcNow.AddHours(7);
                 MoDbContext.BUKALAPAK_TOKEN.Add(dataToken);
                 MoDbContext.SaveChanges();
+            }
+            else
+            {
+                dataToken.EMAIL = customer.EMAIL;
+                dataToken.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                MoDbContext.SaveChanges();
+
             }
             string lzdId = cust;
             //string compUrl = callBackUrl + userId + "_param_" + cust;
@@ -210,7 +218,8 @@ namespace MasterOnline.Controllers
                             if (datacc != null)
                             {
                                 datacc.CODE = code;
-                                ErasoftDbContext.SaveChanges();
+                                MoDbContext.SaveChanges();
+                                //ErasoftDbContext.SaveChanges();
                                 DateTime tglExpired = DateTimeOffset.FromUnixTimeSeconds(retGetToken.created_at).UtcDateTime.AddHours(7).AddSeconds(retGetToken.expires_in);
 
                                 DatabaseSQL EDB = new DatabaseSQL(datacc.ACCOUNT);
@@ -2834,11 +2843,25 @@ namespace MasterOnline.Controllers
                         {
                             if (brg.variants[i].images.large_urls != null)
                             {
-                                urlImage = brg.variants[i].images.large_urls[0];
+                                if(brg.variants[i].images.large_urls.Length > 1)
+                                {
+                                    urlImage = brg.variants[i].images.large_urls[1];
+                                }
+                                else
+                                {
+                                    urlImage = brg.variants[i].images.large_urls[0];
+                                }
                             }
                             else if (brg.variants[i].images.small_urls != null)
                             {
-                                urlImage = brg.variants[i].images.small_urls[0];
+                                if (brg.variants[i].images.small_urls.Length > 1)
+                                {
+                                    urlImage = brg.variants[i].images.small_urls[1];
+                                }
+                                else
+                                {
+                                    urlImage = brg.variants[i].images.small_urls[0];
+                                }
                             }
                             //remark 21/8/2019, barang varian ambil 1 gambar saja
                             //if (brg.product_sku[i].images.Length >= 2)
