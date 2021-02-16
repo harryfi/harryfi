@@ -2655,29 +2655,41 @@ namespace MasterOnline.Controllers
                                 var brgmp = brg.sku_id.ToString();
                                 //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
                                 //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
-                                var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
-                                var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
-                                if (tempbrginDB == null && brgInDB == null)
+                                //var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
+                                //var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
+                                //if (tempbrginDB == null && brgInDB == null)
                                 {
                                     if (haveVarian)
                                     {
                                         ret.totalData += brg.variants.Length;//add 18 Juli 2019, show total record
                                         for (int i = 0; i < brg.variants.Length; i++)
                                         {
-                                            var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 2, kdBrgInduk, i);
+                                            brgmp = brg.variants[i].product_id + ";" + brg.variants[i].id;
+                                            var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
+                                            var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
+                                            if (tempbrginDB == null && brgInDB == null)
+                                            {
+                                                var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 2, kdBrgInduk, i);
+                                                if (insert2.exception == 1)
+                                                    ret.exception = 1;
+                                                if (insert2.status == 1)
+                                                    sSQL_Value += insert2.message;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        brgmp = brg.id + ";" + brg.sku_id;
+                                        var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
+                                        var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
+                                        if (tempbrginDB == null && brgInDB == null)
+                                        {
+                                            var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 0, "", 0);
                                             if (insert2.exception == 1)
                                                 ret.exception = 1;
                                             if (insert2.status == 1)
                                                 sSQL_Value += insert2.message;
                                         }
-                                    }
-                                    else
-                                    {
-                                        var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 0, "", 0);
-                                        if (insert2.exception == 1)
-                                            ret.exception = 1;
-                                        if (insert2.status == 1)
-                                            sSQL_Value += insert2.message;
                                     }
                                 }
                             }
