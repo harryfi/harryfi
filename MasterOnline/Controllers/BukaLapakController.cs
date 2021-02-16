@@ -2913,9 +2913,14 @@ namespace MasterOnline.Controllers
                     l = brg.dimensions.width;
                     t = brg.dimensions.height;
                 }
+                string desc = brg.description.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
+                if (!string.IsNullOrEmpty(brg.description_bb))
+                {
+                    desc = brg.description_bb.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
+                }
                 sSQL_Value += nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
                 sSQL_Value += brg.weight + " , " + p + ", " + l + ", " + t + ", '" + cust + "' , '" + brg.url + "' , '" + (namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg) + "' , '";
-                sSQL_Value += brg.description.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`') + "' , " + idMarket;
+                sSQL_Value += desc + "' , " + idMarket;
                 sSQL_Value += " , " + itemPrice + " , " + itemPrice + " , " + (display ? "1" : "0") + ", '";
                 sSQL_Value += brg.category.id + "' , '" + brg.category.name + "' , '" + brand;
                 sSQL_Value += "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "','" + urlImage4 + "' , '" + urlImage5 + "','";
