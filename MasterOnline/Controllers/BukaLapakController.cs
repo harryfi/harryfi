@@ -156,28 +156,28 @@ namespace MasterOnline.Controllers
                     }
                 }
 
-                var ex3 = new BUKALAPAK_TOKEN();
-                ex3.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "3";
-                ex3.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
-                ex3.CODE = err;
-                ex3.EMAIL = "qc-failtoken";
-                ex3.CREATED_AT = DateTime.UtcNow.AddHours(7);
-                MoDbContext.BUKALAPAK_TOKEN.Add(ex3);
-                MoDbContext.SaveChanges();
+                //var ex3 = new BUKALAPAK_TOKEN();
+                //ex3.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "3";
+                //ex3.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                //ex3.CODE = err;
+                //ex3.EMAIL = "qc-failtoken";
+                //ex3.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                //MoDbContext.BUKALAPAK_TOKEN.Add(ex3);
+                //MoDbContext.SaveChanges();
             }
 
             if (!string.IsNullOrEmpty(stringRet))
             {
                 try
                 {
-                    var ex22 = new BUKALAPAK_TOKEN();
-                    ex22.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "1";
-                    ex22.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
-                    ex22.CODE = stringRet;
-                    ex22.EMAIL = "qc-successtoken";
-                    ex22.CREATED_AT = DateTime.UtcNow.AddHours(7);
-                    MoDbContext.BUKALAPAK_TOKEN.Add(ex22);
-                    MoDbContext.SaveChanges();
+                    //var ex22 = new BUKALAPAK_TOKEN();
+                    //ex22.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "1";
+                    //ex22.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                    //ex22.CODE = stringRet;
+                    //ex22.EMAIL = "qc-successtoken";
+                    //ex22.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                    //MoDbContext.BUKALAPAK_TOKEN.Add(ex22);
+                    //MoDbContext.SaveChanges();
 
                     AccessKeyBL retObj = JsonConvert.DeserializeObject(stringRet, typeof(AccessKeyBL)) as AccessKeyBL;
                     if (retObj != null)
@@ -198,14 +198,14 @@ namespace MasterOnline.Controllers
                 }catch(Exception ex)
                 {
 
-                    var ex11 = new BUKALAPAK_TOKEN();
-                    ex11.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd");
-                    ex11.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
-                    ex11.CODE = ex.Message;
-                    ex11.EMAIL = "qc-exctoken";
-                    ex11.CREATED_AT = DateTime.UtcNow.AddHours(7);
-                    MoDbContext.BUKALAPAK_TOKEN.Add(ex11);
-                    MoDbContext.SaveChanges();
+                    //var ex11 = new BUKALAPAK_TOKEN();
+                    //ex11.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd");
+                    //ex11.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                    //ex11.CODE = ex.Message;
+                    //ex11.EMAIL = "qc-exctoken";
+                    //ex11.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                    //MoDbContext.BUKALAPAK_TOKEN.Add(ex11);
+                    //MoDbContext.SaveChanges();
                     throw new Exception("data : " + stringRet);
                 }
             }
@@ -230,28 +230,28 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                var ex1 = new BUKALAPAK_TOKEN();
-                ex1.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "4";
-                ex1.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
-                ex1.CODE = ex.Message;
-                ex1.EMAIL = "qc-failshop";
-                ex1.CREATED_AT = DateTime.UtcNow.AddHours(7);
-                MoDbContext.BUKALAPAK_TOKEN.Add(ex1);
-                MoDbContext.SaveChanges();
+                //var ex1 = new BUKALAPAK_TOKEN();
+                //ex1.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "4";
+                //ex1.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                //ex1.CODE = ex.Message;
+                //ex1.EMAIL = "qc-failshop";
+                //ex1.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                //MoDbContext.BUKALAPAK_TOKEN.Add(ex1);
+                //MoDbContext.SaveChanges();
             }
 
             if (responseFromServer != "")
             {
                 try
                 {
-                    var ex2 = new BUKALAPAK_TOKEN();
-                    ex2.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "2";
-                    ex2.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
-                    ex2.CODE = responseFromServer;
-                    ex2.EMAIL = "qc-successshop";
-                    ex2.CREATED_AT = DateTime.UtcNow.AddHours(7);
-                    MoDbContext.BUKALAPAK_TOKEN.Add(ex2);
-                    MoDbContext.SaveChanges();
+                    //var ex2 = new BUKALAPAK_TOKEN();
+                    //ex2.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "2";
+                    //ex2.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                    //ex2.CODE = responseFromServer;
+                    //ex2.EMAIL = "qc-successshop";
+                    //ex2.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                    //MoDbContext.BUKALAPAK_TOKEN.Add(ex2);
+                    //MoDbContext.SaveChanges();
 
                     var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ShopDetailResponse)) as ShopDetailResponse;
                     if (result != null)
@@ -279,14 +279,14 @@ namespace MasterOnline.Controllers
                 }
                 catch (Exception ex)
                 {
-                    var ex1 = new BUKALAPAK_TOKEN();
-                    ex1.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "5";
-                    ex1.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
-                    ex1.CODE = ex.Message;
-                    ex1.EMAIL = "qc-excshop";
-                    ex1.CREATED_AT = DateTime.UtcNow.AddHours(7);
-                    MoDbContext.BUKALAPAK_TOKEN.Add(ex1);
-                    MoDbContext.SaveChanges();
+                    //var ex1 = new BUKALAPAK_TOKEN();
+                    //ex1.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "5";
+                    //ex1.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                    //ex1.CODE = ex.Message;
+                    //ex1.EMAIL = "qc-excshop";
+                    //ex1.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                    //MoDbContext.BUKALAPAK_TOKEN.Add(ex1);
+                    //MoDbContext.SaveChanges();
                 }
             }
             return View("BukalapakAuth");
