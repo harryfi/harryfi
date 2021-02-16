@@ -157,7 +157,7 @@ namespace MasterOnline.Controllers
                 }
 
                 var ex3 = new BUKALAPAK_TOKEN();
-                ex3.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd");
+                ex3.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "3";
                 ex3.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
                 ex3.CODE = err;
                 ex3.EMAIL = "qc-failtoken";
@@ -171,7 +171,7 @@ namespace MasterOnline.Controllers
                 try
                 {
                     var ex22 = new BUKALAPAK_TOKEN();
-                    ex22.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd");
+                    ex22.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "1";
                     ex22.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
                     ex22.CODE = stringRet;
                     ex22.EMAIL = "qc-successtoken";
@@ -231,7 +231,7 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 var ex1 = new BUKALAPAK_TOKEN();
-                ex1.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd");
+                ex1.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "4";
                 ex1.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
                 ex1.CODE = ex.Message;
                 ex1.EMAIL = "qc-failshop";
@@ -245,7 +245,7 @@ namespace MasterOnline.Controllers
                 try
                 {
                     var ex2 = new BUKALAPAK_TOKEN();
-                    ex2.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd");
+                    ex2.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "2";
                     ex2.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
                     ex2.CODE = responseFromServer;
                     ex2.EMAIL = "qc-successshop";
@@ -280,7 +280,7 @@ namespace MasterOnline.Controllers
                 catch (Exception ex)
                 {
                     var ex1 = new BUKALAPAK_TOKEN();
-                    ex1.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd");
+                    ex1.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "5";
                     ex1.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
                     ex1.CODE = ex.Message;
                     ex1.EMAIL = "qc-excshop";
