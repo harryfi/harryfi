@@ -3982,34 +3982,34 @@ namespace MasterOnline.Controllers
 
     public class DataShopDetail
     {
-        public AddressShopDetail address { get; set; }
-        public long agent_id { get; set; }
-        public Avatar avatar { get; set; }
-        public Bank[] banks { get; set; }
+        //public AddressShopDetail address { get; set; }
+        //public long agent_id { get; set; }
+        //public Avatar avatar { get; set; }
+        //public Bank[] banks { get; set; }
         public string birth_date { get; set; }
-        public bool blacklisted_promo { get; set; }
-        public string bullion_auto_investment_status { get; set; }
-        public bool confirmed { get; set; }
+        //public bool blacklisted_promo { get; set; }
+        //public string bullion_auto_investment_status { get; set; }
+        //public bool confirmed { get; set; }
         public string email { get; set; }
-        public string[] favorite_payment_types { get; set; }
-        public string gender { get; set; }
-        public long id { get; set; }
-        public DateTime joined_at { get; set; }
-        public DateTime last_login_at { get; set; }
-        public DateTime last_otp { get; set; }
+        //public string[] favorite_payment_types { get; set; }
+        //public string gender { get; set; }
+        //public long id { get; set; }
+        //public DateTime joined_at { get; set; }
+        //public DateTime last_login_at { get; set; }
+        //public DateTime last_otp { get; set; }
         public string name { get; set; }
-        public object o2o_agent { get; set; }
-        public bool official { get; set; }
+        //public object o2o_agent { get; set; }
+        //public bool official { get; set; }
         public string phone { get; set; }
-        public bool phone_confirmed { get; set; }
-        public object priority_buyer_package_type { get; set; }
-        public bool registered { get; set; }
-        public string role { get; set; }
-        public string tfa_status { get; set; }
-        public Unfreezing unfreezing { get; set; }
+        //public bool phone_confirmed { get; set; }
+        //public object priority_buyer_package_type { get; set; }
+        //public bool registered { get; set; }
+        //public string role { get; set; }
+        //public string tfa_status { get; set; }
+        //public Unfreezing unfreezing { get; set; }
         public string username { get; set; }
-        public bool verified { get; set; }
-        public string wallet_state { get; set; }
+        //public bool verified { get; set; }
+        //public string wallet_state { get; set; }
     }
 
     public class AddressShopDetail
