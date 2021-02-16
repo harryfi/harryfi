@@ -93,9 +93,10 @@ namespace MasterOnline.Controllers
                 }
             }
             var dataToken = MoDbContext.BUKALAPAK_TOKEN.Where(m => m.ACCOUNT == userId && m.CUST == cust).FirstOrDefault();
+            var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
             if (dataToken == null)
             {
-                var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+                //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
                 dataToken = new BUKALAPAK_TOKEN();
                 dataToken.ACCOUNT = userId;
                 dataToken.CUST = cust;
@@ -104,6 +105,13 @@ namespace MasterOnline.Controllers
                 dataToken.CREATED_AT = DateTime.UtcNow.AddHours(7);
                 MoDbContext.BUKALAPAK_TOKEN.Add(dataToken);
                 MoDbContext.SaveChanges();
+            }
+            else
+            {
+                dataToken.EMAIL = customer.EMAIL;
+                dataToken.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                MoDbContext.SaveChanges();
+
             }
             string lzdId = cust;
             //string compUrl = callBackUrl + userId + "_param_" + cust;
@@ -147,12 +155,30 @@ namespace MasterOnline.Controllers
                         err = sr.ReadToEnd();
                     }
                 }
+
+                //var ex3 = new BUKALAPAK_TOKEN();
+                //ex3.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "3";
+                //ex3.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                //ex3.CODE = err;
+                //ex3.EMAIL = "qc-failtoken";
+                //ex3.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                //MoDbContext.BUKALAPAK_TOKEN.Add(ex3);
+                //MoDbContext.SaveChanges();
             }
 
             if (!string.IsNullOrEmpty(stringRet))
             {
                 try
                 {
+                    //var ex22 = new BUKALAPAK_TOKEN();
+                    //ex22.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "1";
+                    //ex22.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                    //ex22.CODE = stringRet;
+                    //ex22.EMAIL = "qc-successtoken";
+                    //ex22.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                    //MoDbContext.BUKALAPAK_TOKEN.Add(ex22);
+                    //MoDbContext.SaveChanges();
+
                     AccessKeyBL retObj = JsonConvert.DeserializeObject(stringRet, typeof(AccessKeyBL)) as AccessKeyBL;
                     if (retObj != null)
                     {
@@ -171,6 +197,15 @@ namespace MasterOnline.Controllers
                     }
                 }catch(Exception ex)
                 {
+
+                    //var ex11 = new BUKALAPAK_TOKEN();
+                    //ex11.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd");
+                    //ex11.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                    //ex11.CODE = ex.Message;
+                    //ex11.EMAIL = "qc-exctoken";
+                    //ex11.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                    //MoDbContext.BUKALAPAK_TOKEN.Add(ex11);
+                    //MoDbContext.SaveChanges();
                     throw new Exception("data : " + stringRet);
                 }
             }
@@ -195,22 +230,42 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                //var ex1 = new BUKALAPAK_TOKEN();
+                //ex1.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "4";
+                //ex1.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                //ex1.CODE = ex.Message;
+                //ex1.EMAIL = "qc-failshop";
+                //ex1.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                //MoDbContext.BUKALAPAK_TOKEN.Add(ex1);
+                //MoDbContext.SaveChanges();
             }
 
             if (responseFromServer != "")
             {
                 try
                 {
+                    //var ex2 = new BUKALAPAK_TOKEN();
+                    //ex2.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "2";
+                    //ex2.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                    //ex2.CODE = responseFromServer;
+                    //ex2.EMAIL = "qc-successshop";
+                    //ex2.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                    //MoDbContext.BUKALAPAK_TOKEN.Add(ex2);
+                    //MoDbContext.SaveChanges();
+
                     var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ShopDetailResponse)) as ShopDetailResponse;
                     if (result != null)
                     {
                         if (result.data != null)
                         {
+
+
                             var datacc = MoDbContext.BUKALAPAK_TOKEN.Where(m => m.EMAIL == result.data.email).FirstOrDefault();
                             if (datacc != null)
                             {
                                 datacc.CODE = code;
-                                ErasoftDbContext.SaveChanges();
+                                MoDbContext.SaveChanges();
+                                //ErasoftDbContext.SaveChanges();
                                 DateTime tglExpired = DateTimeOffset.FromUnixTimeSeconds(retGetToken.created_at).UtcDateTime.AddHours(7).AddSeconds(retGetToken.expires_in);
 
                                 DatabaseSQL EDB = new DatabaseSQL(datacc.ACCOUNT);
@@ -224,7 +279,14 @@ namespace MasterOnline.Controllers
                 }
                 catch (Exception ex)
                 {
-
+                    //var ex1 = new BUKALAPAK_TOKEN();
+                    //ex1.ACCOUNT = DateTime.UtcNow.AddHours(7).ToString("yyyyMMdd") + "5";
+                    //ex1.CUST = DateTime.UtcNow.AddHours(7).ToString("HHmmss");
+                    //ex1.CODE = ex.Message;
+                    //ex1.EMAIL = "qc-excshop";
+                    //ex1.CREATED_AT = DateTime.UtcNow.AddHours(7);
+                    //MoDbContext.BUKALAPAK_TOKEN.Add(ex1);
+                    //MoDbContext.SaveChanges();
                 }
             }
             return View("BukalapakAuth");
@@ -2646,29 +2708,41 @@ namespace MasterOnline.Controllers
                                 var brgmp = brg.sku_id.ToString();
                                 //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
                                 //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
-                                var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
-                                var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
-                                if (tempbrginDB == null && brgInDB == null)
+                                //var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
+                                //var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
+                                //if (tempbrginDB == null && brgInDB == null)
                                 {
                                     if (haveVarian)
                                     {
                                         ret.totalData += brg.variants.Length;//add 18 Juli 2019, show total record
                                         for (int i = 0; i < brg.variants.Length; i++)
                                         {
-                                            var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 2, kdBrgInduk, i);
+                                            brgmp = brg.variants[i].product_id + ";" + brg.variants[i].id;
+                                            var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
+                                            var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
+                                            if (tempbrginDB == null && brgInDB == null)
+                                            {
+                                                var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 2, kdBrgInduk, i);
+                                                if (insert2.exception == 1)
+                                                    ret.exception = 1;
+                                                if (insert2.status == 1)
+                                                    sSQL_Value += insert2.message;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        brgmp = brg.id + ";" + brg.sku_id;
+                                        var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
+                                        var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == brgmp).FirstOrDefault();
+                                        if (tempbrginDB == null && brgInDB == null)
+                                        {
+                                            var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 0, "", 0);
                                             if (insert2.exception == 1)
                                                 ret.exception = 1;
                                             if (insert2.status == 1)
                                                 sSQL_Value += insert2.message;
                                         }
-                                    }
-                                    else
-                                    {
-                                        var insert2 = CreateTempQryV2(brg, data.cust, IdMarket, display, 0, "", 0);
-                                        if (insert2.exception == 1)
-                                            ret.exception = 1;
-                                        if (insert2.status == 1)
-                                            sSQL_Value += insert2.message;
                                     }
                                 }
                             }
@@ -2834,11 +2908,25 @@ namespace MasterOnline.Controllers
                         {
                             if (brg.variants[i].images.large_urls != null)
                             {
-                                urlImage = brg.variants[i].images.large_urls[0];
+                                if(brg.variants[i].images.large_urls.Length > 1)
+                                {
+                                    urlImage = brg.variants[i].images.large_urls[1];
+                                }
+                                else
+                                {
+                                    urlImage = brg.variants[i].images.large_urls[0];
+                                }
                             }
                             else if (brg.variants[i].images.small_urls != null)
                             {
-                                urlImage = brg.variants[i].images.small_urls[0];
+                                if (brg.variants[i].images.small_urls.Length > 1)
+                                {
+                                    urlImage = brg.variants[i].images.small_urls[1];
+                                }
+                                else
+                                {
+                                    urlImage = brg.variants[i].images.small_urls[0];
+                                }
                             }
                             //remark 21/8/2019, barang varian ambil 1 gambar saja
                             //if (brg.product_sku[i].images.Length >= 2)
@@ -2890,9 +2978,14 @@ namespace MasterOnline.Controllers
                     l = brg.dimensions.width;
                     t = brg.dimensions.height;
                 }
+                string desc = brg.description.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
+                if (!string.IsNullOrEmpty(brg.description_bb))
+                {
+                    desc = brg.description_bb.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
+                }
                 sSQL_Value += nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
                 sSQL_Value += brg.weight + " , " + p + ", " + l + ", " + t + ", '" + cust + "' , '" + brg.url + "' , '" + (namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg) + "' , '";
-                sSQL_Value += brg.description.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`') + "' , " + idMarket;
+                sSQL_Value += desc + "' , " + idMarket;
                 sSQL_Value += " , " + itemPrice + " , " + itemPrice + " , " + (display ? "1" : "0") + ", '";
                 sSQL_Value += brg.category.id + "' , '" + brg.category.name + "' , '" + brand;
                 sSQL_Value += "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "','" + urlImage4 + "' , '" + urlImage5 + "','";
@@ -3889,34 +3982,34 @@ namespace MasterOnline.Controllers
 
     public class DataShopDetail
     {
-        public AddressShopDetail address { get; set; }
-        public long agent_id { get; set; }
-        public Avatar avatar { get; set; }
-        public Bank[] banks { get; set; }
+        //public AddressShopDetail address { get; set; }
+        //public long agent_id { get; set; }
+        //public Avatar avatar { get; set; }
+        //public Bank[] banks { get; set; }
         public string birth_date { get; set; }
-        public bool blacklisted_promo { get; set; }
-        public string bullion_auto_investment_status { get; set; }
-        public bool confirmed { get; set; }
+        //public bool blacklisted_promo { get; set; }
+        //public string bullion_auto_investment_status { get; set; }
+        //public bool confirmed { get; set; }
         public string email { get; set; }
-        public string[] favorite_payment_types { get; set; }
-        public string gender { get; set; }
-        public long id { get; set; }
-        public DateTime joined_at { get; set; }
-        public DateTime last_login_at { get; set; }
-        public DateTime last_otp { get; set; }
+        //public string[] favorite_payment_types { get; set; }
+        //public string gender { get; set; }
+        //public long id { get; set; }
+        //public DateTime joined_at { get; set; }
+        //public DateTime last_login_at { get; set; }
+        //public DateTime last_otp { get; set; }
         public string name { get; set; }
-        public object o2o_agent { get; set; }
-        public bool official { get; set; }
+        //public object o2o_agent { get; set; }
+        //public bool official { get; set; }
         public string phone { get; set; }
-        public bool phone_confirmed { get; set; }
-        public object priority_buyer_package_type { get; set; }
-        public bool registered { get; set; }
-        public string role { get; set; }
-        public string tfa_status { get; set; }
-        public Unfreezing unfreezing { get; set; }
+        //public bool phone_confirmed { get; set; }
+        //public object priority_buyer_package_type { get; set; }
+        //public bool registered { get; set; }
+        //public string role { get; set; }
+        //public string tfa_status { get; set; }
+        //public Unfreezing unfreezing { get; set; }
         public string username { get; set; }
-        public bool verified { get; set; }
-        public string wallet_state { get; set; }
+        //public bool verified { get; set; }
+        //public string wallet_state { get; set; }
     }
 
     public class AddressShopDetail
