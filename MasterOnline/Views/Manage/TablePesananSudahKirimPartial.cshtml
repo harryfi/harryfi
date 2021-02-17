@@ -70,6 +70,7 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Expired Pesanan</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 60px;">Marketplace</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 70px;">Pembeli</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 50px;">Tipe Pesanan</th>
                 @*add by nurul 6/3/2019*@
                 @*remark by calvin 29 nov 2019 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 70px; max-width: 160px;">No. Resi</th>*@
                 @*end add by nurul 6/3/2019*@
@@ -150,6 +151,17 @@
                         break;
                 }
 
+                //add by Tri 17 feb 2021
+                var tipe_pesanan = "";
+                if (pesanan.TIPE_KIRIM.Value == 1)
+                {
+                    tipe_pesanan = "COD";
+                }
+                else if (pesanan.TIPE_KIRIM == 2)
+                {
+                    tipe_pesanan = "Preorder";
+                }
+                //end add by Tri 17 feb 2021
 
             <tr>
                 <td style="text-align:center">
@@ -182,6 +194,7 @@
                     @*@(buyer == null ? "" : buyer.NAMA)*@
                     @pesanan.PEMBELI
                 </td>
+                <td>@tipe_pesanan</td>
                 @*add by nurul 6/3/2019*@
                 @*<td>@noresi</td>*@
                 @*add by nurul 6/3/2019*@

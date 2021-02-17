@@ -51,6 +51,7 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Expired Pesanan</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 50px;">Marketplace</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 90px;">Pembeli</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 50px;">Tipe Pesanan</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 100px;">Kurir</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 100px;">Keterangan</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px; ">Total</th>
@@ -79,12 +80,23 @@
                 //{
                 //    NamaMarket = market.NamaMarket;
                 //}
-                string keterangan = pesanan.catatanPembeli;                
+                string keterangan = pesanan.catatanPembeli;
                 if (string.IsNullOrEmpty(keterangan))
                 {
                     keterangan = "-";
                 }
                 keterangan = keterangan.Length > 30 ? keterangan.Substring(0, 30) + "..." : keterangan.ToString();
+                //add by Tri 17 feb 2021
+                var tipe_pesanan = "";
+                if (pesanan.TIPE_KIRIM.Value == 1)
+                {
+                    tipe_pesanan = "COD";
+                }
+                else if (pesanan.TIPE_KIRIM == 2)
+                {
+                    tipe_pesanan = "Preorder";
+                }
+                //end add by Tri 17 feb 2021
             <tr>
                 <td style="text-align:center;">
                     @if (pesanan.MARKET != "")
@@ -122,6 +134,7 @@
                     @*@(buyer == null ? "" : buyer.NAMA)*@
                     @pesanan.PEMBELI
                 </td>
+                <td>@tipe_pesanan</td>
                 <td>@pesanan.SHIPMENT</td>
                 <td>
                     @if (keterangan != "-")
@@ -152,15 +165,15 @@
                     }
                 </td>
                 @*<td style="border-left:hidden; width: 40px; max-width: 40px; align-self:flex-start">
-                    @if (pesanan.MARKET != "")
-                    {
-                        <input type="checkbox" class="dt-checkboxes center checkbox_gntstatus_packing" id="chekbox-@(pesanan.RECNUM)" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
-                    }
-                    else
-                    {
-                        <input type="checkbox" class="dt-checkboxes center" id="chekbox-@(pesanan.RECNUM)" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" disabled="disabled" />
-                    }
-                </td>*@
+            @if (pesanan.MARKET != "")
+            {
+                <input type="checkbox" class="dt-checkboxes center checkbox_gntstatus_packing" id="chekbox-@(pesanan.RECNUM)" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
+            }
+            else
+            {
+                <input type="checkbox" class="dt-checkboxes center" id="chekbox-@(pesanan.RECNUM)" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" disabled="disabled" />
+            }
+        </td>*@
                 <td class="edit-hapus-col" style="width: 50px; max-width: 50px;">
                     @if (pesanan.MARKET != "")
                     {

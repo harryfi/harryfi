@@ -211,7 +211,7 @@ namespace MasterOnline
         //[StringLength(10)]
         //public string EXPEDISI { get; set; }
 
-        //public double? TIPE_KIRIM { get; set; }
+        public double? TIPE_KIRIM { get; set; }
 
         //public double? TOTAL_TITIPAN { get; set; }
 
