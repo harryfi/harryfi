@@ -50,6 +50,7 @@ namespace MasterOnline
         //add by nurul 22/7/2020
         public string status_print { get; set; }
         //end add by nurul 22/7/2020
+        public double? TIPE_KIRIM { get; set; }
     }
 
     public class tempBarcodeLazada

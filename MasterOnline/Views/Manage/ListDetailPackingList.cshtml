@@ -12,6 +12,7 @@
                 <th width="80">Tanggal Pesanan</th>
                 <th width="90">Marketplace</th>
                 <th width="120">Pembeli</th>
+                <th width="50">Tipe Pesanan</th>
                 <th width="80">Status Kirim</th>
                 <th width="80">Status Print</th>
                 <th width="70">Scan Barcode</th>
@@ -55,6 +56,17 @@
                 //{
                 //    tempCode = Convert.ToString(detPackinglist.BARCODE);
                 //}
+                //add by Tri 17 feb 2021
+                var tipe_pesanan = "";
+                if (detPackinglist.TIPE_KIRIM.Value == 1)
+                {
+                    tipe_pesanan = "COD";
+                }
+                else if (detPackinglist.TIPE_KIRIM.Value == 2)
+                {
+                    tipe_pesanan = "Preorder";
+                }
+                //end add by Tri 17 feb 2021
             <tr data-packing-id="brg-@detPackinglist.RecNum">
                 <td>
                     @detPackinglist.NO_PESANAN
@@ -69,6 +81,7 @@
                 <td>
                     @detPackinglist.PEMBELI
                 </td>
+                <td>@tipe_pesanan</td>
                 @*<td>
             @detPackinglist.SO_TRACKING_NUMBER
         </td>*@

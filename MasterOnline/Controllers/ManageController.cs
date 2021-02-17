@@ -62506,6 +62506,7 @@ namespace MasterOnline.Controllers
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST,A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item, isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no, A.recnum as so_recnum ";
                 sSQLSelect += ", A.NO_PO_CUST as no_job, isnull(A.status_print,'') AS status_print ";
+                sSQLSelect += ", ISNULL(A.TIPE_KIRIM, 0) TIPE_KIRIM ";
                 string sSQLCount = "";
                 sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
                 string sSQL2 = "";
@@ -62604,6 +62605,7 @@ namespace MasterOnline.Controllers
                 string sSQLSelect = "";
                 sSQLSelect += "select a.RecNum, a.NO_BUKTI, a.PEMBELI, a.TGL_INPUT, a.USERNAME, a.NO_PESANAN, a.TGL_PESANAN, a.MARKETPLACE, ";
                 sSQLSelect += "ISNULL(b.STATUS_KIRIM,'0') AS SO_STATUS_KIRIM, ISNULL(b.TRACKING_SHIPMENT,'') AS SO_TRACKING_NUMBER, ISNULL(b.NO_REFERENSI,'') AS NO_REFERENSI, ISNULL(b.STATUS_PRINT,'0') AS STATUS_PRINT, ISNULL(a.SCAN_BARCODE,0) AS BARCODE  ";
+                sSQLSelect += ", ISNULL(B.TIPE_KIRIM, 0) TIPE_KIRIM ";
                 string sSQLCount = "";
                 sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
                 string sSQL2 = "";
