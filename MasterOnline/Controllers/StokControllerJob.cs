@@ -1126,9 +1126,7 @@ namespace MasterOnline.Controllers
             sSQL += "SELECT BRG FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock) OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock)) OR BRG IN (SELECT BRG FROM STF02 (nolock) WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock))); " + Environment.NewLine;
             sSQL += "drop table #tempListBrgUpdateStock ";
             //end change by nurul 18/2/2021
-            var abx = DateTime.Now;
             var listBrg = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
-            var aby = DateTime.Now;
             //end change by nurul 14/9/2020, handle barang multi sku
 
             var ListARF01 = ErasoftDbContext.ARF01.ToList();
