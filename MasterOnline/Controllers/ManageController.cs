@@ -5550,7 +5550,11 @@ namespace MasterOnline.Controllers
             //var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlCustomer>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NAMA AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, A.EMAIL AS EMAIL, A.STATUS_API AS STATUS_API, A.TIDAK_HIT_UANG_R AS TIDAK_HIT_UANG_R, A.TGL_EXPIRED AS TGL_EXPIRED, A.PERSO AS PERSO ";
+            //change by Tri 18 Feb 2021, hide tgl expired bukalapak karena bisa auto refresh
+            //sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NAMA AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, A.EMAIL AS EMAIL, A.STATUS_API AS STATUS_API, A.TIDAK_HIT_UANG_R AS TIDAK_HIT_UANG_R, A.TGL_EXPIRED AS TGL_EXPIRED, A.PERSO AS PERSO ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NAMA AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, A.EMAIL AS EMAIL, A.STATUS_API AS STATUS_API, A.TIDAK_HIT_UANG_R AS TIDAK_HIT_UANG_R, ";
+            sSQLSelect += "CASE WHEN A.NAMA = '8' THEN NULL ELSE A.TGL_EXPIRED END AS TGL_EXPIRED, A.PERSO AS PERSO ";
+            //end change by Tri 18 Feb 2021, hide tgl expired bukalapak karena bisa auto refresh
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
