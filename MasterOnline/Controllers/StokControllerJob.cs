@@ -1086,39 +1086,49 @@ namespace MasterOnline.Controllers
 
             var client = new BackgroundJobClient(sqlStorage);
 
-            var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT DISTINCT BRG, 'ALL_ITEM_WITH_MUTATION' AS CONN_ID FROM STF08A").ToList();
+            //remark by nurul 18/2/2021
+            //var temp_all_mp_order_items = erasoftdbcontext.database.sqlquery<temp_all_mp_order_item>("select distinct brg, 'all_item_with_mutation' as conn_id from stf08a").tolist();
 
-            //change by nurul 14/9/2020, handle barang multi sku 
-            //List<string> listBrg = new List<string>();
-            //foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
+            ////change by nurul 14/9/2020, handle barang multi sku 
+            ////list<string> listbrg = new list<string>();
+            ////foreach (var item in temp_all_mp_order_items)
+            ////{
+            ////    listbrg.add(item.brg);
+            ////}
+            //list<string> listbrg_lama = new list<string>();
+            //foreach (var item in temp_all_mp_order_items)
             //{
-            //    listBrg.Add(item.BRG);
+            //    listbrg_lama.add(item.brg);
             //}
-            List<string> listBrg_Lama = new List<string>();
-            foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
-            {
-                listBrg_Lama.Add(item.BRG);
-            }
 
-            var list_brg = "";
-            if (listBrg_Lama.Count() > 0)
-            {
-                foreach (var brg in listBrg_Lama)
-                {
-                    if (list_brg != "")
-                    {
-                        list_brg += ",";
-                    }
+            //var list_brg = "";
+            //if (listbrg_lama.count() > 0)
+            //{
+            //    foreach (var brg in listbrg_lama)
+            //    {
+            //        if (list_brg != "")
+            //        {
+            //            list_brg += ",";
+            //        }
 
-                    list_brg += "'" + brg + "'";
-                }
-            }
-            else
-            {
-                list_brg = "''";
-            }
-            var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";
+            //        list_brg += "'" + brg + "'";
+            //    }
+            //}
+            //else
+            //{
+            //    list_brg = "''";
+            //}
+            //end remark by nurul 18/2/2021
+
+            //change by nurul 18/2/2021
+            //var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";
+            var sSQL = "SELECT DISTINCT BRG, 'ALL_ITEM_WITH_MUTATION' AS CONN_ID into #tempListBrgUpdateStock FROM STF08A (nolock); " + Environment.NewLine;
+            sSQL += "SELECT BRG FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock) OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock)) OR BRG IN (SELECT BRG FROM STF02 (nolock) WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock))); " + Environment.NewLine;
+            sSQL += "drop table #tempListBrgUpdateStock ";
+            //end change by nurul 18/2/2021
+            var abx = DateTime.Now;
             var listBrg = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
+            var aby = DateTime.Now;
             //end change by nurul 14/9/2020, handle barang multi sku
 
             var ListARF01 = ErasoftDbContext.ARF01.ToList();
@@ -1543,7 +1553,7 @@ namespace MasterOnline.Controllers
             {
                 list_brg = "''";
             }
-            var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";
+            var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";           
             var listBrg = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
             //end change by nurul 14/9/2020, handle barang multi sku
 
