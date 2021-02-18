@@ -3141,18 +3141,27 @@ namespace MasterOnline.Controllers
                                     DateTime? expiredDate = null;
                                     DateTime? paymentDate = null;
                                     //remark 13 nov 2020 tutup sementara
-                                    //var orderDetail = await GetOrderDetail(iden, order.invoice_ref_num);
-                                    //if(orderDetail != null)
-                                    //{
-                                    //    if(orderDetail.data != null)
-                                    //    {
-                                    //        if(orderDetail.data.shipment_fulfillment != null)
-                                    //        {
-                                    //            expiredDate = orderDetail.data.shipment_fulfillment.confirm_shipping_deadline;
-                                    //        }
-                                    //        paymentDate = orderDetail.data.payment_date;
-                                    //    }
-                                    //}
+                                    var orderDetail = await GetOrderDetail(iden, order.invoice_ref_num);
+                                    if (orderDetail != null)
+                                    {
+                                        if (orderDetail.data != null)
+                                        {
+                                            if (orderDetail.data.shipment_fulfillment != null)
+                                            {
+                                                expiredDate = orderDetail.data.shipment_fulfillment.confirm_shipping_deadline;
+                                            }
+                                            paymentDate = orderDetail.data.payment_date;
+                                            if(orderDetail.data.payment_info != null)
+                                            {
+                                                var payment_info = !string.IsNullOrEmpty(orderDetail.data.payment_info.gateway_name) ? orderDetail.data.payment_info.gateway_name.Replace('\'', '`') : "";
+                                                if (payment_info.Length > 50)
+                                                {
+                                                    payment_info = payment_info.Substring(0, 50);
+                                                }
+                                                device_type = payment_info;
+                                            }
+                                        }
+                                    }
                                     //belum ada di temp
                                     //end remark 13 nov 2020 tutup sementara
                                     foreach (var product in order.products)
@@ -7082,7 +7091,7 @@ namespace MasterOnline.Controllers
             //public Preorder preorder { get; set; }
             public Order_Info order_info { get; set; }
             //public Origin_Info origin_info { get; set; }
-            //public Payment_Info payment_info { get; set; }
+            public Payment_Info payment_info { get; set; }
             //public Insurance_Info insurance_info { get; set; }
             //public object hold_info { get; set; }
             public Cancel_Request_Info cancel_request_info { get; set; }
@@ -7303,18 +7312,18 @@ namespace MasterOnline.Controllers
 
         public class Payment_Info
         {
-            public int payment_id { get; set; }
-            public string payment_ref_num { get; set; }
-            public DateTime payment_date { get; set; }
-            public int payment_method { get; set; }
-            public string payment_status { get; set; }
-            public int payment_status_id { get; set; }
-            public DateTime create_time { get; set; }
-            public int pg_id { get; set; }
+            //public int payment_id { get; set; }
+            //public string payment_ref_num { get; set; }
+            //public DateTime payment_date { get; set; }
+            //public int payment_method { get; set; }
+            //public string payment_status { get; set; }
+            //public int payment_status_id { get; set; }
+            //public DateTime create_time { get; set; }
+            //public int pg_id { get; set; }
             public string gateway_name { get; set; }
-            public int discount_amount { get; set; }
-            public string voucher_code { get; set; }
-            public int voucher_id { get; set; }
+            //public int discount_amount { get; set; }
+            //public string voucher_code { get; set; }
+            //public int voucher_id { get; set; }
         }
 
         public class Insurance_Info
