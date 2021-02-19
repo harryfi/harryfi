@@ -76,36 +76,87 @@ namespace MasterOnline.Controllers
         {
             MoDbContext = new MoDbContext("");
             usernameLogin = "";
-            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            if (sessionData?.Account != null)
+            //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //            if (sessionData?.Account != null)
+            //            {
+            //                dbPathEra = sessionData.Account.DatabasePathErasoft;
+            //                //dbSourceEra = accFromUser.DataSourcePath;
+            //#if (Debug_AWS)
+            //                dbSourceEra = sessionData.Account.DataSourcePathDebug;
+            //#else
+            //                dbSourceEra = sessionData.Account.DataSourcePath;
+            //#endif
+
+            //                if (sessionData.Account.UserId == "admin_manage")
+            //                    ErasoftDbContext = new ErasoftContext();
+            //                else
+            //                    ErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
+
+            //                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+            //                EDBConnID = EDB.GetConnectionString("ConnID");
+            //                usernameLogin = sessionData.Account.Username;
+
+            //            }
+            //            else
+            //            {
+            //                if (sessionData?.User != null)
+            //                {
+            //                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+            //                    dbPathEra = accFromUser.DatabasePathErasoft;
+            //                    //dbSourceEra = accFromUser.DataSourcePath;
+            //#if (Debug_AWS)
+            //                    dbSourceEra = accFromUser.DataSourcePathDebug;
+            //#else
+            //                    dbSourceEra = accFromUser.DataSourcePath;
+            //#endif
+            //                    ErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
+
+            //                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+            //                    EDBConnID = EDB.GetConnectionString("ConnID");
+            //                    usernameLogin = sessionData.User.Username;
+            //                }
+            //            }
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+
+            if (sessionAccount != null)
             {
-                dbPathEra = sessionData.Account.DatabasePathErasoft;
+                dbPathEra = sessionAccountDatabasePathErasoft.ToString();
                 //dbSourceEra = accFromUser.DataSourcePath;
 #if (Debug_AWS)
-                dbSourceEra = sessionData.Account.DataSourcePathDebug;
+                dbSourceEra = sessionAccountDataSourcePathDebug.ToString();
 #else
-                dbSourceEra = sessionData.Account.DataSourcePath;
+                dbSourceEra = sessionAccountDataSourcePath.ToString();
 #endif
 
-                if (sessionData.Account.UserId == "admin_manage")
+                if (sessionAccountUserID.ToString() == "admin_manage")
                     ErasoftDbContext = new ErasoftContext();
                 else
                     ErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
 
-                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+                EDB = new DatabaseSQL(sessionAccountDatabasePathErasoft.ToString());
                 EDBConnID = EDB.GetConnectionString("ConnID");
-                usernameLogin = sessionData.Account.Username;
+                usernameLogin = sessionAccountUserName.ToString();
 
             }
             else
             {
-                if (sessionData?.User != null)
+                if (sessionUser != null)
                 {
-                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == Convert.ToInt64(sessionUserAccountID));
                     dbPathEra = accFromUser.DatabasePathErasoft;
                     //dbSourceEra = accFromUser.DataSourcePath;
 #if (Debug_AWS)
-                    dbSourceEra = accFromUser.DataSourcePathDebug;
+                                dbSourceEra = accFromUser.DataSourcePathDebug;
 #else
                     dbSourceEra = accFromUser.DataSourcePath;
 #endif
@@ -113,9 +164,10 @@ namespace MasterOnline.Controllers
 
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     EDBConnID = EDB.GetConnectionString("ConnID");
-                    usernameLogin = sessionData.User.Username;
+                    usernameLogin = sessionUserUsername.ToString();
                 }
             }
+
             if (usernameLogin.Length > 20)
                 usernameLogin = usernameLogin.Substring(0, 17) + "...";
 
@@ -404,7 +456,8 @@ namespace MasterOnline.Controllers
         public ActionResult DashboardPartial(string selDate)
         {
             // set security dashboard
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+
             string username = "";
             var userId = "";
             var accountId = "";
@@ -414,17 +467,47 @@ namespace MasterOnline.Controllers
 
             SetNoLockOn(MoDbContext);
 
-            if (sessionData?.User != null)
+            //if (sessionData?.User != null)
+            //{
+            //    userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
+            //    accountId = Convert.ToString(sessionData?.User?.AccountId);
+            //}
+            //else
+            //{
+            //    accessDashboard = true;
+            //    userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+
+            //    var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+            //    accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
+            //}
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            if (sessionUser != null)
             {
-                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
-                accountId = Convert.ToString(sessionData?.User?.AccountId);
+                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionUserEmail.ToString()).UserId);
+                accountId = Convert.ToString(sessionUserAccountID);
             }
             else
             {
                 accessDashboard = true;
-                userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+                userId = Convert.ToString(sessionUserUserID ?? 0);
 
-                var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+                var emailAccount = Convert.ToString(sessionAccountEmail);
                 accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
             }
 
@@ -1154,24 +1237,54 @@ namespace MasterOnline.Controllers
             SetNoLockOn(MoDbContext);
 
             // set security dashboard
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string username = "";
             var userId = "";
             var accountId = "";
             long luserId = 0;
             long laccountId = 0;
             bool accessDashboard = false;
-            if (sessionData?.User != null)
+            //if (sessionData?.User != null)
+            //{
+            //    userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
+            //    accountId = Convert.ToString(sessionData?.User?.AccountId);
+            //}
+            //else
+            //{
+            //    accessDashboard = true;
+            //    userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+
+            //    var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+            //    accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
+            //}
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            if (sessionUser != null)
             {
-                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
-                accountId = Convert.ToString(sessionData?.User?.AccountId);
+                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionUserEmail.ToString()).UserId);
+                accountId = Convert.ToString(sessionUserAccountID);
             }
             else
             {
                 accessDashboard = true;
-                userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+                userId = Convert.ToString(sessionUserUserID ?? 0);
 
-                var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+                var emailAccount = Convert.ToString(sessionAccountEmail);
                 accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
             }
 
@@ -2431,24 +2544,54 @@ namespace MasterOnline.Controllers
             };
 
             // set security dashboard
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string username = "";
             var userId = "";
             var accountId = "";
             long luserId = 0;
             long laccountId = 0;
             bool accessDashboard = false;
-            if (sessionData?.User != null)
+            //if (sessionData?.User != null)
+            //{
+            //    userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
+            //    accountId = Convert.ToString(sessionData?.User?.AccountId);
+            //}
+            //else
+            //{
+            //    accessDashboard = true;
+            //    userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+
+            //    var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+            //    accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
+            //}
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            if (sessionUser != null)
             {
-                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
-                accountId = Convert.ToString(sessionData?.User?.AccountId);
+                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionUserEmail.ToString()).UserId);
+                accountId = Convert.ToString(sessionUserAccountID);
             }
             else
             {
                 accessDashboard = true;
-                userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+                userId = Convert.ToString(sessionUserUserID ?? 0);
 
-                var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+                var emailAccount = Convert.ToString(sessionAccountEmail);
                 accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
             }
 
@@ -2568,24 +2711,54 @@ namespace MasterOnline.Controllers
             //}
 
             // set security dashboard
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string username = "";
             var userId = "";
             var accountId = "";
             long luserId = 0;
             long laccountId = 0;
             bool accessDashboard = false;
-            if (sessionData?.User != null)
+            //if (sessionData?.User != null)
+            //{
+            //    userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
+            //    accountId = Convert.ToString(sessionData?.User?.AccountId);
+            //}
+            //else
+            //{
+            //    accessDashboard = true;
+            //    userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+
+            //    var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+            //    accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
+            //}
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            if (sessionUser != null)
             {
-                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
-                accountId = Convert.ToString(sessionData?.User?.AccountId);
+                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionUserEmail.ToString()).UserId);
+                accountId = Convert.ToString(sessionUserAccountID);
             }
             else
             {
                 accessDashboard = true;
-                userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+                userId = Convert.ToString(sessionUserUserID ?? 0);
 
-                var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+                var emailAccount = Convert.ToString(sessionAccountEmail);
                 accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
             }
 
@@ -2698,24 +2871,54 @@ namespace MasterOnline.Controllers
             };
 
             // set security dashboard
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string username = "";
             var userId = "";
             var accountId = "";
             long luserId = 0;
             long laccountId = 0;
             bool accessDashboard = false;
-            if (sessionData?.User != null)
+            //if (sessionData?.User != null)
+            //{
+            //    userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
+            //    accountId = Convert.ToString(sessionData?.User?.AccountId);
+            //}
+            //else
+            //{
+            //    accessDashboard = true;
+            //    userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+
+            //    var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+            //    accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
+            //}
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            if (sessionUser != null)
             {
-                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
-                accountId = Convert.ToString(sessionData?.User?.AccountId);
+                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionUserEmail.ToString()).UserId);
+                accountId = Convert.ToString(sessionUserAccountID);
             }
             else
             {
                 accessDashboard = true;
-                userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+                userId = Convert.ToString(sessionUserUserID ?? 0);
 
-                var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+                var emailAccount = Convert.ToString(sessionAccountEmail);
                 accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
             }
 
@@ -2821,24 +3024,54 @@ namespace MasterOnline.Controllers
             };
 
             // set security dashboard
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string username = "";
             var userId = "";
             var accountId = "";
             long luserId = 0;
             long laccountId = 0;
             bool accessDashboard = false;
-            if (sessionData?.User != null)
+            //if (sessionData?.User != null)
+            //{
+            //    userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
+            //    accountId = Convert.ToString(sessionData?.User?.AccountId);
+            //}
+            //else
+            //{
+            //    accessDashboard = true;
+            //    userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+
+            //    var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+            //    accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
+            //}
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            if (sessionUser != null)
             {
-                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
-                accountId = Convert.ToString(sessionData?.User?.AccountId);
+                userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionUserEmail.ToString()).UserId);
+                accountId = Convert.ToString(sessionUserAccountID);
             }
             else
             {
                 accessDashboard = true;
-                userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+                userId = Convert.ToString(sessionUserUserID ?? 0);
 
-                var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+                var emailAccount = Convert.ToString(sessionAccountEmail);
                 accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
             }
 
@@ -2936,24 +3169,54 @@ namespace MasterOnline.Controllers
                 if (bulan != "" && tahun != "")
                 {
                     // set security dashboard
-                    AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                    //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
                     string username = "";
                     var userId = "";
                     var accountId = "";
                     long luserId = 0;
                     long laccountId = 0;
                     bool accessDashboard = false;
-                    if (sessionData?.User != null)
+                    //if (sessionData?.User != null)
+                    //{
+                    //    userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
+                    //    accountId = Convert.ToString(sessionData?.User?.AccountId);
+                    //}
+                    //else
+                    //{
+                    //    accessDashboard = true;
+                    //    userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+
+                    //    var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+                    //    accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
+                    //}
+
+                    var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                    var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+                    var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+                    var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+                    var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+                    var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+                    var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+                    var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+                    var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+                    var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                    var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+                    var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+                    var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+                    var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+                    if (sessionUser != null)
                     {
-                        userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).UserId);
-                        accountId = Convert.ToString(sessionData?.User?.AccountId);
+                        userId = Convert.ToString(MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionUserEmail.ToString()).UserId);
+                        accountId = Convert.ToString(sessionUserAccountID);
                     }
                     else
                     {
                         accessDashboard = true;
-                        userId = Convert.ToString(sessionData?.User?.UserId ?? 0);
+                        userId = Convert.ToString(sessionUserUserID ?? 0);
 
-                        var emailAccount = Convert.ToString(sessionData?.Account?.Email);
+                        var emailAccount = Convert.ToString(sessionAccountEmail);
                         accountId = Convert.ToString(MoDbContext.Account.AsNoTracking().Single(u => u.Email == emailAccount).AccountId);
                     }
 

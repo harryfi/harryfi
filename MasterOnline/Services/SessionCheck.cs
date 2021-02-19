@@ -12,8 +12,19 @@ namespace MasterOnline.Services
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             HttpSessionStateBase session = filterContext.HttpContext.Session;
-            if (session["SessionInfo"] == null)
-            { 
+            //if (session["SessionInfo"] == null)
+            //{ 
+            //    filterContext.Result = new RedirectToRouteResult(
+            //        new RouteValueDictionary {
+            //            { "Controller", "Account" },
+            //            { "Action", "Login" }
+            //        });
+
+            //    session["NotAuthorized"] = true;
+            //}
+
+            if (session["SessionAccount"] == null && session["SessionUser"] == null)
+            {
                 filterContext.Result = new RedirectToRouteResult(
                     new RouteValueDictionary {
                         { "Controller", "Account" },

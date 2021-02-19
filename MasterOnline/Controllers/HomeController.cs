@@ -16,29 +16,69 @@ namespace MasterOnline.Controllers
         public HomeController()
         {
             MoDbContext = new MoDbContext("");
-            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            if (sessionData?.Account != null)
+            //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //            if (sessionData?.Account != null)
+            //            {
+            //                if (sessionData.Account.UserId == "admin_manage")
+            //                {
+            //                    ErasoftDbContext = new ErasoftContext();
+            //                }
+            //                else
+            //                {
+            //#if (Debug_AWS)
+            //                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+            //#else
+            //                    dbSourceEra = sessionData.Account.DataSourcePath;
+            //#endif
+            //                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
+            //                }
+
+            //            }
+            //            else
+            //            {
+            //                if (sessionData?.User != null)
+            //                {
+            //                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+            //#if (Debug_AWS)
+            //                    dbSourceEra = accFromUser.DataSourcePathDebug;
+            //#else
+            //                    dbSourceEra = accFromUser.DataSourcePath;
+            //#endif
+            //                    ErasoftDbContext = new ErasoftContext(dbSourceEra, accFromUser.DatabasePathErasoft);
+            //                }
+            //            }
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            if (sessionAccount != null)
             {
-                if (sessionData.Account.UserId == "admin_manage")
+                if (sessionAccountUserID.ToString() == "admin_manage")
                 {
                     ErasoftDbContext = new ErasoftContext();
                 }
                 else
                 {
 #if (Debug_AWS)
-                    dbSourceEra = sessionData.Account.DataSourcePathDebug;
+                    dbSourceEra = sessionAccountDataSourcePathDebug.ToString();
 #else
-                    dbSourceEra = sessionData.Account.DataSourcePath;
+                    dbSourceEra = sessionAccountDataSourcePath.ToString();
 #endif
-                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionData.Account.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, sessionAccountDatabasePathErasoft.ToString());
                 }
-                    
+
             }
             else
             {
-                if (sessionData?.User != null)
+                if (sessionUser != null)
                 {
-                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == Convert.ToInt64(sessionUserAccountID));
 #if (Debug_AWS)
                     dbSourceEra = accFromUser.DataSourcePathDebug;
 #else

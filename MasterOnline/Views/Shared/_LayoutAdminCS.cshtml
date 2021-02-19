@@ -1,12 +1,17 @@
 ﻿@using MasterOnline.Models
 @using MasterOnline.ViewModels
 @{
-    var dataSession = HttpContext.Current.Session["SessionAdmin"] as Admin;
+    //var dataSession = HttpContext.Current.Session["SessionAdmin"] as Admin;
+    var sessionAdminUsername = HttpContext.Current.Session["SessionAdminUsername"];
     var nama = "";
 
-    if (dataSession != null)
+    //if (dataSession != null)
+    //{
+    //    nama = dataSession.Username;
+    //}
+    if (sessionAdminUsername != null)
     {
-        nama = dataSession.Username;
+        nama = sessionAdminUsername.ToString();
     }
 }
 
