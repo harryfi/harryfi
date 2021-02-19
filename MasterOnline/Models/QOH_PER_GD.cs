@@ -25,4 +25,12 @@ namespace MasterOnline
         public string GD { get; set; }
         public double QSO { get; set; }
     }
+
+    public partial class STOCK_AKHIRTAHUN
+    {
+        public string GD { get; set; }
+        public string BRG { get; set; }
+        public short TAHUN { get; set; }
+        public double JUMLAH { get; set; }
+    }
 }
