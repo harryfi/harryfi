@@ -3480,6 +3480,27 @@ namespace MasterOnline.Controllers
                                         a_custom_fields_awb = a_custom_fields_awb.Substring(0, 150);
                                     }
                                     #endregion
+                                    var orderDetail = await GetOrderDetail(iden, order.invoice_ref_num);
+                                    if (orderDetail != null)
+                                    {
+                                        if (orderDetail.data != null)
+                                        {
+                                            if (orderDetail.data.shipment_fulfillment != null)
+                                            {
+                                                expiredDate = orderDetail.data.shipment_fulfillment.confirm_shipping_deadline;
+                                            }
+                                            paymentDate = orderDetail.data.payment_date;
+                                            if (orderDetail.data.payment_info != null)
+                                            {
+                                                var payment_info = !string.IsNullOrEmpty(orderDetail.data.payment_info.gateway_name) ? orderDetail.data.payment_info.gateway_name.Replace('\'', '`') : "";
+                                                if (payment_info.Length > 50)
+                                                {
+                                                    payment_info = payment_info.Substring(0, 50);
+                                                }
+                                                a_device_type = payment_info;
+                                            }
+                                        }
+                                    }
                                     //belum ada di temp
                                     foreach (var product in order.products)
                                     {
