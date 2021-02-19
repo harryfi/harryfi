@@ -2920,7 +2920,7 @@ namespace MasterOnline.Controllers
                                             }
                                             else
                                             {
-                                                var vTahun = Convert.ToInt16(dataStock.TAHUN);
+                                                var vTahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy").ToString());
                                                 var dataSTF08a = ErasoftDbContext.STF08A.Where(p => p.BRG == listKodeBaru && p.GD == dataStock.GD && p.Tahun == vTahun).SingleOrDefault();
                                                 double dQawal = dataSTF08a.QAwal;
                                                 dqtyTemp += dataStock.JUMLAH + dQawal;
