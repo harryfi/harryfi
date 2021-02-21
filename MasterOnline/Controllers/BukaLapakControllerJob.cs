@@ -981,7 +981,10 @@ namespace MasterOnline.Controllers
                                                 ketPembeli = order.options.buyer_note.Replace('\'', '`');
                                             }
                                         }
-#endregion
+                                        string paymentType = (string.IsNullOrEmpty(order.payment_method) ? "" : order.payment_method.Replace("'", "`"));
+                                        if (paymentType.Length > 50)
+                                            paymentType = paymentType.Substring(0, 50);
+                                        #endregion
                                         string statusEra = "0";
                                         if (order.state != "pending")
                                         {
@@ -991,7 +994,7 @@ namespace MasterOnline.Controllers
                                             + courier + "','" + ketPembeli + "'," + order.amount.buyer.details.delivery + ",";
                                         insertQ +=  "0,'','" + shippingService + "'," + order.amount.buyer.coded_amount + "," + order.amount.seller.total + "," 
                                             + order.amount.buyer.payment_amount + ",'" +  order.created_at.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.state_changed_at.refund_at.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','";
-                                        insertQ += "','" + order.buyer.id + "','" + nama + "','','" + buyerLogistic + "','" + order.delivery.consignee.address.Replace('\'', '`') + "','" 
+                                        insertQ += "','" + order.buyer.id + "','" + nama + "','"+paymentType+"','" + buyerLogistic + "','" + order.delivery.consignee.address.Replace('\'', '`') + "','" 
                                             + consigneeArea.Replace('\'', '`') + "','" + namaKabkot + "','";
                                         insertQ += nama2 + "','" + tlp + "','" + KODEPOS + "','" + namaProv + "','" + CUST + "','" + username + "','" + conn_id + "')";
 
