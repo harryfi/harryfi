@@ -203,67 +203,79 @@
                         //}
 
                         if (response != null) {
-                            var textareaValue = "";
-
-                            var adaUrl = false;
-                            var urlValue = "";
-                            var urltext = "";
-                            var adaError = false;
-                            var errorValue = "";
                             if (response.mo_error != undefined) {
-                                response.mo_error.forEach(function (item) {
+                                $('#modalPrintTokped__textarea__' + cust).html(response.mo_error);
+                            }
+                            else {
+                                var textareaValue = "";
+
+                                var adaUrl = false;
+                                var urlValue = "";
+                                var urltext = "";
+                                var adaError = false;
+                                var errorValue = "";
+                                //if (response.mo_error != undefined) {
+                                //    response.mo_error.forEach(function (item) {
+                                //        adaError = true;
+                                //        errorValue += item + ". </br>";
+                                //    });
+                                //}
+                                response.listErrors.forEach(function (item) {
                                     adaError = true;
-                                    errorValue += item + ". </br>";
+                                    errorValue += item.errorMessage + ". </br>";
                                 });
-                            }
-                            if (adaError) {
-                                textareaValue += "</br>";
-                                textareaValue += "Error Orders :</br>";
-                                textareaValue += errorValue;
-                            }
-                            $('#modalPrintTokped__textarea__' + cust).html(textareaValue);
+                                if (adaError) {
+                                    textareaValue += "</br>";
+                                    textareaValue += "Error Orders :</br>";
+                                    textareaValue += errorValue;
+                                }
+                                $('#modalPrintTokped__textarea__' + cust).html(textareaValue);
 
-                            if (response.mo_label != undefined && response.mo_label != null) {
+                                if (response.mo_label != undefined && response.mo_label != null) {
 
-                                $postdata2 = {
-                                    data: response.mo_label,
-                                };
+                                    $postdata2 = {
+                                        data: response.mo_label,
+                                    };
 
-                                $.ajax({
-                                    type: "POST",
-                                    url: '@Url.Action("CetakLabelTokped", "Manage")',
-                                    contentType: "application/json; charset=UTF-8",
-                                    cache: false,
-                                    beforeSend: function () {
-                                        $('#modalPrintLabelOption__' + cust).modal('hide');
-                                        $('#modalPrintTokped__' + cust).modal('hide');
-                                        $('#loading_spinner').show();
-                                    },
-                                    data: JSON.stringify($postdata2),
-                                    success: function (response) {
-                                        if (response != null) {
-                                            if (response.mo_error == null) {
-                                                $('#loading_spinner').hide();
-                                                var w = window.open('about:blank');
-                                                w.document.open();
-                                                w.document.write(response);
-                                                w.document.close();
+                                    $.ajax({
+                                        type: "POST",
+                                        url: '@Url.Action("CetakLabelTokped", "Manage")',
+                                        contentType: "application/json; charset=UTF-8",
+                                        cache: false,
+                                        //beforeSend: function () {
+                                        //    $('#modalPrintLabelOption__' + cust).modal('hide');
+                                        //    $('#loading_spinner').show();
+                                        //},
+                                        data: JSON.stringify($postdata2),
+                                        success: function (response) {
+                                            if (response != null) {
+                                                if (response.mo_error == null) {
+                                                    $('#loading_spinner').hide();
+                                                    //$('#modalPrintTokped__' + cust).modal('hide');
+                                                    if (!adaError) {
+                                                        $('#modalPrintTokped__' + cust).modal('hide');
+                                                    }
+                                                    var w = window.open('about:blank');
+                                                    w.document.open();
+                                                    w.document.write(response);
+                                                    w.document.close();
 
-                                            } else {
-                                                alert(response.mo_error);
-                                                $('#loading_spinner').hide();
+                                                } else {
+                                                    alert(response.mo_error);
+                                                    //$('#loading_spinner').hide();
+                                                }
                                             }
-                                        }
 
-                                    },
-                                    error: function (xhr, status, error) {
-                                        console.log(error);
-                                        $('#loading_spinner').hide();
-                                    }
-                                });
-                            } else {
-                                alert(response.mo_error);
-                                $('#loading_spinner').hide();
+                                        },
+                                        error: function (xhr, status, error) {
+                                            console.log(error);
+                                            //$('#loading_spinner').hide();
+                                        }
+                                    });
+                                } else {
+                                    alert(response.mo_error);
+                                    //$('#loading_spinner').hide();
+                                }
                             }
                         }
                     },
@@ -368,19 +380,147 @@
                         var $nobuk = '&nobuk=' + nobuk;
                         var $total = '&total=' + total;
 
+                        $('#modalPrintTokped__label__' + cust).html('Print Pesanan Tokopedia');
+                        $('#modalPrintTokped__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+                        $('#modalPrintTokped__' + cust).modal({
+                            show: true,
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+
                         $.ajax({
                             type: "POST",
                             url: '@Url.Action("TokopediaLabelPerPacking", "Manage")',
                             contentType: "application/json; charset=UTF-8",
                             cache: false,
                             data: JSON.stringify($postdata),
-                            beforeSend: function () {
-                                $('#modalPrintLabelOption__' + cust).modal('hide');
-                                $('#loading_spinner').show();
-                            },
+                            //beforeSend: function () {
+                            //    $('#modalPrintLabelOption__' + cust).modal('hide');
+                            //    $('#loading_spinner').show();
+                            //},
                             success: function (response) {
                                 if (response != null) {
-                                    if (response.mo_error == null) {
+                                    if (response.mo_error != undefined) {
+                                        $('#modalPrintTokped__textarea__' + cust).html(response.mo_error);
+                                    }
+                                    else {
+                                        var textareaValue = "";
+                                        var adaError = false;
+                                        var errorValue = "";
+                                        var tempRecnumError = [];
+                                        response.listErrors.forEach(function (item) {
+                                            adaError = true;
+                                            errorValue += item.errorMessage + ". </br>";
+                                            tempRecnumError.push(item.recnum);
+                                        });
+                                        if (adaError) {
+                                            textareaValue += "</br>";
+                                            textareaValue += "Error Orders :</br>";
+                                            textareaValue += errorValue;
+
+                                            if (response.listSuccess.length == 0 || response.listSuccess.length == response.listErrors.length) {
+                                                $('#modalPrintLabelOption__' + cust).modal('hide');
+                                            } else {
+                                                var rows_selected_new = [];
+                                                rows_selected.forEach(function (rec_select) {
+                                                    var adaRec = false;
+                                                    tempRecnumError.forEach(function (rec) {
+                                                        if (rec_select == rec) {
+                                                            adaRec = true;
+                                                        }
+                                                    });
+                                                    if (!adaRec) {
+                                                        rows_selected_new.push(rec_select);
+                                                    }
+                                                });
+                                                if (rows_selected_new.length > 0) {
+                                                    var temptextareaValue = textareaValue;
+                                                    textareaValue += "</br>";
+                                                    textareaValue += "</br>";
+                                                    textareaValue += "Sedang diproses. Mohon menunggu..";
+                                                    $postdata2 = {
+                                                        cust: cust,
+                                                        bukti: $('#packingList_NO_BUKTI').val(),
+                                                        rows_selected: rows_selected_new,
+                                                        toko: toko,
+                                                        tlptoko: tlpToko,
+                                                        ctkLabel: "1",
+                                                        alLink: alamat,
+                                                        noLink: tlp,
+                                                        namaLink: nama,
+                                                        mpLink: mp,
+                                                        nobukLink: nobuk,
+                                                        totalLink: total,
+                                                        portLink: port,
+                                                        refLink: ref,
+                                                        data: response,
+                                                        ketLink: ket,
+                                                        logoLink: logo
+                                                    };
+                                                    $.ajax({
+                                                        type: "POST",
+                                                        url: '@Url.Action("CetakLabelMo", "Manage")',
+                                                        contentType: "application/json; charset=UTF-8",
+                                                        cache: false,
+                                                        data: JSON.stringify($postdata2),
+                                                        success: function (response) {
+                                                            if (response != null) {
+                                                                if (response.mo_error == null) {
+                                                                    $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                                    $('#modalPrintTokped__textarea__' + cust).html(temptextareaValue);
+                                                                    var w = window.open('about:blank');
+                                                                    w.document.open();
+                                                                    w.document.write(response);
+                                                                    w.document.close();
+                                                                } else {
+                                                                    $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                                    $('#modalPrintTokped__textarea__' + cust).html(response.mo_error);
+                                                                    alert(response.mo_error);
+                                                                }
+                                                            }
+                                                        },
+                                                        error: function (xhr, status, error) {
+                                                            $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                            console.log(error);
+                                                        }
+                                                    });
+                                                } else {
+                                                    $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                }
+                                            }
+                                        } else {
+                                            $.ajax({
+                                                type: "POST",
+                                                url: '@Url.Action("CetakLabelMo", "Manage")',
+                                                contentType: "application/json; charset=UTF-8",
+                                                cache: false,
+                                                data: JSON.stringify($postdata2),
+                                                success: function (response) {
+                                                    if (response != null) {
+                                                        if (response.mo_error == null) {
+                                                            $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                            $('#modalPrintTokped__' + cust).modal('hide');
+                                                            var w = window.open('about:blank');
+                                                            w.document.open();
+                                                            w.document.write(response);
+                                                            w.document.close();
+                                                        } else {
+                                                            $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                            $('#modalPrintTokped__textarea__' + cust).html(response.mo_error);
+                                                            alert(response.mo_error);
+                                                        }
+                                                    }
+                                                },
+                                                error: function (xhr, status, error) {
+                                                    $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                    console.log(error);
+                                                }
+                                            });
+                                        }
+                                        $('#modalPrintTokped__textarea__' + cust).html(textareaValue);
+                                    }
+                                    //--------------------------------------------
+                                    @*if (response.mo_error == null) {
 
                                         $postdata2 = {
                                             cust: cust,
@@ -436,12 +576,12 @@
                                     } else {
                                         alert(response.mo_error);
                                         $('#loading_spinner').hide();
-                                    }
+                                    }*@
                                 }
                             },
                             error: function (xhr, status, error) {
                                 console.log(error);
-                                $('#loading_spinner').hide();
+                                //$('#loading_spinner').hide();
                             }
                         });
 
@@ -1127,6 +1267,7 @@
                                 <option value="0">Dalam Proses</option>
                                 <option value="1">Gagal Proses</option>
                                 <option value="2">Siap Kirim</option>
+                                <option value="5">Batal</option>
                             </select>
                         </div>
                         <div class="col-12" id="filter_packing_print_field_option_div_tokped__@(item.CUST)" style="display:none">

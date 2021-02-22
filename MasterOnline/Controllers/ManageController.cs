@@ -45725,45 +45725,46 @@ namespace MasterOnline.Controllers
             }
 
             vm.listRekapBarang = new List<RekapBarang>();
-            //CHANGE BY NURUL 22/7/2020
-            //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
-            //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(A.QTY) QTY, ISNULL(C.BRG_CUST,'') AS BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT01B C ON A.NO_PESANAN=C.NO_BUKTI AND A.BRG=C.BRG WHERE A.NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, C.BRG_CUST");
-            //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(B.WARNA,'') as BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, B.WARNA");
-            var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A(NOLOCK) INNER JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE,B.LKS ORDER BY B.LKS");
-            //END CHANGE BY NURUL 22/7/2020
-            for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
-            {
-                var newData = new RekapBarang
-                {
-                    BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
-                    NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
-                    QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
-                    //ADD BY NURUL 22/7/2020
-                    BARCODE = dsRekap.Tables[0].Rows[i]["BARCODE"].ToString(),
-                    //END ADD BY NURUL 22/7/2020
-                    RAK = dsRekap.Tables[0].Rows[i]["RAK"].ToString(),
-                };
-                //add by nurul 5/2/2021
-                var tempRef = "";
-                var getListNoref = EDB.GetDataSet("CString", "SOT01A", "select brg, ISNULL(SUM(qty),0) AS QTY,isnull(no_referensi,'') as no_referensi from sot01a a (nolock) inner join sot01b b (nolock) on a.no_bukti=b.no_bukti where brg='" + newData.BRG + "' and a.no_bukti in (select no_pesanan from sot03b where no_bukti='" + nobuk + "') GROUP BY brg,no_referensi");
-                if(getListNoref.Tables[0].Rows.Count > 0)
-                {
-                    for (int a = 0; a < getListNoref.Tables[0].Rows.Count; a++)
-                    {
-                        if (!string.IsNullOrEmpty(getListNoref.Tables[0].Rows[a]["no_referensi"].ToString()))
-                        {
-                            tempRef = tempRef + getListNoref.Tables[0].Rows[a]["no_referensi"].ToString() + " (" + getListNoref.Tables[0].Rows[a]["qty"].ToString() + ") " + Environment.NewLine + " ";
-                        }
-                    }
-                }
-                if (tempRef != "")
-                {
-                    tempRef = tempRef.Substring(0, tempRef.Length - 4);
-                }
-                newData.NO_REFERENSI = tempRef;
-                //end add by nurul 5/2/2021
-                vm.listRekapBarang.Add(newData);
-            }
+            ////CHANGE BY NURUL 22/7/2020
+            ////var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
+            ////var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(A.QTY) QTY, ISNULL(C.BRG_CUST,'') AS BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT01B C ON A.NO_PESANAN=C.NO_BUKTI AND A.BRG=C.BRG WHERE A.NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, C.BRG_CUST");
+            ////var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(B.WARNA,'') as BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, B.WARNA");
+            ////var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A(NOLOCK) INNER JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE,B.LKS ORDER BY B.LKS");
+            //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A(NOLOCK) INNER JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG LEFT JOIN SOT01A C(NOLOCK) ON A.NO_PESANAN=C.NO_BUKTI WHERE A.NO_BUKTI = '" + nobuk + "' and isnull(C.status_kirim,'') <> '5' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE,B.LKS ORDER BY B.LKS");
+            ////END CHANGE BY NURUL 22/7/2020
+            //for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
+            //{
+            //    var newData = new RekapBarang
+            //    {
+            //        BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
+            //        NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
+            //        QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
+            //        //ADD BY NURUL 22/7/2020
+            //        BARCODE = dsRekap.Tables[0].Rows[i]["BARCODE"].ToString(),
+            //        //END ADD BY NURUL 22/7/2020
+            //        RAK = dsRekap.Tables[0].Rows[i]["RAK"].ToString(),
+            //    };
+            //    //add by nurul 5/2/2021
+            //    var tempRef = "";
+            //    var getListNoref = EDB.GetDataSet("CString", "SOT01A", "select brg, ISNULL(SUM(qty),0) AS QTY,isnull(no_referensi,'') as no_referensi from sot01a a (nolock) inner join sot01b b (nolock) on a.no_bukti=b.no_bukti where brg='" + newData.BRG + "' and a.no_bukti in (select no_pesanan from sot03b where no_bukti='" + nobuk + "') GROUP BY brg,no_referensi");
+            //    if(getListNoref.Tables[0].Rows.Count > 0)
+            //    {
+            //        for (int a = 0; a < getListNoref.Tables[0].Rows.Count; a++)
+            //        {
+            //            if (!string.IsNullOrEmpty(getListNoref.Tables[0].Rows[a]["no_referensi"].ToString()))
+            //            {
+            //                tempRef = tempRef + getListNoref.Tables[0].Rows[a]["no_referensi"].ToString() + " (" + getListNoref.Tables[0].Rows[a]["qty"].ToString() + ") " + Environment.NewLine + " ";
+            //            }
+            //        }
+            //    }
+            //    if (tempRef != "")
+            //    {
+            //        tempRef = tempRef.Substring(0, tempRef.Length - 4);
+            //    }
+            //    newData.NO_REFERENSI = tempRef;
+            //    //end add by nurul 5/2/2021
+            //    vm.listRekapBarang.Add(newData);
+            //}
 
 
             return PartialView("FormPackinglistPartial", vm);
@@ -45777,7 +45778,7 @@ namespace MasterOnline.Controllers
                 NO_PL = nobuk,
             };
             var listBrg = new List<ScanBarcodePickingBarang>();
-            var dsBarang = EDB.GetDataSet("CString", "SOT03C", "SELECT C.BRG, SUM(C.QTY) TOTAL, ISNULL(C.BARCODE, '') BARCODE, ISNULL(A.LKS, '') RAK FROM STF02 A(NOLOCK) INNER JOIN SOT03C C(NOLOCK) ON A.BRG = C.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY C.BRG, C.BARCODE, A.LKS");
+            var dsBarang = EDB.GetDataSet("CString", "SOT03C", "SELECT C.BRG, SUM(C.QTY) TOTAL, ISNULL(C.BARCODE, '') BARCODE, ISNULL(A.LKS, '') RAK FROM STF02 A(NOLOCK) INNER JOIN SOT03C C(NOLOCK) ON A.BRG = C.BRG LEFT JOIN SOT01A D(NOLOCK) ON C.NO_PESANAN=D.NO_BUKTI WHERE C.NO_BUKTI = '" + nobuk + "' and isnull(D.status_kirim,'') <> '5' GROUP BY C.BRG, C.BARCODE, A.LKS");
             if (dsBarang.Tables[0].Rows.Count > 0)
             {
                 vm.maxBrg = dsBarang.Tables[0].Rows.Count;
@@ -46258,7 +46259,7 @@ namespace MasterOnline.Controllers
                 var sSQL = "SELECT A.NO_BUKTI AS NO_PESANAN, B.BRG,C.NAMA + ' ' + (ISNULL(C.NAMA2, '')) NAMA_BARANG,B.QTY,A.NAMAPEMESAN AS PEMBELI,F.NAMAMARKET + ' (' + E.PERSO +')' AS MARKETPLACE, ISNULL(A.NO_REFERENSI,'')NO_REFERENSI, ISNULL(B.BRG_MULTISKU,'')BRG_MULTISKU, ISNULL(D.NAMA + ' ' + (ISNULL(D.NAMA2, '')),'') NAMA_BRG_MULTISKU " +
                             "FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI=B.NO_BUKTI LEFT JOIN STF02 C(NOLOCK) ON B.BRG=C.BRG LEFT JOIN STF02 D(NOLOCK) ON D.BRG=B.BRG_MULTISKU  " +
                             "LEFT JOIN ARF01 E(NOLOCK) ON A.CUST=E.CUST LEFT JOIN MO..MARKETPLACE F(NOLOCK) ON E.NAMA=F.IDMARKET " +
-                            "WHERE A.NO_BUKTI IN (SELECT NO_PESANAN FROM SOT03C WHERE NO_BUKTI='" + nobuk + "')  order by A.NO_BUKTI, NAMA_BARANG ";
+                            "WHERE A.NO_BUKTI IN (SELECT NO_PESANAN FROM SOT03C WHERE NO_BUKTI='" + nobuk + "')  and isnull(A.status_kirim,'') <> '5'  order by A.NO_BUKTI, NAMA_BARANG ";
                 //END CHANGE BY NURUL 26/9/2020
                 var dsRekap = EDB.GetDataSet("CString", "SOT03C", sSQL);
                 //END CHANGE BY NURUL 17/9/2020, BRG MULTI SKU
@@ -46289,7 +46290,7 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A(NOLOCK) INNER JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE, B.LKS ORDER BY B.LKS");
+                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A(NOLOCK) INNER JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG LEFT JOIN SOT01A C(NOLOCK) ON A.NO_PESANAN=C.NO_BUKTI WHERE A.NO_BUKTI = '" + nobuk + "' and isnull(C.status_kirim,'') <> '5' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE, B.LKS ORDER BY B.LKS");
                 for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
                 {
                     var newData = new RekapBarang
@@ -46590,10 +46591,17 @@ namespace MasterOnline.Controllers
                 {
 
                     var dataPesanan = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == idpesanan).SingleOrDefault();
-                    dataPesanan.TRACKING_SHIPMENT = noresi.ToString();
-                    ErasoftDbContext.SaveChanges();
-                    var successCount = listSuccess.Count();
-                    return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    if (dataPesanan.status_kirim != "5")
+                    {
+                        dataPesanan.TRACKING_SHIPMENT = noresi.ToString();
+                        ErasoftDbContext.SaveChanges();
+                        var successCount = listSuccess.Count();
+                        return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                    else
+                    {
+                        return new JsonResult { Data = new { mo_error = "Pesanan ini statusnya batal. Pesanan batal tidak dapat diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
                 }
                 return new JsonResult { Data = new { mo_error = "No Resi Kosong." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
@@ -46640,6 +46648,7 @@ namespace MasterOnline.Controllers
                 var listSuccess = new List<listSuccessPrintLabel>();
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                sSQLSelect += ",isnull(A.status_kirim,'') AS status_kirim ";
                 string sSQL2 = "";
                 //sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
                 sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
@@ -46655,43 +46664,54 @@ namespace MasterOnline.Controllers
                     {
                         if (marketPlace.STATUS_API == "1")
                         {
-                            TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                            if (item.status_kirim != "5")
                             {
-                                merchant_code = marketPlace.Sort1_Cust, //FSID
-                                API_client_password = marketPlace.API_CLIENT_P, //Client ID
-                                API_client_username = marketPlace.API_CLIENT_U, //Client Secret
-                                API_secret_key = marketPlace.API_KEY, //Shop ID 
-                                token = marketPlace.TOKEN,
-                                idmarket = marketPlace.RecNum.Value,
-                                DatabasePathErasoft = dbPathEra,
-                                username = usernameLogin
-                            };
+                                TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                                {
+                                    merchant_code = marketPlace.Sort1_Cust, //FSID
+                                    API_client_password = marketPlace.API_CLIENT_P, //Client ID
+                                    API_client_username = marketPlace.API_CLIENT_U, //Client Secret
+                                    API_secret_key = marketPlace.API_KEY, //Shop ID 
+                                    token = marketPlace.TOKEN,
+                                    idmarket = marketPlace.RecNum.Value,
+                                    DatabasePathErasoft = dbPathEra,
+                                    username = usernameLogin
+                                };
 
 
-                            string[] referensi = item.no_referensi.Split(';');
-                            if (referensi.Count() > 0)
-                            {
+                                string[] referensi = item.no_referensi.Split(';');
+                                if (referensi.Count() > 0)
+                                {
 #if (DEBUG || Debug_AWS)
-                                //Task.Run(() => tokpedController.PostRequestPickup(dbPathEra, item.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]).Wait());
-                                TokopediaControllerJob tokpedController = new TokopediaControllerJob();
-                                Task.Run(() => tokpedController.PostRequestPickup(dbPathEra, item.no_bukti, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]).Wait());
+                                    //Task.Run(() => tokpedController.PostRequestPickup(dbPathEra, item.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]).Wait());
+                                    TokopediaControllerJob tokpedController = new TokopediaControllerJob();
+                                    Task.Run(() => tokpedController.PostRequestPickup(dbPathEra, item.no_bukti, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]).Wait());
 #else
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, item.no_bukti, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]));
 #endif
 
-                                listSuccess.Add(new listSuccessPrintLabel
+                                    listSuccess.Add(new listSuccessPrintLabel
+                                    {
+                                        no_referensi = item.no_bukti
+                                    });
+                                }
+                                else
                                 {
-                                    no_referensi = item.no_bukti
-                                });
+                                    listErrors.Add(new PackingListErrors
+                                    {
+                                        keyname = item.no_bukti,
+                                        errorMessage = "Pesanan tidak bisa diproses Pickup."
+                                    });
+                                }
                             }
                             else
                             {
                                 listErrors.Add(new PackingListErrors
                                 {
                                     keyname = item.no_bukti,
-                                    errorMessage = "Pesanan tidak bisa diproses Pickup."
+                                    errorMessage = "Pesanan ini statusnya batal. Pesanan batal tidak dapat diproses."
                                 });
                             }
                         }
@@ -46769,46 +46789,57 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(so.no_referensi))
                             {
-                                if (string.IsNullOrWhiteSpace(so.tracking_no))
+                                if (so.status_kirim != "5")
                                 {
-                                    var lzdApi = new LazadaController();
-                                    List<string> orderItemIds = new List<string>();
-                                    var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
-                                    var adaItem = false;
-                                    var adaOrderItemIdNull = false;
-                                    if (sot01b.Count > 0)
+                                    if (string.IsNullOrWhiteSpace(so.tracking_no))
                                     {
-                                        List<string> ordItemId = new List<string>();
-                                        foreach (SOT01B item in sot01b)
+                                        var lzdApi = new LazadaController();
+                                        List<string> orderItemIds = new List<string>();
+                                        var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
+                                        var adaItem = false;
+                                        var adaOrderItemIdNull = false;
+                                        if (sot01b.Count > 0)
                                         {
-                                            adaItem = true;
-                                            if (string.IsNullOrWhiteSpace(item.ORDER_ITEM_ID))
+                                            List<string> ordItemId = new List<string>();
+                                            foreach (SOT01B item in sot01b)
                                             {
-                                                adaOrderItemIdNull = true;
+                                                adaItem = true;
+                                                if (string.IsNullOrWhiteSpace(item.ORDER_ITEM_ID))
+                                                {
+                                                    adaOrderItemIdNull = true;
+                                                }
+                                                ordItemId.Add(item.ORDER_ITEM_ID);
                                             }
-                                            ordItemId.Add(item.ORDER_ITEM_ID);
-                                        }
-                                        if (adaItem && !adaOrderItemIdNull && !string.IsNullOrWhiteSpace(so.no_referensi))
-                                        {
-                                            var lzdApijob = new LazadaControllerJob();
-                                            lzdApijob.GetToPackedToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Packing", usernameLogin, ordItemId, DeliveryProvider, marketPlace.TOKEN);
-
-
-                                            //var sqlStorage = new SqlServerStorage(EDBConnID);
-                                            //var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                            //var jobId = clientJobServer.Enqueue<LazadaControllerJob>(x => x.GetToPackedToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Packing", usernameLogin, ordItemId, DeliveryProvider, marketPlace.TOKEN));
-
-                                            listSuccess.Add(new listSuccessPrintLabel
+                                            if (adaItem && !adaOrderItemIdNull && !string.IsNullOrWhiteSpace(so.no_referensi))
                                             {
-                                                no_referensi = so.no_referensi
-                                            });
+                                                var lzdApijob = new LazadaControllerJob();
+                                                lzdApijob.GetToPackedToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Packing", usernameLogin, ordItemId, DeliveryProvider, marketPlace.TOKEN);
+
+
+                                                //var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                //var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                //var jobId = clientJobServer.Enqueue<LazadaControllerJob>(x => x.GetToPackedToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Packing", usernameLogin, ordItemId, DeliveryProvider, marketPlace.TOKEN));
+
+                                                listSuccess.Add(new listSuccessPrintLabel
+                                                {
+                                                    no_referensi = so.no_referensi
+                                                });
+                                            }
+                                            else
+                                            {
+                                                listErrors.Add(new PackingListErrors
+                                                {
+                                                    keyname = so.no_referensi,
+                                                    errorMessage = "Terjadi kesalahan saat mengupdate status pesanan."
+                                                });
+                                            }
                                         }
                                         else
                                         {
                                             listErrors.Add(new PackingListErrors
                                             {
                                                 keyname = so.no_referensi,
-                                                errorMessage = "Terjadi kesalahan saat mengupdate status pesanan."
+                                                errorMessage = "Pesanan tidak memiliki barang."
                                             });
                                         }
                                     }
@@ -46817,7 +46848,7 @@ namespace MasterOnline.Controllers
                                         listErrors.Add(new PackingListErrors
                                         {
                                             keyname = so.no_referensi,
-                                            errorMessage = "Pesanan tidak memiliki barang."
+                                            errorMessage = "Pesanan sudah memiliki resi."
                                         });
                                     }
                                 }
@@ -46826,7 +46857,7 @@ namespace MasterOnline.Controllers
                                     listErrors.Add(new PackingListErrors
                                     {
                                         keyname = so.no_referensi,
-                                        errorMessage = "Pesanan sudah memiliki resi."
+                                        errorMessage = "Pesanan ini statusnya batal. Pesanan batal tidak dapat diproses."
                                     });
                                 }
                             }
@@ -46899,44 +46930,55 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(so.no_referensi))
                             {
-                                var lzdApi = new LazadaController();
-                                List<string> orderItemIds = new List<string>();
-                                var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
-                                var adaItem = false;
-                                var adaOrderItemIdNull = false;
-                                if (sot01b.Count > 0)
+                                if (so.status_kirim != "5")
                                 {
-                                    List<string> ordItemId = new List<string>();
-                                    foreach (SOT01B item in sot01b)
+                                    var lzdApi = new LazadaController();
+                                    List<string> orderItemIds = new List<string>();
+                                    var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
+                                    var adaItem = false;
+                                    var adaOrderItemIdNull = false;
+                                    if (sot01b.Count > 0)
                                     {
-                                        adaItem = true;
-                                        if (string.IsNullOrWhiteSpace(item.ORDER_ITEM_ID))
+                                        List<string> ordItemId = new List<string>();
+                                        foreach (SOT01B item in sot01b)
                                         {
-                                            adaOrderItemIdNull = true;
+                                            adaItem = true;
+                                            if (string.IsNullOrWhiteSpace(item.ORDER_ITEM_ID))
+                                            {
+                                                adaOrderItemIdNull = true;
+                                            }
+                                            ordItemId.Add(item.ORDER_ITEM_ID);
                                         }
-                                        ordItemId.Add(item.ORDER_ITEM_ID);
-                                    }
-                                    if (adaItem && !adaOrderItemIdNull && !string.IsNullOrWhiteSpace(so.no_referensi))
-                                    {
-
-                                        var lzdApijob = new LazadaControllerJob();
-                                        lzdApijob.GetToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, ordItemId, DeliveryProvider, so.tracking_no, marketPlace.TOKEN);
-
-                                        //var sqlStorage = new SqlServerStorage(EDBConnID);
-                                        //var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                        //var jobId = clientJobServer.Enqueue<LazadaControllerJob>(x => x.GetToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, ordItemId, DeliveryProvider, so.tracking_no, marketPlace.TOKEN));
-
-                                        listSuccess.Add(new listSuccessPrintLabel
+                                        if (adaItem && !adaOrderItemIdNull && !string.IsNullOrWhiteSpace(so.no_referensi))
                                         {
-                                            no_referensi = so.no_referensi
-                                        });
+
+                                            var lzdApijob = new LazadaControllerJob();
+                                            lzdApijob.GetToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, ordItemId, DeliveryProvider, so.tracking_no, marketPlace.TOKEN);
+
+                                            //var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            //var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                            //var jobId = clientJobServer.Enqueue<LazadaControllerJob>(x => x.GetToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, ordItemId, DeliveryProvider, so.tracking_no, marketPlace.TOKEN));
+
+                                            listSuccess.Add(new listSuccessPrintLabel
+                                            {
+                                                no_referensi = so.no_referensi
+                                            });
+                                        }
+                                        else
+                                        {
+                                            listErrors.Add(new PackingListErrors
+                                            {
+                                                keyname = so.no_referensi,
+                                                errorMessage = "Terjadi kesalahan saat memproses pesanan."
+                                            });
+                                        }
                                     }
                                     else
                                     {
                                         listErrors.Add(new PackingListErrors
                                         {
                                             keyname = so.no_referensi,
-                                            errorMessage = "Terjadi kesalahan saat memproses pesanan."
+                                            errorMessage = "Pesanan tidak memiliki barang."
                                         });
                                     }
                                 }
@@ -46945,7 +46987,7 @@ namespace MasterOnline.Controllers
                                     listErrors.Add(new PackingListErrors
                                     {
                                         keyname = so.no_referensi,
-                                        errorMessage = "Pesanan tidak memiliki barang."
+                                        errorMessage = "Pesanan ini statusnya batal. Pesanan batal tidak dapat diproses."
                                     });
                                 }
                             }
@@ -47005,6 +47047,7 @@ namespace MasterOnline.Controllers
 
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                sSQLSelect += ",isnull(A.status_kirim,'') AS status_kirim, A.RECNUM as so_recnum  ";
                 string sSQL2 = "";
                 sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
@@ -47053,12 +47096,15 @@ namespace MasterOnline.Controllers
                 var string_detailSO = "";
                 foreach (var nobuk in ListStt01a)
                 {
-                    if (string_detailSO != "")
+                    if (nobuk.status_kirim != "5")
                     {
-                        string_detailSO += ",";
-                    }
+                        if (string_detailSO != "")
+                        {
+                            string_detailSO += ",";
+                        }
 
-                    string_detailSO += "'" + nobuk.no_bukti + "'";
+                        string_detailSO += "'" + nobuk.no_bukti + "'";
+                    }
                 }
                 string ssql = "SELECT ORDER_ITEM_ID,NO_BUKTI FROM SOT01B (NOLOCK) WHERE NO_BUKTI IN (" + string_detailSO + ") ";
                 var listDetailSo = ErasoftDbContext.Database.SqlQuery<ORDERITEMSO>(ssql).ToList();
@@ -47067,570 +47113,648 @@ namespace MasterOnline.Controllers
                 var hitungheader = 0;
 
                 //END ADD BY NURUL 24/2/2020
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
 
                 foreach (var so in ListStt01a)
                 {
-                    if (listNobuk != "")
+                    var success = true;
+                    if (so.status_kirim != "5")
                     {
-                        listNobuk += ",";
-                    }
-                    listNobuk += "'" + so.no_bukti + "'";
-                    hitungheader = hitungheader + 1;
-                    if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
-                    {
-                        if (marketPlace.STATUS_API == "1")
+                        //if (listNobuk != "")
+                        //{
+                        //    listNobuk += ",";
+                        //}
+                        //listNobuk += "'" + so.no_bukti + "'";
+                        hitungheader = hitungheader + 1;
+                        if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                         {
-                            var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
-                            if (sot01b.Count > 0)
+                            if (marketPlace.STATUS_API == "1")
                             {
-                                if ((orderItemIds.Count() + sot01b.Count()) > 50 || orderItemIds.Count() >= 10 && orderItemIds.Count() < 20)
+                                var sot01b = ErasoftDbContext.SOT01B.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).ToList();
+                                if (sot01b.Count > 0)
                                 {
-                                    var lzdApi = new LazadaController();
-                                    var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
-                                    if (retApi.code == "0")
+                                    if ((orderItemIds.Count() + sot01b.Count()) > 50 || orderItemIds.Count() >= 10 && orderItemIds.Count() < 20)
                                     {
-                                        var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
-
-                                        //add by nurul 16/12/2019
-                                        if (label == "2")
+                                        var lzdApi = new LazadaController();
+                                        var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
+                                        if (retApi.code == "0")
                                         {
-                                            while (!gakketemulagi) //lex - ninja
+                                            var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
+
+                                            //add by nurul 16/12/2019
+                                            if (label == "2")
                                             {
-                                                //var idxBarcode = htmlString.IndexOf("Tracking Number: ", lastIndexBarcode);
-
-                                                //if (idxBarcode < 0) { gakketemulagi = true; break; }
-
-                                                //var idxEndBarcode = htmlString.IndexOf("</div>", idxBarcode);
-                                                //var noBarcode = htmlString.Substring((idxBarcode + 17), (idxEndBarcode - (idxBarcode + 17))); 
-
-                                                var idxKurir = htmlString.IndexOf("Dikirim Oleh :", lastIndexKurir);
-
-                                                if (idxKurir < 0) { gakketemulagi = true; break; }
-
-                                                var idxKurir2 = htmlString.IndexOf("src=\"", idxKurir);
-                                                var idxEndKurir = htmlString.IndexOf("\" style", idxKurir);
-                                                var noKurir = htmlString.Substring((idxKurir2 + 5), (idxEndKurir - (idxKurir2 + 5)));
-
-                                                lastIndexTgl = idxEndKurir;
-                                                var idxTgl = htmlString.IndexOf("<div><b>", lastIndexTgl);
-                                                //var idxTgl2 = htmlString.IndexOf(">", idxTgl);
-                                                var idxEndTgl = htmlString.IndexOf("</b>", idxTgl);
-                                                var noTgl = htmlString.Substring((idxTgl + 8), (idxEndTgl - (idxTgl + 8)));
-
-                                                lastIndexBarcode = idxEndTgl;
-                                                var idxBarcode = htmlString.IndexOf("Tracking Number: ", lastIndexBarcode);
-                                                //if (idxBarcode < 0) { gakketemulagi = true; break; }
-                                                var idxEndBarcode = htmlString.IndexOf("</div>", idxBarcode);
-                                                var noBarcode = htmlString.Substring((idxBarcode + 17), (idxEndBarcode - (idxBarcode + 17)));
-
-                                                lastIndexPortCode = idxEndBarcode;
-                                                var idxPortCode = htmlString.IndexOf("Port Code: ", lastIndexPortCode);
-                                                var idxPortCode2 = htmlString.IndexOf(">", idxPortCode);
-                                                var idxEndPortCode = htmlString.IndexOf("</span>", idxPortCode2);
-                                                var noPortCode = htmlString.Substring((idxPortCode2 + 1), (idxEndPortCode - (idxPortCode2 + 1)));
-
-                                                lastIndexHarga = idxEndPortCode;
-                                                var idxHarga = htmlString.IndexOf("<!-- ###=== Right Column - COD Collection ===### -->", lastIndexHarga);
-                                                var idxHarga2 = htmlString.IndexOf(";\">", idxHarga);
-                                                var idxEndHarga = htmlString.IndexOf("</div>", idxHarga);
-                                                var hargaAPI = htmlString.Substring((idxHarga2 + 3), (idxEndHarga - (idxHarga2 + 3)));
-
-                                                lastIndexReferensi = idxEndHarga;
-                                                var idxReferensi = htmlString.IndexOf("Order Number: ", lastIndexReferensi);
-                                                var idxEndReferensi = htmlString.IndexOf("</div>", idxReferensi);
-                                                var noReferensi = htmlString.Substring((idxReferensi + 14), (idxEndReferensi - (idxReferensi + 14)));
-
-                                                lastIndexBarcode = idxEndReferensi;
-                                                lastIndexPortCode = idxEndReferensi;
-                                                lastIndexHarga = idxEndReferensi;
-                                                lastIndexReferensi = idxEndReferensi;
-                                                lastIndexKurir = idxEndReferensi;
-                                                lastIndexTgl = idxEndReferensi;
-
-                                                tempResiLazada.Add(new tempBarcodeLazada()
+                                                while (!gakketemulagi) //lex - ninja
                                                 {
-                                                    referensiApi = noReferensi,
-                                                    ResiApi = noBarcode,
-                                                    PortCodeApi = noPortCode,
-                                                    HargaApi = hargaAPI,
-                                                    urlLogoKurirApi = noKurir,
-                                                    tglApi = noTgl
-                                                });
+                                                    //var idxBarcode = htmlString.IndexOf("Tracking Number: ", lastIndexBarcode);
+
+                                                    //if (idxBarcode < 0) { gakketemulagi = true; break; }
+
+                                                    //var idxEndBarcode = htmlString.IndexOf("</div>", idxBarcode);
+                                                    //var noBarcode = htmlString.Substring((idxBarcode + 17), (idxEndBarcode - (idxBarcode + 17))); 
+
+                                                    var idxKurir = htmlString.IndexOf("Dikirim Oleh :", lastIndexKurir);
+
+                                                    if (idxKurir < 0) { gakketemulagi = true; break; }
+
+                                                    var idxKurir2 = htmlString.IndexOf("src=\"", idxKurir);
+                                                    var idxEndKurir = htmlString.IndexOf("\" style", idxKurir);
+                                                    var noKurir = htmlString.Substring((idxKurir2 + 5), (idxEndKurir - (idxKurir2 + 5)));
+
+                                                    lastIndexTgl = idxEndKurir;
+                                                    var idxTgl = htmlString.IndexOf("<div><b>", lastIndexTgl);
+                                                    //var idxTgl2 = htmlString.IndexOf(">", idxTgl);
+                                                    var idxEndTgl = htmlString.IndexOf("</b>", idxTgl);
+                                                    var noTgl = htmlString.Substring((idxTgl + 8), (idxEndTgl - (idxTgl + 8)));
+
+                                                    lastIndexBarcode = idxEndTgl;
+                                                    var idxBarcode = htmlString.IndexOf("Tracking Number: ", lastIndexBarcode);
+                                                    //if (idxBarcode < 0) { gakketemulagi = true; break; }
+                                                    var idxEndBarcode = htmlString.IndexOf("</div>", idxBarcode);
+                                                    var noBarcode = htmlString.Substring((idxBarcode + 17), (idxEndBarcode - (idxBarcode + 17)));
+
+                                                    lastIndexPortCode = idxEndBarcode;
+                                                    var idxPortCode = htmlString.IndexOf("Port Code: ", lastIndexPortCode);
+                                                    var idxPortCode2 = htmlString.IndexOf(">", idxPortCode);
+                                                    var idxEndPortCode = htmlString.IndexOf("</span>", idxPortCode2);
+                                                    var noPortCode = htmlString.Substring((idxPortCode2 + 1), (idxEndPortCode - (idxPortCode2 + 1)));
+
+                                                    lastIndexHarga = idxEndPortCode;
+                                                    var idxHarga = htmlString.IndexOf("<!-- ###=== Right Column - COD Collection ===### -->", lastIndexHarga);
+                                                    var idxHarga2 = htmlString.IndexOf(";\">", idxHarga);
+                                                    var idxEndHarga = htmlString.IndexOf("</div>", idxHarga);
+                                                    var hargaAPI = htmlString.Substring((idxHarga2 + 3), (idxEndHarga - (idxHarga2 + 3)));
+
+                                                    lastIndexReferensi = idxEndHarga;
+                                                    var idxReferensi = htmlString.IndexOf("Order Number: ", lastIndexReferensi);
+                                                    var idxEndReferensi = htmlString.IndexOf("</div>", idxReferensi);
+                                                    var noReferensi = htmlString.Substring((idxReferensi + 14), (idxEndReferensi - (idxReferensi + 14)));
+
+                                                    lastIndexBarcode = idxEndReferensi;
+                                                    lastIndexPortCode = idxEndReferensi;
+                                                    lastIndexHarga = idxEndReferensi;
+                                                    lastIndexReferensi = idxEndReferensi;
+                                                    lastIndexKurir = idxEndReferensi;
+                                                    lastIndexTgl = idxEndReferensi;
+
+                                                    tempResiLazada.Add(new tempBarcodeLazada()
+                                                    {
+                                                        referensiApi = noReferensi,
+                                                        ResiApi = noBarcode,
+                                                        PortCodeApi = noPortCode,
+                                                        HargaApi = hargaAPI,
+                                                        urlLogoKurirApi = noKurir,
+                                                        tglApi = noTgl
+                                                    });
+
+                                                }
+
+                                                while (!JNEgakketemulagi) //JNE
+                                                {
+                                                    var JNEidxReferensi = htmlString.IndexOf("Nomor Order:", lastIndexReferensi);
+
+                                                    if (JNEidxReferensi < 0) { JNEgakketemulagi = true; break; }
+
+                                                    var JNEidxReferensi2 = htmlString.IndexOf(";\">", JNEidxReferensi);
+                                                    var JNEidxEndReferensi = htmlString.IndexOf("</span>", JNEidxReferensi2);
+                                                    var JNEnoReferensi = htmlString.Substring((JNEidxReferensi2 + 3), (JNEidxEndReferensi - (JNEidxReferensi2 + 3)));
+
+                                                    lastIndexBarcode = JNEidxEndReferensi;
+                                                    var JNEidxBarcode = htmlString.IndexOf("Kode Tracking: <b>", lastIndexBarcode);
+                                                    //var idxTgl2 = htmlString.IndexOf(">", idxTgl);
+                                                    var JNEidxEndBarcode = htmlString.IndexOf("</b>", JNEidxBarcode);
+                                                    var JNEnoBarcode = htmlString.Substring((JNEidxBarcode + 18), (JNEidxEndBarcode - (JNEidxBarcode + 18)));
+
+                                                    lastIndexKurir = JNEidxEndBarcode;
+                                                    var JNEidxKurir = htmlString.IndexOf("class=\"lm-logo\"", lastIndexKurir);
+                                                    var JNEidxKurir2 = htmlString.IndexOf("src=\"", JNEidxKurir);
+                                                    var JNEidxEndKurir = htmlString.IndexOf("\" style", JNEidxKurir2);
+                                                    var JNEnoKurir = htmlString.Substring((JNEidxKurir2 + 5), (JNEidxEndKurir - (JNEidxKurir2 + 5)));
+
+                                                    lastIndexHarga = JNEidxEndKurir;
+                                                    var JNEidxHarga = htmlString.IndexOf("Bayar di Tempat:", lastIndexHarga);
+                                                    var JNEidxHarga2 = htmlString.IndexOf("Rp. ", JNEidxHarga);
+                                                    var JNEidxEndHarga = htmlString.IndexOf(" </b>", JNEidxHarga2);
+                                                    var JNEhargaAPI = htmlString.Substring((JNEidxHarga2 + 4), (JNEidxEndHarga - (JNEidxHarga2 + 4)));
+
+                                                    lastIndexBarcode = JNEidxEndReferensi;
+                                                    lastIndexHarga = JNEidxEndReferensi;
+                                                    lastIndexReferensi = JNEidxEndReferensi;
+                                                    lastIndexKurir = JNEidxEndReferensi;
+
+                                                    tempResiLazada.Add(new tempBarcodeLazada()
+                                                    {
+                                                        referensiApi = JNEnoReferensi,
+                                                        ResiApi = JNEnoBarcode,
+                                                        //PortCodeApi = noPortCode,
+                                                        HargaApi = JNEhargaAPI,
+                                                        urlLogoKurirApi = JNEnoKurir,
+                                                        //tglApi = noTgl
+                                                    });
+
+                                                }
+                                            }
+                                            //end add by nurul 16/12/2019
+
+                                            //#region add button cetak
+                                            //htmlString += "<button id='print-btn' >Cetak</button>";
+                                            htmlString += "<script>";
+                                            //change by nurul 6/1/2020
+                                            ////htmlString += "document.getElementsByClassName('awb lex')[0].style.width = '90%'; ";
+                                            htmlString += "var awb = document.getElementsByClassName('awb lex'); ";
+                                            htmlString += "for (var a = 0; a < awb.length; a++){ awb[a].style.width = '95%'; } ; ";
+                                            //end change by nurul 6/1/2020
+                                            //htmlString += "document.getElementsByClassName('item_quantity')[2].style.display = 'block'; ";
+                                            //htmlString += "document.getElementsByClassName('item_quantity')[2].style.fontSize  = 'small'; ";
+                                            //remark by nurul 6/1/2020
+                                            //htmlString += "var x = document.getElementById('item-desc-table').parentElement; ";
+                                            //htmlString += "x.style.height = 'auto'; ";
+                                            //end remark by nurul 6/1/2020
+                                            //htmlString += "document.getElementsByClassName('item_sku')[0].style.fontSize  = 'small'; ";
+                                            //htmlString += "document.getElementsByClassName('item_name')[0].style.fontSize  = 'small'; ";
+                                            //change by nurul 6/1/2020
+                                            ////htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
+                                            htmlString += "var item = document.getElementsByClassName('order_item_table'); ";
+                                            //htmlString += "for (var b = 0; b < item.length; b++){ item[b].style.fontSize  = 'xx-small'; } ; ";
+                                            htmlString += "for (var b = 0; b < item.length; b++){ item[b].style.fontSize  = '7px'; } ; ";
+                                            htmlString += "var harga = document.getElementsByClassName('box text-left'); ";
+                                            htmlString += "for (var d = 0; d < harga.length; d++){ harga[d].style.fontSize  = '10px'; } ; ";
+                                            //end change by nurul 6/1/2020
+                                            //                        htmlString += " function run() { document.getElementById('print-btn').onclick = function () {";
+                                            //                        htmlString += "document.getElementById('print-btn').style.visibility = 'hidden';";
+                                            //                        htmlString += "window.print(); }; window.onafterprint = function () {";
+                                            //                        htmlString += "document.getElementById('print-btn').style.visibility = 'visible'; } }";
+                                            //                        htmlString += " if (document.readyState!='loading') run();";
+                                            //                        htmlString += " else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run);";
+                                            //                        htmlString += "else document.attachEvent('onreadystatechange', function(){ if (document.readyState=='complete') run(); });";
+                                            htmlString += "</script>";
+                                            //#endregion
+                                            //EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + listNobuk + ")");
+                                            //if (label == "1")
+                                            //{
+                                            //    return Json(htmlString, JsonRequestBehavior.AllowGet);
+                                            //}
+                                            //else if (label == "2")
+                                            //{
+                                            //    return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
+                                            //}
+
+                                            /// UPDATE FITUR FROM HTML TO PDF by Fauzi 04 November 2020
+                                            #region FITUR PRINT LABEL HTML TO PDF
+                                            #region initial folder
+                                            string messageErrorLog = "";
+                                            string filename = "LAZADA_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                                            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                                            #endregion
+
+                                            if (!System.IO.File.Exists(path))
+                                            {
+                                                System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                                                FileStream stream = System.IO.File.Create(path);
+
+                                                string pdf_page_size = "9";
+                                                PdfPageSize pageSize = (PdfPageSize)Enum.Parse(typeof(PdfPageSize),
+                                                    pdf_page_size, true);
+
+                                                string pdf_orientation = "0";
+                                                PdfPageOrientation pdfOrientation =
+                                                    (PdfPageOrientation)Enum.Parse(typeof(PdfPageOrientation),
+                                                    pdf_orientation, true);
+
+                                                int webPageWidth = 500;
+                                                int webPageHeight = 400;
+
+                                                HtmlToPdf converter = new HtmlToPdf();
+                                                converter.Options.PdfPageSize = pageSize;
+                                                converter.Options.PdfPageOrientation = pdfOrientation;
+                                                converter.Options.WebPageWidth = webPageWidth;
+                                                converter.Options.WebPageHeight = webPageHeight;
+                                                converter.Options.MarginRight = 10;
+                                                converter.Options.MarginLeft = 10;
+                                                converter.Options.MarginTop = 10;
+
+                                                htmlString = htmlString.Replace("break;", "");
+                                                htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 48)");
+                                                htmlString = htmlString.Replace("height: 82.5px; width: 55px; border-right: 1;", "height: 82.5px; width: 30px; border-right: 1;");
+                                                htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width: 15%;", "height: 2.2cm; font-size:8px; width:8%;");
+                                                htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width:85%;", "height: 2.2cm; font-size:8px; width:92%;");
+                                                htmlString = htmlString.Replace("font-size:10px", "font-size:8px");
+                                                htmlString = htmlString.Replace("font-size:8px;", "font-size:8px;");
+                                                SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
+
+                                                byte[] byteArray = doc.Save();
+                                                //end process
+
+                                                //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
+                                                stream.Write(byteArray, 0, byteArray.Length);
+                                                stream.Close();
+                                                temp_printLabel.Add(path);
+                                                temp_printLabel_split = temp_printLabel_split + path + ";";
+                                            }
+                                            #endregion
+                                            /// 
+
+                                            temp_htmlString.Add(htmlString);
+                                        }
+                                        else
+                                        {
+                                            var strmsg = retApi.message;
+                                            if (retApi.message.Contains("Please call setStatusToReadyToShip"))
+                                            {
+                                                strmsg = "Status Pesanan belum siap dikirim. Mohon lakukan Ready To Ship terlebih dahulu.";
 
                                             }
-
-                                            while (!JNEgakketemulagi) //JNE
+                                            listErrors.Add(new PackingListErrors
                                             {
-                                                var JNEidxReferensi = htmlString.IndexOf("Nomor Order:", lastIndexReferensi);
+                                                keyname = so.no_referensi,
+                                                errorMessage = "Pesanan [" + so.no_referensi + "] gagal cetak label, karena : " + strmsg,
+                                                recnum = Convert.ToString(so.so_recnum)
+                                            });
+                                            temp_strmsg.Add(strmsg);
+                                            //return new JsonResult { Data = new { mo_error = strmsg }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
 
-                                                if (JNEidxReferensi < 0) { JNEgakketemulagi = true; break; }
-
-                                                var JNEidxReferensi2 = htmlString.IndexOf(";\">", JNEidxReferensi);
-                                                var JNEidxEndReferensi = htmlString.IndexOf("</span>", JNEidxReferensi2);
-                                                var JNEnoReferensi = htmlString.Substring((JNEidxReferensi2 + 3), (JNEidxEndReferensi - (JNEidxReferensi2 + 3)));
-
-                                                lastIndexBarcode = JNEidxEndReferensi;
-                                                var JNEidxBarcode = htmlString.IndexOf("Kode Tracking: <b>", lastIndexBarcode);
-                                                //var idxTgl2 = htmlString.IndexOf(">", idxTgl);
-                                                var JNEidxEndBarcode = htmlString.IndexOf("</b>", JNEidxBarcode);
-                                                var JNEnoBarcode = htmlString.Substring((JNEidxBarcode + 18), (JNEidxEndBarcode - (JNEidxBarcode + 18)));
-
-                                                lastIndexKurir = JNEidxEndBarcode;
-                                                var JNEidxKurir = htmlString.IndexOf("class=\"lm-logo\"", lastIndexKurir);
-                                                var JNEidxKurir2 = htmlString.IndexOf("src=\"", JNEidxKurir);
-                                                var JNEidxEndKurir = htmlString.IndexOf("\" style", JNEidxKurir2);
-                                                var JNEnoKurir = htmlString.Substring((JNEidxKurir2 + 5), (JNEidxEndKurir - (JNEidxKurir2 + 5)));
-
-                                                lastIndexHarga = JNEidxEndKurir;
-                                                var JNEidxHarga = htmlString.IndexOf("Bayar di Tempat:", lastIndexHarga);
-                                                var JNEidxHarga2 = htmlString.IndexOf("Rp. ", JNEidxHarga);
-                                                var JNEidxEndHarga = htmlString.IndexOf(" </b>", JNEidxHarga2);
-                                                var JNEhargaAPI = htmlString.Substring((JNEidxHarga2 + 4), (JNEidxEndHarga - (JNEidxHarga2 + 4)));
-
-                                                lastIndexBarcode = JNEidxEndReferensi;
-                                                lastIndexHarga = JNEidxEndReferensi;
-                                                lastIndexReferensi = JNEidxEndReferensi;
-                                                lastIndexKurir = JNEidxEndReferensi;
-
-                                                tempResiLazada.Add(new tempBarcodeLazada()
-                                                {
-                                                    referensiApi = JNEnoReferensi,
-                                                    ResiApi = JNEnoBarcode,
-                                                    //PortCodeApi = noPortCode,
-                                                    HargaApi = JNEhargaAPI,
-                                                    urlLogoKurirApi = JNEnoKurir,
-                                                    //tglApi = noTgl
-                                                });
-
-                                            }
+                                            success = false;
                                         }
-                                        //end add by nurul 16/12/2019
 
-                                        //#region add button cetak
-                                        //htmlString += "<button id='print-btn' >Cetak</button>";
-                                        htmlString += "<script>";
-                                        //change by nurul 6/1/2020
-                                        ////htmlString += "document.getElementsByClassName('awb lex')[0].style.width = '90%'; ";
-                                        htmlString += "var awb = document.getElementsByClassName('awb lex'); ";
-                                        htmlString += "for (var a = 0; a < awb.length; a++){ awb[a].style.width = '95%'; } ; ";
-                                        //end change by nurul 6/1/2020
-                                        //htmlString += "document.getElementsByClassName('item_quantity')[2].style.display = 'block'; ";
-                                        //htmlString += "document.getElementsByClassName('item_quantity')[2].style.fontSize  = 'small'; ";
-                                        //remark by nurul 6/1/2020
-                                        //htmlString += "var x = document.getElementById('item-desc-table').parentElement; ";
-                                        //htmlString += "x.style.height = 'auto'; ";
-                                        //end remark by nurul 6/1/2020
-                                        //htmlString += "document.getElementsByClassName('item_sku')[0].style.fontSize  = 'small'; ";
-                                        //htmlString += "document.getElementsByClassName('item_name')[0].style.fontSize  = 'small'; ";
-                                        //change by nurul 6/1/2020
-                                        ////htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
-                                        htmlString += "var item = document.getElementsByClassName('order_item_table'); ";
-                                        //htmlString += "for (var b = 0; b < item.length; b++){ item[b].style.fontSize  = 'xx-small'; } ; ";
-                                        htmlString += "for (var b = 0; b < item.length; b++){ item[b].style.fontSize  = '7px'; } ; ";
-                                        htmlString += "var harga = document.getElementsByClassName('box text-left'); ";
-                                        htmlString += "for (var d = 0; d < harga.length; d++){ harga[d].style.fontSize  = '10px'; } ; ";
-                                        //end change by nurul 6/1/2020
-                                        //                        htmlString += " function run() { document.getElementById('print-btn').onclick = function () {";
-                                        //                        htmlString += "document.getElementById('print-btn').style.visibility = 'hidden';";
-                                        //                        htmlString += "window.print(); }; window.onafterprint = function () {";
-                                        //                        htmlString += "document.getElementById('print-btn').style.visibility = 'visible'; } }";
-                                        //                        htmlString += " if (document.readyState!='loading') run();";
-                                        //                        htmlString += " else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run);";
-                                        //                        htmlString += "else document.attachEvent('onreadystatechange', function(){ if (document.readyState=='complete') run(); });";
-                                        htmlString += "</script>";
-                                        //#endregion
-                                        //EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + listNobuk + ")");
-                                        //if (label == "1")
-                                        //{
-                                        //    return Json(htmlString, JsonRequestBehavior.AllowGet);
-                                        //}
-                                        //else if (label == "2")
-                                        //{
-                                        //    return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
-                                        //}
 
-                                        /// UPDATE FITUR FROM HTML TO PDF by Fauzi 04 November 2020
-#region FITUR PRINT LABEL HTML TO PDF
-#region initial folder
-                                        string messageErrorLog = "";
-                                        string filename = "LAZADA_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                                        var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
-#endregion
 
-                                        if (!System.IO.File.Exists(path))
+                                        hitungDetail = hitungDetail - orderItemIds.Count();
+                                        orderItemIds.Clear();
+                                        foreach (SOT01B item in sot01b)
                                         {
-                                            System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
-                                            FileStream stream = System.IO.File.Create(path);
-
-                                            string pdf_page_size = "9";
-                                            PdfPageSize pageSize = (PdfPageSize)Enum.Parse(typeof(PdfPageSize),
-                                                pdf_page_size, true);
-
-                                            string pdf_orientation = "0";
-                                            PdfPageOrientation pdfOrientation =
-                                                (PdfPageOrientation)Enum.Parse(typeof(PdfPageOrientation),
-                                                pdf_orientation, true);
-
-                                            int webPageWidth = 500;
-                                            int webPageHeight = 400;
-
-                                            HtmlToPdf converter = new HtmlToPdf();
-                                            converter.Options.PdfPageSize = pageSize;
-                                            converter.Options.PdfPageOrientation = pdfOrientation;
-                                            converter.Options.WebPageWidth = webPageWidth;
-                                            converter.Options.WebPageHeight = webPageHeight;
-                                            converter.Options.MarginRight = 10;
-                                            converter.Options.MarginLeft = 10;
-                                            converter.Options.MarginTop = 10;
-
-                                            htmlString = htmlString.Replace("break;", "");
-                                            htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 48)");
-                                            htmlString = htmlString.Replace("height: 82.5px; width: 55px; border-right: 1;", "height: 82.5px; width: 30px; border-right: 1;");
-                                            htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width: 15%;", "height: 2.2cm; font-size:8px; width:8%;");
-                                            htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width:85%;", "height: 2.2cm; font-size:8px; width:92%;");
-                                            htmlString = htmlString.Replace("font-size:10px", "font-size:8px");
-                                            htmlString = htmlString.Replace("font-size:8px;", "font-size:8px;");
-                                            SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
-
-                                            byte[] byteArray = doc.Save();
-                                            //end process
-
-                                            //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
-                                            stream.Write(byteArray, 0, byteArray.Length);
-                                            stream.Close();
-                                            temp_printLabel.Add(path);
-                                            temp_printLabel_split = temp_printLabel_split + path + ";";
+                                            orderItemIds.Add(item.ORDER_ITEM_ID);
+                                            //Valid = true;
                                         }
-#endregion
-                                        /// 
 
-                                        temp_htmlString.Add(htmlString);
+                                        hitungheader = 0;
+                                        gakketemulagi = false;
+                                        JNEgakketemulagi = false;
+                                        lastIndexBarcode = 0;
+                                        lastIndexPortCode = 0;
+                                        lastIndexHarga = 0;
+                                        lastIndexReferensi = 0;
+                                        lastIndexKurir = 0;
+                                        lastIndexTgl = 0;
                                     }
                                     else
                                     {
-                                        var strmsg = retApi.message;
-                                        if (retApi.message.Contains("Please call setStatusToReadyToShip"))
+                                        foreach (SOT01B item in sot01b)
                                         {
-                                            strmsg = "Status Pesanan belum siap dikirim. Mohon lakukan Ready To Ship terlebih dahulu.";
+                                            orderItemIds.Add(item.ORDER_ITEM_ID);
+                                            //Valid = true;
                                         }
-                                        temp_strmsg.Add(strmsg);
-                                        //return new JsonResult { Data = new { mo_error = strmsg }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                                     }
 
-
-
-                                    hitungDetail = hitungDetail - orderItemIds.Count();
-                                    orderItemIds.Clear();
-                                    foreach (SOT01B item in sot01b)
+                                    if (orderItemIds.Count() == 50 || orderItemIds.Count() == hitungDetail
+                                        || orderItemIds.Count() >= 10 && orderItemIds.Count() < 20
+                                        )
                                     {
-                                        orderItemIds.Add(item.ORDER_ITEM_ID);
-                                        //Valid = true;
-                                    }
+                                        var lzdApi = new LazadaController();
+                                        var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
+                                        if (retApi.code == "0")
+                                        {
+                                            var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
 
-                                    hitungheader = 0;
-                                    gakketemulagi = false;
-                                    JNEgakketemulagi = false;
-                                    lastIndexBarcode = 0;
-                                    lastIndexPortCode = 0;
-                                    lastIndexHarga = 0;
-                                    lastIndexReferensi = 0;
-                                    lastIndexKurir = 0;
-                                    lastIndexTgl = 0;
+                                            //add by nurul 16/12/2019
+                                            if (label == "2")
+                                            {
+                                                while (!gakketemulagi) //lex - ninja
+                                                {
+                                                    //var idxBarcode = htmlString.IndexOf("Tracking Number: ", lastIndexBarcode);
+
+                                                    //if (idxBarcode < 0) { gakketemulagi = true; break; }
+
+                                                    //var idxEndBarcode = htmlString.IndexOf("</div>", idxBarcode);
+                                                    //var noBarcode = htmlString.Substring((idxBarcode + 17), (idxEndBarcode - (idxBarcode + 17))); 
+
+                                                    var idxKurir = htmlString.IndexOf("Dikirim Oleh :", lastIndexKurir);
+
+                                                    if (idxKurir < 0) { gakketemulagi = true; break; }
+
+                                                    var idxKurir2 = htmlString.IndexOf("src=\"", idxKurir);
+                                                    var idxEndKurir = htmlString.IndexOf("\" style", idxKurir);
+                                                    var noKurir = htmlString.Substring((idxKurir2 + 5), (idxEndKurir - (idxKurir2 + 5)));
+
+                                                    lastIndexTgl = idxEndKurir;
+                                                    var idxTgl = htmlString.IndexOf("<div><b>", lastIndexTgl);
+                                                    //var idxTgl2 = htmlString.IndexOf(">", idxTgl);
+                                                    var idxEndTgl = htmlString.IndexOf("</b>", idxTgl);
+                                                    var noTgl = htmlString.Substring((idxTgl + 8), (idxEndTgl - (idxTgl + 8)));
+
+                                                    lastIndexBarcode = idxEndTgl;
+                                                    var idxBarcode = htmlString.IndexOf("Tracking Number: ", lastIndexBarcode);
+                                                    //if (idxBarcode < 0) { gakketemulagi = true; break; }
+                                                    var idxEndBarcode = htmlString.IndexOf("</div>", idxBarcode);
+                                                    var noBarcode = htmlString.Substring((idxBarcode + 17), (idxEndBarcode - (idxBarcode + 17)));
+
+                                                    lastIndexPortCode = idxEndBarcode;
+                                                    var idxPortCode = htmlString.IndexOf("Port Code: ", lastIndexPortCode);
+                                                    var idxPortCode2 = htmlString.IndexOf(">", idxPortCode);
+                                                    var idxEndPortCode = htmlString.IndexOf("</span>", idxPortCode2);
+                                                    var noPortCode = htmlString.Substring((idxPortCode2 + 1), (idxEndPortCode - (idxPortCode2 + 1)));
+
+                                                    lastIndexHarga = idxEndPortCode;
+                                                    var idxHarga = htmlString.IndexOf("<!-- ###=== Right Column - COD Collection ===### -->", lastIndexHarga);
+                                                    var idxHarga2 = htmlString.IndexOf(";\">", idxHarga);
+                                                    var idxEndHarga = htmlString.IndexOf("</div>", idxHarga);
+                                                    var hargaAPI = htmlString.Substring((idxHarga2 + 3), (idxEndHarga - (idxHarga2 + 3)));
+
+                                                    lastIndexReferensi = idxEndHarga;
+                                                    var idxReferensi = htmlString.IndexOf("Order Number: ", lastIndexReferensi);
+                                                    var idxEndReferensi = htmlString.IndexOf("</div>", idxReferensi);
+                                                    var noReferensi = htmlString.Substring((idxReferensi + 14), (idxEndReferensi - (idxReferensi + 14)));
+
+                                                    lastIndexBarcode = idxEndReferensi;
+                                                    lastIndexPortCode = idxEndReferensi;
+                                                    lastIndexHarga = idxEndReferensi;
+                                                    lastIndexReferensi = idxEndReferensi;
+                                                    lastIndexKurir = idxEndReferensi;
+                                                    lastIndexTgl = idxEndReferensi;
+
+                                                    tempResiLazada.Add(new tempBarcodeLazada()
+                                                    {
+                                                        referensiApi = noReferensi,
+                                                        ResiApi = noBarcode,
+                                                        PortCodeApi = noPortCode,
+                                                        HargaApi = hargaAPI,
+                                                        urlLogoKurirApi = noKurir,
+                                                        tglApi = noTgl
+                                                    });
+
+                                                }
+
+                                                while (!JNEgakketemulagi) //JNE
+                                                {
+                                                    var JNEidxReferensi = htmlString.IndexOf("Nomor Order:", lastIndexReferensi);
+
+                                                    if (JNEidxReferensi < 0) { JNEgakketemulagi = true; break; }
+
+                                                    var JNEidxReferensi2 = htmlString.IndexOf(";\">", JNEidxReferensi);
+                                                    var JNEidxEndReferensi = htmlString.IndexOf("</span>", JNEidxReferensi2);
+                                                    var JNEnoReferensi = htmlString.Substring((JNEidxReferensi2 + 3), (JNEidxEndReferensi - (JNEidxReferensi2 + 3)));
+
+                                                    lastIndexBarcode = JNEidxEndReferensi;
+                                                    var JNEidxBarcode = htmlString.IndexOf("Kode Tracking: <b>", lastIndexBarcode);
+                                                    //var idxTgl2 = htmlString.IndexOf(">", idxTgl);
+                                                    var JNEidxEndBarcode = htmlString.IndexOf("</b>", JNEidxBarcode);
+                                                    var JNEnoBarcode = htmlString.Substring((JNEidxBarcode + 18), (JNEidxEndBarcode - (JNEidxBarcode + 18)));
+
+                                                    lastIndexKurir = JNEidxEndBarcode;
+                                                    var JNEidxKurir = htmlString.IndexOf("class=\"lm-logo\"", lastIndexKurir);
+                                                    var JNEidxKurir2 = htmlString.IndexOf("src=\"", JNEidxKurir);
+                                                    var JNEidxEndKurir = htmlString.IndexOf("\" style", JNEidxKurir2);
+                                                    var JNEnoKurir = htmlString.Substring((JNEidxKurir2 + 5), (JNEidxEndKurir - (JNEidxKurir2 + 5)));
+
+                                                    lastIndexHarga = JNEidxEndKurir;
+                                                    var JNEidxHarga = htmlString.IndexOf("Bayar di Tempat:", lastIndexHarga);
+                                                    var JNEidxHarga2 = htmlString.IndexOf("Rp. ", JNEidxHarga);
+                                                    var JNEidxEndHarga = htmlString.IndexOf(" </b>", JNEidxHarga2);
+                                                    var JNEhargaAPI = htmlString.Substring((JNEidxHarga2 + 4), (JNEidxEndHarga - (JNEidxHarga2 + 4)));
+
+                                                    lastIndexBarcode = JNEidxEndReferensi;
+                                                    lastIndexHarga = JNEidxEndReferensi;
+                                                    lastIndexReferensi = JNEidxEndReferensi;
+                                                    lastIndexKurir = JNEidxEndReferensi;
+
+                                                    tempResiLazada.Add(new tempBarcodeLazada()
+                                                    {
+                                                        referensiApi = JNEnoReferensi,
+                                                        ResiApi = JNEnoBarcode,
+                                                        //PortCodeApi = noPortCode,
+                                                        HargaApi = JNEhargaAPI,
+                                                        urlLogoKurirApi = JNEnoKurir,
+                                                        //tglApi = noTgl
+                                                    });
+
+                                                }
+                                            }
+                                            //end add by nurul 16/12/2019
+
+                                            //#region add button cetak
+                                            //htmlString += "<button id='print-btn' >Cetak</button>";
+                                            htmlString += "<script>";
+                                            //change by nurul 6/1/2020
+                                            ////htmlString += "document.getElementsByClassName('awb lex')[0].style.width = '90%'; ";
+                                            htmlString += "var awb = document.getElementsByClassName('awb lex'); ";
+                                            htmlString += "for (var a = 0; a < awb.length; a++){ awb[a].style.width = '95%'; } ; ";
+                                            //end change by nurul 6/1/2020
+                                            //htmlString += "document.getElementsByClassName('item_quantity')[2].style.display = 'block'; ";
+                                            //htmlString += "document.getElementsByClassName('item_quantity')[2].style.fontSize  = 'small'; ";
+                                            //remark by nurul 6/1/2020
+                                            //htmlString += "var x = document.getElementById('item-desc-table').parentElement; ";
+                                            //htmlString += "x.style.height = 'auto'; ";
+                                            //end remark by nurul 6/1/2020
+                                            //htmlString += "document.getElementsByClassName('item_sku')[0].style.fontSize  = 'small'; ";
+                                            //htmlString += "document.getElementsByClassName('item_name')[0].style.fontSize  = 'small'; ";
+                                            //change by nurul 6/1/2020
+                                            ////htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
+                                            htmlString += "var item = document.getElementsByClassName('order_item_table'); ";
+                                            //htmlString += "for (var b = 0; b < item.length; b++){ item[b].style.fontSize  = 'xx-small'; } ; ";
+                                            htmlString += "for (var b = 0; b < item.length; b++){ item[b].style.fontSize  = '7px'; } ; ";
+                                            htmlString += "var harga = document.getElementsByClassName('box text-left'); ";
+                                            htmlString += "for (var d = 0; d < harga.length; d++){ harga[d].style.fontSize  = '10px'; } ; ";
+                                            //end change by nurul 6/1/2020
+                                            //                        htmlString += " function run() { document.getElementById('print-btn').onclick = function () {";
+                                            //                        htmlString += "document.getElementById('print-btn').style.visibility = 'hidden';";
+                                            //                        htmlString += "window.print(); }; window.onafterprint = function () {";
+                                            //                        htmlString += "document.getElementById('print-btn').style.visibility = 'visible'; } }";
+                                            //                        htmlString += " if (document.readyState!='loading') run();";
+                                            //                        htmlString += " else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run);";
+                                            //                        htmlString += "else document.attachEvent('onreadystatechange', function(){ if (document.readyState=='complete') run(); });";
+                                            htmlString += "</script>";
+                                            //#endregion
+                                            //EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + listNobuk + ")");
+                                            //if (label == "1")
+                                            //{
+                                            //    return Json(htmlString, JsonRequestBehavior.AllowGet);
+                                            //}
+                                            //else if (label == "2")
+                                            //{
+                                            //    return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
+                                            //}
+
+
+                                            /// UPDATE FITUR FROM HTML TO PDF by Fauzi 04 November 2020
+                                            #region FITUR PRINT LABEL HTML TO PDF
+                                            #region initial folder
+                                            string messageErrorLog = "";
+                                            string filename = "LAZADA_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                                            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                                            #endregion
+
+                                            if (!System.IO.File.Exists(path))
+                                            {
+                                                System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                                                FileStream stream = System.IO.File.Create(path);
+
+                                                string pdf_page_size = "9";
+                                                PdfPageSize pageSize = (PdfPageSize)Enum.Parse(typeof(PdfPageSize),
+                                                    pdf_page_size, true);
+
+                                                string pdf_orientation = "0";
+                                                PdfPageOrientation pdfOrientation =
+                                                    (PdfPageOrientation)Enum.Parse(typeof(PdfPageOrientation),
+                                                    pdf_orientation, true);
+
+                                                int webPageWidth = 500;
+                                                int webPageHeight = 400;
+
+                                                HtmlToPdf converter = new HtmlToPdf();
+                                                converter.Options.PdfPageSize = pageSize;
+                                                converter.Options.PdfPageOrientation = pdfOrientation;
+                                                converter.Options.WebPageWidth = webPageWidth;
+                                                converter.Options.WebPageHeight = webPageHeight;
+                                                converter.Options.MarginRight = 10;
+                                                converter.Options.MarginLeft = 10;
+                                                converter.Options.MarginTop = 10;
+
+                                                htmlString = htmlString.Replace("break;", "");
+                                                htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 48)");
+                                                htmlString = htmlString.Replace("height: 82.5px; width: 55px; border-right: 1;", "height: 82.5px; width: 30px; border-right: 1;");
+                                                htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width: 15%;", "height: 2.2cm; font-size:8px; width:8%;");
+                                                htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width:85%;", "height: 2.2cm; font-size:8px; width:92%;");
+                                                htmlString = htmlString.Replace("font-size:10px", "font-size:8px");
+                                                htmlString = htmlString.Replace("font-size:8px;", "font-size:8px;");
+                                                SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
+
+                                                byte[] byteArray = doc.Save();
+                                                //end process
+
+                                                //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
+                                                stream.Write(byteArray, 0, byteArray.Length);
+                                                stream.Close();
+                                                temp_printLabel.Add(path);
+                                                temp_printLabel_split = temp_printLabel_split + path + ";";
+                                            }
+                                            #endregion
+                                            /// 
+
+
+                                            temp_htmlString.Add(htmlString);
+                                        }
+                                        else
+                                        {
+                                            var strmsg = retApi.message;
+                                            if (retApi.message.Contains("Please call setStatusToReadyToShip"))
+                                            {
+                                                strmsg = "Status Pesanan belum siap dikirim. Mohon lakukan Ready To Ship terlebih dahulu.";
+
+                                            }
+                                            listErrors.Add(new PackingListErrors
+                                            {
+                                                keyname = so.no_referensi,
+                                                errorMessage = "Pesanan [" + so.no_referensi + "] gagal cetak label, karena : " + strmsg,
+                                                recnum = Convert.ToString(so.so_recnum)
+                                            });
+                                            temp_strmsg.Add(strmsg);
+                                            //return new JsonResult { Data = new { mo_error = strmsg }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                                            success = false;
+                                        }
+
+                                        hitungDetail = hitungDetail - orderItemIds.Count();
+                                        orderItemIds.Clear();
+                                        //foreach (SOT01B item in sot01b)
+                                        //{
+                                        //    orderItemIds.Add(item.ORDER_ITEM_ID);
+                                        //    //Valid = true;
+                                        //}
+
+                                        hitungheader = 0;
+                                        gakketemulagi = false;
+                                        JNEgakketemulagi = false;
+                                        lastIndexBarcode = 0;
+                                        lastIndexPortCode = 0;
+                                        lastIndexHarga = 0;
+                                        lastIndexReferensi = 0;
+                                        lastIndexKurir = 0;
+                                        lastIndexTgl = 0;
+                                    }
                                 }
                                 else
                                 {
-                                    foreach (SOT01B item in sot01b)
+                                    listErrors.Add(new PackingListErrors
                                     {
-                                        orderItemIds.Add(item.ORDER_ITEM_ID);
-                                        //Valid = true;
-                                    }
-                                }
-
-                                if (orderItemIds.Count() == 50 || orderItemIds.Count() == hitungDetail
-                                    || orderItemIds.Count() >= 10 && orderItemIds.Count() < 20
-                                    )
-                                {
-                                    var lzdApi = new LazadaController();
-                                    var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
-                                    if (retApi.code == "0")
-                                    {
-                                        var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
-
-                                        //add by nurul 16/12/2019
-                                        if (label == "2")
-                                        {
-                                            while (!gakketemulagi) //lex - ninja
-                                            {
-                                                //var idxBarcode = htmlString.IndexOf("Tracking Number: ", lastIndexBarcode);
-
-                                                //if (idxBarcode < 0) { gakketemulagi = true; break; }
-
-                                                //var idxEndBarcode = htmlString.IndexOf("</div>", idxBarcode);
-                                                //var noBarcode = htmlString.Substring((idxBarcode + 17), (idxEndBarcode - (idxBarcode + 17))); 
-
-                                                var idxKurir = htmlString.IndexOf("Dikirim Oleh :", lastIndexKurir);
-
-                                                if (idxKurir < 0) { gakketemulagi = true; break; }
-
-                                                var idxKurir2 = htmlString.IndexOf("src=\"", idxKurir);
-                                                var idxEndKurir = htmlString.IndexOf("\" style", idxKurir);
-                                                var noKurir = htmlString.Substring((idxKurir2 + 5), (idxEndKurir - (idxKurir2 + 5)));
-
-                                                lastIndexTgl = idxEndKurir;
-                                                var idxTgl = htmlString.IndexOf("<div><b>", lastIndexTgl);
-                                                //var idxTgl2 = htmlString.IndexOf(">", idxTgl);
-                                                var idxEndTgl = htmlString.IndexOf("</b>", idxTgl);
-                                                var noTgl = htmlString.Substring((idxTgl + 8), (idxEndTgl - (idxTgl + 8)));
-
-                                                lastIndexBarcode = idxEndTgl;
-                                                var idxBarcode = htmlString.IndexOf("Tracking Number: ", lastIndexBarcode);
-                                                //if (idxBarcode < 0) { gakketemulagi = true; break; }
-                                                var idxEndBarcode = htmlString.IndexOf("</div>", idxBarcode);
-                                                var noBarcode = htmlString.Substring((idxBarcode + 17), (idxEndBarcode - (idxBarcode + 17)));
-
-                                                lastIndexPortCode = idxEndBarcode;
-                                                var idxPortCode = htmlString.IndexOf("Port Code: ", lastIndexPortCode);
-                                                var idxPortCode2 = htmlString.IndexOf(">", idxPortCode);
-                                                var idxEndPortCode = htmlString.IndexOf("</span>", idxPortCode2);
-                                                var noPortCode = htmlString.Substring((idxPortCode2 + 1), (idxEndPortCode - (idxPortCode2 + 1)));
-
-                                                lastIndexHarga = idxEndPortCode;
-                                                var idxHarga = htmlString.IndexOf("<!-- ###=== Right Column - COD Collection ===### -->", lastIndexHarga);
-                                                var idxHarga2 = htmlString.IndexOf(";\">", idxHarga);
-                                                var idxEndHarga = htmlString.IndexOf("</div>", idxHarga);
-                                                var hargaAPI = htmlString.Substring((idxHarga2 + 3), (idxEndHarga - (idxHarga2 + 3)));
-
-                                                lastIndexReferensi = idxEndHarga;
-                                                var idxReferensi = htmlString.IndexOf("Order Number: ", lastIndexReferensi);
-                                                var idxEndReferensi = htmlString.IndexOf("</div>", idxReferensi);
-                                                var noReferensi = htmlString.Substring((idxReferensi + 14), (idxEndReferensi - (idxReferensi + 14)));
-
-                                                lastIndexBarcode = idxEndReferensi;
-                                                lastIndexPortCode = idxEndReferensi;
-                                                lastIndexHarga = idxEndReferensi;
-                                                lastIndexReferensi = idxEndReferensi;
-                                                lastIndexKurir = idxEndReferensi;
-                                                lastIndexTgl = idxEndReferensi;
-
-                                                tempResiLazada.Add(new tempBarcodeLazada()
-                                                {
-                                                    referensiApi = noReferensi,
-                                                    ResiApi = noBarcode,
-                                                    PortCodeApi = noPortCode,
-                                                    HargaApi = hargaAPI,
-                                                    urlLogoKurirApi = noKurir,
-                                                    tglApi = noTgl
-                                                });
-
-                                            }
-
-                                            while (!JNEgakketemulagi) //JNE
-                                            {
-                                                var JNEidxReferensi = htmlString.IndexOf("Nomor Order:", lastIndexReferensi);
-
-                                                if (JNEidxReferensi < 0) { JNEgakketemulagi = true; break; }
-
-                                                var JNEidxReferensi2 = htmlString.IndexOf(";\">", JNEidxReferensi);
-                                                var JNEidxEndReferensi = htmlString.IndexOf("</span>", JNEidxReferensi2);
-                                                var JNEnoReferensi = htmlString.Substring((JNEidxReferensi2 + 3), (JNEidxEndReferensi - (JNEidxReferensi2 + 3)));
-
-                                                lastIndexBarcode = JNEidxEndReferensi;
-                                                var JNEidxBarcode = htmlString.IndexOf("Kode Tracking: <b>", lastIndexBarcode);
-                                                //var idxTgl2 = htmlString.IndexOf(">", idxTgl);
-                                                var JNEidxEndBarcode = htmlString.IndexOf("</b>", JNEidxBarcode);
-                                                var JNEnoBarcode = htmlString.Substring((JNEidxBarcode + 18), (JNEidxEndBarcode - (JNEidxBarcode + 18)));
-
-                                                lastIndexKurir = JNEidxEndBarcode;
-                                                var JNEidxKurir = htmlString.IndexOf("class=\"lm-logo\"", lastIndexKurir);
-                                                var JNEidxKurir2 = htmlString.IndexOf("src=\"", JNEidxKurir);
-                                                var JNEidxEndKurir = htmlString.IndexOf("\" style", JNEidxKurir2);
-                                                var JNEnoKurir = htmlString.Substring((JNEidxKurir2 + 5), (JNEidxEndKurir - (JNEidxKurir2 + 5)));
-
-                                                lastIndexHarga = JNEidxEndKurir;
-                                                var JNEidxHarga = htmlString.IndexOf("Bayar di Tempat:", lastIndexHarga);
-                                                var JNEidxHarga2 = htmlString.IndexOf("Rp. ", JNEidxHarga);
-                                                var JNEidxEndHarga = htmlString.IndexOf(" </b>", JNEidxHarga2);
-                                                var JNEhargaAPI = htmlString.Substring((JNEidxHarga2 + 4), (JNEidxEndHarga - (JNEidxHarga2 + 4)));
-
-                                                lastIndexBarcode = JNEidxEndReferensi;
-                                                lastIndexHarga = JNEidxEndReferensi;
-                                                lastIndexReferensi = JNEidxEndReferensi;
-                                                lastIndexKurir = JNEidxEndReferensi;
-
-                                                tempResiLazada.Add(new tempBarcodeLazada()
-                                                {
-                                                    referensiApi = JNEnoReferensi,
-                                                    ResiApi = JNEnoBarcode,
-                                                    //PortCodeApi = noPortCode,
-                                                    HargaApi = JNEhargaAPI,
-                                                    urlLogoKurirApi = JNEnoKurir,
-                                                    //tglApi = noTgl
-                                                });
-
-                                            }
-                                        }
-                                        //end add by nurul 16/12/2019
-
-                                        //#region add button cetak
-                                        //htmlString += "<button id='print-btn' >Cetak</button>";
-                                        htmlString += "<script>";
-                                        //change by nurul 6/1/2020
-                                        ////htmlString += "document.getElementsByClassName('awb lex')[0].style.width = '90%'; ";
-                                        htmlString += "var awb = document.getElementsByClassName('awb lex'); ";
-                                        htmlString += "for (var a = 0; a < awb.length; a++){ awb[a].style.width = '95%'; } ; ";
-                                        //end change by nurul 6/1/2020
-                                        //htmlString += "document.getElementsByClassName('item_quantity')[2].style.display = 'block'; ";
-                                        //htmlString += "document.getElementsByClassName('item_quantity')[2].style.fontSize  = 'small'; ";
-                                        //remark by nurul 6/1/2020
-                                        //htmlString += "var x = document.getElementById('item-desc-table').parentElement; ";
-                                        //htmlString += "x.style.height = 'auto'; ";
-                                        //end remark by nurul 6/1/2020
-                                        //htmlString += "document.getElementsByClassName('item_sku')[0].style.fontSize  = 'small'; ";
-                                        //htmlString += "document.getElementsByClassName('item_name')[0].style.fontSize  = 'small'; ";
-                                        //change by nurul 6/1/2020
-                                        ////htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
-                                        htmlString += "var item = document.getElementsByClassName('order_item_table'); ";
-                                        //htmlString += "for (var b = 0; b < item.length; b++){ item[b].style.fontSize  = 'xx-small'; } ; ";
-                                        htmlString += "for (var b = 0; b < item.length; b++){ item[b].style.fontSize  = '7px'; } ; ";
-                                        htmlString += "var harga = document.getElementsByClassName('box text-left'); ";
-                                        htmlString += "for (var d = 0; d < harga.length; d++){ harga[d].style.fontSize  = '10px'; } ; ";
-                                        //end change by nurul 6/1/2020
-                                        //                        htmlString += " function run() { document.getElementById('print-btn').onclick = function () {";
-                                        //                        htmlString += "document.getElementById('print-btn').style.visibility = 'hidden';";
-                                        //                        htmlString += "window.print(); }; window.onafterprint = function () {";
-                                        //                        htmlString += "document.getElementById('print-btn').style.visibility = 'visible'; } }";
-                                        //                        htmlString += " if (document.readyState!='loading') run();";
-                                        //                        htmlString += " else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run);";
-                                        //                        htmlString += "else document.attachEvent('onreadystatechange', function(){ if (document.readyState=='complete') run(); });";
-                                        htmlString += "</script>";
-                                        //#endregion
-                                        //EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + listNobuk + ")");
-                                        //if (label == "1")
-                                        //{
-                                        //    return Json(htmlString, JsonRequestBehavior.AllowGet);
-                                        //}
-                                        //else if (label == "2")
-                                        //{
-                                        //    return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
-                                        //}
-
-
-                                        /// UPDATE FITUR FROM HTML TO PDF by Fauzi 04 November 2020
-#region FITUR PRINT LABEL HTML TO PDF
-#region initial folder
-                                        string messageErrorLog = "";
-                                        string filename = "LAZADA_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                                        var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
-#endregion
-
-                                        if (!System.IO.File.Exists(path))
-                                        {
-                                            System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
-                                            FileStream stream = System.IO.File.Create(path);
-
-                                            string pdf_page_size = "9";
-                                            PdfPageSize pageSize = (PdfPageSize)Enum.Parse(typeof(PdfPageSize),
-                                                pdf_page_size, true);
-
-                                            string pdf_orientation = "0";
-                                            PdfPageOrientation pdfOrientation =
-                                                (PdfPageOrientation)Enum.Parse(typeof(PdfPageOrientation),
-                                                pdf_orientation, true);
-
-                                            int webPageWidth = 500;
-                                            int webPageHeight = 400;
-
-                                            HtmlToPdf converter = new HtmlToPdf();
-                                            converter.Options.PdfPageSize = pageSize;
-                                            converter.Options.PdfPageOrientation = pdfOrientation;
-                                            converter.Options.WebPageWidth = webPageWidth;
-                                            converter.Options.WebPageHeight = webPageHeight;
-                                            converter.Options.MarginRight = 10;
-                                            converter.Options.MarginLeft = 10;
-                                            converter.Options.MarginTop = 10;
-
-                                            htmlString = htmlString.Replace("break;", "");
-                                            htmlString = htmlString.Replace("tempObj[key]['name'].substring(0, 50)", "tempObj[key]['name'].substring(0, 48)");
-                                            htmlString = htmlString.Replace("height: 82.5px; width: 55px; border-right: 1;", "height: 82.5px; width: 30px; border-right: 1;");
-                                            htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width: 15%;", "height: 2.2cm; font-size:8px; width:8%;");
-                                            htmlString = htmlString.Replace("height: 2.2cm; font-size:8px; width:85%;", "height: 2.2cm; font-size:8px; width:92%;");
-                                            htmlString = htmlString.Replace("font-size:10px", "font-size:8px");
-                                            htmlString = htmlString.Replace("font-size:8px;", "font-size:8px;");
-                                            SelectPdf.PdfDocument doc = converter.ConvertHtmlString(htmlString, "");
-
-                                            byte[] byteArray = doc.Save();
-                                            //end process
-
-                                            //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
-                                            stream.Write(byteArray, 0, byteArray.Length);
-                                            stream.Close();
-                                            temp_printLabel.Add(path);
-                                            temp_printLabel_split = temp_printLabel_split + path + ";";
-                                        }
-#endregion
-                                        /// 
-
-
-                                        temp_htmlString.Add(htmlString);
-                                    }
-                                    else
-                                    {
-                                        var strmsg = retApi.message;
-                                        if (retApi.message.Contains("Please call setStatusToReadyToShip"))
-                                        {
-                                            strmsg = "Status Pesanan belum siap dikirim. Mohon lakukan Ready To Ship terlebih dahulu.";
-                                        }
-                                        temp_strmsg.Add(strmsg);
-                                        //return new JsonResult { Data = new { mo_error = strmsg }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                                    }
-
-                                    hitungDetail = hitungDetail - orderItemIds.Count();
-                                    orderItemIds.Clear();
-                                    //foreach (SOT01B item in sot01b)
-                                    //{
-                                    //    orderItemIds.Add(item.ORDER_ITEM_ID);
-                                    //    //Valid = true;
-                                    //}
-
-                                    hitungheader = 0;
-                                    gakketemulagi = false;
-                                    JNEgakketemulagi = false;
-                                    lastIndexBarcode = 0;
-                                    lastIndexPortCode = 0;
-                                    lastIndexHarga = 0;
-                                    lastIndexReferensi = 0;
-                                    lastIndexKurir = 0;
-                                    lastIndexTgl = 0;
+                                        keyname = so.no_referensi,
+                                        errorMessage = "Pesanan [" + so.no_referensi + "] gagal cetak label, karena : Pesanan tidak memiliki detail.",
+                                        recnum = Convert.ToString(so.so_recnum)
+                                    });
+                                    success = false;
                                 }
                             }
-                        }
-                    }
-                }
-                if (temp_strmsg.Count() > 0)
-                {
-                    return new JsonResult { Data = new { mo_error = temp_strmsg }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                }
-                else
-                {
-                    EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + listNobuk + ")");
-                    if (label == "1")
-                    {
-                        if (temp_printLabel.Count() > 0)
-                        {
-                            result_printLabel = MergePDFProcess(temp_printLabel_split, bukti, "LAZADA");
-                            //return new JsonResult { Data = new { mo_label = temp_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                            return new JsonResult { Data = new { mo_label = result_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                            else
+                            {
+                                listErrors.Add(new PackingListErrors
+                                {
+                                    keyname = so.no_referensi,
+                                    errorMessage = "Pesanan [" + so.no_referensi + "] gagal cetak label, karena : Status Link Ke Marketplace tidak aktif.",
+                                    recnum = Convert.ToString(so.so_recnum)
+                                });
+                                success = false;
+                            }
                         }
                         else
                         {
-                            return Json(temp_htmlString, JsonRequestBehavior.AllowGet);
+                            listErrors.Add(new PackingListErrors
+                            {
+                                keyname = so.no_referensi,
+                                errorMessage = "Pesanan [" + so.no_referensi + "] gagal cetak label, karena : Status Link Ke Marketplace tidak aktif.",
+                                recnum = Convert.ToString(so.so_recnum)
+                            });
+                            success = false;
                         }
                     }
-                    else if (label == "2")
+                    else
                     {
-                        return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
+                        listErrors.Add(new PackingListErrors
+                        {
+                            keyname = so.no_referensi,
+                            errorMessage = "Pesanan [" + so.no_referensi + "] gagal cetak label, karena : Pesanan ini statusnya batal. Pesanan batal tidak dapat diproses.",
+                            recnum = Convert.ToString(so.so_recnum)
+                        });
+                        success = false;
+                    }
+                    if (success)
+                    {
+                        if (listNobuk != "")
+                        {
+                            listNobuk += ",";
+                        }
+                        listNobuk += "'" + so.no_bukti + "'";
+                        listSuccess.Add(new listSuccessPrintLabel
+                        {
+                            no_referensi = Convert.ToString(so.so_recnum),
+                            //pdf64 = bookingAWB.value.document,
+                        });
                     }
                 }
+                //if (temp_strmsg.Count() > 0)
+                //{
+                //    return new JsonResult { Data = new { mo_error = temp_strmsg }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                //}
+                //else
+                //{
+                EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + listNobuk + ")");
+                if (label == "1")
+                {
+                    if (temp_printLabel.Count() > 0)
+                    {
+                        result_printLabel = MergePDFProcess(temp_printLabel_split, bukti, "LAZADA");
+                        //return new JsonResult { Data = new { mo_label = temp_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        return new JsonResult { Data = new { mo_label = result_printLabel, listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                    else
+                    {
+                        //return Json(temp_htmlString, JsonRequestBehavior.AllowGet);
+                        return new JsonResult { Data = new { mo_label = temp_htmlString, listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else if (label == "2")
+                {
+                    //return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
+                    return new JsonResult { Data = new { mo_label = tempResiLazada, listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                //}
 
                 //if(orderItemIds.Count() > 100)
                 //{
@@ -47994,6 +48118,7 @@ namespace MasterOnline.Controllers
 
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                sSQLSelect += ",isnull(A.status_kirim,'') AS status_kirim, A.RECNUM as so_recnum ";
                 string sSQL2 = "";
                 sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
@@ -48005,51 +48130,93 @@ namespace MasterOnline.Controllers
                 //var listNoRef = ListStt01a.Select(m => m.no_referensi).ToList();
 
                 //var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
-                foreach(var so in ListStt01a)
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
+                var listNobuk = "";
+                foreach (var so in ListStt01a)
                 {
-
-                    var retApi = BLApi.GetLabel(data, so.no_referensi);
-                    #region initial folder
-                    string messageErrorLog = "";
-                    string filename = "BUKALAPAK_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                    var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
-                    #endregion
-
-                    if (!System.IO.File.Exists(path))
+                    var success = true;
+                    if (so.status_kirim != "5")
                     {
-                        System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
-                        FileStream stream = System.IO.File.Create(path);
-                        //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
-                        //byte[] byteArray = Convert.FromBase64String(retApi);
-                        byte[] byteArray = retApi;
-                        stream.Write(byteArray, 0, byteArray.Length);
-                        stream.Close();
-                        temp_printLabel.Add(path);
-                        temp_printLabel_split = temp_printLabel_split + path + ";";
+                        var retApi = BLApi.GetLabel(data, so.no_referensi);
+                        #region initial folder
+                        string messageErrorLog = "";
+                        string filename = "BUKALAPAK_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                        var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                        #endregion
+
+                        if (!System.IO.File.Exists(path))
+                        {
+                            System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                            FileStream stream = System.IO.File.Create(path);
+                            //byte[] byteArray = Convert.FromBase64String(retApi.Result.ToString());
+                            //byte[] byteArray = Convert.FromBase64String(retApi);
+                            byte[] byteArray = retApi;
+                            stream.Write(byteArray, 0, byteArray.Length);
+                            stream.Close();
+                            temp_printLabel.Add(path);
+                            temp_printLabel_split = temp_printLabel_split + path + ";";
+
+                            listSuccess.Add(new listSuccessPrintLabel()
+                            {
+                                no_referensi=so.no_bukti
+                            });
+                        }
+                    }
+                    else
+                    {
+                        listErrors.Add(new PackingListErrors
+                        {
+                            keyname = so.no_bukti,
+                            errorMessage = "Pesanan [" + so.no_bukti + "] gagal cetak label, karena : Pesanan ini statusnya batal. Pesanan batal tidak dapat diproses.",
+                            recnum = Convert.ToString(so.so_recnum)
+                        });
+                        success = false;
+                    }
+                    if (success)
+                    {
+                        if (listNobuk != "")
+                        {
+                            listNobuk += ",";
+                        }
+                        listNobuk += "'" + so.no_bukti + "'";
                     }
                 }
 
-                if (temp_printLabel.Count() > 0)
+                //if (temp_printLabel.Count() > 0)
+                //{
+                //    EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where RECNUM IN (" + string_recnum + ")");
+                //    result_printLabel = MergePDFProcess(temp_printLabel_split, bukti, "BUKALAPAK");
+                //    //return new JsonResult { Data = new { mo_label = temp_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                //    return new JsonResult { Data = new { mo_label = result_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                //}
+                //else
+                //{
+                //    if (label == "1")
+                //    {
+                //        //return new JsonResult { Data = new { mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                //        //return Json(temp_htmlString, JsonRequestBehavior.AllowGet);
+                //        return new JsonResult { Data = new { mo_label = temp_strmsg_label }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                //    }
+                //    else if (label == "2")
+                //    {
+                //        return new JsonResult { Data = new { mo_label = temp_strmsg_label }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                //        //return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
+                //    }
+                //}
+                EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + listNobuk + ")");
+                if (label == "1")
                 {
-                    EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where RECNUM IN (" + string_recnum + ")");
-                    result_printLabel = MergePDFProcess(temp_printLabel_split, bukti, "BUKALAPAK");
-                    //return new JsonResult { Data = new { mo_label = temp_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                    return new JsonResult { Data = new { mo_label = result_printLabel }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    if (temp_printLabel.Count() > 0)
+                    {
+                        result_printLabel = MergePDFProcess(temp_printLabel_split, bukti, "BUKALAPAK");
+                        return new JsonResult { Data = new { mo_label = result_printLabel, listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                    return new JsonResult { Data = new { mo_label = temp_strmsg_label, listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
-                else
+                else if (label == "2")
                 {
-                    if (label == "1")
-                    {
-                        //return new JsonResult { Data = new { mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                        //return Json(temp_htmlString, JsonRequestBehavior.AllowGet);
-                        return new JsonResult { Data = new { mo_label = temp_strmsg_label }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                    }
-                    else if (label == "2")
-                    {
-                        return new JsonResult { Data = new { mo_label = temp_strmsg_label }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                        //return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
-                    }
-
+                    return new JsonResult { Data = new { mo_label = temp_strmsg_label, listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
             }
             catch (Exception ex)
@@ -48214,6 +48381,7 @@ namespace MasterOnline.Controllers
 
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                sSQLSelect += ",isnull(A.status_kirim,'') AS status_kirim ";
                 string sSQL2 = "";
                 sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
@@ -48234,72 +48402,83 @@ namespace MasterOnline.Controllers
                             {
                                 if (!string.IsNullOrWhiteSpace(pesananInDb.NO_REFERENSI))
                                 {
-                                    if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                                    if (so.status_kirim != "5")
                                     {
-                                        var paramsInit = await GetParameterInitLogisticShopee(pesananInDb, marketPlace.Sort1_Cust);
-                                        var splitParamsInit = paramsInit[5].Split(';');
-                                        if (splitParamsInit.Contains("PICKUP"))
+                                        if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
                                         {
-                                            string pAddress = "";
-                                            string pTime = "";
-                                            ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
+                                            var paramsInit = await GetParameterInitLogisticShopee(pesananInDb, marketPlace.Sort1_Cust);
+                                            var splitParamsInit = paramsInit[5].Split(';');
+                                            if (splitParamsInit.Contains("PICKUP"))
                                             {
-                                                merchant_code = marketPlace.Sort1_Cust,
-                                                DatabasePathErasoft = dbPathEra,
-                                                username = usernameLogin
-                                            };
-                                            if (splitParamsInit.Contains("ADDRESS_ID"))
-                                            {
-                                                pAddress = alamat;
-                                                if (splitParamsInit.Contains("PICKUP_TIME"))
+                                                string pAddress = "";
+                                                string pTime = "";
+                                                ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                                 {
-                                                    var firstpickuptime = await GetShopeeFirstPickupTime(pesananInDb, Convert.ToInt64(alamat), marketPlace.Sort1_Cust);
-                                                    pTime = firstpickuptime.pickup_time_id;
+                                                    merchant_code = marketPlace.Sort1_Cust,
+                                                    DatabasePathErasoft = dbPathEra,
+                                                    username = usernameLogin
+                                                };
+                                                if (splitParamsInit.Contains("ADDRESS_ID"))
+                                                {
+                                                    pAddress = alamat;
+                                                    if (splitParamsInit.Contains("PICKUP_TIME"))
+                                                    {
+                                                        var firstpickuptime = await GetShopeeFirstPickupTime(pesananInDb, Convert.ToInt64(alamat), marketPlace.Sort1_Cust);
+                                                        pTime = firstpickuptime.pickup_time_id;
+                                                    }
                                                 }
-                                            }
 
-                                            ShopeeControllerJob.ShopeeInitLogisticPickupDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticPickupDetailData()
-                                            {
-                                                address_id = 0,
-                                                pickup_time_id = ""
-                                            };
-                                            if (pAddress != "")
-                                            {
-                                                detail.address_id = Convert.ToInt64(pAddress);
-                                            }
-                                            if (pTime != "")
-                                            {
-                                                detail.pickup_time_id = pTime;
-                                            }
-                                            //change by calvin 10 april 2019, jadi pakai backgroundjob
-                                            //await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
-                                            var sqlStorage = new SqlServerStorage(EDBConnID);
-                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                ShopeeControllerJob.ShopeeInitLogisticPickupDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticPickupDetailData()
+                                                {
+                                                    address_id = 0,
+                                                    pickup_time_id = ""
+                                                };
+                                                if (pAddress != "")
+                                                {
+                                                    detail.address_id = Convert.ToInt64(pAddress);
+                                                }
+                                                if (pTime != "")
+                                                {
+                                                    detail.pickup_time_id = pTime;
+                                                }
+                                                //change by calvin 10 april 2019, jadi pakai backgroundjob
+                                                //await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
+                                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                var clientJobServer = new BackgroundJobClient(sqlStorage);
 
-                                            string nilaiTRACKING_SHIPMENT = "P[;]" + pAddress + "[;]" + pTime;
-                                            //change by nurul 16/6/2020
-                                            //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT));
+                                                string nilaiTRACKING_SHIPMENT = "P[;]" + pAddress + "[;]" + pTime;
+                                                //change by nurul 16/6/2020
+                                                //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT));
 #if (DEBUG || Debug_AWS)
-                                            var shoApi = new ShopeeControllerJob();
-                                            //change by nurul 16/6/2020
-                                            //Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job)).Wait();
-                                            Task.Run(() => shoApi.InitLogisticPickup(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT)).Wait();
-                                            //end change by nurul 16/6/2020
+                                                var shoApi = new ShopeeControllerJob();
+                                                //change by nurul 16/6/2020
+                                                //Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job)).Wait();
+                                                Task.Run(() => shoApi.InitLogisticPickup(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT)).Wait();
+                                                //end change by nurul 16/6/2020
 #else
                                             clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT));
 #endif
-                                            //end change by nurul 16/6/2020
-                                            listSuccess.Add(new listSuccessPrintLabel
+                                                //end change by nurul 16/6/2020
+                                                listSuccess.Add(new listSuccessPrintLabel
+                                                {
+                                                    no_referensi = so.no_referensi
+                                                });
+                                            }
+                                            else
                                             {
-                                                no_referensi = so.no_referensi
-                                            });
+                                                listErrors.Add(new PackingListErrors
+                                                {
+                                                    keyname = so.no_referensi,
+                                                    errorMessage = "Pesanan tidak bisa diproses Pickup."
+                                                });
+                                            }
                                         }
                                         else
                                         {
                                             listErrors.Add(new PackingListErrors
                                             {
                                                 keyname = so.no_referensi,
-                                                errorMessage = "Pesanan tidak bisa diproses Pickup."
+                                                errorMessage = "Pesanan sudah pernah diproses."
                                             });
                                         }
                                     }
@@ -48308,7 +48487,7 @@ namespace MasterOnline.Controllers
                                         listErrors.Add(new PackingListErrors
                                         {
                                             keyname = so.no_referensi,
-                                            errorMessage = "Pesanan sudah pernah diproses."
+                                            errorMessage = "Pesanan ini statusnya batal. Pesanan batal tidak dapat diproses."
                                         });
                                     }
                                 }
@@ -48390,6 +48569,7 @@ namespace MasterOnline.Controllers
 
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                sSQLSelect += ",isnull(A.status_kirim,'') AS status_kirim ";
                 string sSQL2 = "";
                 sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
@@ -48418,38 +48598,40 @@ namespace MasterOnline.Controllers
                     {
                         if (marketPlace.STATUS_API == "1")
                         {
-                            var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).FirstOrDefault();
+                                var pesananInDb = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => p.NO_BUKTI == so.no_bukti).FirstOrDefault();
                             if (pesananInDb != null)
                             {
                                 if (!string.IsNullOrWhiteSpace(pesananInDb.NO_REFERENSI))
                                 {
-                                    if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                                    if (so.status_kirim != "5")
                                     {
-                                        var paramsInit = await GetParameterInitLogisticShopee(pesananInDb, marketPlace.Sort1_Cust);
-                                        var splitParamsInit = paramsInit[5].Split(';');
-                                        if (splitParamsInit.Contains("DROPOFF"))
+                                        if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
                                         {
-                                            string dBranch = "";
-                                            ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
+                                            var paramsInit = await GetParameterInitLogisticShopee(pesananInDb, marketPlace.Sort1_Cust);
+                                            var splitParamsInit = paramsInit[5].Split(';');
+                                            if (splitParamsInit.Contains("DROPOFF"))
                                             {
-                                                merchant_code = marketPlace.Sort1_Cust,
-                                                DatabasePathErasoft = dbPathEra,
-                                                username = usernameLogin
-                                            };
-                                            if (job == "0" && !splitParamsInit.Contains("BRANCH_ID") && !splitParamsInit.Contains("SENDER_REAL_NAME") && !splitParamsInit.Contains("DROPOFF_TRACKING_NO"))
-                                            {
-                                                ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData()
+                                                string dBranch = "";
+                                                ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                                 {
-                                                    branch_id = 0,
-                                                    sender_real_name = "",
-                                                    tracking_no = ""
+                                                    merchant_code = marketPlace.Sort1_Cust,
+                                                    DatabasePathErasoft = dbPathEra,
+                                                    username = usernameLogin
                                                 };
+                                                if (job == "0" && !splitParamsInit.Contains("BRANCH_ID") && !splitParamsInit.Contains("SENDER_REAL_NAME") && !splitParamsInit.Contains("DROPOFF_TRACKING_NO"))
+                                                {
+                                                    ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData()
+                                                    {
+                                                        branch_id = 0,
+                                                        sender_real_name = "",
+                                                        tracking_no = ""
+                                                    };
 #if (DEBUG || Debug_AWS)
-                                                var shoApi = new ShopeeControllerJob();
-                                                //change by nurul 16/6/2020
-                                                //var notrack = Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
-                                                var notrack = Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
-                                                //end change by nurul 16/6/2020
+                                                    var shoApi = new ShopeeControllerJob();
+                                                    //change by nurul 16/6/2020
+                                                    //var notrack = Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
+                                                    var notrack = Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
+                                                    //end change by nurul 16/6/2020
 #else
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
@@ -48458,26 +48640,26 @@ namespace MasterOnline.Controllers
                                                 clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job));
                                                 //end change by nurul 16/6/2020
 #endif
-                                                listSuccess.Add(new listSuccessPrintLabel()
+                                                    listSuccess.Add(new listSuccessPrintLabel()
+                                                    {
+                                                        no_referensi = pesananInDb.NO_REFERENSI
+                                                    });
+                                                }
+                                                //add by nurul 21/2/2020
+                                                else if (job == "1" && splitParamsInit.Contains("SENDER"))
                                                 {
-                                                    no_referensi = pesananInDb.NO_REFERENSI
-                                                });
-                                            }
-                                            //add by nurul 21/2/2020
-                                            else if (job == "1" && splitParamsInit.Contains("SENDER"))
-                                            {
-                                                ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData()
-                                                {
-                                                    branch_id = 0,
-                                                    sender_real_name = marketPlace.PERSO,
-                                                    tracking_no = ""
-                                                };
+                                                    ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData()
+                                                    {
+                                                        branch_id = 0,
+                                                        sender_real_name = marketPlace.PERSO,
+                                                        tracking_no = ""
+                                                    };
 #if (DEBUG || Debug_AWS)
-                                                var shoApi = new ShopeeControllerJob();
-                                                //change by nurul 16/6/2020
-                                                //Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job)).Wait();
-                                                Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job)).Wait();
-                                                //end change by nurul 16/6/2020
+                                                    var shoApi = new ShopeeControllerJob();
+                                                    //change by nurul 16/6/2020
+                                                    //Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job)).Wait();
+                                                    Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "", job)).Wait();
+                                                    //end change by nurul 16/6/2020
 #else
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
@@ -48487,25 +48669,34 @@ namespace MasterOnline.Controllers
                                                 //end change by nurul 16/6/2020
 #endif
 
-                                                listSuccess.Add(new listSuccessPrintLabel()
+                                                    listSuccess.Add(new listSuccessPrintLabel()
+                                                    {
+                                                        no_referensi = pesananInDb.NO_REFERENSI
+                                                    });
+                                                }
+                                                //end add by nurul 21/2/2020
+                                                else
                                                 {
-                                                    no_referensi = pesananInDb.NO_REFERENSI
-                                                });
+                                                    var reasonFail = "Karena memerlukan data : ";
+                                                    if (splitParamsInit.Contains("BRANCH_ID")) { reasonFail += "Kode Cabang,"; }
+                                                    if (splitParamsInit.Contains("SENDER_REAL_NAME")) { reasonFail += "Nama Pengirim,"; }
+                                                    if (splitParamsInit.Contains("DROPOFF_TRACKING_NO")) { reasonFail += "No Resi,"; }
+
+                                                    reasonFail = reasonFail.Substring(0, reasonFail.Length - 1);
+
+                                                    listErrors.Add(new PackingListErrors
+                                                    {
+                                                        keyname = so.no_referensi,
+                                                        errorMessage = "Pesanan tidak bisa diproses Dropoff. " + reasonFail
+                                                    });
+                                                }
                                             }
-                                            //end add by nurul 21/2/2020
                                             else
                                             {
-                                                var reasonFail = "Karena memerlukan data : ";
-                                                if (splitParamsInit.Contains("BRANCH_ID")) { reasonFail += "Kode Cabang,"; }
-                                                if (splitParamsInit.Contains("SENDER_REAL_NAME")) { reasonFail += "Nama Pengirim,"; }
-                                                if (splitParamsInit.Contains("DROPOFF_TRACKING_NO")) { reasonFail += "No Resi,"; }
-
-                                                reasonFail = reasonFail.Substring(0, reasonFail.Length - 1);
-
                                                 listErrors.Add(new PackingListErrors
                                                 {
                                                     keyname = so.no_referensi,
-                                                    errorMessage = "Pesanan tidak bisa diproses Dropoff. " + reasonFail
+                                                    errorMessage = "Pesanan tidak bisa diproses Dropoff."
                                                 });
                                             }
                                         }
@@ -48514,7 +48705,7 @@ namespace MasterOnline.Controllers
                                             listErrors.Add(new PackingListErrors
                                             {
                                                 keyname = so.no_referensi,
-                                                errorMessage = "Pesanan tidak bisa diproses Dropoff."
+                                                errorMessage = "Pesanan sudah pernah diproses."
                                             });
                                         }
                                     }
@@ -48523,7 +48714,7 @@ namespace MasterOnline.Controllers
                                         listErrors.Add(new PackingListErrors
                                         {
                                             keyname = so.no_referensi,
-                                            errorMessage = "Pesanan sudah pernah diproses."
+                                            errorMessage = "Pesanan ini statusnya batal. Pesanan batal tidak dapat diproses."
                                         });
                                     }
                                 }
@@ -48544,6 +48735,7 @@ namespace MasterOnline.Controllers
                                     errorMessage = "Pesanan tidak ditemukan."
                                 });
                             }
+                            
                         }
                         else
                         {
@@ -48709,6 +48901,7 @@ namespace MasterOnline.Controllers
                     //add by nurul 28/2/2020, untuk job
                     sSQLSelect += ", A.TRACKING_SHIPMENT as tracking_no, A.NO_PO_CUST AS no_job ";
                     //end add by nurul 28/2/2020, untuk job
+                    sSQLSelect += ",isnull(A.status_kirim,'') AS status_kirim, A.RECNUM as so_recnum ";
                     string sSQL2 = "";
                     sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
@@ -48717,6 +48910,9 @@ namespace MasterOnline.Controllers
 
                     var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
                     List<string> ordersn_list = new List<string>();
+                    var listErrors = new List<PackingListErrors>();
+                    var listSuccess = new List<listSuccessPrintLabel>();
+
                     foreach (var so in ListStt01a)
                     {
                         ordersn_list.Add(so.no_referensi);
@@ -48731,14 +48927,27 @@ namespace MasterOnline.Controllers
                     ShopeeControllerJob.getJOBShopee temp_job = new ShopeeControllerJob.getJOBShopee() { };
                     foreach (var resi in ListStt01a)
                     {
-                        if (!string.IsNullOrWhiteSpace(resi.no_job))
+                        if (resi.status_kirim != "5")
                         {
-                            adaJOB = true;
-                            temp_job.job_ordersn_list.Add(resi.no_referensi);
+                            if (!string.IsNullOrWhiteSpace(resi.no_job))
+                            {
+                                adaJOB = true;
+                                temp_job.job_ordersn_list.Add(resi.no_referensi);
+                            }
+                            else
+                            {
+                                temp_job.job_ordersn_list.Add("");
+                            }
                         }
                         else
                         {
-                            temp_job.job_ordersn_list.Add("");
+                            listErrors.Add(new PackingListErrors
+                            {
+                                keyname = resi.no_referensi,
+                                errorMessage = "Pesanan [" + resi.no_referensi + "] gagal cetak label, karena : Pesanan ini statusnya batal. Pesanan batal tidak dapat diproses.",
+                                recnum = Convert.ToString(resi.so_recnum)
+                            });
+                            ordersn_list.Remove(resi.no_referensi);
                         }
                     };
                     //END ADD BY NURUL 28/2/2020, untuk job
@@ -48747,34 +48956,42 @@ namespace MasterOnline.Controllers
                     //var ret = await shoAPI.GetAirwayBills(iden, ordersn_list.ToArray());
                     var ret = await shoAPI.GetAirwayBills(iden, ordersn_list.ToArray(), temp_job, adaJOB);
                     //end change by nurul 28/2/2020, untuk job
-                    var listErrors = new List<PackingListErrors>();
+                    
                     foreach (var item in ret.batch_result.errors)
                     {
                         if (listErrors.Where(p => p.keyname == item.error_description).Count() == 0)
                         {
                             listErrors.Add(new PackingListErrors
                             {
-                                keyname = item.error_description,
-                                errorMessage = item.ordersn
+                                //keyname = item.error_description,
+                                //errorMessage = item.ordersn
+                                keyname = item.ordersn,
+                                errorMessage = item.error_description,
+                                recnum = ListStt01a.Where(a => a.no_referensi == item.ordersn).FirstOrDefault().so_recnum.ToString()
                             });
                             ordersn_list.Remove(item.ordersn);
                         }
                     }
 
-                    var listSuccess = "";
+                    var listSuccessRow = "";
                     foreach (var osn in ordersn_list)
                     {
-                        if (listSuccess != "")
+                        if (listSuccessRow != "")
                         {
-                            listSuccess += ",";
+                            listSuccessRow += ",";
                         }
-                        listSuccess += "'" + osn + "'";
+                        listSuccessRow += "'" + osn + "'";
+
+                        listSuccess.Add(new listSuccessPrintLabel
+                        {
+                            no_referensi = osn
+                        });
                     }
 
                     string sSQLWhere = "";
-                    if (listSuccess != "")
+                    if (listSuccessRow != "")
                     {
-                        sSQLWhere += " no_referensi in (" + listSuccess + ")" + Environment.NewLine;
+                        sSQLWhere += " no_referensi in (" + listSuccessRow + ")" + Environment.NewLine;
                     }
                     else
                     {
@@ -48782,7 +48999,7 @@ namespace MasterOnline.Controllers
                     }
                     EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where " + sSQLWhere);
 
-                    return new JsonResult { Data = new { listErrors, ret }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    return new JsonResult { Data = new { listErrors, ret, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
 
                 }
                 return new JsonResult { Data = new { mo_error = "Status Link ke Marketplace tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
@@ -48857,67 +49074,78 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(so.no_referensi))
                             {
-                                if (string.IsNullOrWhiteSpace(so.tracking_no) && string.IsNullOrWhiteSpace(so.no_job))
+                                if (so.status_kirim != "5")
                                 {
-                                    var orderItemIds = new List<string>();
+                                    if (string.IsNullOrWhiteSpace(so.tracking_no) && string.IsNullOrWhiteSpace(so.no_job))
+                                    {
+                                        var orderItemIds = new List<string>();
 
-                                    var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT ORDER_ITEM_ID FROM SOT01B (NOLOCK) NOLOCK WHERE NO_BUKTI = '" + so.no_bukti + "'");
-                                    for (int i = 0; i < dsSOT01B.Tables[0].Rows.Count; i++)
-                                    {
-                                        orderItemIds.Add(Convert.ToString(dsSOT01B.Tables[0].Rows[i]["ORDER_ITEM_ID"]));
-                                    }
-                                    if (orderItemIds.Count > 0)
-                                    {
-                                        var success = true;
-                                        try
+                                        var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT ORDER_ITEM_ID FROM SOT01B (NOLOCK) NOLOCK WHERE NO_BUKTI = '" + so.no_bukti + "'");
+                                        for (int i = 0; i < dsSOT01B.Tables[0].Rows.Count; i++)
                                         {
-                                            //add by nurul 3/2/2021
-                                            var combineShipping = await new BlibliControllerJob().CombineShippingList(dbPathEra, iden, orderItemIds);
-                                            if (combineShipping)
+                                            orderItemIds.Add(Convert.ToString(dsSOT01B.Tables[0].Rows[i]["ORDER_ITEM_ID"]));
+                                        }
+                                        if (orderItemIds.Count > 0)
+                                        {
+                                            var success = true;
+                                            try
                                             {
-                                                //end add by nurul 3/2/2021
-                                                var bookingAWB = await bliJob.createPackage(dbPathEra, iden, orderItemIds);
-                                                if (!string.IsNullOrWhiteSpace(bookingAWB))
+                                                //add by nurul 3/2/2021
+                                                var combineShipping = await new BlibliControllerJob().CombineShippingList(dbPathEra, iden, orderItemIds);
+                                                if (combineShipping)
                                                 {
-                                                    //var updated = EDB.ExecuteSQL("SConn", CommandType.Text, "UPDATE SOT01A SET TRACKING_SHIPMENT = '" + bookingAWB + "' WHERE NO_BUKTI='" + so.no_bukti + "'");
-                                                    var updated = EDB.ExecuteSQL("SConn", CommandType.Text, "UPDATE SOT01A SET NO_PO_CUST = '" + bookingAWB + "' WHERE NO_BUKTI='" + so.no_bukti + "'");
-                                                    if (updated < 1)
+                                                    //end add by nurul 3/2/2021
+                                                    var bookingAWB = await bliJob.createPackage(dbPathEra, iden, orderItemIds);
+                                                    if (!string.IsNullOrWhiteSpace(bookingAWB))
                                                     {
-                                                        success = false;
-                                                    }
-                                                    if (success)
-                                                    {
-                                                        try
+                                                        //var updated = EDB.ExecuteSQL("SConn", CommandType.Text, "UPDATE SOT01A SET TRACKING_SHIPMENT = '" + bookingAWB + "' WHERE NO_BUKTI='" + so.no_bukti + "'");
+                                                        var updated = EDB.ExecuteSQL("SConn", CommandType.Text, "UPDATE SOT01A SET NO_PO_CUST = '" + bookingAWB + "' WHERE NO_BUKTI='" + so.no_bukti + "'");
+                                                        if (updated < 1)
                                                         {
-                                                            await new BlibliControllerJob().UpdateNoResi(dbPathEra, iden, so.no_referensi, orderItemIds.FirstOrDefault(), 1);
+                                                            success = false;
                                                         }
-                                                        catch (Exception ex)
+                                                        if (success)
                                                         {
+                                                            try
+                                                            {
+                                                                await new BlibliControllerJob().UpdateNoResi(dbPathEra, iden, so.no_referensi, orderItemIds.FirstOrDefault(), 1);
+                                                            }
+                                                            catch (Exception ex)
+                                                            {
 
+                                                            }
+                                                            listSuccess.Add(new listSuccessPrintLabel
+                                                            {
+                                                                no_referensi = so.no_referensi
+                                                            });
                                                         }
-                                                        listSuccess.Add(new listSuccessPrintLabel
-                                                        {
-                                                            no_referensi = so.no_referensi
-                                                        });
                                                     }
                                                 }
+                                                else
+                                                {
+                                                    success = false;
+                                                }
                                             }
-                                            else
+                                            catch (Exception ex)
                                             {
                                                 success = false;
                                             }
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            success = false;
-                                        }
 
-                                        if (!success)
+                                            if (!success)
+                                            {
+                                                listErrors.Add(new PackingListErrors
+                                                {
+                                                    keyname = so.no_referensi,
+                                                    errorMessage = "Pesanan gagal diproses."
+                                                });
+                                            }
+                                        }
+                                        else
                                         {
                                             listErrors.Add(new PackingListErrors
                                             {
                                                 keyname = so.no_referensi,
-                                                errorMessage = "Pesanan gagal diproses."
+                                                errorMessage = "Pesanan tidak memiliki barang."
                                             });
                                         }
                                     }
@@ -48926,7 +49154,7 @@ namespace MasterOnline.Controllers
                                         listErrors.Add(new PackingListErrors
                                         {
                                             keyname = so.no_referensi,
-                                            errorMessage = "Pesanan tidak memiliki barang."
+                                            errorMessage = "Pesanan sudah memiliki Package Id."
                                         });
                                     }
                                 }
@@ -48935,7 +49163,7 @@ namespace MasterOnline.Controllers
                                     listErrors.Add(new PackingListErrors
                                     {
                                         keyname = so.no_referensi,
-                                        errorMessage = "Pesanan sudah memiliki Package Id."
+                                        errorMessage = "Pesanan ini statusnya batal. Pesanan batal tidak dapat diproses."
                                     });
                                 }
                             }
@@ -49186,7 +49414,7 @@ namespace MasterOnline.Controllers
                     {
                         string sSQLSelect = "";
                         sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
-                        sSQLSelect += ",isnull(A.NO_PO_CUST,'') AS no_job, isnull(A.TRACKING_SHIPMENT,'') AS tracking_no, A.RECNUM as so_recnum ";
+                        sSQLSelect += ",isnull(A.NO_PO_CUST,'') AS no_job, isnull(A.TRACKING_SHIPMENT,'') AS tracking_no, A.RECNUM as so_recnum, isnull(A.status_kirim,'') AS status_kirim ";
                         string sSQL2 = "";
                         sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
@@ -49221,121 +49449,133 @@ namespace MasterOnline.Controllers
                         {
                             string failedReason = "";
                             var success = false;
-                            if (!string.IsNullOrEmpty(so.no_job))
+                            if (so.status_kirim != "5")
                             {
-                                try
+                                if (!string.IsNullOrEmpty(so.no_job))
                                 {
-                                    var bookingAWB = await bliJob.GetShippingLabelV2(dbPathEra, iden, so.no_job, so.no_bukti);
-                                    if (bookingAWB.success)
+                                    try
                                     {
-                                        #region initial folder
-                                        string filename = "BLIBLI_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                                        var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
-                                        #endregion
-
-                                        if (!System.IO.File.Exists(path))
+                                        var bookingAWB = await bliJob.GetShippingLabelV2(dbPathEra, iden, so.no_job, so.no_bukti);
+                                        if (bookingAWB.success)
                                         {
-                                            System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
-                                            FileStream stream = System.IO.File.Create(path);
-                                            byte[] byteArray = Convert.FromBase64String(bookingAWB.value.document.ToString());
-                                            stream.Write(byteArray, 0, byteArray.Length);
-                                            stream.Close();
-                                            temp_printLabel.Add(path);
-                                            temp_printLabel_split = temp_printLabel_split + path + ";";
+                                            #region initial folder
+                                            string filename = "BLIBLI_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                                            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                                            #endregion
+
+                                            if (!System.IO.File.Exists(path))
+                                            {
+                                                System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                                                FileStream stream = System.IO.File.Create(path);
+                                                byte[] byteArray = Convert.FromBase64String(bookingAWB.value.document.ToString());
+                                                stream.Write(byteArray, 0, byteArray.Length);
+                                                stream.Close();
+                                                temp_printLabel.Add(path);
+                                                temp_printLabel_split = temp_printLabel_split + path + ";";
+                                            }
+
+                                            listSuccess.Add(new listSuccessPrintLabel
+                                            {
+                                                no_referensi = so.no_referensi,
+                                                pdf64 = bookingAWB.value.document,
+                                                //orderItemId = orderItemId
+                                            });
+                                            success = true;
+                                        }
+                                        else
+                                        {
+                                            failedReason = bookingAWB.errorMessage;
                                         }
 
-                                        listSuccess.Add(new listSuccessPrintLabel
+                                        if (!success)
                                         {
-                                            no_referensi = so.no_referensi,
-                                            pdf64 = bookingAWB.value.document,
-                                            //orderItemId = orderItemId
-                                        });
-                                        success = true;
-                                    }
-                                    else
-                                    {
-                                        failedReason = bookingAWB.errorMessage;
-                                    }
 
+                                            if (listErrors.Where(p => p.keyname == so.no_referensi).Count() == 0)
+                                            {
+                                                listErrors.Add(new PackingListErrors
+                                                {
+                                                    keyname = so.no_referensi,
+                                                    errorMessage = "Order [" + so.no_referensi + "] gagal cetak label, karena : " + failedReason,
+                                                    recnum = Convert.ToString(so.so_recnum)
+                                                });
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        failedReason = "Internal Server Error.";
+                                    }
+                                }
+                                else
+                                {
+                                    var orderItemId = ErasoftDbContext.Database.SqlQuery<string>("SELECT TOP 1 isnull(ORDER_ITEM_ID,'') as ORDER_ITEM_ID FROM SOT01B (NOLOCK) WHERE NO_BUKTI = '" + so.no_bukti + "'").FirstOrDefault();
+                                    if (!string.IsNullOrEmpty(orderItemId))
+                                    {
+                                        var getPackageId = await new BlibliControllerJob().UpdateNoResi(dbPathEra, iden, so.no_referensi, orderItemId, 0);
+                                        if (!string.IsNullOrEmpty(getPackageId))
+                                        {
+                                            try
+                                            {
+                                                var bookingAWB = await bliJob.GetShippingLabelV2(dbPathEra, iden, getPackageId, so.no_bukti);
+                                                if (bookingAWB.success)
+                                                {
+                                                    #region initial folder
+                                                    string filename = "BLIBLI_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                                                    var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                                                    #endregion
+
+                                                    if (!System.IO.File.Exists(path))
+                                                    {
+                                                        System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                                                        FileStream stream = System.IO.File.Create(path);
+                                                        byte[] byteArray = Convert.FromBase64String(bookingAWB.value.document.ToString());
+                                                        stream.Write(byteArray, 0, byteArray.Length);
+                                                        stream.Close();
+                                                        temp_printLabel.Add(path);
+                                                        temp_printLabel_split = temp_printLabel_split + path + ";";
+                                                    }
+
+                                                    listSuccess.Add(new listSuccessPrintLabel
+                                                    {
+                                                        no_referensi = so.no_referensi,
+                                                        pdf64 = bookingAWB.value.document,
+                                                        //orderItemId = orderItemId
+                                                    });
+                                                    success = true;
+                                                }
+                                                else
+                                                {
+                                                    failedReason = bookingAWB.errorMessage;
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                failedReason = "Internal Server Error.";
+                                            }
+                                        }
+                                    }
                                     if (!success)
                                     {
-
                                         if (listErrors.Where(p => p.keyname == so.no_referensi).Count() == 0)
                                         {
                                             listErrors.Add(new PackingListErrors
                                             {
                                                 keyname = so.no_referensi,
-                                                errorMessage = "Order [" + so.no_referensi + "] gagal cetak label, karena : " + failedReason,
+                                                errorMessage = "Order [" + so.no_referensi + "] gagal cetak label, karena : packageId tidak ditemukan.",
                                                 recnum = Convert.ToString(so.so_recnum)
                                             });
                                         }
                                     }
                                 }
-                                catch (Exception ex)
-                                {
-                                    failedReason = "Internal Server Error.";
-                                }
                             }
                             else
                             {
-                                var orderItemId = ErasoftDbContext.Database.SqlQuery<string>("SELECT TOP 1 isnull(ORDER_ITEM_ID,'') as ORDER_ITEM_ID FROM SOT01B (NOLOCK) WHERE NO_BUKTI = '" + so.no_bukti + "'").FirstOrDefault();
-                                if (!string.IsNullOrEmpty(orderItemId))
+                                listErrors.Add(new PackingListErrors
                                 {
-                                    var getPackageId = await new BlibliControllerJob().UpdateNoResi(dbPathEra, iden, so.no_referensi, orderItemId, 0);
-                                    if (!string.IsNullOrEmpty(getPackageId))
-                                    {
-                                        try
-                                        {
-                                            var bookingAWB = await bliJob.GetShippingLabelV2(dbPathEra, iden, getPackageId, so.no_bukti);
-                                            if (bookingAWB.success)
-                                            {
-                                                #region initial folder
-                                                string filename = "BLIBLI_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                                                var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
-                                                #endregion
-
-                                                if (!System.IO.File.Exists(path))
-                                                {
-                                                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
-                                                    FileStream stream = System.IO.File.Create(path);
-                                                    byte[] byteArray = Convert.FromBase64String(bookingAWB.value.document.ToString());
-                                                    stream.Write(byteArray, 0, byteArray.Length);
-                                                    stream.Close();
-                                                    temp_printLabel.Add(path);
-                                                    temp_printLabel_split = temp_printLabel_split + path + ";";
-                                                }
-
-                                                listSuccess.Add(new listSuccessPrintLabel
-                                                {
-                                                    no_referensi = so.no_referensi,
-                                                    pdf64 = bookingAWB.value.document,
-                                                    //orderItemId = orderItemId
-                                                });
-                                                success = true;
-                                            }
-                                            else
-                                            {
-                                                failedReason = bookingAWB.errorMessage;
-                                            }
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            failedReason = "Internal Server Error.";
-                                        }
-                                    }
-                                }
-                                if (!success)
-                                {
-                                    if (listErrors.Where(p => p.keyname == so.no_referensi).Count() == 0)
-                                    {
-                                        listErrors.Add(new PackingListErrors
-                                        {
-                                            keyname = so.no_referensi,
-                                            errorMessage = "Order [" + so.no_referensi + "] gagal cetak label, karena : packageId tidak ditemukan.",
-                                            recnum = Convert.ToString(so.so_recnum)
-                                        });
-                                    }
-                                }
+                                    keyname = so.no_referensi,
+                                    errorMessage = "Pesanan ini statusnya batal. Pesanan batal tidak dapat diproses.",
+                                    recnum = Convert.ToString(so.so_recnum)
+                                });
                             }
 
                             var buktiSuccess = "";
@@ -49450,56 +49690,70 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(so.no_referensi))
                             {
-                                if (!string.IsNullOrEmpty(so.no_job))
+                                if (so.status_kirim != "5")
                                 {
-                                    var orderItemIds = new List<string>();
-                                    var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT TOP 1 isnull(ORDER_ITEM_ID,'') as ORDER_ITEM_ID FROM SOT01B (NOLOCK) WHERE NO_BUKTI = '" + so.no_bukti + "'");
-                                    var success = false;
-                                    try
+                                    if (!string.IsNullOrEmpty(so.no_job))
                                     {
-                                        //for (int i = 0; i < dsSOT01B.Tables[0].Rows.Count; i++)
-                                        if (dsSOT01B.Tables[0].Rows.Count > 0 && !string.IsNullOrEmpty(Convert.ToString(dsSOT01B.Tables[0].Rows[0]["ORDER_ITEM_ID"])))
+                                        var orderItemIds = new List<string>();
+                                        var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT TOP 1 isnull(ORDER_ITEM_ID,'') as ORDER_ITEM_ID FROM SOT01B (NOLOCK) WHERE NO_BUKTI = '" + so.no_bukti + "'");
+                                        var success = false;
+                                        try
                                         {
-                                            string order_item_id = Convert.ToString(dsSOT01B.Tables[0].Rows[0]["ORDER_ITEM_ID"]);
-                                            orderItemIds.Add(order_item_id);
-                                            //                                        new BlibliControllerJob().fillOrderAWB(dbPathEra, so.nama_pemesan, cust,
-                                            //                                            "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi,
-                                            //                                            order_item_id);
-                                            //change by nurul 18/12/2020
-                                            //clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, so.nama_pemesan, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id));
+                                            //for (int i = 0; i < dsSOT01B.Tables[0].Rows.Count; i++)
+                                            if (dsSOT01B.Tables[0].Rows.Count > 0 && !string.IsNullOrEmpty(Convert.ToString(dsSOT01B.Tables[0].Rows[0]["ORDER_ITEM_ID"])))
+                                            {
+                                                string order_item_id = Convert.ToString(dsSOT01B.Tables[0].Rows[0]["ORDER_ITEM_ID"]);
+                                                orderItemIds.Add(order_item_id);
+                                                //                                        new BlibliControllerJob().fillOrderAWB(dbPathEra, so.nama_pemesan, cust,
+                                                //                                            "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi,
+                                                //                                            order_item_id);
+                                                //change by nurul 18/12/2020
+                                                //clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, so.nama_pemesan, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id));
 #if (DEBUG || Debug_AWS)
-                                            //Task.Run(() => new BlibliControllerJob().fillOrderAWBV2(dbPathEra, so.no_bukti, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id)).Wait();
-                                            Task.Run(() => new BlibliControllerJob().fillOrderAWBV2(dbPathEra, so.no_bukti, cust, "Pesanan", "Ganti Status", iden, so.no_job, so.no_referensi, order_item_id)).Wait();
+                                                //Task.Run(() => new BlibliControllerJob().fillOrderAWBV2(dbPathEra, so.no_bukti, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id)).Wait();
+                                                Task.Run(() => new BlibliControllerJob().fillOrderAWBV2(dbPathEra, so.no_bukti, cust, "Pesanan", "Ganti Status", iden, so.no_job, so.no_referensi, order_item_id)).Wait();
 #else
                                         //clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWBV2(dbPathEra, so.no_bukti, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id));
                                         clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWBV2(dbPathEra, so.no_bukti, cust, "Pesanan", "Ganti Status", iden, so.no_job, so.no_referensi, order_item_id));
 #endif
-                                            listSuccess.Add(new listSuccessPrintLabel()
+                                                listSuccess.Add(new listSuccessPrintLabel()
+                                                {
+                                                    no_referensi = so.no_referensi
+                                                });
+                                                success = true;
+                                            }
+                                            else
                                             {
-                                                no_referensi = so.no_referensi
-                                            });
-                                            success = true;
+                                                success = false;
+                                            }
                                         }
-                                        else
+                                        catch (Exception ex)
                                         {
                                             success = false;
                                         }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        success = false;
-                                    }
 
-                                    if (orderItemIds.Count > 0)
-                                    {
-                                        if (!success)
+                                        if (orderItemIds.Count > 0)
+                                        {
+                                            if (!success)
+                                            {
+                                                if (listErrors.Where(p => p.keyname == so.no_referensi).Count() == 0)
+                                                {
+                                                    listErrors.Add(new PackingListErrors
+                                                    {
+                                                        keyname = so.no_referensi,
+                                                        errorMessage = "Pesanan gagal diproses."
+                                                    });
+                                                }
+                                            }
+                                        }
+                                        else
                                         {
                                             if (listErrors.Where(p => p.keyname == so.no_referensi).Count() == 0)
                                             {
                                                 listErrors.Add(new PackingListErrors
                                                 {
                                                     keyname = so.no_referensi,
-                                                    errorMessage = "Pesanan gagal diproses."
+                                                    errorMessage = "Pesanan tidak memiliki barang."
                                                 });
                                             }
                                         }
@@ -49511,7 +49765,7 @@ namespace MasterOnline.Controllers
                                             listErrors.Add(new PackingListErrors
                                             {
                                                 keyname = so.no_referensi,
-                                                errorMessage = "Pesanan tidak memiliki barang."
+                                                errorMessage = "Pesanan belum memiliki Package Id."
                                             });
                                         }
                                     }
@@ -49523,7 +49777,7 @@ namespace MasterOnline.Controllers
                                         listErrors.Add(new PackingListErrors
                                         {
                                             keyname = so.no_referensi,
-                                            errorMessage = "Pesanan belum memiliki Package Id."
+                                            errorMessage = "Pesanan ini statusnya batal. Pesanan batal tidak dapat diproses."
                                         });
                                     }
                                 }
@@ -60152,6 +60406,7 @@ namespace MasterOnline.Controllers
 
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir,A.TRACKING_SHIPMENT as tracking_no, 0 as jumlah_item ";
+                sSQLSelect += ",isnull(A.status_kirim,'') AS status_kirim ";
                 string sSQL2 = "";
                 sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
@@ -60212,34 +60467,45 @@ namespace MasterOnline.Controllers
                 };
                 foreach (var so in ListStt01a)
                 {
-                    if (listNobuk != "")
+                    if (so.status_kirim != "5")
                     {
-                        listNobuk += ",";
-                    }
-                    listNobuk += "'" + so.no_bukti + "'";
-                    if (Valid)
-                    {
-                        var jdidjob = new JDIDControllerJob();
+                        if (listNobuk != "")
+                        {
+                            listNobuk += ",";
+                        }
+                        listNobuk += "'" + so.no_bukti + "'";
+                        if (Valid)
+                        {
+                            var jdidjob = new JDIDControllerJob();
 
-                        var retApi = jdidjob.JD_sendGoodJDID(data, so.no_referensi, so.tracking_no);
-                        if (!retApi.Result.ToString().ToLower().Contains("error"))
-                        {
-                            hitungSuccess += 1;
-                            var sql = "update SOT01A set status_kirim = '2' where no_bukti in ('" + so.no_bukti + "')";
-                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
-                            temp_readytoShip.Add(so.no_referensi);
-                        }
-                        else
-                        {
-                            var sql = "update SOT01A set status_kirim = '1' where no_bukti in ('" + so.no_bukti + "')";
-                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
-                            listErrors.Add(new PackingListErrors
+                            var retApi = jdidjob.JD_sendGoodJDID(data, so.no_referensi, so.tracking_no);
+                            if (!retApi.Result.ToString().ToLower().Contains("error"))
                             {
-                                keyname = so.no_bukti,
-                                errorMessage = retApi.Result.ToString()
-                            });
-                            temp_strmsg_label.Add(retApi.Result.ToString());
+                                hitungSuccess += 1;
+                                var sql = "update SOT01A set status_kirim = '2' where no_bukti in ('" + so.no_bukti + "')";
+                                ErasoftDbContext.Database.ExecuteSqlCommand(sql);
+                                temp_readytoShip.Add(so.no_referensi);
+                            }
+                            else
+                            {
+                                var sql = "update SOT01A set status_kirim = '1' where no_bukti in ('" + so.no_bukti + "')";
+                                ErasoftDbContext.Database.ExecuteSqlCommand(sql);
+                                listErrors.Add(new PackingListErrors
+                                {
+                                    keyname = so.no_bukti,
+                                    errorMessage = retApi.Result.ToString()
+                                });
+                                temp_strmsg_label.Add(retApi.Result.ToString());
+                            }
                         }
+                    }
+                    else
+                    {
+                        listErrors.Add(new PackingListErrors
+                        {
+                            keyname = so.no_referensi,
+                            errorMessage = "Pesanan ini statusnya batal. Pesanan batal tidak dapat diproses."
+                        });
                     }
                 }
 
@@ -60682,6 +60948,7 @@ namespace MasterOnline.Controllers
 
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                sSQLSelect += ",isnull(A.status_kirim,'') AS status_kirim, A.RECNUM as so_recnum ";
                 string sSQL2 = "";
                 sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
@@ -60752,41 +61019,102 @@ namespace MasterOnline.Controllers
 
                 var tokpedApi = new TokopediaControllerJob();
 
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
+
                 foreach (var so in ListStt01a)
                 {
-                    if (listNobuk != "")
+                    var success = true;
+                    if (so.status_kirim != "5")
                     {
-                        listNobuk += ",";
-                    }
-                    listNobuk += "'" + so.no_bukti + "'";
-                    if (Valid)
-                    {
-                        System.Threading.Thread.Sleep(100);
-                        var retApi = tokpedApi.PrintLabel(data, so.no_bukti, so.no_referensi);
-                        if (retApi.Result.ToString().Contains("Error:"))
+                        //if (listNobuk != "")
+                        //{
+                        //    listNobuk += ",";
+                        //}
+                        //listNobuk += "'" + so.no_bukti + "'";
+                        if (Valid)
                         {
-                            var strmsg = "No Bukti " + so.no_bukti + " " + retApi.ToString();
-                            temp_strmsg.Add(strmsg);
-                        }
-                        else if (retApi.Result.ToString().Contains("Halaman Tidak Ditemukan"))
-                        {
-                            var strmsg = "No Bukti " + so.no_bukti + " tidak ditemukan labelnya.";
-                            temp_strmsg.Add(strmsg);
-                        }
-                        else if (retApi.ToString().Contains("Too Many Requests"))
-                        {
-                            var strmsg = "No Bukti " + so.no_bukti + " " + retApi.ToString();
-                            temp_strmsg.Add(strmsg);
+                            System.Threading.Thread.Sleep(100);
+                            var retApi = tokpedApi.PrintLabel(data, so.no_bukti, so.no_referensi);
+                            if (retApi.Result.ToString().Contains("Error:"))
+                            {
+                                var strmsg = "No Bukti " + so.no_bukti + " " + retApi.ToString();
+                                temp_strmsg.Add(strmsg);
+                                listErrors.Add(new PackingListErrors
+                                {
+                                    keyname = so.no_bukti,
+                                    errorMessage = "Pesanan [" + so.no_bukti + "] gagal cetak label, karena : " + strmsg,
+                                    recnum = Convert.ToString(so.so_recnum)
+                                });
+                                success = false;
+                            }
+                            else if (retApi.Result.ToString().Contains("Halaman Tidak Ditemukan"))
+                            {
+                                var strmsg = "No Bukti " + so.no_bukti + " tidak ditemukan labelnya.";
+                                temp_strmsg.Add(strmsg);
+                                listErrors.Add(new PackingListErrors
+                                {
+                                    keyname = so.no_bukti,
+                                    errorMessage = "Pesanan [" + so.no_bukti + "] gagal cetak label, karena : " + strmsg,
+                                    recnum = Convert.ToString(so.so_recnum)
+                                });
+                                success = false;
+                            }
+                            else if (retApi.ToString().Contains("Too Many Requests"))
+                            {
+                                var strmsg = "No Bukti " + so.no_bukti + " " + retApi.ToString();
+                                temp_strmsg.Add(strmsg);
+                                listErrors.Add(new PackingListErrors
+                                {
+                                    keyname = so.no_bukti,
+                                    errorMessage = "Pesanan [" + so.no_bukti + "] gagal cetak label, karena : " + strmsg,
+                                    recnum = Convert.ToString(so.so_recnum)
+                                });
+                                success = false;
+                            }
+                            else
+                            {
+                                var htmlString = retApi.Result;
+                                //EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + so.no_bukti + ")");
+                                var sql = "update SOT01A set status_print = '1' where no_bukti in ('" + so.no_bukti + "')";
+                                ErasoftDbContext.Database.ExecuteSqlCommand(sql);
+
+                                temp_htmlString.Add(htmlString);
+                                success = true;
+                            }
                         }
                         else
                         {
-                            var htmlString = retApi.Result;
-                            //EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + so.no_bukti + ")");
-                            var sql = "update SOT01A set status_print = '1' where no_bukti in ('" + so.no_bukti + "')";
-                            ErasoftDbContext.Database.ExecuteSqlCommand(sql);
-
-                            temp_htmlString.Add(htmlString);
+                            listErrors.Add(new PackingListErrors
+                            {
+                                keyname = so.no_bukti,
+                                errorMessage = "Pesanan [" + so.no_bukti + "] gagal cetak label, karena : Account link status is expired.",
+                                recnum = Convert.ToString(so.so_recnum)
+                            });
+                            success = false;
                         }
+                    }
+                    else
+                    {
+                        listErrors.Add(new PackingListErrors
+                        {
+                            keyname = so.no_bukti,
+                            errorMessage = "Pesanan [" + so.no_bukti + "] gagal cetak label, karena : Pesanan ini statusnya batal. Pesanan batal tidak dapat diproses.",
+                            recnum=Convert.ToString(so.so_recnum)
+                        });
+                        success = false;
+                    }
+                    if (success)
+                    {
+                        if (listNobuk != "")
+                        {
+                            listNobuk += ",";
+                        }
+                        listNobuk += "'" + so.no_bukti + "'";
+                        listSuccess.Add(new listSuccessPrintLabel
+                        {
+                            no_referensi = Convert.ToString(so.so_recnum),
+                        });
                     }
                 }
 
@@ -60879,36 +61207,44 @@ namespace MasterOnline.Controllers
                 }
 
 
-                if (temp_strmsg.Count() > 0 && temp_htmlString.Count > 0)
+                //if (temp_strmsg.Count() > 0 && temp_htmlString.Count > 0)
+                //{
+                //    //return new JsonResult { Data = new { mo_error = temp_strmsg, mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                //    return new JsonResult { Data = new { mo_error = temp_strmsg, mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                //}
+                //else if (temp_strmsg.Count() > 0)
+                //{
+                //    return new JsonResult { Data = new { mo_error = temp_strmsg }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                //}
+                //else
+                //{
+                //    if (label == "1")
+                //    {
+                //        //return new JsonResult { Data = new { mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                //        //return Json(temp_htmlString, JsonRequestBehavior.AllowGet);
+                //        return new JsonResult { Data = new { mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                //    }
+                //    else if (label == "2")
+                //    {
+                //        return new JsonResult { Data = new { mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                //        //return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
+                //    }
+                //}
+                
+                if (label == "1")
                 {
-                    //return new JsonResult { Data = new { mo_error = temp_strmsg, mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                    return new JsonResult { Data = new { mo_error = temp_strmsg, mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    return new JsonResult { Data = new { mo_label = tempLblTokped, listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
-                else if (temp_strmsg.Count() > 0)
+                else if (label == "2")
                 {
-                    return new JsonResult { Data = new { mo_error = temp_strmsg }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                }
-                else
-                {
-                    if (label == "1")
-                    {
-                        //return new JsonResult { Data = new { mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                        //return Json(temp_htmlString, JsonRequestBehavior.AllowGet);
-                        return new JsonResult { Data = new { mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                    }
-                    else if (label == "2")
-                    {
-                        return new JsonResult { Data = new { mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                        //return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
-                    }
-
+                    return new JsonResult { Data = new { mo_label = tempLblTokped, listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
             }
             catch (Exception ex)
             {
                 return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
-            return JsonErrorMessage("This Function is for Lazada only");
+            return JsonErrorMessage("This Function is for Tokopedia only");
         }
 
         public ActionResult KodeBookingTokpedPerPacking(string cust, string bukti, List<string> rows_selected)
@@ -62635,6 +62971,51 @@ namespace MasterOnline.Controllers
             return PartialView("ListDetailPackingList", listData);
         }
         //end add by nurul 24/7/2020
+
+        //add by nurul 17/2/2021
+        public ActionResult refreshTablePackingTabRekapBrg(string bukti)
+        {
+            var listData = new PackingListViewModel()
+            {
+            };
+            if (bukti != null)
+            {
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
+                string sSQL2 = "";
+                sSQLSelect += "from SOT03C A (nolock) INNER JOIN STF02 B(nolock) ON A.BRG = B.BRG LEFT JOIN SOT01A C(NOLOCK) ON A.NO_PESANAN=C.NO_BUKTI WHERE A.NO_BUKTI = '" + bukti + "' and isnull(C.status_kirim,'') <> '5' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE, B.LKS ";
+                string sSQLTemp = "";
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY B.LKS ";
+
+                var listOrder = ErasoftDbContext.Database.SqlQuery<RekapBarang>(sSQLSelect + sSQL2 + sSQLTemp + sSQLSelect2).ToList();
+                foreach (var item in listOrder)
+                {
+                    var tempRef = "";
+                    var getListNoref = EDB.GetDataSet("CString", "SOT01A", "select brg, ISNULL(SUM(qty),0) AS QTY,isnull(no_referensi,'') as no_referensi from sot01a a (nolock) inner join sot01b b (nolock) on a.no_bukti=b.no_bukti where brg='" + item.BRG + "' and a.no_bukti in (select no_pesanan from sot03b where no_bukti='" + bukti + "') GROUP BY brg,no_referensi");
+                    if (getListNoref.Tables[0].Rows.Count > 0)
+                    {
+                        for (int a = 0; a < getListNoref.Tables[0].Rows.Count; a++)
+                        {
+                            if (!string.IsNullOrEmpty(getListNoref.Tables[0].Rows[a]["no_referensi"].ToString()))
+                            {
+                                tempRef = tempRef + getListNoref.Tables[0].Rows[a]["no_referensi"].ToString() + " (" + getListNoref.Tables[0].Rows[a]["qty"].ToString() + ") " + Environment.NewLine + " ";
+                            }
+                        }
+                    }
+                    if (tempRef != "")
+                    {
+                        tempRef = tempRef.Substring(0, tempRef.Length - 4);
+                    }
+                    item.NO_REFERENSI = tempRef;
+                }
+                listData.listRekapBarang = listOrder;
+            }
+            return PartialView("ListDetailPackingListRekapBrg", listData);
+        }
+        //end add by nurul 17/2/2021
 
         //add by Tri 13 Aug 2020, refresh stok per brg
         public ActionResult UpdateStokPerBarang(string brg)
