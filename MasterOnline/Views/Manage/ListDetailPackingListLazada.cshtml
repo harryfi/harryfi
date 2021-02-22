@@ -58,6 +58,17 @@
                 {
                     tipe_pesanan = "Preorder";
                 }
+                if (order.N_UCAPAN != "" && order.N_UCAPAN != "-" && order.N_UCAPAN != " ")
+                {
+                    if (tipe_pesanan != "")
+                    {
+                        tipe_pesanan += " " + order.N_UCAPAN;
+                    }
+                    else
+                    {
+                        tipe_pesanan = order.N_UCAPAN;
+                    }
+                }
                 //end add by Tri 17 feb 2021
             <tr>
                 <td style="text-align:center">

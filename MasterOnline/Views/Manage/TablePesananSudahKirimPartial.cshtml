@@ -161,6 +161,17 @@
                 {
                     tipe_pesanan = "Preorder";
                 }
+                if (pesanan.N_UCAPAN != "" && pesanan.N_UCAPAN != "-" && orpesanander.N_UCAPAN != " ")
+                {
+                    if (tipe_pesanan != "")
+                    {
+                        tipe_pesanan += " " + pesanan.N_UCAPAN;
+                    }
+                    else
+                    {
+                        tipe_pesanan = pesanan.N_UCAPAN;
+                    }
+                }
                 //end add by Tri 17 feb 2021
 
             <tr>

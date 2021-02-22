@@ -3160,6 +3160,16 @@ namespace MasterOnline.Controllers
                                                 }
                                                 device_type = payment_info;
                                             }
+                                            if(orderDetail.data.preorder != null)
+                                            {
+                                                if (orderDetail.data.preorder.order_id.HasValue)
+                                                {
+                                                    if (orderDetail.data.preorder.order_id.Value > 0)
+                                                    {
+                                                        recipient_address_geo = "Preorder";
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                     //belum ada di temp
@@ -3498,6 +3508,16 @@ namespace MasterOnline.Controllers
                                                     payment_info = payment_info.Substring(0, 50);
                                                 }
                                                 a_device_type = payment_info;
+                                            }
+                                            if (orderDetail.data.preorder != null)
+                                            {
+                                                if (orderDetail.data.preorder.order_id.HasValue)
+                                                {
+                                                    if (orderDetail.data.preorder.order_id.Value > 0)
+                                                    {
+                                                        a_recipient_address_geo = "Preorder";
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -7109,7 +7129,7 @@ namespace MasterOnline.Controllers
             public Buyer_Info buyer_info { get; set; }
             //public Shop_Info shop_info { get; set; }
             public Shipment_Fulfillment shipment_fulfillment { get; set; }
-            //public Preorder preorder { get; set; }
+            public Preorder preorder { get; set; }
             public Order_Info order_info { get; set; }
             //public Origin_Info origin_info { get; set; }
             public Payment_Info payment_info { get; set; }
@@ -7199,13 +7219,13 @@ namespace MasterOnline.Controllers
 
         public class Preorder
         {
-            public int order_id { get; set; }
-            public int preorder_type { get; set; }
-            public int preorder_process_time { get; set; }
-            public DateTime preorder_process_start { get; set; }
-            public DateTime preorder_deadline { get; set; }
-            public int shop_id { get; set; }
-            public int customer_id { get; set; }
+            public long? order_id { get; set; }
+            public int? preorder_type { get; set; }
+            public int? preorder_process_time { get; set; }
+            public DateTime? preorder_process_start { get; set; }
+            public DateTime? preorder_deadline { get; set; }
+            //public int shop_id { get; set; }
+            //public int customer_id { get; set; }
         }
 
         public class Order_Info

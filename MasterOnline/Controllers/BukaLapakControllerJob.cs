@@ -990,9 +990,17 @@ namespace MasterOnline.Controllers
                                         {
                                             statusEra = "01";
                                         }
+                                        string sTipe_pesanan = "";
+                                        if(order.sla != null)
+                                        {
+                                            if(order.sla.type == "preorder")
+                                            {
+                                                sTipe_pesanan = "Preorder";
+                                            }
+                                        }
                                         insertQ += "(" + order.id + "," + order.invoice_id + ",'" + statusEra + "','" + transId + "'," + order.amount.buyer.total + ",0,'" 
                                             + courier + "','" + ketPembeli + "'," + order.amount.buyer.details.delivery + ",";
-                                        insertQ +=  "0,'','" + shippingService + "'," + order.amount.buyer.coded_amount + "," + order.amount.seller.total + "," 
+                                        insertQ += "0,'" + sTipe_pesanan + "','" + shippingService + "'," + order.amount.buyer.coded_amount + "," + order.amount.seller.total + "," 
                                             + order.amount.buyer.payment_amount + ",'" +  order.created_at.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.state_changed_at.refund_at.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "','";
                                         insertQ += "','" + order.buyer.id + "','" + nama + "','"+paymentType+"','" + buyerLogistic + "','" + order.delivery.consignee.address.Replace('\'', '`') + "','" 
                                             + consigneeArea.Replace('\'', '`') + "','" + namaKabkot + "','";

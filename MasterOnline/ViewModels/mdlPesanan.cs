@@ -192,7 +192,7 @@ namespace MasterOnline
         //public string UCAPAN { get; set; }
 
         //[StringLength(255)]
-        //public string N_UCAPAN { get; set; }
+        public string N_UCAPAN { get; set; }
 
         //[StringLength(10)]
         //public string PEMESAN { get; set; }
