@@ -1367,9 +1367,15 @@ namespace MasterOnline.Controllers
                         {
                             if(sync_pesanan_stok == tblCustomer.CUST)
                             {
-                                var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-3).AddHours(-7).ToUnixTimeSeconds();
-                                var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
-                                client.Enqueue<ShopeeControllerJob>(x => x.GetOrderByStatusWithDay(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0, fromDt, toDt));
+                                //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-3).AddHours(-7).ToUnixTimeSeconds();
+                                //var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
+                                //client.Enqueue<ShopeeControllerJob>(x => x.GetOrderByStatusWithDay(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0, fromDt, toDt));
+
+#if (AWS || DEV)
+                                client.Enqueue<ShopeeControllerJob>(x => x.GetOrderGoLive(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0));
+#else
+                                await new ShopeeControllerJob().GetOrderGoLive(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
+#endif
                             }
                         }
                     }
@@ -1392,9 +1398,9 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            #endregion
+#endregion
 
-            #region Shopify
+#region Shopify
 
             var kdShopify = 21;
             var ShopifyShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopify.ToString());
@@ -1460,9 +1466,9 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            #endregion
+#endregion
 
-            #region 82Cart
+#region 82Cart
             var kd82Cart = 20;
 
             var v82CartShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kd82Cart.ToString());
@@ -1540,9 +1546,9 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            #endregion
+#endregion
 
-            #region JDID
+#region JDID
             var kdJDID = 19;
 
             var vJDIDShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdJDID.ToString());
@@ -1623,7 +1629,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            #endregion
+#endregion
 
             return "";
         }

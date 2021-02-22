@@ -5550,7 +5550,11 @@ namespace MasterOnline.Controllers
             //var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlCustomer>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NAMA AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, A.EMAIL AS EMAIL, A.STATUS_API AS STATUS_API, A.TIDAK_HIT_UANG_R AS TIDAK_HIT_UANG_R, A.TGL_EXPIRED AS TGL_EXPIRED, A.PERSO AS PERSO ";
+            //change by Tri 18 Feb 2021, hide tgl expired bukalapak karena bisa auto refresh
+            //sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NAMA AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, A.EMAIL AS EMAIL, A.STATUS_API AS STATUS_API, A.TIDAK_HIT_UANG_R AS TIDAK_HIT_UANG_R, A.TGL_EXPIRED AS TGL_EXPIRED, A.PERSO AS PERSO ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NAMA AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, A.EMAIL AS EMAIL, A.STATUS_API AS STATUS_API, A.TIDAK_HIT_UANG_R AS TIDAK_HIT_UANG_R, ";
+            sSQLSelect += "CASE WHEN A.NAMA = '8' THEN NULL ELSE A.TGL_EXPIRED END AS TGL_EXPIRED, A.PERSO AS PERSO ";
+            //end change by Tri 18 Feb 2021, hide tgl expired bukalapak karena bisa auto refresh
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -49508,52 +49512,52 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
-                                    var orderItemId = ErasoftDbContext.Database.SqlQuery<string>("SELECT TOP 1 isnull(ORDER_ITEM_ID,'') as ORDER_ITEM_ID FROM SOT01B (NOLOCK) WHERE NO_BUKTI = '" + so.no_bukti + "'").FirstOrDefault();
-                                    if (!string.IsNullOrEmpty(orderItemId))
-                                    {
-                                        var getPackageId = await new BlibliControllerJob().UpdateNoResi(dbPathEra, iden, so.no_referensi, orderItemId, 0);
-                                        if (!string.IsNullOrEmpty(getPackageId))
-                                        {
-                                            try
-                                            {
-                                                var bookingAWB = await bliJob.GetShippingLabelV2(dbPathEra, iden, getPackageId, so.no_bukti);
-                                                if (bookingAWB.success)
-                                                {
-                                                    #region initial folder
-                                                    string filename = "BLIBLI_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
-                                                    var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
-                                                    #endregion
+                                    //var orderItemId = ErasoftDbContext.Database.SqlQuery<string>("SELECT TOP 1 isnull(ORDER_ITEM_ID,'') as ORDER_ITEM_ID FROM SOT01B (NOLOCK) WHERE NO_BUKTI = '" + so.no_bukti + "'").FirstOrDefault();
+                                    //if (!string.IsNullOrEmpty(orderItemId))
+                                    //{
+                                    //    var getPackageId = await new BlibliControllerJob().UpdateNoResi(dbPathEra, iden, so.no_referensi, orderItemId, 0);
+                                    //    if (!string.IsNullOrEmpty(getPackageId))
+                                    //    {
+                                    //        try
+                                    //        {
+                                    //            var bookingAWB = await bliJob.GetShippingLabelV2(dbPathEra, iden, getPackageId, so.no_bukti);
+                                    //            if (bookingAWB.success)
+                                    //            {
+                                    //                #region initial folder
+                                    //                string filename = "BLIBLI_printlabel_" + so.no_referensi + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".pdf";
+                                    //                var path = Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), filename);
+                                    //                #endregion
 
-                                                    if (!System.IO.File.Exists(path))
-                                                    {
-                                                        System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
-                                                        FileStream stream = System.IO.File.Create(path);
-                                                        byte[] byteArray = Convert.FromBase64String(bookingAWB.value.document.ToString());
-                                                        stream.Write(byteArray, 0, byteArray.Length);
-                                                        stream.Close();
-                                                        temp_printLabel.Add(path);
-                                                        temp_printLabel_split = temp_printLabel_split + path + ";";
-                                                    }
+                                    //                if (!System.IO.File.Exists(path))
+                                    //                {
+                                    //                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/PrintLabel/"), ""));
+                                    //                    FileStream stream = System.IO.File.Create(path);
+                                    //                    byte[] byteArray = Convert.FromBase64String(bookingAWB.value.document.ToString());
+                                    //                    stream.Write(byteArray, 0, byteArray.Length);
+                                    //                    stream.Close();
+                                    //                    temp_printLabel.Add(path);
+                                    //                    temp_printLabel_split = temp_printLabel_split + path + ";";
+                                    //                }
 
-                                                    listSuccess.Add(new listSuccessPrintLabel
-                                                    {
-                                                        no_referensi = so.no_referensi,
-                                                        pdf64 = bookingAWB.value.document,
-                                                        //orderItemId = orderItemId
-                                                    });
-                                                    success = true;
-                                                }
-                                                else
-                                                {
-                                                    failedReason = bookingAWB.errorMessage;
-                                                }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                failedReason = "Internal Server Error.";
-                                            }
-                                        }
-                                    }
+                                    //                listSuccess.Add(new listSuccessPrintLabel
+                                    //                {
+                                    //                    no_referensi = so.no_referensi,
+                                    //                    pdf64 = bookingAWB.value.document,
+                                    //                    //orderItemId = orderItemId
+                                    //                });
+                                    //                success = true;
+                                    //            }
+                                    //            else
+                                    //            {
+                                    //                failedReason = bookingAWB.errorMessage;
+                                    //            }
+                                    //        }
+                                    //        catch (Exception ex)
+                                    //        {
+                                    //            failedReason = "Internal Server Error.";
+                                    //        }
+                                    //    }
+                                    //}
                                     if (!success)
                                     {
                                         if (listErrors.Where(p => p.keyname == so.no_referensi).Count() == 0)
