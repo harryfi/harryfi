@@ -492,18 +492,20 @@
                             var adaUrl = false;
                             var urlValue = "";
                             var countUrl = 0;
-                            response.ret.batch_result.airway_bills.forEach(function (item) {
-                                adaUrl = true;
-                                //urlValue += item + " \n";
-                                countUrl++;
-                                //$("<iframe id='iframe_" + countUrl + "_" + cust + "'>")                             // create a new iframe element
-                                //    .hide()                               // make it invisible
-                                //    .attr("src", item) // point the iframe to the page you want to print
-                                //    .appendTo("body");
+                            if (response.ret.batch_result != null) {
+                                response.ret.batch_result.airway_bills.forEach(function (item) {
+                                    adaUrl = true;
+                                    //urlValue += item + " \n";
+                                    countUrl++;
+                                    //$("<iframe id='iframe_" + countUrl + "_" + cust + "'>")                             // create a new iframe element
+                                    //    .hide()                               // make it invisible
+                                    //    .attr("src", item) // point the iframe to the page you want to print
+                                    //    .appendTo("body");
 
-                                var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + item + "'>Print</a> </br>";
-                                urlValue += buttonHtml;
-                            });
+                                    var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + item + "'>Print</a> </br>";
+                                    urlValue += buttonHtml;
+                                });
+                            }
                             if (adaUrl) {
                                 textareaValue += "Url AWB :</br>";
                                 textareaValue += urlValue;
@@ -511,9 +513,15 @@
 
                             var adaError = false;
                             var errorValue = "";
-                            response.ret.batch_result.errors.forEach(function (item) {
+                            //if (response.ret.batch_result != null) {
+                            //    response.ret.batch_result.errors.forEach(function (item) {
+                            //        adaError = true;
+                            //        errorValue += item.ordersn + " : " + item.error_description + ". </br>";
+                            //    });
+                            //}
+                            response.listErrors.forEach(function (item) {
                                 adaError = true;
-                                errorValue += item.ordersn + " : " + item.error_description + ". </br>";
+                                errorValue += item.errorMessage + ". </br>";
                             });
                             if (adaError) {
                                 textareaValue += "</br>";
@@ -707,9 +715,13 @@
                                     var textareaValue = "";
                                     var adaError = false;
                                     var errorValue = "";
-                                    response.ret.batch_result.errors.forEach(function (item) {
+                                    //response.ret.batch_result.errors.forEach(function (item) {
+                                    //    adaError = true;
+                                    //    errorValue += item.ordersn + " : " + item.error_description + ". </br>";
+                                    //});
+                                    response.listErrors.forEach(function (item) {
                                         adaError = true;
-                                        errorValue += item.ordersn + " : " + item.error_description + ". </br>";
+                                        errorValue += item.errorMessage + ". </br>";
                                     });
                                     if (adaError) {
                                         textareaValue += "</br>";

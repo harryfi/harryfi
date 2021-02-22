@@ -490,24 +490,30 @@
                             //    //alert(response.mo_error);
                             //}
 
-                            var textareaValue = "";
-                            var adaError = false;
-                            var errorValue = "";
-                            response.listErrors.forEach(function (item) {
-                                adaError = true;
-                                errorValue += item.errorMessage + ". </br>";
-                            });
-                            if (adaError) {
-                                textareaValue += "</br>";
-                                textareaValue += "Errors :</br>";
-                                textareaValue += errorValue;
-                            }
-                            $('#modalPrintBukalapak__textarea__' + cust).html(textareaValue);
-                            if (response.mo_label != null) {
-                                window.open('/Manage/Download_PrintLabel?path=' + response.mo_label, '_blank');
-                            }
-                            if (!adaError) {
-                                $('#modalPrintBukalapak__' + cust).modal('hide');
+                            if (response.mo_error != undefined) {
+                                $('#modalPrintBukalapak__textarea__' + cust).html(response.mo_error);
+                            } else {
+                                var textareaValue = "";
+                                var adaError = false;
+                                var errorValue = "";
+                                if (response.listErrors.length > 0) {
+                                    response.listErrors.forEach(function (item) {
+                                        adaError = true;
+                                        errorValue += item.errorMessage + ". </br>";
+                                    });
+                                }
+                                if (adaError) {
+                                    textareaValue += "</br>";
+                                    textareaValue += "Errors :</br>";
+                                    textareaValue += errorValue;
+                                }
+                                $('#modalPrintBukalapak__textarea__' + cust).html(textareaValue);
+                                if (response.mo_label != null) {
+                                    window.open('/Manage/Download_PrintLabel?path=' + response.mo_label, '_blank');
+                                }
+                                if (!adaError) {
+                                    $('#modalPrintBukalapak__' + cust).modal('hide');
+                                }
                             }
                         }
                         //window.open(response, "_self");
@@ -615,10 +621,10 @@
                             contentType: "application/json; charset=UTF-8",
                             cache: false,
                             data: JSON.stringify($postdata),
-                            //beforeSend: function () {
-                            //    $('#modalPrintLabelOption__' + cust).modal('hide');
-                            //    $('#loading_spinner').show();
-                            //},
+                            beforeSend: function () {
+                                $('#modalPrintLabelOption__' + cust).modal('hide');
+                                //$('#loading_spinner').show();
+                            },
                             success: function (response) {
                                 if (response != null) {
                                     if (response.mo_error != undefined) {
@@ -629,11 +635,13 @@
                                         var adaError = false;
                                         var errorValue = "";
                                         var tempRecnumError = [];
-                                        response.listErrors.forEach(function (item) {
-                                            adaError = true;
-                                            errorValue += item.errorMessage + ". </br>";
-                                            tempRecnumError.push(item.recnum);
-                                        });
+                                        if (response.listErrors.length > 0) {
+                                            response.listErrors.forEach(function (item) {
+                                                adaError = true;
+                                                errorValue += item.errorMessage + ". </br>";
+                                                tempRecnumError.push(item.recnum);
+                                            });
+                                        }
                                         if (adaError) {
                                             textareaValue += "</br>";
                                             textareaValue += "Error Orders :</br>";
@@ -707,6 +715,23 @@
                                                 }
                                             }
                                         } else {
+                                            $postdata2 = {
+                                                cust: cust,
+                                                bukti: $('#packingList_NO_BUKTI').val(),
+                                                rows_selected: rows_selected,
+                                                toko: toko,
+                                                tlptoko: tlpToko,
+                                                ctkLabel: "1",
+                                                alLink: alamat,
+                                                noLink: tlp,
+                                                namaLink: nama,
+                                                mpLink: mp,
+                                                nobukLink: nobuk,
+                                                totalLink: total,
+                                                ketLink: ket,
+                                                logoLink: logo,
+                                            };
+
                                             $.ajax({
                                                 type: "POST",
                                                 url: '@Url.Action("CetakLabelMo", "Manage")',

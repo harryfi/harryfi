@@ -394,10 +394,10 @@
                             contentType: "application/json; charset=UTF-8",
                             cache: false,
                             data: JSON.stringify($postdata),
-                            //beforeSend: function () {
-                            //    $('#modalPrintLabelOption__' + cust).modal('hide');
-                            //    $('#loading_spinner').show();
-                            //},
+                            beforeSend: function () {
+                                $('#modalPrintLabelOption__' + cust).modal('hide');
+                                //$('#loading_spinner').show();
+                            },
                             success: function (response) {
                                 if (response != null) {
                                     if (response.mo_error != undefined) {
@@ -489,6 +489,26 @@
                                                 }
                                             }
                                         } else {
+                                            $postdata2 = {
+                                                cust: cust,
+                                                bukti: $('#packingList_NO_BUKTI').val(),
+                                                rows_selected: rows_selected,
+                                                toko: toko,
+                                                tlptoko: tlpToko,
+                                                ctkLabel: "1",
+                                                alLink: alamat,
+                                                noLink: tlp,
+                                                namaLink: nama,
+                                                mpLink: mp,
+                                                nobukLink: nobuk,
+                                                totalLink: total,
+                                                portLink: port,
+                                                refLink: ref,
+                                                data: response,
+                                                ketLink: ket,
+                                                logoLink: logo
+                                            };
+
                                             $.ajax({
                                                 type: "POST",
                                                 url: '@Url.Action("CetakLabelMo", "Manage")',

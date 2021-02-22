@@ -47946,9 +47946,10 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Gagal cetak label pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
-            return JsonErrorMessage("This Function is for Lazada only");
+            //return JsonErrorMessage("This Function is for Lazada only");
+            return new JsonResult { Data = new { mo_error = "This Function is for Lazada only." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
         public async Task<ActionResult> RequestPackedBukalapakPerPacking(string cust, string bukti, string DeliveryProvider, List<string> rows_selected, string serviceType)
         {
@@ -48225,9 +48226,10 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-
+                return new JsonResult { Data = new { mo_error = "Gagal cetak label pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
-            return JsonErrorMessage("This Function is for Bukalapak only");
+            //return JsonErrorMessage("This Function is for Bukalapak only");
+            return new JsonResult { Data = new { mo_error = "This Function is for Bukalapak only" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
 
         public async Task<ActionResult> RequestRTSBukalapakPerPacking(string cust, string bukti, string DeliveryProvider, List<string> rows_selected)
@@ -48960,20 +48962,23 @@ namespace MasterOnline.Controllers
                     //var ret = await shoAPI.GetAirwayBills(iden, ordersn_list.ToArray());
                     var ret = await shoAPI.GetAirwayBills(iden, ordersn_list.ToArray(), temp_job, adaJOB);
                     //end change by nurul 28/2/2020, untuk job
-                    
-                    foreach (var item in ret.batch_result.errors)
+
+                    if (ret.batch_result != null)
                     {
-                        if (listErrors.Where(p => p.keyname == item.error_description).Count() == 0)
+                        foreach (var item in ret.batch_result.errors)
                         {
-                            listErrors.Add(new PackingListErrors
+                            if (listErrors.Where(p => p.keyname == item.error_description).Count() == 0)
                             {
-                                //keyname = item.error_description,
-                                //errorMessage = item.ordersn
-                                keyname = item.ordersn,
-                                errorMessage = item.error_description,
-                                recnum = ListStt01a.Where(a => a.no_referensi == item.ordersn).FirstOrDefault().so_recnum.ToString()
-                            });
-                            ordersn_list.Remove(item.ordersn);
+                                listErrors.Add(new PackingListErrors
+                                {
+                                    //keyname = item.error_description,
+                                    //errorMessage = item.ordersn
+                                    keyname = item.ordersn,
+                                    errorMessage = "Pesanan [" + item.ordersn + "] gagal cetak label, karena : " + item.error_description,
+                                    recnum = ListStt01a.Where(a => a.no_referensi == item.ordersn).FirstOrDefault().so_recnum.ToString()
+                                });
+                                ordersn_list.Remove(item.ordersn);
+                            }
                         }
                     }
 
@@ -49010,7 +49015,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Gagal cetak label pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
         public async Task<ActionResult> BlibliCreatePackage(string cust, string bukti, List<string> rows_selected)
@@ -49620,7 +49625,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Gagal cetak label pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
         //end add by nurul 3/2/2021
@@ -61246,9 +61251,10 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Gagal cetak label pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
-            return JsonErrorMessage("This Function is for Tokopedia only");
+            //return JsonErrorMessage("This Function is for Tokopedia only");
+            return new JsonResult { Data = new { mo_error = "This Function is for Tokopedia only." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
 
         public ActionResult KodeBookingTokpedPerPacking(string cust, string bukti, List<string> rows_selected)
