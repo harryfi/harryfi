@@ -45729,46 +45729,46 @@ namespace MasterOnline.Controllers
             }
 
             vm.listRekapBarang = new List<RekapBarang>();
-            ////CHANGE BY NURUL 22/7/2020
-            ////var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
-            ////var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(A.QTY) QTY, ISNULL(C.BRG_CUST,'') AS BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT01B C ON A.NO_PESANAN=C.NO_BUKTI AND A.BRG=C.BRG WHERE A.NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, C.BRG_CUST");
-            ////var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(B.WARNA,'') as BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, B.WARNA");
-            ////var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A(NOLOCK) INNER JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE,B.LKS ORDER BY B.LKS");
-            //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A(NOLOCK) INNER JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG LEFT JOIN SOT01A C(NOLOCK) ON A.NO_PESANAN=C.NO_BUKTI WHERE A.NO_BUKTI = '" + nobuk + "' and isnull(C.status_kirim,'') <> '5' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE,B.LKS ORDER BY B.LKS");
-            ////END CHANGE BY NURUL 22/7/2020
-            //for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
-            //{
-            //    var newData = new RekapBarang
-            //    {
-            //        BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
-            //        NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
-            //        QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
-            //        //ADD BY NURUL 22/7/2020
-            //        BARCODE = dsRekap.Tables[0].Rows[i]["BARCODE"].ToString(),
-            //        //END ADD BY NURUL 22/7/2020
-            //        RAK = dsRekap.Tables[0].Rows[i]["RAK"].ToString(),
-            //    };
-            //    //add by nurul 5/2/2021
-            //    var tempRef = "";
-            //    var getListNoref = EDB.GetDataSet("CString", "SOT01A", "select brg, ISNULL(SUM(qty),0) AS QTY,isnull(no_referensi,'') as no_referensi from sot01a a (nolock) inner join sot01b b (nolock) on a.no_bukti=b.no_bukti where brg='" + newData.BRG + "' and a.no_bukti in (select no_pesanan from sot03b where no_bukti='" + nobuk + "') GROUP BY brg,no_referensi");
-            //    if(getListNoref.Tables[0].Rows.Count > 0)
-            //    {
-            //        for (int a = 0; a < getListNoref.Tables[0].Rows.Count; a++)
-            //        {
-            //            if (!string.IsNullOrEmpty(getListNoref.Tables[0].Rows[a]["no_referensi"].ToString()))
-            //            {
-            //                tempRef = tempRef + getListNoref.Tables[0].Rows[a]["no_referensi"].ToString() + " (" + getListNoref.Tables[0].Rows[a]["qty"].ToString() + ") " + Environment.NewLine + " ";
-            //            }
-            //        }
-            //    }
-            //    if (tempRef != "")
-            //    {
-            //        tempRef = tempRef.Substring(0, tempRef.Length - 4);
-            //    }
-            //    newData.NO_REFERENSI = tempRef;
-            //    //end add by nurul 5/2/2021
-            //    vm.listRekapBarang.Add(newData);
-            //}
+            //CHANGE BY NURUL 22/7/2020
+            //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
+            //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(A.QTY) QTY, ISNULL(C.BRG_CUST,'') AS BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT01B C ON A.NO_PESANAN=C.NO_BUKTI AND A.BRG=C.BRG WHERE A.NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, C.BRG_CUST");
+            //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(B.WARNA,'') as BARCODE from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, B.WARNA");
+            //var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A(NOLOCK) INNER JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE,B.LKS ORDER BY B.LKS");
+            var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY, ISNULL(A.BARCODE,'') as BARCODE, ISNULL(B.LKS,'') as RAK from SOT03C A(NOLOCK) INNER JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG LEFT JOIN SOT01A C(NOLOCK) ON A.NO_PESANAN=C.NO_BUKTI WHERE A.NO_BUKTI = '" + nobuk + "' and isnull(C.status_kirim,'') <> '5' GROUP BY A.BRG, B.NAMA, B.NAMA2, A.BARCODE,B.LKS ORDER BY B.LKS");
+            //END CHANGE BY NURUL 22/7/2020
+            for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
+            {
+                var newData = new RekapBarang
+                {
+                    BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
+                    NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
+                    QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
+                    //ADD BY NURUL 22/7/2020
+                    BARCODE = dsRekap.Tables[0].Rows[i]["BARCODE"].ToString(),
+                    //END ADD BY NURUL 22/7/2020
+                    RAK = dsRekap.Tables[0].Rows[i]["RAK"].ToString(),
+                };
+                //add by nurul 5/2/2021
+                var tempRef = "";
+                var getListNoref = EDB.GetDataSet("CString", "SOT01A", "select brg, ISNULL(SUM(qty),0) AS QTY,isnull(no_referensi,'') as no_referensi from sot01a a (nolock) inner join sot01b b (nolock) on a.no_bukti=b.no_bukti where brg='" + newData.BRG + "' and a.no_bukti in (select no_pesanan from sot03b where no_bukti='" + nobuk + "') GROUP BY brg,no_referensi");
+                if(getListNoref.Tables[0].Rows.Count > 0)
+                {
+                    for (int a = 0; a < getListNoref.Tables[0].Rows.Count; a++)
+                    {
+                        if (!string.IsNullOrEmpty(getListNoref.Tables[0].Rows[a]["no_referensi"].ToString()))
+                        {
+                            tempRef = tempRef + getListNoref.Tables[0].Rows[a]["no_referensi"].ToString() + " (" + getListNoref.Tables[0].Rows[a]["qty"].ToString() + ") " + Environment.NewLine + " ";
+                        }
+                    }
+                }
+                if (tempRef != "")
+                {
+                    tempRef = tempRef.Substring(0, tempRef.Length - 4);
+                }
+                newData.NO_REFERENSI = tempRef;
+                //end add by nurul 5/2/2021
+                vm.listRekapBarang.Add(newData);
+            }
 
 
             return PartialView("FormPackinglistPartial", vm);
