@@ -94,7 +94,8 @@ namespace MasterOnline.Controllers
                     return View("Login", admin);
                 }
 
-                Session["SessionAdmin"] = adminFromDb;
+                //Session["SessionAdmin"] = adminFromDb;
+                Session["SessionAdmin"] = adminFromDb.Email;
 
                 result = "DashboardAdmin";
             }
@@ -106,7 +107,8 @@ namespace MasterOnline.Controllers
                     return View("Login", admin);
                 }
 
-                Session["SessionAdmin"] = adminFromDb;
+                //Session["SessionAdmin"] = adminFromDb;
+                Session["SessionAdmin"] = adminFromDb.Email;
 
                 result = "DashboardAdm";
 

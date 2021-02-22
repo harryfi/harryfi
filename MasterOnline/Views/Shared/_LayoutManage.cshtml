@@ -93,7 +93,8 @@
     else
     {
         nama = sessionUserUsername.ToString();
-        var accFromUser = context.Account.Single(a => a.AccountId == Convert.ToInt64(sessionUserAccountID));
+        var userAccID = Convert.ToInt64(sessionUserAccountID);
+        var accFromUser = context.Account.Single(a => a.AccountId == userAccID);
 
         erasoftContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
         namaPerAccount = accFromUser.DatabasePathErasoft;//add by calvin 1 april 2019

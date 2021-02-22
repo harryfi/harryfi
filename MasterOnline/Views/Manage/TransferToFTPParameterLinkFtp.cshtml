@@ -4,21 +4,49 @@
 @{
     ViewBag.Title = "Parameter Link FTP";
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
-    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    //var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
     long accId;
     var username = "";
     var context = new MoDbContext("");
-    if (dataSession?.User != null)
+    //if (dataSession?.User != null)
+    //{
+    //    accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
+    //    username = context.Account.Single(a => a.AccountId == accId).Username;
+    //}
+    //else
+    //{
+    //    username = dataSession?.Account.Username;
+    //    accId = (dataSession?.Account?.AccountId ?? 0);
+    //}
+
+    var sessionAccount = HttpContext.Current.Session["SessionAccount"];
+    var sessionAccountUserID = HttpContext.Current.Session["SessionAccountUserID"];
+    var sessionAccountUserName = HttpContext.Current.Session["SessionAccountUserName"];
+    var sessionAccountEmail = HttpContext.Current.Session["SessionAccountEmail"];
+    var sessionAccountTglSub = HttpContext.Current.Session["SessionAccountTglSub"];
+    var sessionAccountKodeSub = HttpContext.Current.Session["SessionAccountKodeSub"];
+    var sessionAccountDataSourcePathDebug = HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+    var sessionAccountDataSourcePath = HttpContext.Current.Session["SessionAccountDataSourcePath"];
+    var sessionAccountDatabasePathErasoft = HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+    var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+    var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+    var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+    var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+    var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+    if (sessionUser != null)
     {
-        accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
+        accId = context.User.Single(u => u.Email == sessionUserEmail.ToString()).AccountId;
         username = context.Account.Single(a => a.AccountId == accId).Username;
     }
     else
     {
-        username = dataSession?.Account.Username;
-        accId = (dataSession?.Account?.AccountId ?? 0);
+        username = sessionAccountUserName.ToString();
+        accId = (Convert.ToInt64(sessionAccount ?? 0));
     }
+
     if (username.Length > 20)
     {
         username = username.Substring(0, 17) + "...";

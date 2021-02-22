@@ -8,18 +8,51 @@
     ErasoftContext erasoftContext = null;
     var context = new MoDbContext("");
 
-    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    //var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
-    if (dataSession?.Account != null)
+    //if (dataSession?.Account != null)
+    //{
+    //    //change by nurul 3/10/2018
+    //    //erasoftContext = new ErasoftContext(dataSession.Account.UserId);
+    //    erasoftContext = new ErasoftContext(dataSession.Account.DataSourcePath, dataSession.Account.DatabasePathErasoft);
+
+    //}
+    //else
+    //{
+    //    var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
+    //    //change by nurul 3/10/2018
+    //    //erasoftContext = new ErasoftContext(accFromUser.UserId);
+    //    erasoftContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+
+    //}
+
+    var sessionAccount = HttpContext.Current.Session["SessionAccount"];
+    var sessionAccountUserID = HttpContext.Current.Session["SessionAccountUserID"];
+    var sessionAccountUserName = HttpContext.Current.Session["SessionAccountUserName"];
+    var sessionAccountEmail = HttpContext.Current.Session["SessionAccountEmail"];
+    var sessionAccountTglSub = HttpContext.Current.Session["SessionAccountTglSub"];
+    var sessionAccountKodeSub = HttpContext.Current.Session["SessionAccountKodeSub"];
+    var sessionAccountDataSourcePathDebug = HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+    var sessionAccountDataSourcePath = HttpContext.Current.Session["SessionAccountDataSourcePath"];
+    var sessionAccountDatabasePathErasoft = HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+    var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+    var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+    var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+    var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+    var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+    if (sessionAccount != null)
     {
         //change by nurul 3/10/2018
         //erasoftContext = new ErasoftContext(dataSession.Account.UserId);
-        erasoftContext = new ErasoftContext(dataSession.Account.DataSourcePath, dataSession.Account.DatabasePathErasoft);
+        erasoftContext = new ErasoftContext(sessionAccountDataSourcePath.ToString(), sessionAccountDatabasePathErasoft.ToString());
 
     }
     else
     {
-        var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
+        var userAccID = Convert.ToInt64(sessionUserAccountID);
+        var accFromUser = context.Account.Single(a => a.AccountId == userAccID);
         //change by nurul 3/10/2018
         //erasoftContext = new ErasoftContext(accFromUser.UserId);
         erasoftContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);

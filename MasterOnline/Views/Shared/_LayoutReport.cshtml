@@ -2,7 +2,7 @@
 @using MasterOnline.ViewModels
 @{
     MoDbContext context = new MoDbContext("");
-    var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+    //var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
     var nama = "";
     var namaPerAccount = "";//add by calvin 1 april 2019
 
@@ -13,26 +13,76 @@
     string nmMember = "";
     //end add by nurul 26/7/2019
 
-    if (dataSession?.Account != null)
+    //if (dataSession?.Account != null)
+    //{
+    //    nama = dataSession.Account.Username;
+    //    namaPerAccount = dataSession.Account.DatabasePathErasoft;//add by calvin 1 april 2019
+
+    //    //add by nurul 26/7/2019
+    //    sdTgl = dataSession.Account.TGL_SUBSCRIPTION;
+    //    var cekHistoryPembayaran = context.AktivitasSubscription.Where(a => a.Email == dataSession.Account.Email).ToList();
+    //    if (cekHistoryPembayaran.Count() > 0)
+    //    {
+    //        drTgl = cekHistoryPembayaran.OrderByDescending(a => a.TanggalBayar).FirstOrDefault().DrTGL;
+    //    }
+    //    member = dataSession.Account.KODE_SUBSCRIPTION;
+    //    nmMember = context.Subscription.Where(a => a.KODE == member).Single().KETERANGAN;
+    //    //end add by nurul 26/7/2019
+    //}
+    //else
+    //{
+    //    nama = dataSession?.User.Username;
+    //    var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
+    //    namaPerAccount = accFromUser.DatabasePathErasoft;//add by calvin 1 april 2019
+
+    //    //add by nurul 26/7/2019
+    //    sdTgl = accFromUser.TGL_SUBSCRIPTION;
+    //    var cekHistoryPembayaran = context.AktivitasSubscription.Where(a => a.Email == accFromUser.Email).ToList();
+    //    if (cekHistoryPembayaran.Count() > 0)
+    //    {
+    //        drTgl = cekHistoryPembayaran.OrderByDescending(a => a.TanggalBayar).FirstOrDefault().DrTGL;
+    //    }
+    //    member = accFromUser.KODE_SUBSCRIPTION;
+    //    nmMember = context.Subscription.Where(a => a.KODE == member).Single().KETERANGAN;
+    //    //end add by nurul 26/7/2019
+    //}
+
+    var sessionAccount = HttpContext.Current.Session["SessionAccount"];
+    var sessionAccountUserID = HttpContext.Current.Session["SessionAccountUserID"];
+    var sessionAccountUserName = HttpContext.Current.Session["SessionAccountUserName"];
+    var sessionAccountEmail = HttpContext.Current.Session["SessionAccountEmail"];
+    var sessionAccountTglSub = HttpContext.Current.Session["SessionAccountTglSub"];
+    var sessionAccountKodeSub = HttpContext.Current.Session["SessionAccountKodeSub"];
+    var sessionAccountDataSourcePathDebug = HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+    var sessionAccountDataSourcePath = HttpContext.Current.Session["SessionAccountDataSourcePath"];
+    var sessionAccountDatabasePathErasoft = HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+    var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+    var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+    var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+    var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+    if (sessionAccount != null)
     {
-        nama = dataSession.Account.Username;
-        namaPerAccount = dataSession.Account.DatabasePathErasoft;//add by calvin 1 april 2019
+        nama = sessionAccountUserName.ToString();
+        namaPerAccount = sessionAccountDatabasePathErasoft.ToString();//add by calvin 1 april 2019
 
         //add by nurul 26/7/2019
-        sdTgl = dataSession.Account.TGL_SUBSCRIPTION;
-        var cekHistoryPembayaran = context.AktivitasSubscription.Where(a => a.Email == dataSession.Account.Email).ToList();
+        sdTgl = Convert.ToDateTime(sessionAccountTglSub);
+        var cekHistoryPembayaran = context.AktivitasSubscription.Where(a => a.Email == sessionAccountEmail.ToString()).ToList();
         if (cekHistoryPembayaran.Count() > 0)
         {
             drTgl = cekHistoryPembayaran.OrderByDescending(a => a.TanggalBayar).FirstOrDefault().DrTGL;
         }
-        member = dataSession.Account.KODE_SUBSCRIPTION;
+        member = sessionAccountKodeSub.ToString();
         nmMember = context.Subscription.Where(a => a.KODE == member).Single().KETERANGAN;
         //end add by nurul 26/7/2019
     }
     else
     {
-        nama = dataSession?.User.Username;
-        var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
+        nama = sessionUserUsername.ToString();
+        var userAccID = Convert.ToInt64(sessionUserAccountID);
+        var accFromUser = context.Account.Single(a => a.AccountId == userAccID);
         namaPerAccount = accFromUser.DatabasePathErasoft;//add by calvin 1 april 2019
 
         //add by nurul 26/7/2019
@@ -663,15 +713,17 @@
 
                                     var listSec = new List<SecUser>();
 
-                                    if (dataSession?.User != null)
+                                    if (sessionUser != null)
                                     {
-                                        listSec = context.SecUser.Where(s => s.UserId == dataSession.User.UserId && s.Permission).ToList();
+                                        var userID = Convert.ToInt64(sessionUserUserID);
+                                        //listSec = context.SecUser.Where(s => s.UserId == dataSession.User.UserId && s.Permission).ToList();
+                                        listSec = context.SecUser.Where(s => s.UserId == userID && s.Permission).ToList();
                                     }
                                 }
 
                                 @foreach (var parent in listParent)
                                 {
-                                    if (parent.Show && dataSession.User == null)
+                                    if (parent.Show && sessionUser == null)
                                     {
                                         <li class="parent-li" id="@parent.ScrId">
                                             <a id="a_@parent.ScrId" @(!parent.HaveChild ? "href=" + parent.Url : "")>
@@ -1085,9 +1137,9 @@
             });
             //end add by calvin 1 april 2019
 
-            @if (dataSession?.User != null)
+            @if (sessionUser != null)
             {
-                if (dataSession.User.UserId != null)
+                if (Convert.ToInt64(sessionUserUserID) != null)
                 {
                     <text>
                         $(".side-menu li.parent-li").each(function() {

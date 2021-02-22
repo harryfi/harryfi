@@ -3302,18 +3302,46 @@ namespace MasterOnline.Controllers
         {
             //add by Tri call market place api getorder
             var connectionID = Guid.NewGuid().ToString();
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string username = "";
-            if (sessionData?.User != null)
+            //if (sessionData?.User != null)
+            //{
+            //    //var accId = MoDbContext.User.Single(u => u.Username == sessionData.User.Username).AccountId; // remark by fauzi 17 Juli 2020
+            //    var accId = MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).AccountId;
+            //    username = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == accId).Username;
+            //}
+            //else
+            //{
+            //    username = sessionData?.Account?.Username;
+            //}
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            if (sessionUser != null)
             {
                 //var accId = MoDbContext.User.Single(u => u.Username == sessionData.User.Username).AccountId; // remark by fauzi 17 Juli 2020
-                var accId = MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).AccountId;
+                var accId = MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionUserEmail.ToString()).AccountId;
                 username = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == accId).Username;
             }
             else
             {
-                username = sessionData?.Account?.Username;
+                username = sessionAccountUserName.ToString();
             }
+
             var Marketplaces = MoDbContext.Marketplaces.AsNoTracking().ToList();
 
             //REMARK BY CALVIN 5 APRIL 2019
@@ -3584,18 +3612,46 @@ namespace MasterOnline.Controllers
         {
             //add by Tri call market place api getorder
             var connectionID = Guid.NewGuid().ToString();
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string username = "";
-            if (sessionData?.User != null)
+            //if (sessionData?.User != null)
+            //{
+            //    //var accId = MoDbContext.User.Single(u => u.Username == sessionData.User.Username).AccountId; // remark by fauzi 17 Juli 2020
+            //    var accId = MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).AccountId;
+            //    username = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == accId).Username;
+            //}
+            //else
+            //{
+            //    username = sessionData?.Account?.Username;
+            //}
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            if (sessionUser != null)
             {
                 //var accId = MoDbContext.User.Single(u => u.Username == sessionData.User.Username).AccountId; // remark by fauzi 17 Juli 2020
-                var accId = MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionData.User.Email).AccountId;
+                var accId = MoDbContext.User.AsNoTracking().Single(u => u.Email == sessionUserEmail.ToString()).AccountId;
                 username = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == accId).Username;
             }
             else
             {
-                username = sessionData?.Account?.Username;
+                username = sessionAccountUserName.ToString();
             }
+
             var Marketplaces = MoDbContext.Marketplaces.AsNoTracking().ToList();
             var List_ARF01 = ErasoftDbContext.ARF01.AsNoTracking().ToList();
             //remark by calvin 2 april 2019, dipindah ke recurring saat login
@@ -4527,17 +4583,47 @@ namespace MasterOnline.Controllers
         [Route("manage/transfer/transfertoftpparameterlinkftp")]
         public ActionResult TransferToFTPParameterLinkFtp()
         {
-            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             var emailAccount = "";
-            if (sessionData?.Account != null)
+            //if (sessionData?.Account != null)
+            //{
+            //    emailAccount = sessionData.Account.Email.ToString();
+            //}
+            //else
+            //{
+            //    if (sessionData?.User != null)
+            //    {
+            //        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+            //        emailAccount = accFromUser.Email.ToString();
+            //    }
+            //}
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            if (sessionAccount != null)
             {
-                emailAccount = sessionData.Account.Email.ToString();
+                emailAccount = sessionAccountEmail.ToString();
             }
             else
             {
-                if (sessionData?.User != null)
+                if (sessionUser != null)
                 {
-                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == userAccID);
                     emailAccount = accFromUser.Email.ToString();
                 }
             }
@@ -18270,22 +18356,51 @@ namespace MasterOnline.Controllers
         [Route("manage/master/akun")]
         public ActionResult Akun()
         {
-            var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+            //var dataSession = Session["SessionInfo"] as AccountUserViewModel;
             //change by nurul 8/2/2019
             //if (dataSession?.User != null)
             //    return View("NoPermission");
             var userAc = new List<User>();
             var accountId = new long();
-            if (dataSession?.User != null)
+            //if (dataSession?.User != null)
+            //{
+            //    accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
+            //    userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            //}
+            //else if (dataSession?.Account != null)
+            //{
+            //    accountId = dataSession.Account.AccountId;
+            //    userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            //}
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            if (sessionUser != null)
             {
-                accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
+                var userAccID = Convert.ToInt64(sessionUserAccountID);
+                accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == userAccID).AccountId;
                 userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
             }
-            else if (dataSession?.Account != null)
+            else if (sessionAccount != null)
             {
-                accountId = dataSession.Account.AccountId;
+                accountId = Convert.ToInt64(sessionAccount);
                 userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
             }
+
             //end change by nurul 8/2/2019
 
             var vm = new AccountUserViewModel()
@@ -18306,23 +18421,52 @@ namespace MasterOnline.Controllers
 
         public ActionResult RefreshTableAkun()
         {
-            var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+            //var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
             //change by nurul 8/2/2019
             //if (dataSession?.User != null)
             //    return View("NoPermission");
             var userAc = new List<User>();
             var accountId = new long();
-            if (dataSession?.User != null)
+            //if (dataSession?.User != null)
+            //{
+            //    accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
+            //    userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            //}
+            //else if (dataSession?.Account != null)
+            //{
+            //    accountId = dataSession.Account.AccountId;
+            //    userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            //}
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            if (sessionUser != null)
             {
-                accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
+                var userAccID = Convert.ToInt64(sessionUserAccountID);
+                accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == userAccID).AccountId;
                 userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
             }
-            else if (dataSession?.Account != null)
+            else if (sessionAccount != null)
             {
-                accountId = dataSession.Account.AccountId;
+                accountId = Convert.ToInt64(sessionAccount);
                 userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
             }
+
             //end change by nurul 8/2/2019
 
             var vm = new AccountUserViewModel()
@@ -18411,23 +18555,52 @@ namespace MasterOnline.Controllers
             MoDbContext.SaveChanges();
             ModelState.Clear();
 
-            var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+            //var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
             //change by nurul 8/2/2019
             //if (dataSession?.User != null)
             //    return View("NoPermission");
             var userAc = new List<User>();
             var accountId = new long();
-            if (dataSession?.User != null)
+            //if (dataSession?.User != null)
+            //{
+            //    accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
+            //    userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            //}
+            //else if (dataSession?.Account != null)
+            //{
+            //    accountId = dataSession.Account.AccountId;
+            //    userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            //}
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            if (sessionUser != null)
             {
-                accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
+                var userAccID = Convert.ToInt64(sessionUserAccountID);
+                accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == userAccID).AccountId;
                 userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
             }
-            else if (dataSession?.Account != null)
+            else if (sessionAccount != null)
             {
-                accountId = dataSession.Account.AccountId;
+                accountId = Convert.ToInt64(sessionAccount);
                 userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
             }
+
             //end change by nurul 8/2/2019
 
             var vm = new AccountUserViewModel()
@@ -18466,23 +18639,52 @@ namespace MasterOnline.Controllers
             MoDbContext.User.Remove(user);
             MoDbContext.SaveChanges();
 
-            var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+            //var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
             //change by nurul 8/2/2019
             //if (dataSession?.User != null)
             //    return View("NoPermission");
             var userAc = new List<User>();
             var accountId = new long();
-            if (dataSession?.User != null)
+            //if (dataSession?.User != null)
+            //{
+            //    accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
+            //    userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            //}
+            //else if (dataSession?.Account != null)
+            //{
+            //    accountId = dataSession.Account.AccountId;
+            //    userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            //}
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            if (sessionUser != null)
             {
-                accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
+                var userAccID = Convert.ToInt64(sessionUserAccountID);
+                accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == userAccID).AccountId;
                 userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
             }
-            else if (dataSession?.Account != null)
+            else if (sessionAccount != null)
             {
-                accountId = dataSession.Account.AccountId;
+                accountId = Convert.ToInt64(sessionAccount);
                 userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
             }
+
             //end change by nurul 8/2/2019
 
             var vm = new AccountUserViewModel()
@@ -18556,7 +18758,24 @@ namespace MasterOnline.Controllers
             foreach (var entity in MoDbContext.SecUser.Where(s => s.UserId == userId).ToList())
                 MoDbContext.SecUser.Remove(entity);
 
-            var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+            //var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
             var counter = 0;
             //List<SecUser> _testList = new List<SecUser>();
 
@@ -18564,7 +18783,8 @@ namespace MasterOnline.Controllers
             {
                 var secUser = new SecUser
                 {
-                    AccountId = dataSession?.Account.AccountId,
+                    //AccountId = dataSession?.Account.AccountId,
+                    AccountId = Convert.ToInt64(sessionAccount),
                     UserId = userId,
                     FormId = Convert.ToInt32(form),
                     ParentId = Convert.ToInt32(dataSec.ParentArray[counter]),
@@ -23878,8 +24098,26 @@ namespace MasterOnline.Controllers
 
                 if (ubahSettingSync)
                 {
-                    AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                    string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                    //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+
+                    var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                    var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+                    var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+                    var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+                    var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+                    var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+                    var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+                    var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+                    var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+
+                    var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                    var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+                    var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+                    var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+                    var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+                    //string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                    string username = sessionAccount != null ? sessionAccountUserName.ToString() : sessionUserUsername.ToString();
 
                     Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, username));
 
@@ -28895,16 +29133,47 @@ namespace MasterOnline.Controllers
                     var fakturInDb = ErasoftDbContext.SIT01A.AsNoTracking().Single(f => f.NO_SO == noBukPesanan);
                     var namaToko = "";
 
-                    var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                    if (sessionData?.Account != null)
+                    //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                    //if (sessionData?.Account != null)
+                    //{
+                    //    namaToko = sessionData.Account.NamaTokoOnline;
+                    //}
+                    //else
+                    //{
+                    //    if (sessionData?.User != null)
+                    //    {
+                    //        var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == sessionData.User.AccountId);
+                    //        namaToko = accFromUser.NamaTokoOnline;
+                    //    }
+                    //}
+
+                    var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                    var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+                    var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+                    var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+                    var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+                    var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+                    var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+                    var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+                    var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+                    var sessionAccountNamaTokoOnline = System.Web.HttpContext.Current.Session["SessionAccountNamaTokoOnline"];
+                    
+                    var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                    var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+                    var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+                    var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+                    var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+                    if (sessionAccount != null)
                     {
-                        namaToko = sessionData.Account.NamaTokoOnline;
+                        namaToko = sessionAccountNamaTokoOnline.ToString();
                     }
                     else
                     {
-                        if (sessionData?.User != null)
+                        if (sessionUser != null)
                         {
-                            var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == sessionData.User.AccountId);
+                            var userAccID = Convert.ToInt64(sessionUserAccountID);
+                            var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == userAccID);
                             namaToko = accFromUser.NamaTokoOnline;
                         }
                     }
@@ -28986,16 +29255,47 @@ namespace MasterOnline.Controllers
                     var fakturInDb = ErasoftDbContext.SIT01A.AsNoTracking().Single(f => f.NO_BUKTI == noBukPesanan);
                     var namaToko = "";
 
-                    var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                    if (sessionData?.Account != null)
+                    //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                    //if (sessionData?.Account != null)
+                    //{
+                    //    namaToko = sessionData.Account.NamaTokoOnline;
+                    //}
+                    //else
+                    //{
+                    //    if (sessionData?.User != null)
+                    //    {
+                    //        var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == sessionData.User.AccountId);
+                    //        namaToko = accFromUser.NamaTokoOnline;
+                    //    }
+                    //}
+
+                    var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                    var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+                    var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+                    var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+                    var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+                    var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+                    var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+                    var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+                    var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+                    var sessionAccountNamaTokoOnline = System.Web.HttpContext.Current.Session["SessionAccountNamaTokoOnline"];
+
+                    var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                    var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+                    var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+                    var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+                    var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+                    if (sessionAccount != null)
                     {
-                        namaToko = sessionData.Account.NamaTokoOnline;
+                        namaToko = sessionAccountNamaTokoOnline.ToString();
                     }
                     else
                     {
-                        if (sessionData?.User != null)
+                        if (sessionUser != null)
                         {
-                            var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == sessionData.User.AccountId);
+                            var userAccID = Convert.ToInt64(sessionUserAccountID);
+                            var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == userAccID);
                             namaToko = accFromUser.NamaTokoOnline;
                         }
                     }
@@ -29174,16 +29474,47 @@ namespace MasterOnline.Controllers
                     var fakturInDb = ErasoftDbContext.SIT01A.Single(f => f.NO_SO == noBukPesanan);
                     var namaToko = "";
 
-                    var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                    if (sessionData?.Account != null)
+                    //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                    //if (sessionData?.Account != null)
+                    //{
+                    //    namaToko = sessionData.Account.NamaTokoOnline;
+                    //}
+                    //else
+                    //{
+                    //    if (sessionData?.User != null)
+                    //    {
+                    //        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    //        namaToko = accFromUser.NamaTokoOnline;
+                    //    }
+                    //}
+
+                    var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                    var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+                    var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+                    var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+                    var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+                    var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+                    var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+                    var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+                    var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+                    var sessionAccountNamaTokoOnline = System.Web.HttpContext.Current.Session["SessionAccountNamaTokoOnline"];
+
+                    var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                    var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+                    var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+                    var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+                    var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+                    if (sessionAccount != null)
                     {
-                        namaToko = sessionData.Account.NamaTokoOnline;
+                        namaToko = sessionAccountNamaTokoOnline.ToString();
                     }
                     else
                     {
-                        if (sessionData?.User != null)
+                        if (sessionUser != null)
                         {
-                            var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                            var userAccID = Convert.ToInt64(sessionUserAccountID);
+                            var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == userAccID);
                             namaToko = accFromUser.NamaTokoOnline;
                         }
                     }
@@ -29243,16 +29574,47 @@ namespace MasterOnline.Controllers
                     var fakturInDb = ErasoftDbContext.SIT01A.Single(f => f.NO_BUKTI == noBukPesanan);
                     var namaToko = "";
 
-                    var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                    if (sessionData?.Account != null)
+                    //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                    //if (sessionData?.Account != null)
+                    //{
+                    //    namaToko = sessionData.Account.NamaTokoOnline;
+                    //}
+                    //else
+                    //{
+                    //    if (sessionData?.User != null)
+                    //    {
+                    //        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    //        namaToko = accFromUser.NamaTokoOnline;
+                    //    }
+                    //}
+
+                    var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                    var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+                    var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+                    var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+                    var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+                    var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+                    var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+                    var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+                    var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+                    var sessionAccountNamaTokoOnline = System.Web.HttpContext.Current.Session["SessionAccountNamaTokoOnline"];
+
+                    var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                    var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+                    var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+                    var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+                    var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+                    if (sessionAccount != null)
                     {
-                        namaToko = sessionData.Account.NamaTokoOnline;
+                        namaToko = sessionAccountNamaTokoOnline.ToString();
                     }
                     else
                     {
-                        if (sessionData?.User != null)
+                        if (sessionUser != null)
                         {
-                            var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                            var userAccID = Convert.ToInt64(sessionUserAccountID);
+                            var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == userAccID);
                             namaToko = accFromUser.NamaTokoOnline;
                         }
                     }
@@ -33717,7 +34079,7 @@ namespace MasterOnline.Controllers
             {
                 sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
                 EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
-                AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
                 //change by Tri 26 Nov 2019, gunakan usernamelogin
                 //string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
@@ -35755,8 +36117,42 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public FileResult DownloadLogErrorUploadExcelPesanan(string filename)
         {
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+            var sessionAccountNamaTokoOnline = System.Web.HttpContext.Current.Session["SessionAccountNamaTokoOnline"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            var dbPathErasoft = "";
+
+            if (sessionAccount != null)
+            {
+                dbPathErasoft = sessionAccountDatabasePathErasoft.ToString();
+            }
+            else
+            {
+                if (sessionUser != null)
+                {
+                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+                    var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == userAccID);
+                    dbPathErasoft = accFromUser.DatabasePathErasoft;
+                }
+            }
+
+            //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathErasoft + "/"), filename);
 
             byte[] data = System.IO.File.ReadAllBytes(path);
             string contentType = MimeMapping.GetMimeMapping(path);
@@ -35907,8 +36303,45 @@ namespace MasterOnline.Controllers
         //public ActionResult UploadFakturTokped(UploadFakturTokpedDataDetail[] data, string cust, string nama_cust, string perso)
         public ActionResult UploadFakturTokped()
         {
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            string uname = sessionData.Account.Username;
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+            var sessionAccountNamaTokoOnline = System.Web.HttpContext.Current.Session["SessionAccountNamaTokoOnline"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            var dbPathErasoft = "";
+            string uname = "";
+
+            if (sessionAccount != null)
+            {
+                dbPathErasoft = sessionAccountDatabasePathErasoft.ToString();
+                uname = sessionAccountUserName.ToString();
+            }
+            else
+            {
+                if (sessionUser != null)
+                {
+                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+                    var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == userAccID);
+                    dbPathErasoft = accFromUser.DatabasePathErasoft;
+                    uname = accFromUser.Username.ToString();
+                }
+            }
+
+            //string uname = sessionData.Account.Username;
             UploadFakturResult result = new UploadFakturResult
             {
                 success = "0",
@@ -35961,8 +36394,9 @@ namespace MasterOnline.Controllers
 #region Logging
             string message = "";
             string filename = "Log_Upload_Inv_Tokopedia_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
-
+            //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathErasoft + "/"), filename);
+            
             LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
             {
                 CUST = cust,
@@ -35985,7 +36419,9 @@ namespace MasterOnline.Controllers
             {
                 if (!System.IO.File.Exists(path))
                 {
-                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+                    //System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathErasoft + "/"), ""));
+                    
                     var asd = System.IO.File.Create(path);
                     asd.Close();
                 }
@@ -37679,8 +38115,45 @@ namespace MasterOnline.Controllers
         [HttpPost]
         public ActionResult UploadFakturShopee(UploadFakturShopeeDataDetail[] data, string cust, string nama_cust, string perso)
         {
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            string uname = sessionData.Account.Username;
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+            var sessionAccountNamaTokoOnline = System.Web.HttpContext.Current.Session["SessionAccountNamaTokoOnline"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            var dbPathErasoft = "";
+            string uname = "";
+
+            if (sessionAccount != null)
+            {
+                dbPathErasoft = sessionAccountDatabasePathErasoft.ToString();
+                uname = sessionAccountUserName.ToString();
+            }
+            else
+            {
+                if (sessionUser != null)
+                {
+                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+                    var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == userAccID);
+                    dbPathErasoft = accFromUser.DatabasePathErasoft;
+                    uname = accFromUser.Username.ToString();
+                }
+            }
+
+            //string uname = sessionData.Account.Username;
             UploadFakturResult result = new UploadFakturResult
             {
                 success = "0",
@@ -37690,7 +38163,8 @@ namespace MasterOnline.Controllers
 #region Logging
             string message = "";
             string filename = "Log_Upload_Inv_Shopee_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+            //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathErasoft + "/"), filename);
 
             LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
             {
@@ -37713,7 +38187,8 @@ namespace MasterOnline.Controllers
             {
                 if (!System.IO.File.Exists(path))
                 {
-                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+                    //System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathErasoft + "/"), ""));
                     var asd = System.IO.File.Create(path);
                     asd.Close();
                 }
@@ -40485,17 +40960,46 @@ namespace MasterOnline.Controllers
             if (data != null)
             {
                 string username = "";
-                AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                if (sessionData?.Account != null)
-                {
-                    username = sessionData.Account.Username;
+                //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                //if (sessionData?.Account != null)
+                //{
+                //    username = sessionData.Account.Username;
 
+                //}
+                //else
+                //{
+                //    if (sessionData?.User != null)
+                //    {
+                //        username = sessionData.User.Username;
+                //    }
+                //}
+
+                var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+                var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+                var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+                var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+                var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+                var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+                var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+                var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+                var sessionAccountNamaTokoOnline = System.Web.HttpContext.Current.Session["SessionAccountNamaTokoOnline"];
+
+                var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+                var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+                var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+                var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+                if (sessionAccount != null)
+                {
+                    username = sessionAccountUserName.ToString();
                 }
                 else
                 {
-                    if (sessionData?.User != null)
+                    if (sessionUser != null)
                     {
-                        username = sessionData.User.Username;
+                        username = sessionUserUsername.ToString();
                     }
                 }
 
@@ -42096,7 +42600,44 @@ namespace MasterOnline.Controllers
             string username = usernameLogin;
 
             List<string> listBrgSuccess = new List<string>();
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+
+            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+            var sessionAccountNamaTokoOnline = System.Web.HttpContext.Current.Session["SessionAccountNamaTokoOnline"];
+
+            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+            var dbPathErasoft = "";
+            string uname = "";
+
+            if (sessionAccount != null)
+            {
+                dbPathErasoft = sessionAccountDatabasePathErasoft.ToString();
+                uname = sessionAccountUserName.ToString();
+            }
+            else
+            {
+                if (sessionUser != null)
+                {
+                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+                    var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == userAccID);
+                    dbPathErasoft = accFromUser.DatabasePathErasoft;
+                    uname = accFromUser.Username.ToString();
+                }
+            }
+
             //if (sessionData?.Account != null)
             //{
             //    username = sessionData.Account.Username;
@@ -42115,10 +42656,14 @@ namespace MasterOnline.Controllers
                 if (customer != null)
                 {
                     //add 19 Juli 2019, error log
-                    var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), namaFileLog);
+                    //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), namaFileLog);
+                    var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathErasoft + "/"), namaFileLog);
+                    
                     if (!System.IO.File.Exists(path))
                     {
-                        System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+                        //System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+                        System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathErasoft + "/"), ""));
+
                         var asd = System.IO.File.Create(path);
                         asd.Close();
                     }
@@ -45248,16 +45793,54 @@ namespace MasterOnline.Controllers
                             //        ret.startRecnum = api_log[0].RECNUM;
                             //    }
                             //}
-#region Logging
-                            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                            string uname = sessionData.Account.Username;
+                            #region Logging
+                            //AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                            var sessionAccount = System.Web.HttpContext.Current.Session["SessionAccount"];
+                            var sessionAccountUserID = System.Web.HttpContext.Current.Session["SessionAccountUserID"];
+                            var sessionAccountUserName = System.Web.HttpContext.Current.Session["SessionAccountUserName"];
+                            var sessionAccountEmail = System.Web.HttpContext.Current.Session["SessionAccountEmail"];
+                            var sessionAccountTglSub = System.Web.HttpContext.Current.Session["SessionAccountTglSub"];
+                            var sessionAccountKodeSub = System.Web.HttpContext.Current.Session["SessionAccountKodeSub"];
+                            var sessionAccountDataSourcePathDebug = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePathDebug"];
+                            var sessionAccountDataSourcePath = System.Web.HttpContext.Current.Session["SessionAccountDataSourcePath"];
+                            var sessionAccountDatabasePathErasoft = System.Web.HttpContext.Current.Session["SessionAccountDatabasePathErasoft"];
+                            var sessionAccountNamaTokoOnline = System.Web.HttpContext.Current.Session["SessionAccountNamaTokoOnline"];
+
+                            var sessionUser = System.Web.HttpContext.Current.Session["SessionUser"];
+                            var sessionUserUserID = System.Web.HttpContext.Current.Session["SessionUserUserID"];
+                            var sessionUserUsername = System.Web.HttpContext.Current.Session["SessionUserUsername"];
+                            var sessionUserEmail = System.Web.HttpContext.Current.Session["SessionUserEmail"];
+                            var sessionUserAccountID = System.Web.HttpContext.Current.Session["SessionUserAccountID"];
+
+                            var dbPathErasoft = "";
+                            string uname = "";
+
+                            if (sessionAccount != null)
+                            {
+                                dbPathErasoft = sessionAccountDatabasePathErasoft.ToString();
+                                uname = sessionAccountUserName.ToString();
+                            }
+                            else
+                            {
+                                if (sessionUser != null)
+                                {
+                                    var userAccID = Convert.ToInt64(sessionUserAccountID);
+                                    var accFromUser = MoDbContext.Account.AsNoTracking().Single(a => a.AccountId == userAccID);
+                                    dbPathErasoft = accFromUser.DatabasePathErasoft;
+                                    uname = accFromUser.Username.ToString();
+                                }
+                            }
+
+                            //string uname = sessionData.Account.Username;
 
                             //string message = "";
                             string filename = "Log_SyncBrg_" + cust + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-                            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+                            //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+                            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathErasoft + "/"), filename);
                             if (!System.IO.File.Exists(path))
                             {
-                                System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+                                //System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+                                System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + dbPathErasoft + "/"), ""));
                                 //var asd = System.IO.File.Create(path);
                                 //asd.Close();
                             }

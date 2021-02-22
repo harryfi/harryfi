@@ -48,34 +48,6 @@
         <div class="col-md-6">
             <div class="ibox-content">
                 <div>
-                    @*@if (sessionData != null)
-                    {
-                        if (sessionData.Account != null)
-                        {
-                            <div class="alert alert-danger">
-                                Sesi Ada! @sessionData.Account.Email.ToString()
-                            </div>
-                        }
-                        else if (sessionData.User != null)
-                        {
-                            <div class="alert alert-danger">
-                                Sesi Ada! @sessionData.User.Username.ToString()
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="alert alert-danger">
-                                Sesi Kosong! @sessionData.Errors.ToString()
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                            <div class="alert alert-danger">
-                                Sesi Tidak Ada! @sessionData.Errors.ToString()
-                            </div>
-                    }*@
-
                     @if (Session["NotAuthorized"] != null && (bool)Session["NotAuthorized"])
                     {
                         <div class="alert alert-danger">
