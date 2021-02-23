@@ -2620,9 +2620,17 @@ namespace MasterOnline.Controllers
                                         var vTahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy").ToString());
                                         foreach (var dataStock in ListQOHPerGD)
                                         {
-                                            if (dataStock.TAHUN != vTahun && dataStock.TAHUN < vTahun)
+                                            if (dataStock.TAHUN != vTahun)
                                             {
-                                                dqtyTemp += dataStock.JUMLAH;
+                                                if (dataStock.TAHUN < vTahun)
+                                                {
+                                                    dqtyTemp += dataStock.JUMLAH;
+                                                }
+                                                else
+                                                {
+                                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF08A SET QAWAL = '0' " +
+                                                    "WHERE BRG = '" + listKodeBaru + "' AND GD = '" + dataStock.GD + "' AND TAHUN = '" + dataStock.TAHUN + "'");
+                                                }
                                             }
                                             else
                                             {
@@ -2909,9 +2917,17 @@ namespace MasterOnline.Controllers
                                         var vTahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy").ToString());
                                         foreach (var dataStock in ListQOHPerGD)
                                         {
-                                            if (dataStock.TAHUN != vTahun && dataStock.TAHUN < vTahun)
+                                            if (dataStock.TAHUN != vTahun)
                                             {
-                                                dqtyTemp += dataStock.JUMLAH;                                        
+                                                if(dataStock.TAHUN < vTahun)
+                                                {
+                                                    dqtyTemp += dataStock.JUMLAH;
+                                                }
+                                                else
+                                                {
+                                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF08A SET QAWAL = '0' " +
+                                                    "WHERE BRG = '" + listKodeBaru + "' AND GD = '" + dataStock.GD + "' AND TAHUN = '" + dataStock.TAHUN + "'");
+                                                }
                                             }
                                             else
                                             {
