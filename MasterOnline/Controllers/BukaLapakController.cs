@@ -2667,6 +2667,22 @@ namespace MasterOnline.Controllers
                                     ret.nextPage = 1;
                                 }
                             }
+                            if(resListProd.meta.total < (page * 10))
+                            {
+                                if (display)
+                                {
+                                    ret.status = 1;
+                                    ret.nextPage = 1;
+                                    ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
+                                }
+                                else
+                                {
+                                    ret.status = 0;
+                                    ret.nextPage = 0;
+                                    ret.message = "";
+                                    return ret;
+                                }
+                            }
                             int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(data.cust)).FirstOrDefault().RecNum.Value;
                             var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
                             var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
@@ -2751,6 +2767,10 @@ namespace MasterOnline.Controllers
                                 sSQL = sSQL + sSQL_Value;
                                 sSQL = sSQL.Substring(0, sSQL.Length - 1);
                                 var a = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                                if(a < 1)
+                                {
+                                    currentLog.REQUEST_EXCEPTION = sSQL.Replace("'", "\'\'");
+                                }
                                 ret.recordCount += a;
                             }
                             manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.code, currentLog);
