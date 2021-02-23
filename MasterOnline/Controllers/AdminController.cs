@@ -2628,6 +2628,10 @@ namespace MasterOnline.Controllers
                                             {
                                                 EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF08A SET QAWAL = '" + dqtyTemp + "' " +
                                                     "WHERE BRG = '" + listKodeBaru + "' AND GD = '" + dataStock.GD + "' AND TAHUN = '" + vTahun + "'");
+
+                                                EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF08A SET QAWAL = '0' " +
+                                                    "WHERE BRG = '" + kodeBrgLamaCheck + "' AND GD = '" + dataStock.GD + "' AND TAHUN = '" + vTahun + "'");
+
                                                 dqtyTemp = 0;
                                             }
                                         }
@@ -2913,6 +2917,10 @@ namespace MasterOnline.Controllers
                                             {
                                                 EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF08A SET QAWAL = '" + dqtyTemp + "' " +
                                                     "WHERE BRG = '" + listKodeBaru + "' AND GD = '" + dataStock.GD + "' AND TAHUN = '" + vTahun + "'");
+
+                                                EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF08A SET QAWAL = '0' " +
+                                                    "WHERE BRG = '" + kodeBrgLamaCheck + "' AND GD = '" + dataStock.GD + "' AND TAHUN = '" + vTahun + "'");
+
                                                 dqtyTemp = 0;
                                             }
                                         }
