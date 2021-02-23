@@ -2984,10 +2984,11 @@ namespace MasterOnline.Controllers
                 string brand = "";
                 if (brg.specs != null)
                 {
-                    brand = brg.specs.merek;
-                    if (string.IsNullOrEmpty(brand))
+                    //brand = brg.specs.merek;
+                    //if (string.IsNullOrEmpty(brand))
+                    if (brg.specs.Brand != null)
                     {
-                        brand = brg.specs.brand;
+                        brand = brg.specs.Brand;
                     }
                 }
                 int p = 0;
