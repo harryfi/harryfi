@@ -2614,31 +2614,24 @@ namespace MasterOnline.Controllers
                                             "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
 
                                         string sSQL = "SELECT GD,BRG,TAHUN, ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)), 0) as JUMLAH " +
-                                                        " FROM STF08A WHERE BRG = '" + kodeBrgLamaCheck + "' GROUP BY GD,BRG,TAHUN ORDER BY GD ASC";
+                                                        " FROM STF08A WHERE BRG = '" + listKodeBaru + "' GROUP BY GD,BRG,TAHUN ORDER BY GD ASC";
                                         var ListQOHPerGD = ErasoftDbContext.Database.SqlQuery<STOCK_AKHIRTAHUN>(sSQL).ToList();
                                         double dqtyTemp = 0;
-                                        var lCount = ListQOHPerGD.Count();
-                                        int i = 0;
+                                        var vTahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy").ToString());
                                         foreach (var dataStock in ListQOHPerGD)
                                         {
-                                            i += 1;
-                                            if(i != lCount)
+                                            if (dataStock.TAHUN != vTahun && dataStock.TAHUN < vTahun)
                                             {
                                                 dqtyTemp += dataStock.JUMLAH;
                                             }
                                             else
                                             {
-                                                //string sSubSQL = "SELECT GD,BRG,TAHUN, ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)), 0) as JUMLAH " +
-                                                //        " FROM STF08A WHERE BRG = '" + listKodeBaru + "' GROUP BY GD,BRG,TAHUN ORDER BY GD ASC";
-                                                //var qAwalKodeNew = ErasoftDbContext.Database.SqlQuery<STOCK_AKHIRTAHUN>(sSubSQL).SingleOrDefault();
-                                                //dqtyTemp += dataStock.JUMLAH + qAwalKodeNew.JUMLAH;
-                                                dqtyTemp += dataStock.JUMLAH;
                                                 EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF08A SET QAWAL = '" + dqtyTemp + "' " +
-                                                    "WHERE BRG = '" + listKodeBaru + "' AND GD = '" + dataStock.GD + "'"); /*AND TAHUN = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy") + "'*/
+                                                    "WHERE BRG = '" + listKodeBaru + "' AND GD = '" + dataStock.GD + "' AND TAHUN = '" + vTahun + "'");
+                                                dqtyTemp = 0;
                                             }
                                         }
 
-                                        dqtyTemp = 0;
                                         resultEdit = true;
                                     }
                                     else
@@ -2906,26 +2899,21 @@ namespace MasterOnline.Controllers
                                         //}
 
                                         string sSQL = "SELECT GD,BRG,TAHUN, ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)), 0) as JUMLAH " +
-                                                        " FROM STF08A(NOLOCK) WHERE BRG = '" + kodeBrgLamaCheck + "' GROUP BY GD,BRG,TAHUN ORDER BY GD ASC";
+                                                        " FROM STF08A(NOLOCK) WHERE BRG = '" + listKodeBaru + "' GROUP BY GD,BRG,TAHUN ORDER BY GD ASC";
                                         var ListQOHPerGD = ErasoftDbContext.Database.SqlQuery<STOCK_AKHIRTAHUN>(sSQL).ToList();
                                         double dqtyTemp = 0;
-                                        var lCount = ListQOHPerGD.Count();
-                                        int i = 0;
+                                        var vTahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy").ToString());
                                         foreach (var dataStock in ListQOHPerGD)
                                         {
-                                            i += 1;
-                                            if (i != lCount)
+                                            if (dataStock.TAHUN != vTahun && dataStock.TAHUN < vTahun)
                                             {
-                                                dqtyTemp += dataStock.JUMLAH;
+                                                dqtyTemp += dataStock.JUMLAH;                                        
                                             }
                                             else
                                             {
-                                                var vTahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy").ToString());
-                                                var dataSTF08a = ErasoftDbContext.STF08A.Where(p => p.BRG == listKodeBaru && p.GD == dataStock.GD && p.Tahun == vTahun).SingleOrDefault();
-                                                double dQawal = dataSTF08a.QAwal;
-                                                dqtyTemp += dataStock.JUMLAH + dQawal;
                                                 EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF08A SET QAWAL = '" + dqtyTemp + "' " +
-                                                    "WHERE BRG = '" + listKodeBaru + "' AND GD = '" + dataStock.GD + "' AND TAHUN = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy") + "'");
+                                                    "WHERE BRG = '" + listKodeBaru + "' AND GD = '" + dataStock.GD + "' AND TAHUN = '" + vTahun + "'");
+                                                dqtyTemp = 0;
                                             }
                                         }
 
