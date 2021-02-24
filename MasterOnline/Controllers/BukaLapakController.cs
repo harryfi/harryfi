@@ -2596,7 +2596,7 @@ namespace MasterOnline.Controllers
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.code, currentLog);
             try
             {
-                string urll = "https://api.bukalapak.com/stores/me/products?limit=10&offset=" + (page * 10) + "&product_type=";
+                string urll = "https://api.bukalapak.com/stores/me/products?limit=50&offset=" + (page * 50) + "&product_type=";
                 //Utils.HttpRequest req = new Utils.HttpRequest();
                 //string nonaktifUrl = "&not_for_sale_only=1";
                 if (display)
@@ -2652,7 +2652,7 @@ namespace MasterOnline.Controllers
 
                             }
                             ret.status = 1;
-                            if (resListProd.data.Length == 10)
+                            if (resListProd.data.Length == 50)
                             {
                                 //ret.message = (page + 1).ToString();
                                 ret.nextPage = 1;
@@ -2667,7 +2667,7 @@ namespace MasterOnline.Controllers
                                     ret.nextPage = 1;
                                 }
                             }
-                            if(resListProd.meta.total < (page * 10))
+                            if(resListProd.meta.total < (page * 50) || page == 100)
                             {
                                 if (display)
                                 {
