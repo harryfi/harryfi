@@ -23290,6 +23290,8 @@ namespace MasterOnline.Controllers
             ViewData["LastPage"] = page;
             //ADD BY NURUL 27/9/2019
             bool searchStatus = false;
+            bool searchTipePesanan = false;
+            string searchTipePesananValue = "";//inp. here
             if (search.ToUpper() == "BELUM BAYAR")
             {
                 search = "0";
@@ -23396,6 +23398,19 @@ namespace MasterOnline.Controllers
                         {
                             sSQL2 += "FROM SOT01A A (NOLOCK) ";
                         }
+                    }
+                    break;
+                case "tipe":
+                    {
+                        if (filtervalue == "cod")
+                        {
+                            sSQLTemp = "WHERE ISNULL(TIPE_KIRIM,0) = 1 ";
+                        }
+                        if (filtervalue == "preorder")
+                        {
+                            sSQLTemp = "WHERE ISNULL(N_UCAPAN,'') = 'preorder' ";
+                        }
+                        sSQL2 += "FROM SOT01A A (NOLOCK) ";
                     }
                     break;
                 default:
@@ -62524,6 +62539,18 @@ namespace MasterOnline.Controllers
                             sSQLTemp = "WHERE ISNULL(STATUS_PRINT,'0') = '" + filtervalue + "' ";
                         }
                         break;
+                    case "tipe":
+                        {
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp = "WHERE ISNULL(TIPE_KIRIM,0) = 1 ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp = "WHERE ISNULL(N_UCAPAN,'') = 'preorder' ";
+                            }
+                        }
+                        break;
                     default:
                         {
                             sSQLTemp += "";
@@ -62621,6 +62648,18 @@ namespace MasterOnline.Controllers
                     case "print":
                         {
                             sSQLTemp = "AND ISNULL(b.STATUS_PRINT,'0') = '" + filtervalue + "' ";
+                        }
+                        break;
+                    case "tipe":
+                        {
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp = "WHERE ISNULL(TIPE_KIRIM,0) = 1 ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp = "WHERE ISNULL(N_UCAPAN,'') = 'preorder' ";
+                            }
                         }
                         break;
                     default:
