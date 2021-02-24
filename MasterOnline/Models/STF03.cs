@@ -12,7 +12,8 @@ namespace MasterOnline
         public string Unit { get; set; }
 
         [Key]
-        public int No { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int? No { get; set; }
 
         [StringLength(20)]
         public string Brg { get; set; }
@@ -28,5 +29,14 @@ namespace MasterOnline
 
         [StringLength(30)]
         public string USERNAME { get; set; }
+
+        //ADD BY NURUL 5/10/2020, FITUR BUNDLING
+        public double? HARGA { get; set; }
+        public double? TOTALHARGA { get; set; }
+        public DateTime? TGL_EDIT { get; set; }
+        public double QTY_SIAPJUAL { get; set; }
+        public double QTY_KOMPONEN { get; set; }
+        //END ADD BY NURUL 5/10/2020, FITUR BUNDLING 
+
     }
 }

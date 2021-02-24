@@ -2721,6 +2721,7 @@ namespace MasterOnline.Controllers
         {
             bool resultMerge = false;
             var vkodebarangtidakada = "";
+            var vkodebarangharussynculang = "";
 
             if (!string.IsNullOrEmpty(listData))
             {
@@ -2816,35 +2817,98 @@ namespace MasterOnline.Controllers
                                         //var checkBarangLamaLagi = ErasoftDbContext.STF02.Where(p => p.BRG == kodeBrgLamaCheck).ToList();
                                         //if (checkBarangLamaLagi.Count() > 0)
                                         //{
-                                        if (checkBarangMPBaru.Count() >= checkBarangMPLama.Count())
+                                        if (checkBarangMPBaru.Count() > 0)
                                         {
-                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + kodeBrgLamaCheck + "'");
+                                            //foreach(var brgMpBaru in checkBarangMPBaru)
+                                            //{
+                                            //    if(!brgMpBaru.DISPLAY && string.IsNullOrEmpty(brgMpBaru.BRG_MP))
+                                            //    {
+                                            //        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + brgMpBaru.BRG + "'");
+                                            //    }
+                                            //}                                            
                                         }
-                                        else
+
+                                        if (checkBarangMPLama.Count() > 0)
                                         {
-                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + listKodeBaru + "'");
+                                            foreach (var brgMpLama in checkBarangMPLama)
+                                            {
+                                                if (!brgMpLama.DISPLAY && string.IsNullOrEmpty(brgMpLama.BRG_MP))
+                                                {
+                                                    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + brgMpLama.BRG + "' AND Recnum = " + brgMpLama.RecNum + "");
+                                                }
+                                            }
+
                                         }
 
                                         //}
 
-                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
-                                            "update stf02 set brg='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
-                                            "update stf02h set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
-                                            "update sot01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
-                                            "update sit01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
-                                            "update stt01b set kobar ='" + listKodeBaru + "' where kobar ='" + kodeBrgLamaCheck + "'; " +
-                                            "update stt04b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
-                                            "update pbt01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
-                                            "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "'; " +
-                                            "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+                                        //EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, " " +
+                                        //    "update stf02 set brg='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update stf02h set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update sot01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update sit01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update stt01b set kobar ='" + listKodeBaru + "' where kobar ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update stt04b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update pbt01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "'; " +
+                                        //    "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
 
-                                        if (checkBarangMPBaru.Count() >= checkBarangMPLama.Count())
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update stf02h set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update stf02 set brg='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update sot01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update sit01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update stt01b set kobar ='" + listKodeBaru + "' where kobar ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update stt04b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update pbt01b set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update detailpromosis set KODE_BRG ='" + listKodeBaru + "' where KODE_BRG ='" + kodeBrgLamaCheck + "';");
+                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "update sot03c set brg ='" + listKodeBaru + "' where brg ='" + kodeBrgLamaCheck + "';");
+
+
+
+                                        //if (checkBarangMPBaru.Count() >= checkBarangMPLama.Count())
+                                        //{
+                                        var checkBarangLama2 = ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == kodeBrgLamaCheck.ToUpper()).ToList();
+                                        if (checkBarangLama2.Count() > 0)
                                         {
-                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + kodeBrgLamaCheck + "';");
+                                            if (listKodeBaru != kodeBrgLamaCheck)
+                                            {
+                                                EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + kodeBrgLamaCheck + "';");
+                                            }
                                         }
-                                        else
+                                        //}
+                                        //else
+                                        //{
+                                        //    EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + listKodeBaru + "';");
+                                        //}
+
+                                        var checkDuplicateBrgMP = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper()).GroupBy(x => x.IDMARKET).Where(p => p.Count() > 1).ToList();
+                                        //foreach(var tes in checkDuplicateBrgMP)
+                                        if (checkDuplicateBrgMP.Count() > 0)
                                         {
-                                            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02 WHERE BRG ='" + listKodeBaru + "';");
+                                            var checkToko = ErasoftDbContext.ARF01.ToList();
+                                            var checkMP = MoDbContext.Marketplaces.ToList();
+                                            foreach (var checkDup in checkDuplicateBrgMP)
+                                            {
+                                                int idmarket = Convert.ToInt32(checkDup.Key);
+                                                var listDuplicate = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == listKodeBaru.ToUpper() && p.IDMARKET == idmarket).OrderByDescending(p => p.LINK_DATETIME).ToList();
+                                                if (listDuplicate.Count() > 0)
+                                                {
+                                                    //bool deleted = false;
+                                                    foreach (var itemDup in listDuplicate)
+                                                    {
+                                                        int recn = itemDup.IDMARKET;
+                                                        var dataToko = checkToko.Where(p => p.RecNum == recn).SingleOrDefault();
+                                                        int recm = Convert.ToInt32(dataToko.NAMA);
+                                                        var dataMp = checkMP.Where(p => p.IdMarket == recm).SingleOrDefault();
+                                                        vkodebarangharussynculang += "kodebrg: " + listKodeBaru + " (toko:" + dataToko.PERSO + " mp:" + dataMp.NamaMarket + ")  |  ";
+                                                        //    if (deleted)
+                                                        //    {
+                                                        EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM STF02H WHERE BRG ='" + itemDup.BRG + "' AND Recnum = " + itemDup.RecNum + ";");
+                                                        //    }
+                                                        //    deleted = true;
+                                                    }
+                                                }
+                                            }
                                         }
 
                                         resultMerge = true;
@@ -2945,11 +3009,19 @@ namespace MasterOnline.Controllers
                 }
 
                 //return View(vm);
-                if (!string.IsNullOrEmpty(vlistKodeSudahPosting))
+                if (!string.IsNullOrEmpty(vlistKodeSudahPosting) && !string.IsNullOrEmpty(vkodebarangharussynculang))
+                {
+                    return new JsonResult { Data = new { success = resultMerge, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting  + " ||| Dan terdapat juga kode barang yang harus di sync ulang yaitu:" + vkodebarangharussynculang }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else if (!string.IsNullOrEmpty(vkodebarangtidakada) && !string.IsNullOrEmpty(vkodebarangharussynculang))
+                {
+                    return new JsonResult { Data = new { success = resultMerge, dataposting = " Terdapat kode barang yang tidak ada : " + vkodebarangtidakada + " |||  Dan terdapat juga kode barang yang harus di sync ulang yaitu:" + vkodebarangharussynculang }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                else if (!string.IsNullOrEmpty(vlistKodeSudahPosting) && string.IsNullOrEmpty(vkodebarangharussynculang))
                 {
                     return new JsonResult { Data = new { success = resultMerge, dataposting = "Terdapat kode barang yang sudah posting : " + vlistKodeSudahPosting }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
-                else if (!string.IsNullOrEmpty(vkodebarangtidakada))
+                else if (!string.IsNullOrEmpty(vkodebarangtidakada) && string.IsNullOrEmpty(vkodebarangharussynculang))
                 {
                     return new JsonResult { Data = new { success = resultMerge, dataposting = " Terdapat kode barang yang tidak ada : " + vkodebarangtidakada }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
@@ -5400,7 +5472,38 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
+                                else if (marketplace.ToUpper() == "BUKALAPAK")
+                                {
+                                    string[] splitArguments = resultDataJob.Tables[0].Rows[i]["ARGUMENTS"].ToString().Replace("\"", "").Replace("\\", "").Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "").Split(',');
 
+                                    if (splitArguments.Length > 0)
+                                    {
+                                        var no_custBL = splitArguments[6].ToString();
+                                        var usernameBL = splitArguments[8].ToString();
+                                        string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE CUST = '" + no_custBL + "'; ";
+                                        var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_BL", queryCheckToko);
+                                        if (resultDataToko.Tables[0].Rows.Count > 0)
+                                        {
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameBL;
+                                            var sMETHOD = resultConvertInvocation.Method + statusOrder;
+                                            var sMARKETPLACE = marketplace + " (" + namaToko + ")";
+                                            if (listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).ToList().Count == 0)
+                                            {
+                                                checkApprove = true;
+                                            }
+                                            else
+                                            {
+                                                var createJobSuccess = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBSUCCESS"]).AddHours(7);
+                                                if(listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBSUCCESS < createJobSuccess)
+                                                {
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBPROCESS = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBPROCESS"]).AddHours(7);
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().LASTCREATEJOBSUCCESS = createJobSuccess;
+                                                    listTable.Where(m => m.METHOD == sMETHOD && m.MARKETPLACE == sMARKETPLACE).FirstOrDefault().SELISIH = resultSelisih;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                                 if (checkApprove)
                                 {
                                     listTable.Add(new PesananHangfireJob

@@ -212,7 +212,8 @@
                                         </div>
                                         <div hidden="hidden">
                                             @Html.Label(labelList.NamaToko, new { @class = "nm_toko" })
-                                            @Html.Label(labelList.TlpToko, new { @class = "no_toko" })
+                                            @*@Html.Label(labelList.TlpToko, new { @class = "no_toko" })*@
+                                            @Html.Label(labelList.TlpToko == null || labelList.TlpToko == "" ? "-" : labelList.TlpToko, new { @class = "no_toko" })
                                         </div>
                                         @if (CetakFaktur == "1")
                                         {
@@ -323,6 +324,7 @@
                                                 <tr style="width:619px !important;">
                                                     <th>No</th>
                                                     <th>Nama Barang</th>
+                                                    <th>Lokasi Rak</th>
                                                     <th style="text-align: right;">Jumlah Barang</th>
                                                     <th style="text-align: right;">Harga Barang</th>
                                                     <th style="text-align: right;">Diskon</th>
@@ -348,6 +350,10 @@
                                                         var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
                                                         //end change by nurul 15/9/2020
                                                         fakturNo = fakturNo + 1;
+
+                                                        //add by nurul 5/2/2021
+                                                        var rak = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
+                                                        //end add by nurul 5/2/2021
                                                         <tr>
                                                             <td>@fakturNo</td>
                                                             <td style="width:219px !important;">
@@ -355,6 +361,12 @@
                                                                 @if (!String.IsNullOrWhiteSpace(namaBarang2))
                                                                 {
                                                                     @namaBarang2
+                                                                }
+                                                            </td>
+                                                            <td>
+                                                                @if (!string.IsNullOrEmpty(rak))
+                                                                {
+                                                                    @rak
                                                                 }
                                                             </td>
                                                             <td style="text-align: right;width:100px !important;">
@@ -468,36 +480,65 @@
                                                 <div class="div_label_pengiriman" style="page-break-after:avoid;">
                                                     @if (labelList.KdBooking != "" && labelList.KdBooking != " ")
                                                     {
-                                                        <div class="row">
+                                                        @*<div class="row">
                                                             <div class="col-md-2 block_subtitle_label pull-left">
                                                                 <p class="sub_title">
                                                                     <span class="block_subtitle_label pull-left">Kode Booking</span>
                                                                 </p>
                                                             </div>
-                                                            <div class="col-md-9">
+                                                            <div class="col-md-8">
                                                                 <div class="resiyes">
                                                                     <p class="sub_title">
-                                                                        @*<span class="block_subtitle_label pull-left">No Resi</span>*@
                                                                         <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" class="pull-left" />
                                                                     </p>
                                                                 </div>
                                                             </div>
+                                                            @if(Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
+                                                            {
+                                                                <div class="col-md-2">
+                                                                    <img src="@labelList.logoToko" alt="" style="width:50px;height:50px;" />
+                                                                </div>
+                                                            }
+                                                        </div>*@
+
+                                                        <div class="row">
+                                                            <div class="col-md-9">
+                                                                <div class="resiyes">
+                                                                    <p class="sub_title">
+                                                                        <span class="block_subtitle_label" style="width:80px">Kode Booking</span><img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" />
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            @if (Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
+                                                            {
+                                                                if (labelList.typeLogo == "2")
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:130px;height:60px;" />
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
+                                                                    </div>
+                                                                }
+                                                            }
                                                         </div>
                                                     }
                                                     else
                                                     {
-                                                        <div class="row">
+                                                        @*<div class="row">
                                                             <div class="col-md-2 block_subtitle_label pull-left">
                                                                 <p class="sub_title">
                                                                     <span class="block_subtitle_label pull-left">No Resi</span>
                                                                 </p>
                                                             </div>
-                                                            <div class="col-md-9">
+                                                            <div class="col-md-8">
                                                                 @if (no_resi != "-")
                                                                 {
                                                                     <div class="resiyes">
                                                                         <p class="sub_title">
-                                                                            @*<span class="block_subtitle_label pull-left">No Resi</span>*@
                                                                             <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" class="pull-left" />
                                                                         </p>
                                                                     </div>
@@ -506,12 +547,53 @@
                                                                 {
                                                                     <div class="resino">
                                                                         <p class="sub_title">
-                                                                            @*<span class="block_subtitle_label">No Resi</span>*@
                                                                             @(labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi)
                                                                         </p>
                                                                     </div>
                                                                 }
                                                             </div>
+                                                            @if (Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
+                                                            {
+                                                                <div class="col-md-2">
+                                                                    <img src="@labelList.logoToko" alt="" style="width:50px;height:50px;" />
+                                                                </div>
+                                                            }
+                                                        </div>*@
+
+                                                        <div class="row">
+                                                            <div class="col-md-9">
+                                                                @if (no_resi != "-")
+                                                                {
+                                                                    <div class="resiyes">
+                                                                        <p class="sub_title">
+                                                                            <span class="block_subtitle_label" style="width:80px">No Resi</span><img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" />
+                                                                        </p>
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="resino">
+                                                                        <p class="sub_title">
+                                                                            <span class="block_subtitle_label" style="width:80px">No Resi</span> @(labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi)
+                                                                        </p>
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                            @if (Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
+                                                            {
+                                                                if (labelList.typeLogo == "2")
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:130px;height:60px;" />
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
+                                                                    </div>
+                                                                }
+                                                            }
                                                         </div>
                                                     }
                                                     <br />
@@ -554,9 +636,10 @@
                                                     <table>
                                                         <tr class="col-md-12" style="width:650px !important;">
                                                             <td class="sub_title col-md-6" style="width:350px !important;">
-                                                                @if (labelList.Marketplace.ToUpper() == "LAZADA" && logoKurir != "-")
+                                                                @*@if (labelList.Marketplace.ToUpper() == "LAZADA" && logoKurir != "-")*@
+                                                                @if (logoKurir != "-" && !string.IsNullOrEmpty(logoKurir))
                                                                 {
-                                                                    <span class="block_subtitle_label">Kurir</span><img src="@logoKurir" alt="" style="width:60px;height:30px;" />
+                                                                    <span class="block_subtitle_label">Kurir</span><img src="@logoKurir" alt="" style="width:80px;height:40px;" />
                                                                 }
                                                                 else
                                                                 {
@@ -569,7 +652,15 @@
                                                                     <div class="market">
                                                                         <div class="sub_title">
                                                                             @*<span class="block_subtitle_label">Marketplace</span>: @(labelList.Marketplace)*@
-                                                                            <h3><strong>@(labelList.Marketplace.ToUpper())</strong></h3>
+                                                                            @*<h3><strong>@(labelList.Marketplace.ToUpper())</strong></h3>*@
+                                                                            @if (labelList.LogoMarket != null && labelList.LogoMarket != "" && labelList.Marketplace.ToUpper() != "OFFLINE")
+                                                                            {
+                                                                                <img src="@labelList.LogoMarket" alt="" style="width:90px;height:40px;" />
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <h3><strong>@(labelList.Marketplace.ToUpper())</strong></h3>
+                                                                            }
                                                                         </div>
                                                                     </div>
                                                                 }
@@ -734,6 +825,7 @@
                                                     <tr>
                                                         <th style="width:20px">No</th>
                                                         <th style="width:200px">Kode Barang</th>
+                                                        <th style="width:100px">Lokasi Rak</th>
                                                         <th style="width:450px">Nama Barang</th>
                                                         <th style="text-align: right; width:150px">Jumlah Barang</th>
                                                     </tr>
@@ -755,11 +847,21 @@
                                                             //end change by nurul 15/9/2020
 
                                                             labelNo = labelNo + 1;
+
+                                                            //add by nurul 5/2/2021
+                                                            var rak = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
+                                                            //end add by nurul 5/2/2021
                                                             <tr>
                                                                 <td>@labelNo</td>
                                                                 <td>
                                                                     @*@fakturDetail.BRG*@
                                                                     @tempBrgBaru
+                                                                </td>
+                                                                <td>
+                                                                    @if (!string.IsNullOrEmpty(rak))
+                                                                    {
+                                                                        @rak
+                                                                    }    
                                                                 </td>
                                                                 <td>
                                                                     @namaBarang1
@@ -818,36 +920,65 @@
                                                 <div class="div_label_pengiriman" style="page-break-after:always;">
                                                     @if (labelList.KdBooking != "" && labelList.KdBooking != " ")
                                                     {
+                                                        @*<div class="row">
+                <div class="col-md-2 block_subtitle_label pull-left">
+                    <p class="sub_title">
+                        <span class="block_subtitle_label pull-left">Kode Booking</span>
+                    </p>
+                </div>
+                <div class="col-md-8">
+                    <div class="resiyes">
+                        <p class="sub_title">
+                            <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" class="pull-left" />
+                        </p>
+                    </div>
+                </div>
+                @if(Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
+                {
+                    <div class="col-md-2">
+                        <img src="@labelList.logoToko" alt="" style="width:50px;height:50px;" />
+                    </div>
+                }
+            </div>*@
+
                                                         <div class="row">
-                                                            <div class="col-md-2 block_subtitle_label pull-left">
-                                                                <p class="sub_title">
-                                                                    <span class="block_subtitle_label pull-left">Kode Booking</span>
-                                                                </p>
-                                                            </div>
                                                             <div class="col-md-9">
                                                                 <div class="resiyes">
                                                                     <p class="sub_title">
-                                                                        @*<span class="block_subtitle_label pull-left">No Resi</span>*@
-                                                                        <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" class="pull-left" />
+                                                                        <span class="block_subtitle_label" style="width:80px">Kode Booking</span><img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" />
                                                                     </p>
                                                                 </div>
                                                             </div>
+                                                            @if (Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
+                                                            {
+                                                                if (labelList.typeLogo == "2")
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:130px;height:60px;" />
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
+                                                                    </div>
+                                                                }
+                                                            }
                                                         </div>
                                                     }
                                                     else
                                                     {
-                                                        <div class="row">
+                                                        @*<div class="row">
                                                             <div class="col-md-2 block_subtitle_label pull-left">
                                                                 <p class="sub_title">
                                                                     <span class="block_subtitle_label pull-left">No Resi</span>
                                                                 </p>
                                                             </div>
-                                                            <div class="col-md-9">
+                                                            <div class="col-md-8">
                                                                 @if (no_resi != "-")
                                                                 {
                                                                     <div class="resiyes">
                                                                         <p class="sub_title">
-                                                                            @*<span class="block_subtitle_label pull-left">No Resi</span>*@
                                                                             <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" class="pull-left" />
                                                                         </p>
                                                                     </div>
@@ -856,12 +987,53 @@
                                                                 {
                                                                     <div class="resino">
                                                                         <p class="sub_title">
-                                                                            @*<span class="block_subtitle_label">No Resi</span>*@
                                                                             @(labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi)
                                                                         </p>
                                                                     </div>
                                                                 }
                                                             </div>
+                                                            @if (Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
+                                                            {
+                                                                <div class="col-md-2">
+                                                                    <img src="@labelList.logoToko" alt="" style="width:50px;height:50px;" />
+                                                                </div>
+                                                            }
+                                                        </div>*@
+
+                                                        <div class="row">
+                                                            <div class="col-md-9">
+                                                                @if (no_resi != "-")
+                                                                {
+                                                                    <div class="resiyes">
+                                                                        <p class="sub_title">
+                                                                            <span class="block_subtitle_label" style="width:80px">No Resi</span><img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" />
+                                                                        </p>
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="resino">
+                                                                        <p class="sub_title">
+                                                                            <span class="block_subtitle_label" style="width:80px">No Resi</span> @(labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi)
+                                                                        </p>
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                            @if (Model.urlLogo != null && Model?.urlLogo == "1" && !string.IsNullOrEmpty(labelList.logoToko))
+                                                            {
+                                                                if (labelList.typeLogo == "2")
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:130px;height:60px;" />
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="col-md-3">
+                                                                        <img src="@labelList.logoToko" alt="" style="width:100px;height:100px;" />
+                                                                    </div>
+                                                                }
+                                                            }
                                                         </div>
                                                     }
                                                     <br />
@@ -904,9 +1076,10 @@
                                                     <table>
                                                         <tr class="col-md-12" style="width:650px !important;">
                                                             <td class="sub_title col-md-6" style="width:350px !important;">
-                                                                @if (labelList.Marketplace.ToUpper() == "LAZADA" && logoKurir != "-")
+                                                                @*@if (labelList.Marketplace.ToUpper() == "LAZADA" && logoKurir != "-")*@
+                                                                @if (logoKurir != "-" && !string.IsNullOrEmpty(logoKurir))
                                                                 {
-                                                                    <span class="block_subtitle_label">Kurir</span><img src="@logoKurir" alt="" style="width:60px;height:30px;" />
+                                                                    <span class="block_subtitle_label">Kurir</span><img src="@logoKurir" alt="" style="width:80px;height:40px;" />
                                                                 }
                                                                 else
                                                                 {
@@ -918,7 +1091,15 @@
                                                                 {
                                                                     <div class="market">
                                                                         <div class="sub_title">
-                                                                            <h3><strong>@(labelList.Marketplace.ToUpper())</strong></h3>
+                                                                            @*<h3><strong>@(labelList.Marketplace.ToUpper())</strong></h3>*@
+                                                                            @if (labelList.LogoMarket != null && labelList.LogoMarket != "" && labelList.Marketplace.ToUpper() != "OFFLINE")
+                                                                            {
+                                                                                <img src="@labelList.LogoMarket" alt="" style="width:90px;height:40px;" />
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <h3><strong>@(labelList.Marketplace.ToUpper())</strong></h3>
+                                                                            }
                                                                         </div>
                                                                     </div>
                                                                 }
@@ -1010,60 +1191,70 @@
                                                         <tr>
                                                             <th style="width:20px">No</th>
                                                             <th style="width:200px">Kode Barang</th>
+                                                            <th style="width:100px">Lokasi Rak</th>
                                                             <th style="width:450px">Nama Barang</th>
                                                             <th style="text-align: right; width:150px">Jumlah Barang</th>
                                                         </tr>
                                                         <tbody class="barang-faktur">
                                                             @foreach (var fakturDetail in labelList.ListFakturDetail)
                                                             {
-                                                            //change by nurul 15/9/2020
-                                                            //var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
-                                                            //var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
-                                                            //var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
-                                                            //var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
+                                                                //change by nurul 15/9/2020
+                                                                //var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
+                                                                //var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
+                                                                //var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
+                                                                //var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
 
-                                                            var tempBrgBaru = fakturDetail.BRG_MULTISKU != null && fakturDetail.BRG_MULTISKU != "" ? fakturDetail.BRG_MULTISKU : fakturDetail.BRG;
-                                                            var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
-                                                            var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
-                                                            var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
-                                                            var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
-                                                            //end change by nurul 15/9/2020
+                                                                var tempBrgBaru = fakturDetail.BRG_MULTISKU != null && fakturDetail.BRG_MULTISKU != "" ? fakturDetail.BRG_MULTISKU : fakturDetail.BRG;
+                                                                var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA;
+                                                                var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.NAMA2;
+                                                                var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.STN2;
+                                                                var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG && b.brg_multisku == fakturDetail.BRG_MULTISKU)?.KetDetail);
+                                                                //end change by nurul 15/9/2020
 
-                                                            labelNo = labelNo + 1;
-                                                            <tr>
-                                                                <td>@labelNo</td>
-                                                                <td>
-                                                                    @*@fakturDetail.BRG*@
-                                                                    @tempBrgBaru
-                                                                </td>
-                                                                <td>
-                                                                    @namaBarang1
-                                                                    @if (!String.IsNullOrWhiteSpace(namaBarang2))
+                                                                labelNo = labelNo + 1;
+                                                                //add by nurul 5/2/2021
+                                                                var rak = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == tempBrgBaru)?.LKS;
+                                                                //end add by nurul 5/2/2021
+                                                                <tr>
+                                                                    <td>@labelNo</td>
+                                                                    <td>
+                                                                        @*@fakturDetail.BRG*@
+                                                                        @tempBrgBaru
+                                                                    </td>
+                                                                    <td>
+                                                                    @if (!string.IsNullOrEmpty(rak))
                                                                     {
-                                                                    @namaBarang2
-                                                                    }
-                                                                </td>
-                                                                <td style="text-align: right;">
-                                                                    @fakturDetail.QTY @satuan
-                                                                </td>
-                                                            </tr>
+                                                                        @rak
+                                                                    }    
+                                                                    </td>
+                                                                    <td>
+                                                                        @namaBarang1
+                                                                        @if (!String.IsNullOrWhiteSpace(namaBarang2))
+                                                                        {
+                                                                            @namaBarang2
+                                                                        }
+                                                                    </td>
+                                                                    <td style="text-align: right;">
+                                                                        @fakturDetail.QTY @satuan
+                                                                    </td>
+                                                                </tr>
 
-                                                            if (labelList.Marketplace.ToUpper() == "TOKOPEDIA" && ketTokped != "-")
-                                                            {
-                                                            if (Model.urlKet != null && Model?.urlKet == "1")
-                                                            {
-                                                            <tr style="border-top:hidden;">
-                                                                <td colspan="4">
-                                                                    <table>
-                                                                        <tr>
-                                                                            <th width="60px">Catatan</th>
-                                                                            <td>@ketTokped</td>
+                                                                if (labelList.Marketplace.ToUpper() == "TOKOPEDIA" && ketTokped != "-")
+                                                                {
+                                                                    if (Model.urlKet != null && Model?.urlKet == "1")
+                                                                    {
+                                                                        <tr style="border-top:hidden;">
+                                                                            <td colspan="4">
+                                                                                <table>
+                                                                                    <tr>
+                                                                                        <th width="60px">Catatan</th>
+                                                                                        <td>@ketTokped</td>
+                                                                                    </tr>
+                                                                                </table>
+                                                                            </td>
                                                                         </tr>
-                                                                    </table>
-                                                                </td>
-                                                            </tr>
-                                                            }
-                                                            }
+                                                                    }
+                                                                }
                                                             }
                                                         </tbody>
                                                     </table>

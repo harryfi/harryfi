@@ -97,6 +97,10 @@
 
 @*//add by nurul 14/5/2019*@
 <script type="text/javascript">
+    @{
+        var flagBundling = Model?.Pesanan?.Status_Approve;
+    }
+    var flagBundling = @Html.Raw(Json.Encode(flagBundling));
 
     $(document).ready(function () {
         Initialize();
@@ -232,6 +236,32 @@
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-6"></div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.Status_Approve, "Bundling", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+                @Html.HiddenFor(m => m.Pesanan.Status_Approve, new { data_cbx = $"cbx-Bundling", @class = "cbxBundling" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @if ((Model.Pesanan == null ? "" : Model.Pesanan.Status_Approve) == "1")
+                    {
+                        //memiliki bundling
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="cbxPesananBundling" class="cbxBundling" name="@($"cbx-Pesanan-Bundling")" checked disabled="disabled" />
+                            <span class="checkmark cm-bundling" style="cursor:not-allowed;"></span>
+                        </label>
+                    }
+                    else
+                    {
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="cbxPesananBundling" class="cbxBundling" name="@($"cbx-Pesanan-Bundling")" disabled="disabled" />
+                            <span class="checkmark cm-bundling" style="cursor:not-allowed;"></span>
+                        </label>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
     <hr />
     <div class="row">
         <div class="col-lg-4"></div>
@@ -338,9 +368,95 @@
 <div class="row" style="margin-top: 15px;">
     <div class="col-lg-12">
         <div class="hscroll table-responsive">
+            @*//add by nurul 20/10/2020*@
+            <table id="table_tambah_bundling" class="table table-bordered" role="grid">
+                <thead>
+                    <tr style="background-color:#c7f1f5 !important;">
+                        <th width="200">Kode Brg Bundling</th>
+                        <th width="200">Nama Brg Bundling</th>
+                        <th width="30">Qty Bundling</th>
+                        <th width="60">Harga Bundling</th>
+                        @*<th width="35">Simpan</th>
+                        <th width="35">Hapus</th>*@
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var listBarangBundling = Model.ListBarang.ToList();
+                    }
+                    @foreach (var bundling in Model.ListPesananBundling.Where(pb => pb.NO_BUKTI == Model?.Pesanan?.NO_BUKTI).ToList())
+                    {
+                        string detail_komp = "";
+                        var cekListKomp = Model.listKomponen.Where(a => a.bundling == bundling.BRG).SingleOrDefault();
+                        if (cekListKomp != null)
+                        {
+                            detail_komp = cekListKomp.komponen.ToString();
+                        }
+                        <tr data-bundling-id="bundling-@bundling.RECNUM">
+                            @{
+                                var barang = listBarangBundling.SingleOrDefault(b => b.BRG.ToUpper() == bundling.BRG.ToUpper());
+                                var namaBarang = barang == null ? "" : (barang.NAMA + " " + barang.NAMA2);
+                            }
+                            <td class="brg-bundling">
+                                @*@bundling.BRG*@
+                                <div data-tip="@detail_komp">
+                                    @bundling.BRG
+                                </div>
+                            </td>
+                            <td class="nama-bundling">@namaBarang</td>
+                            <td class="qty-bundling">@bundling.QTY</td>
+                            <td class="harga-bundling" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", bundling.HARGA)
+                            </td>
+                            @*<td class="edit-hapus-col">
+                                <button type="button" class="btn btn-primary btn-save-bundling" disabled="disabled">
+                                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button class="btn btn-danger btn-delete-bundling" type="button" data-toggle="modal" data-target="#konfHapusBundling" onclick="passBundling('@bundling.RECNUM')">
+                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                </button>
+                            </td>*@
+                        </tr>
+                    }
+                    @*<tr data-bundling-id="0">
+                        @Html.HiddenFor(m => m.PesananBundling.RECNUM)
+                        @Html.HiddenFor(m => m.PesananBundling.TGL_EDIT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                        @Html.HiddenFor(m => m.PesananBundling.USERNAME, new { Value = username })
+                        <td class="brg-bundling" style="width: 120px; max-width: 120px;">
+                            <span id="harga-satuan-bundling" style="display: none;"></span>
+                            <div id="bundling-select" style="display: none;">
+                                <select id="BRG_BUNDLING" placeholder="Pilih Barang" class="barang_bundling"></select>
+                            </div>
+                            @Html.HiddenFor(m => m.PesananBundling.BRG)
+                        </td>
+                        <td class="nama-bundling" style="width: 200px; max-width: 200px;">-</td>
+                        <td class="qty-bundling">
+                            0
+                            @Html.HiddenFor(m => m.PesananBundling.QTY)
+                        </td>
+                        <td class="harga-bundling" style="text-align:right">
+                            0,00
+                            @Html.HiddenFor(m => m.PesananBundling.HARGA)
+                        </td>
+                        @*<td class="edit-hapus-col">
+                            <button type="button" class="btn btn-primary btn-save-bundling" disabled="disabled" onclick="simpanBundling('bundling-0')">
+                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button class="btn btn-danger btn-delete-bundling" disabled="disabled">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>*@
+                </tbody>
+            </table>
+            @*//end add by nurul 20/10/2020*@
             <table id="table_tambah_pesanan_selesai" class="table table-bordered" role="grid">
                 <thead>
-                    <tr>
+                    <tr style="background-color:#c7f1f5 !important;">
                         <th width="100">Kode Brg</th>
                         <th width="150">Nama Brg</th>
                         @*//ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
@@ -363,69 +479,69 @@
                     }
                     @foreach (var pesanan in Model.ListPesananDetail.Where(pb => pb.NO_BUKTI == Model?.Pesanan?.NO_BUKTI).ToList())
                     {
-                    <tr data-barang-selesai-id="brg-@pesanan.NO_URUT">
-                        @{
-                            var barang = listBarang.SingleOrDefault(b => b.BRG.ToUpper() == pesanan.BRG.ToUpper());
-                            var stnBarang = barang == null ? "" : barang.STN2;
+                        <tr data-barang-selesai-id="brg-@pesanan.NO_URUT">
+                            @{
+                                var barang = listBarang.SingleOrDefault(b => b.BRG.ToUpper() == pesanan.BRG.ToUpper());
+                                var stnBarang = barang == null ? "" : barang.STN2;
 
-                            var catatan_split = pesanan.CATATAN.Split(new string[] { "_;_" }, StringSplitOptions.None);
-                            var namaDiCatatan = "";
-                            if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
-                            {
-                                namaDiCatatan = catatan_split[1];
-                            }
-                            var namaBarang = barang == null ? namaDiCatatan : (barang.NAMA + " " + barang.NAMA2);
-                        }
-                        <td>
-                            <table>
-                                <tr>
-                                    <td>@pesanan.BRG</td>
-                                </tr>
-                                @if (barang == null)
+                                var catatan_split = pesanan.CATATAN.Split(new string[] { "_;_" }, StringSplitOptions.None);
+                                var namaDiCatatan = "";
+                                if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
                                 {
-                                    <tr>
-                                        <td>
-                                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#modalFixNotFound" onclick="fixDataBarangNotFound(@pesanan.NO_URUT);">
-                                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                                            </button>
-                                        </td>
-                                    </tr>
+                                    namaDiCatatan = catatan_split[1];
                                 }
-                            </table>
-                        </td>
-                        <td class="nama-barang">
-                            @namaBarang
-                        </td>
-                        @*//ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
-                        <td class="barang-multisku">
-                            @pesanan.BRG_MULTISKU
-                        </td>
-                        @*//end ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
-                        <td class="stn-barang">
-                            @stnBarang
-                        </td>
-                        <td class="harga-barang" style="text-align:right">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.H_SATUAN)
-                        </td>
-                        <td class="qty-barang">
-                            @pesanan.QTY
-                        </td>
-                        <td class="disc1-barang">
-                            @pesanan.DISCOUNT
-                        </td>
-                        <td class="ndisc1-barang" style="text-align:right">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_1)
-                        </td>
-                        <td class="disc2-barang">
-                            @pesanan.DISCOUNT_2
-                        </td>
-                        <td class="ndisc2-barang" style="text-align:right">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_2)
-                        </td>
-                        <td class="netto-barang" style="text-align:right">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.HARGA)
-                        </td>
-                    </tr>
+                                var namaBarang = barang == null ? namaDiCatatan : (barang.NAMA + " " + barang.NAMA2);
+                            }
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td>@pesanan.BRG</td>
+                                    </tr>
+                                    @if (barang == null)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#modalFixNotFound" onclick="fixDataBarangNotFound(@pesanan.NO_URUT, '@pesanan.NO_BUKTI');">
+                                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </table>
+                            </td>
+                            <td class="nama-barang">
+                                @namaBarang
+                            </td>
+                            @*//ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
+                            <td class="barang-multisku">
+                                @pesanan.BRG_MULTISKU
+                            </td>
+                            @*//end ADD BY NURUL 9/9/2020, KODE BRG MULTI SKU*@
+                            <td class="stn-barang">
+                                @stnBarang
+                            </td>
+                            <td class="harga-barang" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.H_SATUAN)
+                            </td>
+                            <td class="qty-barang">
+                                @pesanan.QTY
+                            </td>
+                            <td class="disc1-barang">
+                                @pesanan.DISCOUNT
+                            </td>
+                            <td class="ndisc1-barang" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_1)
+                            </td>
+                            <td class="disc2-barang">
+                                @pesanan.DISCOUNT_2
+                            </td>
+                            <td class="ndisc2-barang" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_2)
+                            </td>
+                            <td class="netto-barang" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.HARGA)
+                            </td>
+                        </tr>
                         iPd = iPd + 1;
                     }
                 </tbody>

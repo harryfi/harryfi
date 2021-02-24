@@ -105,7 +105,30 @@ namespace MasterOnline.Controllers
             var dateTo = DateTimeOffset.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
             //while (daysFrom > -13)
             //{
-            await Shopify_GetOrderByStatusUnpaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+            //change by nurul 20/1/2021, bundling 
+            //await Shopify_GetOrderByStatusUnpaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+            var returnGetOrder = await Shopify_GetOrderByStatusUnpaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, 0, dateFrom, dateTo);
+            var connIdProses = "";
+            var AdaKomponen = false;
+            //if (returnGetOrder != "")
+            //{
+            //    connIdProses += "'" + returnGetOrder + "' , ";
+            //}
+            //List<string> listBrgKomponen = new List<string>();
+            //if (connIdProses != "")
+            //{
+            //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            //}
+            //if (listBrgKomponen.Count() > 0)
+            if (returnGetOrder == "1")
+            {
+                AdaKomponen = true;
+            }
+            if(AdaKomponen)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //end change by nurul 20/1/2021, bundling
             //    daysFrom -= 3;
             //    daysTo -= 3;
             //}
@@ -134,6 +157,9 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
+            //add by nurul 20/1/2021, bundling 
+            //ret = connID;
+            //add by nurul 20/1/2021, bundling 
             SetupContext(iden);
 
             //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
@@ -399,6 +425,14 @@ namespace MasterOnline.Controllers
                                 {
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Shopify.");
+
+                                    //add by nurul 25/1/2021, bundling
+                                    var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
+                                    if (listBrgKomponen.Count() > 0)
+                                    {
+                                        ret = "1";
+                                    }
+                                    //end add by nurul 25/1/2021, bundling
                                     new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                                 }
                             }
@@ -427,7 +461,32 @@ namespace MasterOnline.Controllers
             var dateTo = DateTimeOffset.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
             //while (daysFrom > -13)
             //{
-            await Shopify_GetOrderByStatusPaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+            
+            //change by nurul 20/1/2021, bundling 
+            //await Shopify_GetOrderByStatusPaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+            var returnGetOrder = await Shopify_GetOrderByStatusPaid_List3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+            var connIdProses = "";
+            var AdaKomponen = false;
+            //if (returnGetOrder != "")
+            //{
+            //    connIdProses += "'" + returnGetOrder + "' , ";
+            //}
+            //List<string> listBrgKomponen = new List<string>();
+            //if (connIdProses != "")
+            //{
+            //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            //}
+            //if (listBrgKomponen.Count() > 0)
+            if (returnGetOrder == "1")
+            {
+                AdaKomponen = true;
+            }
+            if (AdaKomponen)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //end change by nurul 20/1/2021, bundling
+
             //    daysFrom -= 3;
             //    daysTo -= 3;
             //}
@@ -447,7 +506,7 @@ namespace MasterOnline.Controllers
             //}
             //var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%Shopify_GetOrderByStatusUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%Shopify_GetOrderByStatusPaid%' and invocationdata not like '%Shopify_GetOrderByStatusCompleted%' and invocationdata not like '%Shopify_GetOrderByStatusCancel%' ");
             // end tunning untuk tidak duplicate
-
+            
             return ret;
         }
 
@@ -455,6 +514,9 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
+            //add by nurul 20/1/2021, bundling 
+            //ret = connID;
+            //add by nurul 20/1/2021, bundling 
 
             SetupContext(iden);
 
@@ -692,6 +754,14 @@ namespace MasterOnline.Controllers
                                             {
                                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                                                 contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhOrderNew) + " Pesanan baru sudah dibayar dari Shopify.");
+
+                                                //add by nurul 25/1/2021, bundling
+                                                var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
+                                                if (listBrgKomponen.Count() > 0)
+                                                {
+                                                    ret = "1";
+                                                }
+                                                //end add by nurul 25/1/2021, bundling
                                                 new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                                             }
                                         }
@@ -847,7 +917,32 @@ namespace MasterOnline.Controllers
             var dateTo = DateTimeOffset.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
             //while (daysFrom > -13)
             //{
-            await Shopify_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+
+            //change by nurul 20/1/2021, bundling 
+            //await Shopify_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+            var returnGetOrder = await Shopify_GetOrderByStatusCancelledList3Days(iden, stat, CUST, NAMA_CUST, 1, 0, dateFrom, dateTo);
+            var connIdProses = "";
+            var AdaKomponen = false;
+            //if (returnGetOrder != "")
+            //{
+            //    connIdProses += "'" + returnGetOrder + "' , ";
+            //}
+            //List<string> listBrgKomponen = new List<string>();
+            //if (connIdProses != "")
+            //{
+            //    listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in (" + connIdProses.Substring(0, connIdProses.Length - 3) + ")").ToList();
+            //}
+            //if (listBrgKomponen.Count() > 0)
+            if (returnGetOrder == "1")
+            {
+                AdaKomponen = true;
+            }
+            if (AdaKomponen)
+            {
+                new StokControllerJob().getQtyBundling(iden.DatabasePathErasoft, iden.username);
+            }
+            //end change by nurul 20/1/2021, bundling
+
             //    daysFrom -= 3;
             //    daysTo -= 3;
             //}
@@ -865,6 +960,10 @@ namespace MasterOnline.Controllers
             string ret = "";
 
             string connID = Guid.NewGuid().ToString();
+            //add by nurul 20/1/2021, bundling 
+            //ret = connID;
+            //add by nurul 20/1/2021, bundling 
+
             SetupContext(iden);
 
             //var dateFrom = DateTimeOffset.UtcNow.AddDays(daysFrom).AddHours(7).ToString("yyyy-MM-dd") + " 00:00:00";
@@ -961,6 +1060,13 @@ namespace MasterOnline.Controllers
 
                                     var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND CUST = '" + CUST + "'");
 
+                                    //add by nurul 25/1/2021, bundling
+                                    var listBrgKomponen = ErasoftDbContext.Database.SqlQuery<string>("select distinct a.brg from TEMP_ALL_MP_ORDER_ITEM a(nolock) inner join stf03 b(nolock) on a.brg=b.brg where a.CONN_ID in ('" + connID + "')").ToList();
+                                    if (listBrgKomponen.Count() > 0)
+                                    {
+                                        ret = "1";
+                                    }
+                                    //end add by nurul 25/1/2021, bundling
                                     new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                                 }
                                 jmlhOrderCancel = jmlhOrderCancel + rowAffected;
@@ -1711,11 +1817,22 @@ namespace MasterOnline.Controllers
                     body.variants.Add(variants);
                 }
 
-                optionvarlv1.values = varlv1;
-                optionvarlv2.values = varlv2;
+                //optionvarlv1.values = varlv1;
+                //optionvarlv2.values = varlv2;
 
-                body.options.Add(optionvarlv1);
-                body.options.Add(optionvarlv2);
+                //body.options.Add(optionvarlv1);
+                //body.options.Add(optionvarlv2);
+
+                if (varlv1.Count() > 0)
+                {
+                    optionvarlv1.values = varlv1;
+                    body.options.Add(optionvarlv1);
+                }
+                if (varlv2.Count() > 0)
+                {
+                    optionvarlv2.values = varlv2;
+                    body.options.Add(optionvarlv2);
+                }
 
             }
             else
@@ -1804,23 +1921,38 @@ namespace MasterOnline.Controllers
 
             string responseFromServer = "";
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
-            myReq.Method = "POST";
-            myReq.Headers.Add("X-Shopify-Access-Token", (iden.API_password));
-            myReq.Accept = "application/json";
-            myReq.ContentType = "application/json";
-            myReq.ContentLength = myData.Length;
-            using (var dataStream = myReq.GetRequestStream())
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(vformatUrl);
+            //myReq.Method = "POST";
+            //myReq.Headers.Add("X-Shopify-Access-Token", (iden.API_password));
+            //myReq.Accept = "application/json";
+            //myReq.ContentType = "application/json";
+            //myReq.ContentLength = myData.Length;
+            //using (var dataStream = myReq.GetRequestStream())
+            //{
+            //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            //}
+            //using (WebResponse response = myReq.GetResponse())
+            //{
+            //    using (Stream stream = response.GetResponseStream())
+            //    {
+            //        StreamReader reader = new StreamReader(stream);
+            //        responseFromServer = reader.ReadToEnd();
+            //    }
+            //}
+
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("X-Shopify-Access-Token", (iden.API_password));
+            var content = new StringContent(myData, Encoding.UTF8, "application/json");
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+            using (HttpResponseMessage clientResponse = await client.PostAsync(vformatUrl, content))
             {
-                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-            }
-            using (WebResponse response = myReq.GetResponse())
-            {
-                using (Stream stream = response.GetResponseStream())
+                using (HttpContent responseContent = clientResponse.Content)
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
-                }
+                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                    {
+                        responseFromServer = await reader.ReadToEndAsync();
+                    }
+                };
             }
 
             if (responseFromServer != null)

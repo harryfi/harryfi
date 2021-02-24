@@ -2436,10 +2436,10 @@ namespace MasterOnline.Controllers
 
                                     foreach (var item in listBrg.content)
                                     {
-                                        if(item.gdnSku.Contains("PAP-60067-00218") || item.gdnSku.Contains("PAP-60067-00223"))
-                                        {
+                                        //if(item.gdnSku.Contains("PAP-60067-00218") || item.gdnSku.Contains("PAP-60067-00223"))
+                                        //{
 
-                                        }
+                                        //}
                                         ret.totalData += 1;
                                         //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
                                         //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
@@ -2723,6 +2723,13 @@ namespace MasterOnline.Controllers
                             else if (brgIndukinDB != null)
                             {
                                 kdBrgInduk = brgIndukinDB.BRG;
+                            }
+                            else if (tempBrgIndukinDB != null)
+                            {
+                                if(display == 0 && tempBrgIndukinDB.DISPLAY)
+                                {
+                                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET DISPLAY = 0 WHERE BRG_MP = '" + tempBrgIndukinDB.BRG_MP + "' AND CUST = '" + cust+"'");
+                                }
                             }
                         }
                         //end add, check ada varian

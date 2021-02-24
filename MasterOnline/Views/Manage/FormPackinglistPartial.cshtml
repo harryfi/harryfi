@@ -41,6 +41,7 @@
         RefreshPackingPesananJDID1();
         RefreshPackingPesanan82cart1();
         RefreshPackingPesananShopify1();
+        RefreshPackingPesananBukalapak1();
     }
 
     function RefreshPackingPesananTokped1() {
@@ -352,7 +353,26 @@
             }
         });
     }
-    
+    function RefreshPackingPesananBukalapak1() {
+        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "8", bukti = "replaceBuktiPacking" }))';
+        $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                //$('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                $('#packing_pesanan_bukalapak_content').html(response);
+                //$('#loading_barang_tab').hide();
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
 </script>
 <div class="form-horizontal" id="header-packing">
     <div class="row">
@@ -455,6 +475,7 @@
                 var totalJDID = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("JD.ID")).Count();
                 var total82cart = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("82Cart")).Count();
                 var totalShopify = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Shopify")).Count();
+                var totalBukalapak = Model.listDetailPacking.Where(a => a.MARKETPLACE.Contains("Bukalapak")).Count();
 
 
                 <li><a data-toggle="tab" id="rekap_barang_tab_focus" href="#rekap_barang_tab" aria-expanded="false">Rekap Barang(<span>@totalRekap</span>)</a></li>
@@ -465,6 +486,7 @@
                 <li id="li_pesanan_jdid_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_jdid_tab_focus" href="#packing_pesanan_jdid" aria-expanded="false">JD.ID(<span>@totalJDID</span>)</a></li>
                 <li id="li_pesanan_82cart_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_82cart_tab_focus" href="#packing_pesanan_82cart" aria-expanded="false">82Cart(<span>@total82cart</span>)</a></li>
                 <li id="li_pesanan_shopify_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopify_tab_focus" href="#packing_pesanan_shopify" aria-expanded="false">Shopify(<span>@totalShopify</span>)</a></li>
+                <li id="li_pesanan_bukalapak_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_bukalapak_tab_focus" href="#packing_pesanan_bukalapak" aria-expanded="false">Bukalapak(<span>@totalBukalapak</span>)</a></li>
             }
             else
             {
@@ -680,17 +702,20 @@
                                         <th width="250">Nama Barang</th>
                                         <th width="70">Lokasi Rak</th>
                                         <th width="50">QTY</th>
+                                        <th width="150">No. Referensi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var rekapPackinglist in Model?.listRekapBarang?.ToList())
                                     {
+                                        string noref = rekapPackinglist.NO_REFERENSI;
                                     <tr>
                                         <td>@rekapPackinglist.BRG</td>
                                         <td>@rekapPackinglist.BARCODE</td>
                                         <td>@rekapPackinglist.NAMA_BARANG</td>
                                         <td>@rekapPackinglist.RAK</td>
                                         <td>@rekapPackinglist.QTY</td>
+                                        <td style="white-space: pre-line;">@noref</td>
                                     </tr>
                                     }
                                 </tbody>
@@ -731,6 +756,11 @@
             </div>
             <div id="packing_pesanan_shopify" class="tab-pane fade in">
                 <div class="col-lg-12" id="packing_pesanan_shopify_content">
+
+                </div>
+            </div>
+            <div id="packing_pesanan_bukalapak" class="tab-pane fade in">
+                <div class="col-lg-12" id="packing_pesanan_bukalapak_content">
 
                 </div>
             </div>

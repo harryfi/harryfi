@@ -51,6 +51,7 @@ namespace MasterOnline.ViewModels
         public string urlFaktur { get; set; }
         public string urlLabel { get; set; }
         public string urlKet { get; set; }
+        public string urlLogo { get; set; }
         //end add by nurul 11/12/2019, for cetak label mo
 
         //add by nurul 3/6/2020
@@ -63,6 +64,19 @@ namespace MasterOnline.ViewModels
         public List<STF18> listGudang { get; set; }
         public List<brgForReturPrompt> listBarangRetur { get; set; } = new List<brgForReturPrompt>();
         //end add by nurul 8/6/2020
+
+        //add by nurul 20/10/2020
+        public SIT01H FakturBundling { get; set; }
+        public List<SIT01H> ListFakturBundling { get; set; } = new List<SIT01H>();
+        public List<listKomponenBundling> listKomponen { get; set; } = new List<listKomponenBundling>();
+        //end add by nurul 20/10/2020
+
+        //add by nurul 24/3/2020
+        public FakturDetail_NotFound FakturDetail_NotFound { get; set; }
+        public List<listBarang_NotFound> ListBarang_NotFound { get; set; } = new List<listBarang_NotFound>();
+        public List<listBarangMarket_NotFound> ListBarangMarket_NotFound { get; set; } = new List<listBarangMarket_NotFound>();
+        public bool notfoundBundling { get; set; }
+        //end add by nurul 24/3/2020
     }
 
     public class CetakLabelViewModel
@@ -80,7 +94,10 @@ namespace MasterOnline.ViewModels
         public string alamatPenerima { get; set; }
         public SIT01A Faktur { get; set; }
         public List<ARF01C> ListPembeli { get; set; } = new List<ARF01C>();
-        public List<SIT01B> ListFakturDetail { get; set; } = new List<SIT01B>();
+        //change by nurul 13/1/2021, barang bundling
+        //public List<SIT01B> ListFakturDetail { get; set; } = new List<SIT01B>();
+        public List<tempDetailFaktur> ListFakturDetail { get; set; } = new List<tempDetailFaktur>();
+        //end change by nurul 13/1/2021, barang bundling
         public List<STF02> ListBarang { get; set; } = new List<STF02>();
         
         public string linktotal { get; set; }
@@ -103,6 +120,11 @@ namespace MasterOnline.ViewModels
         public string Ket { get; set; }
         public List<tempKetTokped> listKetTokped = new List<tempKetTokped>();
         //end add by nurul 15/5/2020
+
+        //add by nurul 5/2/2021
+        public string logoToko { get; set; }
+        public string typeLogo { get; set; }
+        //end add by nurul 5/2/2021
     }
 
     public class tempKetTokped
@@ -131,4 +153,25 @@ namespace MasterOnline.ViewModels
         public string gudang { get; set; }
     }
     //end add by nurul 8/6/2020
+
+    //add by nurul 13/1/2021, barang bundling
+    public class tempDetailFaktur
+    {
+        public string BRG { get; set; }
+        public double? QTY { get; set; }
+        public double? H_SATUAN { get; set; }
+        public double? NILAI_DISC { get; set; }
+        public double? HARGA { get; set; }
+        public string BRG_MULTISKU { get; set; }
+    }
+    //end add by nurul 13/1/2021, barang bundling
+
+    //add by nurul 24/3/2020
+    public class FakturDetail_NotFound
+    {
+        public string NO_BUKTI { get; set; }
+        public string CATATAN { get; set; }
+        public int? NO_URUT { get; set; }
+    }
+    //end add by nurul 24/3/2020
 }

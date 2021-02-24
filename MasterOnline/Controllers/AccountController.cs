@@ -838,15 +838,56 @@ namespace MasterOnline.Controllers
                 {
                     if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
                     {
-                        string connId_JobId = dbPathEra + "_bukalapak_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        var iden = new BukaLapakKey
+                        {
+                            code = tblCustomer.API_KEY,
+                            cust = tblCustomer.CUST,
+                            dbPathEra = dbPathEra,
+                            refresh_token = tblCustomer.REFRESH_TOKEN,
+                            tgl_expired = tblCustomer.TGL_EXPIRED.Value,
+                            token = tblCustomer.TOKEN
+                        };
+
+                        iden = new BukaLapakControllerJob().RefreshToken(iden);
+                        string connId_JobId = dbPathEra + "_bukalapak_pesanan_new_" + Convert.ToString(tblCustomer.RecNum.Value);
                         //add by fauzi 25 November 2019
                         if (tblCustomer.TIDAK_HIT_UANG_R == true)
                         {
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+
+#if (DEBUG || Debug_AWS)
+                            await new BukaLapakControllerJob().GetOrdersNew(iden, tblCustomer.CUST, tblCustomer.PERSO, username, -1);
+                            await new BukaLapakControllerJob().GetOrdersCompleted(iden, tblCustomer.CUST, tblCustomer.PERSO, username);
+                            await new BukaLapakControllerJob().GetOrdersCanceled(iden, tblCustomer.CUST, tblCustomer.PERSO, username);
+
+                            //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
                             //new BukaLapakControllerJob().cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username);
+#else
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.GetOrdersNew(iden ,tblCustomer.CUST, tblCustomer.PERSO, username, -1)), Cron.MinuteInterval(5), recurJobOpt);
+                            
+                            connId_JobId = dbPathEra + "_bukalapak_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.GetOrdersCompleted(iden, tblCustomer.CUST, tblCustomer.PERSO, username)), Cron.HourInterval(6), recurJobOpt);
+
+                            connId_JobId = dbPathEra + "_bukalapak_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.GetOrdersCanceled(iden, tblCustomer.CUST, tblCustomer.PERSO, username)), Cron.MinuteInterval(5), recurJobOpt);
+                            
+                            if (!string.IsNullOrEmpty(sync_pesanan_stok))
+                            {
+                                if (sync_pesanan_stok == tblCustomer.CUST)
+                                {
+                                    client.Enqueue<BukaLapakControllerJob>(x => x.GetOrdersNew(iden, tblCustomer.CUST, tblCustomer.PERSO, username, -3));
+                                }
+                            }
+#endif
                         }
                         else
                         {
+                            connId_JobId = dbPathEra + "_bukalapak_pesanan_new_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.RemoveIfExists(connId_JobId);
+
+                            connId_JobId = dbPathEra + "_bukalapak_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.RemoveIfExists(connId_JobId);
+
+                            connId_JobId = dbPathEra + "_bukalapak_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
                             recurJobM.RemoveIfExists(connId_JobId);
                         }
                     }
@@ -1326,9 +1367,15 @@ namespace MasterOnline.Controllers
                         {
                             if(sync_pesanan_stok == tblCustomer.CUST)
                             {
-                                var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-3).AddHours(-7).ToUnixTimeSeconds();
-                                var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
-                                client.Enqueue<ShopeeControllerJob>(x => x.GetOrderByStatusWithDay(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0, fromDt, toDt));
+                                //var fromDt = (long)DateTimeOffset.UtcNow.AddDays(-3).AddHours(-7).ToUnixTimeSeconds();
+                                //var toDt = (long)DateTimeOffset.UtcNow.AddHours(14).ToUnixTimeSeconds();
+                                //client.Enqueue<ShopeeControllerJob>(x => x.GetOrderByStatusWithDay(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0, fromDt, toDt));
+
+#if (AWS || DEV)
+                                client.Enqueue<ShopeeControllerJob>(x => x.GetOrderGoLive(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0));
+#else
+                                await new ShopeeControllerJob().GetOrderGoLive(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
+#endif
                             }
                         }
                     }
@@ -1351,9 +1398,9 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            #endregion
+#endregion
 
-            #region Shopify
+#region Shopify
 
             var kdShopify = 21;
             var ShopifyShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopify.ToString());
@@ -1419,9 +1466,9 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            #endregion
+#endregion
 
-            #region 82Cart
+#region 82Cart
             var kd82Cart = 20;
 
             var v82CartShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kd82Cart.ToString());
@@ -1499,9 +1546,9 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            #endregion
+#endregion
 
-            #region JDID
+#region JDID
             var kdJDID = 19;
 
             var vJDIDShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdJDID.ToString());
@@ -1582,7 +1629,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            #endregion
+#endregion
 
             return "";
         }

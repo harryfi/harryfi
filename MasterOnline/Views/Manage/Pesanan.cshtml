@@ -54,6 +54,18 @@
             }
         /*end add by nurul 9/9/2020*/
 
+        /*add by nurul 22/10/2020*/
+        #BRG_BUNDLING,
+        #BRG_BUNDLING .selectivity-single-select-input,
+        #table_tambah_bundling > tbody > tr > .barang-bundling {
+            width: 50px !important;
+        }
+
+            #table_tambah_bundling > tbody > tr > .barang-bundling .selectize-dropdown {
+                width: 250px !important;
+            }
+        /*end add by nurul 22/10/2020*/
+
         .user-link {
             text-decoration: underline;
         }
@@ -172,7 +184,8 @@
             left: 0;
             height: 25px;
             width: 25px;
-            background-color: #eee;
+            /*background-color: #eee;*/
+            background-color: #fff;
         }
 
         /* On mouse-over, add a grey background color */
@@ -959,7 +972,8 @@
         /*end remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
         height: 25px;
         width: 25px;
-        background-color: #eee;
+        /*background-color: #eee;*/
+        background-color: #fff;
         border: solid 1px #ccc;
     }
 
@@ -2599,7 +2613,7 @@
                     <div class="col-md-6 col-sm-6 col-xs-12" id="divCbCancel">
                         @*<select id="cbCancelReason" placeholder="Harap pilih" required="required"></select>*@
                     </div>
-                    <input id="txtCancelReason" type="text" style="display:none" />
+                        <input id="txtCancelReason" maxlength="100" class="form-control" type="text" style="display:none;width:220px;" />
                 </div>
                 <div id="cancel_tokped" class="row">
                     <div id="cancel_tokped_date" class="row" style="display:none">
@@ -3265,10 +3279,29 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="fixNotFoundLabel">Perbaikan data barang</h4>
                 @*<div id="loading_pesanan_NotFound">
-                        <div id="loading_pesanan_NotFound_image">
-                            <img src="~/Content/Images/spinner.gif" />
-                        </div>
-                    </div>*@
+                <div id="loading_pesanan_NotFound_image">
+                    <img src="~/Content/Images/spinner.gif" />
+                </div>
+            </div>*@
+            </div>
+            <div class="row" style="padding-left:15px; margin-top:-8px">
+                <div class="form-group" style="margin-top: 8px;">
+                    <label class="control-label col-md-3 col-sm-3" style="margin-top: 6px;">No. Pesanan</label>
+                    <div class="col-md-9 col-sm-9">
+                        @Html.TextBox("not_found_no_bukti", "", new { @class = "form-control control-label", disabled = "disabled", Value = "", @style = "width:180px" })
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group" style="padding-left:15px">
+                @Html.Hidden("textRec", "", new { Value = "" })
+                @Html.Label("", "Barang Bundling", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                @Html.Hidden("cbx_NotFound_bundling", new { data_cbx = $"cbx-NotFound-Bundling", @class = "cls-cbxNotFoundBundling" })
+                <div class="col-md-9 col-sm-9 col-xs-12">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="cbxNotFoundBundling" class="cls-cbxNotFoundBundling" name="@($"cbx-NotFound-Pesanan-Bundling")" onclick="NotFoundBundling($('#cbxNotFoundBundling').is(':checked'));" />
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
             </div>
             <div class="modal-body" id="modal-fix-not-found-body">
                 @*@Html.Partial("BarangFixNotFoundPartial")*@
@@ -3755,6 +3788,25 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="konfHapusBundling" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus barang bundling ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deleteBarangBundling();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
@@ -3773,7 +3825,7 @@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
-    <script type="text/javascript">
+<script type="text/javascript">
         var selectBrg = $('#BRG').selectivity();
         var $statusAPI = window.text;
         var $modeEditPesanan = 0;
@@ -5027,10 +5079,12 @@
             $('#cancel_reason').hide();
             $('#cancel_tokped').hide();
             $('#divReasons').remove();
+            $('#txtCancelReason').val("");
             cancelIDMarket = idMarketplace;
             var sHTML = '<div id="divReasons"><select id="cbCancelReason" placeholder="Harap pilih" required="required"></select>';
             //$('#cbCancelReason').hide();
             if (idMarketplace == "17") {//shopee
+                $('#txtCancelReason').hide();
                 $('#ckBrg').remove();
                 sHTML += '</div>';
                 sHTML += '<div id="ckBrg" style="display:none">';
@@ -5080,6 +5134,7 @@
 
             }
             else if (idMarketplace == "19") {//JDID
+                $('#txtCancelReason').hide();
                 $('#ckBrg').remove();
                 sHTML += '</div>';
                 sHTML += '<div id="ckBrg" style="display:none">';
@@ -5165,6 +5220,7 @@
 
             }
             else if (idMarketplace == "15") {//tokopedia
+                $('#txtCancelReason').hide();
                 sHTML += '</div>';
                 $('#divCbCancel').append(sHTML);
                 $('#cancel_reason').show();
@@ -5237,6 +5293,7 @@
             }
             else if (idMarketplace == "7")//lazada
             {
+                $('#txtCancelReason').hide();
                 sHTML += '</div>';
                 $('#divCbCancel').append(sHTML);
 
@@ -5279,6 +5336,7 @@
                 });
             }
             else if (idMarketplace == "20") {//82Cart
+                $('#txtCancelReason').hide();
                     $('#cancel_reason').hide();
                     $('#cancel_tokped').hide();
                     $('#divReasons').remove();
@@ -5329,7 +5387,13 @@
                     //    }
                     //});
 
-                }
+            }
+            else if (idMarketplace == "8") {//bukalapak
+                $('#cancel_reason').show();
+                $('#cancel_tokped').hide();
+                $('#divReasons').remove();
+                $('#txtCancelReason').show();
+            }
         }
         //end add by Tri, call midtrans api get token
 
@@ -5874,6 +5938,60 @@
             //});
             //$('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
+
+            //add by nurul 22/10/2020
+            $('.cbxBundling').each(function () {
+                var $this = $(this);
+
+                $this.click(function () {
+                    var $cbxTarget = $('.cbxBundling[data-cbx="cbx-Bundling"]');
+                    if ($cbxTarget.val() == "1" || $("#cbxPesananBundling").is(":checked") == true) {
+                        $('#table_tambah_bundling').show();
+                        $('#Pesanan_Status_Approve').val(1);
+                    } else {
+                        $('#Pesanan_Status_Approve').val(0);
+                        $('#table_tambah_bundling').hide();
+                    }
+
+                    //if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '0') {
+                    //    $cbxTarget.val('4');
+                    //    $('#simpan_btn').hide();
+                    //    $('#next_btn').show();
+                    //    $('#div_info_harga_variant').show();
+
+                    //    $('.detail_mp_blibli_gambar').each(function () {
+                    //        var $this = $(this);
+                    //        $this.hide();
+                    //    });
+                    //}
+                    //else {
+                    //    $cbxTarget.val('3');
+                    //    $('#var-structure-partial').html('');
+                    //    $('#var-detail-variant-partial').html('');
+                    //    $('#simpan_btn').show();
+                    //    $('#next_btn').hide();
+                    //    $('#div_info_harga_variant').hide();
+
+                    //    $('.detail_mp_blibli_gambar').each(function () {
+                    //        var $this = $(this);
+                    //        $this.show();
+                    //    });
+                    //}
+
+                    //CekTabVariant();
+                });
+            });
+            if (flagBundling == "1") {
+                $('#cbxPesananBundling').prop('checked', true);
+                $('#table_tambah_bundling').show();
+                $('#Pesanan_Status_Approve').val(1);
+            } else {
+                $('#cbxPesananBundling').prop('checked', false);
+                $('#Pesanan_Status_Approve').val(0);
+                $('#table_tambah_bundling').hide();
+            }
+            //end add by nurul 22/10/2020
+
         }
 
         function cekJumlahPesananBulanIni() {
@@ -6416,6 +6534,7 @@
             ////        refreshTableSudahDibayar();
 
             ////});
+
         }
 
         //add by nurul 7 agustus 2019
@@ -6958,6 +7077,9 @@
                                 $('#multisku-select').show();
                                 $('#multisku-kode').hide();
                                 getBarangMultiSKUForBarang();
+
+                                $('#bundling-select').show();
+                                getBarangBundling();
                             }
                             $('#btn-simpan-perubahan-row').show();
                         }
@@ -7460,6 +7582,24 @@
                     $nettoSebelumnya += $bakalNetto;
                     $('#loading_spinner').hide();
                     $('#btn-simpan-perubahan-row').hide();
+                    $('#text-check-dibayar').text('');
+                    $('#text-check-packing').text('');
+
+                    //if ($("#cbxPesananBundling").is(":checked") == true) {
+                    //    $('#table_tambah_bundling').hide();
+                    //} else if ($("#cbxPesananBundling").is(":checked") == false) {
+                    //    $('#table_tambah_bundling').show();
+                    //}
+
+                    //if (flagBundling == "1") {
+                    //    $('#cbxPesananBundling').prop('checked', true);
+                    //    $('#table_tambah_bundling').show();
+                    //    $('#Pesanan_Status_Approve').val(1);
+                    //} else {
+                    //    $('#cbxPesananBundling').prop('checked', false);
+                    //    $('#Pesanan_Status_Approve').val(0);
+                    //    $('#table_tambah_bundling').hide();
+                    //}
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -7517,6 +7657,9 @@
                         $(this).attr('disabled', 'disabled');
                     });
                     $('tr[data-pesanan-id="0"]').remove();
+                    //add by nurul 18/1/2021, bundling
+                    $('tr[data-bundling-id="0"]').remove();
+                    //end add by nurul 18/1/2021, bundling
                     $('#myTab li a').each(function () {
                         $(this).removeAttr('data-toggle');
 
@@ -7537,6 +7680,10 @@
                     $('#tambah-pembeli').hide();
                     $('#Pesanan_KET').attr('readonly', 'readonly').css('background-color', '#eee')
                         .css('cursor', 'not-allowed');
+                    $('.cm-bundling').attr('readonly', 'readonly').css('cursor', 'not-allowed');
+                    if (flagBundling != "1") {
+                        $('.cm-bundling').attr('readonly', 'readonly').css('background-color', '#eee').css('cursor', 'not-allowed');
+                    }
                     //if ($jumlahPesanan == true) {
                     //    $('input, select, .btn-danger').each(function () {
                     //        $(this).attr('disabled', 'disabled');
@@ -7563,6 +7710,8 @@
                     //}
                     $('#loading_spinner').hide();
                     $('#btn-simpan-perubahan-row').hide();
+                    $('#text-check-dibayar').text('');
+                    $('#text-check-packing').text('');
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -9155,10 +9304,44 @@
         }
 
         //ADD BY CALVIN 17 DESEMBER 2018
-        function fixDataBarangNotFound(rec) {
+        function fixDataBarangNotFound(rec, nobuk) {
             this.$recDataBarangNotFound = rec;
             fillModalFixNotFound(rec);
+            $('#textRec').val(rec);
+            $('#not_found_no_bukti').val(nobuk);
+            $('#cbxNotFoundBundling').attr('checked', false);
+            $('#cbxNotFoundBundling').removeAttr('disabled');
+            $('#cbx_NotFound_bundling').removeAttr('disabled');
         }
+
+        //add by nurul 24/1/2021, bundling
+        function NotFoundBundling(bundling) {
+            if (bundling == true && $('#textRec').val() != "") {
+                var link = '@Url.Action("FillModalFixNotFoundBundling", "Manage", new {recNum = "replaceRecNum"})';
+                link = link.replace("replaceRecNum", encodeURIComponent($('#textRec').val()));
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#modal-fix-not-found-body').html("");
+                    },
+                    success: function (response) {
+                        $('#modal-fix-not-found-body').html(response);
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            } else {
+                if ($('#textRec').val() != "") {
+                    fillModalFixNotFound($('#textRec').val());
+                }
+            }
+        }
+        //end add by nurul 24/1/2021, bundling
 
         function fillModalFixNotFound(rec) {
             var link = '@Url.Action("FillModalFixNotFound", "Manage", new {recNum = "replaceRecNum"})';
@@ -9235,6 +9418,10 @@
                                 $(this).addClass('disabled-tab');
                             });
                             //end add
+                            $('.cm-bundling').attr('readonly', 'readonly').css('cursor', 'not-allowed');
+                            if (flagBundling != "1") {
+                                $('.cm-bundling').attr('readonly', 'readonly').css('background-color', '#eee').css('cursor', 'not-allowed');
+                            }
                         }
                         $('#loading_spinner').hide();
                         //end samakan dengan function lihatPesananSudahDibayar onSuccess
@@ -11296,6 +11483,13 @@
                     });
                     //end add
                     $('#loading_spinner').hide();
+                    $('#text-check-dibayar').text('');
+                    $('#text-check-packing').text('');
+
+                    $('.cm-bundling').attr('readonly', 'readonly').css('cursor', 'not-allowed');
+                    if (flagBundling != "1") {
+                        $('.cm-bundling').attr('readonly', 'readonly').css('background-color', '#eee').css('cursor', 'not-allowed');
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -11348,6 +11542,12 @@
                     });
                     //end add
                     $('#loading_spinner').hide();
+                    $('#text-check-dibayar').text('');
+                    $('#text-check-packing').text('');
+                    $('.cm-bundling').attr('readonly', 'readonly').css('cursor', 'not-allowed');
+                    if (flagBundling != "1") {
+                        $('.cm-bundling').attr('readonly', 'readonly').css('background-color', '#eee').css('cursor', 'not-allowed');
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -11374,6 +11574,34 @@
                         $this.parent().parent().append('<span class="text-danger">Quantity tidak boleh 0!</span>');
                     } else {
                         $this.closest('div').append('<span class="text-danger">Quantity tidak boleh 0!</span>');
+                    }
+                    $isValid = false;
+                }
+            } else {
+                if ($this.closest('div').find('.text-danger').length) {
+                    $this.closest('div').find('.text-danger').remove();
+                }
+            }
+            //add by nurul 3/10/2018
+            if ($('#Pesanan_TERM').val() != '' && $('#Pesanan_TGL_JTH_TEMPO').val() == 'Masukkan TOP dahulu') {
+                var $tgl = moment($('#Pesanan_TGL').val(), "DD/MM/YYYY");
+                var $tglTop = $tgl.add($('#Pesanan_TERM').val(), 'days');
+                $('#Pesanan_TGL_JTH_TEMPO').val($tglTop.format('DD/MM/YYYY'));
+            }
+            //end add
+            return $isValid;
+
+        }
+
+        function validasiTambahanBundling() {
+            var $isValid = true;
+            var $this = $('tr[data-bundling-id="0"] .qty-bundling');
+            if ($this.text().trim() == "0") {
+                if (!$this.closest('div').find('.text-danger').length) {
+                    if ($this.closest('div').hasClass('input-group')) {
+                        $this.parent().parent().append('<span class="text-danger">Quantity bundling tidak boleh 0!</span>');
+                    } else {
+                        $this.closest('div').append('<span class="text-danger">Quantity bundling tidak boleh 0!</span>');
                     }
                     $isValid = false;
                 }
@@ -11438,6 +11666,9 @@
                                 $('#multisku-select').show();
                                 $('#multisku-kode').hide();
                                 getBarangMultiSKUForBarang();
+
+                                $('#bundling-select').show();
+                                getBarangBundling();
                             }
                             $('#btn-simpan-perubahan-row').show();
                         }
@@ -11814,7 +12045,513 @@
             }
         }
         //end add by nurul 9/9/2020
-    </script>
+
+        //add by nurul 22/10/2020
+        function getBarangBundling() {
+            if ($('#Pesanan_CUST').val() != '') {
+                var link = '@Url.Action("getBarangBundlingPesanan", "Manage", new { code = "replaceId" })';
+                link = link.replace("replaceId", encodeURIComponent($('#Pesanan_CUST').val()));
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var listBarang = [];
+                        $.each(data,
+                            function (i, item) {
+
+                                //var nama2 = "";
+                                //if (item.NAMA2 != null && item.NAMA2 != "null") {
+                                //    nama2 = item.NAMA2;
+                                //}
+
+                                listBarang[i] = {
+                                    id: item.BRG,
+                                    //change by nurul 27/11/2018 (tampilin nama barang 2) -- text: item.BRG + ' (' + item.NAMA + ')'
+                                    text: item.BRG + ' (' + item.NAMA + ')',
+                                    nama: item.NAMA,
+                                    harga: item.Harsat
+                                };
+                            });
+
+                        var barangSelect = $('#BRG_BUNDLING').selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: listBarang,
+                            onChange: function (value) {
+                                var $objSup = $.grep(listBarang, function (data) { return data.id == value });
+                                if (value != null && value != "") {
+                                    //$('#multisku-kode').text(value);
+                                    $("#PesananBundling_BRG").val(value);
+                                    if ($objSup[0] != null) {
+                                        $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.nama-bundling').text($objSup[0].nama);
+                                        $('#harga-satuan-bundling').val($objSup[0].harga);
+                                        $('#harga-satuan-bundling').text($objSup[0].harga);
+                                        $('tr[data-bundling-id="0"] .btn-save-bundling').removeAttr('disabled');
+                                        offTab();
+                                        modeEditTdBundling();
+                                    }
+                                } else {
+                                    //$('#multisku-kode').text('-');
+                                    $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.nama-bundling').text('-');
+                                    $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.qty-bundling').html('0' + '<input data-val="true" data-val-length="The field QTY must be a number." data-val-length-max="10" id="PesananBundling_QTY" name="PesananBundling.QTY" type="hidden" value="">');
+                                    $('#harga-satuan-bundling').val(0);
+                                    $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.harga-bundling').html('0,00' + '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The Harsat field is required." id="PesananBundling_HARGA" name="PesananBundling.HARGA" type="hidden" value="">');
+                                    onTab();
+                                    modeEditOffBundling();
+                                }
+                                $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.qty-bundling').click();
+
+
+                                //var val = $(this).selectivity('value');
+                                //if (value != null) {
+                                //    var $trId = $(this).closest('tr').attr('data-bundling-id');
+                                //    var $trElement = 'tr[data-bundling-id="' + $trId + '"]';
+                                //    $.each(data,
+                                //        function (i, item) {
+                                //            if (item.BRG == value) {
+                                //                //if (item.NAMA2 != null) {
+                                //                //    $($trElement + ' .nama-bundling').text(item.NAMA + " " + item.NAMA2);
+                                //                //} else {
+                                //                //    $($trElement + ' .nama-bundling').text(item.NAMA + " ");
+                                //                //}
+                                //                $($trElement + ' .nama-bundling').text(item.NAMA);
+                                //                $('#harga-satuan-bundling').val(item.Harsat);
+                                //            }
+                                //        });
+                                //    $($trElement + ' .btn-primary .bundling-button').removeAttr('disabled');
+                                //    offTab();
+                                //    modeEditTdBundling();
+                                //} else {
+                                //    $($trElement + ' .nama-bundling').text('-');
+                                //    $($trElement + ' .qty-bundling').html('-' + '<input data-val="true" data-val-length="The field QTY must be a number." data-val-length-max="10" id="PesananBundling_QTY" name="PesananBundling.QTY" type="hidden" value="">');
+                                //    $('#harga-satuan-bundling').val(0);
+                                //    $($trElement + ' .harga-bundling').html('0,00' + '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The Harsat field is required." id="PesananBundling_HARGA" name="PesananBundling.HARGA" type="hidden" value="">');
+                                //    onTab();
+                                //    modeEditOffBundling();
+                                //}
+                                //$('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.qty-bundling').click();
+                            }
+                        });
+
+                        barangSelect[0].selectize.clearOptions();
+                        barangSelect[0].selectize.renderCache = {};
+                        barangSelect[0].selectize.load(function (callback) {
+                            callback(listBarang);
+                        });
+
+                            barangSelect[0].selectize.setValue($('#PesananBundling_BRG').val(), true);
+
+
+                        //barangSelect[0].selectize.clearOptions();
+                        //barangSelect[0].selectize.renderCache = {};
+                        //barangSelect[0].selectize.load(function (callback) {
+                        //    callback(listBarang);
+                        //});
+
+                        //if ($tempBrg != "" && $tempBrg != null && $tempBrg != undefined) {
+                        //    barangSelect[0].selectize.setValue($tempBrg, true);
+                        //    $('#PesananBundling_BRG').val($tempBrg);
+                        //} else {
+                        //    barangSelect[0].selectize.setValue($('#PesananBundling_BRG').val(), true);
+                        //}
+                        ////$('#multisku-kode').text($('#PesananBundling_BRG').val());
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+
+            @*if ($('#PesananDetail_BRG').val() != "") {
+
+                var link = '@Url.Action("getBarangMultiSKUForBarang", "Manage", new { brgId = "replaceId" })';
+                link = link.replace("replaceId", encodeURIComponent($('#PesananDetail_BRG').val()));
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var listBarang = [];
+                        $.each(data,
+                            function (i, item) {
+
+                                var nama2 = "";
+                                if (item.NAMA2 != null && item.NAMA2 != "null") {
+                                    nama2 = item.NAMA2;
+                                }
+
+                                listBarang[i] = {
+                                    id: item.BRG,
+                                    //change by nurul 27/11/2018 (tampilin nama barang 2) -- text: item.BRG + ' (' + item.NAMA + ')'
+                                    text: item.BRG + ' (' + item.NAMA + ' ' + nama2 + ')',
+                                };
+                            });
+
+                        var barangSelect = $('#BRG_MULTI_SKU').selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: listBarang,
+                            onChange: function (value) {
+                                var $objSup = $.grep(listBarang, function (data) { return data.id == value });
+                                //$('#PesananDetail_BRG_MULTISKU').val(value);
+                                if (value != null) {
+                                    $('#multisku-kode').text(value);
+                                    $("#PesananDetail_BRG_MULTISKU").val(value).trigger('change');
+
+                                } else {
+                                    $('#multisku-kode').text('-');
+                                }
+                                $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
+                            }
+                        });
+
+                        barangSelect[0].selectize.clearOptions();
+                        barangSelect[0].selectize.renderCache = {};
+                        barangSelect[0].selectize.load(function (callback) {
+                            callback(listBarang);
+                        });
+
+                        //barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val());
+                        if ($tempBrg != "" && $tempBrg != null && $tempBrg != undefined) {
+                            barangSelect[0].selectize.setValue($tempBrg, true);
+                            $('#PesananDetail_BRG_MULTISKU').val($tempBrg);
+                        } else {
+                            barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val(), true);
+                        }
+                        $('#multisku-kode').text($('#PesananDetail_BRG_MULTISKU').val());
+
+                        //$('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
+
+                        //hitungUlangdisc1();
+                        //hitungUlangdisc2();
+                        //refreshNettoBarang('0');
+                        //if ($('#BRG_MULTI_SKU').selectivity('value') != null) {
+                        //    $('#BRG_MULTI_SKU').trigger('change');
+                        //}
+                        //if ($('#PesananDetail_BRG_MULTISKU').val() != "") {
+                        //    $('#BRG_MULTI_SKU')[0].trigger.change();
+                        //}
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            } else {
+                var link = '@Url.Action("getBarangMultiSKU", "Manage")';
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var listBarang = [];
+                        $.each(data,
+                            function (i, item) {
+
+                                var nama2 = "";
+                                if (item.NAMA2 != null && item.NAMA2 != "null") {
+                                    nama2 = item.NAMA2;
+                                }
+
+                                listBarang[i] = {
+                                    id: item.BRG,
+                                    text: item.BRG + ' (' + item.NAMA + ' ' + nama2 + ')',
+                                    acuan: item.BRG_ACUAN,
+                                };
+                            });
+
+                        var barangSelect = $('#BRG_MULTI_SKU').selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: listBarang,
+                            onChange: function (value) {
+                                var $objSup = $.grep(listBarang, function (data) { return data.id == value });
+                                if (value != null) {
+                                    $('#multisku-kode').text(value);
+                                    $("#PesananDetail_BRG_MULTISKU").val(value).trigger('change');
+
+                                    if ($objSup[0] != null) {
+                                        $('#BRG').selectivity('value', $objSup[0].acuan);
+                                    }
+                                } else {
+                                    $('#multisku-kode').text('-');
+                                }
+                                $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
+                            }
+                        });
+
+                        barangSelect[0].selectize.clearOptions();
+                        barangSelect[0].selectize.renderCache = {};
+                        barangSelect[0].selectize.load(function (callback) {
+                            callback(listBarang);
+                        });
+
+                        //barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val());
+                        if ($tempBrg != "" && $tempBrg != null && $tempBrg != undefined) {
+                            barangSelect[0].selectize.setValue($tempBrg, true);
+                            $('#PesananDetail_BRG_MULTISKU').val($tempBrg);
+                        } else {
+                            barangSelect[0].selectize.setValue($('#PesananDetail_BRG_MULTISKU').val(), true);
+                        }
+                        $('#multisku-kode').text($('#PesananDetail_BRG_MULTISKU').val());
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }*@
+        }
+
+        function modeEditTdBundling() {
+            $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > .qty-bundling').addClass('editable');
+            $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.editable').off('click').on('click',
+                function () {
+                    var $this = $(this);
+                    var $class = $this.attr('class');
+                    var $inputClass = '';
+                    var $trId = $this.parent().attr('data-bundling-id');
+                    if ($this.text() !== '') {
+                        $harga = convertToAngka($this.text());
+                    }
+                    if ($class == 'qty-bundling editable') {
+                        $inputClass = 'qty-input';
+                    }
+
+                    var $input = $('<input>', {
+                        'class': $inputClass + 'num-only',
+                        value: $harga,
+                        blur: function () {
+                            if (this.value == '') {
+                                if ($class === 'qty-bundling editable') {
+                                    $this.html(0 + '<input data-val="true" data-val-number="The field QTY must be a number." data-val-required="The QTY field is required." id="PesananBundling_QTY" name="PesananBundling.QTY" type="hidden" value="" maxlength="3">');
+                                }
+                                refreshNettoBarangBundling($trId);
+                            } else {
+                                if ($class === 'qty-bundling editable') {
+                                    $this.html(this.value + '<input data-val="true" data-val-number="The field QTY must be a number." data-val-required="The QTY field is required." id="PesananBundling_QTY" name="PesananBundling.QTY" type="hidden" value="" maxlength="3">');
+                                }
+                                refreshNettoBarangBundling($trId);
+                            }
+                        },
+                        focus: function () {
+                            if ($harga == 0) {
+                                this.value = '';
+                            } else {
+                                this.value = $harga;
+                            }
+                        },
+                        keyup: function (e) {
+                            if (e.which === 13) $input.blur();
+                        },
+                        keypress: function (e) {
+                            if (e.which != 8 && e.which != 0 && e.which < 48 || e.which > 57) e.preventDefault();
+                        }
+                    }).appendTo($this.empty()).focus();
+                });
+        }
+
+        function refreshNettoBarangBundling($trId) {
+            var $trElement = 'tr[data-bundling-id="' + $trId + '"]';
+            var $hargaBarang = convertToAngka($('#harga-satuan-bundling').val());
+            var $total = (parseInt($($trElement + ' .qty-bundling').text()) * $hargaBarang);
+            $($trElement + ' .harga-bundling').html(convertToRupiah($total) +
+                '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="PesananBundling_HARGA" name="PesananBundling.HARGA" type="hidden" value="" style="text-align:right">');
+
+            //$('#PesananBundling_HARGA').val(convertToAngka($('tr[data-bundling-id="0"] .harga-bundling').text()));
+            //$('#PesananBundling_QTY').val(convertToAngka($('tr[data-bundling-id="0"] .qty-bundling').text()));
+        }
+
+        function modeEditOffBundling() {
+            $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.editable').prop('onclick', null).off('click');
+            $('.qty-barang').removeClass('editable');
+        }
+
+        function simpanBundling($id) {
+            if (!validateForm()) return false;
+            if (!validasiTambahanBundling()) return false;
+
+            if ($id == 'bundling-0') {
+                if ($('#Pesanan_TGL').val() != '' &&
+                    $('#Pesanan_CUST').val() != '' &&
+                    $('#Pesanan_TERM').val() != '' &&
+                    $('#Pesanan_EXPEDISI').val() != '' &&
+                    $('#Pesanan_NAMAPEMESAN').val() != ''
+                ) {
+                    $modeEditDetail = 0;
+                    refreshNetto();
+                    var tgl = $('#Pesanan_TGL').val();
+                    //$('#PesananDetail_TGL_INPUT').val(tgl);
+                    //$('#PesananDetail_BRG').val($('#BRG').selectivity('val'));
+                    //$('#PesananDetail_SATUAN').val('2');
+                    //$('#PesananDetail_H_SATUAN').val(convertToAngka($('tr[data-pesanan-id="0"] .harga-barang').text()));
+                    //$('#PesananDetail_QTY').val($('tr[data-pesanan-id="0"] .qty-barang').text());
+                    //$('#PesananDetail_DISCOUNT').val($('tr[data-pesanan-id="0"] .disc1-barang').text());
+                    //$('#PesananDetail_DISCOUNT_2')
+                    //    .val($('tr[data-pesanan-id="0"] .disc2-barang').text());
+                    //$('#PesananDetail_NILAI_DISC_1')
+                    //    .val(convertToAngka($('tr[data-pesanan-id="0"] .ndisc1-barang').text()));
+                    //$('#PesananDetail_NILAI_DISC_2')
+                    //    .val(convertToAngka($('tr[data-pesanan-id="0"] .ndisc2-barang').text()));
+                    //$('#PesananDetail_HARGA').val(convertToAngka($('tr[data-pesanan-id="0"] .netto-barang').text()));
+                    //$("#Pesanan_BRUTO").val(convertToAngka($("#Pesanan_BRUTO").val()));
+                    //$("#Pesanan_NILAI_DISC").val(convertToAngka($("#Pesanan_NILAI_DISC").val()));
+                    //$("#Pesanan_NILAI_PPN").val(convertToAngka($("#Pesanan_NILAI_PPN").val()));
+                    //$("#Pesanan_NETTO").val($bakalNetto);
+                    //$("#Pesanan_ONGKOS_KIRIM").val(convertToAngka($("#Pesanan_ONGKOS_KIRIM").val()));
+
+                    $('#PesananDetail_H_SATUAN').val(0);
+                    $('#PesananDetail_QTY').val(0);
+                    $('#PesananDetail_DISCOUNT').val(0);
+                    $('#PesananDetail_DISCOUNT_2')
+                        .val(0);
+                    $('#PesananDetail_NILAI_DISC_1')
+                        .val(0);
+                    $('#PesananDetail_NILAI_DISC_2')
+                        .val(0);
+                    $('#PesananDetail_HARGA').val(0);
+                    $("#Pesanan_BRUTO").val(0);
+                    $("#Pesanan_NILAI_DISC").val(0);
+                    $("#Pesanan_NILAI_PPN").val(0);
+                    $("#Pesanan_NETTO").val(0);
+                    $("#Pesanan_ONGKOS_KIRIM").val(0);
+
+                    //$('#PesananBundling_BRG').val($('#BRG_BUNDLING').selectivity('val'));
+                    $('#PesananBundling_HARGA').val(convertToAngka($('tr[data-bundling-id="0"] .harga-bundling').text()));
+                    $('#PesananBundling_QTY').val(convertToAngka($('tr[data-bundling-id="0"] .qty-bundling').text()));
+                    $totalAwal = 0;
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SavePesanan", "Manage")',
+                        data: $('#form-pesanan').serialize(),
+                        beforeSend: function() {
+                            $('#loading_spinner').show();
+                        },
+                        success: function (response) {
+                            $modeEditDetail = 0;
+                            //console.log(response);
+                            $('#form-partial').html(response);
+                            $nettoSebelumnya = parseInt(convertToAngka($('#Pesanan_NETTO').val()));
+                            $beforeState = {
+                                brutto: $('#Pesanan_BRUTO').val(),
+                                netto: $('#Pesanan_NETTO').val(),
+                                ndisc: $('#Pesanan_NILAI_DISC').val(),
+                                ppn: $('#Pesanan_PPN').val(),
+                                nppn: $('#Pesanan_NILAI_PPN').val(),
+                                ongkir: $('#Pesanan_ONGKOS_KIRIM').val()
+                            };
+                            refreshInputan();
+                            refreshNetto();
+                            getTanggal();
+                            getMarketplaceSOT01A();
+                            getExpedisi();
+                            //getBuyer();
+                            getDataBarang();
+                            $('#multisku-select').show();
+                            $('#multisku-kode').hide();
+                            getBarangMultiSKUForBarang();
+                            $('#loading_spinner').hide();
+                        },
+                        error: function(xhr) {
+                            console.log(xhr);
+                            $('#loading_spinner').hide();
+                        }
+                    });
+                } else {
+                    //change by calvin 11 april 2019
+                    //alert('Silakan isi semua field terlebih dahulu!');
+                    //if ($('#Pesanan_TGL').val() != '' &&
+                    //    $('#Pesanan_CUST').val() != '' &&
+                    //    $('#Pesanan_TERM').val() != '' &&
+                    //    $('#Pesanan_EXPEDISI').val() != '' &&
+                    //    $('#Pesanan_NAMAPEMESAN').val() != ''
+                    var messageErrorKosong = "";
+                    if ($('#Pesanan_TGL').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Tanggal,";
+                    }
+                    if ($('#Pesanan_CUST').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Marketplace,";
+                    }
+                    if ($('#Pesanan_TERM').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Term Of Payment (TOP),";
+                    }
+                    if ($('#Pesanan_EXPEDISI').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Kurir,";
+                    }
+                    if ($('#Pesanan_NAMAPEMESAN').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Pembeli,";
+                    }
+                    var messageErrorKosong = messageErrorKosong.substring(0, messageErrorKosong.length - 1);
+                    alert('Silakan isi field '+ messageErrorKosong +' terlebih dahulu!');
+                    //end change by calvin 11 april 2019
+                }
+            }
+        }
+
+        var $brgBundling = '';
+
+        function passBundling($brgBundling) {
+            this.$brgBundling = $brgBundling;
+        }
+
+        function deleteBarangBundling() {
+            var link = '@Url.Action("DeleteBarangPesananBundling", "Manage", new {noUrut = "replaceBrgId"})';
+            link = link.replace("replaceBrgId", encodeURIComponent(this.$brgBundling));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function() {
+                    $('#loading_spinner').show();
+                },
+                success: function(response) {
+                    refreshNettoBarang();
+                    $nettoSebelumnya = 0;
+                    $bakalNetto = 0;
+                    $('#form-partial').html(response);
+                    $beforeState = {
+                        brutto: $('#Pesanan_BRUTO').val(),
+                        netto: $('#Pesanan_NETTO').val(),
+                        ndisc: $('#Pesanan_NILAI_DISC').val(),
+                        ppn: $('#Pesanan_PPN').val(),
+                        nppn: $('#Pesanan_NILAI_PPN').val(),
+                        ongkir: $('#Pesanan_ONGKOS_KIRIM').val()
+                    };
+                    //add by nurul 5/10/2018
+                    refreshInputan();
+                    refreshNetto();
+                    //end add
+
+                    $totalAwal = convertToAngka($('#Pesanan_BRUTO').val());
+                    getTanggal();
+                    getMarketplace();
+                    getExpedisi();
+                    //getBuyer();
+                    getDataBarang();
+                    $('#multisku-select').show();
+                    $('#multisku-kode').hide();
+                    getBarangMultiSKUForBarang();
+
+                    $('#bundling-select').show();
+                    getBarangBundling();
+                    $('#konfHapusBundling').modal('hide');
+                    $('#loading_spinner').hide();
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        //end add by nurul 22/10/2020
+</script>
     <script>
         //Disable Enter Key Submit Form
         function stopRKey(evt) {

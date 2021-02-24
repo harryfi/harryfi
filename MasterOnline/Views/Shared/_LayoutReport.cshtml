@@ -773,7 +773,17 @@
                                                                                 {
                                                                                     if (childFromChild.Show)
                                                                                     {
-                                                                                        <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                        <li>
+                                                                                            <a href="@childFromChild.Url">
+                                                                                                @childFromChild.NamaForm
+                                                                                                @*//add by nurul 22/1/2021*@
+                                                                                                @if (childFromChild.ScrId == 51) //Barang Bundling
+                                                                                                {
+                                                                                                    <img id="new_order_icon_bundling" alt="logo" style="width: 42px; height: 43px;" src="~/Content/Images/ICON_NEW_5.png">
+                                                                                                }
+                                                                                                @*//end add by nurul 22/1/2021*@
+                                                                                            </a>
+                                                                                        </li>
                                                                                     }
                                                                                 }
                                                                             }

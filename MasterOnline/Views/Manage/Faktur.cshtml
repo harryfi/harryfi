@@ -31,6 +31,71 @@
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <link href="~/Content/selectize.css" rel="stylesheet" />
     <style>
+        [data-tip] {
+            position: relative;
+            white-space: pre-line;
+        }
+
+            [data-tip]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                left: 35px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                width: 0;
+                height: 0;
+            }
+
+            [data-tip]:after {
+                display: none;
+                content: attr(data-tip);
+                position: absolute;
+                top: 35px;
+                left: 0px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 300px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                /*white-space: normal;*/
+                word-wrap: normal;
+                width: 250%;
+                white-space: pre-line;
+            }
+
+            [data-tip]:hover:before,
+            [data-tip]:hover:after {
+                display: block;
+                white-space: pre-line;
+            }
+
+        /*add by nurul 22/10/2020*/
+        #BRG_BUNDLING,
+        #BRG_BUNDLING .selectivity-single-select-input,
+        #table_tambah_bundling > tbody > tr > .barang-bundling {
+            width: 50px !important;
+        }
+
+            #table_tambah_bundling > tbody > tr > .barang-bundling .selectize-dropdown {
+                width: 250px !important;
+            }
+        /*end add by nurul 22/10/2020*/
+
         /*add by nurul 9/9/2020*/
         #BRG_MULTI_SKU,
         #BRG_MULTI_SKU .selectivity-single-select-input,
@@ -644,7 +709,8 @@
         /*left: 18px;*/
         height: 25px;
         width: 25px;
-        background-color: #eee;
+        /*background-color: #eee;*/
+        background-color: #fff;
         border: solid 1px #ccc;
     }
 
@@ -1845,13 +1911,32 @@
 </div>
 <div class="modal fade" id="modalFixNotFound" tabindex="-1" role="dialog" aria-labelledby="fixNotFoundLabel">
     <div class="modal-dialog" id="fix-not-found" role="document" style="height:600px;width:900px">
-        <div class="modal-content" style="height:610px;width:900px">
+        <div class="modal-content" style="height:630px;width:900px">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="fixNotFoundLabel">Perbaikan data barang</h4>
             </div>
+            <div class="row" style="margin-top:-3px">
+                <div class="form-group" style="margin-top: 8px;">
+                    <label class="control-label col-md-3 col-sm-3" style="padding-left:25px; margin-top: 5px;">No. Faktur</label>
+                    <div class="col-md-9 col-sm-9" style="padding-left:17px">
+                        @Html.TextBox("not_found_no_bukti", "", new { @class = "form-control control-label", disabled = "disabled", Value = "", @style = "width:180px" })
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group" style="padding-left:15px;">
+                @Html.Hidden("textRec", "", new { Value = "" })
+                @Html.Label("", "Barang Bundling", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                @Html.Hidden("cbx_NotFound_bundling", new { data_cbx = $"cbx-NotFound-Bundling", @class = "cls-cbxNotFoundBundling" })
+                <div class="col-md-9 col-sm-9 col-xs-12" style="padding-left:18px">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="cbxNotFoundBundling" class="cls-cbxNotFoundBundling" name="@($"cbx-NotFound-Faktur-Bundling")" onclick="NotFoundBundling($('#cbxNotFoundBundling').is(':checked'));" />
+                        <span class="checkmark" ></span>
+                    </label>
+                </div>
+            </div>
             <div class="modal-body" id="modal-fix-not-found-body">
-                @Html.Partial("BarangFixNotFoundPartialFaktur")
+                @*@Html.Partial("BarangFixNotFoundPartialFaktur")*@
             </div>
         </div>
     </div>
@@ -2025,6 +2110,15 @@
                         <div class="col-md-3" style="padding-top: 7px;">
                             Catatan Pembeli
                         </div>
+                        <div class="col-md-2" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input id="ctk_logo" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                <span id="ctk_logo" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-3" style="padding-top: 7px;">
+                            Logo Toko
+                        </div>
                         <div class="col-md-1">
                         </div>
                     </div>
@@ -2138,6 +2232,25 @@
     </div>
 </div>
 @*end add by nurul 3/12/2018 - tambah cetak faktur*@
+<div class="modal fade" id="konfHapusBundling" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus barang bundling ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deleteBarangBundling();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
@@ -2155,6 +2268,7 @@
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script type="text/javascript">
         var $tempQty = "";
+        var $tempQtyBundling = "";
         var $statusAPI = window.text;
         //add by nurul 11/2/2019
         var $jumlahPesanan = true;
@@ -3392,7 +3506,32 @@
                 }
             });
 
+            //add by nurul 22/10/2020
+            $('.cbxBundling').each(function () {
+                var $this = $(this);
 
+                $this.click(function () {
+                    var $cbxTarget = $('.cbxBundling[data-cbx="cbx-Bundling"]');
+                    //if ($cbxTarget.val() == "true" || $("#cbxFakturBundling").is(":checked") == true) {
+                    if ($("#cbxFakturBundling").is(":checked") == true) {
+                        $('#table_tambah_bundling').show();
+                        $('#Faktur_APPROVAL').val(true);
+                    } else {
+                        $('#Faktur_APPROVAL').val(false);
+                        $('#table_tambah_bundling').hide();
+                    }
+                });
+            });
+            if (flagBundling == "True") {
+                $('#cbxFakturBundling').prop('checked', true);
+                $('#table_tambah_bundling').show();
+                $('#Faktur_APPROVAL').val(true);
+            } else {
+                $('#cbxFakturBundling').prop('checked', false);
+                $('#Faktur_APPROVAL').val(false);
+                $('#table_tambah_bundling').hide();
+            }
+            //end add by nurul 22/10/2020
         }
 
         function getTanggal() {
@@ -3519,6 +3658,14 @@
                     $('#tambah-pembeli').hide();
 
                     $('tr[data-faktur-id="0"]').remove();
+                    //add by nurul 18/1/2021, bundling
+                    $('tr[data-bundling-id="0"]').remove();
+                    $('.cm-bundling').attr('readonly', 'readonly').css('cursor', 'not-allowed');
+                    if (flagBundling != "True") {
+                        $('.cm-bundling').attr('readonly', 'readonly').css('background-color', '#eee').css('cursor', 'not-allowed');
+                    }
+                    
+                    //end add by nurul 18/1/2021, bundling
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -4301,6 +4448,11 @@
                                 $('#multisku-kode').hide();
                                 getBarangMultiSKUForBarang();
                                 //end add
+
+                                //add by nurul 26/10/2020
+                                $('#bundling-select').show();
+                                getBarangBundling();
+                                //end add by nurul 26/10/2020
                             }
                             getTanggal();
                             $('#btn-simpan-perubahan-row').show();
@@ -4854,6 +5006,10 @@
                     getGudangForBarang();
                     getExpedisi();
                     //$('#EXPEDISI').attr('disabled', 'disabled');
+                    //add by nurul 26/10/2020
+                    $('#bundling-select').show();
+                    getBarangBundling();
+                                //end add by nurul 26/10/2020
 
                     //change by nurul 20/02/2019
                     //$('#tambah_faktur').click();
@@ -4971,6 +5127,10 @@
                     getBarangMultiSKUForBarang();
                     getGudangForBarang();
                     saveUlangHeader();
+                    //add by nurul 26/10/2020
+                    $('#bundling-select').show();
+                    getBarangBundling();
+                    //end add by nurul 26/10/2020
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
                 },
@@ -5028,10 +5188,14 @@
                 }
             }
             //end add by nurul 27/6/2019
-            var $link = '@Html.Raw(Url.Action("RefreshTableFaktur1", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTableFaktur1", "Manage", new { page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
             $link = $link.replace("replaceLastPage", encodeURIComponent($tpPage));
+            var filterby = get_faktur_filterby();
+            var filtervalue = get_faktur_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
 
             $.ajax({
                 type: "GET",
@@ -5239,6 +5403,10 @@
                                 getBarangMultiSKUForBarang();
                                 getGudangForBarang();
                                 saveUlangHeader();
+                                //add by nurul 26/10/2020
+                                $('#bundling-select').show();
+                                getBarangBundling();
+                                //end add by nurul 26/10/2020
                                 //$('#EXPEDISI').attr('disabled', 'disabled');
                                 $('#btn-simpan-perubahan-row').show();
                                 
@@ -5473,10 +5641,44 @@
         //end add
 
         //ADD BY CALVIN 21 Maret 2019
-        function fixDataBarangNotFound(rec) {
+        function fixDataBarangNotFound(rec, nobuk) {
             this.$recDataBarangNotFound = rec;
             fillModalFixNotFound(rec);
+            $('#textRec').val(rec);
+            $('#not_found_no_bukti').val(nobuk);
+            $('#cbxNotFoundBundling').attr('checked', false);
+            $('#cbxNotFoundBundling').removeAttr('disabled');
+            $('#cbx_NotFound_bundling').removeAttr('disabled');
         }
+
+        //add by nurul 24/1/2021, bundling
+        function NotFoundBundling(bundling) {
+            if (bundling == true && $('#textRec').val() != "") {
+                var link = '@Url.Action("FillModalFixNotFoundFakturBundling", "Manage", new {recNum = "replaceRecNum"})';
+                link = link.replace("replaceRecNum", encodeURIComponent($('#textRec').val()));
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#modal-fix-not-found-body').html("");
+                    },
+                    success: function (response) {
+                        $('#modal-fix-not-found-body').html(response);
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            } else {
+                if ($('#textRec').val() != "") {
+                    fillModalFixNotFound($('#textRec').val());
+                }
+            }
+        }
+        //end add by nurul 24/1/2021, bundling 
 
         function fillModalFixNotFound(rec) {
             var link = '@Url.Action("FillModalFixNotFoundFaktur", "Manage", new {recNum = "replaceRecNum"})';
@@ -5487,8 +5689,10 @@
                 url: link,
                 contentType: 'application/json',
                 cache: false,
-                success: function(response) {
+                beforeSend: function () {
                     $('#modal-fix-not-found-body').html("");
+                },
+                success: function(response) {
                     $('#modal-fix-not-found-body').html(response);
                 },
                 error: function(xhr) {
@@ -5551,6 +5755,11 @@
                             });
                             $('#tambah-pembeli').hide();
                             $('tr[data-faktur-id="0"]').remove();
+
+                            $('.cm-bundling').attr('readonly', 'readonly').css('cursor', 'not-allowed');
+                            if (flagBundling != "True") {
+                                $('.cm-bundling').attr('readonly', 'readonly').css('background-color', '#eee').css('cursor', 'not-allowed');
+                            }
                         }
                         $('#loading_spinner').hide();
                         //end samakan dengan function lihatFaktur onSuccess
@@ -5625,7 +5834,8 @@
             $('#ctk_nobuk').attr('checked', true);
             $('#ctk_total').attr('checked', true);
             $('#ctk_ket').attr('checked', true);
-
+            $('#ctk_logo').attr('checked', true);
+            
             //$('#ctk_nama1').attr('checked', true);
             //$('#ctk_mp1').attr('checked', true);
             //$('#ctk_nobuk1').attr('checked', true);
@@ -5649,6 +5859,7 @@
                 var nama = "0";
                 var jenisKertas = "0";
                 var ket = "0";
+                var logo = "0";
                 //if ($('#LayoutSize').val() == "1") {
                     @*var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
                     link = link.replace('replaceNoBuk', encodeURIComponent(nobuk));*@
@@ -5698,6 +5909,11 @@
                     ket = "1";
                 } else if ($('#ctk_ket').is(":checked") == false) {
                     ket = "0";
+                }
+                if ($('#ctk_logo').is(":checked") == true) {
+                    logo = "1";
+                } else if ($('#ctk_logo').is(":checked") == false) {
+                    logo = "0";
                 }
                 @*} else if ($('#LayoutSize').val() == "2") {
                     var link = '@Url.Action("LihatFakturA5", "Manage", new {noBukPesanan = "replaceNoBuk"})';
@@ -5778,6 +5994,8 @@
                                             totalLink: total,
                                             namaLink: nama,
                                             ketLink: ket,
+                                            logoLink: logo,
+                                            refLink:"1"
                                         };
 
                                         $.ajax({
@@ -6030,6 +6248,559 @@
             }
         }
         //end add by nurul 9/9/2020
+
+        //add by nurul 26/10/2020, bundling
+        function validasiTambahanBundling() {
+            var $isValid = true;
+            var $Gd = $('#GUDANG_BUNDLING');
+            var $this = $('tr[data-bundling-id="0"] .qty-bundling');
+            if ($Gd.val() == "-" || $Gd.val() == "") {
+                if (!$Gd.closest('div').find('.text-danger').length) {
+                    if ($Gd.closest('div').hasClass('input-group')) {
+                        $('tr[data-bundling-id="0"] .gd-bundling').parent().parent().append('<span class="text-danger">Gudang bundling tidak boleh kosong!</span>');
+                    } else {
+                        $('tr[data-bundling-id="0"] .gd-bundling').closest('div').append('<span class="text-danger">Gudang bundling tidak boleh kosong!</span>');
+                    }
+                    $isValid = false;
+                }
+            } else if ($this.text().trim() == "0") {
+                if (!$this.closest('div').find('.text-danger').length) {
+                    if ($this.closest('div').hasClass('input-group')) {
+                        $this.parent().parent().append('<span class="text-danger">Quantity bundling tidak boleh 0!</span>');
+                    } else {
+                        $this.closest('div').append('<span class="text-danger">Quantity bundling tidak boleh 0!</span>');
+                    }
+                    $isValid = false;
+                }
+            } else if ($tempQtyBundling < $this.text().trim()) {
+                alert("Qty penjualan barang bundling melebihi qty siap jual ( " + $tempQtyBundling + " )");
+                $isValid = false;
+            } else {
+                //if ($this.closest('div').find('.text-danger').length) {
+                //    $this.closest('div').find('.text-danger').remove();
+                //}
+
+                if ($Gd.closest('div').find('.text-danger').length) {
+                    $Gd.closest('div').find('.text-danger').remove();
+                } else if ($this.closest('div').find('.text-danger').length) {
+                    $this.closest('div').find('.text-danger').remove();
+                }
+            }
+            //add by nurul 3/10/2018
+            //if ($('#Faktur_TERM').val() != '' && $('#Faktur_TGL_JTH_TEMPO').val() == 'Masukkan TOP dahulu') {
+            //    var $tgl = moment($('#Faktur_TGL').val(), "DD/MM/YYYY");
+            //    var $tglTop = $tgl.add($('#Faktur_TERM').val(), 'days');
+            //    $('#Faktur_TGL_JTH_TEMPO').val($tglTop.format('DD/MM/YYYY'));
+            //}
+            //end add
+            return $isValid;
+        }
+
+        function getBarangBundling() {
+            if ($('#Faktur_CUST').val() != '') {
+                var link = '@Url.Action("getBarangBundlingPesanan", "Manage", new { code = "replaceId" })';
+                link = link.replace("replaceId", encodeURIComponent($('#Faktur_CUST').val()));
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var listBarang = [];
+                        $.each(data,
+                            function (i, item) {
+                                
+                                listBarang[i] = {
+                                    id: item.BRG,
+                                    text: item.BRG + ' (' + item.NAMA + ')',
+                                    nama: item.NAMA,
+                                    harga: item.Harsat
+                                };
+                            });
+
+                        var barangSelect = $('#BRG_BUNDLING').selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: listBarang,
+                            onChange: function (value) {
+                                var $objSup = $.grep(listBarang, function (data) { return data.id == value });
+                                if (value != null && value != "") {
+                                    //$('#multisku-kode').text(value);
+                                    $("#FakturBundling_BRG").val(value);
+                                    if ($objSup[0] != null) {
+                                        $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.nama-bundling').text($objSup[0].nama);
+                                        $('#harga-satuan-bundling').val($objSup[0].harga);
+                                        $('#harga-satuan-bundling').text($objSup[0].harga);
+                                        $('tr[data-bundling-id="0"] .btn-save-bundling').removeAttr('disabled');
+                                        $('#gudang-bundling-select').show();
+                                        $('#gudang-bundling-kode').hide();
+                                        getGudangForBarangBundling();
+                                        offTab();
+                                        modeEditTdBundling();
+                                    }
+                                } else {
+                                    $("#FakturBundling_BRG").val(null);
+                                    //$('#multisku-kode').text('-');
+                                    $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.nama-bundling').text('-');
+                                    $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.qty-bundling').html('0' + '<input data-val="true" data-val-length="The field QTY must be a number." data-val-length-max="10" id="FakturBundling_QTY" name="FakturBundling.QTY" type="hidden" value="">');
+                                    $('#harga-satuan-bundling').val(0);
+                                    $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.harga-bundling').html('0,00' + '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The Harsat field is required." id="FakturBundling_HARGA" name="FakturBundling.HARGA" type="hidden" value="">');
+                                    $('#gudang-bundling-kode').text('-');
+                                    $('#gudang-bundling-select').hide();
+                                    $('#gudang-bundling-kode').show();
+                                    getGudangForBarangBundling();
+                                    onTab();
+                                    modeEditOffBundling();
+                                }
+                                $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.qty-bundling').click();
+
+                            }
+                        });
+
+                        barangSelect[0].selectize.clearOptions();
+                        barangSelect[0].selectize.renderCache = {};
+                        barangSelect[0].selectize.load(function (callback) {
+                            callback(listBarang);
+                        });
+                        
+                        barangSelect[0].selectize.setValue($('#FakturBundling_BRG').val(), true);
+                        
+                        
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+
+        function modeEditTdBundling() {
+            $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > .qty-bundling').addClass('editable');
+            $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.editable').off('click').on('click',
+                function () {
+                    var $this = $(this);
+                    var $class = $this.attr('class');
+                    var $inputClass = '';
+                    var $trId = $this.parent().attr('data-bundling-id');
+                    if ($this.text() !== '') {
+                        $harga = convertToAngka($this.text());
+                    }
+                    if ($class == 'qty-bundling editable') {
+                        $inputClass = 'qty-input';
+                    } 
+
+                    var $input = $('<input>', {
+                        'class': $inputClass + 'num-only',
+                        value: $harga,
+                        blur: function () {
+                            if (this.value == '') {
+                                if ($class === 'qty-bundling editable') {
+                                    $this.html(0 + '<input data-val="true" data-val-number="The field QTY must be a number." data-val-required="The QTY field is required." id="FakturBundling_QTY" name="FakturBundling.QTY" type="hidden" value="" maxlength="3">');
+                                }
+                                refreshNettoBarangBundling($trId);
+                            } else {
+                                if ($class === 'qty-bundling editable') {
+                                    $this.html(this.value + '<input data-val="true" data-val-number="The field QTY must be a number." data-val-required="The QTY field is required." id="FakturBundling_QTY" name="FakturBundling.QTY" type="hidden" value="" maxlength="3">');
+                                }
+                                refreshNettoBarangBundling($trId);
+                            }
+                        },
+                        focus: function () {
+                            if ($harga == 0) {
+                                this.value = '';
+                            } else {
+                                this.value = $harga;
+                            }
+                        },
+                        keyup: function (e) {
+                            if (e.which === 13) $input.blur();
+                        },
+                        keypress: function (e) {
+                            if (e.which != 8 && e.which != 0 && e.which < 48 || e.which > 57) e.preventDefault();
+                        }
+                    }).appendTo($this.empty()).focus();
+                });
+        }
+
+        function refreshNettoBarangBundling($trId) {
+            var $trElement = 'tr[data-bundling-id="' + $trId + '"]';
+            var $hargaBarang = convertToAngka($('#harga-satuan-bundling').val());
+            var $total = (parseInt($($trElement + ' .qty-bundling').text()) * $hargaBarang);
+            $($trElement + ' .harga-bundling').html(convertToRupiah($total) +
+                '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="FakturBundling_HARGA" name="FakturBundling.HARGA" type="hidden" value="" style="text-align:right">');
+
+            //$('#FakturBundling_HARGA').val(convertToAngka($('tr[data-bundling-id="0"] .harga-bundling').text()));
+            //$('#FakturBundling_QTY').val(convertToAngka($('tr[data-bundling-id="0"] .qty-bundling').text()));
+        }
+
+        function modeEditOffBundling() {
+            $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.editable').prop('onclick', null).off('click');
+            $('.qty-barang').removeClass('editable');
+        }
+
+        function simpanBundling($id) {
+            if (!validateForm()) return false;
+            if (!validasiTambahanBundling()) return false;
+
+            @*if ($id == 'bundling-0') {
+                if ($('#Faktur_TGL').val() != '' &&
+                    $('#Faktur_CUST').val() != '' &&
+                    $('#Pesanan_TERM').val() != '' &&
+                    $('#Pesanan_EXPEDISI').val() != '' &&
+                    $('#Pesanan_NAMAPEMESAN').val() != ''
+                ) {
+                    $modeEditDetail = 0;
+                    refreshNetto();
+                    var tgl = $('#Pesanan_TGL').val();
+
+                    $('#PesananDetail_H_SATUAN').val(0);
+                    $('#PesananDetail_QTY').val(0);
+                    $('#PesananDetail_DISCOUNT').val(0);
+                    $('#PesananDetail_DISCOUNT_2')
+                        .val(0);
+                    $('#PesananDetail_NILAI_DISC_1')
+                        .val(0);
+                    $('#PesananDetail_NILAI_DISC_2')
+                        .val(0);
+                    $('#PesananDetail_HARGA').val(0);
+                    $("#Pesanan_BRUTO").val(0);
+                    $("#Pesanan_NILAI_DISC").val(0);
+                    $("#Pesanan_NILAI_PPN").val(0);
+                    $("#Pesanan_NETTO").val(0);
+                    $("#Pesanan_ONGKOS_KIRIM").val(0);
+
+                    //$('#PesananBundling_BRG').val($('#BRG_BUNDLING').selectivity('val'));
+                    $('#FakturBundling_HARGA').val(convertToAngka($('tr[data-bundling-id="0"] .harga-bundling').text()));
+                    $('#FakturBundling_QTY').val(convertToAngka($('tr[data-bundling-id="0"] .qty-bundling').text()));
+                    $totalAwal = 0;
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SaveFaktur", "Manage")',
+                        data: $('#form-faktur').serialize(),
+                        beforeSend: function() {
+                            $('#loading_spinner').show();
+                        },
+                        success: function (response) {
+                            $modeEditDetail = 0;
+                            //console.log(response);
+                            $('#form-partial').html(response);
+                            $nettoSebelumnya = parseInt(convertToAngka($('#Pesanan_NETTO').val()));
+                            $beforeState = {
+                                brutto: $('#Pesanan_BRUTO').val(),
+                                netto: $('#Pesanan_NETTO').val(),
+                                ndisc: $('#Pesanan_NILAI_DISC').val(),
+                                ppn: $('#Pesanan_PPN').val(),
+                                nppn: $('#Pesanan_NILAI_PPN').val(),
+                                ongkir: $('#Pesanan_ONGKOS_KIRIM').val()
+                            };
+                            refreshInputan();
+                            refreshNetto();
+                            getTanggal();
+                            getMarketplaceSOT01A();
+                            getExpedisi();
+                            //getBuyer();
+                            getDataBarang();
+                            $('#multisku-select').show();
+                            $('#multisku-kode').hide();
+                            getBarangMultiSKUForBarang();
+                            $('#loading_spinner').hide();
+                        },
+                        error: function(xhr) {
+                            console.log(xhr);
+                            $('#loading_spinner').hide();
+                        }
+                    });
+                } else {
+                    //change by calvin 11 april 2019
+                    //alert('Silakan isi semua field terlebih dahulu!');
+                    //if ($('#Pesanan_TGL').val() != '' &&
+                    //    $('#Pesanan_CUST').val() != '' &&
+                    //    $('#Pesanan_TERM').val() != '' &&
+                    //    $('#Pesanan_EXPEDISI').val() != '' &&
+                    //    $('#Pesanan_NAMAPEMESAN').val() != ''
+                    var messageErrorKosong = "";
+                    if ($('#Pesanan_TGL').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Tanggal,";
+                    }
+                    if ($('#Pesanan_CUST').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Marketplace,";
+                    }
+                    if ($('#Pesanan_TERM').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Term Of Payment (TOP),";
+                    }
+                    if ($('#Pesanan_EXPEDISI').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Kurir,";
+                    }
+                    if ($('#Pesanan_NAMAPEMESAN').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Pembeli,";
+                    }
+                    var messageErrorKosong = messageErrorKosong.substring(0, messageErrorKosong.length - 1);
+                    alert('Silakan isi field '+ messageErrorKosong +' terlebih dahulu!');
+                    //end change by calvin 11 april 2019
+                }
+            }*@
+
+            if ($('#FakturBundling_BRG').val() == "" || $('#FakturBundling_BRG').val() == null || $('#FakturBundling_BRG').val() == undefined) return false;
+
+            if ($id == 'bundling-0') {
+                if ($('#Faktur_TGL').val() != '' &&
+                    $('#Faktur_CUST').val() != '' &&
+                    $('#Faktur_TERM').val() != '' &&
+                    $('#Faktur_PENGIRIM').val() != '' &&
+                    $('#Faktur_PEMESAN').val() != ''
+                ) {
+                    $modeEditDetail = 0;
+                    refreshNetto();
+                    var tgl = $('#Faktur_TGL').val();
+                    $('#FakturDetail_TGL_INPUT').val(tgl);
+                    $('#FakturDetail_SATUAN').val('2'); //Satuan Kecil
+                    $('#FakturDetail_H_SATUAN').val(0);
+                    $('#FakturDetail_QTY').val(0);
+                    $('#FakturDetail_DISCOUNT').val(0);
+                    $('#FakturDetail_DISCOUNT_2').val(0);
+                    $('#FakturDetail_NILAI_DISC_1').val(0);
+                    $('#FakturDetail_NILAI_DISC_2').val(0);
+                    $('#FakturDetail_HARGA').val(0);
+                    $("#Faktur_BRUTO").val(0);
+                    $("#Faktur_NILAI_DISC").val(0);
+                    $("#Faktur_NILAI_PPN").val(0);
+                    $("#Faktur_MATERAI").val(0);
+                    $("#Faktur_NETTO").val(0);
+
+                    $totalAwal = 0;
+                    $('#FakturBundling_HARGA').val(convertToAngka($('tr[data-bundling-id="0"] .harga-bundling').text()));
+                    $('#FakturBundling_QTY').val(convertToAngka($('tr[data-bundling-id="0"] .qty-bundling').text()));
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SaveFaktur", "Manage")',
+                        data: $('#form-faktur').serialize(),
+                        beforeSend: function() {
+                            $('#loading_spinner').show();
+                        },
+                        success: function (response) {
+                            if (response.Errors == null) {
+                                $modeEditDetail = 0;
+                                $('#form-partial').html(response);
+                                $nettoSebelumnya = parseInt(convertToAngka($('#Faktur_NETTO').val()));
+                                $beforeState = {
+                                    brutto: $('#Faktur_BRUTO').val(),
+                                    netto: $('#Faktur_NETTO').val(),
+                                    ndisc: $('#Faktur_NILAI_DISC').val(),
+                                    ppn: $('#Faktur_PPN').val(),
+                                    nppn: $('#Faktur_NILAI_PPN').val(),
+                                    ongkir: $('#Faktur_MATERAI').val()
+                                };
+                                refreshInputan();
+                                refreshNetto();
+                                getTanggal();
+                                getBuyer();
+                                getDataBarang();
+                                //getGudang();
+                                
+                                getMarketplace();
+                                getExpedisi();
+                                $('#multisku-select').show();
+                                $('#multisku-kode').hide();
+                                getBarangMultiSKUForBarang();
+                                getGudangForBarang();
+
+                                $('#bundling-select').show();
+                                getBarangBundling();
+                                //$('#EXPEDISI').attr('disabled', 'disabled');
+                                $('#btn-simpan-perubahan-row').show();
+                            } else {
+                                //change by nurul 15/10/2018
+                                //console.log(response.Errors);
+                                //alert(response.Errors[0]);
+                                if (response.Errors[0] != null) {
+                                    alert(response.Errors[0]);
+                                } else {
+                                    console.log(response.Errors);
+                                    alert('Ada data yang tidak valid!');
+                                }
+                                //end add
+                            }
+                            $('#loading_spinner').hide();
+                        },
+                        error: function (xhr) {
+                            alert('Ada data yang tidak valid!');
+                            $('#loading_spinner').hide();
+                            console.log(xhr);
+                        }
+                    });
+                } else {
+                    //change by calvin 11 april 2019
+                    //alert('Silakan isi semua field terlebih dahulu!');
+                    var messageErrorKosong = "";
+                    if ($('#Faktur_TGL').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Tanggal,";
+                    }
+                    if ($('#Faktur_CUST').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Marketplace,";
+                    }
+                    if ($('#Faktur_TERM').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Term Of Payment (TOP),";
+                    }
+                    if ($('#Faktur_PENGIRIM').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Kurir,";
+                    }
+                    if ($('#Faktur_PEMESAN').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Pembeli,";
+                    }
+                    var messageErrorKosong = messageErrorKosong.substring(0, messageErrorKosong.length - 1);
+                    alert('Silakan isi field '+ messageErrorKosong +' terlebih dahulu!');
+                    //end change by calvin 11 april 2019
+                }
+            }
+        }
+
+        var $brgBundling = '';
+
+        function passBundling($brgBundling) {
+            this.$brgBundling = $brgBundling;
+        }
+
+        function deleteBarangBundling() {
+            var link = '@Url.Action("DeleteBarangFakturBundling", "Manage", new {noUrut = "replaceBrgId"})';
+            link = link.replace("replaceBrgId", encodeURIComponent(this.$brgBundling));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    refreshNettoBarang();
+                    $nettoSebelumnya = 0;
+                    $bakalNetto = 0;
+                    $('#form-partial').html(response);
+                    $beforeState = {
+                        brutto: $('#Faktur_BRUTO').val(),
+                        netto: $('#Faktur_NETTO').val(),
+                        ndisc: $('#Faktur_NILAI_DISC').val(),
+                        ppn: $('#Faktur_PPN').val(),
+                        nppn: $('#Faktur_NILAI_PPN').val(),
+                        ongkir: $('#Faktur_MATERAI').val()
+                    };
+                    //add by nurul 5/10/2018
+                    refreshInputan();
+                    refreshNetto();
+                    //end add
+
+                    $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
+                    getTanggal();
+                    getMarketplace();
+                    getBuyer();
+                    getDataBarang();
+                    //getGudang();
+                    
+                    getExpedisi();
+                    $('#multisku-select').show();
+                    $('#multisku-kode').hide();
+                    getBarangMultiSKUForBarang();
+                    getGudangForBarang();
+
+                    $('#bundling-select').show();
+                    getBarangBundling();
+                    $('#konfHapusBundling').modal('hide');
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function getGudangForBarangBundling() {
+            if ($('#FakturBundling_BRG').val() != '') {
+
+                var link = '@Url.Action("GetGudangBarangFaktur", "Manage", new { brgId = "replaceId" })';
+                link = link.replace("replaceId", encodeURIComponent($('#FakturBundling_BRG').val()));
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (response) {
+                        var defaultGd = response.setGd;
+                        var listGd = response.ListQOHPerGD;
+                        var kode = "";
+                        var gudang = "";
+                        var nama = "";
+                        var link = false;
+                        var listGudang = [];
+                        if (listGd[0] != undefined) {
+                            $.each(listGd,
+                                function (i, item) {
+                                    listGudang[i] = {
+                                        id: item.GD,
+                                        //text: item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
+                                        text: item.Nama_Gudang + " (Qty Siap Jual : " + item.SISA + ")",
+                                        sisa: item.SISA
+                                    };
+                                    if (defaultGd == item.GD) {
+                                        link = true;
+                                        kode = item.BRG;
+                                        gudang = item.GD;
+                                        //nama = item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
+                                        nama = item.Nama_Gudang + " (Qty Siap Jual : " + item.SISA + ")";
+                                        qty_1 = item.SISA;
+                                    }
+                                });
+                        }
+                        var gudangSelect = $('#GUDANG_BUNDLING').selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: listGudang,
+                            onChange: function (value) {
+                                var $objSup = $.grep(listGudang, function (data) { return data.id == value });
+                                $('#FakturBundling_GD').val(value);
+
+                                if (value != null) {
+                                    $('#gudang-bundling-kode').text(value);
+
+                                    // Otomatis masuk ke field Qty setelah pilih gudang
+                                    $('#table_tambah_bundling > tbody > tr[data-bundling-id="0"] > td.qty-bundling').click();
+                                    if ($objSup[0] != null) {
+                                        $tempQtyBundling = $objSup[0].sisa;
+                                    }
+                                } else {
+                                    $('#gudang-bundling-kode').text('-');
+                                }
+                            }
+                        });
+                        gudangSelect[0].selectize.clearOptions();
+                        gudangSelect[0].selectize.renderCache = {};
+                        gudangSelect[0].selectize.load(function (callback) {
+                            callback(listGudang);
+                        });
+                        if (link == false || listGd.length == 0) {
+                            $(".selectize-input gudang_bundling_detail input[placeholder]").attr('placeholder', 'Harap pilih');
+                            $(".selectize-input gudang_bundling_detail input[placeholder]").attr('style', 'width: 66px !important');
+                            gudangSelect[0].selectize.setValue($('#FakturBundling_GD').val());
+                        } else if (link == true && listGd.length > 0) {
+                            $(".selectize-input gudang_bundling_detail input[placeholder]").attr('placeholder', nama);
+                            $('#gudang-bundling-kode').text(gudang);
+                            gudangSelect[0].selectize.setValue(gudang);
+                            $('#FakturBundling_GD').val(gudang);
+                            $tempQtyBundling = qty_1;
+                        }
+
+
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+        //end add by nurul 26/10/2020, bundling
     </script>
     <script>
         //Disable Enter Key Submit Form

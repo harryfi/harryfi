@@ -841,30 +841,168 @@ namespace MasterOnline.Controllers
             //ADD BY NURUL 4/9/2020, handle cek stok brg multi sku 
             var cekBrgMultiSKU = ErasoftDbContext.STF02.Where(a => a.BRG == Barang).SingleOrDefault();
             var tempBrgAwal = Barang;
-            if(cekBrgMultiSKU.TYPE == "6" && cekBrgMultiSKU.KUBILASI == 1 && cekBrgMultiSKU.BRG_NON_OS != "" && cekBrgMultiSKU.BRG_NON_OS != null)
+            if (cekBrgMultiSKU.TYPE == "6" && cekBrgMultiSKU.KUBILASI == 1 && cekBrgMultiSKU.BRG_NON_OS != "" && cekBrgMultiSKU.BRG_NON_OS != null)
             {
                 Barang = cekBrgMultiSKU.BRG_NON_OS;
             }
             //END ADD BY NURUL 4/9/2020, handle cek stok brg multi sku 
 
             double qtyOnHand = 0d;
+            //add by nurul 19/1/2021, bundling
+            var cekBundlingAtauTidak = ErasoftDbContext.STF03.Where(a => a.Unit == Barang).Count();
+            if (cekBundlingAtauTidak > 0)
             {
-                object[] spParams = {
+                var default_gudang = "";
+                var cekGudangBundling = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == "GB" && a.Nama_Gudang == "Gudang Bundling" && a.KD_HARGA_JUAL != "1").FirstOrDefault();
+                if (cekGudangBundling != null)
+                {
+                    default_gudang = cekGudangBundling.Kode_Gudang;
+                }
+                else
+                {
+                    var gudang_parsys = ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG;
+                    var cekgudang = ErasoftDbContext.STF18.Where(a => a.KD_HARGA_JUAL != "1").ToList();
+                    if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys && p.KD_HARGA_JUAL != "1").Count() > 0)
+                    {
+                        default_gudang = gudang_parsys;
+                    }
+                    else
+                    {
+                        default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                    }
+                }
+                var Tahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy"));
+                //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) and gd<>'" + default_gudang + "' and tahun='" + Tahun + "'";
+                var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
+                var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
+                ErasoftDbContext.SaveChanges();
+                //var sSQL1 = "select a.brg, isnull(qoh - qoo, 0) as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
+                //            "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
+                //            "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty " +
+                //            "from stf03 a " +
+                //            ")a";
+                //var getListBrgKomponen = ErasoftDbContext.Database.SqlQuery<mdlQtyBrgBundling>(sSQL1).ToList();
+
+                var sSQL2 = "update a set a.QTY_SIAPJUAL = b.qty_sales, a.QTY_KOMPONEN=b.qty_komp from stf03 a inner join ( " +
+                            "select a.brg,a.qty, isnull(qoh - qoo, 0) as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
+                            //"select SUM(CASE WHEN b.JENIS = 'QOH' THEN b.JUMLAH ELSE 0 END) qoh, SUM(CASE WHEN b.JENIS = 'QOO' THEN b.JUMLAH ELSE 0 END) qoo, a.brg,a.qty " +
+                            //"from stf03 a left join [QOH_QOO_ALL_ITEM] b on a.brg=b.brg " +
+                            //"group by a.brg,a.qty )a )b on a.brg=b.brg and a.qty=b.qty ";
+                            "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
+                            "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty from stf03 a " +
+                            ")a )b on a.brg=b.brg and a.qty=b.qty ";
+                ErasoftDbContext.Database.ExecuteSqlCommand(sSQL2);
+                ErasoftDbContext.SaveChanges();
+
+                var cekListBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03").ToList();
+                var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) inner join stf08a b (nolock) on a.unit=b.brg where b.tahun='" + Tahun + "' and b.gd ='" + default_gudang + "'").ToList();
+                var cekListBrgBundlingBelumAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) left join stf08a b (nolock) on a.unit=b.brg where isnull(b.brg,'')=''").ToList();
+
+                if (cekListBrgBundlingBelumAdaStok.Count() > 0)
+                {
+                    foreach (var brg in cekListBrgBundlingBelumAdaStok)
+                    {
+                        var stf08a = new STF08A()
+                        {
+                            GD = default_gudang,
+                            BRG = brg.Unit,
+                            Tahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy")),
+                            QAwal = brg.qty_bundling,
+                            NAwal = 0,
+                            QM1 = 0,
+                            QM2 = 0,
+                            QM3 = 0,
+                            QM4 = 0,
+                            QM5 = 0,
+                            QM6 = 0,
+                            QM7 = 0,
+                            QM8 = 0,
+                            QM9 = 0,
+                            QM10 = 0,
+                            QM11 = 0,
+                            QM12 = 0,
+                            NM1 = 0,
+                            NM2 = 0,
+                            NM3 = 0,
+                            NM4 = 0,
+                            NM5 = 0,
+                            NM6 = 0,
+                            NM7 = 0,
+                            NM8 = 0,
+                            NM9 = 0,
+                            NM10 = 0,
+                            NM11 = 0,
+                            NM12 = 0,
+                            QK1 = 0,
+                            QK2 = 0,
+                            QK3 = 0,
+                            QK4 = 0,
+                            QK5 = 0,
+                            QK6 = 0,
+                            QK7 = 0,
+                            QK8 = 0,
+                            QK9 = 0,
+                            QK10 = 0,
+                            QK11 = 0,
+                            QK12 = 0,
+                            NK1 = 0,
+                            NK2 = 0,
+                            NK3 = 0,
+                            NK4 = 0,
+                            NK5 = 0,
+                            NK6 = 0,
+                            NK7 = 0,
+                            NK8 = 0,
+                            NK9 = 0,
+                            NK10 = 0,
+                            NK11 = 0,
+                            NK12 = 0,
+                        };
+                        ErasoftDbContext.STF08A.Add(stf08a);
+                        ErasoftDbContext.SaveChanges();
+                    }
+                }
+
+                if (cekListBrgBundlingSudahAdaStok.Count() > 0)
+                {
+                    foreach (var brg in cekListBrgBundlingSudahAdaStok)
+                    {
+                        var getStf08a = ErasoftDbContext.STF08A.Where(a => a.BRG == brg.Unit && a.GD == default_gudang && a.Tahun == Tahun).FirstOrDefault();
+                        if (getStf08a != null)
+                        {
+                            getStf08a.QAwal = brg.qty_bundling;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                }
+
+                var getQtyBrg = ErasoftDbContext.STF08A.Where(a => a.Tahun == Tahun && a.BRG == Barang && a.GD == default_gudang).FirstOrDefault();
+                if (getQtyBrg != null)
+                {
+                    qtyOnHand = getQtyBrg.QAwal;
+                }
+            }
+            //end add by nurul 19/1/2021, bundling
+            else
+            {
+                {
+                    object[] spParams = {
                     new SqlParameter("@BRG", Barang),
                     new SqlParameter("@GD", Gudang),
                     new SqlParameter("@Satuan", "2"),
                     new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
                     new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
-                };
+                    };
 
-                ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+                }
+
+                //ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+
+                double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND B.LOKASI = CASE '" + Gudang + "' WHEN 'ALL' THEN B.LOKASI ELSE '" + Gudang + "' END AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
+                qtyOnHand = qtyOnHand - qtySO;
             }
-
-            //ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-
-            double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND B.LOKASI = CASE '" + Gudang + "' WHEN 'ALL' THEN B.LOKASI ELSE '" + Gudang + "' END AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
-            qtyOnHand = qtyOnHand - qtySO;
 
             #region Hitung Qty Reserved Blibli
             //remark by calvin 7 agustus 2019, req dan confirm by pak dani
@@ -948,42 +1086,64 @@ namespace MasterOnline.Controllers
 
             var client = new BackgroundJobClient(sqlStorage);
 
-            var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT DISTINCT BRG, 'ALL_ITEM_WITH_MUTATION' AS CONN_ID FROM STF08A").ToList();
-            
-            //change by nurul 14/9/2020, handle barang multi sku 
-            //List<string> listBrg = new List<string>();
-            //foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
-            //{
-            //    listBrg.Add(item.BRG);
-            //}
-            List<string> listBrg_Lama = new List<string>();
-            foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
-            {
-                listBrg_Lama.Add(item.BRG);
-            }
-            
-            var list_brg = "";
-            if (listBrg_Lama.Count() > 0)
-            {
-                foreach (var brg in listBrg_Lama)
-                {
-                    if (list_brg != "")
-                    {
-                        list_brg += ",";
-                    }
+            //remark by nurul 18/2/2021
+            //var temp_all_mp_order_items = erasoftdbcontext.database.sqlquery<temp_all_mp_order_item>("select distinct brg, 'all_item_with_mutation' as conn_id from stf08a").tolist();
 
-                    list_brg += "'" + brg + "'";
-                }
-            }
-            else
-            {
-                list_brg = "''";
-            }
-            var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";
+            ////change by nurul 14/9/2020, handle barang multi sku 
+            ////list<string> listbrg = new list<string>();
+            ////foreach (var item in temp_all_mp_order_items)
+            ////{
+            ////    listbrg.add(item.brg);
+            ////}
+            //list<string> listbrg_lama = new list<string>();
+            //foreach (var item in temp_all_mp_order_items)
+            //{
+            //    listbrg_lama.add(item.brg);
+            //}
+
+            //var list_brg = "";
+            //if (listbrg_lama.count() > 0)
+            //{
+            //    foreach (var brg in listbrg_lama)
+            //    {
+            //        if (list_brg != "")
+            //        {
+            //            list_brg += ",";
+            //        }
+
+            //        list_brg += "'" + brg + "'";
+            //    }
+            //}
+            //else
+            //{
+            //    list_brg = "''";
+            //}
+            //end remark by nurul 18/2/2021
+
+            //change by nurul 18/2/2021
+            //var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";
+            var sSQL = "SELECT DISTINCT BRG, 'ALL_ITEM_WITH_MUTATION' AS CONN_ID into #tempListBrgUpdateStock FROM STF08A (nolock); " + Environment.NewLine;
+            sSQL += "SELECT BRG FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock) OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock)) OR BRG IN (SELECT BRG FROM STF02 (nolock) WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 (nolock) WHERE BRG IN (select BRG from #tempListBrgUpdateStock))); " + Environment.NewLine;
+            sSQL += "drop table #tempListBrgUpdateStock ";
+            //end change by nurul 18/2/2021
             var listBrg = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
             //end change by nurul 14/9/2020, handle barang multi sku
 
             var ListARF01 = ErasoftDbContext.ARF01.ToList();
+            //add by nurul 29/1/2021, bundling
+            var cekAdaBundling = ErasoftDbContext.STF03.Where(a => listBrg.Contains(a.Unit)).Select(a => a.Unit).ToList();
+            if (cekAdaBundling.Count() > 0)
+            {
+                //var cekLinkMpBrgBundling = ErasoftDbContext.STF02H.Where(a => cekAdaBundling.Contains(a.BRG) && !string.IsNullOrEmpty(a.BRG_MP)).Count();
+                //if (cekLinkMpBrgBundling == 0)
+                var cekLinkMpBrgBundling = ErasoftDbContext.STF02H.Where(a => cekAdaBundling.Contains(a.BRG) && string.IsNullOrEmpty(a.BRG_MP)).Count();
+                if (cekLinkMpBrgBundling > 0)
+                {
+                    getQtyBundlingOffline(DatabasePathErasoft, uname);
+                }
+            }
+            //end add by nurul 29/1/2021, bundling
+
             foreach (string kdBrg in listBrg)
             {
                 //var qtyOnHand = GetQOHSTF08A(kdBrg, "ALL");
@@ -997,10 +1157,22 @@ namespace MasterOnline.Controllers
                     {
                         if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
+                            var idenBL = new BukaLapakKey
+                            {
+                                code = marketPlace.API_KEY,
+                                cust = marketPlace.CUST,
+                                dbPathEra = DatabasePathErasoft,
+                                refresh_token = marketPlace.REFRESH_TOKEN,
+                                tgl_expired = marketPlace.TGL_EXPIRED.Value,
+                                token = marketPlace.TOKEN
+                            };
 #if (DEBUG || Debug_AWS)
-                            Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null);
+                            //Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null);
+                            Bukalapak_updateStock_v2(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", idenBL, stf02h.BRG_MP, uname, null);
 #else
-                            client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
+                            //client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
+                            client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock_v2(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", idenBL, stf02h.BRG_MP, uname, null));
+
 #endif
                         }
                     }
@@ -1326,13 +1498,13 @@ namespace MasterOnline.Controllers
             {
                 listBrg_Lama.Add(item.BRG);
             }
-             
+
             if (connId == "MANUAL")
             {
-                //listBrg.Add("03.MIC00.00");
+                listBrg_Lama.Add("21012021");
                 //listBrg.Add("17.TTOT00.00.6m");
-                listBrg_Lama.Add("03.MIC00.00");
-                listBrg_Lama.Add("17.TTOT00.00.6m");
+                //listBrg_Lama.Add("03.MIC00.00");
+                //listBrg_Lama.Add("17.TTOT00.00.6m");
                 //listBrg.Add("1578");
                 //listBrg.Add("2004");
                 //listBrg.Add("2495");
@@ -1379,9 +1551,23 @@ namespace MasterOnline.Controllers
             {
                 list_brg = "''";
             }
-            var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";
+            var sSQL = "SELECT BRG FROM STF02 WHERE BRG IN (" + list_brg + ") OR BRG IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")) OR BRG IN (SELECT BRG FROM STF02 WHERE BRG_NON_OS IN (SELECT (CASE WHEN [TYPE]='6' THEN BRG_NON_OS ELSE BRG END) BRG_NEW  FROM STF02 WHERE BRG IN (" + list_brg + ")))";           
             var listBrg = ErasoftDbContext.Database.SqlQuery<string>(sSQL).ToList();
             //end change by nurul 14/9/2020, handle barang multi sku
+
+            //add by nurul 29/1/2021, bundling
+            var cekAdaBundling = ErasoftDbContext.STF03.Where(a => listBrg.Contains(a.Unit)).Select(a => a.Unit).ToList();
+            if (cekAdaBundling.Count() > 0)
+            {
+                //var cekLinkMpBrgBundling = ErasoftDbContext.STF02H.Where(a => cekAdaBundling.Contains(a.BRG) && !string.IsNullOrEmpty(a.BRG_MP)).Count();
+                //if (cekLinkMpBrgBundling == 0)
+                var cekLinkMpBrgBundling = ErasoftDbContext.STF02H.Where(a => cekAdaBundling.Contains(a.BRG) && string.IsNullOrEmpty(a.BRG_MP)).Count();
+                if (cekLinkMpBrgBundling > 0)
+                {
+                    getQtyBundlingOffline(DatabasePathErasoft, uname);
+                }
+            }
+            //end add by nurul 29/1/2021, bundling
 
             foreach (string kdBrg in listBrg)
             {
@@ -1396,10 +1582,21 @@ namespace MasterOnline.Controllers
                     {
                         if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
+                            var idenBL = new BukaLapakKey
+                            {
+                                code = marketPlace.API_KEY,
+                                cust = marketPlace.CUST,
+                                dbPathEra = DatabasePathErasoft,
+                                refresh_token = marketPlace.REFRESH_TOKEN,
+                                tgl_expired = marketPlace.TGL_EXPIRED.Value,
+                                token = marketPlace.TOKEN
+                            };
 #if (DEBUG || Debug_AWS)
-                            Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null);
+                            //Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null);
+                            Bukalapak_updateStock_v2(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", idenBL, stf02h.BRG_MP, uname, null);
 #else
-                            client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
+                            //client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
+                            client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock_v2(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", idenBL, stf02h.BRG_MP, uname, null));
 #endif
                         }
 
@@ -1769,6 +1966,86 @@ namespace MasterOnline.Controllers
                 //currentLog.REQUEST_EXCEPTION = "Failed to call Buka Lapak API";
                 //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
             }
+        }
+
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_update_stok")]
+        [NotifyOnFailed("Update Stok {obj} ke Bukalapak gagal.")]
+        public async Task<BindingBase> Bukalapak_updateStock_v2(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, BukaLapakKey data, string brgmp, string username, PerformContext context)
+        {
+            dbPathEra = DatabasePathErasoft;
+            data = new BukaLapakControllerJob().RefreshToken(data);
+            var ret = new BindingBase();
+
+            var EDB = new DatabaseSQL(DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+
+            var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+
+            //add by calvin 17 juni 2019
+            if (qtyOnHand < 0)
+            {
+                qtyOnHand = 0;
+            }
+            //end add by calvin 17 juni 2019
+
+            var splitKode = brgmp.Split(';');
+            if(splitKode.Length != 2)
+            {
+                throw new Exception("invalid item code");
+            }
+            string urll = "https://api.bukalapak.com/products/"+splitKode[0]+ "/skus/" + splitKode[1];
+
+            string myData = "{\"stock\":"+qtyOnHand+"}";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "PATCH";
+            myReq.Headers.Add("Authorization", "Bearer " + data.token);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if(responseFromServer != "")
+            {
+                var resp = JsonConvert.DeserializeObject(responseFromServer, typeof(BukalapakResponseAPI)) as BukalapakResponseAPI;
+                if(resp != null)
+                {
+                    if(resp.meta != null)
+                    {
+                        if(resp.meta.http_status != 200)
+                        {
+                            if(resp.errors != null)
+                            {
+                                if(resp.errors.Length > 0)
+                                {
+                                    string errMsg = "";
+                                    foreach(var error in resp.errors)
+                                    {
+                                        errMsg += error.code + ":" + error.message + "\n";
+                                    }
+                                    throw new Exception(errMsg);
+                                }
+                            }
+                            throw new Exception(responseFromServer);
+                        }
+                    }
+                }
+            }
+            return ret;
         }
 
         [AutomaticRetry(Attempts = 3)]
@@ -4110,7 +4387,10 @@ namespace MasterOnline.Controllers
             if (id.Contains(";"))
             {
                 string[] brgSplit = id.Split(';');
-                brgMp = brgSplit[1].ToString();
+                if (brgSplit[1] != "0")
+                {
+                    brgMp = brgSplit[1].ToString();
+                }
             }
             else
             {
@@ -4228,6 +4508,317 @@ namespace MasterOnline.Controllers
             return ret;
         }
         //end add by nurul 29/7/2020
+
+        //add by nurul 6/11/2020
+        public void getQtyBundling(string DatabasePathErasoft, string uname)
+        {
+            SetupContext(DatabasePathErasoft, uname);
+            var MoDbContext = new MoDbContext("");
+            var EDB = new DatabaseSQL(DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
+            List<string> ret = new List<string>();
+            //if(barangKomponen != "" && barangKomponen != null && barangKomponen != "undefined")
+            //{
+            //try
+            //{
+            var cekBundling = ErasoftDbContext.STF03.Count();
+            if (cekBundling > 0)
+            {
+                #region remark by nurul 19/1/2021, pindah ke GetQOHSTF08A
+                //var default_gudang = "";
+                //var cekGudangBundling = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == "GB" && a.Nama_Gudang == "Gudang Bundling").FirstOrDefault();
+                //if (cekGudangBundling != null)
+                //{
+                //    default_gudang = cekGudangBundling.Kode_Gudang;
+                //}
+                //else
+                //{
+                //    var gudang_parsys = ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG;
+                //    var cekgudang = ErasoftDbContext.STF18.ToList();
+                //    if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
+                //    {
+                //        default_gudang = gudang_parsys;
+                //    }
+                //    else
+                //    {
+                //        default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                //    }
+                //}
+                //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) and gd<>'" + default_gudang + "' and tahun='" + DateTime.Now.ToString("yyyy") + "'";
+                //var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
+
+                //var sSQL1 = "select a.brg, qoh - qoo as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +                         
+                //            "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
+                //            "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty " +
+                //            "from stf03 a " +
+                //            ")a";
+                //var getListBrgKomponen = ErasoftDbContext.Database.SqlQuery<mdlQtyBrgBundling>(sSQL1).ToList();
+
+                //var sSQL2 = "update a set a.QTY_SIAPJUAL = b.qty_sales, a.QTY_KOMPONEN=b.qty_komp from stf03 a inner join ( " +
+                //            "select a.brg,a.qty, qoh - qoo as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
+                //            //"select SUM(CASE WHEN b.JENIS = 'QOH' THEN b.JUMLAH ELSE 0 END) qoh, SUM(CASE WHEN b.JENIS = 'QOO' THEN b.JUMLAH ELSE 0 END) qoo, a.brg,a.qty " +
+                //            //"from stf03 a left join [QOH_QOO_ALL_ITEM] b on a.brg=b.brg " +
+                //            //"group by a.brg,a.qty )a )b on a.brg=b.brg and a.qty=b.qty ";
+                //            "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
+                //            "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty from stf03 a " +
+                //            ")a )b on a.brg=b.brg and a.qty=b.qty ";
+                //ErasoftDbContext.Database.ExecuteSqlCommand(sSQL2);
+
+
+                //var cekListBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03").ToList();
+                //var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) inner join stf08a b (nolock) on a.unit=b.brg where b.tahun='" + DateTime.Now.ToString("yyyy") + "' and b.gd ='" + default_gudang + "'").ToList();
+                //var cekListBrgBundlingBelumAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) left join stf08a b (nolock) on a.unit=b.brg where isnull(b.brg,'')='' ").ToList();
+
+                //if (cekListBrgBundlingBelumAdaStok.Count() > 0)
+                //{
+                //    foreach (var brg in cekListBrgBundlingBelumAdaStok)
+                //    {
+                //        var stf08a = new STF08A()
+                //        {
+                //            GD = default_gudang,
+                //            BRG = brg.Unit,
+                //            Tahun = Convert.ToInt16(DateTime.Now.ToString("yyyy")),
+                //            QAwal = brg.qty_bundling,
+                //            NAwal = 0,
+                //            QM1 = 0,
+                //            QM2 = 0,
+                //            QM3 = 0,
+                //            QM4 = 0,
+                //            QM5 = 0,
+                //            QM6 = 0,
+                //            QM7 = 0,
+                //            QM8 = 0,
+                //            QM9 = 0,
+                //            QM10 = 0,
+                //            QM11 = 0,
+                //            QM12 = 0,
+                //            NM1 = 0,
+                //            NM2 = 0,
+                //            NM3 = 0,
+                //            NM4 = 0,
+                //            NM5 = 0,
+                //            NM6 = 0,
+                //            NM7 = 0,
+                //            NM8 = 0,
+                //            NM9 = 0,
+                //            NM10 = 0,
+                //            NM11 = 0,
+                //            NM12 = 0,
+                //            QK1 = 0,
+                //            QK2 = 0,
+                //            QK3 = 0,
+                //            QK4 = 0,
+                //            QK5 = 0,
+                //            QK6 = 0,
+                //            QK7 = 0,
+                //            QK8 = 0,
+                //            QK9 = 0,
+                //            QK10 = 0,
+                //            QK11 = 0,
+                //            QK12 = 0,
+                //            NK1 = 0,
+                //            NK2 = 0,
+                //            NK3 = 0,
+                //            NK4 = 0,
+                //            NK5 = 0,
+                //            NK6 = 0,
+                //            NK7 = 0,
+                //            NK8 = 0,
+                //            NK9 = 0,
+                //            NK10 = 0,
+                //            NK11 = 0,
+                //            NK12 = 0,
+                //        };
+                //        ErasoftDbContext.STF08A.Add(stf08a);
+                //        ErasoftDbContext.SaveChanges();
+                //    }
+                //}
+
+                //if (cekListBrgBundlingSudahAdaStok.Count() > 0)
+                //{
+                //    foreach (var brg in cekListBrgBundlingSudahAdaStok)
+                //    {
+                //        var Tahun = Convert.ToInt16(DateTime.Now.ToString("yyyy"));
+                //        var getStf08a = ErasoftDbContext.STF08A.Where(a => a.BRG == brg.Unit && a.GD == default_gudang && a.Tahun == Tahun).FirstOrDefault();
+                //        if (getStf08a != null)
+                //        {
+                //            getStf08a.QAwal = brg.qty_bundling;
+                //            ErasoftDbContext.SaveChanges();
+                //        }
+                //    }
+                //}
+                //if (cekListBrgBundling.Count() > 0)
+                //{
+                //    ret.AddRange(cekListBrgBundling);
+                //}
+                #endregion remark by nurul 19/1/2021, pindah ke GetQOHSTF08A
+
+                //panggil api marketplace to change stock
+                var cekListBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03").ToList();
+                List<string> listBrg = new List<string>();
+                listBrg.AddRange(cekListBrgBundling);
+
+                var ConnId = "[BRG_BUNDLING][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]";
+                string sSQLValues = "";
+
+                foreach (var item in listBrg)
+                {
+                    sSQLValues = sSQLValues + "('" + item + "', '" + ConnId + "'),";
+                }
+                sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
+                EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
+                
+                updateStockMarketPlace(ConnId, dbPathEra, uname);
+            }
+            //}
+            //catch (Exception ex)
+            //{
+            //return View("Error");
+            //}
+            //return Json(ret, JsonRequestBehavior.AllowGet);
+        }
+        public void getQtyBundlingOffline(string DatabasePathErasoft, string uname)
+        {
+            SetupContext(DatabasePathErasoft, uname);
+            var MoDbContext = new MoDbContext("");
+            var EDB = new DatabaseSQL(DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
+            List<string> ret = new List<string>();
+            try
+            {
+                var cekBundling = ErasoftDbContext.STF03.Count();
+                if (cekBundling > 0)
+                {
+                    var default_gudang = "";
+                    var cekGudangBundling = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == "GB" && a.Nama_Gudang == "Gudang Bundling" && a.KD_HARGA_JUAL != "1").FirstOrDefault();
+                    if (cekGudangBundling != null)
+                    {
+                        default_gudang = cekGudangBundling.Kode_Gudang;
+                    }
+                    else
+                    {
+                        var gudang_parsys = ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG;
+                        var cekgudang = ErasoftDbContext.STF18.Where(a => a.KD_HARGA_JUAL != "1").ToList();
+                        if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys && p.KD_HARGA_JUAL != "1").Count() > 0)
+                        {
+                            default_gudang = gudang_parsys;
+                        }
+                        else
+                        {
+                            default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                        }
+                    }
+                    var Tahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy"));
+                    //var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) and gd<>'" + default_gudang + "' and tahun='" + Tahun + "'";
+                    var sSQL3 = "delete from stf08a where brg in (select distinct unit from stf03) ";
+                    var axy = ErasoftDbContext.Database.ExecuteSqlCommand(sSQL3);
+                    ErasoftDbContext.SaveChanges();
+                    //var sSQL1 = "select a.brg, isnull(qoh - qoo, 0) as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
+                    //            "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
+                    //            "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty " +
+                    //            "from stf03 a " +
+                    //            ")a";
+                    //var getListBrgKomponen = ErasoftDbContext.Database.SqlQuery<mdlQtyBrgBundling>(sSQL1).ToList();
+
+                    var sSQL2 = "update a set a.QTY_SIAPJUAL = b.qty_sales, a.QTY_KOMPONEN=b.qty_komp from stf03 a inner join ( " +
+                                "select a.brg,a.qty, isnull(qoh - qoo, 0) as qty_sales, case when (qoh-qoo)/a.qty > 0 then convert(float,convert(int,round((qoh-qoo)/a.qty,2))) else 0 end as qty_komp from ( " +
+                                "select (select SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg ) qoh, " +
+                                "(select SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) from [QOH_QOO_ALL_ITEM_GD_LINK] where brg=a.brg )qoo,a.brg,a.qty from stf03 a " +
+                                ")a )b on a.brg=b.brg and a.qty=b.qty ";
+                    ErasoftDbContext.Database.ExecuteSqlCommand(sSQL2);
+                    ErasoftDbContext.SaveChanges();
+
+                    var cekListBrgBundling = ErasoftDbContext.Database.SqlQuery<string>("select distinct unit from stf03").ToList();
+                    var cekListBrgBundlingSudahAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) inner join stf08a b (nolock) on a.unit=b.brg where b.tahun='" + Tahun + "' and b.gd ='" + default_gudang + "'").ToList();
+                    var cekListBrgBundlingBelumAdaStok = ErasoftDbContext.Database.SqlQuery<mdlQtyBundling>("select distinct unit, convert(float,(select isnull(min(qty_komponen),0) from stf03 c where c.unit=a.unit)) as qty_bundling from stf03 a (nolock) left join stf08a b (nolock) on a.unit=b.brg where isnull(b.brg,'')=''").ToList();
+
+                    if (cekListBrgBundlingBelumAdaStok.Count() > 0)
+                    {
+                        foreach (var brg in cekListBrgBundlingBelumAdaStok)
+                        {
+                            var stf08a = new STF08A()
+                            {
+                                GD = default_gudang,
+                                BRG = brg.Unit,
+                                Tahun = Convert.ToInt16(DateTime.UtcNow.AddHours(7).ToString("yyyy")),
+                                QAwal = brg.qty_bundling,
+                                NAwal = 0,
+                                QM1 = 0,
+                                QM2 = 0,
+                                QM3 = 0,
+                                QM4 = 0,
+                                QM5 = 0,
+                                QM6 = 0,
+                                QM7 = 0,
+                                QM8 = 0,
+                                QM9 = 0,
+                                QM10 = 0,
+                                QM11 = 0,
+                                QM12 = 0,
+                                NM1 = 0,
+                                NM2 = 0,
+                                NM3 = 0,
+                                NM4 = 0,
+                                NM5 = 0,
+                                NM6 = 0,
+                                NM7 = 0,
+                                NM8 = 0,
+                                NM9 = 0,
+                                NM10 = 0,
+                                NM11 = 0,
+                                NM12 = 0,
+                                QK1 = 0,
+                                QK2 = 0,
+                                QK3 = 0,
+                                QK4 = 0,
+                                QK5 = 0,
+                                QK6 = 0,
+                                QK7 = 0,
+                                QK8 = 0,
+                                QK9 = 0,
+                                QK10 = 0,
+                                QK11 = 0,
+                                QK12 = 0,
+                                NK1 = 0,
+                                NK2 = 0,
+                                NK3 = 0,
+                                NK4 = 0,
+                                NK5 = 0,
+                                NK6 = 0,
+                                NK7 = 0,
+                                NK8 = 0,
+                                NK9 = 0,
+                                NK10 = 0,
+                                NK11 = 0,
+                                NK12 = 0,
+                            };
+                            ErasoftDbContext.STF08A.Add(stf08a);
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+
+                    if (cekListBrgBundlingSudahAdaStok.Count() > 0)
+                    {
+                        foreach (var brg in cekListBrgBundlingSudahAdaStok)
+                        {
+                            var getStf08a = ErasoftDbContext.STF08A.Where(a => a.BRG == brg.Unit && a.GD == default_gudang && a.Tahun == Tahun).FirstOrDefault();
+                            if (getStf08a != null)
+                            {
+                                getStf08a.QAwal = brg.qty_bundling;
+                                ErasoftDbContext.SaveChanges();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+        //end add by nurul 6/11/2020
 
         [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
         [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
@@ -5068,5 +5659,13 @@ namespace MasterOnline.Controllers
             public string out_of_stock { get; set; }
         }
 
+        public class BukalapakResponseAPI : BLErrorResponse
+        {
+            public BukalapakResponseMeta meta { get; set; }
+        }
+        public class BukalapakResponseMeta
+        {
+            public int http_status { get; set; }
+        }
     }
 }
