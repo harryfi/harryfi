@@ -23290,8 +23290,19 @@ namespace MasterOnline.Controllers
             ViewData["LastPage"] = page;
             //ADD BY NURUL 27/9/2019
             bool searchStatus = false;
-            bool searchTipePesanan = false;
-            string searchTipePesananValue = "";//inp. here
+            bool searchCOD = false;
+            bool searchPreorder = false;
+            if (!string.IsNullOrEmpty(search))
+            {
+                if (search.ToUpper().Contains("COD"))
+                {
+                    searchCOD = true;
+                }
+                if (search.ToUpper().Contains("PREORDER"))
+                {
+                    searchPreorder = true;
+                }
+            }
             if (search.ToUpper() == "BELUM BAYAR")
             {
                 search = "0";
@@ -23402,15 +23413,23 @@ namespace MasterOnline.Controllers
                     break;
                 case "tipe":
                     {
-                        if (filtervalue == "cod")
+                        if (filtervalue != null && filtervalue != "Harap Pilih")
                         {
-                            sSQLTemp = "WHERE ISNULL(TIPE_KIRIM,0) = 1 ";
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A (NOLOCK) ";
+                            if (filtervalue == "cod")
+                            {
+                                sSQLTemp += "WHERE ISNULL(TIPE_KIRIM,0) = 1; ";
+                            }
+                            if (filtervalue == "preorder")
+                            {
+                                sSQLTemp += "WHERE ISNULL(N_UCAPAN,'') = 'preorder'; ";
+                            }
+                            sSQL2 += "FROM #SOT01A A (NOLOCK) ";
                         }
-                        if (filtervalue == "preorder")
+                        else
                         {
-                            sSQLTemp = "WHERE ISNULL(N_UCAPAN,'') = 'preorder' ";
+                            sSQL2 += "FROM SOT01A A (NOLOCK) ";
                         }
-                        sSQL2 += "FROM SOT01A A (NOLOCK) ";
                     }
                     break;
                 default:
@@ -23432,6 +23451,14 @@ namespace MasterOnline.Controllers
                 else
                 {
                     sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                }
+                if (searchCOD)
+                {
+                    sSQL2 += " OR TIPE_KIRIM = 1 ";
+                }
+                if (searchPreorder)
+                {
+                    sSQL2 += " OR N_UCAPAN = 'Preorder' ";
                 }
             }
 

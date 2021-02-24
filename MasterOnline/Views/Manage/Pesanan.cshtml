@@ -1775,6 +1775,7 @@
                             <select class="form-control" id="filter_pesanan_field" required="required">
                                 <option value="tanggal">Tgl. Pesanan</option>
                                 <option value="marketplace">Marketplace</option>
+                                <option value="tipe">Tipe Pesanan</option>
                             </select>
                         </div>
                         <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
@@ -1797,6 +1798,13 @@
                                     <option value="20">82Cart</option>
                                     <option value="21">Shopify</option>
                                     <option value="18">Offline</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_pesanan_field_tipe_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_field_tipe" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="cod">COD</option>
+                                    <option value="preorder">Preorder</option>
                                 </select>
                             </div>
                         </div>
@@ -4850,19 +4858,30 @@
                 switch (filterBy) {
                     case "tanggal":
                         $('#filter_pesanan_field_tanggal_div').show();
+                        $('#filter_pesanan_field_tipe_div').hide();
                         $('#filter_pesanan_field_marketplace_div').hide();
                         searchTablePesanan();
                         break;
                     case "marketplace":
                         $('#filter_pesanan_field_tanggal_div').hide();
+                        $('#filter_pesanan_field_tipe_div').hide();
                         $('#filter_pesanan_field_marketplace_div').show();
                         if ($('#filter_pesanan_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesanan();
+                        }
+                        break;
+                    case "tipe":
+                        $('#filter_pesanan_field_tanggal_div').hide();
+                        $('#filter_pesanan_field_marketplace_div').hide();
+                        $('#filter_pesanan_field_tipe_div').show();
+                        if ($('#filter_pesanan_field_tipe').val() != "Harap Pilih") {
                             searchTablePesanan();
                         }
                         break;
                     default:
                         $('#filter_pesanan_field_tanggal_div').hide();
                         $('#filter_pesanan_field_marketplace_div').hide();
+                        $('#filter_pesanan_field_tipe_div').hide();
                         break;
                 }
 
@@ -4871,6 +4890,9 @@
                 searchTablePesanan();
             });
             $('#filter_pesanan_field_marketplace').change(function () {
+                searchTablePesanan();
+            });
+            $('#filter_pesanan_field_tipe').change(function () {
                 searchTablePesanan();
             });
             $('#filter_pesanan_dibayar_field').change(function () {
@@ -7920,6 +7942,9 @@
                     break;
                 case "marketplace":
                     filtervalue = $('#filter_pesanan_field_marketplace').val();
+                    break;
+                case "tipe":
+                    filtervalue = $('#filter_pesanan_field_tipe').val();
                     break;
                 default:
                     break;
