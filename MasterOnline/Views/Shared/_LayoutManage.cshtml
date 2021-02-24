@@ -403,7 +403,8 @@
 
                                     if (sessionUser != null)
                                     {
-                                        listSec = context.SecUser.Where(s => s.UserId == Convert.ToInt64(sessionUserUserID) && s.Permission).ToList();
+                                        var userUSERID = Convert.ToInt64(sessionUserUserID);
+                                        listSec = context.SecUser.Where(s => s.UserId == userUSERID && s.Permission).ToList();
                                     }
 
                                     foreach (var parent in listParent)

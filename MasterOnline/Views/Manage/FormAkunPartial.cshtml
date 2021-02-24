@@ -32,7 +32,7 @@
 
     if (sessionAccount != null)
     {
-        accountId = sessionAccount.ToString();
+        accountId = Convert.ToInt64(sessionAccount);
     }
     else if (sessionUser != null)
     {

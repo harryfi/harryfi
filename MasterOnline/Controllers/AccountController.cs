@@ -242,11 +242,7 @@ namespace MasterOnline.Controllers
                 Session["SessionUser"] = null;
             }
 
-            //Session.Add("SessionDetail", "HELLO");
-            //Session["SessionDetail"] = "haaaii bisaaa";
             //Session["SessionInfo"] = _viewModel;
-            //Session["SessionEmail"] = _viewModel.Account.Email;
-            //Session["SessionUsername"] = _viewModel.Account.Username;
 
             DatabaseSQL EDB; //add by calvin 1 april 2019
             ErasoftContext erasoftContext = null;
@@ -526,10 +522,8 @@ namespace MasterOnline.Controllers
                 Session["SessionUser"] = null;
                 //connectionConfiguration.ConnectionStrings.ConnectionStrings["PerAccContext"].ConnectionString = $"Server=13.251.222.53\\SQLEXPRESS, 1433;initial catalog=ERASOFT_{accFromDb.UserId};user id=masteronline;password=M@ster123;multipleactiveresultsets=True;application name=EntityFramework";
             }
-
-            Session.Add("SessionDetail", "HELLO");
-            Session["SessionDetail"] = "haaaii bisaaa";
-            Session["SessionInfo"] = _viewModel;
+            
+            //Session["SessionInfo"] = _viewModel;
 
             DatabaseSQL EDB; //add by calvin 1 april 2019
             ErasoftContext erasoftContext = null;

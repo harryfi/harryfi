@@ -47,7 +47,7 @@
     else
     {
         username = sessionAccountUserName.ToString();
-        accId = (sessionAccount.ToString() ?? 0);
+        accId = (Convert.ToInt64(sessionAccount ?? 0));
     }
 
     if (username.Length > 20)
