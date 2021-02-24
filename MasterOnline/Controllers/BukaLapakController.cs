@@ -2773,7 +2773,7 @@ namespace MasterOnline.Controllers
                                 }
                                 ret.recordCount += a;
                             }
-                            currentLog.REQUEST_RESULT = sSQL.Replace("'", "\'\'");//add 23 feb 2021, cek failed to move to inactive product
+                            //currentLog.REQUEST_RESULT = sSQL.Replace("'", "\'\'");//add 23 feb 2021, cek failed to move to inactive product
                             manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.code, currentLog);
                         }
                         else
