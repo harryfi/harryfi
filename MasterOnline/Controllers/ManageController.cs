@@ -7706,7 +7706,7 @@ namespace MasterOnline.Controllers
             listKategoriJD.Add(category);
 
             if (Convert.ToString(category) != "")
-                if (category.PARENT_CODE != "")
+                if (string.IsNullOrEmpty(category.PARENT_CODE))
                 {
                     bool TopParent = false;
                     while (!TopParent)
