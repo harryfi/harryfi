@@ -3500,13 +3500,17 @@ namespace MasterOnline.Controllers
                     {
                         if (orderUnpaidList.Contains(order.order_id))
                         {
-                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
-
+                            //change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
+                            //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
+                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11', STATUS_KIRIM='5' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
+                            //END change by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
                             if (rowAffected > 0)
                             {
                                 //add by Tri 1 sep 2020, hapus packing list
-                                var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.order_id + "')  AND STATUS_TRANSAKSI = '11' AND CUST = '" + cust + "')");
-                                var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.order_id + "')  AND STATUS_TRANSAKSI = '11' AND CUST = '" + cust + "')");
+                                //remark by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
+                                //var delPL = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.order_id + "')  AND STATUS_TRANSAKSI = '11' AND CUST = '" + cust + "')");
+                                //var delPLDetail = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (SELECT NO_BUKTI FROM SOT01A WHERE NO_REFERENSI IN ('" + order.order_id + "')  AND STATUS_TRANSAKSI = '11' AND CUST = '" + cust + "')");
+                                //END remark by nurul 16/2/2021, status kirim aja yg diubah jd batal, packing tidak dihapus
                                 //end add by Tri 1 sep 2020, hapus packing list
                                 jmlhOrder = jmlhOrder + rowAffected;
                                 //add by Tri 4 Des 2019, isi cancel reason
