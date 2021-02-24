@@ -2992,7 +2992,26 @@ namespace MasterOnline.Controllers
                     }
                     if (brg.specs.brand != null)
                     {
-                        brand = brg.specs.brand;
+                        bool getBrand = true;
+                        try
+                        {
+                            brand = brg.specs.brand;
+                        }
+                        catch(Exception ex)
+                        {
+                            getBrand = false;
+                        }
+                        if (!getBrand)
+                        {
+                            try
+                            {
+                                brand = brg.specs.brand[0];
+                            }
+                            catch (Exception ex)
+                            {
+                                getBrand = false;
+                            }
+                        }
                     }
                 }
                 int p = 0;
