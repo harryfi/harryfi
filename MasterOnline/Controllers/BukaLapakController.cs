@@ -2990,6 +2990,10 @@ namespace MasterOnline.Controllers
                     {
                         brand = brg.specs.Brand;
                     }
+                    if (brg.specs.brand != null)
+                    {
+                        brand = brg.specs.brand;
+                    }
                 }
                 int p = 0;
                 int l = 0;
