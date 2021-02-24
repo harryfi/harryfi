@@ -43636,6 +43636,15 @@ namespace MasterOnline.Controllers
         }
         //end add by Tri 27 agustus 2019, validasi ubah barang non-varian menjadi varian
 
+        //add by nurul 22/2/2021
+        public class rekapDasboradPacking
+        {
+            public double PACKING { get; set; }
+            public double PESANAN { get; set; }
+            public double BRG { get; set; }
+            public double QTY { get; set; }
+        }
+        //end add by nurul 22/2/2021
         //add by Tri 30-08-2019, picking list
         [Route("manage/Packinglist")]
         public ActionResult Packinglist()
@@ -43645,8 +43654,38 @@ namespace MasterOnline.Controllers
                 //listParent = ErasoftDbContext.SOT03A.ToList(),
             };
 
+            return View("Pickinglist", vm);
+        }
+
+        public ActionResult PackinglistDashboard(string drTgl, string sdTgl)
+        {
+            var vm = new PackingListViewModel()
+            {
+            };
+
             //return View("Pickinglist", vm);
-            return View("TablePackinglistPartialView", vm);
+
+            //add by nurul 22/2/2021
+            var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+            var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+            var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+            var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
+
+            var sSQL = "SELECT " +
+                       "(SELECT CONVERT(FLOAT, COUNT(NO_BUKTI)) AS PACKING FROM SOT03A (NOLOCK) WHERE TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "') AS PACKING, " +
+                       "(SELECT CONVERT(FLOAT, COUNT(NO_PESANAN)) AS PESANAN FROM (SELECT DISTINCT NO_PESANAN FROM SOT03A A(NOLOCK) INNER JOIN SOT03B B(NOLOCK) ON A.NO_BUKTI=B.NO_BUKTI LEFT JOIN SOT01A C(NOLOCK) ON B.NO_PESANAN=C.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND ISNULL(C.STATUS,'') <> '2' AND ISNULL(C.STATUS_KIRIM,'') <> '5')A) AS PESANAN, " +
+                       "(SELECT CONVERT(FLOAT, COUNT(BRG)) AS BRG FROM (SELECT DISTINCT BRG FROM SOT03A A(NOLOCK) INNER JOIN SOT03C B(NOLOCK) ON A.NO_BUKTI=B.NO_BUKTI LEFT JOIN SOT01A C(NOLOCK) ON B.NO_PESANAN=C.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND ISNULL(C.STATUS,'') <> '2' AND ISNULL(C.STATUS_KIRIM,'') <> '5')A) AS BRG,  " +
+                       "(SELECT CONVERT(FLOAT, ISNULL(SUM(ISNULL(QTY,0)),0)) FROM SOT03A A(NOLOCK) INNER JOIN SOT03C B(NOLOCK) ON A.NO_BUKTI=B.NO_BUKTI LEFT JOIN SOT01A C(NOLOCK) ON B.NO_PESANAN=C.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND ISNULL(C.STATUS,'') <> '2' AND ISNULL(C.STATUS_KIRIM,'') <> '5') AS QTY  ";
+            var rekapDasboard = ErasoftDbContext.Database.SqlQuery<rekapDasboradPacking>(sSQL).SingleOrDefault();
+
+            vm.JumlahPackingList = rekapDasboard.PACKING;
+            vm.JumlahPesanan = rekapDasboard.PESANAN;
+            vm.JumlahRekapBarang = rekapDasboard.BRG;
+            vm.JumlahRekapQtyBarang = rekapDasboard.QTY;
+            //end add by nurul 22/2/2021
+            return PartialView("TablePackinglistPartialView", vm);
         }
 
         public ActionResult Packinglist(string nobuk)
@@ -43699,6 +43738,167 @@ namespace MasterOnline.Controllers
             IPagedList<mdlPackinglist> pagePackinglist = new StaticPagedList<mdlPackinglist>(listPackinglist, pagenumber + 1, 10, totalCount.JUMLAH);
             //return PartialView("TablePackinglistPartialView", pagePackinglist);
             return PartialView("PackingListPartial", pagePackinglist);
+        }
+
+        public ActionResult refreshTablePackinglistV2(string take, string drTgl, string sdTgl, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["takeRecord"] = take;
+
+            var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+            var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+            var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+            var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT RECNUM, NO_BUKTI, TGL ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM SOT03A (NOLOCK) ";
+            sSQL2 += "WHERE TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' ";
+            if (search != "")
+            {
+                sSQL2 += "AND (NO_BUKTI LIKE '%" + search + "%' ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT " + take + " ROWS ONLY ";
+
+            var listPackinglist = ErasoftDbContext.Database.SqlQuery<mdlPackinglist>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            //IPagedList<mdlPackinglist> pagePackinglist = new StaticPagedList<mdlPackinglist>(listPackinglist, pagenumber + 1, 10, totalCount.JUMLAH);
+            IPagedList<mdlPackinglist> pagePackinglist = new StaticPagedList<mdlPackinglist>(listPackinglist, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
+            
+            return PartialView("PackingListPartial", pagePackinglist);
+        }
+
+        public ActionResult refreshTablePackinglistRekapBrg(string take, string drTgl, string sdTgl, int? page, string search = "", string filter = "", string filtervalue = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["takeRecord"] = take;
+
+            var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+            var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+            var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+            var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
+
+            string[] getkata = search.Split(' ');
+            string sSQLnama = "";
+            string sSQLkode = "";
+            string sSQLrak = "";
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLkode += " and ";
+                            sSQLnama += " and ";
+                            sSQLrak += " and ";
+                        }
+                        
+                        sSQLkode += " ( A.BRG like '%" + getkata[i] + "%' ) ";
+                        sSQLnama += "  ( (ISNULL(B.NAMA,'') + ' ' + ISNULL(B.NAMA2,'')) like '%" + getkata[i] + "%' ) ";
+                        sSQLrak += " ( B.LKS like '%" + getkata[i] + "%' ) ";
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.BRG, (ISNULL(B.NAMA,'') + ' ' + ISNULL(B.NAMA2,'')) AS NAMA_BARANG, ISNULL(sum(ISNULL(QTY,0)),0) QTY, ISNULL(B.LKS,'') as RAK ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.BRG) AS JUMLAH FROM ( ";
+            string sSQL2 = "";
+            sSQL2 += "from SOT03A C(NOLOCK) INNER JOIN SOT03C A(NOLOCK) ON A.NO_BUKTI=C.NO_BUKTI INNER JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG ";
+            sSQL2 += "LEFT JOIN SOT01A D(NOLOCK) ON A.NO_PESANAN=D.NO_BUKTI ";
+            sSQL2 += "WHERE C.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND ISNULL(D.STATUS,'') <> '2' AND ISNULL(STATUS_KIRIM,'') <> '5' ";
+            if (search != "")
+            {
+                sSQL2 += " AND ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLrak + " ) ";
+            }
+            var sSQLGrouping = "GROUP BY A.BRG, B.NAMA, B.NAMA2, B.LKS ";
+            var sSQLCount2 = ")A ";
+            string ssqlOrder = "";
+            switch (filter)
+            {
+                case "kode":
+                    {
+                        ssqlOrder += "order by A.BRG ";
+                    }
+                    break;
+                case "nama":
+                    {
+                        ssqlOrder += "order by (ISNULL(B.NAMA,'') + ' ' + ISNULL(B.NAMA2,'')) ";
+                    }
+                    break;
+                case "rak":
+                    {
+                        ssqlOrder += "order by B.LKS ";
+                    }
+                    break;
+                case "qty":
+                    {
+                        ssqlOrder += "order by sum(QTY) ";
+                    }
+                    break;
+                default:
+                    {
+                        ssqlOrder += "order by B.LKS ";
+                    }
+                    break;
+            }
+            if (filtervalue == "desc")
+            {
+                ssqlOrder += " DESC ";
+            }
+            else if(filtervalue == "asc")
+            {
+                ssqlOrder += " ASC ";
+            }
+            else
+            {
+                ssqlOrder += ", A.BRG ASC ";
+            }
+
+            
+            
+            var minimal_harus_ada_item_untuk_current_page = (page * Convert.ToInt32(take)) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQLSelect + sSQL2 + sSQLGrouping + sSQLCount2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT " + take + " ROWS ONLY ";
+
+
+            var listPackinglist = ErasoftDbContext.Database.SqlQuery<mdlPackinglist>(sSQLSelect + sSQL2 + sSQLGrouping + ssqlOrder + sSQLSelect2).ToList();
+            
+            IPagedList<mdlPackinglist> pagePackinglist = new StaticPagedList<mdlPackinglist>(listPackinglist, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
+
+            return PartialView("PackingListRekapBrgPartial", pagePackinglist);
         }
 
         public ActionResult RefreshPackinglistForm()

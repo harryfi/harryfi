@@ -6592,6 +6592,7 @@
     <Content Include="Views\Admin\TablePromptAkunProsesAkhirTahun.cshtml" />
     <Content Include="Views\Manage\PackingListPartial.cshtml" />
     <Content Include="Views\Manage\TablePackinglistPartialView2.cshtml" />
+    <Content Include="Views\Manage\PackingListRekapBrgPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

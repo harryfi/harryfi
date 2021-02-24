@@ -18,10 +18,10 @@ namespace MasterOnline.ViewModels
         public string printMode { get; set; }
 
         //add by fauzi 22/01/2021, tambah dashboard packing list
-        public int? JumlahPackingList { get; set; }
-        public int? JumlahPesanan { get; set; }
-        public int? JumlahRekapBarang { get; set; }
-        public int? JumlahRekapQtyBarang { get; set; }
+        public double JumlahPackingList { get; set; }
+        public double JumlahPesanan { get; set; }
+        public double JumlahRekapBarang { get; set; }
+        public double JumlahRekapQtyBarang { get; set; }
         //end add by fauzi 22/01/2021, tambah dashboard packing list
     }
 

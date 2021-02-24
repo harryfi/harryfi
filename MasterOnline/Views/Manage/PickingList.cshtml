@@ -10,6 +10,7 @@
 }
 @section styles
 {
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
     <link href="~/Content/selectize.css" rel="stylesheet" />
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <style>
@@ -208,7 +209,36 @@
         }
     </style>
 }
-<div class="row" id="packinglist_section">
+@*add by nurul 23/2/2021*@
+<div class="row">
+    <div class="col-md-2">
+        @Html.Label("", "Dari Tanggal")
+        <div class="input-group date">
+            @Html.TextBox("DrTanggalDashboard", null, new { @class = "form-control", @ReadOnly = true })
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+        @Html.Label("", "S/d Tanggal")
+        <div class="input-group date">
+            @Html.TextBox("SdTanggalDashboard", null, new { @class = "form-control", @ReadOnly = true })
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-8">
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-12" id="table-packinglist-partial-view-mode">
+    </div>
+</div>
+@*end add by nurul 23/2/2021*@
+@*<div class="row" id="packinglist_section" hidden>
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="row packinglist_table_section">
             <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
@@ -223,16 +253,12 @@
             </div>
             <div class="col-lg-8 col-sm-6">
                 <div class="pull-right">
-                    @*<button type="button" class="btn btn-default" id="refresh_promosi" data-style="expand-right">
-                            <span>Refresh</span>
-                        </button>*@
                     <button class="btn btn-primary btn_tambah_data" id="tambah_packinglist" style="display:none">Tambah Baru</button>
                 </div>
             </div>
         </div>
         <div class="row packinglist_table_section" style="margin-top: 5px;">
             <div class="col-sm-12 addpixel" id="table-packinglist-partial">
-                @*@Html.Partial("TablePromosiPartial")*@
             </div>
         </div>
         <div class="row packinglist_editor_section" style="display: none;">
@@ -258,14 +284,13 @@
                     @using (Html.BeginForm("SavePackinglist", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-packinglist" }))
                     {
                         <div id="form-partial">
-                            @*@Html.Partial("BarangPromosiPartial")*@
                         </div>
                     }
                 </div>
             </div>
         </div>
     </div>
-</div>
+</div>*@
 
 <div class="modal fade" id="konfHapusPackinglist" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
@@ -425,94 +450,134 @@
             //end add by nurul 12/2/2019
 
         $(document).ready(function () {
-            refreshTablePackinglist1();
-            //add by nurul 12/2/2019
-            $page = 0;
-            //end add by nurul 12/2/2019
-            var tableSiapProses = $('#datatable_siapproses').DataTable({
-                columnDefs: [{
-                    orderable: false,
-                    className: 'select-checkbox',
-                    targets: 0
-                }],
-                select: {
-                    style: 'os',
-                    selector: 'td:first-child'
-                }
-            });
-
-            $('#search_siapproses').keyup(function () {
-                tableSiapProses.search($(this).val()).draw();
-            });
-
-            $('#packinglist-tab').click(function () {
-                refreshTablePackinglist1();
-                $('#tambah_packinglist').show();
-                $('#refresh_packinglist').show();
-            });
-
-            //Initialize();
-            //add by nurul 12/2/2019
-            //$('#datatable').on('page.dt', function () {
-            //    $page = $('#datatable').DataTable().page.info().page;
+            //refreshTablePackinglist1();
+            ////add by nurul 12/2/2019
+            //$page = 0;
+            ////end add by nurul 12/2/2019
+            //var tableSiapProses = $('#datatable_siapproses').DataTable({
+            //    columnDefs: [{
+            //        orderable: false,
+            //        className: 'select-checkbox',
+            //        targets: 0
+            //    }],
+            //    select: {
+            //        style: 'os',
+            //        selector: 'td:first-child'
+            //    }
             //});
-            //$('#datatable').DataTable().page($page).draw(false);
-            //end add by nurul 12/2/2019
 
-            $('#search_packinglist').keypress(function (e) {
-                var key = e.which;
-                if (key == 13)// the enter key code
-                {
-                    searchTablePackinglist1();
-                    return false;
+            //$('#search_siapproses').keyup(function () {
+            //    tableSiapProses.search($(this).val()).draw();
+            //});
+
+            //$('#packinglist-tab').click(function () {
+            //    refreshTablePackinglist1();
+            //    $('#tambah_packinglist').show();
+            //    $('#refresh_packinglist').show();
+            //});
+
+            ////Initialize();
+            ////add by nurul 12/2/2019
+            ////$('#datatable').on('page.dt', function () {
+            ////    $page = $('#datatable').DataTable().page.info().page;
+            ////});
+            ////$('#datatable').DataTable().page($page).draw(false);
+            ////end add by nurul 12/2/2019
+
+            //$('#search_packinglist').keypress(function (e) {
+            //    var key = e.which;
+            //    if (key == 13)// the enter key code
+            //    {
+            //        searchTablePackinglist1();
+            //        return false;
+            //    }
+            //});
+            //$('#search_packinglist_click').click(function () {
+            //    searchTablePackinglist1();
+            //});
+
+            //$('#tambah_packinglist').on('click', function () {
+            //    $modeEdit = 0;
+            //    refreshForm1();
+            //});
+
+            //remark by nurul 24/2/2021, pindah ke success nya refreshDashboardPacking
+            //$('#close-editor-1').on('click', function () {
+            //    if ($('#btn-simpan-perubahan-row').is(':visible')) {
+            //        $('#modalTutupEditor').modal('show');
+            //    } else {
+            //        $modeEdit = 0;
+            //        refreshTablePackinglist1();
+            //        $('input, select, .btn-danger').each(function () {
+            //            $(this).removeAttr('disabled');
+            //        });
+            //        $('.packinglist_editor_section').hide();
+            //        $('.packinglist_table_section').show();
+            //        $('.btn-danger').each(function () {
+            //            $(this).removeAttr('disabled');
+            //        });
+            //        //add by nurul 12/2/2019
+            //        //$('#datatable').on('page.dt', function () {
+            //        //    $page = $('#datatable').DataTable().page.info().page;
+            //        //});
+            //        //$('#datatable').DataTable().page($page).draw(false);
+            //        //end add by nurul 12/2/2019
+            //    }
+            //});
+
+            //var query = window.location.search.substring(1);
+            //var qs = parse_query_string(query);
+            ////alert(qs.nobuk);
+            //if (qs.nobuk != undefined) {
+            //    editPackinglist1(qs.nobuk, 1);
+            //}
+            //$('#modalPackingPesanan').on('hidden.bs.modal', function (e) {
+            //    CloseModalPacking();
+            //});
+            //$('#modalPickingBarang').on('hidden.bs.modal', function (e) {
+            //    CloseModalPicking();
+            //});
+            //end remark by nurul 24/2/2021, pindah ke success nya refreshDashboardPacking
+
+            //$('#pesanan_detail_tab_focus').click();
+
+            //add by nurul 23/2/2021
+            $('#DrTanggalDashboard').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+            $('#DrTanggalDashboard').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                $('#DrTanggalDashboard').val($('#DrTanggalDashboard').val());
+                $('#DrTanggalDashboard').datepicker('hide');
+                var splitDrTgl = $('#DrTanggalDashboard').val().split('/');
+                var getDrTgl = new Date(splitDrTgl[2], splitDrTgl[1] - 1, splitDrTgl[0]);
+                var splitSdTgl = $('#SdTanggalDashboard').val().split('/');
+                var getSdTgl = new Date(splitSdTgl[2], splitSdTgl[1] - 1, splitSdTgl[0]); 
+                if (getDrTgl > getSdTgl) {
+                    alert("Dari tanggal tidak boleh lebih dari S/d tanggal.");
+                } else{
+                    refreshDashboardPacking();
                 }
             });
-            $('#search_packinglist_click').click(function () {
-                searchTablePackinglist1();
-            });
+            $('#SdTanggalDashboard').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+            $('#SdTanggalDashboard').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                $('#SdTanggalDashboard').val($('#SdTanggalDashboard').val());
+                $('#SdTanggalDashboard').datepicker('hide');
+                refreshDashboardPacking();
+                });
+            refreshDashboardPacking();
 
-            $('#tambah_packinglist').on('click', function () {
-                $modeEdit = 0;
-                refreshForm1();
-            });
 
-            $('#close-editor-1').on('click', function () {
-                if ($('#btn-simpan-perubahan-row').is(':visible')) {
-                    $('#modalTutupEditor').modal('show');
-                } else {
-                    $modeEdit = 0;
-                    refreshTablePackinglist1();
-                    $('input, select, .btn-danger').each(function () {
-                        $(this).removeAttr('disabled');
-                    });
-                    $('.packinglist_editor_section').hide();
-                    $('.packinglist_table_section').show();
-                    $('.btn-danger').each(function () {
-                        $(this).removeAttr('disabled');
-                    });
-                    //add by nurul 12/2/2019
-                    //$('#datatable').on('page.dt', function () {
-                    //    $page = $('#datatable').DataTable().page.info().page;
-                    //});
-                    //$('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
-                }
-            });
-
-            var query = window.location.search.substring(1);
-            var qs = parse_query_string(query);
-            //alert(qs.nobuk);
-            if (qs.nobuk != undefined) {
-                editPackinglist1(qs.nobuk, 1);
-            }
-            $('#modalPackingPesanan').on('hidden.bs.modal', function (e) {
-                CloseModalPacking();
-            });
-            $('#modalPickingBarang').on('hidden.bs.modal', function (e) {
-                CloseModalPicking();
-            });
-
-                $('#pesanan_detail_tab_focus').click();
+            //end add by nurul 23/2/2021
 
         });
 
@@ -807,9 +872,10 @@
                     if (tab == 2) {
                         $('#rekap_barang_tab_focus').click();
                     }
-                    
+
                 },
                 error: function (xhr, status, error) {
+                    $('#loading_spinner').hide();
                     console.log(error);
                 }
             });
@@ -1316,6 +1382,363 @@
                 }
             });
         }
+
+
+        //add by nurul 23/2/2021
+        function get_filterby() {
+            return $('#filter_barang_field').val();
+        }
+        function get_filtervalue(filterby) {
+            var filtervalue = "";
+            switch (filterby) {
+                case "kode":
+                    filtervalue = $('#filter_barang_field_urutan').val();
+                    break;
+                case "nama":
+                    filtervalue = $('#filter_barang_field_urutan').val();
+                    break;
+                case "rak":
+                    filtervalue = $('#filter_barang_field_urutan').val();
+                    break;
+                case "qty":
+                    filtervalue = $('#filter_barang_field_qty').val();
+                    break;
+                default:
+                    break;
+            }
+            return filtervalue;
+        }
+
+        function searchTableRekapBarang(){
+            var $link = '@Html.Raw(Url.Action("refreshTablePackinglistRekapBrg", "Manage", new { take = "replaceLastTake", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter", drTgl = "replacedrTgl", sdTgl = "replacesdTgl" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_rekapbarang').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordBarang').val()));
+            var filterby = get_filterby();
+            var filtervalue = get_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            $link = $link.replace("replacedrTgl", encodeURIComponent($('#DrTanggalDashboard').val()));
+            $link = $link.replace("replacesdTgl", encodeURIComponent($('#SdTanggalDashboard').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_rekapbarang_click')[0].disabled = true;
+                    $('#loading_rekapbarang_tab').show();
+                },
+                success: function (response) {
+                    $('#search_rekapbarang_click')[0].disabled = false;
+                    $('#table-rekapbarang-partial').html(response);
+                    $('#loading_rekapbarang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_rekapbarang_click')[0].disabled = false;
+                    $('#loading_rekapbarang_tab').hide();
+                    console.log(error);
+                }
+            });
+        }
+
+        function refreshTableRekapBarang($pageAwal) {
+            var $setPage = "";
+            if ($pageAwal != undefined) {
+                $setPage = $pageAwal;
+            } else {
+                $setPage = $('#txt_last_page_2').val();
+            }
+            var $link = '@Html.Raw(Url.Action("refreshTablePackinglistRekapBrg", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter", drTgl = "replacedrTgl", sdTgl = "replacesdTgl" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_rekapbarang').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($setPage));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordBarang').val()));
+            var filterby = get_filterby();
+            var filtervalue = get_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            $link = $link.replace("replacedrTgl", encodeURIComponent($('#DrTanggalDashboard').val()));
+            $link = $link.replace("replacesdTgl", encodeURIComponent($('#SdTanggalDashboard').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-rekapbarang-partial').hide();
+                    $('#loading_rekapbarang_tab').show();
+                },
+                success: function (response) {
+                    $('#table-rekapbarang-partial').html(response);
+                    $('#table-rekapbarang-partial').show();
+                    $('#loading_rekapbarang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_rekapbarang_tab').hide();
+                    console.log(error);
+                }
+            });
+        }
+
+
+        function searchTablePackingList2(){
+            var $link = '@Html.Raw(Url.Action("refreshTablePackinglistV2", "Manage", new { take = "replaceLastTake", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter", drTgl = "replacedrTgl", sdTgl = "replacesdTgl" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_packing2list').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordPacking').val()));
+            $link = $link.replace("replacedrTgl", encodeURIComponent($('#DrTanggalDashboard').val()));
+            $link = $link.replace("replacesdTgl", encodeURIComponent($('#SdTanggalDashboard').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_packing2list_click')[0].disabled = true;
+                    $('#loading_packinglist_tab').show();
+                },
+                success: function (response) {
+                    $('#search_packing2list_click')[0].disabled = false;
+                    $('#table-packinglist2-partial').html(response);
+                    $('#loading_packinglist_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_packing2list_click')[0].disabled = false;
+                    $('#loading_packinglist_tab').hide();
+                    console.log(error);
+                }
+            });
+        }
+
+        function refreshTablePackingList2() {
+            var $link = '@Html.Raw(Url.Action("refreshTablePackinglistV2", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch", drTgl = "replacedrTgl", sdTgl = "replacesdTgl" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_packing2list').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordPacking').val()));
+            $link = $link.replace("replacedrTgl", encodeURIComponent($('#DrTanggalDashboard').val()));
+            $link = $link.replace("replacesdTgl", encodeURIComponent($('#SdTanggalDashboard').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-packinglist2-partial').hide();
+                    $('#loading_packinglist_tab').show();
+                },
+                success: function (response) {
+                    $('#table-packinglist2-partial').html(response);
+                    $('#table-packinglist2-partial').show();
+                    $('#loading_packinglist_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_packinglist_tab').hide();
+                    console.log(error);
+                }
+            });
+        }
+
+        function refreshDashboardPacking() {
+            var $link = '@Html.Raw(Url.Action("PackinglistDashboard", "Manage", new { drTgl = "replacedrTgl", sdTgl = "replacesdTgl" }))';
+            $link = $link.replace("replacedrTgl", encodeURIComponent($('#DrTanggalDashboard').val()));
+            $link = $link.replace("replacesdTgl", encodeURIComponent($('#SdTanggalDashboard').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-packinglist-partial-view-mode').hide();
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#table-packinglist-partial-view-mode').html(response);
+                    $('#table-packinglist-partial-view-mode').show();
+                    $('#loading_spinner').hide();
+                    refreshTablePackingList2();
+
+
+                    $('#close-editor-1').on('click', function () {
+                        if ($('#btn-simpan-perubahan-row').is(':visible')) {
+                            $('#modalTutupEditor').modal('show');
+                        } else {
+                            $modeEdit = 0;
+                            refreshTablePackinglist1();
+                            $('input, select, .btn-danger').each(function () {
+                                $(this).removeAttr('disabled');
+                            });
+                            $('.packinglist_editor_section').hide();
+                            $('.packinglist_table_section').show();
+                            $('.btn-danger').each(function () {
+                                $(this).removeAttr('disabled');
+                            });
+                            //add by nurul 12/2/2019
+                            //$('#datatable').on('page.dt', function () {
+                            //    $page = $('#datatable').DataTable().page.info().page;
+                            //});
+                            //$('#datatable').DataTable().page($page).draw(false);
+                            //end add by nurul 12/2/2019
+                        }
+                    });
+
+                    var query = window.location.search.substring(1);
+                    var qs = parse_query_string(query);
+                    //alert(qs.nobuk);
+                    if (qs.nobuk != undefined) {
+                        editPackinglist1(qs.nobuk, 1);
+                    }
+                    $('#modalPackingPesanan').on('hidden.bs.modal', function (e) {
+                        CloseModalPacking();
+                    });
+                    $('#modalPickingBarang').on('hidden.bs.modal', function (e) {
+                        CloseModalPicking();
+                    });
+
+
+                    $('#search_packing2list').keypress(function (e) {
+                        var key = e.which;
+                        if (key == 13)// the enter key code
+                        {
+                            searchTablePackingList2();
+                            return false;
+                        }
+                    });
+                    $('#search_packing2list_click').click(function () {
+                        searchTablePackingList2();
+                    });
+                    $('#packinglist-tab').click(function () {
+                        refreshTablePackingList2();
+                    });
+
+
+                    $('#search_rekapbarang').keypress(function (e) {
+                        var key = e.which;
+                        if (key == 13)// the enter key code
+                        {
+                            searchTableRekapBarang();
+                            return false;
+                        }
+                    });
+                    $('#search_rekapbarang_click').click(function () {
+                        searchTableRekapBarang();
+                    });
+                    $('#rekapbarang-tab').click(function () {
+                        refreshTableRekapBarang();
+                    });
+
+
+                    //$('#filter_barang_field').change(function () {
+                    //    var filterBy = $(this).val();
+                    //    $('#filter_barang_field_urutan_div').show();
+                    //    if (filterBy != "Harap Pilih" && $('#filter_barang_field_urutan').val() != "Harap Pilih") {
+                    //        searchTableRekapBarang();
+                    //    }
+
+                    //});
+                    //$('#filter_barang_field_urutan').change(function () {
+                    //    if ($('#filter_barang_field').val() != "Harap Pilih" && $('#filter_barang_field_urutan').val() != "Harap Pilih") {
+                    //        searchTableRekapBarang();
+                    //    }
+                    //});
+                    
+                    $('#filter_barang_field').change(function () {
+                        var filterBy = $(this).val();
+                        switch (filterBy) {
+                            case "kode":
+                                $('#filter_barang_field_urutan_div').show();
+                                $('#filter_barang_field_qty_div').hide();
+                                $('#filter_barang_field_urutan').val('Harap Pilih');
+                                break;
+                            case "nama":
+                                $('#filter_barang_field_urutan_div').show();
+                                $('#filter_barang_field_qty_div').hide();
+                                $('#filter_barang_field_urutan').val('Harap Pilih');
+                                break;
+                            case "rak":
+                                $('#filter_barang_field_urutan_div').show();
+                                $('#filter_barang_field_qty_div').hide();
+                                $('#filter_barang_field_urutan').val('Harap Pilih');
+                                break;
+                            case "qty":
+                                $('#filter_barang_field_urutan_div').hide();
+                                $('#filter_barang_field_qty_div').show();
+                                $('#filter_barang_field_qty').val('Harap Pilih');
+                                break;
+                            default:
+                                $('#filter_barang_field_urutan_div').hide();
+                                $('#filter_barang_field_qty_div').hide();
+                                break;
+                        }
+                    });
+                    $('#filter_barang_field_urutan').change(function () {
+                        if ($('#filter_barang_field_urutan').val() != "Harap Pilih" && $('#filter_barang_field').val() != "Harap Pilih") {
+                            searchTableRekapBarang();
+                        }
+                    });
+                    $('#filter_barang_field_qty').change(function () {
+                        if ($('#filter_barang_field_qty').val() != "Harap Pilih" && $('#filter_barang_field').val() != "Harap Pilih") {
+                            searchTableRekapBarang();
+                        }
+                    });
+                    $('#filter_barang_field').val('Harap Pilih').change();
+
+                    $('#TakeRecordPacking').change(function () {
+                        refreshTablePackingList2("1");
+                    });
+
+                    $('#TakeRecordBarang').change(function () {
+                        refreshTableRekapBarang("1");
+                    });
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_spinner').hide();
+                    console.log(error);
+                }
+            });
+        }
+
+        function DownloadExcelRekapBarang() {
+            $('#loading_spinner').show();
+            var filterby = get_filterby();
+            var filtervalue = get_filtervalue(filterby);
+            var link = '@Html.Raw(Url.Action("ListRekapBarangToExcel", "TransferExcel"))';
+            link += "?search=" + encodeURIComponent($('#search_rekapbarang').val()) + "&filter=" + encodeURIComponent(filterby) + "&filtervalue=" + encodeURIComponent(filtervalue) + "&drTgl=" + encodeURIComponent($('#DrTanggalDashboard').val()) + "&sdTgl=" + encodeURIComponent($('#SdTanggalDashboard').val());
+            
+            $.ajax({
+                xhr: function () {
+                    var xhr = $.ajaxSettings.xhr();
+                    xhr.onprogress = function (evt) {
+                        if (evt.lengthComputable) {
+                            $('#loading_spinner').hide();
+                        }
+                        $('#loading_spinner').hide();
+                    };
+                    return xhr;
+                },
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (response) {
+                    $('#loading_spinner').hide();
+                    if (response.Errors.length == 0) {
+                        var bytes = new Uint8Array(response.byteExcel);
+                        saveByteArrayDownload(response.namaFile, bytes);
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function saveByteArrayDownload(reportName, byte) {
+            var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            //document.body.appendChild(link);
+            link.click();
+            //document.body.removeChild(link);
+        };
+        //end add by nurul 23/2/2021
     </script>
     <script>
         //Disable Enter Key Submit Form

@@ -64,6 +64,10 @@ namespace MasterOnline
         public string NO_BUKTI { get; set; }
         public DateTime? TGL { get; set; }
 
+        public string BRG { get; set; }
+        public string NAMA_BARANG { get; set; }
+        public string RAK { get; set; }
+        public int? QTY { get; set; }
     }
 
     //add by nurul 20/11/2019

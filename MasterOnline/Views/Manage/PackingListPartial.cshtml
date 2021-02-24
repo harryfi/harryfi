@@ -6,7 +6,7 @@
     string currentSort = ViewBag.CurrentSort;
 }
 <style>
-    #loading_promosi_tab {
+    #loading_packinglist_tab {
         display: none;
         width: 100%;
         height: 100%;
@@ -19,7 +19,7 @@
         background-color: rgba(0,0,0,0);
     }
 
-    #loading_promosi_tab_image {
+    #loading_packinglist_tab_image {
         width: 20px;
         height: 20px;
         margin-top: -90px;
@@ -49,7 +49,7 @@
         }
     }
 </style>
-<div id="loading_promosi_tab">
+<div id="loading_packinglist_tab">
     <div id="loading_packinglist_tab_image">
         <img src="~/Content/Images/spinner.gif" />
     </div>
@@ -97,19 +97,20 @@
     @if (Model.PageCount > 1)
     {
         <div id="tabelpackinglistpartialpager" class="pager">
-            @Html.PagedListPager(Model, page => Url.Action("RefreshTablePackinglist", new
-            {
-                page,
-                search = ViewData["searchParam"]
-            }),
-                      new PagedListRenderOptions
-                      {
-                          LinkToFirstPageFormat = "<<",
-                          LinkToPreviousPageFormat = "prev",
-                          LinkToNextPageFormat = "next",
-                          LinkToLastPageFormat = ">>",
-                          DisplayEllipsesWhenNotShowingAllPageNumbers = false
-                      })
+            @Html.PagedListPager(Model, page => Url.Action("RefreshTablePackinglistV2", new
+       {
+           page,
+           search = ViewData["searchParam"],
+           take = ViewData["takeRecord"],
+       }),
+                       new PagedListRenderOptions
+                       {
+                           LinkToFirstPageFormat = "<<",
+                           LinkToPreviousPageFormat = "prev",
+                           LinkToNextPageFormat = "next",
+                           LinkToLastPageFormat = ">>",
+                           DisplayEllipsesWhenNotShowingAllPageNumbers = false
+                       })
             Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
 
         </div>
@@ -133,16 +134,26 @@
     $(function () {
         $('#tabelpackinglistpartialpager').on('click', 'a', function () {
             if (this.href != "") {
+                var filterby = get_filterby();
+                var filtervalue = get_filtervalue(filterby);
+                var $link = this.href;
+                $link += "&filter=replaceFilter&filtervalue=replaceValueFilter&drTgl=replacedrTgl&sdTgl=replacesdTgl";
+                $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+                $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+                $link = $link.replace("replacedrTgl", encodeURIComponent($('#DrTanggalDashboard').val()));
+                $link = $link.replace("replacesdTgl", encodeURIComponent($('#SdTanggalDashboard').val()));
+
                 $.ajax({
-                    url: this.href,
+                    url: $link,
                     type: 'GET',
                     cache: false,
                     beforeSend: function () {
-                        $('#loading_packinglist_tab_image').show();
+                        $('#loading_packinglist_tab').show();
+                        $('#table-packinglist2-partial').html('');
                     },
                     success: function (response) {
-                        $('#table-packinglist-partial').html(response);
-                        $('#loading_packinglist_tab_image').hide();
+                        $('#table-packinglist2-partial').html(response);
+                        $('#loading_packinglist_tab').hide();
                     }
                 });
             }

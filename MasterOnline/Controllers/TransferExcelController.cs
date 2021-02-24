@@ -4064,6 +4064,166 @@ namespace MasterOnline.Controllers
         }
         //END ADD BY NURUL 23/7/2020
 
+        //add by nurul 24/2/2021
+        public ActionResult ListRekapBarangToExcel(string search, string filter, string filtervalue, string drTgl, string sdTgl)
+        {
+            var ret = new BindDownloadExcel
+            {
+                Errors = new List<string>()
+            };
+
+            try
+            {
+                using (var package = new OfficeOpenXml.ExcelPackage())
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Rekap Barang");
+                    var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+                        System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+                    var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+                        System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+                    var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+                    var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
+
+                    string[] getkata = search.Split(' ');
+                    string sSQLnama = "";
+                    string sSQLkode = "";
+                    string sSQLrak = "";
+                    if (getkata.Length > 0)
+                    {
+                        if (search != "")
+                        {
+                            for (int i = 0; i < getkata.Length; i++)
+                            {
+                                if (i > 0)
+                                {
+                                    sSQLkode += " and ";
+                                    sSQLnama += " and ";
+                                    sSQLrak += " and ";
+                                }
+
+                                sSQLkode += " ( A.BRG like '%" + getkata[i] + "%' ) ";
+                                sSQLnama += "  ( (ISNULL(B.NAMA,'') + ' ' + ISNULL(B.NAMA2,'')) like '%" + getkata[i] + "%' ) ";
+                                sSQLrak += " ( B.LKS like '%" + getkata[i] + "%' ) ";
+                            }
+                        }
+                    }
+
+                    string sSQL = "";
+                    sSQL += "SELECT A.BRG, (ISNULL(B.NAMA,'') + ' ' + ISNULL(B.NAMA2,'')) AS NAMA_BARANG, ISNULL(sum(ISNULL(QTY,0)),0) QTY, ISNULL(B.LKS,'') as RAK ";
+                    sSQL += "from SOT03A C(NOLOCK) INNER JOIN SOT03C A(NOLOCK) ON A.NO_BUKTI=C.NO_BUKTI INNER JOIN STF02 B(NOLOCK) ON A.BRG = B.BRG ";
+                    sSQL += "LEFT JOIN SOT01A D(NOLOCK) ON A.NO_PESANAN=D.NO_BUKTI ";
+                    sSQL += "WHERE C.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND ISNULL(D.STATUS,'') <> '2' AND ISNULL(STATUS_KIRIM,'') <> '5' ";
+                    if (search != "")
+                    {
+                        sSQL += " AND ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLrak + " ) ";
+                    }
+                    var sSQLGrouping = "GROUP BY A.BRG, B.NAMA, B.NAMA2, B.LKS ";
+                    string ssqlOrder = "";
+                    switch (filter)
+                    {
+                        case "kode":
+                            {
+                                ssqlOrder += "order by A.BRG ";
+                            }
+                            break;
+                        case "nama":
+                            {
+                                ssqlOrder += "order by (ISNULL(B.NAMA,'') + ' ' + ISNULL(B.NAMA2,'')) ";
+                            }
+                            break;
+                        case "rak":
+                            {
+                                ssqlOrder += "order by B.LKS ";
+                            }
+                            break;
+                        case "qty":
+                            {
+                                ssqlOrder += "order by sum(QTY) ";
+                            }
+                            break;
+                        default:
+                            {
+                                ssqlOrder += "order by B.LKS ";
+                            }
+                            break;
+                    }
+                    if (filtervalue == "desc")
+                    {
+                        ssqlOrder += " DESC ";
+                    }
+                    else if (filtervalue == "asc")
+                    {
+                        ssqlOrder += " ASC ";
+                    }
+                    else
+                    {
+                        ssqlOrder += ", A.BRG ASC ";
+                    }
+                    var lsRekapBrg = EDB.GetDataSet("CString", "SO", sSQL + sSQLGrouping + ssqlOrder);
+                    if (lsRekapBrg.Tables[0].Rows.Count > 0)
+                    {
+                        worksheet.Cells["A1"].Value = "REKAP BARANG";
+                        worksheet.Cells["A2"].Value = "Dari Tanggal    : " + Drtgl.ToString("dd/MM/yyyy");
+                        worksheet.Cells["A3"].Value = "S/d Tanggal      : " + Sdtgl.ToString("dd/MM/yyyy");
+                        for (int i = 0; i < lsRekapBrg.Tables[0].Rows.Count; i++)
+                        {
+                            worksheet.Cells[6 + i, 1].Value = lsRekapBrg.Tables[0].Rows[i]["BRG"];
+                            worksheet.Cells[6 + i, 2].Value = lsRekapBrg.Tables[0].Rows[i]["NAMA_BARANG"];
+                            worksheet.Cells[6 + i, 3].Value = lsRekapBrg.Tables[0].Rows[i]["RAK"];
+                            worksheet.Cells[6 + i, 4].Value = lsRekapBrg.Tables[0].Rows[i]["QTY"];
+                        }
+                        ExcelRange rg0 = worksheet.Cells[5, 1, worksheet.Dimension.End.Row, 4];
+                        string tableName0 = "TableRekapBarang";
+                        ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+
+                        table0.Columns[0].Name = "KODE BARANG";
+                        table0.Columns[1].Name = "NAMA BARANG";
+                        table0.Columns[2].Name = "LOKASI RAK";
+                        table0.Columns[3].Name = "QTY";
+
+                        using (var range = worksheet.Cells[5, 1, 5, 4])
+                        {
+                            range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                            range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                            range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                            range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        }
+
+                        table0.ShowHeader = true;
+                        table0.ShowFilter = true;
+                        table0.ShowRowStripes = false;
+                        worksheet.Cells.AutoFitColumns(0);
+
+                        ret.byteExcel = package.GetAsByteArray();
+                        ret.namaFile = username + "_RekapBarang_" + Drtgl.ToString("dd-MM-yyyy") + "_To_" + Sdtgl.ToString("dd-MM-yyyy") + ".xlsx";
+
+                    }
+                    else
+                    {
+                        ret.Errors.Add("Tidak ada data rekap barang");
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+            }
+
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+
+            return result;
+
+        }
+        //end add by nurul 24/2/2021
+
         public ActionResult DownloadExcelHJual(string cust)
         {
             var ret = new BindDownloadExcel
